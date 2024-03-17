@@ -4,11 +4,11 @@ extends: Entity
 category: edits
 abstract: true
 description: Abstract base type for nodes that indicate a suggested change to content.
-$comment: |
-  Note that at present this type does not have a `suggester` property to identify the
-  actor (`Person`, `Organization`, or `SoftwareApplication`) which suggested the change.
-  That is because, the creator of a `Suggestion` node is inherently the suggester and 
-  will be identifiable from the node's id.
-  
-  The suggester will normally be amongst the `authors`, `contributors`, or `maintainers`
-  of the `CreativeWork`.
+core:
+  - suggestionStatus
+properties:
+  suggestionStatus:
+    '@id': stencila:suggestionStatus
+    description: The status of the suggestion including whether it is proposed, accepted, or rejected.
+    strip: [metadata]
+    $ref: SuggestionStatus

@@ -5,19 +5,19 @@
   "content": [
     {
       "type": "CodeChunk",
-      "code": "const items = [1, 2, 3]",
+      "code": "var items = [1, 2, 3]",
       "programmingLanguage": "node",
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300037476,
+        "value": 1710463237307,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 319,
+        "value": 248,
         "timeUnit": "Millisecond"
       }
     },
@@ -60,12 +60,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300037489,
+                    "value": 1710463237313,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 2,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -93,12 +93,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300037495,
+                    "value": 1710463237315,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 2,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -126,12 +126,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300037501,
+                    "value": 1710463237318,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 3,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -146,12 +146,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300037504,
+        "value": 1710463237319,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 28,
+        "value": 12,
         "timeUnit": "Millisecond"
       }
     }
@@ -161,12 +161,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300037504,
+    "value": 1710463237319,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 348,
+    "value": 260,
     "timeUnit": "Millisecond"
   }
 }

@@ -14,8 +14,10 @@ import os
 import resource
 import sys
 import traceback
+import types
 import warnings
-from typing import Any, Literal, TypedDict, Union
+from dataclasses import dataclass, field
+from typing import Any, Callable, Literal, Optional, TypedDict, Union, get_type_hints
 
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
@@ -100,8 +102,22 @@ class SoftwareSourceCode(TypedDict):
     programming_language: str
 
 
+class Variable(TypedDict):
+    type: Literal["Variable"]
+    name: str
+    programming_language: Literal["Python"]
+    native_type: str
+    node_type: str
+    hint: Any
+    native_hint: Optional[str]
+
+
 STENCILA_LEVEL = Union[
-    Literal["Exception"], Literal["Error"], Literal["Warning"], Literal["Info"]
+    Literal["Exception"],
+    Literal["Error"],
+    Literal["Warning"],
+    Literal["Info"],
+    Literal["Debug"],
 ]
 
 
@@ -117,18 +133,18 @@ class ExecutionMessage(TypedDict, total=False):
 DEV_MODE = os.getenv("DEV") == "true"
 
 # Define constants based on development status
-READY = "READY" if DEV_MODE else "\U0010ACDC"
-LINE = "|" if DEV_MODE else "\U0010ABBA"
-EXEC = "EXEC" if DEV_MODE else "\U0010B522"
-EVAL = "EVAL" if DEV_MODE else "\U001010CC"
-FORK = "FORK" if DEV_MODE else "\U0010DE70"
-INFO = "INFO" if DEV_MODE else "\U0010EE15"
-PKGS = "PKGS" if DEV_MODE else "\U0010BEC4"
-LIST = "LIST" if DEV_MODE else "\U0010C155"
-GET = "GET" if DEV_MODE else "\U0010A51A"
+READY = "READY" if DEV_MODE else "\U0010acdc"
+LINE = "|" if DEV_MODE else "\U0010abba"
+EXEC = "EXEC" if DEV_MODE else "\U0010b522"
+EVAL = "EVAL" if DEV_MODE else "\U001010cc"
+FORK = "FORK" if DEV_MODE else "\U0010de70"
+INFO = "INFO" if DEV_MODE else "\U0010ee15"
+PKGS = "PKGS" if DEV_MODE else "\U0010bec4"
+LIST = "LIST" if DEV_MODE else "\U0010c155"
+GET = "GET" if DEV_MODE else "\U0010a51a"
 SET = "SET" if DEV_MODE else "\U00107070"
-REMOVE = "REMOVE" if DEV_MODE else "\U0010C41C"
-END = "END" if DEV_MODE else "\U0010CB40"
+REMOVE = "REMOVE" if DEV_MODE else "\U0010c41c"
+END = "END" if DEV_MODE else "\U0010cb40"
 
 # Try to get the maximum number of file descriptors the process can have open
 # SC_OPEN_MAX "The maximum number of files that a process can have open at any
@@ -148,17 +164,17 @@ except Exception:
 # 1. Install logging handler to write to stderr.
 # 2. Install a formatter to write log records as Stencila's `ExecutionMessage` format.
 # 3. Install a warnings handler to write warnings to stderr via logging.
-#
 LOGGING_TO_STENCILA: dict[str, STENCILA_LEVEL] = {
     "CRITICAL": "Exception",
     "ERROR": "Error",
     "WARNING": "Warning",
     "INFO": "Info",
+    "DEBUG": "Debug",
 }
 
 
 class StencilaFormatter(logging.Formatter):
-    def format(self, record: logging.LogRecord) -> str:  # noqa: ANN101
+    def format(self, record: logging.LogRecord) -> str:
         """Convert log record to JSON format."""
         if hasattr(record, "warning_details"):
             error_type = record.warning_details["category"]  # type: ignore
@@ -171,10 +187,7 @@ class StencilaFormatter(logging.Formatter):
             "message": record.getMessage(),
             "errorType": error_type,
         }
-        # Include additional warning details if present
-        # if hasattr(record, "warning_details"):
-        #     log_message.update(record.warning_details)
-        return json.dumps(em)
+        return json.dumps(em) + END
 
 
 # Configure handler to write to stderr
@@ -204,6 +217,24 @@ def log_warning(message, category, filename, lineno, file=None, line=None) -> No
 
 
 warnings.showwarning = log_warning
+
+
+@dataclass
+class NativeHint:
+    """A helper class for building up a native hint"""
+
+    parts: list[str] = field(default_factory=list)
+
+    def push_head(self, part: str) -> None:
+        self.parts.append("")
+        self.parts.append(part)
+
+    def push_data(self, part: str) -> None:
+        """Note that the string here might have newlines in it"""
+        self.parts.append(part)
+
+    def to_string(self) -> str:
+        return "\n".join(self.parts)
 
 
 # Custom serialization and hints for numpy
@@ -339,6 +370,17 @@ try:
 
         return pd.DataFrame(data)
 
+    def get_native_pandas_hint(value: pd.DataFrame) -> str:
+        nh = NativeHint()
+        nh.push_head("The dtypes of the Dataframe are:")
+        nh.push_data(repr(value.dtypes))
+        nh.push_head("The first few rows of the Dataframe are:")
+        nh.push_data(repr(value.head(3)))
+        nh.push_head("`describe` returns:")
+        nh.push_data(repr(value.describe()))
+
+        return nh.to_string()
+
 except ImportError:
     PANDAS_AVAILABLE = False
 
@@ -416,7 +458,7 @@ def to_json(obj: Any) -> str:
     try:
         return json.dumps(obj)
     except:  # noqa: E722
-        return str(obj) # Fall back to serializing as a JSON string
+        return str(obj)  # Fall back to serializing as a JSON string
 
 
 # Deserialize a Python object from JSON
@@ -424,7 +466,7 @@ def from_json(string: str) -> Any:
     try:
         obj = json.loads(string)
     except:  # noqa: E722
-        return string # Fall back to deserializing as a string
+        return string  # Fall back to deserializing as a string
 
     if isinstance(obj, dict):
         typ = obj.get("type")
@@ -515,19 +557,21 @@ def get_packages() -> None:
 # List variables in the CONTEXT
 def list_variables() -> None:
     for name, value in CONTEXT.items():
-        if name == "print":
+        if name in ("__builtins__", "print") or isinstance(value, types.ModuleType):
             continue
 
         native_type = type(value).__name__
         node_type, hint = determine_type_and_hint(value)
+        native_hint = determine_native_hint(value)
 
-        variable = {
+        variable: Variable = {
             "type": "Variable",
             "name": name,
-            "programmingLanguage": "Python",
-            "nativeType": native_type,
-            "nodeType": node_type,
+            "programming_language": "Python",
+            "native_type": native_type,
+            "node_type": node_type,
             "hint": hint,
+            "native_hint": native_hint,
         }
 
         sys.stdout.write(json.dumps(variable) + END + "\n")
@@ -571,6 +615,37 @@ def determine_type_and_hint(value: Any) -> tuple[str, Any]:
         )
 
     return "Object", {"type": "Unknown"}
+
+
+def get_native_callable_hint(value: Callable) -> str:
+    nh = NativeHint()
+    try:
+        # get_type_hints is a bit unreliable, but we'll try it.
+        th = get_type_hints(value)
+        nh.push_head("The function is described by `get_types_hints` as:")
+        nh.push_data(str(th))
+    except Exception:
+        pass
+
+    doc = value.__doc__
+    if doc:
+        nh.push_head("The docstring of the function is:")
+        nh.push_data(doc)
+
+    return nh.to_string()
+
+
+def determine_native_hint(value: Any) -> str:
+    if isinstance(value, Callable):
+        return get_native_callable_hint(value)
+    if PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
+        return get_native_pandas_hint(value)
+
+    # Default (which works fine with many types)
+    nh = NativeHint()
+    nh.push_head("The `repr` of this value is:")
+    nh.push_data(repr(value))
+    return nh.to_string()
 
 
 # Get a variable

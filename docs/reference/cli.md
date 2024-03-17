@@ -357,6 +357,30 @@ Execute a document
 ###### **Options:**
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
+* `--skip-code` — Skip executing code
+
+  Possible values: `true`, `false`
+
+* `--skip-instructions` — Skip executing instructions
+
+  Possible values: `true`, `false`
+
+* `--force-unreviewed` — Re-execute instructions with suggestions that have not yet been reviewed
+
+  Possible values: `true`, `false`
+
+* `--force-accepted` — Re-execute instructions with suggestions that have been accepted
+
+  Possible values: `true`, `false`
+
+* `--skip-rejected` — Skip re-executing instructions with suggestions that have been rejected
+
+  Possible values: `true`, `false`
+
+* `--dry-run` — Prepare, but do not actually perform, execution tasks
+
+  Possible values: `true`, `false`
+
 
 
 

@@ -46,6 +46,7 @@ use super::review::Review;
 use super::section_type::SectionType;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
+use super::suggestion_status::SuggestionStatus;
 use super::table::Table;
 use super::table_cell_type::TableCellType;
 use super::table_row_type::TableRowType;
@@ -144,6 +145,8 @@ pub enum ThingType {
     SoftwareApplication(SoftwareApplication),
 
     SoftwareSourceCode(SoftwareSourceCode),
+
+    SuggestionStatus(SuggestionStatus),
 
     Table(Table),
 

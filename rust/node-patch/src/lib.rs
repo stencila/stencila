@@ -7,7 +7,7 @@ use node_store::{
 };
 use schema::{
     Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, Section,
-    SuggestionBlockType, Timestamp,
+    SuggestionBlockType, SuggestionInlineType, Timestamp,
 };
 
 /// Replace a property of a node with a value
@@ -102,6 +102,7 @@ pub struct ReplaceProperty {
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub enum Property {
+    CompilationMessages,
     Content,
     ExecutionCount,
     ExecutionDuration,
@@ -109,8 +110,11 @@ pub enum Property {
     ExecutionMessages,
     ExecutionRequired,
     ExecutionStatus,
+    InstructionStatus,
     IsActive,
     Iterations,
+    #[strum(serialize = "mathml")]
+    MathMl,
     Output,
     Outputs,
     Suggestion,
@@ -221,6 +225,17 @@ impl From<SuggestionBlockType> for Value {
             SuggestionBlockType::ModifyBlock(block) => Node::ModifyBlock(block),
             SuggestionBlockType::ReplaceBlock(block) => Node::ReplaceBlock(block),
             SuggestionBlockType::DeleteBlock(block) => Node::DeleteBlock(block),
+        })
+    }
+}
+
+impl From<SuggestionInlineType> for Value {
+    fn from(value: SuggestionInlineType) -> Self {
+        Value::One(match value {
+            SuggestionInlineType::InsertInline(block) => Node::InsertInline(block),
+            SuggestionInlineType::ModifyInline(block) => Node::ModifyInline(block),
+            SuggestionInlineType::ReplaceInline(block) => Node::ReplaceInline(block),
+            SuggestionInlineType::DeleteInline(block) => Node::DeleteInline(block),
         })
     }
 }

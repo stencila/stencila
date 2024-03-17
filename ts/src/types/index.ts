@@ -160,6 +160,7 @@ export * from "./SuggestionBlock.js";
 export * from "./SuggestionBlockType.js";
 export * from "./SuggestionInline.js";
 export * from "./SuggestionInlineType.js";
+export * from "./SuggestionStatus.js";
 export * from "./Superscript.js";
 export * from "./Table.js";
 export * from "./TableCell.js";

@@ -159,6 +159,7 @@ from ._suggestion_block import SuggestionBlock
 from ._suggestion_block_type import SuggestionBlockType
 from ._suggestion_inline import SuggestionInline
 from ._suggestion_inline_type import SuggestionInlineType
+from ._suggestion_status import SuggestionStatus
 from ._superscript import Superscript
 from ._table import Table
 from ._table_cell import TableCell
@@ -342,6 +343,7 @@ __all__ = [
     'SuggestionBlockType',
     'SuggestionInline',
     'SuggestionInlineType',
+    'SuggestionStatus',
     'Superscript',
     'Table',
     'TableCell',

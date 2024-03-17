@@ -7,7 +7,6 @@
 
 use std::{fs::read_to_string, sync::Arc};
 
-use assistant::{GenerateContent, Nodes};
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
 use minijinja::{Environment, UndefinedBehavior};
@@ -15,7 +14,7 @@ use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
 use assistant::common::eyre;
-use assistant::schema::{Block, CodeBlock, Cord, MessagePart, NodeType};
+use assistant::schema::{MessagePart, NodeType};
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -24,7 +23,6 @@ use assistant::{
         glob::glob,
         inflector::Inflector,
         itertools::Itertools,
-        once_cell::sync::Lazy,
         regex::Regex,
         serde::{de::Error, Deserialize, Deserializer, Serialize},
         serde_yaml, tracing,
@@ -34,6 +32,12 @@ use assistant::{
     schema::InstructionMessage,
     Assistant, AssistantIO, Embeddings, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
     InstructionType,
+};
+
+mod jinja;
+use jinja::{
+    describe_variable, insert_code_chunk_shots, insert_math_block_shots, minijinja_error_to_eyre,
+    to_markdown, trim_end_chars, trim_start_chars,
 };
 
 /// Default preference rank
@@ -50,18 +54,20 @@ const PREFERENCE_RANK: u8 = 50;
 /// that will usually be preferred.
 const DELEGATES: &[&str] = &[
     // Text-to-text
+    "openai/gpt-4-0125-preview",
     "openai/gpt-4-1106-preview",
+    "google/gemini-1.0-pro-latest",
     "openai/gpt-4-0613",
     "openai/gpt-4-0314",
+    "mistral/mistral-large-latest",
     "anthropic/claude-2.1",
     "anthropic/claude-2.0",
     "anthropic/claude-instant-1.2",
-    "mistral/mistral-medium",
-    "google/gemini-pro",
+    "mistral/mistral-medium-latest",
     "openai/gpt-3.5-turbo-1106",
     "openai/gpt-3.5-turbo-0613",
     "openai/gpt-3.5-turbo-0301",
-    "mistral/mistral-small",
+    "mistral/mistral-small-latest",
     "mistral/mistral-tiny",
     "ollama/llama2:latest",
     // Text-to-image,
@@ -147,18 +153,6 @@ const FORMAT: Format = Format::Markdown;
 /// Default maximum retries
 const MAX_RETRIES: u8 = 1;
 
-/// Debug mode
-#[derive(Default, Deserialize)]
-#[serde(rename_all = "kebab-case", crate = "assistant::common::serde")]
-enum Debug {
-    // No debugging
-    #[default]
-    No,
-    /// Echo the rendered system prompt as a Markdown code block
-    /// in the suggestion. Useful for debugging system prompt templates.
-    Echo,
-}
-
 /// A custom assistant
 /// TODO: Remove this when the options are being used.
 #[allow(dead_code)]
@@ -192,10 +186,6 @@ pub struct SpecializedAssistant {
         default = "default_delegates"
     )]
     delegates: Vec<String>,
-
-    /// The debug mode to use when executing the assistant
-    #[serde(default)]
-    debug: Debug,
 
     /// The type of input for the generation task delegated
     /// to base assistants
@@ -264,6 +254,10 @@ pub struct SpecializedAssistant {
     #[serde(skip_deserializing)]
     system_prompt: Option<String>,
 
+    /// The template environment for the system prompt (if any)
+    #[serde(skip_deserializing)]
+    template_env: Option<Environment<'static>>,
+
     /// The maximum number of retries for generating valid nodes
     max_retries: Option<u8>,
 
@@ -316,6 +310,8 @@ where
     })
 }
 
+const SYSTEM_PROMPT_TEMPLATE_NAME: &str = "system_prompt";
+
 impl SpecializedAssistant {
     // Added for testing
     // TODO: Wrap these in test / debug assertions?
@@ -345,22 +341,49 @@ impl SpecializedAssistant {
 
         // Parse header into an assistant
         let mut assistant: SpecializedAssistant = serde_yaml::from_str(&header)?;
-        // Add prompts if not blank
-        fn not_blank(prompt: String) -> Option<String> {
+        assistant.id = id.to_string();
+        assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
+
+        // If the system prompt is blank then make it None
+        let prompt = parts.next().and_then(|prompt| {
             let trimmed = prompt.trim();
             if trimmed.is_empty() {
                 None
             } else {
                 Some(trimmed.to_string())
             }
+        });
+
+        // If there is a system prompt then instantiate a template environment for it
+        if let Some(prompt) = prompt {
+            assistant.template_env = Some(Self::template_environment(prompt.clone())?);
+            assistant.system_prompt = Some(prompt);
         }
-        assistant.id = id.to_string();
-        assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
-        assistant.system_prompt = parts.next().and_then(not_blank);
 
         assistant.init()?;
 
         Ok(assistant)
+    }
+
+    /// Create a template environment for rendering prompts
+    fn template_environment(prompt: String) -> Result<Environment<'static>> {
+        let mut env = Environment::new();
+        env.set_undefined_behavior(UndefinedBehavior::Strict);
+
+        env.add_filter("to_markdown", to_markdown);
+
+        env.add_filter("trim_start_chars", trim_start_chars);
+        env.add_filter("trim_end_chars", trim_end_chars);
+
+        env.add_filter("describe_variable", describe_variable);
+
+        env.add_filter("insert_code_chunk_shots", insert_code_chunk_shots);
+        env.add_filter("insert_math_block_shots", insert_math_block_shots);
+
+        env.add_template_owned(SYSTEM_PROMPT_TEMPLATE_NAME, prompt)
+            .map_err(minijinja_error_to_eyre)?;
+
+        Ok(env)
     }
 
     /// Initialize the assistant
@@ -374,27 +397,6 @@ impl SpecializedAssistant {
         if let Some(expected_nodes) = &self.expected_nodes {
             expected_nodes.apply(&mut self.options)?;
         }
-
-        // pub transform_nodes: Option<NodeType>,
-        //
-        // /// The pattern for the type of node that filtered for after transform in applied
-        // #[serde(
-        //     deserialize_with = "deserialize_option_regex",
-        //     default,
-        //     skip_serializing
-        // )]
-        // pub filter_nodes: Option<Regex>,
-        //
-        // /// The number of nodes to take after filtering
-        // pub take_nodes: Option<usize>,
-        //
-        // /// A pattern for the type and number of nodes that should be generated
-        // #[serde(
-        //     deserialize_with = "deserialize_option_regex",
-        //     default,
-        //     skip_serializing
-        // )]
-        // pub assert_nodes: Option<Regex>,
 
         Ok(())
     }
@@ -441,6 +443,7 @@ impl SpecializedAssistant {
         if let Some(system_prompt) = &self.system_prompt {
             task.system_prompt = Some(system_prompt.clone());
         }
+
         // Encode document and content with these defaults
         let encode_options = EncodeOptions {
             // Do not use compact encodings
@@ -468,42 +471,31 @@ impl SpecializedAssistant {
             task.content_formatted = Some(content);
         }
 
-        // Update other properties of the task related to the delegate (is any)
+        // Update other properties of the task related to the delegate (if any)
         if let Some(delegate) = delegate {
+            // TODO: set task.delegate
             task.context_length = Some(delegate.context_length());
         }
 
-        // Render the user prompt template with the task as context
-        if let Some(template) = &self.system_prompt {
-            static ENVIRONMENT: Lazy<Environment> =
-                Lazy::new(SpecializedAssistant::template_environment);
+        // If the assistant has a template env (and this a system prompt)
+        // then render the prompt with the task as its context
+        if let Some(env) = &self.template_env {
+            let template = env.get_template(SYSTEM_PROMPT_TEMPLATE_NAME)?;
+            let prompt = template
+                .render(&task)
+                .map_err(minijinja_error_to_eyre)?
+                .trim()
+                .to_string();
 
-            let prompt = ENVIRONMENT.render_str(template, &task)?.trim().to_string();
+            tracing::debug!(
+                "Rendered system prompt for assistant `{}`\n\n{prompt}",
+                self.id()
+            );
+
             task.system_prompt = Some(prompt);
         }
 
         Ok(task)
-    }
-
-    /// Create a template environment for rendering prompts
-    fn template_environment() -> Environment<'static> {
-        let mut env = Environment::new();
-        env.set_undefined_behavior(UndefinedBehavior::Chainable);
-
-        env.add_filter("trim_start_chars", |content: &str, length: u32| -> String {
-            let current_length = content.chars().count();
-            content
-                .chars()
-                .skip(current_length.saturating_sub(length as usize))
-                .take(length as usize)
-                .collect()
-        });
-
-        env.add_filter("trim_end_chars", |content: &str, length: u32| -> String {
-            content.chars().take(length as usize).collect()
-        });
-
-        env
     }
 
     /// Get the first assistant in the list of delegates capable to performing task
@@ -599,28 +591,15 @@ impl Assistant for SpecializedAssistant {
         let task = self.merge_task(task);
         let options = self.merge_options(options);
 
-        let output = if matches!(self.debug, Debug::Echo) {
-            // Debug echo so just render the prompt into a Markdown
-            // code block in the output
+        let output = if options.dry_run {
+            // Dry run so just prepare the task but return an empty output
+            let _task = self.prepare_task(task, None).await?;
 
-            let task = self.prepare_task(task, None).await?;
-            let prompt = task.system_prompt.clone().unwrap_or_default();
-
-            GenerateOutput {
-                prompter: None,
-                generator: self.to_software_application(),
-                content: GenerateContent::Text(prompt.clone()),
-                format: Format::Markdown,
-                nodes: Nodes::Blocks(vec![Block::CodeBlock(CodeBlock {
-                    code: Cord::new(prompt.clone()),
-                    ..Default::default()
-                })]),
-            }
+            GenerateOutput::empty(self)?
         } else if self.delegates.is_empty() {
             // No delegates, so simply render the template into output.
-            // This differs from `Debug::Echo` in that the prompt is decoded into nodes
+            // This differs from `options.dry_run` in that the prompt is decoded into nodes
             // (including transformations associated with `expected_nodes`) in the call to `from_text`.
-
             let task = self.prepare_task(task, None).await?;
             let prompt = task.system_prompt.clone().unwrap_or_default();
 
@@ -726,7 +705,7 @@ fn list_local() -> Result<Vec<Arc<dyn Assistant>>> {
     let dir = get_app_dir(DirType::Assistants, false)?;
 
     tracing::debug!(
-        "Attempting to reading assistants from `{}` (if it exists)",
+        "Attempting to read assistants from `{}` (if it exists)",
         dir.display()
     );
 
@@ -939,7 +918,7 @@ mod tests {
         Ok(())
     }
 
-    //#[ignore]
+    #[ignore = "reinstate when embedding is reinstated"]
     #[test]
     fn suitability_score_works_as_expected() -> Result<()> {
         let mut task_improve_wording =

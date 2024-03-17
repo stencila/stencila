@@ -6,7 +6,9 @@ use std::{
 };
 
 use common::{
+    clap::{self, Args},
     eyre::Result,
+    serde::{Deserialize, Serialize},
     tokio::sync::{RwLock, RwLockWriteGuard},
     tracing,
 };
@@ -18,7 +20,8 @@ use node_patch::{
 use node_store::{ReadNode, WriteStore};
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Block, Inline, Node, NodeId,
+    Block, Inline, InstructionBlock, InstructionInline, Node, NodeId, SuggestionBlockType,
+    SuggestionInlineType, SuggestionStatus,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -33,7 +36,9 @@ mod for_block;
 mod if_block;
 mod include_block;
 mod instruction_block;
-mod math;
+mod instruction_inline;
+mod math_block;
+mod math_inline;
 mod styled;
 
 /// Walk over a root node and execute it and child nodes
@@ -43,6 +48,7 @@ pub async fn execute(
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: NodePatchSender,
     node_ids: Option<NodeIds>,
+    options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = {
         // This is within a block to ensure that the lock on `store` gets
@@ -51,7 +57,7 @@ pub async fn execute(
         Node::load(&*store).unwrap()
     };
 
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids);
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, options);
     executor.pending(&mut root).await?;
     executor.execute(&mut root).await
 }
@@ -71,14 +77,20 @@ pub async fn interrupt(
         Node::load(&*store).unwrap()
     };
 
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids);
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, None);
     executor.interrupt(&mut root).await
 }
 
 /// A trait for an executable node
+#[allow(unused)]
 trait Executable {
     /// Set the execution status of the node to pending
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl;
+    ///
+    /// This default action does nothing to the node but continues walking
+    /// over its descendants.
+    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Execute the node
     ///
@@ -89,7 +101,12 @@ trait Executable {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl;
 
     /// Interrupt execution of the node
-    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl;
+    ///
+    /// This default action does nothing to the node but continues walking
+    /// over its descendants.
+    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
 }
 
 /// A visitor that walks over a tree of nodes and executes them
@@ -127,6 +144,56 @@ pub struct Executor {
     /// Used for `IfBlock` (and possibly others) to control behavior of execution
     /// of child nodes.
     is_last: bool,
+
+    /// Options for execution
+    options: ExecuteOptions,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
+#[serde(default, crate = "common::serde")]
+pub struct ExecuteOptions {
+    /// Skip executing code
+    ///
+    /// By default, code-based nodes in the document (e.g. `CodeChunk`, `CodeExpression`, `ForBlock`)
+    /// nodes will be executed if they are stale. Use this flag to skip executing all code-based nodes.
+    #[arg(long)]
+    skip_code: bool,
+
+    /// Skip executing instructions
+    ///
+    /// By default, instructions with no suggestions, or with suggestions that have
+    /// been rejected will be executed. Use this flag to skip executing all instructions.
+    #[arg(long, alias = "skip-inst")]
+    skip_instructions: bool,
+
+    /// Re-execute instructions with suggestions that have not yet been reviewed
+    ///
+    /// By default, an instruction that has a suggestion that has not yet be reviewed
+    /// (i.e. has a suggestion status that is empty) will not be re-executed. Use this
+    /// flag to force these instructions to be re-executed.
+    #[arg(long)]
+    force_unreviewed: bool,
+
+    /// Re-execute instructions with suggestions that have been accepted.
+    ///
+    /// By default, an instruction that has a suggestion that has been accepted, will
+    /// not be re-executed. Use this flag to force these instructions to be re-executed.
+    #[arg(long)]
+    force_accepted: bool,
+
+    /// Skip re-executing instructions with suggestions that have been rejected
+    ///
+    /// By default, instructions that have a suggestion that has been rejected, will be
+    /// re-executed. Use this flag to skip re-execution of these instructions.
+    #[arg(long)]
+    skip_rejected: bool,
+
+    /// Prepare, but do not actually perform, execution tasks
+    ///
+    /// Currently only supported by assistants where is is useful for debugging the
+    /// rendering of system prompts without making a potentially slow API request.
+    #[arg(long)]
+    dry_run: bool,
 }
 
 /// A phase of an [`Executor`]
@@ -147,6 +214,7 @@ impl Executor {
         kernels: Arc<RwLock<Kernels>>,
         patch_sender: NodePatchSender,
         node_ids: Option<NodeIds>,
+        options: Option<ExecuteOptions>,
     ) -> Self {
         Self {
             home,
@@ -157,6 +225,7 @@ impl Executor {
             phase: Phase::Pending,
             context: Context::default(),
             is_last: false,
+            options: options.unwrap_or_default(),
         }
     }
 
@@ -172,10 +241,9 @@ impl Executor {
         self.phase = Phase::Execute;
         self.is_last = false;
 
-        // TODO: This clears the context which is fine if were are executing the
-        // whole document but not if we're only executing one or a few nodes, in
-        // which case we want to keep the existing context because we won't walk
-        // all nodes.
+        // Create a new context before walking the tree. Note that
+        // this means that instructions will on "see" the other nodes that
+        // precede them in the document.
         self.context = Context::default();
 
         root.walk_async(self).await
@@ -213,6 +281,80 @@ impl Executor {
         self.context.clone()
     }
 
+    /// Should the executor execute a code-based node (derived from `CodeExecutable`)
+    pub fn should_execute_code(&self) -> bool {
+        !self.options.skip_code
+    }
+
+    /// Should the executor execute an `Instruction` based on the the
+    /// status of its suggestion.
+    pub fn should_execute_instruction(&self, status: &Option<SuggestionStatus>) -> bool {
+        let Some(status) = status else {
+            // Re-execute unreviewed only if `force_unreviewed`
+            return self.options.force_unreviewed;
+        };
+
+        use SuggestionStatus::*;
+        match status {
+            // Re-execute proposed only if `force_unreviewed`
+            Proposed => self.options.force_unreviewed,
+            // Re-execute accepted only if `force_accepted`
+            Accepted => self.options.force_accepted,
+            // Re-execute rejected unless `skip_reject`
+            Rejected => self.options.skip_rejected,
+        }
+    }
+
+    /// Should the executor execute an `InstructionBlock`
+    pub fn should_execute_instruction_block(&self, instruction: &InstructionBlock) -> bool {
+        let suggestion = &instruction.options.suggestion;
+
+        // Respect `skip_instructions`
+        if self.options.skip_instructions {
+            return false;
+        }
+
+        let Some(suggestion) = suggestion else {
+            // Execute instructions without suggestions
+            return true;
+        };
+
+        use SuggestionBlockType::*;
+        let status = match suggestion {
+            DeleteBlock(block) => &block.suggestion_status,
+            InsertBlock(block) => &block.suggestion_status,
+            ModifyBlock(block) => &block.suggestion_status,
+            ReplaceBlock(block) => &block.suggestion_status,
+        };
+
+        self.should_execute_instruction(status)
+    }
+
+    /// Should the executor execute an `InstructionInline`
+    pub fn should_execute_instruction_inline(&self, instruction: &InstructionInline) -> bool {
+        let suggestion = &instruction.options.suggestion;
+
+        // Respect `skip_instructions`
+        if self.options.skip_instructions {
+            return false;
+        }
+
+        let Some(suggestion) = suggestion else {
+            // Execute instructions without suggestions
+            return true;
+        };
+
+        use SuggestionInlineType::*;
+        let status = match suggestion {
+            DeleteInline(inline) => &inline.suggestion_status,
+            InsertInline(inline) => &inline.suggestion_status,
+            ModifyInline(inline) => &inline.suggestion_status,
+            ReplaceInline(inline) => &inline.suggestion_status,
+        };
+
+        self.should_execute_instruction(status)
+    }
+
     /// Load a property of a node from the store
     ///
     /// Creates and sends a patch with a single `ReplaceProperty` operation.
@@ -228,6 +370,14 @@ impl Executor {
         let mut store = self.store.write().await;
         replace_property(&mut store, node_id, property, value)?;
         load_property(&*store, node_id, property)
+    }
+
+    /// Replace a property of a node
+    pub fn replace_property(&self, node_id: &NodeId, property: Property, value: Value) {
+        self.send_patch(NodePatch {
+            node_id: node_id.clone(),
+            ops: vec![Operation::replace_property(property, value)],
+        })
     }
 
     /// Replace several properties of a node
@@ -263,6 +413,8 @@ impl Executor {
 
 impl VisitorAsync for Executor {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
+        // If the executor has node ids (i.e. is only executing some nodes, not the entire
+        // document) then do not execute this node if it is not in the node ids.
         if let Some(node_ids) = &self.node_ids {
             if let Some(node_id) = &node.node_id() {
                 if !node_ids.contains(node_id) {
@@ -281,6 +433,19 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
+        use Block::*;
+
+        // If the block is of a type that is collected in the execution context then do that.
+        match block {
+            CodeChunk(node) => self.context.push_code_chunk(node),
+            InstructionBlock(node) => self.context.push_instruction_block(node),
+            MathBlock(node) => self.context.push_math_block(node),
+            Paragraph(node) => self.context.push_paragraph(node),
+            _ => {}
+        }
+
+        // If the executor has node ids (i.e. is only executing some nodes, not the entire
+        // document) then do not execute this block if it is not in the node ids.
         if let Some(node_ids) = &self.node_ids {
             if let Some(node_id) = &block.node_id() {
                 if !node_ids.contains(node_id) {
@@ -289,7 +454,6 @@ impl VisitorAsync for Executor {
             }
         }
 
-        use Block::*;
         let control = match block {
             // TODO: CallBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
@@ -297,7 +461,7 @@ impl VisitorAsync for Executor {
             IfBlock(node) => self.visit_executable(node).await,
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
-            // TODO: MathBlock(node) => self.visit_executable(node).await,
+            MathBlock(node) => self.visit_executable(node).await,
             // TODO: StyledBlock(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
@@ -306,6 +470,19 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
+        use Inline::*;
+
+        // If the inline is of a type that is collected in the execution context then do that.
+        match inline {
+            CodeExpression(node) => self.context.push_code_expression(node),
+            InstructionInline(node) => self.context.push_instruction_inline(node),
+            MathInline(node) => self.context.push_math_inline(node),
+            Text(node) => self.context.push_text(node),
+            _ => {}
+        }
+
+        // If the executor has node ids (i.e. is only executing some nodes, not the entire
+        // document) then do not execute this inline if it is not in the node ids.
         if let Some(node_ids) = &self.node_ids {
             if let Some(node_id) = &inline.node_id() {
                 if !node_ids.contains(node_id) {
@@ -314,11 +491,10 @@ impl VisitorAsync for Executor {
             }
         }
 
-        use Inline::*;
         let control = match inline {
             CodeExpression(node) => self.visit_executable(node).await,
-            // TODO: InstructionInline(node) => self.visit_executable(node).await,
-            // TODO: MathInline(node) => self.visit_executable(node).await,
+            InstructionInline(node) => self.visit_executable(node).await,
+            MathInline(node) => self.visit_executable(node).await,
             // TODO: Parameter(node) => self.visit_executable(node).await,
             // TODO: StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,

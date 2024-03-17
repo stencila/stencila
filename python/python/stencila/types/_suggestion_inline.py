@@ -4,6 +4,7 @@ from .prelude import *
 
 from ._inline import Inline
 from ._suggestion import Suggestion
+from ._suggestion_status import SuggestionStatus
 
 
 @dataclass(init=False)
@@ -17,6 +18,6 @@ class SuggestionInline(Suggestion):
     content: List[Inline]
     """The content that is suggested to be inserted, modified, replaced, or deleted."""
 
-    def __init__(self, content: List[Inline], id: Optional[str] = None):
-        super().__init__(id = id)
+    def __init__(self, content: List[Inline], id: Optional[str] = None, suggestion_status: Optional[SuggestionStatus] = None):
+        super().__init__(id = id, suggestion_status = suggestion_status)
         self.content = content

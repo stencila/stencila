@@ -2,6 +2,7 @@
 import logging
 
 logger = logging.getLogger('test')
+logger.setLevel('DEBUG')
 logger.debug('a debug message')
 logger.info('some info')
 logger.warn('a warning')

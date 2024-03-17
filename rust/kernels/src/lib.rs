@@ -15,6 +15,7 @@ use kernel_node::NodeKernel;
 use kernel_python::PythonKernel;
 use kernel_r::RKernel;
 use kernel_rhai::RhaiKernel;
+use kernel_tex::TexKernel;
 
 pub mod cli;
 
@@ -26,6 +27,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
         Box::<RhaiKernel>::default() as Box<dyn Kernel>,
+        Box::<TexKernel>::default() as Box<dyn Kernel>,
     ];
 
     let provided_by_plugins = &mut plugins::kernels::list().await;

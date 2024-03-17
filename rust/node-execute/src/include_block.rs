@@ -18,6 +18,13 @@ impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        if !executor.should_execute_code() {
+            tracing::debug!("Skipping IncludeBlock {node_id}");
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Executing IncludeBlock {node_id}");
 
         executor.replace_properties(

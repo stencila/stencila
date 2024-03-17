@@ -30,6 +30,36 @@ impl MathInline {
     }
 }
 
+impl DomCodec for MathInline {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_attr("code", &self.code);
+
+        if let Some(math_language) = &self.math_language {
+            context.push_attr("math-language", math_language);
+        }
+
+        if let Some(messages) = &self.options.compilation_messages {
+            context.push_slot_fn("span", "compilation-messages", |context| {
+                messages.to_dom(context)
+            });
+        }
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
+        }
+
+        if let Some(mathml) = &self.options.mathml {
+            context.push_slot_fn("span", "mathml", |context| {
+                context.push_html(mathml);
+            });
+        }
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for MathInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

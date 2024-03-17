@@ -46,6 +46,7 @@ Review = ForwardRef("Review")
 SectionType = ForwardRef("SectionType")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
+SuggestionStatus = ForwardRef("SuggestionStatus")
 Table = ForwardRef("Table")
 TableCellType = ForwardRef("TableCellType")
 TableRowType = ForwardRef("TableRowType")
@@ -98,6 +99,7 @@ ThingType = Union[
     SectionType,
     SoftwareApplication,
     SoftwareSourceCode,
+    SuggestionStatus,
     Table,
     TableCellType,
     TableRowType,

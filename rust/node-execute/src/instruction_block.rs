@@ -7,9 +7,12 @@ impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending InstructionBlock {node_id}");
 
-        pending_impl!(executor, &node_id);
+        if executor.should_execute_instruction_block(self) {
+            tracing::debug!("Pending InstructionBlock {node_id}");
+
+            pending_impl!(executor, &node_id);
+        }
 
         // Continue to mark executable nodes in `content` as pending
         WalkControl::Continue
@@ -18,6 +21,13 @@ impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        if !executor.should_execute_instruction_block(self) {
+            tracing::debug!("Skipping InstructionBlock {node_id}");
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Executing InstructionBlock {node_id}");
 
         executor.replace_properties(
@@ -35,7 +45,10 @@ impl Executable for InstructionBlock {
             let (suggestion, mut messages) = match assistants::execute_instruction(
                 self.clone(),
                 executor.context().await,
-                GenerateOptions::default(),
+                GenerateOptions {
+                    dry_run: executor.options.dry_run,
+                    ..Default::default()
+                },
             )
             .await
             {
@@ -50,7 +63,7 @@ impl Executable for InstructionBlock {
             };
 
             // Insert the suggestion into the store, so that it can be executed in
-            // the next step
+            // the next step (if so configured) and update the instruction status
             let mut suggestion: Option<SuggestionBlockType> = match executor
                 .swap_property(&node_id, Property::Suggestion, suggestion.into())
                 .await
@@ -63,6 +76,7 @@ impl Executable for InstructionBlock {
             };
 
             // Execute the suggestion
+            // TODO: This requires configurable rules around when, if at all, suggestions are executed.
             if let Err(error) = suggestion.walk_async(executor).await {
                 messages.push(error_to_message("While executing suggestion", error));
             }

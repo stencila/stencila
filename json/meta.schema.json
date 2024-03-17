@@ -341,7 +341,7 @@
           "type": "boolean"
         },
         "with": {
-          "description": "The name of a function to use to encode a property to DOM HTML\n\nIf specified, `elem` and `attr` will be ignored.",
+          "description": "The name of a function to use to encode a property to an attribute\n\nIf specified, `elem` and `attr` will be ignored.",
           "type": "string"
         }
       },

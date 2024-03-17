@@ -31,9 +31,12 @@ class Variable(Entity):
     """The value of the variable."""
 
     hint: Optional[Hint] = None
-    """A hint of the value and/or structure of the variable."""
+    """A hint to the value and/or structure of the variable."""
 
-    def __init__(self, name: str, id: Optional[str] = None, programming_language: Optional[str] = None, native_type: Optional[str] = None, node_type: Optional[str] = None, value: Optional[Node] = None, hint: Optional[Hint] = None):
+    native_hint: Optional[str] = None
+    """A textual hint to the value and/or structure of the variable."""
+
+    def __init__(self, name: str, id: Optional[str] = None, programming_language: Optional[str] = None, native_type: Optional[str] = None, node_type: Optional[str] = None, value: Optional[Node] = None, hint: Optional[Hint] = None, native_hint: Optional[str] = None):
         super().__init__(id = id)
         self.name = name
         self.programming_language = programming_language
@@ -41,3 +44,4 @@ class Variable(Entity):
         self.node_type = node_type
         self.value = value
         self.hint = hint
+        self.native_hint = native_hint

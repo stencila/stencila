@@ -12,6 +12,6 @@ assistant-mistral = { path = "../assistant-mistral" }
 assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }
 cached = { version = "0.49.2", features = ["async"] }
-codec-text-trait = { path = "../codec-text-trait" }
-minijinja = { version = "1.0.12", features = ["loader", "json"] }
+codec-markdown-trait = { path = "../codec-markdown-trait" }
+minijinja = { version = "1.0.13", features = ["loader", "json", "debug"] }
 rust-embed = { version = "8.3.0", features = ["interpolate-folder-path", "include-exclude"] }

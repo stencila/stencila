@@ -19,7 +19,8 @@
     "nativeType",
     "nodeType",
     "value",
-    "hint"
+    "hint",
+    "nativeHint"
   ],
   "properties": {
     "type": {
@@ -81,8 +82,18 @@
     },
     "hint": {
       "@id": "stencila:hint",
-      "description": "A hint of the value and/or structure of the variable.",
+      "description": "A hint to the value and/or structure of the variable.",
       "$ref": "Hint.schema.json"
+    },
+    "nativeHint": {
+      "@id": "stencila:nativeHint",
+      "description": "A textual hint to the value and/or structure of the variable.",
+      "$comment": "Can be used instead of, or in addition to, `hint` to provide less structured, but potentially more informative,\nsummaries of the variable usually generated within the programming language environment e.g. using R's `summary` function.\n",
+      "aliases": [
+        "native-hint",
+        "native_hint"
+      ],
+      "type": "string"
     }
   }
 }

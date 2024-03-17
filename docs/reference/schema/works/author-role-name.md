@@ -9,6 +9,7 @@
 The `AuthorRoleName` type has these members:
 
 - `Writer`
+- `Verifier`
 - `Instructor`
 - `Prompter`
 - `Generator`

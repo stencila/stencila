@@ -16,6 +16,13 @@ impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        if !executor.should_execute_code() {
+            tracing::debug!("Skipping CodeChunk {node_id}");
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Executing CodeChunk {node_id}");
 
         executor.replace_properties(
@@ -27,7 +34,7 @@ impl Executable for CodeChunk {
         );
 
         let code = self.code.trim();
-        let add_to_context = if !code.is_empty() {
+        if !code.is_empty() {
             let started = Timestamp::now();
 
             let (outputs, messages) = executor
@@ -64,8 +71,6 @@ impl Executable for CodeChunk {
                     (Property::ExecutionCount, count.into()),
                 ],
             );
-
-            matches!(status, ExecutionStatus::Succeeded)
         } else {
             executor.replace_properties(
                 &node_id,
@@ -78,14 +83,7 @@ impl Executable for CodeChunk {
                     (Property::ExecutionEnded, Value::None),
                 ],
             );
-
-            false
         };
-
-        // If the code chunk succeeded add it to the context
-        if add_to_context {
-            executor.context.code_chunks.push(self.clone());
-        }
 
         WalkControl::Break
     }

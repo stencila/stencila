@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::block::Block;
 use super::modify_operation::ModifyOperation;
 use super::string::String;
+use super::suggestion_status::SuggestionStatus;
 
 /// A suggestion to modify some block content.
 #[skip_serializing_none]
@@ -24,6 +25,12 @@ pub struct ModifyBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// The status of the suggestion including whether it is proposed, accepted, or rejected.
+    #[serde(alias = "suggestion-status", alias = "suggestion_status")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion_status: Option<SuggestionStatus>,
 
     /// The content that is suggested to be inserted, modified, replaced, or deleted.
     #[serde(deserialize_with = "one_or_many")]

@@ -17,6 +17,9 @@
     "yaml.schemas": {
         "json/meta.schema.json": "schema/*.yaml"
     },
+    "files.associations": {
+        "assistants/builtin/*.md": "jinja-md"
+    },
     "cSpell.words": [
         "arethetypeswrong",
         "asciimath",
@@ -46,6 +49,7 @@
         "datetime",
         "Deno",
         "dependants",
+        "Deque",
         "divs",
         "dtype",
         "emax",
@@ -122,9 +126,9 @@
         "twind",
         "typia",
         "uglifyjs",
+        "unreviewed",
         "xlink",
         "yamls",
         "Zstandard"
-    ],
-    "rust-analyzer.showUnlinkedFileNotification": false
+    ]
 }

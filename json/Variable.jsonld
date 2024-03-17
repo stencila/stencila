@@ -162,12 +162,24 @@
       "@id": "stencila:hint",
       "@type": "rdfs:Property",
       "rdfs:label": "hint",
-      "rdfs:comment": "A hint of the value and/or structure of the variable.",
+      "rdfs:comment": "A hint to the value and/or structure of the variable.",
       "schema:domainIncludes": {
         "@id": "stencila:Variable"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:Hint"
+      }
+    },
+    {
+      "@id": "stencila:nativeHint",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nativeHint",
+      "rdfs:comment": "A textual hint to the value and/or structure of the variable.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Variable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     }
   ]

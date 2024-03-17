@@ -4,16 +4,16 @@ use crate::prelude::*;
 
 use super::block::Block;
 use super::string::String;
+use super::suggestion_status::SuggestionStatus;
 
 /// A suggestion to delete some block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "DeleteBlock")]
-#[markdown(template = "--\n\n{{content}}--\n\n")]
 pub struct DeleteBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -24,6 +24,12 @@ pub struct DeleteBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// The status of the suggestion including whether it is proposed, accepted, or rejected.
+    #[serde(alias = "suggestion-status", alias = "suggestion_status")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion_status: Option<SuggestionStatus>,
 
     /// The content that is suggested to be inserted, modified, replaced, or deleted.
     #[serde(deserialize_with = "one_or_many")]

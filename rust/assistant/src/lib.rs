@@ -30,7 +30,7 @@ use schema::{
     NodeType, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
-    VideoObject,
+    SuggestionStatus, VideoObject,
 };
 
 // Export crates for the convenience of dependant crates
@@ -461,6 +461,15 @@ pub struct GenerateOptions {
     #[arg(long)]
     pub assistant: Option<String>,
 
+    /// Prepare a generation task (e.g. render a system prompt) but do not actually generate content
+    ///
+    /// Assistant implementations should respect this option by returning an empty `GenerateOutput`
+    /// from `perform_task` at the last possible moment before generation (usually just before an API request is made).
+    #[arg(long)]
+    #[serde(default)]
+    #[merge(strategy = merge::bool::overwrite_false)]
+    pub dry_run: bool,
+
     /// Enable Mirostat sampling for controlling perplexity.
     ///
     /// Supported by Ollama.
@@ -675,6 +684,19 @@ pub struct GenerateOutput {
 }
 
 impl GenerateOutput {
+    /// Create an empty `GenerateOutput`
+    ///
+    /// Usually only used when the `--dry-run` flag is used.
+    pub fn empty(assistant: &dyn Assistant) -> Result<Self> {
+        Ok(Self {
+            prompter: None,
+            generator: assistant.to_software_application(),
+            content: GenerateContent::Text(String::new()),
+            format: Format::Unknown,
+            nodes: Nodes::Blocks(vec![]),
+        })
+    }
+
     /// Create a `GenerateOutput` from text
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
@@ -906,11 +928,13 @@ impl GenerateOutput {
         if insert {
             SuggestionInlineType::InsertInline(InsertInline {
                 content: self.nodes.into_inlines(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         } else {
             SuggestionInlineType::ReplaceInline(ReplaceInline {
                 replacement: self.nodes.into_inlines(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         }
@@ -922,11 +946,13 @@ impl GenerateOutput {
         if insert {
             SuggestionBlockType::InsertBlock(InsertBlock {
                 content: self.nodes.into_blocks(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         } else {
             SuggestionBlockType::ReplaceBlock(ReplaceBlock {
                 replacement: self.nodes.into_blocks(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         }
@@ -1103,6 +1129,10 @@ pub trait Assistant: Sync + Send {
         SoftwareApplication {
             id: Some(self.id()),
             name: self.name(),
+            options: Box::new(SoftwareApplicationOptions {
+                version: Some(StringOrNumber::String(self.version())),
+                ..Default::default()
+            }),
             ..Default::default()
         }
     }

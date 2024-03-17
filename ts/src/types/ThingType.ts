@@ -43,6 +43,7 @@ import { type Review } from "./Review.js";
 import { type SectionType } from "./SectionType.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
+import { type SuggestionStatus } from "./SuggestionStatus.js";
 import { type Table } from "./Table.js";
 import { type TableCellType } from "./TableCellType.js";
 import { type TableRowType } from "./TableRowType.js";
@@ -97,6 +98,7 @@ export type ThingType =
   SectionType |
   SoftwareApplication |
   SoftwareSourceCode |
+  SuggestionStatus |
   Table |
   TableCellType |
   TableRowType |

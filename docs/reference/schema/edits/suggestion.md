@@ -2,24 +2,16 @@
 
 **Abstract base type for nodes that indicate a suggested change to content.**
 
-Note that at present this type does not have a `suggester` property to identify the
-actor (`Person`, `Organization`, or `SoftwareApplication`) which suggested the change.
-That is because, the creator of a `Suggestion` node is inherently the suggester and 
-will be identifiable from the node's id.
-
-The suggester will normally be amongst the `authors`, `contributors`, or `maintainers`
-of the `CreativeWork`.
-
-
 **`@id`**: `stencila:Suggestion`
 
 ## Properties
 
 The `Suggestion` type has these properties:
 
-| Name | Aliases | `@id`                                | Type                                                                                            | Description                   | Inherited from                                                                                   |
-| ---- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id` | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| Name               | Aliases                                  | `@id`                                | Type                                                                                                                  | Description                                                                           | Inherited from                                                                                   |
+| ------------------ | ---------------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`               | -                                        | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                       | The identifier for this item.                                                         | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `suggestionStatus` | `suggestion-status`, `suggestion_status` | `stencila:suggestionStatus`          | [`SuggestionStatus`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-status.md) | The status of the suggestion including whether it is proposed, accepted, or rejected. | -                                                                                                |
 
 ## Related
 

@@ -139,6 +139,10 @@ impl Assistant for GoogleAssistant {
             }),
         };
 
+        if options.dry_run {
+            return GenerateOutput::empty(self);
+        }
+
         let response = self
             .client
             .post(format!(
@@ -329,7 +333,7 @@ struct GenerationConfig {
 #[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     let Ok(key) = secrets::env_or_get(API_KEY) else {
-        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
+        tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 

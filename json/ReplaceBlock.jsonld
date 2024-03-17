@@ -18,6 +18,18 @@
       }
     },
     {
+      "@id": "stencila:suggestionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "suggestionStatus",
+      "rdfs:comment": "The status of the suggestion including whether it is proposed, accepted, or rejected.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Suggestion"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:SuggestionStatus"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

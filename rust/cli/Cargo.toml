@@ -16,13 +16,14 @@ app = { path = "../app" }
 assistants = { path = "../assistants" }
 cli-utils = { path = "../cli-utils" }
 codecs = { path = "../codecs" }
-color-eyre = { version = "0.6.2", features = ["issue-url"] }
+color-eyre = { version = "0.6.3", features = ["issue-url"] }
 common = { path = "../common" }
 console-subscriber = { version = "0.2.0", optional = true }
 document = { path = "../document" }
 format = { path = "../format" }
 kernels = { path = "../kernels" }
 is-terminal = "0.4.12"
+node-execute = { path = "../node-execute" }
 node-strip = { path = "../node-strip" }
 plugins = { path = "../plugins" }
 rustyline = "14.0.0"
