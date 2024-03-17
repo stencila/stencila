@@ -1,0 +1,11 @@
+[package]
+name = "kernel-tex"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+latex2mathml = "0.2.3"
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
