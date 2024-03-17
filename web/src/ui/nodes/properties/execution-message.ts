@@ -4,10 +4,13 @@ import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
+import { executionMessageUI } from '../icons-and-colours'
 
 @customElement('stencila-ui-node-execution-message')
 @withTwind()
 export class ExecutionMessage extends LitElement {
+  private BASE_HEIGHT = 32 as const
+
   @property()
   level: MessageLevel
 
@@ -17,25 +20,13 @@ export class ExecutionMessage extends LitElement {
   @property({ type: Boolean })
   messageCollapsed: boolean = true
 
+  /**
+   * Value to determine if the message needs to expandable
+   */
+  // private expandable: boolean
+
   private toggleCollapse = () => {
     this.messageCollapsed = !this.messageCollapsed
-  }
-
-  private getMarginSpecs = (): { colour: string; icon: string } => {
-    switch (this.level) {
-      case 'Error':
-        return { colour: 'pink-900', icon: 'x-circle' }
-      // @ts-expect-error '"Warning" is being used, but is not included in the type union'
-      case 'Warning':
-      case 'Warn':
-        return { colour: 'orange-500', icon: 'exclamation-circle' }
-      case 'Info':
-        return { colour: 'green-900', icon: 'info-circle' }
-      case 'Debug':
-      case 'Trace':
-      default:
-        return { colour: 'green-900', icon: 'question-circle' }
-    }
   }
 
   static override styles = css`
@@ -47,8 +38,28 @@ export class ExecutionMessage extends LitElement {
     }
   `
 
+  // override connectedCallback(): void {
+  //   super.connectedCallback()
+
+  //   const observer = new MutationObserver((mutationList) => {
+  //     mutationList.forEach((m) => {
+  //       if (m.type === 'childList') {
+  //         // const messageEls = this.shadowRoot.querySelectorAll(
+  //         //   'slot[name="message"], slot[name="stack-trace"]'
+  //         // )
+  //         // messageEls.forEach((el) => {
+  //         //   const innerSlots = el.assignedNodes() as NodeList
+
+  //         //   innerSlots.forEach((slot) => ))
+  //         // })
+  //       }
+  //     })
+  //   })
+  //   observer.observe(this.shadowRoot, { childList: true, subtree: true })
+  // }
+
   override render() {
-    const { colour, icon } = this.getMarginSpecs()
+    const { colour, icon } = executionMessageUI(this.level)
     // styles for the margin element
     const marginStyles = apply([
       'flex-shrink-0',
@@ -64,7 +75,9 @@ export class ExecutionMessage extends LitElement {
     const msgBodyStyles = apply([
       'h-full',
       'text-xs leading-1 font-mono',
-      this.messageCollapsed ? 'max-h-8' : 'max-h-[1000px]',
+      this.messageCollapsed
+        ? `max-h-[${this.BASE_HEIGHT}px]`
+        : 'max-h-[1000px]',
       'transition-max-h duration-200',
       'overflow-y-hidden',
     ])

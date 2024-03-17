@@ -56,14 +56,14 @@ export class Chevron extends LitElement {
 
     return html`
       <button
-        class="${styles} ${this.customClass} cursor-pointer"
+        class="${this.customClass} cursor-pointer"
         @click=${(e: Event) => {
           this.changePosition()
           this.clickEvent(e)
         }}
       >
         <sl-icon
-          class="text-${this.colour}"
+          class="text-${this.colour} ${styles}"
           name=${icon}
           library="default"
         ></sl-icon>
