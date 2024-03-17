@@ -82,9 +82,15 @@ pub async fn interrupt(
 }
 
 /// A trait for an executable node
+#[allow(unused)]
 trait Executable {
     /// Set the execution status of the node to pending
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl;
+    ///
+    /// This default action does nothing to the node but continues walking
+    /// over its descendants.
+    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Execute the node
     ///
@@ -95,7 +101,12 @@ trait Executable {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl;
 
     /// Interrupt execution of the node
-    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl;
+    ///
+    /// This default action does nothing to the node but continues walking
+    /// over its descendants.
+    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
 }
 
 /// A visitor that walks over a tree of nodes and executes them

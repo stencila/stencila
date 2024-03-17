@@ -4,13 +4,6 @@ use crate::prelude::*;
 
 impl Executable for MathInline {
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, _executor: &mut Executor) -> WalkControl {
-        // Because `MathInline`s do not have an execution status property
-        // at present, there is nothing to be done here
-        WalkControl::Break
-    }
-
-    #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Executing MathInline {node_id}");
@@ -48,12 +41,6 @@ impl Executable for MathInline {
             );
         };
 
-        WalkControl::Break
-    }
-
-    #[tracing::instrument(skip_all)]
-    async fn interrupt(&mut self, _executor: &mut Executor) -> WalkControl {
-        // Because `MathInline`s can not be interrupted there is nothing to be done here
         WalkControl::Break
     }
 }
