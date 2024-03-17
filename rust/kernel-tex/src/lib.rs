@@ -130,7 +130,7 @@ impl KernelInstance for TexKernelInstance {
         tracing::trace!("Transpiling TeX to MathML");
 
         let (mathml, messages) = self.transpile(code, DisplayStyle::Block);
-        let mathml = mathml.map_or_else(|| Vec::new(), |mathml| vec![Node::String(mathml)]);
+        let mathml = mathml.map_or_else(Vec::new, |mathml| vec![Node::String(mathml)]);
 
         Ok((mathml, messages))
     }
@@ -139,10 +139,7 @@ impl KernelInstance for TexKernelInstance {
         tracing::trace!("Transpiling TeX to MathML");
 
         let (mathml, messages) = self.transpile(code, DisplayStyle::Inline);
-        let mathml = mathml.map_or_else(
-            || Node::String(String::new()),
-            |mathml| Node::String(mathml),
-        );
+        let mathml = mathml.map_or_else(|| Node::String(String::new()), Node::String);
 
         Ok((mathml, messages))
     }
