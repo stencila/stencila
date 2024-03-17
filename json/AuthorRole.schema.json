@@ -15,8 +15,7 @@
   ],
   "core": [
     "id",
-    "lastModified",
-    "format"
+    "lastModified"
   ],
   "properties": {
     "type": {
