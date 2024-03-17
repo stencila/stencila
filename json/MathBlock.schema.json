@@ -10,6 +10,9 @@
   "category": "math",
   "description": "A block of math, e.g an equation, to be treated as block content.",
   "proptest": {},
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "math"
   },

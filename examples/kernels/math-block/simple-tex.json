@@ -1,0 +1,57 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A simple math block:"
+        }
+      ]
+    },
+    {
+      "type": "MathBlock",
+      "code": "a = \\pi r^2",
+      "mathLanguage": "tex",
+      "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"block\"><mi>a</mi><mo>=</mo><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></math>"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A math block with an error:"
+        }
+      ]
+    },
+    {
+      "type": "MathBlock",
+      "code": "\\foo",
+      "mathLanguage": "tex",
+      "compilationMessages": [
+        {
+          "type": "CompilationMessage",
+          "level": "Exception",
+          "message": "Undefined(\"Command(\\\"foo\\\")\")",
+          "errorType": "Syntax error"
+        }
+      ]
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710654917885,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 9,
+    "timeUnit": "Millisecond"
+  }
+}

@@ -37,7 +37,8 @@ mod if_block;
 mod include_block;
 mod instruction_block;
 mod instruction_inline;
-mod math;
+mod math_block;
+mod math_inline;
 mod styled;
 
 /// Walk over a root node and execute it and child nodes
@@ -449,7 +450,7 @@ impl VisitorAsync for Executor {
             IfBlock(node) => self.visit_executable(node).await,
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
-            // TODO: MathBlock(node) => self.visit_executable(node).await,
+            MathBlock(node) => self.visit_executable(node).await,
             // TODO: StyledBlock(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
@@ -482,7 +483,7 @@ impl VisitorAsync for Executor {
         let control = match inline {
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
-            // TODO: MathInline(node) => self.visit_executable(node).await,
+            MathInline(node) => self.visit_executable(node).await,
             // TODO: Parameter(node) => self.visit_executable(node).await,
             // TODO: StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,

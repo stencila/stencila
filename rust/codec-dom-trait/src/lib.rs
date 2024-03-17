@@ -183,6 +183,13 @@ impl DomEncodeContext {
         self
     }
 
+    /// Push unescaped HTML onto the content
+    pub fn push_html(&mut self, html: &str) -> &mut Self {
+        self.content.push_str(html);
+
+        self
+    }
+
     /// Push text onto the content
     pub fn push_text(&mut self, text: &str) -> &mut Self {
         let escaped = encode_safe(text);
