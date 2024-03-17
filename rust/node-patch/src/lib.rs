@@ -102,6 +102,7 @@ pub struct ReplaceProperty {
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub enum Property {
+    CompilationMessages,
     Content,
     ExecutionCount,
     ExecutionDuration,
@@ -112,6 +113,8 @@ pub enum Property {
     InstructionStatus,
     IsActive,
     Iterations,
+    #[strum(serialize = "mathml")]
+    MathMl,
     Output,
     Outputs,
     Suggestion,
