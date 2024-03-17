@@ -34,7 +34,7 @@ impl Executable for CodeChunk {
         );
 
         let code = self.code.trim();
-        let add_to_context = if !code.is_empty() {
+        if !code.is_empty() {
             let started = Timestamp::now();
 
             let (outputs, messages) = executor
@@ -71,8 +71,6 @@ impl Executable for CodeChunk {
                     (Property::ExecutionCount, count.into()),
                 ],
             );
-
-            matches!(status, ExecutionStatus::Succeeded)
         } else {
             executor.replace_properties(
                 &node_id,
@@ -85,14 +83,7 @@ impl Executable for CodeChunk {
                     (Property::ExecutionEnded, Value::None),
                 ],
             );
-
-            false
         };
-
-        // If the code chunk succeeded add it to the context
-        if add_to_context {
-            executor.context.push_code_chunk(self);
-        }
 
         WalkControl::Break
     }
