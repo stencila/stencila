@@ -20,7 +20,17 @@ export const config = defineConfig({
     ...theme,
     extend: {
       fontFamily: {
-        sans: ['Inter', 'Lato', 'Montserrat'],
+        sans: [
+          'Inter',
+          // The default Tailwind font stack from https://tailwindcss.com/docs/font-family
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'Noto Color Emoji',
+        ],
       },
       fontSize: {
         '2xs': '0.625rem',
