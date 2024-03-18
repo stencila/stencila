@@ -33,10 +33,8 @@ export class Array extends Entity {
   override renderDynamicView() {
     return html`
       <stencila-ui-node-card type="Array" view="dynamic" ?collapsible=${true}>
-        <div slot="body">
-          <div class="px-2">
-            <slot></slot>
-          </div>
+        <div slot="body" class="px-2">
+          <slot></slot>
         </div>
       </stencila-ui-node-card>
     `
@@ -48,14 +46,12 @@ export class Array extends Entity {
    * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card
-      type="Array"
-      view="source"
-      ?collapsible=${true}
-      ><div slot="body">
-        <div class="px-2">
+    return html`
+      <stencila-ui-node-card type="Array" view="source" ?collapsible=${true}>
+        <div slot="body" class="p-2">
           <slot></slot>
-        </div></div
-    ></stencila-ui-node-card>`
+        </div>
+      </stencila-ui-node-card>
+    `
   }
 }

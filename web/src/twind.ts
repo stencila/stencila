@@ -25,6 +25,9 @@ export const config = defineConfig({
       dropShadow: {
         '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',
       },
+      maxWidth: {
+        '1/5': '20%',
+      },
       colors: {
         transparent: 'transparent',
         white: '#fff',
