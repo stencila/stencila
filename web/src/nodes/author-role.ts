@@ -58,17 +58,16 @@ export class AuthorRole extends Entity {
     if (slot) {
       const inner = slot.assignedElements({ flatten: true })[0]
 
-      if (inner.tagName.toLowerCase() === 'stencila-person') {
+      const tagName = inner?.tagName?.toLowerCase()
+      if (tagName === 'stencila-person') {
         const person = inner as Person
         this.type = 'Person'
         this.name = `${(person.givenNames ?? []).join(' ')} ${(person.familyNames ?? []).join(' ')}`
-      } else if (inner.tagName.toLowerCase() === 'stencila-organization') {
+      } else if (tagName === 'stencila-organization') {
         const app = inner as Organization
         this.type = 'Organization'
         this.name = app.name
-      } else if (
-        inner.tagName.toLowerCase() === 'stencila-software-application'
-      ) {
+      } else if (tagName === 'stencila-software-application') {
         const app = inner as SoftwareApplication
         this.type = 'SoftwareApplication'
         this.$id = app.$id

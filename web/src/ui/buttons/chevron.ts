@@ -6,6 +6,13 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
+type ChevronPosition = 'left' | 'down' | 'right'
+
+/**
+ * A chevron style button used for collapsing and expanding elements,
+ *
+ * Will roatate 90 degrees when toggled based
+ */
 @customElement('stencila-chevron-button')
 @withTwind()
 export class Chevron extends LitElement {
@@ -15,34 +22,49 @@ export class Chevron extends LitElement {
   @property()
   clickEvent: (e: Event) => void | undefined
 
-  @property({ type: String })
-  position: 'left' | 'down' = 'left'
+  @property({ type: String, attribute: 'default-pos' })
+  direction: Exclude<ChevronPosition, 'down'> = 'left'
 
-  @property({ type: String, attribute: 'custom-classes' })
-  customClasses: string
+  @property()
+  position: ChevronPosition
+
+  @property({ type: String, attribute: 'custom-class' })
+  customClass: string
+
+  @property({ type: String })
+  colour: string = 'black'
 
   private changePosition = () => {
-    this.position === 'left'
+    this.position === this.direction
       ? (this.position = 'down')
-      : (this.position = 'left')
+      : (this.position = this.direction)
   }
 
   override render() {
+    if (!this.position) {
+      this.position = this.direction
+    }
+
+    const rotation = this.direction === 'left' ? '-rotate-90' : 'rotate-90'
+
     const styles = apply([
-      this.position === 'down' ? '-rotate-90' : '',
+      this.position === 'down' ? rotation : '',
       'transition-transform duration-100',
     ])
+
+    const icon = `chevron-${this.direction}`
+
     return html`
       <button
-        class="${styles} ${this.customClasses} cursor-pointer"
+        class="${this.customClass} cursor-pointer"
         @click=${(e: Event) => {
           this.changePosition()
           this.clickEvent(e)
         }}
       >
         <sl-icon
-          class="text-base"
-          name="chevron-left"
+          class="text-${this.colour} ${styles}"
+          name=${icon}
           library="default"
         ></sl-icon>
       </button>

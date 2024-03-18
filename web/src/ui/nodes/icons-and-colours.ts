@@ -1,4 +1,4 @@
-import type { NodeType } from '@stencila/types'
+import type { MessageLevel, NodeType } from '@stencila/types'
 import tailwindConfig from 'tailwindcss/defaultConfig'
 import resolveConfig from 'tailwindcss/resolveConfig'
 
@@ -95,3 +95,32 @@ export const nodeColour = (nodeType: NodeType) =>
  */
 export const nodeBorderColour = (nodeType: NodeType) =>
   nodeTypeUIMap[nodeType]?.borderColour ?? DEFAULT_BORDER_COLOUR
+
+// Execution Messages --------------------------------------
+
+/**
+ * Return a colour and an icon for each execution message level
+ * 
+ * @param level The execution level of the message
+ * @returns Object containing the twind `colour` string an `icon` name,
+ *                 and the icon `library` if not default
+ */
+export const executionMessageUI = (
+  level: MessageLevel
+): { colour: string; icon: string; library?: string } => {
+  switch (level) {
+    case 'Exception':
+    case 'Error':
+      return { colour: 'pink-900', icon: 'x-circle' }
+    case 'Warning':
+      return { colour: 'orange-500', icon: 'exclamation-circle' }
+    case 'Info':
+      return { colour: 'green-900', icon: 'info-circle' }
+    case 'Debug':
+      return { colour: 'blue-900', icon: 'question-circle' }
+    case 'Trace':
+      return { colour: 'purple-900', icon: 'slash-circle' }
+  }
+}
+
+// ---------------------------------------------------------
