@@ -2,12 +2,14 @@ import '@shoelace-style/shoelace/dist/components/icon/icon'
 import type { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, LitElement } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 import { DocumentView } from '../../types'
 
 import { nodeUi } from './icons-and-colours'
+
+import '../animation/collapsible'
 
 /**
  * A component for displaying information about a node type (e.g. a `Heading` or `Table`)
@@ -31,44 +33,168 @@ export class UINodeCard extends LitElement {
   @property()
   view: DocumentView
 
-  override render() {
-    const { iconLibrary, icon, title, colour, borderColour } = nodeUi(this.type)
+  /**
+   * Determine how to display the node-card. By default, we simply display the
+   * card as is (`auto`). However, if we show the card in the dynamic view, we
+   * need the ability to only show the card only when needed.
+   */
+  @property()
+  display: 'on-demand' | 'auto' = 'auto'
 
-    const cardStyles = this.view === 'source' ? 'flex flex-col h-full' : 'my-2'
+  /**
+   * Manages showing/hiding the card info (when rendering display = 'on-demand')
+   */
+  @state()
+  toggle: boolean = false
+
+  /**
+   * Internal copy of the ui attributes.
+   */
+  private ui: ReturnType<typeof nodeUi> | undefined = undefined
+
+  /**
+   * Provide ui options based on the node type.
+   */
+  override connectedCallback() {
+    super.connectedCallback()
+
+    this.ui = nodeUi(this.type)
+  }
+
+  override render() {
+    const cardStyles = apply([
+      'group',
+      'transition duration-400',
+      'border border-[transparent]',
+      this.display && 'rounded',
+      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
+      this.display === 'on-demand' &&
+        this.toggle &&
+        `border-[${this.ui.borderColour}]`,
+    ])
+
+    const contentStyles = apply([
+      'flex',
+      'relative',
+      'transition-[padding] ease-in-out duration-[250ms]',
+      'px-0',
+      this.display === 'on-demand' && this.toggle && 'px-3',
+    ])
+
+    return html` <div class=${`${cardStyles}`}>
+      <div class="relative">
+        <stencila-ui-collapsible-animation
+          class=${this.toggle || this.display === 'auto' ? 'opened' : ''}
+        >
+          ${this.renderHeader()} ${this.renderBody()}
+        </stencila-ui-collapsible-animation>
+        <div class=${contentStyles}>
+          ${this.renderChip()}
+          <slot name="content"></slot>
+        </div>
+      </div>
+    </div>`
+  }
+
+  private renderHeader() {
+    const { iconLibrary, icon, title, borderColour } = this.ui
 
     const headerStyles = apply([
-      'flex justify-between items-center',
+      'flex items-center',
       'w-full',
       'px-6 py-3',
+      'gap-x-2',
       `bg-[${borderColour}]`,
-      `border border-[${borderColour}] ${this.view === 'source' ? '' : 'rounded-t'}`,
+      `border border-[${borderColour}]`,
+      this.view === 'source' ? '' : 'rounded-t',
       'font-medium',
     ])
 
-    const bodyStyles = apply([
-      'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
-    ])
-
-    return html` <div class=${cardStyles}>
-      <div class=${headerStyles}>
-        <span class="items-center font-bold flex">
+    return html`<div class=${headerStyles}>
+      <div class="flex items-center gap-x-2 grow">
+        ${this.renderClose()}
+        <span class="items-center flex grow-0 shrink-0">
           <sl-icon
             library=${iconLibrary}
             name=${icon}
-            class=${`pr-2 text-2xl`}
+            class="text-2xl"
           ></sl-icon>
-          ${title}
         </span>
-        <span class="items-center font-bold flex">
-          <slot name="header-right"></slot>
-        </span>
-      </div>
-      <div class=${bodyStyles}>
-        <slot name="body"></slot>
+        <div class="flex justify-between items-center gap-x-2 grow">
+          <span class="font-bold grow">${title}</span>
+          <div class="">
+            <slot name="header-right"></slot>
+          </div>
+        </div>
       </div>
     </div>`
+  }
+
+  private renderBody() {
+    const { colour, borderColour } = this.ui
+    const bodyStyles = apply([
+      'relative',
+      'w-full h-full',
+      `bg-[${colour}]`,
+      this.display === 'auto' && `border border-[${borderColour}] rounded-b`,
+    ])
+
+    return html`<div class=${bodyStyles}>
+      <slot name="body"></slot>
+    </div>`
+  }
+
+  private renderClose() {
+    const styles = apply([
+      'text-base',
+      'cursor-pointer',
+      'grow-0 shrink-0',
+      this.display === 'auto' && 'hidden pointer-events-none',
+    ])
+
+    return html`<sl-icon
+      class=${styles}
+      name="chevron-down"
+      library="default"
+      @click=${this.toggleCardDisplay}
+    ></sl-icon>`
+  }
+
+  private renderChip() {
+    const { iconLibrary, icon, colour, borderColour } = this.ui
+
+    const styles = apply([
+      this.display === 'auto' && `hidden pointer-events-none`,
+      this.display === 'on-demand' && this.toggle && 'pointer-events-none',
+      this.display === 'on-demand' && !this.toggle && 'group-hover:opacity-100',
+      'h-8',
+      'flex items-center',
+      'opacity-0',
+      'transition duration-200',
+      'leading-none',
+      'px-2 py-1.5',
+      `bg-[${colour}]`,
+      `border rounded-md border-[${borderColour}]`,
+      'cursor-pointer',
+      `fill-black text-black`,
+      `hover:bg-[${borderColour}] hover:border-[${colour}]`,
+    ])
+
+    return html`
+      <div class="-ml-[40px] pr-[6px] mt-2">
+        <div class=${`${styles}`} @click=${this.toggleCardDisplay}>
+          <sl-icon
+            library=${iconLibrary}
+            name=${icon}
+            class="text-base"
+          ></sl-icon>
+        </div>
+      </div>
+    `
+  }
+
+  private toggleCardDisplay() {
+    this.toggle = !this.toggle
   }
 }
 
