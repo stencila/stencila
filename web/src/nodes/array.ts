@@ -52,7 +52,10 @@ export class Array extends Entity {
       type="Array"
       view="source"
       ?collapsible=${true}
-      ><div slot="body"><slot></slot></div
+      ><div slot="body">
+        <div class="px-2">
+          <slot></slot>
+        </div></div
     ></stencila-ui-node-card>`
   }
 }

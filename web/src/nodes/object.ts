@@ -3,6 +3,8 @@ import { customElement } from 'lit/decorators.js'
 
 import '../ui/nodes/card'
 
+import { withTwind } from '../twind'
+
 import { Entity } from './entity'
 import './object-item'
 
@@ -15,6 +17,7 @@ import './object-item'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md
  */
 @customElement('stencila-object')
+@withTwind()
 export class Object extends Entity {
   /**
    * In static view just render the value
@@ -31,7 +34,10 @@ export class Object extends Entity {
       type="Object"
       view="dynamic"
       ?collapsible=${true}
-      ><div slot="body"><slot></slot></div
+      ><div slot="body">
+        <div class="px-2">
+          <slot></slot>
+        </div></div
     ></stencila-ui-node-card>`
   }
 
@@ -45,7 +51,10 @@ export class Object extends Entity {
       type="Object"
       view="source"
       ?collapsible=${true}
-      ><div slot="body"><slot></slot></div
+      ><div slot="body">
+        <div class="px-2">
+          <slot></slot>
+        </div></div
     ></stencila-ui-node-card>`
   }
 }

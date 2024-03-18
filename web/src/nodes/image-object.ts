@@ -1,3 +1,4 @@
+import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -24,11 +25,22 @@ export class ImageObject extends Entity {
     </div>`
   }
 
+  private imgCss = css`
+    & slot::slotted(*) img {
+      width: 100%;
+      height: auto;
+    }
+  `
+
   /**
    * In dynamic view, in addition to the image, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="ImageObject" view="dynamic"
+    return html`<stencila-ui-node-card
+      type="ImageObject"
+      view="dynamic"
+      collapsible=${true}
+      class=${this.imgCss}
       ><div slot="body">
         <div class="max-w-full">
           <slot></slot>
@@ -41,7 +53,10 @@ export class ImageObject extends Entity {
    * image itself, which won't be displayed in the source.
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card type="ImageObject" view="source"
+    return html`<stencila-ui-node-card
+      type="ImageObject"
+      view="source"
+      collapsible=${true}
       ><div slot="body">
         <div class="max-w-full">
           <slot></slot>
