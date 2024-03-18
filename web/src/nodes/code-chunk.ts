@@ -78,7 +78,11 @@ export class CodeChunk extends CodeExecutable {
           <slot name="code"></slot>
         </stencila-ui-node-code>
 
-        <stencila-ui-node-execution-messages>
+        <stencila-ui-node-execution-messages
+          type="CodeChunk"
+          warning-count=${this.warningCount}
+          error-count=${this.errorCount}
+        >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 
@@ -123,7 +127,11 @@ export class CodeChunk extends CodeExecutable {
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 
-        <stencila-ui-node-execution-messages>
+        <stencila-ui-node-execution-messages
+          type="CodeChunk"
+          warning-count=${this.warningCount}
+          error-count=${this.errorCount}
+        >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 

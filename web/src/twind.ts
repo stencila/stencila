@@ -31,6 +31,7 @@ export const config = defineConfig({
           'Segoe UI Symbol',
           'Noto Color Emoji',
         ],
+        mono: ['IBM Plex Mono', 'monospace'],
       },
       fontSize: {
         '2xs': '0.625rem',
