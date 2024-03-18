@@ -2,7 +2,6 @@ import { AuthorRoleName } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-// import stc from 'string-to-color'
 
 import { withTwind } from '../../../../twind'
 
