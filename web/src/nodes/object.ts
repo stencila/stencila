@@ -27,7 +27,10 @@ export class Object extends Entity {
    * In dynamic view, in addition to the value, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="Object" view="dynamic"
+    return html`<stencila-ui-node-card
+      type="Object"
+      view="dynamic"
+      ?collapsible=${true}
       ><div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }
@@ -38,7 +41,10 @@ export class Object extends Entity {
    * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card type="Object" view="source"
+    return html`<stencila-ui-node-card
+      type="Object"
+      view="source"
+      ?collapsible=${true}
       ><div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }

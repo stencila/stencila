@@ -31,6 +31,21 @@ export class UINodeCard extends LitElement {
   @property()
   view: DocumentView
 
+  /**
+   * Apply collapsible fucntionality to the card.
+   *
+   * If `true`, Will add a chevron button into the header allowing
+   * user to toggle the `collapsed` property.
+   */
+  @property({ type: Boolean })
+  collapsible: boolean = false
+
+  /**
+   * Controls the collapsible state of the card (if enabled).
+   */
+  @property({ type: Boolean })
+  collapsed: boolean = false
+
   override render() {
     const { iconLibrary, icon, title, colour, borderColour } = nodeUi(this.type)
 
@@ -39,28 +54,47 @@ export class UINodeCard extends LitElement {
     const headerStyles = apply([
       'flex justify-between items-center',
       'w-full',
-      'px-6 py-3',
+      `pr-6 ${this.collapsible ? 'pl-1' : 'pl-6'} py-3`,
       `bg-[${borderColour}]`,
       `border border-[${borderColour}] ${this.view === 'source' ? '' : 'rounded-t'}`,
       'font-medium',
     ])
 
+    // add the collapsible styles if `collapsible property is enabled`
+    const collapsibleBody = this.collapsible
+      ? [
+          this.collapsed ? 'max-h-0' : 'max-h-[1000px]',
+          'transtion-max-h duration-200',
+          'overflow-y-hidden',
+        ]
+      : []
+
     const bodyStyles = apply([
       'w-full h-full',
       `bg-[${colour}]`,
       `border border-[${borderColour}] rounded-b`,
+      ...collapsibleBody,
     ])
 
     return html` <div class=${cardStyles}>
       <div class=${headerStyles}>
-        <span class="items-center font-bold flex">
+        <div class="items-center font-bold flex">
+          ${this.collapsible
+            ? html`
+                <stencila-chevron-button
+                  class="mr-1"
+                  .clickEvent=${() => (this.collapsed = !this.collapsed)}
+                >
+                </stencila-chevron-button>
+              `
+            : ''}
           <sl-icon
             library=${iconLibrary}
             name=${icon}
             class=${`pr-2 text-2xl`}
           ></sl-icon>
-          ${title}
-        </span>
+          <span>${title}</span>
+        </div>
         <span class="items-center font-bold flex">
           <slot name="header-right"></slot>
         </span>

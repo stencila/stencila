@@ -26,8 +26,12 @@ export class Boolean extends Entity {
    * In dynamic view, in addition to the value, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="Boolean" view="dynamic"
-      ><div slot="body"><slot></slot></div
+    return html`<stencila-ui-node-card
+      type="Boolean"
+      view="dynamic"
+      ?collapsible=${true}
+    >
+      <div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }
 
@@ -37,8 +41,12 @@ export class Boolean extends Entity {
    * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card type="Boolean" view="source"
-      ><div slot="body"><slot></slot></div
-    ></stencila-ui-node-card>`
+    return html`<stencila-ui-node-card
+      type="Boolean"
+      view="source"
+      ?collapsible=${true}
+    >
+      <div slot="body"><slot></slot></div>
+    </stencila-ui-node-card>`
   }
 }

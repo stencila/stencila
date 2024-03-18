@@ -3,7 +3,10 @@ import { customElement } from 'lit/decorators.js'
 
 import '../ui/nodes/card'
 
+import { withTwind } from '../twind'
+
 import { Entity } from './entity'
+
 import './array-item'
 
 /**
@@ -15,6 +18,7 @@ import './array-item'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md
  */
 @customElement('stencila-array')
+@withTwind()
 export class Array extends Entity {
   /**
    * In static view just render the value
@@ -27,9 +31,15 @@ export class Array extends Entity {
    * In dynamic view, in addition to the value, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="Array" view="dynamic"
-      ><div slot="body"><slot></slot></div
-    ></stencila-ui-node-card>`
+    return html`
+      <stencila-ui-node-card type="Array" view="dynamic" ?collapsible=${true}>
+        <div slot="body">
+          <div class="px-2">
+            <slot></slot>
+          </div>
+        </div>
+      </stencila-ui-node-card>
+    `
   }
 
   /**
@@ -38,7 +48,10 @@ export class Array extends Entity {
    * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card type="Array" view="source"
+    return html`<stencila-ui-node-card
+      type="Array"
+      view="source"
+      ?collapsible=${true}
       ><div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }
