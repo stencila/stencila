@@ -361,7 +361,7 @@ pub async fn serve_path(
         format!(
             r#" <link rel="preconnect" href="https://fonts.googleapis.com">
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500;900&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&display=swap" rel="stylesheet">
                 <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
                 <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/dark.css">
                 <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
