@@ -1,9 +1,9 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../twind'
+import { withTwind } from '../../../../twind'
 
-import './properties/generic/collapsible'
+import './collapsible'
 
 /**
  * UI Node Collapsible Details

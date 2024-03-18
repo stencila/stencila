@@ -6,7 +6,7 @@ import { customElement, property, state } from 'lit/decorators'
 import { withTwind } from '../../../twind'
 import { nodeBorderColour } from '../icons-and-colours'
 
-import '../collapsible-card'
+import './generic/collapsible-details'
 
 /**
  * A component for displaying the `authors` property of a node
