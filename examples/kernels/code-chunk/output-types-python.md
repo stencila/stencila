@@ -26,7 +26,7 @@ df = pd.DataFrame({
     'c1': [True, False],
     'c2': [1, 2],
     'c3': [1.23, 4.56],
-    'c3': ['One', 'Two']
+    'c4': ['One', 'Two']
 })
 
 df
