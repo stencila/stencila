@@ -8,7 +8,7 @@ import { UINodeTimestampProperty } from './generic/timestamp'
 
 /**
  * A component for displaying the `lastModified` property of an `AuthorRole` node
- * 
+ *
  * If the timestamp value is undefined/null then renders an empty string
  */
 @customElement('stencila-ui-node-last-modified')
