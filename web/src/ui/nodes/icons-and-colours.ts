@@ -53,7 +53,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   MathBlock:        { ...stencilaIcon('math-block'),           ...nodeColours('fuchsia')},
   Number:           { ...shoelaceIcon('hash'),                 ...nodeColours('gray')},
   Paragraph:        { ...stencilaIcon('paragraph'),            ...nodeColours('gray')},
-  Object:           { ...shoelaceIcon('boxes'),                ...nodeColours('gray')},
+  Object:           { ...shoelaceIcon('braces'),               ...nodeColours('gray')},
   QuoteBlock:       { ...shoelaceIcon('quote'),                ...nodeColours('yellow')},
   ReplaceBlock:     { ...stencilaIcon('replace-block'),        ...nodeColours('orange')},
   Section:          { ...shoelaceIcon('square'),               ...nodeColours('fuchsia')},

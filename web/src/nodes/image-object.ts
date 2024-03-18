@@ -36,11 +36,18 @@ export class ImageObject extends Entity {
    * In dynamic view, in addition to the image, render a node card.
    */
   override renderDynamicView() {
+    const imgCss = css`
+      & slot::slotted(*) img {
+        width: 100%;
+        height: auto;
+      }
+    `
+
     return html`<stencila-ui-node-card
       type="ImageObject"
       view="dynamic"
       collapsible=${true}
-      class=${this.imgCss}
+      class=${imgCss}
       ><div slot="body">
         <div class="max-w-full">
           <slot></slot>

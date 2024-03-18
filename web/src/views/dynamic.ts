@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit'
+import { CSSResultGroup, LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
@@ -45,6 +45,14 @@ export class DynamicView extends LitElement {
    */
   // @ts-expect-error "nodes client is set, not read"
   private nodesClient: NodesClient
+
+  // Make sure all images stay within their parent container bounds
+  static override styles?: CSSResultGroup = css`
+    img {
+      height: auto;
+      width: 100%;
+    }
+  `
 
   /**
    * Override so that clients are instantiated _after_ this
