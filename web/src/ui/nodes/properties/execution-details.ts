@@ -9,7 +9,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 
-import './generic/collapsible'
+import './generic/collapsible-details'
 import './execution-count'
 import './execution-duration'
 import './execution-ended'

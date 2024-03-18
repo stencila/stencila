@@ -1,3 +1,4 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { AuthorRoleName } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
@@ -7,7 +8,7 @@ import { withTwind } from '../../../../twind'
 
 import { SoftwareIcon, assistantIcons, stencilaIcons } from './utils'
 
-import '../generic/timestamp'
+import '../last-modified'
 
 /**
  * A component for displaying an `Author` within the `authors` property of nodes
@@ -104,9 +105,9 @@ export class UINodeAuthor extends LitElement {
       <div
         class=${`grow-0 shrink-0 text-2xs text-right ${this.roleName ? 'pt-3' : 'pt-1'}`}
       >
-        <stencila-ui-node-timestamp-property
-          timestamp=${this.timestamp}
-        ></stencila-ui-node-timestamp-property>
+        <stencila-ui-node-last-modified
+          value=${this.timestamp}
+        ></stencila-ui-node-last-modified>
       </div>
     </div>`
   }
