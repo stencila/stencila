@@ -1,7 +1,12 @@
 The `r` kernel supports outputting most primitive node types. The `print` function is patched so that each argument is a separate output:
 
 ```r exec
-print(TRUE, 1, 2.34, "string", c(1, 2, 3), list(a=1, b=2))
+print(TRUE)
+print(1)
+print(2.34)
+print("string")
+print(c(1, 2, 3))
+print(list(a=1, b=2))
 ```
 
 There is also support for outputting of data frames:
