@@ -1,6 +1,7 @@
-import { property } from 'lit/decorators.js'
+import { property, state } from 'lit/decorators.js'
 
 import { Executable } from './executable'
+import { ExecutionMessage } from './execution-message'
 
 /**
  * Abstract base class for web components representing Stencila Schema `CodeExecutable` node types
@@ -14,56 +15,45 @@ export abstract class CodeExecutable extends Executable {
   @property({ attribute: 'programming-language' })
   programmingLanguage?: string
 
-  // properties to track the counts of message types
-  @property()
-  warnCount: number = 0
-
-  @property()
-  errorCount: number = 0
-
-  @property()
-  debugCount: number = 0
+  /**
+   * The number of `Warning` level messages in the `execution-messages` slot
+   */
+  @state()
+  warningCount: number = 0
 
   /**
-   * Resets the message type count properties to 0
+   * The number of `Error` level messages in the `execution-messages` slot
    */
-  private resetMessageCounts = () => {
-    this.errorCount = 0
-    this.warnCount = 0
-    this.debugCount = 0
-  }
+  @state()
+  errorCount: number = 0
 
   override connectedCallback(): void {
     super.connectedCallback()
 
-    // add observer to watch for slot changes
+    // Add observer to watch for slot changes
     const observer = new MutationObserver((mutationList) => {
-      mutationList.forEach((m) => {
-        if (m.type === 'childList') {
+      mutationList.forEach((mutation) => {
+        if (mutation.type === 'childList') {
           const slot = this.shadowRoot.querySelector(
             'slot[name="execution-messages"]'
           ) as HTMLSlotElement
           const messages = slot
             .assignedElements()[0]
             .querySelectorAll('stencila-execution-message')
-          // reset the message counts, incase of double rendering
-          this.resetMessageCounts()
-          messages.forEach((m) => {
-            // @ts-expect-error 'level property not included in el type'
-            if (m.level) {
-              // @ts-expect-error 'same as above'
-              switch (m.level) {
-                case 'Error':
-                  this.errorCount += 1
-                  return
-                case 'Warn':
-                case 'Warning':
-                  this.warnCount += 1
-                  return
-                default:
-                  this.debugCount += 1
-                  return
-              }
+
+          // Reset the message counts
+          this.warningCount = 0
+          this.errorCount = 0
+
+          messages.forEach((message: ExecutionMessage) => {
+            switch (message.level) {
+              case 'Warning':
+                this.warningCount += 1
+                return
+              case 'Error':
+              case 'Exception':
+                this.errorCount += 1
+                return
             }
           })
         }

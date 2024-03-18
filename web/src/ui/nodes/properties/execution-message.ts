@@ -1,14 +1,17 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { MessageLevel } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
+import '../../buttons/chevron'
 import { executionMessageUI } from '../icons-and-colours'
 
 @customElement('stencila-ui-node-execution-message')
 @withTwind()
 export class ExecutionMessage extends LitElement {
+  // Height for message body when collapsed
   private BASE_HEIGHT = 32 as const
 
   @property()
@@ -19,11 +22,6 @@ export class ExecutionMessage extends LitElement {
 
   @property({ type: Boolean })
   messageCollapsed: boolean = true
-
-  /**
-   * Value to determine if the message needs to expandable
-   */
-  // private expandable: boolean
 
   private toggleCollapse = () => {
     this.messageCollapsed = !this.messageCollapsed
@@ -37,29 +35,9 @@ export class ExecutionMessage extends LitElement {
       overflow-x: auto;
     }
   `
-
-  // override connectedCallback(): void {
-  //   super.connectedCallback()
-
-  //   const observer = new MutationObserver((mutationList) => {
-  //     mutationList.forEach((m) => {
-  //       if (m.type === 'childList') {
-  //         // const messageEls = this.shadowRoot.querySelectorAll(
-  //         //   'slot[name="message"], slot[name="stack-trace"]'
-  //         // )
-  //         // messageEls.forEach((el) => {
-  //         //   const innerSlots = el.assignedNodes() as NodeList
-
-  //         //   innerSlots.forEach((slot) => ))
-  //         // })
-  //       }
-  //     })
-  //   })
-  //   observer.observe(this.shadowRoot, { childList: true, subtree: true })
-  // }
-
   override render() {
     const { colour, icon } = executionMessageUI(this.level)
+
     // styles for the margin element
     const marginStyles = apply([
       'flex-shrink-0',

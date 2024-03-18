@@ -13,20 +13,14 @@ import { executionMessageUI, nodeUi } from '../icons-and-colours'
 @customElement('stencila-ui-node-execution-messages')
 @withTwind()
 export class UINodeExecutionMessages extends LitElement {
-  // TODO: implement summary icons of the number of messages of each level
-
   @property({ type: String })
   type: NodeType
 
-  // properties for the message type count
-  @property({ type: Number, attribute: 'warn-count' })
-  warnCount: number = 0
+  @property({ type: Number, attribute: 'warning-count' })
+  warningCount: number = 0
 
   @property({ type: Number, attribute: 'error-count' })
   errorCount: number = 0
-
-  @property({ type: Number, attribute: 'debug-count' })
-  debugCount: number = 0
 
   override render() {
     const { borderColour } = nodeUi(this.type)
@@ -53,9 +47,12 @@ export class UINodeExecutionMessages extends LitElement {
       <div class=${styles} slot="title">
         <span>Messages</span>
         <div class="flex">
-          ${this.renderLozenge('Error', this.errorCount)}
-          ${this.renderLozenge('Warn', this.warnCount)}
-          ${this.renderLozenge('Debug', this.debugCount)}
+          ${this.warningCount > 0
+            ? this.renderLozenge('Warning', this.warningCount)
+            : ''}
+          ${this.errorCount > 0
+            ? this.renderLozenge('Error', this.errorCount)
+            : ''}
         </div>
       </div>
     `

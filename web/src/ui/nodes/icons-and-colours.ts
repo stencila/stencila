@@ -92,26 +92,26 @@ export const nodeBorderColour = (nodeType: NodeType) =>
 
 /**
  * Return a colour and an icon for each execution message level
+ * 
  * @param level The execution level of the message
  * @returns Object containing the twind `colour` string an `icon` name,
- * and the icon `library` if not default
+ *                 and the icon `library` if not default
  */
 export const executionMessageUI = (
   level: MessageLevel
 ): { colour: string; icon: string; library?: string } => {
   switch (level) {
+    case 'Exception':
     case 'Error':
       return { colour: 'pink-900', icon: 'x-circle' }
-    // @ts-expect-error '"Warning" is being used, but is not included in the type union'
     case 'Warning':
-    case 'Warn':
       return { colour: 'orange-500', icon: 'exclamation-circle' }
     case 'Info':
       return { colour: 'green-900', icon: 'info-circle' }
     case 'Debug':
+      return { colour: 'blue-900', icon: 'question-circle' }
     case 'Trace':
-    default:
-      return { colour: 'green-900', icon: 'question-circle' }
+      return { colour: 'purple-900', icon: 'slash-circle' }
   }
 }
 

@@ -80,9 +80,8 @@ export class CodeChunk extends CodeExecutable {
 
         <stencila-ui-node-execution-messages
           type="CodeChunk"
-          warn-count=${this.warnCount}
+          warning-count=${this.warningCount}
           error-count=${this.errorCount}
-          debug-count=${this.debugCount}
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
@@ -130,9 +129,8 @@ export class CodeChunk extends CodeExecutable {
 
         <stencila-ui-node-execution-messages
           type="CodeChunk"
-          warn-count=${this.warnCount}
+          warning-count=${this.warningCount}
           error-count=${this.errorCount}
-          debug-count=${this.debugCount}
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
