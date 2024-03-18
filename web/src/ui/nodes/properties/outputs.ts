@@ -5,8 +5,6 @@ import { customElement, property } from 'lit/decorators'
 import { withTwind } from '../../../twind'
 import { nodeUi } from '../icons-and-colours'
 
-import './output-types'
-
 @customElement('stencila-ui-node-outputs')
 @withTwind()
 export class NodeOutputs extends LitElement {
@@ -14,7 +12,6 @@ export class NodeOutputs extends LitElement {
   type: NodeType
 
   override render() {
-    console.log('rendering outpust')
     const { borderColour } = nodeUi(this.type)
 
     return html`
