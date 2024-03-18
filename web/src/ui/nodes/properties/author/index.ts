@@ -85,7 +85,7 @@ export class UINodeAuthor extends LitElement {
     return html`<div class="flex flex-row gap-x-2">
       <div class="flex items-center justify-center">
         <div class="w-6 h-6 flex items-center justify-center grow-0 stretch-0">
-          ${this.getIconOrAvatar()}
+          ${this.renderIconOrAvatar()}
         </div>
       </div>
       <div class="grow flex flex-col justify-center">
@@ -124,7 +124,7 @@ export class UINodeAuthor extends LitElement {
     return this.name.charAt(0)
   }
 
-  private getSoftwareIcon() {
+  private renderSoftwareIcon() {
     const [application, version] = this.splitID()
     const results = version?.split('-') ?? []
     const action = results[0] ?? ''
@@ -138,7 +138,7 @@ export class UINodeAuthor extends LitElement {
     }
 
     if (!foundIcons) {
-      return this.getAvatar()
+      return this.renderAvatar()
     }
 
     return html`<sl-icon
@@ -148,7 +148,7 @@ export class UINodeAuthor extends LitElement {
     ></sl-icon>`
   }
 
-  private getAvatar() {
+  private renderAvatar() {
     const classes = apply([
       'grid items-center justify-center',
       'w-6 h-6',
@@ -164,19 +164,19 @@ export class UINodeAuthor extends LitElement {
     </div>`
   }
 
-  private getOrgIcon() {
+  private renderOrgIcon() {
     return html`<sl-icon name="building" class=${`text-xl m-auto`}></sl-icon>`
   }
 
-  private getIconOrAvatar() {
+  private renderIconOrAvatar() {
     switch (this.type) {
       case 'SoftwareApplication': {
-        return this.getSoftwareIcon()
+        return this.renderSoftwareIcon()
       }
       case 'Organization':
-        return this.getOrgIcon()
+        return this.renderOrgIcon()
       default:
-        return this.getAvatar()
+        return this.renderAvatar()
     }
   }
 }
