@@ -21,7 +21,7 @@ export class NodeOutputs extends LitElement {
         icon-library="stencila"
         header-bg=${borderColour}
       >
-        <span slot="title">Output</span>
+        <span slot="title">Outputs</span>
         <div class="px-6 py-3 flex flex-col gap-y-3" slot="content">
           <slot></slot>
         </div>
