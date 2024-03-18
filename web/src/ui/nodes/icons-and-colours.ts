@@ -40,6 +40,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   Claim:            { ...shoelaceIcon('postage'),              ...nodeColours('orange')},
   CodeBlock:        { ...shoelaceIcon('braces'),               ...nodeColours('fuchsia')},
   CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('fuchsia')},
+  Datatable:        { ...stencilaIcon('table'),                ...nodeColours('gray')},
   DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')},
   Figure:           { ...shoelaceIcon('image'),                ...nodeColours('gray')},
   ForBlock:         { ...stencilaIcon('for-block'),            ...nodeColours('pink')},

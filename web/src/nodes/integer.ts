@@ -1,9 +1,12 @@
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/card'
+import { withTwind } from '../twind'
 
 import { Entity } from './entity'
+
+import '../ui/nodes/card'
 
 /**
  * Web component representing a Stencila Schema `Integer` node
@@ -14,7 +17,15 @@ import { Entity } from './entity'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md
  */
 @customElement('stencila-integer')
+@withTwind()
 export class Integer extends Entity {
+  private bodyStyles = apply([
+    'flex justify-center',
+    'w-full',
+    'py-2 px-6',
+    'font-mono',
+  ])
+
   /**
    * In static view just render the value
    */
@@ -26,12 +37,11 @@ export class Integer extends Entity {
    * In dynamic view, in addition to the value, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card
-      type="Integer"
-      view="dynamic"
-      ?collapsible=${true}
-      ><div slot="body"><slot></slot></div
-    ></stencila-ui-node-card>`
+    return html`
+      <stencila-ui-node-card type="Integer" view="dynamic" ?collapsible=${true}>
+        <div slot="body" class=${this.bodyStyles}><slot></slot></div>
+      </stencila-ui-node-card>
+    `
   }
 
   /**
@@ -40,11 +50,10 @@ export class Integer extends Entity {
    * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card
-      type="Integer"
-      view="source"
-      ?collapsible=${true}
-      ><div slot="body"><slot></slot></div
-    ></stencila-ui-node-card>`
+    return html`
+      <stencila-ui-node-card type="Integer" view="source" ?collapsible=${true}>
+        <div slot="body" class=${this.bodyStyles}><slot></slot></div>
+      </stencila-ui-node-card>
+    `
   }
 }

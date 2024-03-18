@@ -24,7 +24,10 @@ export class Datatable extends Entity {
    * In dynamic view, in addition to the table, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="Datatable" view="dynamic"
+    return html`<stencila-ui-node-card
+      type="Datatable"
+      view="dynamic"
+      ?collapsible=${true}
       ><div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }
@@ -35,7 +38,10 @@ export class Datatable extends Entity {
    * node type is normally only present in `CodeChunk.outputs`).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card type="Datatable" view="source"
+    return html`<stencila-ui-node-card
+      type="Datatable"
+      view="source"
+      ?collapsible=${true}
       ><div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }
