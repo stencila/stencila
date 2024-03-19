@@ -14,7 +14,7 @@ export class ObjectItem extends LitElement {
   key: string
 
   override render() {
-    const itemClasses = apply(['flex flex-row', 'mb-1'])
+    const itemClasses = apply(['flex flex-row'])
     const keyClasses = apply([
       'w-full max-w-1/5',
       'p-3',
@@ -23,7 +23,9 @@ export class ObjectItem extends LitElement {
     ])
     return html`
       <div class=${itemClasses}>
-        <div class=${keyClasses}>${this.key}:</div>
+        <sl-tooltip content="${this.key}">
+          <div class=${keyClasses}>${this.key}:</div>
+        </sl-tooltip>
         <div class="w-full"><slot></slot></div>
       </div>
     `

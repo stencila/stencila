@@ -33,7 +33,7 @@ export class Array extends Entity {
   override renderDynamicView() {
     return html`
       <stencila-ui-node-card type="Array" view="dynamic" ?collapsible=${true}>
-        <div slot="body" class="px-2">
+        <div slot="body" class="p-2">
           <slot></slot>
         </div>
       </stencila-ui-node-card>

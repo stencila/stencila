@@ -84,6 +84,8 @@ export class UINodeCard extends LitElement {
                 <stencila-chevron-button
                   class="mr-1"
                   .clickEvent=${() => (this.collapsed = !this.collapsed)}
+                  default-pos="right"
+                  position=${this.collapsed ? 'right' : 'down'}
                 >
                 </stencila-chevron-button>
               `

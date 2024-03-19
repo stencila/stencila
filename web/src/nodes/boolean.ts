@@ -23,7 +23,7 @@ export class Boolean extends Entity {
     'flex justify-center',
     'w-full',
     'py-2 px-6',
-    'italic',
+    'font-bold font-mono',
   ])
 
   /**

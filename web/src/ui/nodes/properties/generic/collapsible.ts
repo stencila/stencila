@@ -25,7 +25,7 @@ export class UINodeCollapsibleProperty extends LitElement {
 
   override render() {
     const contentClasses = apply([
-      this.collapsed ? 'max-h-0' : 'max-h-[1000px]',
+      this.collapsed ? 'max-h-0' : 'max-h-[1500px]',
       'transition-max-h duration-200',
     ])
 

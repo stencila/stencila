@@ -19,12 +19,7 @@ import { Entity } from './entity'
 @customElement('stencila-string')
 @withTwind()
 export class String extends Entity {
-  private bodyStyles = apply([
-    'flex justify-center',
-    'w-full',
-    'py-2 px-6',
-    'italic',
-  ])
+  private bodyStyles = apply(['flex justify-center', 'w-full', 'py-2 px-6'])
 
   /**
    * In static view just render the value

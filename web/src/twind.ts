@@ -40,6 +40,8 @@ export const config = defineConfig({
         '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',
       },
       maxWidth: {
+        4: '1rem',
+        8: '2rem',
         '1/5': '20%',
       },
       colors: {

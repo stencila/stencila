@@ -100,7 +100,7 @@ export const nodeBorderColour = (nodeType: NodeType) =>
 
 /**
  * Return a colour and an icon for each execution message level
- * 
+ *
  * @param level The execution level of the message
  * @returns Object containing the twind `colour` string an `icon` name,
  *                 and the icon `library` if not default
