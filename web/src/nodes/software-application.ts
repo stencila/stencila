@@ -21,11 +21,15 @@ export class SoftwareApplication extends Entity {
   @property()
   name: string
 
+  @property()
+  version?: string
+
   override render() {
     return html`<stencila-ui-node-author
       type="SoftwareApplication"
       _id=${this.$id}
       name=${this.name}
+      details=${`v${this.version}`}
     ></stencila-ui-node-author>`
   }
 }

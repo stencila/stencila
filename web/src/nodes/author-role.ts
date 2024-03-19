@@ -39,6 +39,9 @@ export class AuthorRole extends Entity {
   @state()
   private name: string
 
+  @state()
+  private details: string
+
   /**
    * An observer to watch this element, including slotted children,
    * and call `getAuthor` on any mutations
@@ -72,6 +75,7 @@ export class AuthorRole extends Entity {
         this.type = 'SoftwareApplication'
         this.$id = app.$id
         this.name = app.name
+        this.details = `v${app.version}`
       }
     }
   }
@@ -84,6 +88,7 @@ export class AuthorRole extends Entity {
         name=${this.name}
         role=${this.roleName}
         timestamp=${this.lastModified}
+        details=${this.details}
       ></stencila-ui-node-author>
 
       <div hidden><slot></slot></div>
