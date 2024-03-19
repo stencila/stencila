@@ -1,3 +1,4 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
 import {
   foldGutter,
   defaultHighlightStyle,
@@ -13,8 +14,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import { nodeUi } from '../icons-and-colours'
-
-import './generic/collapsible'
+import '../../buttons/chevron'
 
 /**
  * A component for displaying the `code` property of `CodeStatic` and `CodeExecutable` nodes
@@ -174,7 +174,9 @@ export class UINodeCode extends LitElement {
 
     const language = this.getLanguageTitle()
 
-    return html` <div class="overflow-hidden">
+    // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
+    // the CodeMirror stylesheet from being applied to the `<slot name="content">`
+    return html`<div class="overflow-hidden">
       <div
         class=${headerClasses}
         @click=${() => (this.collapsed = !this.collapsed)}
