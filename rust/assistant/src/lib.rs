@@ -30,7 +30,7 @@ use schema::{
     NodeType, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
-    SuggestionStatus, VideoObject,
+    SuggestionStatus, Timestamp, VideoObject,
 };
 
 // Export crates for the convenience of dependant crates
@@ -1112,12 +1112,14 @@ pub trait Assistant: Sync + Send {
 
     /// Create an `AuthorRole` node for this assistant
     fn to_author_role(&self, role_name: AuthorRoleName) -> AuthorRole {
-        AuthorRole::new(
+        let mut role = AuthorRole::new(
             PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
                 self.to_software_application(),
             ),
             role_name,
-        )
+        );
+        role.last_modified = Some(Timestamp::now());
+        role
     }
 
     /// Create a `SoftwareApplication` node identifying this assistant
