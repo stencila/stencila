@@ -61,6 +61,7 @@ export class UINodeExecutionDetails extends LitElement {
       <stencila-ui-node-collapsible-details
         type=${this.type}
         title="Details"
+        icon-name="info"
         wrapper-css="border-t border-black/30"
         .collapsed=${false}
       >
