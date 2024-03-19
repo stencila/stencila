@@ -1,10 +1,12 @@
-import { LitElement, html } from 'lit'
+import { CSSResultGroup, LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
 import { NodesClient } from '../clients/nodes'
 import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
+
+import { outputCSS } from './styles/outputs'
 
 /**
  * Dynamic view of a document
@@ -45,6 +47,9 @@ export class DynamicView extends LitElement {
    */
   // @ts-expect-error "nodes client is set, not read"
   private nodesClient: NodesClient
+
+  // Add outputCSS to view
+  static override styles?: CSSResultGroup = [outputCSS]
 
   /**
    * Override so that clients are instantiated _after_ this

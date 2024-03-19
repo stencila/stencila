@@ -13,6 +13,8 @@ import { withTwind } from '../twind'
 import '../nodes'
 import type { DocumentId } from '../types'
 
+import { outputCSS } from './styles/outputs'
+
 /**
  * View of information about the document, including the currently selected node
  *
@@ -69,6 +71,9 @@ export class InfoView extends LitElement {
       this.renderRoot.querySelector('[root]') as HTMLElement
     )
   }
+
+  // add the output css to view
+  static override styles? = [outputCSS]
 
   override async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)

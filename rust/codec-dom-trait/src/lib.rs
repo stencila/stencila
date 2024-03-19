@@ -1,7 +1,7 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use common::{inflector::Inflector, serde::Serialize, serde_json};
+use common::{inflector::Inflector, serde::Serialize, serde_json, smart_default::SmartDefault};
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 use node_id::NodeId;
 use node_type::NodeType;
@@ -100,13 +100,17 @@ where
     }
 }
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct DomEncodeContext {
     // The DOM HTML content
     content: String,
 
     // The names of the current stack of HTML elements
     elements: Vec<String>,
+
+    /// The maximum number of rows of a datatable to encode
+    #[default = 1000]
+    pub max_datatable_rows: usize,
 }
 
 impl DomEncodeContext {

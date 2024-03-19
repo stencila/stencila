@@ -8,6 +8,7 @@ import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/outputs'
 
 import { CodeExecutable } from './code-executable'
 
@@ -84,7 +85,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 
-        <stencila-ui-node-outputs>
+        <stencila-ui-node-outputs type="CodeChunk">
           <slot name="outputs"></slot>
         </stencila-ui-node-outputs>
 
@@ -132,7 +133,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 
-        <stencila-ui-node-outputs>
+        <stencila-ui-node-outputs type="CodeChunk">
           <slot name="outputs"></slot>
         </stencila-ui-node-outputs>
       </div>

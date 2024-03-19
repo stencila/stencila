@@ -14,6 +14,8 @@ mod code_chunk;
 mod code_expression;
 mod code_inline;
 mod cord;
+mod datatable;
+mod datatable_columns;
 mod date;
 mod date_time;
 mod delete_block;

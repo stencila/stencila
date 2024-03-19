@@ -9,6 +9,9 @@
   ],
   "category": "data",
   "description": "A table of data.",
+  "dom": {
+    "derive": false
+  },
   "required": [
     "type",
     "columns"

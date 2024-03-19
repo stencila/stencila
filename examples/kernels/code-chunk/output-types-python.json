@@ -52,12 +52,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299951326,
+        "value": 1710732196063,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 1737,
+        "value": 1138,
         "timeUnit": "Millisecond"
       }
     },
@@ -107,12 +107,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299951330,
+        "value": 1710732196066,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 4,
+        "value": 3,
         "timeUnit": "Millisecond"
       }
     },
@@ -135,7 +135,7 @@
     },
     {
       "type": "CodeChunk",
-      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'c1': [True, False],\n    'c2': [1, 2],\n    'c3': [1.23, 4.56],\n    'c3': ['One', 'Two']\n})\n\ndf",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'c1': [True, False],\n    'c2': [1, 2],\n    'c3': [1.23, 4.56],\n    'c4': ['One', 'Two']\n})\n\ndf",
       "programmingLanguage": "python",
       "outputs": [
         {
@@ -173,6 +173,20 @@
               "type": "DatatableColumn",
               "name": "c3",
               "values": [
+                1.23,
+                4.56
+              ],
+              "validator": {
+                "type": "ArrayValidator",
+                "itemsValidator": {
+                  "type": "NumberValidator"
+                }
+              }
+            },
+            {
+              "type": "DatatableColumn",
+              "name": "c4",
+              "values": [
                 "One",
                 "Two"
               ],
@@ -188,12 +202,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299951336,
+        "value": 1710732196070,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 5,
+        "value": 4,
         "timeUnit": "Millisecond"
       }
     },
@@ -229,12 +243,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299951506,
+        "value": 1710732196222,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 169,
+        "value": 152,
         "timeUnit": "Millisecond"
       }
     }
@@ -244,12 +258,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710299951506,
+    "value": 1710732196222,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 1917,
+    "value": 1297,
     "timeUnit": "Millisecond"
   }
 }

@@ -4,6 +4,8 @@ nick: dtc
 extends: Entity
 category: data
 description: A column of data within a `Datatable`.
+dom:
+  derive: false
 required:
   - name
   - values

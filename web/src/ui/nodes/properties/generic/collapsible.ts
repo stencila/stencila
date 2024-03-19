@@ -29,7 +29,7 @@ export class UINodeCollapsibleProperty extends LitElement {
     const { borderColour: headerBg } = nodeUi(this.type)
 
     const contentClasses = apply([
-      this.collapsed ? 'max-h-0' : 'max-h-[1000px]',
+      this.collapsed ? 'max-h-0' : 'max-h-[1500px]',
       'transition-max-h duration-200',
     ])
 

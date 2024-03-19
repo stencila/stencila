@@ -4,6 +4,8 @@ nick: dtb
 extends: CreativeWork
 category: data
 description: A table of data.
+dom:
+  derive: false
 required:
   - columns
 properties:

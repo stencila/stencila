@@ -9,6 +9,9 @@
   ],
   "category": "data",
   "description": "A column of data within a `Datatable`.",
+  "dom": {
+    "derive": false
+  },
   "required": [
     "type",
     "name",
