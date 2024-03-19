@@ -3,6 +3,9 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
+import '../ui/nodes/card'
+import '../ui/nodes/properties/authors'
+
 import { Entity } from './entity'
 
 @customElement('stencila-code-block')
@@ -13,10 +16,6 @@ export class CodeBlock extends Entity {
   }
 
   override renderDynamicView() {
-    return this.renderStaticView()
-  }
-
-  override renderVisualView() {
     return this.renderStaticView()
   }
 
