@@ -303,8 +303,8 @@ def mb(code: str, *, lang: str | None = None) -> T.MathBlock:
 
 
 @beartype
-def p(*args: Union[T.Inline, str]) -> T.Paragraph:
-    return T.Paragraph(content=convert_to_inlines(args))
+def p(*args: ConvertibleToInline) -> T.Paragraph:
+    return T.Paragraph(content=convert_to_inlines(*args))
 
 
 @beartype

@@ -11,7 +11,7 @@ from stencila.stencila_types import Article, Emphasis, Paragraph, Strong, Text
 
 async def test_from_string():
     txt = """{
-        type: "Article", 
+        type: "Article",
         content: [
                 {type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}
             ]

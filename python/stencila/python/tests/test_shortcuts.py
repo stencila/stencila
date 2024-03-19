@@ -61,13 +61,14 @@ async def test_paragraph():
     # TODO: Get the typing right on p() for these to work!
     #
     # List
-    # assert await TOS(S.p(["Hello ", S.em("Cruel"), " World"])) == "Hello _Cruel_ World"
+    assert await TOS(S.p(["Hello ", S.em("Cruel"), " World"])) == "Hello _Cruel_ World"
 
     # Iterable!
-    # assert (
-    #     await TOS(S.p(lots_of_numbers_and_stuff()))
-    #     == "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, [Example](https://example.com) **So Strong** 121 3.141529 true"
-    # )
+    assert (
+        await TOS(S.p(lots_of_numbers_and_stuff()))
+        == "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, [Example](https://example.com)"
+        " **So Strong** 121 3.141529 true"
+    )
 
     with pytest.raises(BeartypeCallHintParamViolation):
         await TOS(S.p(NotAnInline("Not OK")))  # type: ignore
