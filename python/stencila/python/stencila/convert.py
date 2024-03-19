@@ -1,8 +1,9 @@
 from typing import Optional
 
+from stencila_types.types import Node
+from stencila_types.utilities import from_json, to_json
+
 from stencila import _stencila
-from stencila.stencila_types import Node
-from stencila.utilities import from_json, to_json
 
 
 async def from_string(string: str, format: Optional[str] = "json") -> Node:

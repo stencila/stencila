@@ -187,14 +187,103 @@ class CitationIntent(StrEnum):
     UsesMethodIn = "UsesMethodIn"
 
 
-class CitationMode(StrEnum):
+class LabelType(StrEnum):
     """
-    The mode of a `Cite`.
+    Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
     """
 
-    Parenthetical = "Parenthetical"
-    Narrative = "Narrative"
-    NarrativeAuthor = "NarrativeAuthor"
+    FigureLabel = "FigureLabel"
+    TableLabel = "TableLabel"
+
+
+class ExecutionDependantRelation(StrEnum):
+    """
+    The relation between a node and its execution dependant.
+    """
+
+    Assigns = "Assigns"
+    Alters = "Alters"
+    Declares = "Declares"
+    Writes = "Writes"
+
+
+class SectionType(StrEnum):
+    """
+    The type of a `Section`.
+    """
+
+    Main = "Main"
+    Header = "Header"
+    Footer = "Footer"
+    Summary = "Summary"
+    Introduction = "Introduction"
+    Methods = "Methods"
+    Results = "Results"
+    Discussion = "Discussion"
+    Conclusion = "Conclusion"
+    Iteration = "Iteration"
+
+
+class TableCellType(StrEnum):
+    """
+    Indicates whether the cell is a header or data.
+    """
+
+    DataCell = "DataCell"
+    HeaderCell = "HeaderCell"
+
+
+class SuggestionStatus(StrEnum):
+    """
+    The status of an instruction.
+    """
+
+    Proposed = "Proposed"
+    Accepted = "Accepted"
+    Rejected = "Rejected"
+
+
+class TimeUnit(StrEnum):
+    """
+    A unit in which time can be measured.
+    """
+
+    Year = "Year"
+    Month = "Month"
+    Week = "Week"
+    Day = "Day"
+    Hour = "Hour"
+    Minute = "Minute"
+    Second = "Second"
+    Millisecond = "Millisecond"
+    Microsecond = "Microsecond"
+    Nanosecond = "Nanosecond"
+    Picosecond = "Picosecond"
+    Femtosecond = "Femtosecond"
+    Attosecond = "Attosecond"
+
+
+class ListOrder(StrEnum):
+    """
+    Indicates how a `List` is ordered.
+    """
+
+    is_folded: bool | None = None
+    """Whether the admonition is folded."""
+
+    content: list[Block]
+    """The content within the section."""
+
+class AuthorRoleName(StrEnum):
+    """
+    A `roleName` for an `AuthorRole`.
+    """
+
+    Writer = "Writer"
+    Verifier = "Verifier"
+    Instructor = "Instructor"
+    Prompter = "Prompter"
+    Generator = "Generator"
 
 
 class ClaimType(StrEnum):
@@ -210,17 +299,6 @@ class ClaimType(StrEnum):
     Exception = "Exception"
 
 
-class ExecutionDependantRelation(StrEnum):
-    """
-    The relation between a node and its execution dependant.
-    """
-
-    Assigns = "Assigns"
-    Alters = "Alters"
-    Declares = "Declares"
-    Writes = "Writes"
-
-
 class ExecutionDependencyRelation(StrEnum):
     """
     The type of a `Note` which determines where the note content is displayed within the document.
@@ -229,6 +307,86 @@ class ExecutionDependencyRelation(StrEnum):
     Footnote = "Footnote"
     Endnote = "Endnote"
     Sidenote = "Sidenote"
+
+
+class AdmonitionType(StrEnum):
+    """
+    The type of an `Admonition`.
+    """
+
+    Note = "Note"
+    Info = "Info"
+    Tip = "Tip"
+    Important = "Important"
+    Success = "Success"
+    Failure = "Failure"
+    Warning = "Warning"
+    Danger = "Danger"
+    Error = "Error"
+
+
+class CitationMode(StrEnum):
+    """
+    The mode of a `Cite`.
+    """
+
+    Parenthetical = "Parenthetical"
+    Narrative = "Narrative"
+    NarrativeAuthor = "NarrativeAuthor"
+
+
+class MessageLevel(StrEnum):
+    """
+    The severity level of a message.
+    """
+
+    Trace = "Trace"
+    Debug = "Debug"
+    Info = "Info"
+    Warning = "Warning"
+    Error = "Error"
+    Exception = "Exception"
+
+
+class TableRowType(StrEnum):
+    """
+    Indicates whether the row is in the header, body or footer of the table.
+    """
+
+    HeaderRow = "HeaderRow"
+    BodyRow = "BodyRow"
+    FooterRow = "FooterRow"
+
+
+class NoteType(StrEnum):
+    """
+    The type of a `Note` which determines where the note content is displayed within the document.
+    """
+
+    Footnote = "Footnote"
+    Endnote = "Endnote"
+    Sidenote = "Sidenote"
+
+
+class AutomaticExecution(StrEnum):
+    """
+    Under which circumstances the document node should be automatically executed.
+    """
+
+    Never = "Never"
+    Needed = "Needed"
+    Always = "Always"
+
+
+class FormDeriveAction(StrEnum):
+    """
+    Indicates the action (create, update or delete) to derive for a `Form`.
+    """
+
+    Create = "Create"
+    Update = "Update"
+    Delete = "Delete"
+    UpdateOrDelete = "UpdateOrDelete"
 
 
 class ExecutionRequired(StrEnum):
@@ -2674,15 +2832,348 @@ class VideoObject(MediaObject):
     """The transcript of this video recording."""
 
 
-Author = Union[
-    Person,
-    Organization,
-    SoftwareApplication,
-    AuthorRole,
-]
-"""
-Union type for things that can be an author of a `CreativeWork` or other type.
-"""
+
+@dataclass(kw_only=True)
+class InsertBlock(SuggestionBlock):
+    """
+    A suggestion to insert some block content.
+    """
+
+    type: Literal["InsertBlock"] = "InsertBlock"
+
+
+
+@dataclass(kw_only=True)
+class DeleteBlock(SuggestionBlock):
+    """
+    A suggestion to delete some block content.
+    """
+
+    type: Literal["DeleteBlock"] = "DeleteBlock"
+
+
+
+@dataclass(kw_only=True)
+class ModifyBlock(SuggestionBlock):
+    """
+    A suggestion to modify some block content.
+    """
+
+    type: Literal["ModifyBlock"] = "ModifyBlock"
+
+    operations: list[ModifyOperation]
+    """The operations to be applied to the nodes."""
+
+
+
+@dataclass(kw_only=True)
+class SuggestionInline(Suggestion):
+    """
+    Abstract base type for nodes that indicate a suggested change to inline content.
+    """
+
+    type: Literal["SuggestionInline"] = "SuggestionInline"
+
+    content: list[Inline]
+    """The content that is suggested to be inserted, modified, replaced, or deleted."""
+
+
+
+@dataclass(kw_only=True)
+class DeleteInline(SuggestionInline):
+    """
+    A suggestion to delete some inline content.
+    """
+
+    type: Literal["DeleteInline"] = "DeleteInline"
+
+
+
+@dataclass(kw_only=True)
+class ModifyInline(SuggestionInline):
+    """
+    A suggestion to modify some inline content.
+    """
+
+    type: Literal["ModifyInline"] = "ModifyInline"
+
+    operations: list[ModifyOperation]
+    """The operations to be applied to the nodes."""
+
+
+
+@dataclass(kw_only=True)
+class ReplaceInline(SuggestionInline):
+    """
+    A suggestion to replace some inline content with new inline content.
+    """
+
+    type: Literal["ReplaceInline"] = "ReplaceInline"
+
+    replacement: list[Inline]
+    """The new replacement inline content."""
+
+
+
+@dataclass(kw_only=True)
+class InsertInline(SuggestionInline):
+    """
+    A suggestion to insert some inline content.
+    """
+
+    type: Literal["InsertInline"] = "InsertInline"
+
+
+
+@dataclass(kw_only=True)
+class Note(Entity):
+    """
+    Additional content which is not part of the main content of a document.
+    """
+
+    type: Literal["Note"] = "Note"
+
+    note_type: NoteType
+    """Determines where the note content is displayed within the document."""
+
+    content: list[Block]
+    """Content of the note, usually a paragraph."""
+
+
+
+@dataclass(kw_only=True)
+class Link(Entity):
+    """
+    A hyperlink to other pages, sections within the same document, resources, or any URL.
+    """
+
+    type: Literal["Link"] = "Link"
+
+    content: list[Inline]
+    """The textual content of the link."""
+
+    target: str
+    """The target of the link."""
+
+    title: str | None = None
+    """A title for the link."""
+
+    rel: str | None = None
+    """The relation between the target and the current thing."""
+
+
+
+@dataclass(kw_only=True)
+class ExecutionMessage(Entity):
+    """
+    An error, warning or log message generated during execution.
+    """
+
+    type: Literal["ExecutionMessage"] = "ExecutionMessage"
+
+    level: MessageLevel
+    """The severity level of the message."""
+
+    message: str
+    """The text of the message."""
+
+    error_type: str | None = None
+    """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
+
+    code_location: CodeLocation | None = None
+    """The location that the error occurred or other message emanated from."""
+
+    stack_trace: str | None = None
+    """Stack trace leading up to the error."""
+
+
+
+@dataclass(kw_only=True)
+class DateValidator(Entity):
+    """
+    A validator specifying the constraints on a date.
+    """
+
+    type: Literal["DateValidator"] = "DateValidator"
+
+    minimum: Date | None = None
+    """The inclusive lower limit for a date."""
+
+    maximum: Date | None = None
+    """The inclusive upper limit for a date."""
+
+
+
+@dataclass(kw_only=True)
+class ExecutionTag(Entity):
+    """
+    A tag on code that affects its execution.
+    """
+
+    type: Literal["ExecutionTag"] = "ExecutionTag"
+
+    name: str
+    """The name of the tag"""
+
+    value: str
+    """The value of the tag"""
+
+    is_global: bool
+    """Whether the tag is global to the document"""
+
+
+
+@dataclass(kw_only=True)
+class DatatableHint(Entity):
+    """
+    A function with a name, which might take Parameters and return a value of a certain type.
+    """
+
+    type: Literal["Function"] = "Function"
+
+    name: str
+    """The name of the function."""
+
+    parameters: list[Parameter]
+    """The parameters of the function."""
+
+    returns: Validator | None = None
+    """The return type of the function."""
+
+
+
+@dataclass(kw_only=True)
+class Note(Entity):
+    """
+    Additional content which is not part of the main content of a document.
+    """
+
+    type: Literal["Note"] = "Note"
+
+    note_type: NoteType
+    """Determines where the note content is displayed within the document."""
+
+    content: list[Block]
+    """Content of the note, usually a paragraph."""
+
+
+
+@dataclass(kw_only=True)
+class BooleanValidator(Entity):
+    """
+    A schema specifying that a node must be a boolean value.
+    """
+
+    type: Literal["BooleanValidator"] = "BooleanValidator"
+
+
+
+@dataclass(kw_only=True)
+class ModifyOperation(Entity):
+    """
+    An operation that is part of a suggestion to modify the property of a node.
+    """
+
+    type: Literal["ModifyOperation"] = "ModifyOperation"
+
+    target: str
+    """The target property of each node to be modified."""
+
+    value: StringPatch | Primitive
+    """The new value, or string patch, to apply to the target property."""
+
+
+
+@dataclass(kw_only=True)
+class TimeValidator(Entity):
+    """
+    A validator specifying the constraints on a time.
+    """
+
+    type: Literal["TimeValidator"] = "TimeValidator"
+
+    minimum: Time | None = None
+    """The inclusive lower limit for a time."""
+
+    maximum: Time | None = None
+    """The inclusive upper limit for a time."""
+
+
+
+@dataclass(kw_only=True)
+class EnumValidator(Entity):
+    """
+    A schema specifying that a node must be one of several values.
+    """
+
+    type: Literal["EnumValidator"] = "EnumValidator"
+
+    values: list[Node]
+    """A node is valid if it is equal to any of these values."""
+
+
+
+@dataclass(kw_only=True)
+class Text(Entity):
+    """
+    Textual content.
+    """
+
+    type: Literal["Text"] = "Text"
+
+    value: Cord
+    """The value of the text content"""
+
+
+
+@dataclass(kw_only=True)
+class TupleValidator(Entity):
+    """
+    A validator specifying constraints on an array of heterogeneous items.
+    """
+
+    type: Literal["TupleValidator"] = "TupleValidator"
+
+    items: list[Validator] | None = None
+    """An array of validators specifying the constraints on each successive item in the array."""
+
+
+
+@dataclass(kw_only=True)
+class ExecutionDependant(Entity):
+    """
+    A downstream execution dependant of a node.
+    """
+
+    type: Literal["ExecutionDependant"] = "ExecutionDependant"
+
+    dependant_relation: ExecutionDependantRelation
+    """The relation to the dependant."""
+
+    dependant_node: ExecutionDependantNode
+    """The node that is the dependant."""
+
+    code_location: CodeLocation | None = None
+    """The location that the dependant is defined."""
+
+
+
+@dataclass(kw_only=True)
+class DurationValidator(Entity):
+    """
+    A validator specifying the constraints on a duration.
+    """
+
+    type: Literal["DurationValidator"] = "DurationValidator"
+
+    time_units: list[TimeUnit] | None = None
+    """The time units that the duration can have."""
+
+    minimum: Duration | None = None
+    """The inclusive lower limit for a duration."""
+
+    maximum: Duration | None = None
+    """The inclusive upper limit for a duration."""
 
 
 Block = Union[
@@ -2716,74 +3207,229 @@ Union type in block content node types.
 """
 
 
-CreativeWorkType = Union[
-    Article,
-    AudioObject,
-    Claim,
-    Collection,
-    Comment,
-    Datatable,
-    Figure,
+MessagePart = Union[
+    Text,
     ImageObject,
-    MediaObject,
-    Periodical,
-    PublicationIssue,
-    PublicationVolume,
-    Review,
-    SoftwareApplication,
-    SoftwareSourceCode,
-    Table,
+    AudioObject,
     VideoObject,
 ]
 """
-Union type for all types that are descended from `CreativeWork`
+A union type for a part of a message.
 """
 
 
-ExecutionDependantNode = Union[
-    Button,
-    CallBlock,
-    CodeChunk,
-    CodeExpression,
-    File,
-    Function,
-    Parameter,
-    StyledBlock,
-    StyledInline,
-    Variable,
-]
-"""
-Node types that can be execution dependencies.
-"""
+
+@dataclass(kw_only=True)
+class QuoteBlock(Entity):
+    """
+    A section quoted from somewhere else.
+    """
+
+    type: Literal["QuoteBlock"] = "QuoteBlock"
+
+    cite: Cite | Text | None = None
+    """The source of the quote."""
+
+    content: list[Block]
+    """The content of the quote."""
+
+    authors: list[Author] | None = None
+    """The authors of the quote."""
 
 
-ExecutionDependencyNode = Union[
-    Button,
-    CodeChunk,
-    File,
-    Parameter,
-    SoftwareSourceCode,
-    Variable,
-]
-"""
-Node types that can be execution dependencies.
-"""
+
+@dataclass(kw_only=True)
+class Text(Entity):
+    """
+    Textual content.
+    """
+
+    type: Literal["Text"] = "Text"
+
+    value: Cord
+    """The value of the text content"""
 
 
-Hint = Union[
-    ArrayHint,
-    DatatableHint,
-    Function,
-    ObjectHint,
-    StringHint,
-    Unknown,
-    bool,
-    int,
-    float,
-]
-"""
-Union type for hints of the value and/or structure of data.
-"""
+
+@dataclass(kw_only=True)
+class CompilationDigest(Entity):
+    """
+    A digest of the content, semantics and dependencies of an executable node.
+    """
+
+    type: Literal["CompilationDigest"] = "CompilationDigest"
+
+    state_digest: UnsignedInteger
+    """A digest of the state of a node."""
+
+    semantic_digest: UnsignedInteger | None = None
+    """A digest of the semantics of the node with respect to the dependency graph."""
+
+    dependencies_digest: UnsignedInteger | None = None
+    """A digest of the semantic digests of the dependencies of a node."""
+
+    dependencies_stale: UnsignedInteger | None = None
+    """A count of the number of dependencies that are stale."""
+
+    dependencies_failed: UnsignedInteger | None = None
+    """A count of the number of dependencies that failed."""
+
+
+
+@dataclass(kw_only=True)
+class Variable(Entity):
+    """
+    A variable representing a name / value pair.
+    """
+
+    type: Literal["Variable"] = "Variable"
+
+    name: str
+    """The name of the variable."""
+
+    programming_language: str | None = None
+    """The programming language that the variable is defined in e.g. Python, JSON."""
+
+    native_type: str | None = None
+    """The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`"""
+
+    node_type: str | None = None
+    """The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`."""
+
+    value: Node | None = None
+    """The value of the variable."""
+
+    hint: Hint | None = None
+    """A hint to the value and/or structure of the variable."""
+
+    native_hint: str | None = None
+    """A textual hint to the value and/or structure of the variable."""
+
+
+
+@dataclass(kw_only=True)
+class Styled(Entity):
+    """
+    An abstract base class for a document node that has styling applied to it and/or its content.
+    """
+
+    type: Literal["Styled"] = "Styled"
+
+    code: Cord
+    """The code of the equation in the `styleLanguage`."""
+
+    style_language: str | None = None
+    """The language used for the style specification e.g. css, tw"""
+
+    authors: list[Author] | None = None
+    """The authors of the styling code."""
+
+    compilation_digest: CompilationDigest | None = None
+    """A digest of the `code` and `styleLanguage`."""
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while parsing and transpiling the style."""
+
+    css: str | None = None
+    """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
+
+    classes: list[str] | None = None
+    """A list of class names associated with the node."""
+
+
+
+@dataclass(kw_only=True)
+class StyledInline(Styled):
+    """
+    Styled inline content.
+    """
+
+    type: Literal["StyledInline"] = "StyledInline"
+
+    content: list[Inline]
+    """The content within the span."""
+
+
+
+@dataclass(kw_only=True)
+class StyledBlock(Styled):
+    """
+    Styled block content.
+    """
+
+    type: Literal["StyledBlock"] = "StyledBlock"
+
+    content: list[Block]
+    """The content within the styled block"""
+
+
+
+@dataclass(kw_only=True)
+class CodeLocation(Entity):
+    """
+    The location within some source code.
+    """
+
+    type: Literal["CodeLocation"] = "CodeLocation"
+
+    source: str | None = None
+    """The source of the code, a file path, label or URL."""
+
+    start_line: UnsignedInteger | None = None
+    """The 1-based index if the first line on which the error occurred."""
+
+    start_column: UnsignedInteger | None = None
+    """The 1-based index if the first column on which the error occurred."""
+
+    end_line: UnsignedInteger | None = None
+    """The 1-based index if the last line on which the error occurred."""
+
+    end_column: UnsignedInteger | None = None
+    """The 1-based index if the last column on which the error occurred."""
+
+
+
+@dataclass(kw_only=True)
+class Timestamp(Entity):
+    """
+    A value that represents a point in time.
+    """
+
+    type: Literal["Timestamp"] = "Timestamp"
+
+    value: int
+    """The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z)."""
+
+    time_unit: TimeUnit
+    """The time unit that the `value` represents."""
+
+
+
+@dataclass(kw_only=True)
+class ArrayValidator(Entity):
+    """
+    A validator specifying constraints on an array node.
+    """
+
+    type: Literal["ArrayValidator"] = "ArrayValidator"
+
+    items_nullable: bool | None = None
+    """Whether items can have the value `Node::Null`"""
+
+    items_validator: Validator | None = None
+    """Another validator node specifying the constraints on all items in the array."""
+
+    contains: Validator | None = None
+    """An array node is valid if at least one of its items is valid against the `contains` schema."""
+
+    min_items: int | None = None
+    """An array node is valid if its size is greater than, or equal to, this value."""
+
+    max_items: int | None = None
+    """An array node is valid if its size is less than, or equal to, this value."""
+
+    unique_items: bool | None = None
+    """A flag to indicate that each value in the array should be unique."""
 
 
 Inline = Union[
@@ -2830,14 +3476,80 @@ Union type for valid inline content.
 """
 
 
-MessagePart = Union[
-    Text,
-    ImageObject,
-    AudioObject,
-    VideoObject,
+Hint = Union[
+    ArrayHint,
+    DatatableHint,
+    Function,
+    ObjectHint,
+    StringHint,
+    Unknown,
+    bool,
+    int,
+    float,
 ]
 """
-A union type for a part of a message.
+Union type for hints of the value and/or structure of data.
+"""
+
+
+ExecutionDependencyNode = Union[
+    Button,
+    CodeChunk,
+    File,
+    Parameter,
+    SoftwareSourceCode,
+    Variable,
+]
+"""
+Node types that can be execution dependencies.
+"""
+
+
+Validator = Union[
+    ArrayValidator,
+    BooleanValidator,
+    ConstantValidator,
+    DateTimeValidator,
+    DateValidator,
+    DurationValidator,
+    EnumValidator,
+    IntegerValidator,
+    NumberValidator,
+    StringValidator,
+    TimeValidator,
+    TimestampValidator,
+    TupleValidator,
+]
+"""
+Union type for validators.
+"""
+
+
+Author = Union[
+    Person,
+    Organization,
+    SoftwareApplication,
+    AuthorRole,
+]
+"""
+Union type for things that can be an author of a `CreativeWork` or other type.
+"""
+
+
+ExecutionDependantNode = Union[
+    Button,
+    CallBlock,
+    CodeChunk,
+    CodeExpression,
+    File,
+    Function,
+    Parameter,
+    StyledBlock,
+    StyledInline,
+    Variable,
+]
+"""
+Node types that can be execution dependencies.
 """
 
 

@@ -13,9 +13,9 @@ Note that there is likely to be significant overhead from using
 import asyncio
 
 import pytest
+from stencila_types.types import Article
 
 from stencila.convert import from_string, to_string
-from stencila.stencila_types import Article
 
 
 def run_from_string():

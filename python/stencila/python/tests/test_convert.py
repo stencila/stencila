@@ -2,11 +2,12 @@
 Tests of functions in the `convert` module
 """
 
-from tempfile import NamedTemporaryFile
+from pathlib import Path
 
-from stencila import shortcuts as S  # noqa: N812
+from stencila_types import shortcuts as S
+from stencila_types import types as T
+
 from stencila.convert import from_path, from_string, from_to, to_path, to_string
-from stencila.stencila_types import Article, Emphasis, Paragraph, Strong, Text
 
 
 async def test_from_string():
@@ -19,8 +20,8 @@ async def test_from_string():
     """
 
     node = await from_string(txt, format="json5")
-    assert isinstance(node, Article)
-    assert isinstance(node.content[0], Paragraph)
+    assert isinstance(node, T.Article)
+    assert isinstance(node.content[0], T.Paragraph)
 
     # Should be the same.
     a = S.art(S.p("Hello world"))
@@ -28,24 +29,24 @@ async def test_from_string():
 
 
 async def test_from_path():
-    node = await from_path("../examples/nodes/paragraph/paragraph.json")
+    node = await from_path("../../examples/nodes/paragraph/paragraph.json")
 
-    assert isinstance(node, Article)
-    assert isinstance(node.content[0], Paragraph)
-    assert node.content[0] == Paragraph(
-        content=[Text(value="This is paragraph one. It has two sentences.")]
+    assert isinstance(node, T.Article)
+    assert isinstance(node.content[0], T.Paragraph)
+    assert node.content[0] == T.Paragraph(
+        content=[T.Text(value="This is paragraph one. It has two sentences.")]
     )
 
 
 async def test_to_string():
     markdown = await to_string(
-        Article(
+        T.Article(
             content=[
-                Paragraph(
+                T.Paragraph(
                     content=[
-                        Text(value="Hello "),
-                        Strong(content=[Text(value="world")]),
-                        Text(value="!"),
+                        T.Text(value="Hello "),
+                        T.Strong(content=[T.Text(value="world")]),
+                        T.Text(value="!"),
                     ]
                 )
             ]
@@ -56,41 +57,40 @@ async def test_to_string():
     assert markdown == "Hello **world**!"
 
 
-async def test_to_path():
-    node = Article(
+async def test_to_path(tmp_path: Path):
+    node = T.Article(
         content=[
-            Paragraph(
+            T.Paragraph(
                 content=[
-                    Text(value="Hello file "),
-                    Emphasis(content=[Text(value="system")]),
-                    Text(value="!"),
+                    T.Text(value="Hello file "),
+                    T.Emphasis(content=[T.Text(value="system")]),
+                    T.Text(value="!"),
                 ]
             ),
         ]
     )
+    fpath = tmp_path / "file.jats"
+    await to_path(node, str(fpath), format="jats", compact=True)
+    round_tripped = await from_path(str(fpath), format="jats")
+    assert round_tripped == node
 
-    with NamedTemporaryFile(mode="w+", delete=False) as temp:
-        await to_path(node, temp.name, format="jats", compact=True)
-        round_tripped = await from_path(temp.name, format="jats")
-        assert round_tripped == node
 
-
-async def test_from_to():
+async def test_from_to(tmp_path: Path):
     markdown = await from_to(
-        "../examples/nodes/paragraph/paragraph.json", to_format="md"
+        "../../examples/nodes/paragraph/paragraph.json", to_format="md"
     )
 
     assert markdown.startswith("This is paragraph one. It has two sentences.")
 
-    with NamedTemporaryFile(mode="w+", delete=False) as temp:
-        await from_to(
-            "../examples/nodes/paragraph/paragraph.json",
-            temp.name,
-            to_format="html",
-            to_standalone=False,
-            to_compact=True,
-        )
-        html = open(temp.name).read()
-        assert html.startswith(
-            "<article><p><span>This is paragraph one. It has two sentences."
-        )
+    fpath = tmp_path / "file.html"
+    await from_to(
+        "../../examples/nodes/paragraph/paragraph.json",
+        str(fpath),
+        to_format="html",
+        to_standalone=False,
+        to_compact=True,
+    )
+    html = fpath.open().read()
+    assert html.startswith(
+        "<article><p><span>This is paragraph one. It has two sentences."
+    )

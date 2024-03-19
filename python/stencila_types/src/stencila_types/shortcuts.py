@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from beartype import beartype
 
-from stencila import stencila_types as T  # noqa: N812
+from stencila_types import types as T  # noqa: N812
 
 # Our convertible type handles anything that is iterable (lists, tuples,
 # generators etc.)
@@ -304,7 +304,7 @@ def mb(code: str, *, lang: str | None = None) -> T.MathBlock:
 
 @beartype
 def p(*args: ConvertibleToInline) -> T.Paragraph:
-    return T.Paragraph(content=convert_to_inlines(*args))
+    return T.Paragraph(content=convert_to_inlines(args))
 
 
 @beartype

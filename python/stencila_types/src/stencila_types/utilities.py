@@ -3,7 +3,7 @@ import re
 
 from cattrs.preconf.json import make_converter
 
-from stencila import stencila_types as T  # noqa: N812
+from stencila_types import types as T  # noqa: N812
 
 JSON_CONVERTER = make_converter()
 
