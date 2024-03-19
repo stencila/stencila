@@ -88,7 +88,7 @@ export class InfoView extends LitElement {
         `#${currentNodeId}`
       )
       this.currentNode.classList.add('active-node')
-      // if node is at top level in doc append show
+      // if node is at top level in doc append .show
       if (this.currentNode) {
         if (!currentParentNodes) {
           this.currentNode.classList.add('show')
@@ -100,7 +100,7 @@ export class InfoView extends LitElement {
             if (el) {
               el.setAttribute('active-child', arr[idx - 1] ?? currentNodeId)
 
-              // show to topmost element
+              // append .show to top most element of the node branch
               if (idx === arr.length - 1) {
                 el.classList.add('show')
               }
@@ -108,12 +108,9 @@ export class InfoView extends LitElement {
           })
         }
       }
+      console.log(this.currentNode)
     }
   }
-
-  // TODO: listen for events from other views for this document
-  // for changes to the selected node and set the class of the element
-  // in the dom that has that id to "show".
 
   override render() {
     const domElementClasses = css`
