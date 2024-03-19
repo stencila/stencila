@@ -1,4 +1,4 @@
-The `r` kernel supports outputting most primitive node types. The `print` function is patched so that each argument is a separate output:
+The `r` kernel supports outputting most primitive node types. The `print` function is patched so that it outputs values as Stencila nodes:
 
 ```r exec
 print(TRUE)

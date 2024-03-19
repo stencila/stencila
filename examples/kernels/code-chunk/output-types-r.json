@@ -24,7 +24,7 @@
         },
         {
           "type": "Text",
-          "value": " function is patched so that each argument is a separate output:"
+          "value": " function is patched so that it outputs values as Stencila nodes:"
         }
       ]
     },
@@ -52,12 +52,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710718085494,
+        "value": 1710809053433,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 660,
+        "value": 531,
         "timeUnit": "Millisecond"
       }
     },
@@ -302,12 +302,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710718085550,
+        "value": 1710809053484,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 56,
+        "value": 50,
         "timeUnit": "Millisecond"
       }
     },
@@ -335,12 +335,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710718085776,
+        "value": 1710809053691,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 226,
+        "value": 207,
         "timeUnit": "Millisecond"
       }
     },
@@ -376,12 +376,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710718087041,
+        "value": 1710809055082,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 1265,
+        "value": 1391,
         "timeUnit": "Millisecond"
       }
     }
@@ -391,12 +391,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710718087042,
+    "value": 1710809055083,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 2208,
+    "value": 2181,
     "timeUnit": "Millisecond"
   }
 }
