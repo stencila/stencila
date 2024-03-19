@@ -70,7 +70,8 @@ impl Schemas {
         eprintln!("Generating Python types");
 
         // The top level destination
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../python/python/stencila");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../python/stencila_types/src/stencila_types");
         let dest = dest
             .canonicalize()
             .context(format!("can not find directory `{}`", dest.display()))?;
@@ -140,7 +141,9 @@ impl Schemas {
         }
 
         // Create a module for each schema
-        write(dest.join("stencila_types.py"), sections.join("\n\n")).await?;
+        // let futures = schema_order.iter().map(|s| self.python_module(&types, s));
+        // let v: Vec<_> = try_join_all(futures).await?.into_iter().collect();
+        write(dest.join("types.py"), sections.join("\n\n")).await?;
 
         Ok(())
     }
