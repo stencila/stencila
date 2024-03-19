@@ -77,7 +77,7 @@ export class UINodeAuthor extends LitElement {
   timestamp?: number
 
   /**
-   * Additional details to display - e.g. a Person's organisation.
+   * Additional details to display (e.g. a person's organization, the software version).
    */
   @property()
   details?: string
