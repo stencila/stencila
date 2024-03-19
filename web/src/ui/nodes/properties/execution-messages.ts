@@ -13,7 +13,7 @@ import { executionMessageUI, nodeUi } from '../icons-and-colours'
 @customElement('stencila-ui-node-execution-messages')
 @withTwind()
 export class UINodeExecutionMessages extends LitElement {
-  @property({ type: String })
+  @property()
   type: NodeType
 
   @property({ type: Number, attribute: 'warning-count' })
@@ -23,14 +23,12 @@ export class UINodeExecutionMessages extends LitElement {
   errorCount: number = 0
 
   override render() {
-    const { borderColour } = nodeUi(this.type)
-
     return html`
       <stencila-ui-node-collapsible-property
         .collapsed=${false}
+        type=${this.type}
         icon-name="terminal"
         icon-library="default"
-        header-bg=${borderColour}
       >
         ${this.renderHeader()}
         <div class="flex flex-col gap-y-3" slot="content">

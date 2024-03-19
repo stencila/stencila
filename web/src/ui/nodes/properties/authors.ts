@@ -4,7 +4,6 @@ import { html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
-import { nodeBorderColour } from '../icons-and-colours'
 
 import './generic/collapsible-details'
 
@@ -40,11 +39,9 @@ export class UINodeAuthors extends LitElement {
   }
 
   override render() {
-    const borderColour = nodeBorderColour(this.type)
-
     return html`<stencila-ui-node-collapsible-details
+      type=${this.type}
       icon-name="authors"
-      header-bg=${borderColour}
       title="Authors"
       wrapper-css=${this.hasItems ? '' : 'hidden'}
     >

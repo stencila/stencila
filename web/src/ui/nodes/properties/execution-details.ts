@@ -3,6 +3,7 @@ import {
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
+  NodeType,
 } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -28,6 +29,9 @@ import './execution-state'
 @customElement('stencila-ui-node-execution-details')
 @withTwind()
 export class UINodeExecutionDetails extends LitElement {
+  @property()
+  type: NodeType
+
   @property({ attribute: 'auto-exec' })
   autoExec?: AutomaticExecution
 
@@ -55,7 +59,7 @@ export class UINodeExecutionDetails extends LitElement {
   override render() {
     return html`
       <stencila-ui-node-collapsible-details
-        header-bg=${this.headerBg}
+        type=${this.type}
         title="Details"
         wrapper-css="border-t border-black/30"
         .collapsed=${false}

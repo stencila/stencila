@@ -1,3 +1,4 @@
+import { NodeType } from '@stencila/types'
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -15,11 +16,11 @@ import './collapsible'
 @customElement('stencila-ui-node-collapsible-details')
 @withTwind()
 export class UINodeCollapsibleDetails extends LitElement {
+  @property()
+  type: NodeType
+
   @property({ attribute: 'icon-name' })
   iconName: string
-
-  @property({ attribute: 'header-bg' })
-  headerBg: string | undefined = undefined
 
   @property({ type: Boolean })
   collapsed: boolean = false
@@ -38,9 +39,9 @@ export class UINodeCollapsibleDetails extends LitElement {
   override render() {
     return html`
       <stencila-ui-node-collapsible-property
-        .collapsed=${this.collapsed}
-        header-bg=${this.headerBg}
+        type=${this.type}
         icon-name=${this.iconName}
+        .collapsed=${this.collapsed}
         wrapper-css=${this.wrapperCss}
       >
         <div slot="title">${this.title}</div>
