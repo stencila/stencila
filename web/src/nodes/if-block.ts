@@ -21,7 +21,7 @@ export class IfBlock extends Executable {
   override renderDynamicView() {
     return html`
       <stencila-ui-node-card type="IfBlock">
-        <span slot="header-right">${this.renderExecutableButtons()}</span>
+        <span slot="header-right"></span>
         <div slot="body" class="h-full">
           <slot name="execution-messages"></slot>
           <slot name="authors"></slot>
@@ -45,7 +45,7 @@ export class IfBlock extends Executable {
         type="IfBlock"
         class=${nodeCardStyles(this.documentView())}
       >
-        <span slot="header-right">${this.renderExecutableButtons()}</span>
+        <span slot="header-right"></span>
         <div slot="body" class="h-full">
           <slot name="execution-messages"></slot>
           <slot name="authors"></slot>

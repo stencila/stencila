@@ -4,10 +4,8 @@ import {
   ExecutionStatus,
   ExecutionTag,
 } from '@stencila/types'
-import { html } from 'lit'
 import { property } from 'lit/decorators.js'
 
-import './execution-message'
 import { Entity } from './entity'
 
 /**
@@ -36,9 +34,4 @@ export abstract class Executable extends Entity {
 
   @property({ attribute: 'execution-duration', type: Number })
   executionDuration?: number
-
-  // TODO remove
-  protected renderExecutableButtons() {
-    return html``
-  }
 }
