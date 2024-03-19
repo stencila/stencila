@@ -17,6 +17,9 @@ export class UINodeExecutionMessages extends LitElement {
   @property()
   type: NodeType
 
+  @property({ type: Number, attribute: 'message-count' })
+  messageCount: number = 0
+
   @property({ type: Number, attribute: 'warning-count' })
   warningCount: number = 0
 
@@ -26,34 +29,27 @@ export class UINodeExecutionMessages extends LitElement {
   override render() {
     return html`
       <stencila-ui-node-collapsible-property
-        .collapsed=${false}
         type=${this.type}
         icon-name="terminal"
         icon-library="default"
+        wrapper-css=${this.messageCount > 0 ? '' : 'hidden'}
+        ?collapsed=${this.warningCount + this.errorCount == 0}
       >
-        ${this.renderHeader()}
-        <div class="flex flex-col gap-y-3" slot="content">
-          <slot class="messages-slot"></slot>
+        <div slot="title" class="flex justify-between mr-2">
+          <span>Messages</span>
+          <div class="flex">
+            ${this.warningCount > 0
+              ? this.renderLozenge('Warning', this.warningCount)
+              : ''}
+            ${this.errorCount > 0
+              ? this.renderLozenge('Error', this.errorCount)
+              : ''}
+          </div>
+        </div>
+        <div slot="content" class="flex flex-col gap-y-3">
+          <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>
-    `
-  }
-
-  renderHeader = () => {
-    const styles = apply(['flex justify-between', 'mr-1'])
-
-    return html`
-      <div class=${styles} slot="title">
-        <span>Messages</span>
-        <div class="flex">
-          ${this.warningCount > 0
-            ? this.renderLozenge('Warning', this.warningCount)
-            : ''}
-          ${this.errorCount > 0
-            ? this.renderLozenge('Error', this.errorCount)
-            : ''}
-        </div>
-      </div>
     `
   }
 

@@ -37,6 +37,12 @@ export abstract class Executable extends Entity {
   executionDuration?: number
 
   /**
+   * The number of messages in the `execution-messages` slot
+   */
+  @state()
+  messageCount: number = 0
+
+  /**
    * The number of `Warning` level messages in the `execution-messages` slot
    */
   @state()
@@ -64,6 +70,7 @@ export abstract class Executable extends Entity {
             []) as ExecutionMessage[]
 
           // Reset the message counts
+          this.messageCount = messages.length
           this.warningCount = 0
           this.errorCount = 0
 
