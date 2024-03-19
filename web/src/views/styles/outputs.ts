@@ -2,10 +2,10 @@ import { css } from 'lit'
 
 /**
  * Global style rules for tables and images within the outputs,
- * Override, or append to the `LitELement.styles` property in any view.
+ * Override, or append to the `LitElement.styles` property in any view.
  */
-const outputCSS = css`
-  /* keep all img tags within there parent's bounds */
+export const outputCSS = css`
+  /* Keep all img tags within their parent's bounds */
   img {
     height: auto;
     width: 100%;
@@ -24,11 +24,9 @@ const outputCSS = css`
     padding: 0.5rem 1rem;
   }
 
-  /* align numerical values to the right */
+  /* Align numeric cells to the right */
   td[data-type='number'],
   td[data-type='integer'] {
     text-align: right;
   }
 `
-
-export { outputCSS }
