@@ -52,8 +52,17 @@ Object = dict[str, Primitive]
 "#;
 
 // This is for error checking. These are the primitives we currently expect in the schema and deal with manually above.
-const EXPECTED_PRIMITIVES: [&str; 9] = ["Boolean", "UnsignedInteger", "Number", "Array", "Null", "Cord", "Object", "String", "Integer"];
-
+const EXPECTED_PRIMITIVES: [&str; 9] = [
+    "Boolean",
+    "UnsignedInteger",
+    "Number",
+    "Array",
+    "Null",
+    "Cord",
+    "Object",
+    "String",
+    "Integer",
+];
 
 impl Schemas {
     /// Generate a Python module for each schema
@@ -79,25 +88,21 @@ impl Schemas {
                 unions.push(name.clone());
             } else if schema.r#type.is_none() {
                 clses.push(name.clone());
-            } else {
-                if !EXPECTED_PRIMITIVES.contains(&&**name) {
-                    bail!("Unexpected primitive: {}", name);
-                }
+            } else if !EXPECTED_PRIMITIVES.contains(&&**name) {
+                bail!("Unexpected primitive: {}", name);
             }
-        };
+        }
 
         let mut sections: Vec<String> = vec![HEADER.to_string()];
 
-        for nm in enums.iter()
-        {
+        for nm in enums.iter() {
             let schema = self.schemas.get(nm).expect("Schema not found");
             sections.push(Self::python_enum(nm, schema)?);
         }
 
         // The order of class definitions matters. Base classes must come first.
         let mut topo_sort = TopoSort::with_capacity(clses.len());
-        for nm in clses.iter()
-        {
+        for nm in clses.iter() {
             let schema = self.schemas.get(nm).expect("Schema not found");
             topo_sort.insert(nm.clone(), schema.extends.clone());
         }
@@ -114,7 +119,7 @@ impl Schemas {
                 continue;
             }
             let schema = self.schemas.get(nm).expect("Schema not found");
-            sections.push(self.python_union(nm, schema).await?);
+            sections.push(self.python_union(schema).await?);
         }
 
         // Create a module for each schema
@@ -142,7 +147,9 @@ impl Schemas {
                 .unwrap_or(title.clone())
                 .trim_end_matches('\n')
                 .replace('\n', "\n    ")
-        } else { "".to_string() };
+        } else {
+            "".to_string()
+        };
 
         let mut lines = Vec::new();
         for variant in any_of {
@@ -154,7 +161,8 @@ impl Schemas {
             lines.push(format!("    {python_value} = \"{python_value}\""));
         }
         let variants = lines.join("\n");
-        let class_def = format!(r#"class {name}(StrEnum):
+        let class_def = format!(
+            r#"class {name}(StrEnum):
     """
     {description}
     """
@@ -298,7 +306,6 @@ class {name}({base}):
         } else if let Some(r#ref) = &schema.r#ref {
             (maybe_native_type(r#ref), false, true)
         } else if schema.any_of.is_some() {
-            // (Self::python_union(schema).await?, false, true)
             let name = if let Some(name) = schema.title.clone() {
                 name
             } else {
@@ -321,11 +328,10 @@ class {name}({base}):
         Ok(result)
     }
 
-
     /// Generate a Python discriminated union `type` for an `anyOf` root schema or property schema
     ///
     /// Returns the Union section
-    async fn python_union(&self, nm: &String, schema: &Schema) -> Result<String> {
+    async fn python_union(&self, schema: &Schema) -> Result<String> {
         let Some(any_of) = &schema.any_of else {
             bail!("Schema has no anyOf");
         };
@@ -340,9 +346,9 @@ class {name}({base}):
                 };
                 Ok::<_, Report>((typ, is_type))
             }))
-                .await?
-                .into_iter()
-                .unzip();
+            .await?
+            .into_iter()
+            .unzip();
 
         let name = schema.title.clone().unwrap_or_else(|| {
             alternatives
@@ -397,7 +403,7 @@ class {name}({base}):
     /// of the type of the array items.
     async fn python_array_of(item_type: &str) -> Result<String> {
         let name = item_type.to_plural();
-        return Ok(name);
+        Ok(name)
     }
 
     /// Generate a Python representation of a JSON schema value
