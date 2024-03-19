@@ -20,7 +20,7 @@ export class UINodeCollapsibleProperty extends LitElement {
   iconLibrary: 'stencila' | 'default' = 'stencila'
 
   @property({ type: Boolean })
-  collapsed: boolean = true
+  collapsed: boolean = false
 
   @property({ attribute: 'wrapper-css' })
   wrapperCSS: string | undefined = undefined
