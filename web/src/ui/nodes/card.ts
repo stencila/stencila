@@ -63,9 +63,10 @@ export class UINodeCard extends LitElement {
     // add the collapsible styles if `collapsible property is enabled`
     const collapsibleBody = this.collapsible
       ? [
-          this.collapsed ? 'max-h-0' : 'max-h-[1000px]',
+          this.collapsed
+            ? 'max-h-0 overflow-hidden'
+            : 'max-h-[1000px] overflow-auto',
           'transtion-max-h duration-200',
-          'overflow-y-hidden',
         ]
       : []
 
