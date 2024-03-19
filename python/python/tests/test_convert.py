@@ -4,45 +4,48 @@ Tests of functions in the `convert` module
 
 from tempfile import NamedTemporaryFile
 
-import pytest
+from stencila import shortcuts as S  # noqa: N812
+from stencila.convert import from_path, from_string, from_to, to_path, to_string
+from stencila.stencila_types import Article, Emphasis, Paragraph, Strong, Text
 
-from stencila.convert import to_string, from_string, from_path, to_path, from_to
-from stencila.types import Article, Paragraph, Text, Strong, Emphasis
 
-
-@pytest.mark.skip(reason="Article.__init__ broken due to more than one base type")
 async def test_from_string():
-    node = await from_string(
-        '{type: "Article", content: [{type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}]}',
-        format="json5",
-    )
+    txt = """{
+        type: "Article", 
+        content: [
+                {type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}
+            ]
+        }
+    """
 
+    node = await from_string(txt, format="json5")
     assert isinstance(node, Article)
     assert isinstance(node.content[0], Paragraph)
-    assert node == Article([Paragraph([Text("Hello world")])])
+
+    # Should be the same.
+    a = S.art(S.p("Hello world"))
+    assert node == a
 
 
-@pytest.mark.skip(reason="currently failing due to casing of field in constructor")
 async def test_from_path():
     node = await from_path("../examples/nodes/paragraph/paragraph.json")
 
     assert isinstance(node, Article)
     assert isinstance(node.content[0], Paragraph)
     assert node.content[0] == Paragraph(
-        [Text("This is paragraph one. It has two sentences.")]
+        content=[Text(value="This is paragraph one. It has two sentences.")]
     )
 
 
-@pytest.mark.skip(reason="Article.__init__ broken due to more than one base type")
 async def test_to_string():
     markdown = await to_string(
         Article(
-            [
+            content=[
                 Paragraph(
-                    [
-                        Text("Hello "),
-                        Strong([Text("world")]),
-                        Text("!"),
+                    content=[
+                        Text(value="Hello "),
+                        Strong(content=[Text(value="world")]),
+                        Text(value="!"),
                     ]
                 )
             ]
@@ -53,15 +56,14 @@ async def test_to_string():
     assert markdown == "Hello **world**!"
 
 
-@pytest.mark.skip(reason="Article.__init__ broken due to more than one base type")
 async def test_to_path():
     node = Article(
-        [
+        content=[
             Paragraph(
-                [
-                    Text("Hello file "),
-                    Emphasis([Text("system")]),
-                    Text("!"),
+                content=[
+                    Text(value="Hello file "),
+                    Emphasis(content=[Text(value="system")]),
+                    Text(value="!"),
                 ]
             ),
         ]
@@ -73,7 +75,6 @@ async def test_to_path():
         assert round_tripped == node
 
 
-@pytest.mark.skip(reason="Article.__init__ broken due to more than one base type")
 async def test_from_to():
     markdown = await from_to(
         "../examples/nodes/paragraph/paragraph.json", to_format="md"

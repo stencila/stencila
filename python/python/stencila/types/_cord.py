@@ -1,1 +1,0 @@
-Cord = str
