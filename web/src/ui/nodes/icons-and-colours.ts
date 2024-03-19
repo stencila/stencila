@@ -70,7 +70,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
 export const nodeUi = (nodeType: NodeType): Required<NodeTypeUI> => {
   const ui = nodeTypeUIMap[nodeType]
   return {
-    title: ui?.title ?? nodeType.replace(/([A-Z])/g, ' $1').trim(),
+    title: ui?.title ?? nodeType?.replace(/([A-Z])/g, ' $1')?.trim() ?? '',
     icon: ui?.icon ?? DEFAULT_ICON,
     iconLibrary: ui?.iconLibrary ?? DEFAULT_ICON_LIBRARY,
     colour: ui?.colour ?? DEFAULT_COLOUR,
@@ -120,6 +120,8 @@ export const executionMessageUI = (
       return { colour: 'blue-900', icon: 'question-circle' }
     case 'Trace':
       return { colour: 'purple-900', icon: 'slash-circle' }
+    default:
+      return { colour: 'gray-900', icon: 'circle' }
   }
 }
 
