@@ -11,6 +11,6 @@ export type ICON_KEYS =
 export const API_ICONS = {
   ANTHROPIC_API_KEY: 'anthropic',
   GOOGLE_AI_API_KEY: 'google',
-  OPENAI_API_KEY: 'open-ai',
+  OPENAI_API_KEY: 'openai',
   MISTRAL_API_KEY: 'mistral',
 } as const
