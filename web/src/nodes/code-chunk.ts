@@ -6,6 +6,7 @@ import { withTwind } from '../twind'
 import '../ui/nodes/card'
 import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/outputs'
@@ -70,6 +71,7 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-authors>
 
         <stencila-ui-node-code
+          type="CodeChunk"
           language=${this.programmingLanguage}
           read-only
           collapsed
@@ -79,6 +81,7 @@ export class CodeChunk extends CodeExecutable {
 
         <stencila-ui-node-execution-messages
           type="CodeChunk"
+          message-count=${this.messageCount}
           warning-count=${this.warningCount}
           error-count=${this.errorCount}
         >
@@ -127,6 +130,7 @@ export class CodeChunk extends CodeExecutable {
 
         <stencila-ui-node-execution-messages
           type="CodeChunk"
+          message-count=${this.messageCount}
           warning-count=${this.warningCount}
           error-count=${this.errorCount}
         >

@@ -6,6 +6,7 @@ import { withTwind } from '../twind'
 import '../ui/nodes/card'
 import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 
@@ -68,6 +69,7 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-authors>
 
         <stencila-ui-node-code
+          type="CodeExpression"
           language=${this.programmingLanguage}
           read-only
           single-line
@@ -78,6 +80,7 @@ export class CodeExpression extends CodeExecutable {
 
         <stencila-ui-node-execution-messages
           type="CodeExpression"
+          message-count=${this.messageCount}
           warning-count=${this.warningCount}
           error-count=${this.errorCount}
         >
@@ -127,6 +130,7 @@ export class CodeExpression extends CodeExecutable {
 
         <stencila-ui-node-execution-messages
           type="CodeExpression"
+          message-count=${this.messageCount}
           warning-count=${this.warningCount}
           error-count=${this.errorCount}
         >
