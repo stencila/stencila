@@ -4,8 +4,9 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
-import './generic/collapsible'
 import { executionMessageUI, nodeUi } from '../icons-and-colours'
+
+import './generic/collapsible'
 
 /**
  * A component for displaying the `executionMessages` property of executable nodes
