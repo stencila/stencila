@@ -37,9 +37,10 @@ export abstract class CodeExecutable extends Executable {
           const slot = this.shadowRoot.querySelector(
             'slot[name="execution-messages"]'
           ) as HTMLSlotElement
-          const messages = slot
+          const messages = (slot
             .assignedElements()[0]
-            .querySelectorAll('stencila-execution-message')
+            ?.querySelectorAll('stencila-execution-message') ??
+            []) as ExecutionMessage[]
 
           // Reset the message counts
           this.warningCount = 0
