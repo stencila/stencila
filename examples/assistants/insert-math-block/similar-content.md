@@ -27,7 +27,7 @@ An insert math block instruction that has been rejected:
 ++ rejected
 
 $$
-d = foo 
+d = foo
 $$
 
 ++
@@ -46,4 +46,4 @@ $$
 
 The test insert math block instruction. The volume of a sphere is:
 
-// @insert-math-block volume
+// @insert-math-block ...
