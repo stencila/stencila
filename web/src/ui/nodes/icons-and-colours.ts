@@ -34,34 +34,59 @@ const nodeColours = (name: string) => ({
 
 // prettier-ignore
 const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
-  Admonition:       { ...stencilaIcon('admonition'),           ...nodeColours('violet')},
-  Array:            { ...stencilaIcon('array'),                ...nodeColours('gray')},
-  Boolean:          { ...shoelaceIcon('toggle-off'),           ...nodeColours('gray')},
-  Claim:            { ...shoelaceIcon('postage'),              ...nodeColours('orange')},
-  CodeBlock:        { ...shoelaceIcon('braces'),               ...nodeColours('fuchsia')},
-  CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('fuchsia')},
-  Datatable:        { ...stencilaIcon('table'),                ...nodeColours('gray')},
-  DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')},
-  Figure:           { ...shoelaceIcon('image'),                ...nodeColours('gray')},
-  ForBlock:         { ...stencilaIcon('for-block'),            ...nodeColours('pink')},
-  Heading:          { ...stencilaIcon('heading'),              ...nodeColours('gray')},
-  IfBlock:          { ...stencilaIcon('if-block'),             ...nodeColours('amber')},
-  ImageObject:      { ...shoelaceIcon('image-alt'),            ...nodeColours('slate'),  title: 'Image' },
+  // Primitive data types
+  Boolean:          { ...shoelaceIcon('toggle-off'),           ...nodeColours('slate')},
+  Integer:          { ...shoelaceIcon('hash'),                 ...nodeColours('slate')},
+  String:           { ...shoelaceIcon('quote'),                ...nodeColours('slate')},
+  Number:           { ...shoelaceIcon('hash'),                 ...nodeColours('slate')},
+  Array:            { ...stencilaIcon('array'),                ...nodeColours('slate')},
+  Object:           { ...shoelaceIcon('braces'),               ...nodeColours('slate')},
+  
+  // More complex data and media types
+  Datatable:        { ...stencilaIcon('table'),                ...nodeColours('zinc')},
+  AudioObject:      { ...shoelaceIcon('volume-up'),            ...nodeColours('zinc'),  title: 'Audio' },
+  ImageObject:      { ...shoelaceIcon('image-alt'),            ...nodeColours('zinc'),  title: 'Image' },
+  VideoObject:      { ...shoelaceIcon('camera-video'),         ...nodeColours('zinc'),  title: 'Video' },
+
+  // Sections (group blocks so given neutral colour)
+  Section:          { ...shoelaceIcon('square'),               ...nodeColours('stone')},
+
+  // Simple block and inline types (usually only have `content` property)
+  Heading:          { ...stencilaIcon('heading'),              ...nodeColours('blue')},
+  Paragraph:        { ...stencilaIcon('paragraph'),            ...nodeColours('blue')},
+  ThematicBreak:    { ...shoelaceIcon('hr'),                   ...nodeColours('blue')},
+
+  // More complex, less common, block and inline types
+  Admonition:       { ...stencilaIcon('admonition'),           ...nodeColours('indigo')},
+  Claim:            { ...shoelaceIcon('postage'),              ...nodeColours('indigo')},
+  List:             { ...stencilaIcon('list'),                 ...nodeColours('indigo')},
+  QuoteBlock:       { ...shoelaceIcon('quote'),                ...nodeColours('indigo')},
+  Figure:           { ...shoelaceIcon('image'),                ...nodeColours('indigo')},
+  Table:            { ...stencilaIcon('table'),                ...nodeColours('indigo')},
+
+  MathBlock:        { ...stencilaIcon('math-block'),           ...nodeColours('cyan')},
+  MathInline:       { ...stencilaIcon('math-block'),           ...nodeColours('cyan')},
+
+  // Styled content: use neutral to avoid confusion with styling
+  StyledBlock:      { ...shoelaceIcon('palette'),              ...nodeColours('neutral')},
+  StyledInline:     { ...shoelaceIcon('palette'),              ...nodeColours('neutral')},
+  
+  // Static code
+  CodeBlock:        { ...shoelaceIcon('braces'),               ...nodeColours('teal')},
+  CodeInline:       { ...shoelaceIcon('braces'),               ...nodeColours('teal')},
+
+  // Executable code
+  CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
+  CodeExpression:   { ...stencilaIcon('code-expression'),      ...nodeColours('green')},
+  
+  ForBlock:         { ...stencilaIcon('for-block'),            ...nodeColours('fuchsia')},
+  IfBlock:          { ...stencilaIcon('if-block'),             ...nodeColours('pink')},
+  
+  InstructionBlock: { ...stencilaIcon('instruction-block'),    ...nodeColours('violet')},
+  
   InsertBlock:      { ...shoelaceIcon('plus-circle'),          ...nodeColours('lime')},
-  InstructionBlock: { ...stencilaIcon('instruction-block'),    ...nodeColours('blue')},
-  Integer:          { ...shoelaceIcon('hash'),                 ...nodeColours('gray')},
-  List:             { ...stencilaIcon('list'),                 ...nodeColours('gray')},
-  MathBlock:        { ...stencilaIcon('math-block'),           ...nodeColours('fuchsia')},
-  Number:           { ...shoelaceIcon('hash'),                 ...nodeColours('gray')},
-  Paragraph:        { ...stencilaIcon('paragraph'),            ...nodeColours('gray')},
-  Object:           { ...shoelaceIcon('braces'),               ...nodeColours('gray')},
-  QuoteBlock:       { ...shoelaceIcon('quote'),                ...nodeColours('yellow')},
   ReplaceBlock:     { ...stencilaIcon('replace-block'),        ...nodeColours('orange')},
-  Section:          { ...shoelaceIcon('square'),               ...nodeColours('fuchsia')},
-  String:           { ...shoelaceIcon('quote'),                ...nodeColours('gray')},
-  StyledBlock:      { ...shoelaceIcon('palette'),              ...nodeColours('pink')},
-  Table:            { ...stencilaIcon('table'),                ...nodeColours('gray')},
-  ThematicBreak:    { ...shoelaceIcon('hr'),                   ...nodeColours('slate')},
+  DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')}
 }
 
 /**
