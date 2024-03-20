@@ -1,6 +1,8 @@
 import { DocumentId } from '../types'
 import { Secret } from '../types/api'
 
+import { DocumentCommand } from './commands'
+
 /**
  * The parameters of a REST API request
  */
@@ -182,6 +184,21 @@ export class RestClient {
       url: `/~documents/${docId}/close`,
       identifier: docId,
       init: { method: 'POST' },
+    })
+  }
+
+  /**
+   * Send a command to a document
+   */
+  static async documentCommand(docId: DocumentId, command: DocumentCommand) {
+    await RestClient.request({
+      url: `/~documents/${docId}/command`,
+      identifier: docId,
+      init: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(command),
+      },
     })
   }
 

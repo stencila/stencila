@@ -132,7 +132,7 @@ pub struct LogEntry {
 #[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
-enum Command {
+pub enum Command {
     /// Save the document
     SaveDocument,
 
@@ -140,21 +140,39 @@ enum Command {
     ExecuteDocument(ExecuteOptions),
 
     /// Execute specific nodes within the document
-    ExecuteNodes(CommandNodeIds),
+    ExecuteNodes(CommandNodes),
 
     /// Interrupt the entire document
     InterruptDocument,
 
     /// Interrupt specific nodes within the document
-    InterruptNodes(CommandNodeIds),
+    InterruptNodes(CommandNodes),
 }
 
 /// The node ids for commands that require them
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(crate = "common::serde")]
-struct CommandNodeIds {
+pub struct CommandNodes {
+    /// The list of nodes involved in a command
     #[serde(alias = "nodeIds")]
     node_ids: Vec<NodeId>,
+
+    /// The scope for the command
+    scope: Option<CommandScope>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+pub enum CommandScope {
+    /// Only listed nodes
+    #[default]
+    Only,
+
+    /// Listed nodes and any that appear after them in the document
+    PlusAfter,
+
+    /// Listed nodes, upstream dependencies and downstream dependents
+    PlusUpstreamDownstream,
 }
 
 type DocumentKernels = Arc<RwLock<Kernels>>;
@@ -488,6 +506,16 @@ impl Document {
             .collect_vec();
 
         Ok(entries)
+    }
+
+    /// Perform a command on the document
+    #[tracing::instrument(skip(self))]
+    pub async fn command(&self, command: Command) -> Result<()> {
+        tracing::trace!("Performing document command");
+
+        self.command_sender.send(command).await?;
+
+        Ok(())
     }
 
     /// Execute the document

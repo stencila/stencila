@@ -41,7 +41,7 @@ use common::{
     tracing,
     uuid::Uuid,
 };
-use document::{Document, DocumentId, SyncDirection};
+use document::{Command, Document, DocumentId, SyncDirection};
 use format::Format;
 
 use crate::{
@@ -216,6 +216,7 @@ pub fn router() -> Router<ServerState> {
     Router::new()
         .route("/open/*path", get(open_document))
         .route("/:id/close", post(close_document))
+        .route("/:id/command", post(command_document))
         .route("/:id/export", get(export_document))
         .route("/:id/websocket", get(websocket_for_document))
 }
@@ -478,6 +479,21 @@ async fn close_document(
     };
 
     docs.close(&id).await.map_err(InternalError::new)?;
+
+    Ok(StatusCode::OK.into_response())
+}
+
+/// Handle a request to perform a document command
+async fn command_document(
+    State(ServerState { docs, .. }): State<ServerState>,
+    Path(id): Path<String>,
+    Json(command): Json<Command>,
+) -> Result<Response, InternalError> {
+    let Ok(doc) = doc_by_id(&docs, &id).await else {
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
+    };
+
+    doc.command(command).await.map_err(InternalError::new)?;
 
     Ok(StatusCode::OK.into_response())
 }

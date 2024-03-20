@@ -4,11 +4,11 @@ use common::{
     tokio::{self, task::JoinHandle},
     tracing,
 };
-use node_execute::{execute, interrupt};
+use node_execute::{execute, interrupt, ExecuteOptions};
 
 use crate::{
-    Command, CommandNodeIds, Document, DocumentCommandReceiver, DocumentKernels,
-    DocumentPatchSender, DocumentStore,
+    Command, CommandNodes, Document, DocumentCommandReceiver, DocumentKernels, DocumentPatchSender,
+    DocumentStore,
 };
 
 impl Document {
@@ -77,26 +77,29 @@ impl Document {
                     });
                     current = Some((new_command, task));
                 }
-                ExecuteNodes(command) => {
+                ExecuteNodes(CommandNodes { node_ids, .. }) => {
                     let home = home.clone();
                     let store = store.clone();
                     let kernels = kernels.clone();
                     let patch_sender = patch_sender.clone();
                     let task = tokio::spawn(async move {
+                        let options = ExecuteOptions::default();
+                        // TODO: set other options based on scope
+
                         if let Err(error) = execute(
                             home,
                             store,
                             kernels,
                             patch_sender,
-                            Some(command.node_ids),
-                            None,
+                            Some(node_ids),
+                            Some(options),
                         )
                         .await
                         {
                             tracing::error!("While executing nodes: {error}")
                         }
                     });
-                    current = Some((Command::ExecuteNodes(CommandNodeIds::default()), task));
+                    current = Some((Command::ExecuteNodes(CommandNodes::default()), task));
                 }
                 _ => {
                     tracing::warn!("TODO: handle {new_command} command");

@@ -4,7 +4,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/card'
-import '../ui/nodes/actions/execution-actions'
+import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/execution-details'
@@ -47,7 +47,8 @@ export class CodeExpression extends CodeExecutable {
   override renderDynamicView() {
     return html`<stencila-ui-node-card type="CodeExpression" view="dynamic">
       <span slot="header-right">
-        <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
+        <stencila-ui-node-execution-commands node-id=${this.id}>
+        </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
         <stencila-ui-node-execution-details
@@ -106,8 +107,8 @@ export class CodeExpression extends CodeExecutable {
   override renderSourceView() {
     return html`<stencila-ui-node-card type="CodeExpression" view="source">
       <span slot="header-right">
-        <stencila-ui-node-execution-actions>
-        </stencila-ui-node-execution-actions>
+        <stencila-ui-node-execution-commands node-id=${this.id}>
+        </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
         <stencila-ui-node-execution-details
