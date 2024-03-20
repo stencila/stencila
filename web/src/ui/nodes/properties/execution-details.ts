@@ -63,7 +63,7 @@ export class UINodeExecutionDetails extends LitElement {
         title="Details"
         icon-name="info"
         wrapper-css="border-t border-black/30"
-        .collapsed=${false}
+        ?collapsed=${true}
       >
         <div class="flex flex-col gap-y-3">
           <stencila-ui-node-execution-state
