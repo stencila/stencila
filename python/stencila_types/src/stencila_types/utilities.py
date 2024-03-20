@@ -42,18 +42,26 @@ def from_value(value) -> T.Node | list[T.Node]:  # pragma: no cover
     if not isinstance(value, dict):
         raise ValueError(f"Unexpected type for `Node`: {type(value)}")
 
-    typ = value.pop("type")
+    typ = value.pop("type", None)
 
     if typ is None:
-        raise ValueError("Missing `type` entry for `Node`")
-
-    cls = getattr(T, typ, None)
-
-    if cls is None:
-        raise ValueError(f"`{typ}` is not a valid Stencila Type")
+        # We'll have to assume this is an "Object" type. i.e. Just a bare
+        # dictionary in python.
+        cls = dict
+    else:
+        cls = getattr(T, typ, None)
+        if cls is None:
+            raise ValueError(f"`{typ}` is not a valid Stencila Type")
 
     # Resolve the attributes
-    kwargs = {camel_to_snake(nm): from_value(v) for (nm, v) in value.items()}
+    # 1. Convert camelCase to snake_case a Stencila can store in different
+    #    conventions.
+    # 2. Remove any $schema attributes.
+    kwargs = {
+        camel_to_snake(nm): from_value(v)
+        for (nm, v) in value.items()
+        if nm != "$schema"
+    }
 
     # value is a dictionary of attributes
     return cls(**kwargs)

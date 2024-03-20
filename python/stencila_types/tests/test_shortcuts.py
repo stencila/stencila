@@ -8,9 +8,21 @@ from beartype.roar import BeartypeCallHintParamViolation
 
 from stencila_types import shortcuts as S  # noqa: N812
 from stencila_types import types as T  # noqa: N812
+
 # from stencila.convert import to_string
 
+
 # TOS = partial(to_string, format="md")
+def test_paragraph():
+    p1 = T.Paragraph(content=[T.Text(value="Hi "), T.Text(value="There!")])
+    p2 = S.p(["Hi ", "There!"])
+    assert p1 == p2
+
+    p3 = S.p("Hi ", "There!")
+    assert p1 == p3
+
+    # TODO: SHould be in shortcuts.
+    p4 = S.p(1, 2, [2, 4])
 
 
 # TODO: We should really use hypthesis to generate these tests

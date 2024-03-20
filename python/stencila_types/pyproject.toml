@@ -37,6 +37,10 @@ classifiers = [
 Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
+[project.optional-dependencies]
+test = [
+    "pytest-sugar>=1.0.0",
+]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -45,9 +49,11 @@ build-backend = "hatchling.build"
 distribution = true
 
 [tool.pdm.dev-dependencies]
-testing = ["pytest>=8.1.1", "hypothesis>=6.99.8"]
+testing = ["pytest>=8.1.1"]
 
 [tool.pytest.ini_options]
+addopts = "-s"
+
 
 [tool.ruff]
 # https://docs.astral.sh/ruff/
