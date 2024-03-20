@@ -2,7 +2,7 @@ import { consume } from '@lit/context'
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
-import { RestAPIClient } from '../../clients/RestAPIClient'
+import { RestClient } from '../../clients/rest'
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
 import { emitSidebarEvent } from '../../events/sidebar'
 import { withTwind } from '../../twind'
@@ -210,9 +210,9 @@ export class ConfigScreen extends LitElement {
     const savedAPIs = Promise.allSettled(
       toUpdate.map((secret) => {
         if (secret.modifiedValue.trim().length === 0) {
-          return RestAPIClient.deleteSecret(secret.original.name)
+          return RestClient.deleteSecret(secret.original.name)
         } else {
-          return RestAPIClient.setSecret(
+          return RestClient.setSecret(
             secret.original.name,
             secret.modifiedValue
           )
@@ -254,7 +254,7 @@ export class ConfigScreen extends LitElement {
    */
   private async getSecrets() {
     try {
-      const secrets = await RestAPIClient.listSecrets()
+      const secrets = await RestClient.listSecrets()
 
       if (secrets.status === 'error') {
         return false
