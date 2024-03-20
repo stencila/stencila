@@ -1,56 +1,60 @@
 all: fix audit test build
 
+# Bootstrap the project with minimum dependencies (pip in required for maturin)
+bootstrap:
+	pdm venv create --with-pip --with venv 3.10
+
 # Install dependencies
-poetry.lock: pyproject.toml
-	poetry install --sync
-	touch poetry.lock
+pdm.lock: pyproject.toml
+	pdm sync
+	touch pdm.lock
 
 # Install alias for consistency
-install: poetry.lock
+install: pdm.lock
 
 # Make formatting and linting fixes
-fix: poetry.lock
-	poetry run black python --exclude types
+fix: pdm.lock
+	pdm run ruff format
 
 # Run linting checks
-lint: poetry.lock
-	poetry run black python --exclude types --check --diff
+lint: pdm.lock
+	pdm run ruff check
 
 # Run tests
-test: poetry.lock
-	poetry run maturin develop
-	poetry run pytest
+test: pdm.lock
+	pdm run maturin develop --skip-install
+	pdm run pytest
 
 # Run tests with coverage
-cover: poetry.lock
-	poetry run maturin develop
-	poetry run coverage run -m pytest
-	poetry run coverage lcov
+cover: pdm.lock
+	pdm run maturin develop --skip-install
+	pdm run coverage run -m pytest
+	pdm run coverage lcov
 
 # Run benchmarks with local release build
-bench: poetry.lock
-	poetry run maturin develop --release
-	poetry run pytest --benchmark-json benchmarks.json
+bench: pdm.lock
+	pdm run maturin develop --release
+	pdm run pytest --benchmark-json benchmarks.json
 
 # Build the Python module in debug mode and open a python shell to
 # import it and try it out in
-run: poetry.lock
-	poetry run maturin develop
-	poetry run python
+run: pdm.lock
+	pdm run maturin develop --skip-install
+	pdm run python
 
 # List outdated dependencies
 outdated:
-	poetry show --outdated
+	pdm show --outdated
 	cargo outdated -d 1
 
 # Audit dependencies
-audit: poetry.lock
-	poetry run pip-audit
+audit: pdm.lock
+	pdm run pip-audit
 
 # Build Python wheel for distribution
 # This is intended to be close the 'Build wheel' step in the `release.yml` workflow
-build: poetry.lock
-	poetry run maturin build --release --out dist --interpreter 3.8 3.9 3.10 3.11 3.12
+build: pdm.lock
+	pdm run maturin build --release --out dist --interpreter 3.8 3.9 3.10 3.11 3.12
 
 clean:
 	rm -rf .pytest_cache python/stencila/_stencila.*

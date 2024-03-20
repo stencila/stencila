@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "testing", "test"]
+groups = ["default", "testing", "test", "pyright"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:04aebd9f84ce0b1835ca14c61c0fe0020ad56b206e297f36cc3acf176b55af2c"
+content_hash = "sha256:f579aca9e6886ea1b3b6923b7310bd9e57d1ac24bbf35756c0103e8bb5426b95"
 
 [[package]]
 name = "attrs"

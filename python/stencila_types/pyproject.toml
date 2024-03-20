@@ -38,9 +38,7 @@ Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
 [project.optional-dependencies]
-test = [
-    "pytest-sugar>=1.0.0",
-]
+test = ["pytest-sugar>=1.0.0"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -50,6 +48,7 @@ distribution = true
 
 [tool.pdm.dev-dependencies]
 testing = ["pytest>=8.1.1"]
+pyright = []
 
 [tool.pytest.ini_options]
 addopts = "-s"
@@ -59,7 +58,7 @@ addopts = "-s"
 # https://docs.astral.sh/ruff/
 target-version = "py310"
 line-length = 88
-select = [
+lint.select = [
   "F",    # pyflakes
   "E",    # codestyle
   "W",    # warning
@@ -83,19 +82,19 @@ select = [
   "I001", # isort
 ]
 
-ignore = [
+lint.ignore = [
   "N812", # This is accepted practice in this project.
 ]
 
 # Automatically fixing is often premature.
-unfixable = [
+lint.unfixable = [
   "T20",  # Removes print statements
   "F841", # Removes unused variables
 ]
 
 src = ['src', 'tests']
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Ignore long lines in generated code
-"src/stencila_types/types" = ["E501"]
+"src/stencila_types/types.py" = ["E501"]
 "tests/**" = ["S101"]
