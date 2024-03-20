@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import moment from 'moment'
 
 import { withTwind } from '../../../../twind'
@@ -17,15 +17,17 @@ export class UINodeTimestampProperty extends LitElement {
   value?: number | undefined
 
   /**
-   * A string representation of the last execution,
-   * relative to the current time
+   * A string representation of the timestamp relative to the current time
+   *
+   * This is a `@state` so that any changes to it will trigger a re-render.
    */
+  @state()
   protected relativeTime: string = '-'
 
   /**
    * Interval used to update the relative time
    */
-  private updateRelativeTimeInterval: NodeJS.Timeout
+  private updateInterval: NodeJS.Timeout
 
   /**
    * Set the `relativeTime` property and request the element update
@@ -35,7 +37,6 @@ export class UINodeTimestampProperty extends LitElement {
       this.value === undefined || this.value === 0
         ? '-'
         : moment(this.value).fromNow()
-    this.requestUpdate()
   }
 
   /**
@@ -52,17 +53,29 @@ export class UINodeTimestampProperty extends LitElement {
 
     this.updateRelativeTime()
 
-    this.updateRelativeTimeInterval = setInterval(() => {
+    this.updateInterval = setInterval(() => {
       this.updateRelativeTime()
     }, 1000 * 60)
   }
 
   /**
-   * Clear the interval
+   * When disconnected, clear the interval
    */
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    clearInterval(this.updateRelativeTimeInterval)
+
+    clearInterval(this.updateInterval)
+  }
+
+  /**
+   * Update the relative time when `value` changes
+   */
+  override update(changedProperties: Map<string, unknown>) {
+    super.update(changedProperties)
+
+    if (changedProperties.has('value')) {
+      this.updateRelativeTime()
+    }
   }
 
   override render() {
