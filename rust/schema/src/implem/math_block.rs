@@ -39,9 +39,7 @@ impl MathBlock {
 
 impl DomCodec for MathBlock {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .push_attr("code", &self.code);
+        context.enter_node(self.node_type(), self.node_id());
 
         if let Some(math_language) = &self.math_language {
             context.push_attr("math-language", math_language);
@@ -56,6 +54,10 @@ impl DomCodec for MathBlock {
         if let Some(authors) = &self.options.authors {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
+
+        context.push_slot_fn("pre", "code", |context| {
+            context.push_text(&self.code);
+        });
 
         if let Some(mathml) = &self.options.mathml {
             context.push_slot_fn("div", "mathml", |context| {

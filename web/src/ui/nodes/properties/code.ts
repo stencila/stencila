@@ -4,6 +4,8 @@ import {
   defaultHighlightStyle,
   LanguageDescription,
   syntaxHighlighting,
+  LanguageSupport,
+  StreamLanguage,
 } from '@codemirror/language'
 import { EditorState, Extension } from '@codemirror/state'
 import { lineNumbers, EditorView } from '@codemirror/view'
@@ -17,7 +19,8 @@ import { nodeUi } from '../icons-and-colours'
 import '../../buttons/chevron'
 
 /**
- * A component for displaying the `code` property of `CodeStatic` and `CodeExecutable` nodes
+ * A component for displaying the `code` property of `CodeStatic`, `CodeExecutable`
+ * and `Math` nodes
  */
 @customElement('stencila-ui-node-code')
 @withTwind()
@@ -60,6 +63,15 @@ export class UINodeCode extends LitElement {
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
+        )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'latex',
+      extensions: ['latex', 'tex'],
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/stex').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.stexMath))
         )
       },
     }),
@@ -113,6 +125,8 @@ export class UINodeCode extends LitElement {
     switch (this.language.toLowerCase()) {
       case 'js':
         return 'JavaScript'
+      case 'latex':
+        return 'LaTeX'
       case 'py':
       case 'python':
         return 'Python'
@@ -120,6 +134,8 @@ export class UINodeCode extends LitElement {
         return 'R'
       case 'sql':
         return 'SQL'
+      case 'tex':
+        return 'TeX'
       default:
         return this.language
     }
