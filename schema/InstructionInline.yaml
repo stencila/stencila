@@ -16,6 +16,7 @@ properties:
     type: array
     items:
       $ref: Inline
+    walk: true
     dom:
       elem: span
     proptest:
@@ -35,5 +36,6 @@ properties:
     '@id': stencila:suggestion
     description: A suggestion for the instruction
     $ref: SuggestionInlineType
+    walk: true
     dom:
       elem: span

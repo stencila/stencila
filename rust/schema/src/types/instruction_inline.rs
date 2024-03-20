@@ -197,6 +197,7 @@ pub struct InstructionInlineOptions {
     pub authors: Option<Vec<Author>>,
 
     /// A suggestion for the instruction
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub suggestion: Option<SuggestionInlineType>,

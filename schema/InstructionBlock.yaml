@@ -16,6 +16,7 @@ properties:
     type: array
     items:
       $ref: Block
+    walk: true
     dom:
       elem: div
     proptest:
@@ -35,5 +36,6 @@ properties:
     '@id': stencila:suggestion
     description: A suggestion for the instruction
     $ref: SuggestionBlockType
+    walk: true
     dom:
       elem: div

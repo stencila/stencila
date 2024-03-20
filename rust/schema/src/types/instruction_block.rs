@@ -197,6 +197,7 @@ pub struct InstructionBlockOptions {
     pub authors: Option<Vec<Author>>,
 
     /// A suggestion for the instruction
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub suggestion: Option<SuggestionBlockType>,

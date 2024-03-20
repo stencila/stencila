@@ -350,6 +350,7 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content to which the instruction applies.",
+      "walk": true,
       "proptest": {
         "min": {
           "description": "No content",
@@ -379,6 +380,7 @@
     "suggestion": {
       "@id": "stencila:suggestion",
       "description": "A suggestion for the instruction",
+      "walk": true,
       "dom": {
         "elem": "div"
       },
