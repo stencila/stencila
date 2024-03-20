@@ -1,10 +1,11 @@
 import { CSSResultGroup, LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
+import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
-import { NodesClient } from '../clients/nodes'
-import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
+
+import '../nodes'
 
 import { outputCSS } from './styles/outputs'
 
@@ -42,11 +43,11 @@ export class DynamicView extends LitElement {
   private domClient: DomClient
 
   /**
-   * A write-only client which sends node patches to the document
+   * A write-only client which sends command to the document
    * on the server
    */
   // @ts-expect-error "nodes client is set, not read"
-  private nodesClient: NodesClient
+  private nodesClient: CommandsClient
 
   // Add outputCSS to view
   static override styles?: CSSResultGroup = [outputCSS]
@@ -64,7 +65,7 @@ export class DynamicView extends LitElement {
         this.renderRoot.firstElementChild as HTMLElement
       )
 
-      this.nodesClient = new NodesClient(
+      this.nodesClient = new CommandsClient(
         this.doc,
         this.access,
         this.renderRoot as HTMLElement
