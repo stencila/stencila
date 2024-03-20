@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/card'
-import '../ui/nodes/actions/execution-actions'
+import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 
@@ -31,7 +31,8 @@ export class ForBlock extends CodeExecutable {
     return html`
       <stencila-ui-node-card type="ForBlock" view="dynamic">
         <span slot="header-right">
-          <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
+          <stencila-ui-node-execution-commands node-id=${this.id}>
+          </stencila-ui-node-execution-commands>
         </span>
         <div slot="body" class="h-full">
           <slot name="code"></slot>
@@ -46,7 +47,8 @@ export class ForBlock extends CodeExecutable {
     return html`
       <stencila-ui-node-card type="ForBlock" view="source">
         <span slot="header-right">
-          </stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
+          <stencila-ui-node-execution-commands node-id=${this.id}>
+          </stencila-ui-node-execution-commands>
         </span>
         <div slot="body" class="h-full">
           <slot name="execution-messages"></slot>
