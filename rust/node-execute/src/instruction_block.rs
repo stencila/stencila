@@ -8,13 +8,13 @@ impl Executable for InstructionBlock {
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if executor.should_execute_instruction_block(self) {
+        if executor.should_execute_instruction_block(&node_id, self) {
             tracing::debug!("Pending InstructionBlock {node_id}");
 
             pending_impl!(executor, &node_id);
         }
 
-        // Continue to mark executable nodes in `content` as pending
+        // Continue to mark executable nodes in `content` and/or `suggestion` as pending
         WalkControl::Continue
     }
 
@@ -22,10 +22,11 @@ impl Executable for InstructionBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_instruction_block(self) {
+        if !executor.should_execute_instruction_block(&node_id, self) {
             tracing::debug!("Skipping InstructionBlock {node_id}");
 
-            return WalkControl::Break;
+            // Continue to execute executable nodes in `content` and/or `suggestion`
+            return WalkControl::Continue;
         }
 
         tracing::trace!("Executing InstructionBlock {node_id}");
