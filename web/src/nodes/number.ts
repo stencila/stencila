@@ -11,7 +11,7 @@ import { Entity } from './entity'
 /**
  * Web component representing a Stencila Schema `Number` node
  *
- * Note that this extends `Entity`, despite not doing so in Stencila Schema`, to
+ * Note that this extends `Entity`, despite not doing so in Stencila Schema, to
  * make use of the various `render*View()` methods.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md
@@ -38,7 +38,7 @@ export class Number extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Number" view="dynamic" ?collapsible=${true}>
+      <stencila-ui-node-card type="Number" view="dynamic">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
       </stencila-ui-node-card>
     `
@@ -51,7 +51,7 @@ export class Number extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Number" view="source" ?collapsible=${true}>
+      <stencila-ui-node-card type="Number" view="source">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
       </stencila-ui-node-card>
     `

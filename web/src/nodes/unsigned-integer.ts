@@ -8,7 +8,7 @@ import { Entity } from './entity'
 /**
  * Web component representing a Stencila Schema `UnsignedInteger` node
  *
- * Note that this extends `Entity`, despite not doing so in Stencila Schema`, to
+ * Note that this extends `Entity`, despite not doing so in Stencila Schema, to
  * make use of the various `render*View()` methods.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned-integer.md

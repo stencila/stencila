@@ -11,7 +11,7 @@ import './object-item'
 /**
  * Web component representing a Stencila Schema `Object` node
  *
- * Note that this extends `Entity`, despite not doing so in Stencila Schema`, to
+ * Note that this extends `Entity`, despite not doing so in Stencila Schema, to
  * make use of the various `render*View()` methods.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md
@@ -31,7 +31,7 @@ export class Object extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Object" view="dynamic" ?collapsible=${true}>
+      <stencila-ui-node-card type="Object" view="dynamic">
         <div slot="body" class="p-2">
           <slot></slot>
         </div>
@@ -46,7 +46,7 @@ export class Object extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Object" view="source" ?collapsible=${true}>
+      <stencila-ui-node-card type="Object" view="source">
         <div slot="body" class="p-2">
           <slot></slot>
         </div>

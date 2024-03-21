@@ -26,11 +26,7 @@ export class Datatable extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card
-        type="Datatable"
-        view="dynamic"
-        ?collapsible=${true}
-      >
+      <stencila-ui-node-card type="Datatable" view="dynamic">
         <div slot="body">
           <div class="overflow-auto">
             <slot></slot>
@@ -47,11 +43,7 @@ export class Datatable extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card
-        type="Datatable"
-        view="source"
-        ?collapsible=${true}
-      >
+      <stencila-ui-node-card type="Datatable" view="source">
         <div slot="body">
           <div class="overflow-auto">
             <slot></slot>

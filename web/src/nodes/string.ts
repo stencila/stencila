@@ -11,7 +11,7 @@ import { Entity } from './entity'
 /**
  * Web component representing a Stencila Schema `String` node
  *
- * Note that this extends `Entity`, despite not doing so in Stencila Schema`, to
+ * Note that this extends `Entity`, despite not doing so in Stencila Schema, to
  * make use of the various `render*View()` methods.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md
@@ -33,7 +33,7 @@ export class String extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="String" view="dynamic" ?collapsible=${true}>
+      <stencila-ui-node-card type="String" view="dynamic">
         <div slot="body" class=${this.bodyStyles}>
           <q><slot></slot></q>
         </div>
@@ -48,7 +48,7 @@ export class String extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="String" view="source" ?collapsible=${true}>
+      <stencila-ui-node-card type="String" view="source">
         <div slot="body" class=${this.bodyStyles}>
           <q><slot></slot></q>
         </div>

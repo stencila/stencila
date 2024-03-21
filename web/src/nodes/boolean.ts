@@ -11,7 +11,7 @@ import '../ui/nodes/card'
 /**
  * Web component representing a Stencila Schema `Boolean` node
  *
- * Note that this extends `Entity`, despite not doing so in Stencila Schema`, to
+ * Note that this extends `Entity`, despite not doing so in Stencila Schema, to
  * make use of the various `render*View()` methods.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md
@@ -38,7 +38,7 @@ export class Boolean extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Boolean" view="dynamic" ?collapsible=${true}>
+      <stencila-ui-node-card type="Boolean" view="dynamic">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
       </stencila-ui-node-card>
     `
@@ -51,7 +51,7 @@ export class Boolean extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Boolean" view="source" ?collapsible=${true}>
+      <stencila-ui-node-card type="Boolean" view="source">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
       </stencila-ui-node-card>
     `
