@@ -1,8 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { withTwind } from '../twind'
-import { nodeCardParentStyles, nodeCardStyles } from '../ui/nodes/card'
+import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
@@ -13,40 +12,48 @@ import { Entity } from './entity'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md
  */
 @customElement('stencila-list')
-@withTwind()
 export class List extends Entity {
+  /**
+   * In static view, just render the `items`.
+   */
   override renderStaticView() {
-    const view = this.documentView()
+    return html`<slot name="items"></slot>`
+  }
+
+  /**
+   * In dynamic view, render the `items`, `authors` and summary stats in
+   * a node card that is shown on demand.
+   */
+  override renderDynamicView() {
+    // TODO: Add summary stats to card
+
     return html`
-      <div class=${nodeCardParentStyles(view)}>
-        <slot name="items"></slot>
-        <stencila-ui-node-card type="List" class=${nodeCardStyles(view)}>
+      <stencila-ui-node-card type="List" view="dynamic" display="on-demand">
+        <div slot="body">
           <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-        </stencila-ui-node-card>
-      </div>
+        </div>
+        <slot name="items" slot="content"></slot>
+      </stencila-ui-node-card>
     `
   }
 
-  override renderDynamicView() {
-    return this.renderStaticView()
-  }
-
-  override renderVisualView() {
-    return this.renderDynamicView()
-  }
-
+  /**
+   * In source view, render `authors` and summary stats in a node card. Do not render
+   * `items` since those are visible in the source code.
+   */
   override renderSourceView() {
-    const view = this.documentView()
+    // TODO: Add summary stats to card
+
     return html`
-      <div class=${nodeCardParentStyles(view)}>
-        <stencila-ui-node-card type="List" class=${nodeCardStyles(view)}>
+      <stencila-ui-node-card type="List" view="source">
+        <div slot="body">
           <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-        </stencila-ui-node-card>
-      </div>
+        </div>
+      </stencila-ui-node-card>
     `
   }
 }

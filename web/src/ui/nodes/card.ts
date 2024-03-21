@@ -197,12 +197,3 @@ export class UINodeCard extends LitElement {
     this.toggle = !this.toggle
   }
 }
-
-// TODO: delete these
-export const nodeCardParentStyles = (view: DocumentView) =>
-  view !== 'source' ? 'group relative' : ''
-
-export const nodeCardStyles = (view: DocumentView) =>
-  view !== 'source'
-    ? 'absolute z-10 top-full right-0 group-hover:block'
-    : 'flex flex-col h-full'
