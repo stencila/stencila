@@ -20,7 +20,7 @@ export class UINodeExecutionCommands extends LitElement {
   /**
    * The id of the node that these commands apply to
    */
-  @property({attribute: 'node-id'})
+  @property({ attribute: 'node-id' })
   nodeId: NodeId
 
   /**

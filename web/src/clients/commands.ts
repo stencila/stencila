@@ -39,7 +39,7 @@ export function documentCommandEvent(command: DocumentCommand): CustomEvent {
   return new CustomEvent(DOCUMENT_COMMAND_EVENT, {
     detail: command,
     bubbles: true,
-    composed: true
+    composed: true,
   })
 }
 
@@ -50,11 +50,15 @@ export class CommandsClient extends RestClient {
    * @param docId The id of the document that will be sent commands
    * @param elem The HTML element from which events will be forwarded
    */
+  // @ts-expect-error because access is not used yet
   constructor(docId: DocumentId, access: DocumentAccess, elem: HTMLElement) {
     super()
 
-    elem.addEventListener(DOCUMENT_COMMAND_EVENT, async (event: CustomEvent) => {
-      await RestClient.documentCommand(docId, event.detail)
-    })
+    elem.addEventListener(
+      DOCUMENT_COMMAND_EVENT,
+      async (event: CustomEvent) => {
+        await RestClient.documentCommand(docId, event.detail)
+      }
+    )
   }
 }
