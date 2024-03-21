@@ -14,8 +14,7 @@ export class ArrayItem extends LitElement {
   index: number
 
   override render() {
-    const itemClasses = apply(['flex flex-row'])
-    const idxClasses = apply([
+    const indexClasses = apply([
       'w-full max-w-8',
       'py-2',
       'font-mono text-ellipsis',
@@ -23,8 +22,8 @@ export class ArrayItem extends LitElement {
     ])
 
     return html`
-      <div class=${itemClasses}>
-        <div class=${idxClasses}>${this.index}:</div>
+      <div class="flex flex-row">
+        <div class=${indexClasses}>${this.index}:</div>
         <div class="w-full"><slot></slot></div>
       </div>
     `

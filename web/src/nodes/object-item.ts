@@ -1,3 +1,4 @@
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -14,15 +15,16 @@ export class ObjectItem extends LitElement {
   key: string
 
   override render() {
-    const itemClasses = apply(['flex flex-row'])
     const keyClasses = apply([
       'w-full max-w-1/5',
       'p-3',
       'font-mono text-ellipsis',
       'overflow-hidden',
     ])
+
+    // Note: use tooltip because key may have a maximum width
     return html`
-      <div class=${itemClasses}>
+      <div class="flex flex-row">
         <sl-tooltip content="${this.key}">
           <div class=${keyClasses}>${this.key}:</div>
         </sl-tooltip>
