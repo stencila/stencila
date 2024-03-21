@@ -1,3 +1,4 @@
+import { LabelType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -9,6 +10,7 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/label-and-caption'
 import '../ui/nodes/properties/outputs'
 
 import { CodeExecutable } from './code-executable'
@@ -21,6 +23,9 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-code-chunk')
 @withTwind()
 export class CodeChunk extends CodeExecutable {
+  @property({ attribute: 'label-type' })
+  labelType?: LabelType
+
   @property()
   label?: string
 
@@ -33,10 +38,13 @@ export class CodeChunk extends CodeExecutable {
         <slot name="outputs"></slot>
       </stencila-ui-node-outputs>
       <div>
-        <stencila-ui-node-label>${this.label}</stencila-ui-node-label>
-        <stencila-ui-node-caption>
-          <slot name="caption"></slot>
-        </stencila-ui-node-caption>
+        <stencila-ui-node-label-and-caption
+          type="CodeChunk"
+          label-type=${this.labelType}
+          label=${this.label}
+        >
+          <slot name="caption" slot="caption"></slot>
+        </stencila-ui-node-label-and-caption>
       </div>
     </div>`
   }
@@ -92,10 +100,13 @@ export class CodeChunk extends CodeExecutable {
           <slot name="outputs"></slot>
         </stencila-ui-node-outputs>
 
-        <div>
-          <stencila-ui-node-label>${this.label}</stencila-ui-node-label>
-          <slot name="caption"></slot>
-        </div>
+        <stencila-ui-node-label-and-caption
+          type="CodeChunk"
+          label-type=${this.labelType}
+          label=${this.label}
+        >
+          <slot name="caption" slot="caption"></slot>
+        </stencila-ui-node-label-and-caption>
       </div>
     </stencila-ui-node-card>`
   }
