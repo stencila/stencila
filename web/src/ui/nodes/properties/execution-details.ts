@@ -5,16 +5,17 @@ import {
   ExecutionTag,
   NodeType,
 } from '@stencila/types'
+import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
-
-import './generic/collapsible-details'
 import './execution-count'
 import './execution-duration'
 import './execution-ended'
 import './execution-state'
+
+import { withTwind } from '../../../twind'
+import { nodeUi } from '../icons-and-colours'
 
 /**
  * A component for displaying various execution related property of executable nodes
@@ -57,15 +58,19 @@ export class UINodeExecutionDetails extends LitElement {
   headerBg: string | undefined = undefined
 
   override render() {
+    const { borderColour } = nodeUi(this.type)
+
+    const classes = apply([
+      'flex flex-col gap-3',
+      'text-xs leading-tight',
+      'py-2 px-6',
+      `bg-[${borderColour}]`,
+      'border-t border-b border-black/20',
+    ])
+
     return html`
-      <stencila-ui-node-collapsible-details
-        type=${this.type}
-        title="Details"
-        icon-name="info"
-        wrapper-css="border-t border-black/30"
-        ?collapsed=${true}
-      >
-        <div class="flex flex-col gap-y-3">
+      <div class="@container">
+        <div class=${`${classes} @[30rem]:flex-row`}>
           <stencila-ui-node-execution-state
             status=${this.status}
             required=${this.required}
@@ -80,7 +85,7 @@ export class UINodeExecutionDetails extends LitElement {
             value=${this.duration}
           ></stencila-ui-node-execution-duration>
         </div>
-      </stencila-ui-node-collapsible-details>
+      </div>
     `
   }
 }

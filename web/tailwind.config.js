@@ -7,5 +7,8 @@
  */
 export default {
   content: ["nothing, but this can't be empty"],
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/container-queries'),
+  ],
 }
