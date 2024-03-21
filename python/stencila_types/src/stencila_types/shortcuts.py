@@ -1,6 +1,5 @@
-import sys
 from collections.abc import Iterable
-from typing import Optional, Union
+from typing import Optional, TypeAlias, Union
 
 from beartype import beartype
 
@@ -8,16 +7,9 @@ from stencila_types import types as T  # noqa: N812
 
 # Our convertible type handles anything that is iterable (lists, tuples,
 # generators etc.)
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias
 
-    ConvertibleToInline: TypeAlias = Union[
-        str, T.Inline, Iterable[Union[T.Inline, str]]
-    ]
-    ConvertibleToBlocks: TypeAlias = Union[str, T.Block, Iterable[Union[T.Block, str]]]
-else:
-    ConvertibleToInline = Union[str, T.Inline, Iterable[Union[T.Inline, str]]]
-    ConvertibleToBlocks = Union[str, T.Block, Iterable[Union[T.Block, str]]]
+ConvertibleToInline: TypeAlias = str | T.Inline | Iterable[T.Inline | str]
+ConvertibleToBlocks: TypeAlias = str | T.Block | Iterable[T.Block | str]
 
 
 def flatten(args):
@@ -64,7 +56,7 @@ def ctg(targets: Iterable[str]):
 
 
 @beartype
-def ce(code: str, *, lang: Optional[str] = None) -> T.CodeExpression:
+def ce(code: str, *, lang: str | None = None) -> T.CodeExpression:
     return T.CodeExpression(code=code, programming_language=lang)
 
 
@@ -79,7 +71,7 @@ def dei(content: ConvertibleToInline) -> T.DeleteInline:
 
 
 @beartype
-def em(content: Union[str, T.Text]) -> T.Emphasis:
+def em(content: str | T.Text) -> T.Emphasis:
     # Emphasis actually takes a list, but if these are shortcuts...
     if isinstance(content, str):
         content = T.Text(value=content)

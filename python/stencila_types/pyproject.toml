@@ -3,17 +3,14 @@ name = "stencila_types"
 version = "2.0.0-alpha.25"
 description = "Python types for Stencila"
 readme = "README.md"
-authors = [
-  { name = "Nokome Bentley", email = "nokome@stencila.io" },
-  { name = "Brett Calcott", email = "brett@dragonfly.co.nz" },
-]
+authors = [{ name = "Nokome Bentley", email = "nokome@stencila.io" }]
 dependencies = [
   "cattrs>=23.2.3",
   "beartype>=0.17.2",
   "strenum>=0.4.15; python_version < \"3.11\"",
 ]
 requires-python = ">=3.10"
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
 
 keywords = [
   "programmable",
@@ -37,22 +34,22 @@ classifiers = [
 Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
-[project.optional-dependencies]
-test = ["pytest-sugar>=1.0.0"]
+# [build-system]
+# requires = ["hatchling"]
+# build-backend = "hatchling.build"
+
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
 
 [tool.pdm.dev-dependencies]
 testing = ["pytest>=8.1.1"]
-pyright = []
 
 [tool.pytest.ini_options]
-addopts = "-s"
-
+# addopts = "-s"
 
 [tool.ruff]
 # https://docs.astral.sh/ruff/
@@ -83,7 +80,7 @@ lint.select = [
 ]
 
 lint.ignore = [
-  "N812", # This is accepted practice in this project.
+  "N812", # We import types as T. This is fine.
 ]
 
 # Automatically fixing is often premature.
@@ -97,4 +94,17 @@ src = ['src', 'tests']
 [tool.ruff.lint.per-file-ignores]
 # Ignore long lines in generated code
 "src/stencila_types/types.py" = ["E501"]
+
+# Allow asserts here. Of course!
 "tests/**" = ["S101"]
+
+[tool.pyright]
+include = ["src", "tests"]
+# exclude = ["**/node_modules",
+#     "**/__pycache__",
+#     "src/experimental",
+#     "src/typestubs"
+# ]
+pythonVersion = "3.10"
+venvPath = "."
+venv = ".venv"
