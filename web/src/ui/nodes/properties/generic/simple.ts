@@ -23,15 +23,17 @@ export class UINodeSimpleProperty extends LitElement {
   override render() {
     const content = html`<slot></slot>`
 
-    return html`<div class="flex flex-row w-full">
-      <div class="pt-0.5">
+    return html`<div
+      class="flex flex-row w-full h-full items-center gap-x-2 shrink-0"
+    >
+      <div class="flex items-center justify-center">
         <sl-icon
           name=${this.iconName}
           library=${this.iconLibrary}
           class="text-base text-black"
         ></sl-icon>
       </div>
-      <div class="grow ml-4">
+      <div class="grow">
         <sl-tooltip
           content=${this.tooltipContent}
           placement="top-start"
