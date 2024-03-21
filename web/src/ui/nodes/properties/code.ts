@@ -170,17 +170,17 @@ export class UINodeCode extends LitElement {
 
     const headerClasses = apply([
       'flex flex-row justify-between items-center',
-      'px-6 py-3',
+      'px-6 py-1.5',
       `bg-[${borderColour}]`,
       'cursor-pointer',
     ])
 
     const languageClasses = apply([
-      'items-center',
+      'flex items-center',
       `bg-[${colour}]`,
       'px-1.5 py-0.5 mr-3',
       'rounded-full',
-      'text-sm',
+      'text-xs',
     ])
 
     const contentClasses = apply([
@@ -197,11 +197,11 @@ export class UINodeCode extends LitElement {
         class=${headerClasses}
         @click=${() => (this.collapsed = !this.collapsed)}
       >
-        <div>
+        <div class="flex items-center">
           <sl-icon name="code-square" class="text-base"></sl-icon>
-          <span class="ml-3">Code</span>
+          <span class="ml-4 text-sm">Code</span>
         </div>
-        <div>
+        <div class="flex items-center">
           <span class=${languageClasses}>
             <span>${language}</span>
           </span>

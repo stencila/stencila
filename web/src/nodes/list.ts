@@ -17,6 +17,7 @@ import { Entity } from './entity'
 export class List extends Entity {
   override renderStaticView() {
     const view = this.documentView()
+    console.log('list is static!', view)
     return html`
       <div class=${nodeCardParentStyles(view)}>
         <slot name="items"></slot>
@@ -30,6 +31,7 @@ export class List extends Entity {
   }
 
   override renderDynamicView() {
+    console.log('list is dynamic!', this.documentView())
     return this.renderStaticView()
   }
 

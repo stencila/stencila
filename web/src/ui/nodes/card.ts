@@ -83,17 +83,25 @@ export class UINodeCard extends LitElement {
 
     return html` <div class=${`${cardStyles}`}>
       <div class="relative">
-        <stencila-ui-collapsible-animation
-          class=${this.toggle || this.display === 'auto' ? 'opened' : ''}
-        >
-          ${this.renderHeader()} ${this.renderBody()}
-        </stencila-ui-collapsible-animation>
+        ${this.renderAnimation()}
         <div class=${contentStyles}>
           ${this.renderChip()}
           <slot name="content"></slot>
         </div>
       </div>
     </div>`
+  }
+
+  private renderAnimation() {
+    if (this.display === 'on-demand') {
+      return html`<stencila-ui-collapsible-animation
+        class=${this.toggle ? 'opened' : ''}
+      >
+        ${this.renderHeader()} ${this.renderBody()}
+      </stencila-ui-collapsible-animation>`
+    }
+
+    return html`${this.renderHeader()} ${this.renderBody()}`
   }
 
   private renderHeader() {
