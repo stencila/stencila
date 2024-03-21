@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -20,24 +20,11 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-code-expression')
 @withTwind()
 export class CodeExpression extends CodeExecutable {
-  @property()
-  label?: string
-
   /**
-   * In static view just render the output, label and caption
+   * In static view just render the output
    */
   override renderStaticView() {
-    return html`<div>
-      <stencila-ui-node-output>
-        <slot name="output"></slot>
-      </stencila-ui-node-output>
-      <div>
-        <stencila-ui-node-label>${this.label}</stencila-ui-node-label>
-        <stencila-ui-node-caption>
-          <slot name="caption"></slot>
-        </stencila-ui-node-caption>
-      </div>
-    </div>`
+    return html`<slot name="output"></slot>`
   }
 
   /**
@@ -91,11 +78,6 @@ export class CodeExpression extends CodeExecutable {
         <stencila-ui-node-output>
           <slot name="output"></slot>
         </stencila-ui-node-output>
-
-        <div>
-          <stencila-ui-node-label>${this.label}</stencila-ui-node-label>
-          <slot name="caption"></slot>
-        </div>
       </div>
     </stencila-ui-node-card>`
   }
