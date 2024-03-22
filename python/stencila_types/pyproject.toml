@@ -80,7 +80,8 @@ lint.select = [
 ]
 
 lint.ignore = [
-  "N812", # We import types as T. This is fine.
+  "N812",   # We import types as T. This is fine.
+  "RET504",
 ]
 
 # Automatically fixing is often premature.
@@ -92,8 +93,8 @@ lint.unfixable = [
 src = ['src', 'tests']
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore long lines in generated code
-"src/stencila_types/types.py" = ["E501"]
+# Ignore long lines in generated code and Unions.
+"src/stencila_types/types.py" = ["E501", "UP007"]
 
 # Allow asserts here. Of course!
 "tests/**" = ["S101"]

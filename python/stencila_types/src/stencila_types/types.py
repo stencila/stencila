@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from typing import Literal, Union
 
 if sys.version_info >= (3, 11):
@@ -3139,7 +3139,7 @@ class TupleValidator(Entity):
 
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class ExecutionDependant(Entity):
     """
     A downstream execution dependant of a node.
@@ -3158,22 +3158,296 @@ class ExecutionDependant(Entity):
 
 
 
-@dataclass(kw_only=True)
-class DurationValidator(Entity):
+@dataclass(kw_only=True, repr=False)
+class File(Entity):
     """
-    A validator specifying the constraints on a duration.
+    A file on the file system.
     """
 
-    type: Literal["DurationValidator"] = "DurationValidator"
+    type: Literal["File"] = "File"
 
-    time_units: list[TimeUnit] | None = None
-    """The time units that the duration can have."""
+    name: str
+    """The name of the file."""
 
-    minimum: Duration | None = None
-    """The inclusive lower limit for a duration."""
+    path: str
+    """The path (absolute or relative) of the file on the file system"""
 
-    maximum: Duration | None = None
-    """The inclusive upper limit for a duration."""
+    media_type: str | None = None
+    """IANA media type (MIME type)."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Heading(Entity):
+    """
+    A heading.
+    """
+
+    type: Literal["Heading"] = "Heading"
+
+    level: int = 0
+    """The level of the heading."""
+
+    content: list[Inline]
+    """Content of the heading."""
+
+    authors: list[Author] | None = None
+    """The authors of the heading."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class StringValidator(Entity):
+    """
+    A schema specifying constraints on a string node.
+    """
+
+    type: Literal["StringValidator"] = "StringValidator"
+
+    min_length: int | None = None
+    """The minimum length for a string node."""
+
+    max_length: int | None = None
+    """The maximum length for a string node."""
+
+    pattern: str | None = None
+    """A regular expression that a string node must match."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class CompilationDigest(Entity):
+    """
+    A digest of the content, semantics and dependencies of an executable node.
+    """
+
+    type: Literal["CompilationDigest"] = "CompilationDigest"
+
+    state_digest: UnsignedInteger
+    """A digest of the state of a node."""
+
+    semantic_digest: UnsignedInteger | None = None
+    """A digest of the semantics of the node with respect to the dependency graph."""
+
+    dependencies_digest: UnsignedInteger | None = None
+    """A digest of the semantic digests of the dependencies of a node."""
+
+    dependencies_stale: UnsignedInteger | None = None
+    """A count of the number of dependencies that are stale."""
+
+    dependencies_failed: UnsignedInteger | None = None
+    """A count of the number of dependencies that failed."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Mark(Entity):
+    """
+    Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+    """
+
+    type: Literal["Mark"] = "Mark"
+
+    content: list[Inline]
+    """The content that is marked."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Strong(Mark):
+    """
+    Strongly emphasized content.
+    """
+
+    type: Literal["Strong"] = "Strong"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Underline(Mark):
+    """
+    Inline text that is underlined.
+    """
+
+    type: Literal["Underline"] = "Underline"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Subscript(Mark):
+    """
+    Subscripted content.
+    """
+
+    type: Literal["Subscript"] = "Subscript"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Strikeout(Mark):
+    """
+    Content that is marked as struck out.
+    """
+
+    type: Literal["Strikeout"] = "Strikeout"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Superscript(Mark):
+    """
+    Superscripted content.
+    """
+
+    type: Literal["Superscript"] = "Superscript"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Emphasis(Mark):
+    """
+    Emphasized content.
+    """
+
+    type: Literal["Emphasis"] = "Emphasis"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class QuoteInline(Mark):
+    """
+    Inline, quoted content.
+    """
+
+    type: Literal["QuoteInline"] = "QuoteInline"
+
+    cite: Cite | Text | None = None
+    """The source of the quote."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class StringOperation(Entity):
+    """
+    An operation that modifies a string.
+    """
+
+    type: Literal["StringOperation"] = "StringOperation"
+
+    start_position: UnsignedInteger
+    """The start position in the string of the operation."""
+
+    end_position: UnsignedInteger | None = None
+    """The end position in the string of the operation."""
+
+    value: str | None = None
+    """The string value to insert or use as the replacement."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class StringPatch(Entity):
+    """
+    An set of operations to modify a string.
+    """
+
+    type: Literal["StringPatch"] = "StringPatch"
+
+    operations: list[StringOperation]
+    """The operations to be applied to the string."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Role(Entity):
+    """
+    Represents additional information about a relationship or property.
+    """
+
+    type: Literal["Role"] = "Role"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class AuthorRole(Role):
+    """
+    An author and their role.
+    """
+
+    type: Literal["AuthorRole"] = "AuthorRole"
+
+    author: Person | Organization | SoftwareApplication
+    """The author."""
+
+    role_name: AuthorRoleName
+    """A role played by the author."""
+
+    last_modified: Timestamp | None = None
+    """Timestamp of most recent modification by the author in the role."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Function(Entity):
+    """
+    A function with a name, which might take Parameters and return a value of a certain type.
+    """
+
+    type: Literal["Function"] = "Function"
+
+    name: str
+    """The name of the function."""
+
+    parameters: list[Parameter]
+    """The parameters of the function."""
+
+    returns: Validator | None = None
+    """The return type of the function."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Unknown(Entity):
+    """
+    A type to indicate a value or or other type in unknown.
+    """
+
+    type: Literal["Unknown"] = "Unknown"
+
+
+
+@dataclass(kw_only=True, repr=False)
+class ObjectHint(Entity):
+    """
+    A hint to the structure of an `Object`.
+    """
+
+    type: Literal["ObjectHint"] = "ObjectHint"
+
+    length: int
+    """The number of entries in the object."""
+
+    keys: list[str]
+    """The keys of the object's entries."""
+
+    values: list[Hint]
+    """Hints to the values of the object's entries."""
+
+
+
+@dataclass(kw_only=True, repr=False)
+class Note(Entity):
+    """
+    Additional content which is not part of the main content of a document.
+    """
+
+    type: Literal["Note"] = "Note"
+
+    note_type: NoteType
+    """Determines where the note content is displayed within the document."""
+
+    content: list[Block]
+    """Content of the note, usually a paragraph."""
 
 
 Block = Union[
