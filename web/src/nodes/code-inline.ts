@@ -26,7 +26,7 @@ export class CodeInline extends CodeStatic {
     return html`
       <stencila-ui-node-card type="CodeInline" view="dynamic">
         <div slot="body">
-          <stencila-ui-node-authors>
+          <stencila-ui-node-authors type="CodeInline">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
 
