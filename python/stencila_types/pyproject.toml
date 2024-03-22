@@ -49,8 +49,10 @@ distribution = true
 testing = ["pytest>=8.1.1"]
 
 [tool.pytest.ini_options]
-# addopts = "-s"
+# Add this to avoid warning.
+markers = ["skip_relaxed_json: avoid testing JSON that is not strict"]
 
+# addopts = "-s"
 [tool.ruff]
 # https://docs.astral.sh/ruff/
 target-version = "py310"

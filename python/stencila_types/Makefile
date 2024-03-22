@@ -2,7 +2,7 @@ all: fix audit test build
 
 # Bootstrap the project with minimum dependencies (pip in required for maturin)
 bootstrap:
-	pdm venv create --with-pip --with venv 3.10
+	pdm venv create --with-pip --with venv 3.10 && pdm install
 
 # Install dependencies
 pdm.lock: pyproject.toml
