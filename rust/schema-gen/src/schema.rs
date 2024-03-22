@@ -741,7 +741,7 @@ impl Schema {
     /// Extend the schema by inheriting properties of it's parent
     ///
     /// Also inherits `required` and `core` from parent.
-    pub fn extend(&self, name: &str, schemas: &mut IndexMap<String, Schema>) -> Result<Schema> {
+    pub fn extend(&self, name: &str, schemas: &mut BTreeMap<String, Schema>) -> Result<Schema> {
         let mut parents: Vec<Schema> = self
             .extends
             .iter()

@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use topo_sort::TopoSort;
+use topological_sort::TopologicalSort;
 
 use common::{
     async_recursion::async_recursion,
@@ -80,14 +80,14 @@ impl Schemas {
         // 2. Object schemas that get turned into Python classes.
         // 3. AnyOf schemas that get turned into Python Union types.
         // 4. Raw types or primitives.
-        let (mut enums, mut clses, mut unions) = (Vec::new(), Vec::new(), Vec::new());
+        let (mut enums, mut classes, mut unions) = (Vec::new(), Vec::new(), Vec::new());
         for (name, schema) in self.schemas.iter() {
             if schema.extends.contains(&"Enumeration".to_string()) {
                 enums.push(name.clone());
             } else if schema.any_of.is_some() {
                 unions.push(name.clone());
             } else if schema.r#type.is_none() {
-                clses.push(name.clone());
+                classes.push(name.clone());
             } else if !EXPECTED_PRIMITIVES.contains(&&**name) {
                 bail!("Unexpected primitive: {}", name);
             }
@@ -95,36 +95,44 @@ impl Schemas {
 
         let mut sections: Vec<String> = vec![HEADER.to_string()];
 
-        for nm in enums.iter() {
-            let schema = self.schemas.get(nm).expect("Schema not found");
-            sections.push(Self::python_enum(nm, schema)?);
+        for name in enums.iter() {
+            let schema = self.schemas.get(name).expect("Schema not found");
+            sections.push(Self::python_enum(name, schema)?);
         }
 
         // The order of class definitions matters. Base classes must come first.
-        let mut topo_sort = TopoSort::with_capacity(clses.len());
-        for nm in clses.iter() {
-            let schema = self.schemas.get(nm).expect("Schema not found");
-            topo_sort.insert(nm.clone(), schema.extends.clone());
+        let mut topo_sort = TopologicalSort::new();
+        for name in classes.iter() {
+            let schema = self.schemas.get(name).expect("Schema not found");
+            for base in &schema.extends {
+                topo_sort.add_dependency(name, base);
+            }
         }
-        let dep_order = topo_sort.try_vec_nodes()?;
-        for nm in dep_order {
-            let schema = self.schemas.get(nm).expect("Schema not found");
-            sections.push(self.python_class(nm, schema).await?);
+        let mut dep_order = Vec::new();
+        loop {
+            let mut deps = topo_sort.pop_all();
+            if deps.is_empty() {
+                break;
+            }
+            deps.sort(); // Sort to maintain ordering between generations
+            dep_order.append(&mut deps);
+        }
+        for name in dep_order {
+            let schema = self.schemas.get(&name).expect("Schema not found");
+            sections.push(self.python_class(&name, schema).await?);
         }
 
         // Finally, do the unions. These reference all the types already generated.
-        for nm in unions.iter() {
+        for name in unions.iter() {
             // We did this already.
-            if nm == "Primitive" {
+            if name == "Primitive" {
                 continue;
             }
-            let schema = self.schemas.get(nm).expect("Schema not found");
+            let schema = self.schemas.get(name).expect("Schema not found");
             sections.push(self.python_union(schema).await?);
         }
 
         // Create a module for each schema
-        // let futures = schema_order.iter().map(|s| self.python_module(&types, s));
-        // let v: Vec<_> = try_join_all(futures).await?.into_iter().collect();
         write(dest.join("stencila_types.py"), sections.join("\n\n")).await?;
 
         Ok(())

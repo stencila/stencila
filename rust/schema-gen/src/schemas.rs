@@ -1,18 +1,17 @@
 //! The collection of schemas in the Stencila Schema
 
-use std::{fs::read_dir, path::PathBuf};
+use std::{collections::BTreeMap, fs::read_dir, path::PathBuf};
 
 use common::{
     eyre::{Context, Result},
     futures::future::try_join_all,
-    indexmap::IndexMap,
     itertools::Itertools,
 };
 
 use crate::schema::{Category, Schema, Value};
 
 pub struct Schemas {
-    pub schemas: IndexMap<String, Schema>,
+    pub schemas: BTreeMap<String, Schema>,
 }
 
 impl Schemas {
@@ -132,7 +131,7 @@ impl Schemas {
             let mut any_of = Vec::new();
             for (name, schema) in &self.schemas {
                 fn is_descendent(
-                    schemas: &IndexMap<String, Schema>,
+                    schemas: &BTreeMap<String, Schema>,
                     base: &str,
                     nest: &Schema,
                 ) -> bool {

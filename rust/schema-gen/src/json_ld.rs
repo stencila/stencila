@@ -9,7 +9,6 @@ use common::{
     eyre::Result,
     futures::future::try_join_all,
     glob::glob,
-    indexmap::IndexMap,
     itertools::Itertools,
     serde_json::{self, json},
     tokio::fs::{remove_file, write},
@@ -160,7 +159,7 @@ impl Schemas {
     }
 }
 
-fn ranges(property: &Schema, schemas: &IndexMap<String, Schema>) -> Vec<String> {
+fn ranges(property: &Schema, schemas: &BTreeMap<String, Schema>) -> Vec<String> {
     let mut ids = vec![];
 
     if let Some(r#type) = &property.r#type {
