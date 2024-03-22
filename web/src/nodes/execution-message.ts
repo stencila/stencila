@@ -23,17 +23,23 @@ export class ExecutionMessage extends Entity {
   @property()
   level: MessageLevel
 
+  @property()
+  message: string
+
   @property({ attribute: 'error-type' })
-  errorType: string
+  errorType?: string
+
+  @property({ attribute: 'stack-trace' })
+  stackTrace?: string
 
   override render() {
     return html`
       <stencila-ui-node-execution-message
         level=${this.level}
+        message=${this.message}
         error-type=${this.errorType}
+        stack-trace=${this.stackTrace}
       >
-        <slot name="message" slot="message"></slot>
-        <slot name="stack-trace" slot="stack-trace"></slot>
       </stencila-ui-node-execution-message>
     `
   }

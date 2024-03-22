@@ -77,7 +77,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
 
   // Executable code
   CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
-  CodeExpression:   { ...stencilaIcon('code-expression'),      ...nodeColours('green')},
+  CodeExpression:   { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
   
   ForBlock:         { ...stencilaIcon('for-block'),            ...nodeColours('fuchsia')},
   IfBlock:          { ...stencilaIcon('if-block'),             ...nodeColours('pink')},

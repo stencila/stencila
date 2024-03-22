@@ -9,6 +9,7 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/output'
 
 import { CodeExecutable } from './code-executable'
 
@@ -21,7 +22,8 @@ import { CodeExecutable } from './code-executable'
 @withTwind()
 export class CodeExpression extends CodeExecutable {
   /**
-   * In static view just render the output
+   * In static view just render the output without a wrapping
+   * `<stencila-ui-node-output>`
    */
   override renderStaticView() {
     return html`<slot name="output"></slot>`
@@ -29,10 +31,14 @@ export class CodeExpression extends CodeExecutable {
 
   /**
    * In dynamic view, in addition to what is in static view, render a node card
-   * with execution actions and details and code read-only, single-line and collapsed.
+   * on demand with execution actions and details and code read-only.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="CodeExpression" view="dynamic">
+    return html`<stencila-ui-node-card
+      type="CodeExpression"
+      view="dynamic"
+      display="on-demand"
+    >
       <span slot="header-right">
         <stencila-ui-node-execution-commands node-id=${this.id}>
         </stencila-ui-node-execution-commands>
@@ -58,12 +64,11 @@ export class CodeExpression extends CodeExecutable {
 
         <stencila-ui-node-code
           type="CodeExpression"
+          code=${this.code}
           language=${this.programmingLanguage}
           read-only
-          single-line
           collapsed
         >
-          <slot name="code"></slot>
         </stencila-ui-node-code>
 
         <stencila-ui-node-execution-messages
@@ -74,11 +79,13 @@ export class CodeExpression extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
+      </div>
 
-        <stencila-ui-node-output>
+      <span slot="content">
+        <stencila-ui-node-output type="CodeExpression">
           <slot name="output"></slot>
         </stencila-ui-node-output>
-      </div>
+      </span>
     </stencila-ui-node-card>`
   }
 

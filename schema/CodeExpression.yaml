@@ -20,6 +20,7 @@ properties:
   output:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.
+    $ref: Node
     strip: [output]
     dom:
       elem: span
@@ -27,4 +28,3 @@ properties:
       slot: span
     jats:
       content: true
-    $ref: Node

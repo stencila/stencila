@@ -17,8 +17,14 @@ export class ExecutionMessage extends LitElement {
   @property()
   level: MessageLevel
 
+  @property()
+  message: string
+
   @property({ attribute: 'error-type' })
   errorType?: string
+
+  @property({ attribute: 'stack-trace' })
+  stackTrace: string
 
   @property({ type: Boolean })
   messageCollapsed: boolean = true
@@ -74,8 +80,8 @@ export class ExecutionMessage extends LitElement {
         </div>
         <div class=${msgContainerStyles}>
           <div class=${msgBodyStyles}>
-            <slot name="message"></slot>
-            <slot name="stack-trace"></slot>
+            <pre>${this.message}</pre>
+            <pre>${this.stackTrace}</pre>
           </div>
         </div>
       </div>

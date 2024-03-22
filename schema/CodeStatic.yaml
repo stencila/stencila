@@ -17,8 +17,6 @@ properties:
     '@id': stencila:code
     description: The code.
     $ref: Cord
-    dom:
-      elem: code
     jats:
       content: true
     html:
