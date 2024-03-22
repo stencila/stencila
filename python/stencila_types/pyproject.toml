@@ -1,6 +1,6 @@
 [project]
 name = "stencila_types"
-version = "2.0.0-alpha.25"
+version = "2.0.0a26"
 description = "Python types for Stencila"
 readme = "README.md"
 authors = [{ name = "Nokome Bentley", email = "nokome@stencila.io" }]
@@ -10,8 +10,6 @@ dependencies = [
   "strenum>=0.4.15; python_version < \"3.11\"",
 ]
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
-
 keywords = [
   "programmable",
   "reproducible",
@@ -20,7 +18,6 @@ keywords = [
   "python",
   "SDK",
 ]
-
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -30,13 +27,12 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
 ]
 
+[project.license]
+text = "Apache-2.0"
+
 [project.urls]
 Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
-
-# [build-system]
-# requires = ["hatchling"]
-# build-backend = "hatchling.build"
 
 [build-system]
 requires = ["pdm-backend"]
@@ -49,65 +45,46 @@ distribution = true
 testing = ["pytest>=8.1.1"]
 
 [tool.pytest.ini_options]
-# Add this to avoid warning.
 markers = ["skip_relaxed_json: avoid testing JSON that is not strict"]
 
-# addopts = "-s"
 [tool.ruff]
-# https://docs.astral.sh/ruff/
 target-version = "py310"
 line-length = 88
-lint.select = [
-  "F",    # pyflakes
-  "E",    # codestyle
-  "W",    # warning
-  "C90",  # complexity
-  "N",    # pep-naming
-  "UP",   # upgrade
-  "S",    # bandit
-  "B",    # bug-bear
-  "A",    # builtins
-  "C4",   # comprehensions
-  "PIE",  # misc
-  "ISC",  # literal concat
-  "T20",  # print statements
-  "PT",   # pytest
-  "RET",  # returns
-  "SIM",  # simplify
-  "PTH",  # use pathlib
-  "Q",    # quotes
-  "PLR",  # refactor
-  "PLE",  # pylint errors
-  "I001", # isort
-]
+src = ["src", "tests"]
 
-lint.ignore = [
-  "N812",   # We import types as T. This is fine.
-  "RET504",
+[tool.ruff.lint]
+select = [
+  "F",
+  "E",
+  "W",
+  "C90",
+  "N",
+  "UP",
+  "S",
+  "B",
+  "A",
+  "C4",
+  "PIE",
+  "ISC",
+  "T20",
+  "PT",
+  "RET",
+  "SIM",
+  "PTH",
+  "Q",
+  "PLR",
+  "PLE",
+  "I001",
 ]
-
-# Automatically fixing is often premature.
-lint.unfixable = [
-  "T20",  # Removes print statements
-  "F841", # Removes unused variables
-]
-
-src = ['src', 'tests']
+ignore = ["N812", "RET504"]
+unfixable = ["T20", "F841"]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore long lines in generated code and Unions.
 "src/stencila_types/types.py" = ["E501", "UP007"]
-
-# Allow asserts here. Of course!
 "tests/**" = ["S101"]
 
 [tool.pyright]
 include = ["src", "tests"]
-# exclude = ["**/node_modules",
-#     "**/__pycache__",
-#     "src/experimental",
-#     "src/typestubs"
-# ]
 pythonVersion = "3.10"
 venvPath = "."
 venv = ".venv"
