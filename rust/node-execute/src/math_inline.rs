@@ -10,19 +10,30 @@ impl Executable for MathInline {
 
         let code = self.code.trim();
         if !code.is_empty() {
-            let (mathml, messages) = executor
-                .kernels()
-                .await
-                .evaluate(code, self.math_language.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Node::String(String::new()),
-                        vec![error_to_message("While compiling math", error)],
-                    )
-                });
+            let lang = self
+                .math_language
+                .as_ref()
+                .map_or("tex".to_string(), |lang| lang.to_lowercase());
 
-            let messages = (!messages.is_empty()).then_some(messages);
+            let (mathml, messages) = if lang == "mathml" {
+                (Node::String(code.to_string()), None)
+            } else {
+                let (mathml, messages) = executor
+                    .kernels()
+                    .await
+                    .evaluate(code, Some(&lang))
+                    .await
+                    .unwrap_or_else(|error| {
+                        (
+                            Node::String(String::new()),
+                            vec![error_to_message("While compiling math", error)],
+                        )
+                    });
+
+                let messages = (!messages.is_empty()).then_some(messages);
+
+                (mathml, messages)
+            };
 
             executor.replace_properties(
                 &node_id,

@@ -10,20 +10,31 @@ impl Executable for MathBlock {
 
         let code = self.code.trim();
         if !code.is_empty() {
-            let (mut outputs, messages) = executor
-                .kernels()
-                .await
-                .execute(code, self.math_language.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Vec::new(),
-                        vec![error_to_message("While compiling math", error)],
-                    )
-                });
+            let lang = self
+                .math_language
+                .as_ref()
+                .map_or("tex".to_string(), |lang| lang.to_lowercase());
 
-            let mathml = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
-            let messages = (!messages.is_empty()).then_some(messages);
+            let (mathml, messages) = if lang == "mathml" {
+                (Some(Node::String(code.to_string())), None)
+            } else {
+                let (mut outputs, messages) = executor
+                    .kernels()
+                    .await
+                    .execute(code, Some(&lang))
+                    .await
+                    .unwrap_or_else(|error| {
+                        (
+                            Vec::new(),
+                            vec![error_to_message("While compiling math", error)],
+                        )
+                    });
+
+                let mathml = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
+                let messages = (!messages.is_empty()).then_some(messages);
+
+                (mathml, messages)
+            };
 
             executor.replace_properties(
                 &node_id,
