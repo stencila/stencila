@@ -45,7 +45,7 @@ export class UINodeCollapsibleDetails extends LitElement {
         wrapper-css=${this.wrapperCss}
       >
         <div slot="title">${this.title}</div>
-        <div class="px-6 py-3" slot="content">
+        <div class="px-4 py-3" slot="content">
           <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>

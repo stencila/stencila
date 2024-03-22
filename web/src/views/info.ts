@@ -13,7 +13,7 @@ import { withTwind } from '../twind'
 import '../nodes'
 import type { DocumentId } from '../types'
 
-import { outputCSS } from './styles/outputs'
+import { outputCSS } from './styles/global-styles'
 
 /**
  * View of information about the document, including the currently selected node

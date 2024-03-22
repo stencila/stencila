@@ -48,6 +48,12 @@ export class UINodeCard extends LitElement {
   toggle: boolean = false
 
   /**
+   * If we encounter no content is in the slot, we need to hide the content area.
+   */
+  @state()
+  showContent: boolean = true
+
+  /**
    * Internal copy of the ui attributes.
    */
   private ui: ReturnType<typeof nodeUi> | undefined = undefined
@@ -61,20 +67,30 @@ export class UINodeCard extends LitElement {
     this.ui = nodeUi(this.type)
   }
 
+  protected override firstUpdated() {
+    const slot: HTMLSlotElement = this.renderRoot.querySelector(
+      'slot[name="content"]'
+    )
+
+    if (slot) {
+      this.showContent = slot.assignedElements({ flatten: true }).length !== 0
+    }
+  }
+
   override render() {
     const cardStyles = apply([
       'group',
       'transition duration-400',
       'border border-[transparent]',
       this.display && 'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
+      this.view === 'source' ? 'flex flex-col h-full' : '',
       this.display === 'on-demand' &&
         this.toggle &&
         `border-[${this.ui.borderColour}]`,
     ])
 
     const contentStyles = apply([
-      'flex',
+      this.showContent ? 'flex' : 'hidden',
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
@@ -110,7 +126,7 @@ export class UINodeCard extends LitElement {
     const headerStyles = apply([
       'flex items-center',
       'w-full',
-      'px-6 py-3',
+      'px-4 py-1',
       'gap-x-2',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}]`,
@@ -205,12 +221,3 @@ export class UINodeCard extends LitElement {
     this.toggle = !this.toggle
   }
 }
-
-// TODO: delete these
-export const nodeCardParentStyles = (view: DocumentView) =>
-  view !== 'source' ? 'group relative' : ''
-
-export const nodeCardStyles = (view: DocumentView) =>
-  view !== 'source'
-    ? 'absolute z-10 top-full right-0 group-hover:block'
-    : 'flex flex-col h-full'

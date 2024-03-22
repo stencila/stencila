@@ -7,8 +7,9 @@ import { css } from 'lit'
 export const outputCSS = css`
   /* Keep all img tags within their parent's bounds */
   img {
-    height: auto;
+    object-fit: fill;
     width: 100%;
+    display: block;
   }
 
   table {
@@ -28,5 +29,9 @@ export const outputCSS = css`
   td[data-type='number'],
   td[data-type='integer'] {
     text-align: right;
+  }
+
+  figure {
+    margin: 0;
   }
 `

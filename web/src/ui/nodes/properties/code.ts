@@ -168,15 +168,18 @@ export class UINodeCode extends LitElement {
   override render() {
     const { colour, borderColour } = nodeUi(this.type)
 
+    const language = this.getLanguageTitle()
+
     const headerClasses = apply([
       'flex flex-row justify-between items-center',
-      'px-6 py-1.5',
+      'px-4 py-1.5',
       `bg-[${borderColour}]`,
       'cursor-pointer',
     ])
 
     const languageClasses = apply([
-      'flex items-center',
+      this.language ? 'flex' : 'hidden',
+      'items-center',
       `bg-[${colour}]`,
       'px-1.5 py-0.5 mr-3',
       'rounded-full',
@@ -187,8 +190,6 @@ export class UINodeCode extends LitElement {
       this.collapsed ? 'max-h-0' : 'max-h-full',
       'transition-max-h duration-200',
     ])
-
-    const language = this.getLanguageTitle()
 
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`

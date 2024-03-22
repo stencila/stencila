@@ -1,8 +1,7 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../twind'
-import { nodeCardStyles } from '../ui/nodes/card'
+import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
@@ -13,22 +12,51 @@ import { Entity } from './entity'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md
  */
 @customElement('stencila-heading')
-@withTwind()
 export class Heading extends Entity {
   @property({ type: Number })
   level: Number
 
-  override render() {
-    const view = this.documentView()
+  /**
+   * In static view, just render the `content`.
+   */
+  override renderStaticView() {
+    return html`<slot name="content"></slot>`
+  }
 
-    return html`<div>
-      ${view !== 'source' ? html`<slot name="content"></slot>` : ''}
+  /**
+   * In dynamic view, render the `content`, `authors` and summary stats in
+   * a node card that is shown on demand.
+   */
+  override renderDynamicView() {
+    // TODO: Add summary stats to card
 
-      <stencila-ui-node-card type="Heading" class=${nodeCardStyles(view)}>
-        <stencila-ui-node-authors type="Heading">
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
+    return html`
+      <stencila-ui-node-card type="Heading" view="dynamic" display="on-demand">
+        <div slot="body">
+          <stencila-ui-node-authors type="Heading">
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
+        </div>
+        <slot name="content" slot="content"></slot>
       </stencila-ui-node-card>
-    </div>`
+    `
+  }
+
+  /**
+   * In source view, render `authors` and summary stats in a node card. Do not render
+   * `content` since that is visible in the source code.
+   */
+  override renderSourceView() {
+    // TODO: Add summary stats to card
+
+    return html`
+      <stencila-ui-node-card type="Heading" view="source">
+        <div slot="body">
+          <stencila-ui-node-authors type="Heading">
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
+        </div>
+      </stencila-ui-node-card>
+    `
   }
 }

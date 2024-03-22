@@ -1,4 +1,4 @@
-import { html } from 'lit'
+import { CSSResultGroup, css, html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
@@ -16,6 +16,18 @@ import { Entity } from './entity'
 @customElement('stencila-paragraph')
 @withTwind()
 export class Paragraph extends Entity {
+  static override styles?: CSSResultGroup = css`
+    :host {
+      margin: 1em 0;
+      display: block;
+    }
+
+    ::slotted(p) {
+      margin: 0;
+      width: 100%;
+    }
+  `
+
   /**
    * In static view just render the `content`.
    */

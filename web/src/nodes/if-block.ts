@@ -2,7 +2,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import { nodeCardStyles } from '../ui/nodes/card'
+import '../ui/nodes/card'
 
 import { Executable } from './executable'
 
@@ -41,10 +41,7 @@ export class IfBlock extends Executable {
 
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card
-        type="IfBlock"
-        class=${nodeCardStyles(this.documentView())}
-      >
+      <stencila-ui-node-card type="IfBlock">
         <span slot="header-right"></span>
         <div slot="body" class="h-full">
           <slot name="execution-messages"></slot>
