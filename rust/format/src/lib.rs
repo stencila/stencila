@@ -180,6 +180,7 @@ impl Format {
         use Format::*;
         match name.to_lowercase().trim() {
             "aac" => Aac,
+            "asciimath" => AsciiMath,
             "avi" => Avi,
             "bash" => Bash,
             "cbor" => Cbor,
