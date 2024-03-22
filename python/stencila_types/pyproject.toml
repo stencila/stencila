@@ -42,7 +42,7 @@ build-backend = "pdm.backend"
 distribution = true
 
 [tool.pdm.dev-dependencies]
-testing = ["pytest>=8.1.1"]
+testing = ["pytest>=8.1.1", "pytest-regressions>=2.5.0"]
 
 [tool.pytest.ini_options]
 markers = ["skip_relaxed_json: avoid testing JSON that is not strict"]
