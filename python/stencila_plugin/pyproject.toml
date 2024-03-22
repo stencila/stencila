@@ -1,124 +1,101 @@
 [project]
 name = "stencila_plugin"
-version = "2.0.0-alpha.25"
+version = "2.0.0a26"
 description = "Library for building Stencila Plugins"
 readme = "README.md"
 authors = [
-  { name = "Nokome Bentley", email = "nokome@stencila.io" },
-  { name = "Brett Calcott", email = "brett@dragonfly.co.nz" },
+    { name = "Nokome Bentley", email = "nokome@stencila.io" },
+    { name = "Brett Calcott", email = "brett@dragonfly.co.nz" },
 ]
 dependencies = [
     "aiohttp>=3.9.3",
     "stencila-types>=2.0.0a26",
 ]
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
-
 keywords = [
-  "programmable",
-  "reproducible",
-  "interactive",
-  "documents",
-  "python",
-  "SDK",
+    "programmable",
+    "reproducible",
+    "interactive",
+    "documents",
+    "python",
+    "SDK",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Topic :: Software Development",
+    "License :: OSI Approved :: Apache Software License",
 ]
 
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Education",
-  "Topic :: Software Development",
-  "License :: OSI Approved :: Apache Software License",
-]
+[project.license]
+text = "Apache-2.0"
 
 [project.urls]
 Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
-# [build-system]
-# requires = ["hatchling"]
-# build-backend = "hatchling.build"
-#
 [build-system]
-requires = ["pdm-backend"]
+requires = [
+    "pdm-backend",
+]
 build-backend = "pdm.backend"
-
 
 [tool.pdm]
 distribution = true
 
 [tool.pdm.dev-dependencies]
-dev = ["pytest-asyncio>=0.23.6", "pytest>=8.1.1"]
+dev = [
+    "pytest-asyncio>=0.23.6",
+    "pytest>=8.1.1",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
 [tool.ruff]
-# https://docs.astral.sh/ruff/
 target-version = "py310"
 line-length = 88
-lint.select = [
-  "F",    # pyflakes
-  "E",    # codestyle
-  "W",    # warning
-  "C90",  # complexity
-  "N",    # pep-naming
-  "UP",   # upgrade
-  "S",    # bandit
-  "B",    # bug-bear
-  "A",    # builtins
-  "C4",   # comprehensions
-  "PIE",  # misc
-  "ISC",  # literal concat
-  "T20",  # print statements
-  "PT",   # pytest
-  "RET",  # returns
-  "SIM",  # simplify
-  "PTH",  # use pathlib
-  "Q",    # quotes
-  "PLR",  # refactor
-  "PLE",  # pylint errors
-  "I001", # isort
+src = [
+    "src",
+    "tests",
 ]
 
-lint.ignore = [
-  "N812",   # This is accepted practice in this project.
-  "RET504", # Makes for better clarity to separate returns from calculations.
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    "C90",
+    "N",
+    "UP",
+    "S",
+    "B",
+    "A",
+    "C4",
+    "PIE",
+    "ISC",
+    "T20",
+    "PT",
+    "RET",
+    "SIM",
+    "PTH",
+    "Q",
+    "PLR",
+    "PLE",
+    "I001",
 ]
-
-# Automatically fixing is often premature.
-lint.unfixable = [
-  "T20",  # Removes print statements
-  "F841", # Removes unused variables
+ignore = [
+    "N812",
+    "RET504",
 ]
-
-src = ['src', 'tests']
+unfixable = [
+    "T20",
+    "F841",
+]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]
-
-
-# [tool.pyright]
-# include = ["src"]
-# exclude = ["**/node_modules",
-#     "**/__pycache__",
-#     "src/experimental",
-#     "src/typestubs"
-# ]
-# ignore = ["src/oldstuff"]
-# defineConstant = { DEBUG = true }
-# stubPath = "src/stubs"
-#
-# reportMissingImports = true
-# reportMissingTypeStubs = false
-#
-# pythonVersion = "3.6"
-# pythonPlatform = "Linux"
-#
-# executionEnvironments = [
-#   { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [ "src/service_libs" ] },
-#   { root = "src/sdk", pythonVersion = "3.0", extraPaths = [ "src/backend" ] },
-#   { root = "src/tests", extraPaths = ["src/tests/e2e", "src/sdk" ]},
-#   { root = "src" }
-# ]
+"tests/**" = [
+    "S101",
+]
