@@ -83,6 +83,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "alemat"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd7e2d7078d450141ac25e1db3bb458e8646b68ac9fedc00fbb15a69425d44c5"
+
+[[package]]
 name = "allocator-api2"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3080,6 +3086,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-asciimath"
+version = "0.0.0"
+dependencies = [
+ "common-dev",
+ "kernel",
+ "mathemascii",
+]
+
+[[package]]
 name = "kernel-bash"
 version = "0.0.0"
 dependencies = [
@@ -3150,6 +3165,7 @@ dependencies = [
  "cli-utils",
  "context",
  "kernel",
+ "kernel-asciimath",
  "kernel-bash",
  "kernel-node",
  "kernel-python",
@@ -3376,6 +3392,15 @@ name = "matchit"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
+
+[[package]]
+name = "mathemascii"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5edd9e0cc9e4404ea4e2b9da76dc78c6193516ac3f9276c7151e7e2e87eae24f"
+dependencies = [
+ "alemat",
+]
 
 [[package]]
 name = "matrixmultiply"

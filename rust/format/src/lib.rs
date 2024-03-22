@@ -38,8 +38,9 @@ pub enum Format {
     Markdown,
     Text,
     // Math languages
-    Tex,
+    AsciiMath,
     Latex,
+    Tex,
     // Programming languages
     Bash,
     Shell,
@@ -90,6 +91,7 @@ impl Format {
         match self {
             Aac => "AAC",
             Article => "Stencila Article",
+            AsciiMath => "AsciiMath",
             Avi => "AVI",
             Bash => "Bash",
             Cbor => "CBOR",
@@ -330,6 +332,7 @@ impl Display for Format {
         f.write_str(match self {
             Aac => "aac",
             Article => "sta",
+            AsciiMath => "asciimath",
             Avi => "avi",
             Bash => "bash",
             Cbor => "cbor",

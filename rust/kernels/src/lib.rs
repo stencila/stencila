@@ -10,6 +10,7 @@ use kernel::{
     schema::{ExecutionMessage, Node},
     Kernel, KernelInstance,
 };
+use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
 use kernel_node::NodeKernel;
 use kernel_python::PythonKernel;
@@ -22,6 +23,7 @@ pub mod cli;
 /// Get a list of available kernels
 pub async fn list() -> Vec<Box<dyn Kernel>> {
     let mut kernels = vec![
+        Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<NodeKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,

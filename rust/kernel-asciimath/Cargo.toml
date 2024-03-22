@@ -1,0 +1,11 @@
+[package]
+name = "kernel-asciimath"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+mathemascii = "0.4.0"
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

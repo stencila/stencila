@@ -7,6 +7,7 @@ edition = "2021"
 cli-utils = { path = "../cli-utils" }
 context = { path = "../context" }
 kernel = { path = "../kernel" }
+kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
 kernel-node = { path = "../kernel-node" }
 kernel-python = { path = "../kernel-python" }
