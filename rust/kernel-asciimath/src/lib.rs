@@ -63,7 +63,7 @@ pub struct AsciiMathKernelInstance {}
 impl AsciiMathKernelInstance {
     /// Transpile AsciiMath to MathML
     fn transpile(&self, am: &str) -> String {
-        mathemascii::render_mathml(mathemascii::parse(&am))
+        mathemascii::render_mathml(mathemascii::parse(am))
     }
 }
 

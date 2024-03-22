@@ -328,7 +328,7 @@ impl Executor {
         if self.options.force_all {
             return true;
         }
-        
+
         if let Some(node_ids) = &self.node_ids {
             if node_ids.contains(node_id) {
                 return true;
@@ -367,7 +367,7 @@ impl Executor {
         if self.options.force_all {
             return true;
         }
-        
+
         if let Some(node_ids) = &self.node_ids {
             if node_ids.contains(node_id) {
                 return true;
