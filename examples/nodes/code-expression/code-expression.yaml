@@ -3,23 +3,27 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'With a number output: '
+    value: 'With a number output '
   - type: CodeExpression
     code: 6 * 7
     programmingLanguage: python
     output: 42
+  - type: Text
+    value: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'With a string output: '
+    value: 'With a string output '
   - type: CodeExpression
     code: '''a string'''
     programmingLanguage: python
     output: a string
+  - type: Text
+    value: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'With an array output: '
+    value: 'With an array output '
   - type: CodeExpression
     code: '[1, 2, 3]'
     programmingLanguage: python
@@ -27,27 +31,35 @@ content:
     - 1
     - 2
     - 3
+  - type: Text
+    value: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'With an object output: '
+    value: 'With an object output '
   - type: CodeExpression
     code: dict(a=1,b=dict())
     programmingLanguage: python
     output:
       a: 1
       b: {}
+  - type: Text
+    value: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'With no language: '
+    value: 'With no language specified and no output '
   - type: CodeExpression
     code: a + b
+  - type: Text
+    value: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'With automatic execution behavior specified '
+    value: 'With automatic execution behavior specified and no output '
   - type: CodeExpression
     autoExec: Never
     code: c * d
     programmingLanguage: javascript
+  - type: Text
+    value: .

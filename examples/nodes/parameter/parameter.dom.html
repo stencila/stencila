@@ -4,24 +4,24 @@
       <p slot=content>
         <stencila-text id=txt_11111111>A boolean parameter</stencila-text>
         <stencila-parameter id=par_11111113 name=par_bool_1>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-boolean-validator id=bov_11111112>
             </stencila-boolean-validator>
-          </div>
+          </span>
         </stencila-parameter>
         <stencila-text id=txt_11111114>, with a default</stencila-text>
         <stencila-parameter id=par_11111116 name=par_bool_2 default=true>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-boolean-validator id=bov_11111115>
             </stencila-boolean-validator>
-          </div>
+          </span>
         </stencila-parameter>
         <stencila-text id=txt_11111117>, with a default and value</stencila-text>
         <stencila-parameter id=par_11111119 name=par_bool_3 value=true default=false>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-boolean-validator id=bov_11111118>
             </stencila-boolean-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -29,31 +29,31 @@
       <p slot=content>
         <stencila-text id=txt_1111111B>An integer parameter</stencila-text>
         <stencila-parameter id=par_1111111D name=par_int_1>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-integer-validator id=inv_1111111C>
             </stencila-integer-validator>
-          </div>
+          </span>
         </stencila-parameter>
         <stencila-text id=txt_1111111E>, with a default</stencila-text>
         <stencila-parameter id=par_1111111G name=par_int_2 default=123>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-integer-validator id=inv_1111111F>
             </stencila-integer-validator>
-          </div>
+          </span>
         </stencila-parameter>
         <stencila-text id=txt_1111111H>, with a default and value</stencila-text>
         <stencila-parameter id=par_1111111K name=par_int_3 value=456 default=123>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-integer-validator id=inv_1111111J>
             </stencila-integer-validator>
-          </div>
+          </span>
         </stencila-parameter>
         <stencila-text id=txt_1111111L>, with min, max and mult options</stencila-text>
         <stencila-parameter id=par_1111111N name=par_int_4 value=45 default=123>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-integer-validator id=inv_1111111M minimum=-100 maximum=100 multiple-of=2>
             </stencila-integer-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -61,10 +61,10 @@
       <p slot=content>
         <stencila-text id=txt_1111111Q>A number parameter</stencila-text>
         <stencila-parameter id=par_1111111S name=par_num_1 value=4.5 default=1.23>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-number-validator id=nuv_1111111R minimum=-10.1 exclusive-minimum=-10.1 maximum=10.1 exclusive-maximum=10.1 multiple-of=2.2>
             </stencila-number-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -72,17 +72,17 @@
       <p slot=content>
         <stencila-text id=txt_1111111U>A string parameter</stencila-text>
         <stencila-parameter id=par_1111111W name=par_str_1 value='"hi"' default='"hello"'>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-string-validator id=stv_1111111V min-length=0 max-length=10 pattern=[a-z]+>
             </stencila-string-validator>
-          </div>
+          </span>
         </stencila-parameter>
         <stencila-text id=txt_1111111X>with quotes in properties</stencila-text>
         <stencila-parameter id=par_1111111Z name=par_str_2 value='"a\"b"' default='"a\"b"'>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-string-validator id=stv_1111111Y pattern='a"b'>
             </stencila-string-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -90,10 +90,10 @@
       <p slot=content>
         <stencila-text id=txt_1111111b>A date parameter</stencila-text>
         <stencila-parameter id=par_1111111f name=par_date value='"2022-02-23"' default='"2022-02-22"'>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-date-validator id=dav_1111111e minimum='{"type":"Date","value":"2022-02-20"}' maximum='{"type":"Date","value":"2022-02-24"}'>
             </stencila-date-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -101,10 +101,10 @@
       <p slot=content>
         <stencila-text id=txt_1111111h>A time parameter</stencila-text>
         <stencila-parameter id=par_1111111m name=par_time value='"22:23"' default='"22:22"'>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-time-validator id=tmv_1111111k minimum='{"type":"Time","value":"22:20"}' maximum='{"type":"Time","value":"22:24"}'>
             </stencila-time-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -112,10 +112,10 @@
       <p slot=content>
         <stencila-text id=txt_1111111o>A date-time parameter</stencila-text>
         <stencila-parameter id=par_1111111s name=par_date_time value='"2022-02-22T22:23"' default='"2022-02-22T22:22"'>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-date-time-validator id=dtv_1111111r minimum='{"type":"DateTime","value":"2022-02-22T22:20"}' maximum='{"type":"DateTime","value":"2022-02-22T22:24"}'>
             </stencila-date-time-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
@@ -123,10 +123,10 @@
       <p slot=content>
         <stencila-text id=txt_1111111u>An enum parameter</stencila-text>
         <stencila-parameter id=par_1111111w name=par_enum value='"red"' default='"green"'>
-          <div slot=validator>
+          <span slot=validator>
             <stencila-enum-validator id=env_1111111v values='["blue","red","green"]'>
             </stencila-enum-validator>
-          </div>
+          </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>

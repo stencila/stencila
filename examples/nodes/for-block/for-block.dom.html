@@ -5,14 +5,12 @@
         <stencila-text id=txt_11111111>A simple for loop</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=frb_11111116 variable=item>
-      <pre slot=code>[1,2,3]</pre>
+    <stencila-for-block id=frb_11111116 code=[1,2,3] variable=item>
       <div slot=content>
         <stencila-paragraph id=pgh_11111115>
           <p slot=content>
             <stencila-text id=txt_11111113>This paragraph will be repeated with a different value for</stencila-text>
-            <stencila-code-expression id=cde_11111114>
-              <pre slot=code>item</pre>
+            <stencila-code-expression id=cde_11111114 code=item>
             </stencila-code-expression>
           </p>
         </stencila-paragraph>
@@ -23,8 +21,7 @@
         <stencila-text id=txt_11111117>With a programming language specified</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=frb_1111111B programming-language=python variable=item>
-      <pre slot=code>[1,2,3]</pre>
+    <stencila-for-block id=frb_1111111B code=[1,2,3] programming-language=python variable=item>
       <div slot=content>
         <stencila-paragraph id=pgh_1111111A>
           <p slot=content>
@@ -38,17 +35,14 @@
         <stencila-text id=txt_1111111C>Nested for loops</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=frb_1111111J variable=outer>
-      <pre slot=code>[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]</pre>
+    <stencila-for-block id=frb_1111111J code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' variable=outer>
       <div slot=content>
-        <stencila-for-block id=frb_1111111H variable=inner>
-          <pre slot=code>outer</pre>
+        <stencila-for-block id=frb_1111111H code=outer variable=inner>
           <div slot=content>
             <stencila-paragraph id=pgh_1111111G>
               <p slot=content>
                 <stencila-text id=txt_1111111E>This paragraph will be repeated for each inner item</stencila-text>
-                <stencila-code-expression id=cde_1111111F>
-                  <pre slot=code>inner</pre>
+                <stencila-code-expression id=cde_1111111F code=inner>
                 </stencila-code-expression>
               </p>
             </stencila-paragraph>
@@ -61,8 +55,7 @@
         <stencila-text id=txt_1111111K>With an else clause</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=frb_1111111R variable=item>
-      <pre slot=code>[]</pre>
+    <stencila-for-block id=frb_1111111R code=[] variable=item>
       <div slot=content>
         <stencila-paragraph id=pgh_1111111N>
           <p slot=content>
@@ -83,8 +76,7 @@
         <stencila-text id=txt_1111111S>With no content in &#x27;content&#x27; or &#x27;otherwise&#x27;</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=frb_1111111U variable=item>
-      <pre slot=code>[]</pre>
+    <stencila-for-block id=frb_1111111U code=[] variable=item>
       <div slot=otherwise>
       </div>
     </stencila-for-block>

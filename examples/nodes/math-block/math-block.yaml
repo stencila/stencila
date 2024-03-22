@@ -3,21 +3,21 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: A TeX block.
+    value: 'A TeX block:'
 - type: MathBlock
   code: 2 \pi r^2
   mathLanguage: tex
 - type: Paragraph
   content:
   - type: Text
-    value: An ASCIIMath block.
+    value: 'An AsciiMath block:'
 - type: MathBlock
   code: 2 pi r^2
   mathLanguage: asciimath
 - type: Paragraph
   content:
   - type: Text
-    value: A MathML block.
+    value: 'A MathML block:'
 - type: MathBlock
-  code: <math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>
+  code: <math display="block"><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>
   mathLanguage: mathml
