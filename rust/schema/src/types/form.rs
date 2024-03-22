@@ -73,7 +73,7 @@ pub struct FormOptions {
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
@@ -86,21 +86,21 @@ pub struct FormOptions {
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
     #[serde(alias = "execution-dependants", alias = "execution_dependants", alias = "executionDependant", alias = "execution-dependant", alias = "execution_dependant")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
     #[serde(alias = "execution-tags", alias = "execution_tags", alias = "executionTag", alias = "execution-tag", alias = "execution_tag")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -139,7 +139,7 @@ pub struct FormOptions {
     #[serde(alias = "execution-messages", alias = "execution_messages", alias = "executionMessage", alias = "execution-message", alias = "execution_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// The dotted path to the object (e.g a database table) that the form should be derived from

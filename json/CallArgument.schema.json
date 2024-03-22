@@ -87,7 +87,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -123,7 +123,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -144,7 +144,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -165,7 +165,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -266,7 +266,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -321,7 +321,7 @@
       "description": "The validator that the value is validated against.",
       "$comment": "This property is large (in terms of bytes) so is best kept as a non-core\nproperty, so as not to inflate the size of the `Inline` enum in Rust.\n",
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "html": {
         "content": true

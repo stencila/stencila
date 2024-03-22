@@ -86,7 +86,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -122,7 +122,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -143,7 +143,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -164,7 +164,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -265,7 +265,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -295,9 +295,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
-      },
-      "dom": {
-        "elem": "pre"
       },
       "jats": {
         "content": true
