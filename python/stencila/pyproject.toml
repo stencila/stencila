@@ -5,7 +5,7 @@ name = "stencila"
 version = "2.0.0-alpha.25"
 description = "Python SDK for Stencila"
 readme = "README.md"
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
 authors = [{ name = "Nokome Bentley", email = "nokome@stencila.io" }]
 
 requires-python = ">=3.10"
@@ -29,10 +29,10 @@ classifiers = [
 ]
 
 dependencies = [
-  'StrEnum==0.4.15;python_version<"3.11"',
-  "beartype==0.17.2",
-  "cattrs==23.2.3",
-  "stencila-types @ file:///${PROJECT_ROOT}/../stencila_types",
+    'StrEnum==0.4.15;python_version<"3.11"',
+    "beartype==0.17.2",
+    "cattrs==23.2.3",
+    "stencila-types>=2.0.0a26",
 ]
 
 [project.urls]
@@ -59,10 +59,9 @@ dev = [
   "pytest-benchmark>=4.0.0",
   "ruff>=0.3.3",
   "pip-audit>=2.7.2",
+  "pyright>=1.1.355",
 ]
-pyright = [
-    "stencila @ file:///${PROJECT_ROOT}/",
-]
+pyright = ["stencila @ file:///${PROJECT_ROOT}/"]
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "bench_*.py"]

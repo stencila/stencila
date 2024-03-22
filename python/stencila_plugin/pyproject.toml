@@ -8,9 +8,8 @@ authors = [
   { name = "Brett Calcott", email = "brett@dragonfly.co.nz" },
 ]
 dependencies = [
-    "stencila-types @ file:///${PROJECT_ROOT}/../stencila_types",
     "aiohttp>=3.9.3",
-    "beartype>=0.17.2",
+    "stencila-types>=2.0.0a26",
 ]
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
@@ -53,7 +52,6 @@ distribution = true
 dev = ["pytest-asyncio>=0.23.6", "pytest>=8.1.1"]
 
 [tool.pytest.ini_options]
-addopts = "-s"
 asyncio_mode = "auto"
 
 [tool.ruff]
@@ -85,7 +83,7 @@ lint.select = [
 ]
 
 lint.ignore = [
-  "N812", # This is accepted practice in this project.
+  "N812",   # This is accepted practice in this project.
   "RET504", # Makes for better clarity to separate returns from calculations.
 ]
 

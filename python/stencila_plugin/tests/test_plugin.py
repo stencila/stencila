@@ -22,6 +22,7 @@ async def test_authentication_token_works(http_harness: HttpHarness):
 
 async def test_health(harness: Harness):
     res = await harness.send_rpc("health")
+    assert isinstance(res, dict)
     assert res["status"] == "OK"
 
 

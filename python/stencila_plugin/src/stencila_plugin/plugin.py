@@ -22,6 +22,7 @@ from .kernel import Kernel, KernelId, KernelInstance, KernelName
 
 # https://github.com/kevinheavey/jsonalias
 Json = dict[str, "Json"] | list["Json"] | str | int | float | bool | None
+JsonDict = dict[str, Json]
 
 # According to the JSON-RPC spec, the id can be a string, integer, or null.
 IdType = str | int | None
@@ -77,7 +78,7 @@ class Plugin:
             "status": "OK",
         }
 
-    async def kernel_start(self, kernel: KernelName) -> KernelInstance:
+    async def kernel_start(self, kernel: KernelName) -> KernelInstance | None:
         kernel_cls = self.kernels.get(kernel)
         if kernel_cls is None:
             return None
@@ -166,7 +167,7 @@ class Plugin:
 
 async def _handle_json(
     plugin: Plugin,
-    request: Json,
+    request: JsonDict,
 ) -> Json:
     """Interpret a JSON-RPC request and return a response.
 
@@ -183,13 +184,17 @@ async def _handle_json(
         return _error(None, RPCErrorCodes.METHOD_NOT_FOUND, "No method sent")
 
     # This can be None
-    msg_id: IdType = request.get("id")  # noqa: A001
+    msg_id: IdType = request.get("id")  # type: ignore
 
     # According to the standard, the params can be an Array or an Object (a dict).
     # We also handle None.
     params = request.get("params")
 
-    return await _handle_rpc(plugin, method, params=params, msg_id=msg_id)
+    if not isinstance(params, dict):
+        return _error(None, RPCErrorCodes.INVALID_PARAMS, "")
+
+    # Hm. Still struggling with typing here.
+    return await _handle_rpc(plugin, method, params=params, msg_id=msg_id)  # type: ignore
 
 
 def _make_jsonable(result: Json):
@@ -271,6 +276,9 @@ async def _listen_stdio(plugin: Plugin) -> None:
         resp: Json
         try:
             request: Json = json.loads(line.decode())
+            if not isinstance(request, dict):
+                # We need an Object, not scalar
+                raise json.JSONDecodeError("Not a JSON object", "", 0)
         except (json.JSONDecodeError, UnicodeDecodeError):
             resp = _error(None, RPCErrorCodes.PARSE_ERROR, "Parse error")
         else:

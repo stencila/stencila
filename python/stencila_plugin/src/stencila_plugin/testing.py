@@ -22,7 +22,7 @@ import aiohttp
 from aiohttp import web
 from stencila_types.utilities import from_value
 
-from .plugin import Json
+from .plugin import Json, JsonDict
 
 
 def _find_available_port() -> int:
@@ -58,7 +58,7 @@ class Harness(ABC):
         self.next_id = 1
 
     @abstractmethod
-    async def send_raw(self, request: Json) -> Json | list[Json]:
+    async def send_raw(self, request: JsonDict) -> Json | list[Json]:
         """Make a raw request to the plugin (for testing)."""
         ...
 
@@ -71,7 +71,7 @@ class Harness(ABC):
         self,
         method: str,
         **kwargs,  # noqa: ANN003
-    ) -> Json | list[Json]:
+    ) -> JsonDict | list[Json]:
         """Make an RPC request to the plugin.
 
         Args:
@@ -90,9 +90,12 @@ class Harness(ABC):
         self.next_id += 1
         return await self.send_raw(request)
 
-    def _process_response(self, response: Json, request: Json) -> Json:
+    def _process_response(self, response: JsonDict, request: JsonDict) -> Json:
         if "error" in response:
-            raise RPCTestingError(response["error"]["message"])
+            err = response["error"]
+            if not isinstance(err, dict):
+                raise RPCTestingError("Malformed error")
+            raise RPCTestingError(err["message"])
         if response["id"] != request["id"]:
             raise RPCTestingError("Response ID does not match request ID")
         return response["result"]
@@ -139,7 +142,7 @@ class StdioHarness(Harness):
             self.process.terminate()
             await self.process.wait()
 
-    async def send_raw(self, request: Json) -> Json:  # noqa: D102
+    async def send_raw(self, request: JsonDict) -> Json:  # noqa: D102
         request_str = json.dumps(request)
         response_str = await self._send_str(request_str)
         return self._process_response(json.loads(response_str), request)
@@ -223,7 +226,7 @@ class HttpHarness(Harness):
         self.session = aiohttp.ClientSession()
         return self
 
-    async def send_raw(self, request: Json) -> Json:
+    async def send_raw(self, request: JsonDict) -> Json:
         """Make a raw request to the plugin (for testing)."""
         if self.session is None:
             raise RuntimeError("Session not initialized (use `async with`)")
