@@ -13,7 +13,7 @@ use kernel::{
             value::{Object, ObjectKind, StructObject},
             Environment, Value,
         },
-        serde_json, tracing,
+        serde_json, tokio, tracing,
     },
     format::Format,
     schema::{
@@ -168,7 +168,7 @@ impl KernelInstance for JinjaKernelInstance {
 pub struct JinjaKernelContext {
     /// The name of the kernel
     ///
-    /// Required to make requests for variables from other contexts 
+    /// Required to make requests for variables from other contexts
     kernel: String,
 
     /// A channel for making variable requests
@@ -212,6 +212,9 @@ impl StructObject for JinjaKernelContext {
             }
         }
 
+        // This is necessary "tick" the runtime to process the request sent above
+        tokio::spawn(async {});
+
         // Wait for the response
         let name = name.to_string();
         let receiving = thread::spawn(move || {
@@ -235,12 +238,4 @@ impl StructObject for JinjaKernelContext {
             Ok(Ok(node)) => Some(Value::from_serializable(&node)),
         }
     }
-}
-
-#[cfg(test)]
-mod tests {
-    
-    
-
-    
 }
