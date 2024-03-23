@@ -4,13 +4,12 @@ use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
-    tokio::sync::{mpsc, watch},
 };
 use kernel::{
     format::Format,
     schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelSignal, KernelStatus, KernelTerminate,
+    KernelTerminate,
 };
 
 use crate::{plugins, Plugin, PluginInstance};
@@ -138,18 +137,6 @@ impl KernelInstance for PluginKernelInstance {
         self.kernel_instance
             .clone()
             .unwrap_or_else(|| String::from("unnamed"))
-    }
-
-    async fn status(&self) -> Result<KernelStatus> {
-        todo!()
-    }
-
-    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
-        todo!()
-    }
-
-    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>> {
-        todo!()
     }
 
     async fn start(&mut self, _directory: &Path) -> Result<()> {
@@ -362,10 +349,6 @@ impl KernelInstance for PluginKernelInstance {
                 },
             )
             .await
-    }
-
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        todo!()
     }
 }
 
