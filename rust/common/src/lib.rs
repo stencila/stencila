@@ -25,6 +25,7 @@ pub use indexmap;
 pub use inflector;
 pub use itertools;
 pub use maplit;
+pub use minijinja;
 pub use once_cell;
 pub use proc_macro2;
 pub use quote;

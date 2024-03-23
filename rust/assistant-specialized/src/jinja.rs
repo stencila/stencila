@@ -1,9 +1,10 @@
 //! Functions used as filters and elsewhere in `minijinja` templates
 
-use minijinja::{value::ViaDeserialize, Error, Value};
-
 use assistant::{
-    common::eyre::{eyre, Report, Result},
+    common::{
+        eyre::{eyre, Report, Result},
+        minijinja::{value::ViaDeserialize, Error, Value},
+    },
     schema::{
         ArrayHint, Block, DatatableHint, Hint, InsertBlock, InstructionBlock, MathBlock,
         MessagePart, Node, SuggestionBlockType, SuggestionStatus, Variable,

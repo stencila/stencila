@@ -9,7 +9,6 @@ use std::{fs::read_to_string, sync::Arc};
 
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
-use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
@@ -23,6 +22,7 @@ use assistant::{
         glob::glob,
         inflector::Inflector,
         itertools::Itertools,
+        minijinja::{Environment, UndefinedBehavior},
         regex::Regex,
         serde::{de::Error, Deserialize, Deserializer, Serialize},
         serde_yaml, tracing,
