@@ -142,10 +142,10 @@ impl Cli {
                 println!("{table}");
             }
             Command::Info(Info { name }) => {
-                let mut kernels = Kernels::default();
+                let mut kernels = Kernels::new_here();
                 let instance = kernels.create_instance(Some(&name)).await?;
 
-                let info = instance.info().await?;
+                let info = instance.lock().await.info().await?;
                 println!(
                     "Name: {}\nVersion: {}\nOperating system: {}\n",
                     info.name,
@@ -154,10 +154,10 @@ impl Cli {
                 );
             }
             Command::Packages(Packages { name, filter }) => {
-                let mut kernels = Kernels::default();
+                let mut kernels = Kernels::new_here();
                 let instance = kernels.create_instance(Some(&name)).await?;
 
-                let packages = instance.packages().await?;
+                let packages = instance.lock().await.packages().await?;
                 let packages = packages
                     .into_iter()
                     .filter(|package| {
@@ -186,11 +186,11 @@ impl Cli {
                 println!("{table}");
             }
             Command::Execute(Execute { name, code }) => {
-                let mut kernels = Kernels::default();
+                let mut kernels = Kernels::new_here();
                 let instance = kernels.create_instance(Some(&name)).await?;
 
                 let code = code.replace("\\n", "\n");
-                let (outputs, messages) = instance.execute(&code).await?;
+                let (outputs, messages) = instance.lock().await.execute(&code).await?;
 
                 // TODO: creates a `Map` output type that can be used to display sections with headers
                 // instead of the following printlns

@@ -26,7 +26,7 @@ use kernel::{
         SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
         Variable,
     },
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    Kernel, KernelInstance,
     KernelSignal, KernelStatus, KernelTerminate,
 };
 
@@ -44,28 +44,12 @@ impl Kernel for RhaiKernel {
         "rhai".to_string()
     }
 
-    fn availability(&self) -> KernelAvailability {
-        KernelAvailability::Available
-    }
-
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Rhai]
     }
 
-    fn supports_interrupt(&self) -> KernelInterrupt {
-        KernelInterrupt::No
-    }
-
     fn supports_terminate(&self) -> KernelTerminate {
         KernelTerminate::Yes
-    }
-
-    fn supports_kill(&self) -> KernelKill {
-        KernelKill::No
-    }
-
-    fn supports_forks(&self) -> KernelForks {
-        KernelForks::No
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
@@ -114,11 +98,11 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         Ok(self.get_status())
     }
 
-    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
+    fn status_watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
         Ok(self.status_sender.subscribe())
     }
 
-    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>> {
+    fn signal_sender(&self) -> Result<mpsc::Sender<KernelSignal>> {
         Ok(self.signal_sender.clone())
     }
 
