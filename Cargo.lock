@@ -527,9 +527,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "automerge"
-version = "0.5.8"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2281a6379ee18e560b983296a23436c55a3737b5e0242c64df2b37d5a2f200b"
+checksum = "93b5e6ed2097a1e55cce3128d64c909cdb42c800d4880411c7382f3dfa2c808d"
 dependencies = [
  "flate2",
  "fxhash",
