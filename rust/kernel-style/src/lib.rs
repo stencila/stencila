@@ -1,16 +1,9 @@
-
-
 use kernel_jinja::JinjaKernelInstance;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use railwind::{parse_to_string, CollectionOptions, Source};
 
 use kernel::{
-    common::{
-        async_trait::async_trait,
-        eyre::{Result},
-        minijinja::{context, Environment},
-        tracing,
-    },
+    common::{async_trait::async_trait, eyre::Result, tracing},
     format::Format,
     schema::{
         ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
@@ -31,6 +24,10 @@ impl Kernel for StyleKernel {
         vec![Format::Css, Format::Tailwind]
     }
 
+    fn supports_variable_requests(&self) -> bool {
+        true
+    }
+
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(StyleKernelInstance {
             jinja: JinjaKernelInstance::default(),
@@ -43,116 +40,95 @@ pub struct StyleKernelInstance {
     jinja: JinjaKernelInstance,
 }
 
-/// Transpile a style specification to CSS
-fn style_to_css(style: &str) -> (String, String, Vec<ExecutionMessage>) {
-    let mut messages = Vec::new();
+impl StyleKernelInstance {
+    /// Transpile a style specification to CSS
+    async fn style_to_css(
+        &mut self,
+        style: &str,
+    ) -> Result<(String, String, Vec<ExecutionMessage>)> {
+        let mut messages = Vec::new();
 
-    // Render any Jinja templating
-    let style = if style.contains("{%") || style.contains("{{") {
-        let (style, jinja_message) = render_jinja(style);
-        if let Some(jinja_message) = jinja_message {
-            messages.push(jinja_message);
-        }
-        style
-    } else {
-        style.to_string()
-    };
+        // Render any Jinja templating
+        let style = if style.contains("{%") || style.contains("{{") {
+            let (rendered, mut jinja_messages) = self.jinja.execute(style).await?;
+            messages.append(&mut jinja_messages);
 
-    // Transpile Tailwind to CSS
-    let (css, classes) = if !style.contains([':', '{', '}']) {
-        let (css, mut tailwind_messages) = tailwind_to_css(&style);
-        messages.append(&mut tailwind_messages);
-        (css, style)
-    } else {
-        (style.to_string(), String::new())
-    };
-
-    // Nest the CSS within the class that we are targeting. This allows "bare" CSS to
-    // be used e.g. `color: red`.
-    let css = [".styled {", &css, "}"].concat();
-
-    // Normalize the CSS (including expanding the nesting)
-    let (css, normalize_message) = normalize_css(&css);
-    if let Some(normalize_message) = normalize_message {
-        messages.push(normalize_message);
-    }
-
-    (css, classes, messages)
-}
-
-/// Render Jinja
-fn render_jinja(style: &str) -> (String, Option<ExecutionMessage>) {
-    // TODO: use context
-    let context = context! {};
-
-    let env = Environment::new();
-    match env.render_str(style, context) {
-        Ok(style) => (style, None),
-        Err(error) => {
-            let mut error = &error as &dyn std::error::Error;
-            let mut stack_trace = String::new();
-            while let Some(source) = error.source() {
-                stack_trace.push_str(&format!("\n{:#}", source));
-                error = source;
+            if let Some(Node::String(rendered)) = rendered.first() {
+                rendered.to_string()
+            } else {
+                style.to_string()
             }
+        } else {
+            style.to_string()
+        };
 
-            (
-                String::new(),
-                Some(ExecutionMessage {
-                    level: MessageLevel::Exception,
-                    message: error.to_string(),
-                    stack_trace: Some(stack_trace),
-                    ..Default::default()
-                }),
-            )
+        // Transpile Tailwind to CSS
+        let (css, classes) = if !style.contains([':', '{', '}']) {
+            let (css, mut tailwind_messages) = self.tailwind_to_css(&style);
+            messages.append(&mut tailwind_messages);
+            (css, style)
+        } else {
+            (style.to_string(), String::new())
+        };
+
+        // Nest the CSS within the class that we are targeting. This allows "bare" CSS to
+        // be used e.g. `color: red`.
+        let css = [".styled {", &css, "}"].concat();
+
+        // Normalize the CSS (including expanding the nesting)
+        let (css, normalize_message) = self.normalize_css(&css);
+        if let Some(normalize_message) = normalize_message {
+            messages.push(normalize_message);
         }
+
+        Ok((css, classes, messages))
     }
-}
 
-/// Transpile Tailwind to CSS
-fn tailwind_to_css(tw: &str) -> (String, Vec<ExecutionMessage>) {
-    let source = Source::String(tw.to_string(), CollectionOptions::String);
+    /// Transpile Tailwind to CSS
+    fn tailwind_to_css(&self, tw: &str) -> (String, Vec<ExecutionMessage>) {
+        let source = Source::String(tw.to_string(), CollectionOptions::String);
 
-    let mut warnings = Vec::new();
-    let css = parse_to_string(source, false, &mut warnings);
+        let mut warnings = Vec::new();
+        let css = parse_to_string(source, false, &mut warnings);
 
-    let messages: Vec<ExecutionMessage> = warnings
-        .into_iter()
-        .map(|warning| ExecutionMessage {
-            level: MessageLevel::Warning,
-            message: warning.to_string(),
-            ..Default::default()
-        })
-        .collect();
-
-    (css, messages)
-}
-
-/// Normalize and minify CSS
-fn normalize_css(css: &str) -> (String, Option<ExecutionMessage>) {
-    match StyleSheet::parse(css, ParserOptions::default()) {
-        Ok(stylesheet) => {
-            match stylesheet.to_css(PrinterOptions {
-                minify: true,
+        let messages: Vec<ExecutionMessage> = warnings
+            .into_iter()
+            .map(|warning| ExecutionMessage {
+                level: MessageLevel::Warning,
+                message: warning.to_string(),
                 ..Default::default()
-            }) {
-                Ok(result) => (result.code, None),
-                Err(error) => (
-                    css.to_string(),
-                    Some(ExecutionMessage::new(
-                        MessageLevel::Warning,
-                        error.to_string(),
-                    )),
-                ),
+            })
+            .collect();
+
+        (css, messages)
+    }
+
+    /// Normalize and minify CSS
+    fn normalize_css(&self, css: &str) -> (String, Option<ExecutionMessage>) {
+        match StyleSheet::parse(css, ParserOptions::default()) {
+            Ok(stylesheet) => {
+                match stylesheet.to_css(PrinterOptions {
+                    minify: true,
+                    ..Default::default()
+                }) {
+                    Ok(result) => (result.code, None),
+                    Err(error) => (
+                        css.to_string(),
+                        Some(ExecutionMessage::new(
+                            MessageLevel::Warning,
+                            error.to_string(),
+                        )),
+                    ),
+                }
             }
+            Err(error) => (
+                css.to_string(),
+                Some(ExecutionMessage::new(
+                    MessageLevel::Warning,
+                    error.to_string(),
+                )),
+            ),
         }
-        Err(error) => (
-            css.to_string(),
-            Some(ExecutionMessage::new(
-                MessageLevel::Warning,
-                error.to_string(),
-            )),
-        ),
     }
 }
 
@@ -165,7 +141,7 @@ impl KernelInstance for StyleKernelInstance {
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Transpiling style to CSS");
 
-        let (css, classes, messages) = style_to_css(code);
+        let (css, classes, messages) = self.style_to_css(code).await?;
 
         let css = Node::String(css);
         let classes = Node::String(classes);
