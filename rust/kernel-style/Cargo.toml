@@ -1,0 +1,13 @@
+[package]
+name = "kernel-style"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+kernel-jinja = { path = "../kernel-jinja" }
+lightningcss = "1.0.0-alpha.55"
+railwind = "0.1.5"
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

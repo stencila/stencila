@@ -1,0 +1,10 @@
+[package]
+name = "kernel-jinja"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

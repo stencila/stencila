@@ -117,6 +117,7 @@
         "Tauri",
         "tempdir",
         "tempfile",
+        "templating",
         "timedelta",
         "Transactable",
         "transclude",

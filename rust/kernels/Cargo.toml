@@ -9,9 +9,15 @@ context = { path = "../context" }
 kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
+kernel-jinja = { path = "../kernel-jinja" }
 kernel-node = { path = "../kernel-node" }
 kernel-python = { path = "../kernel-python" }
 kernel-r = { path = "../kernel-r" }
 kernel-rhai = { path = "../kernel-rhai" }
+kernel-style = { path = "../kernel-style" }
 kernel-tex = { path = "../kernel-tex" }
 plugins = { path = "../plugins" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+test-log = { version = "0.2.15", default-features = false, features = ["trace"] }
