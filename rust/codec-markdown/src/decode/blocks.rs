@@ -22,7 +22,7 @@ use codec::{
     },
 };
 
-use super::parse::{assignee, curly_attrs, node_to_from_str, node_to_string, symbol};
+use super::{inlines::take_until_unbalanced, parse::{assignee, curly_attrs, node_to_from_str, node_to_string, symbol}};
 
 // Note: Most of these parsers are all consuming because they are used
 // to test a match against a whole line.
@@ -485,14 +485,10 @@ pub fn styled_block(input: &str) -> IResult<&str, StyledBlock> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
-            tuple((
-                opt(terminated(alpha1, multispace0)),
-                delimited(char('{'), is_not("}"), char('}')),
-            )),
+            delimited(char('{'), take_until_unbalanced('{', '}'), char('}')),
         )),
-        |(lang, code)| StyledBlock {
+        |code| StyledBlock {
             code: Cord::from(code),
-            style_language: lang.map(|lang| lang.into()),
             ..Default::default()
         },
     )(input)

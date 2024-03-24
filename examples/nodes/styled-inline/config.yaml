@@ -1,0 +1,5 @@
+md:
+  decode:
+    strip-props:
+      # Not supported in Markdown
+      - StyledInline.style_language

@@ -143,13 +143,11 @@ fn styled_inline(input: &str) -> IResult<&str, Inline> {
         tuple((
             delimited(char('['), take_until_unbalanced('[', ']'), char(']')),
             delimited(char('{'), take_until_unbalanced('{', '}'), char('}')),
-            opt(delimited(char('{'), is_not("}"), char('}'))),
         )),
-        |(content, code, lang): (&str, &str, Option<&str>)| {
+        |(content, code): (&str, &str)| {
             Inline::StyledInline(StyledInline {
                 content: inlines_or_text(content),
                 code: code.into(),
-                style_language: lang.map(|lang| lang.into()),
                 ..Default::default()
             })
         },
