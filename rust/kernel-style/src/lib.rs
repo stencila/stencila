@@ -173,13 +173,12 @@ impl KernelInstance for StyleKernelInstance {
         })
     }
 
-    fn variable_requester_responder(
+    fn variable_channel(
         &mut self,
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,
     ) {
-        self.jinja
-            .variable_requester_responder(requester, responder)
+        self.jinja.variable_channel(requester, responder)
     }
 }
 

@@ -172,7 +172,7 @@ impl KernelInstance for JinjaKernelInstance {
         })
     }
 
-    fn variable_requester_responder(
+    fn variable_channel(
         &mut self,
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,

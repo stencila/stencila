@@ -208,7 +208,7 @@ impl Kernels {
         let mut instance = kernel.create_instance()?;
         let name = instance.name();
         if kernel.supports_variable_requests() {
-            instance.variable_requester_responder(
+            instance.variable_channel(
                 self.variable_request_sender.clone(),
                 self.variable_response_sender.subscribe(),
             );

@@ -264,8 +264,8 @@ pub trait KernelInstance: Sync + Send {
         bail!("Kernel `{}` does not support signals", self.name())
     }
 
-    /// Set the sender and receiver for requesting variables from other kernels
-    fn variable_requester_responder(
+    /// Set the channel for requesting variables from other kernels
+    fn variable_channel(
         &mut self,
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,
