@@ -769,11 +769,10 @@ mod tests {
         );
 
         assert_eq!(
-            styled_inline(r#"[content]{color:red}{css}"#).unwrap().1,
+            styled_inline(r#"[content]{color:red}"#).unwrap().1,
             Inline::StyledInline(StyledInline {
                 content: vec![t("content")],
                 code: "color:red".into(),
-                style_language: Some(String::from("css")),
                 ..Default::default()
             })
         );
