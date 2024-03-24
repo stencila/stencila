@@ -102,8 +102,10 @@ pub struct ReplaceProperty {
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub enum Property {
+    ClassList,
     CompilationMessages,
     Content,
+    Css,
     ExecutionCount,
     ExecutionDuration,
     ExecutionEnded,

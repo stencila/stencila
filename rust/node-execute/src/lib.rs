@@ -39,7 +39,8 @@ mod instruction_block;
 mod instruction_inline;
 mod math_block;
 mod math_inline;
-mod styled;
+mod styled_block;
+mod styled_inline;
 
 /// Walk over a root node and execute it and child nodes
 pub async fn execute(
@@ -504,7 +505,7 @@ impl VisitorAsync for Executor {
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
-            // TODO: StyledBlock(node) => self.visit_executable(node).await,
+            StyledBlock(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
 
@@ -538,7 +539,7 @@ impl VisitorAsync for Executor {
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
             // TODO: Parameter(node) => self.visit_executable(node).await,
-            // TODO: StyledInline(node) => self.visit_executable(node).await,
+            StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
 

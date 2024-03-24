@@ -1,0 +1,131 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A Bash code chunk that assigns the colour variable:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "color=pink",
+      "programmingLanguage": "bash",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1711242619219,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 26,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A Python code chunk that other variables:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "styles = {\n  'bg': 100,\n  'txt': 800,\n  'pad': 1\n}",
+      "programmingLanguage": "py",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1711242620226,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1006,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with "
+        },
+        {
+          "type": "StyledInline",
+          "code": "bg-$color-{{styles.bg}} text-$color-{{styles.txt}} p-{{styles.pad}}",
+          "content": [
+            {
+              "type": "Text",
+              "value": "some dynamically styled content"
+            }
+          ],
+          "css": ".styled{& .bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity))}& .text-pink-800{--tw-text-opacity:1;color:rgb(157 23 77/var(--tw-text-opacity))}& .p-1{padding:.25rem}}",
+          "classList": "bg-pink-100 text-pink-800 p-1"
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with "
+        },
+        {
+          "type": "StyledInline",
+          "code": "bg-$foo-100",
+          "content": [
+            {
+              "type": "Text",
+              "value": "some content"
+            }
+          ],
+          "compilationMessages": [
+            {
+              "type": "CompilationMessage",
+              "level": "Warning",
+              "message": "Warning on Line: 1, Col: 1 in file: ''; Could not match class 'bg--100', argument '-100' could not be found"
+            }
+          ],
+          "css": ".styled{}",
+          "classList": "bg--100"
+        },
+        {
+          "type": "Text",
+          "value": " that attempts to use some non-existent variable."
+        }
+      ]
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1711242620282,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1089,
+    "timeUnit": "Millisecond"
+  }
+}

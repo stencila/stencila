@@ -1,0 +1,160 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A Bash code chunk that assigns the colour variable:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "color=pink",
+      "programmingLanguage": "bash",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1711242570260,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 31,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A Javascript code chunk that assigns shade variables:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "var shades = {\n  bg: 100,\n  txt: 800,\n};",
+      "programmingLanguage": "js",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1711242570451,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 191,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A Python code chunk that assigns padding variable:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "pad = 3",
+      "programmingLanguage": "python",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1711242571390,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 938,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with a dynamic style using Tailwind and the variables interpolated:"
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": " bg-$color-{{shades.bg}} text-$color-{{shades.txt}} p-$pad ",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "The dynamically styled paragraph."
+            }
+          ]
+        }
+      ],
+      "css": ".styled{& .bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity))}& .text-pink-800{--tw-text-opacity:1;color:rgb(157 23 77/var(--tw-text-opacity))}& .p-3{padding:.75rem}}",
+      "classList": "bg-pink-100 text-pink-800 p-3"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A style block attempting to use a non-existent variable. Should show error:"
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": " bg-color-$foo ",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Not styled."
+            }
+          ]
+        }
+      ],
+      "compilationMessages": [
+        {
+          "type": "CompilationMessage",
+          "level": "Warning",
+          "message": "Warning on Line: 1, Col: 1 in file: ''; Could not match class 'bg-color-', argument 'color-' could not be found"
+        }
+      ],
+      "css": ".styled{}",
+      "classList": "bg-color-"
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1711242571447,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1218,
+    "timeUnit": "Millisecond"
+  }
+}
