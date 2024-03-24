@@ -62,6 +62,23 @@ export class UINodeCode extends LitElement {
    */
   static languageDescriptions = [
     LanguageDescription.of({
+      name: 'bash',
+      alias: ['sh', 'shell'],
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/shell').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.shell))
+        )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'jinja',
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/jinja2').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
+        )
+      },
+    }),
+    LanguageDescription.of({
       name: 'javascript',
       alias: ['js'],
       load: async () => {
@@ -77,13 +94,6 @@ export class UINodeCode extends LitElement {
         return import('@codemirror/legacy-modes/mode/stex').then(
           (mode) => new LanguageSupport(StreamLanguage.define(mode.stexMath))
         )
-      },
-    }),
-    LanguageDescription.of({
-      name: 'xml',
-      alias: ['mathml'],
-      load: async () => {
-        return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
     LanguageDescription.of({
@@ -103,6 +113,13 @@ export class UINodeCode extends LitElement {
       name: 'sql',
       load: async () => {
         return import('@codemirror/lang-sql').then((obj) => obj.sql())
+      },
+    }),
+    LanguageDescription.of({
+      name: 'xml',
+      alias: ['mathml'],
+      load: async () => {
+        return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
   ]
@@ -141,6 +158,10 @@ export class UINodeCode extends LitElement {
     switch (this.language.toLowerCase()) {
       case 'asciimath':
         return 'AsciiMath'
+      case 'bash':
+        return 'Bash'
+      case 'jinja':
+          return 'Jinja'
       case 'js':
         return 'JavaScript'
       case 'latex':
@@ -152,6 +173,10 @@ export class UINodeCode extends LitElement {
         return 'Python'
       case 'r':
         return 'R'
+      case 'rhai':
+          return 'Rhai'
+      case 'shell':
+        return 'Shell'
       case 'sql':
         return 'SQL'
       case 'tex':
