@@ -158,10 +158,10 @@
       }
     },
     {
-      "@id": "stencila:classes",
+      "@id": "stencila:classList",
       "@type": "rdfs:Property",
-      "rdfs:label": "classes",
-      "rdfs:comment": "A list of class names associated with the node.",
+      "rdfs:label": "classList",
+      "rdfs:comment": "A space separated list of class names associated with the node.",
       "schema:domainIncludes": {
         "@id": "stencila:Styled"
       },

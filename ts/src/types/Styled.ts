@@ -44,9 +44,9 @@ export class Styled extends Entity {
   css?: string;
 
   /**
-   * A list of class names associated with the node.
+   * A space separated list of class names associated with the node.
    */
-  classes?: string[];
+  classList?: string;
 
   constructor(code: Cord, options?: Partial<Styled>) {
     super();

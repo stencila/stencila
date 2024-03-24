@@ -2578,8 +2578,8 @@ class Styled(Entity):
     css: str | None = None
     """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
 
-    classes: list[str] | None = None
-    """A list of class names associated with the node."""
+    class_list: str | None = None
+    """A space separated list of class names associated with the node."""
 
 
 
