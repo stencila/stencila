@@ -18,7 +18,7 @@ export abstract class Styled extends Entity {
   css?: string
 
   // Alternative name to avoid name clash with read-only `Element.classList`
-  @property({ attribute: 'class-list'})
+  @property({ attribute: 'class-list' })
   classes?: string
 
   /**

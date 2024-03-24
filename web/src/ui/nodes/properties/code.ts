@@ -161,7 +161,7 @@ export class UINodeCode extends LitElement {
       case 'bash':
         return 'Bash'
       case 'jinja':
-          return 'Jinja'
+        return 'Jinja'
       case 'js':
         return 'JavaScript'
       case 'latex':
@@ -174,7 +174,7 @@ export class UINodeCode extends LitElement {
       case 'r':
         return 'R'
       case 'rhai':
-          return 'Rhai'
+        return 'Rhai'
       case 'shell':
         return 'Shell'
       case 'sql':

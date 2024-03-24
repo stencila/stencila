@@ -60,7 +60,7 @@ export class StyledBlock extends Styled {
 
   /**
    * In source view just render authors
-   * 
+   *
    * TODO: Also render compiled CSS and styled content to help with debugging?
    */
   override renderSourceView() {
