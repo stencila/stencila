@@ -1,12 +1,6 @@
-
-
 use kernel::{
     common::{
-        async_trait::async_trait,
-        eyre::{Result},
-        once_cell::sync::Lazy,
-        regex::Regex,
-        tracing,
+        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
     },
     format::Format,
     schema::{

@@ -10,7 +10,7 @@ impl Executable for StyledBlock {
 
         let code = self.code.trim();
         if !code.is_empty() {
-            let lang = self.style_language.as_deref().or_else(|| Some("style"));
+            let lang = self.style_language.as_deref().or(Some("style"));
 
             let (result, messages) = executor
                 .kernels()
@@ -27,7 +27,7 @@ impl Executable for StyledBlock {
             let mut result = result.into_iter();
             let css = result.next();
             let class_list = result.next();
-            
+
             let messages = (!messages.is_empty()).then_some(messages);
 
             executor.replace_properties(

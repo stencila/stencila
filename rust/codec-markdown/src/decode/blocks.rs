@@ -22,7 +22,10 @@ use codec::{
     },
 };
 
-use super::{inlines::take_until_unbalanced, parse::{assignee, curly_attrs, node_to_from_str, node_to_string, symbol}};
+use super::{
+    inlines::take_until_unbalanced,
+    parse::{assignee, curly_attrs, node_to_from_str, node_to_string, symbol},
+};
 
 // Note: Most of these parsers are all consuming because they are used
 // to test a match against a whole line.

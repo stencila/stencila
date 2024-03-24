@@ -26,8 +26,7 @@ use kernel::{
         SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
         Variable,
     },
-    Kernel, KernelInstance,
-    KernelSignal, KernelStatus, KernelTerminate,
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 /// A kernel for executing Rhai.

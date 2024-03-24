@@ -10,7 +10,7 @@ impl Executable for StyledInline {
 
         let code = self.code.trim();
         if !code.is_empty() {
-            let lang = self.style_language.as_deref().or_else(|| Some("style"));
+            let lang = self.style_language.as_deref().or(Some("style"));
 
             let (result, messages) = executor
                 .kernels()
