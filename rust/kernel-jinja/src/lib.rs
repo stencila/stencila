@@ -41,32 +41,52 @@ impl Kernel for JinjaKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::<JinjaKernelInstance>::default())
+        Ok(Box::new(JinjaKernelInstance::new(&self.name())))
     }
 }
 
 #[derive(Default)]
 pub struct JinjaKernelInstance {
+    /// The name of the kernel instance
+    name: String,
+
+    /// The Jinja template context
+    ///
+    /// Instantiated (with variable request channel) when `variable_requester_responder`
+    /// is called.
     context: Option<Arc<JinjaKernelContext>>,
 }
 
-/// Generate a stack trace from a minijinja error
-fn stack_trace(error: minijinja::Error) -> Option<String> {
-    let mut error = &error as &dyn std::error::Error;
-
-    let mut stack_trace = String::new();
-    while let Some(source) = error.source() {
-        stack_trace.push_str(&format!("\n{:#}", source));
-        error = source;
+impl JinjaKernelInstance {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.into(),
+            context: None,
+        }
     }
 
-    Some(stack_trace)
+    /// Generate a stack trace from a minijinja error
+    fn stack_trace(error: minijinja::Error) -> Option<String> {
+        let mut error = &error as &dyn std::error::Error;
+
+        let mut stack_trace = String::new();
+        while let Some(source) = error.source() {
+            stack_trace.push_str(&format!("\n{:#}", source));
+            error = source;
+        }
+
+        if stack_trace.is_empty() {
+            None
+        } else {
+            Some(stack_trace)
+        }
+    }
 }
 
 #[async_trait]
 impl KernelInstance for JinjaKernelInstance {
     fn name(&self) -> String {
-        "jinja".to_string()
+        self.name.clone()
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -86,7 +106,7 @@ impl KernelInstance for JinjaKernelInstance {
                 vec![ExecutionMessage {
                     level: MessageLevel::Exception,
                     message: error.to_string(),
-                    stack_trace: stack_trace(error),
+                    stack_trace: Self::stack_trace(error),
                     ..Default::default()
                 }],
             ),
@@ -107,7 +127,7 @@ impl KernelInstance for JinjaKernelInstance {
                     vec![ExecutionMessage {
                         level: MessageLevel::Exception,
                         message: error.to_string(),
-                        stack_trace: stack_trace(error),
+                        stack_trace: Self::stack_trace(error),
                         ..Default::default()
                     }],
                 ))
@@ -130,7 +150,7 @@ impl KernelInstance for JinjaKernelInstance {
                 vec![ExecutionMessage {
                     level: MessageLevel::Exception,
                     message: error.to_string(),
-                    stack_trace: stack_trace(error),
+                    stack_trace: Self::stack_trace(error),
                     ..Default::default()
                 }],
             ),
@@ -158,18 +178,19 @@ impl KernelInstance for JinjaKernelInstance {
         responder: KernelVariableResponder,
     ) {
         self.context = Some(Arc::new(JinjaKernelContext {
-            kernel: self.name(),
+            instance: self.name(),
             variable_channel: Mutex::new((requester, responder)),
         }));
     }
 }
 
+/// A Jinja template context used to make requests for variable to other kernels
 #[derive(Debug)]
 pub struct JinjaKernelContext {
-    /// The name of the kernel
+    /// The name of the kernel instance
     ///
     /// Required to make requests for variables from other contexts
-    kernel: String,
+    instance: String,
 
     /// A channel for making variable requests
     ///
@@ -201,7 +222,7 @@ impl StructObject for JinjaKernelContext {
         // Send the request
         match sender.send(KernelVariableRequest {
             variable: name.to_string(),
-            instance: self.kernel.clone(),
+            instance: self.instance.clone(),
         }) {
             Err(error) => {
                 tracing::error!("While sending variable request: {error}");
@@ -212,10 +233,11 @@ impl StructObject for JinjaKernelContext {
             }
         }
 
-        // This is necessary "tick" the runtime to process the request sent above
+        // This seems to be necessary to "tick over" the Tokio runtime
+        // to process the request sent above
         tokio::spawn(async {});
 
-        // Wait for the response
+        // Wait for the response. Uses `blocking_recv` to must be done in a thread.
         let name = name.to_string();
         let receiving = thread::spawn(move || {
             tracing::trace!("Waiting for response for variable `{name}`");
@@ -235,7 +257,10 @@ impl StructObject for JinjaKernelContext {
                 tracing::error!("While receiving variable request: {error}");
                 None
             }
-            Ok(Ok(node)) => Some(Value::from_serializable(&node)),
+            Ok(Ok(node)) => match node {
+                Some(node) => Some(Value::from_serializable(&node)),
+                None => Some(Value::UNDEFINED),
+            },
         }
     }
 }
