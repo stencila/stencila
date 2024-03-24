@@ -142,6 +142,9 @@ impl Kernels {
                 ..Default::default()
             };
             for entry in instances.read().await.iter() {
+                // If the candidate instance is the same as the request instance then
+                // skip - because unnecessary because likely to cause deadlock in
+                // next step.
                 if entry.name == request.instance {
                     continue;
                 }
@@ -325,7 +328,10 @@ impl Kernels {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::{common::tokio, schema::Node};
+    use kernel::{
+        common::tokio,
+        schema::{MessageLevel, Node},
+    };
 
     use super::*;
 
@@ -344,6 +350,12 @@ mod tests {
         let (node, messages) = kernels.execute("{{a * 3}}", Some("jinja")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, vec![Node::String("369".to_string())]);
+
+        let (node, messages) = kernels.execute("{{foo + 4}}", Some("jinja")).await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].level, MessageLevel::Exception);
+        assert_eq!(messages[0].message, "invalid operation: tried to use + operator on unsupported types undefined and number (in <string>:1)");
+        assert_eq!(node, vec![Node::String("{{foo + 4}}".to_string())]);
 
         Ok(())
     }

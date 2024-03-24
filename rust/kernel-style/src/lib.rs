@@ -3,7 +3,9 @@ use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use railwind::{parse_to_string, CollectionOptions, Source};
 
 use kernel::{
-    common::{async_trait::async_trait, eyre::Result, tracing},
+    common::{
+        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
+    },
     format::Format,
     schema::{
         ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
@@ -15,9 +17,11 @@ use kernel::{
 #[derive(Default)]
 pub struct StyleKernel {}
 
+const NAME: &str = "style";
+
 impl Kernel for StyleKernel {
     fn name(&self) -> String {
-        "style".to_string()
+        NAME.to_string()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
@@ -30,7 +34,10 @@ impl Kernel for StyleKernel {
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(StyleKernelInstance {
-            jinja: JinjaKernelInstance::default(),
+            // It is important to give the Jinja kernel the same name since
+            // it acting as a proxy to this kernel and a different name can
+            // cause deadlocks for variable requests
+            jinja: JinjaKernelInstance::new(NAME),
         }))
     }
 }
@@ -48,9 +55,13 @@ impl StyleKernelInstance {
     ) -> Result<(String, String, Vec<ExecutionMessage>)> {
         let mut messages = Vec::new();
 
+        // Transpile any dollar variable interpolations to Jinja interpolation
+        static REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$(\w+)").expect("Invalid regex"));
+        let style = REGEX.replace_all(style, "{{$1}}");
+
         // Render any Jinja templating
         let style = if style.contains("{%") || style.contains("{{") {
-            let (rendered, mut jinja_messages) = self.jinja.execute(style).await?;
+            let (rendered, mut jinja_messages) = self.jinja.execute(&style).await?;
             messages.append(&mut jinja_messages);
 
             if let Some(Node::String(rendered)) = rendered.first() {
