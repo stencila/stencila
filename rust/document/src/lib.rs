@@ -2,7 +2,8 @@
 
 use std::{
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{atomic::AtomicU64, Arc},
+    time::Duration,
 };
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -14,8 +15,8 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        sync::{mpsc, watch, RwLock},
-        time::{sleep, Duration},
+        sync::{broadcast, mpsc, watch, RwLock},
+        time::sleep,
     },
     tracing,
     type_safe_id::{StaticType, TypeSafeId},
@@ -23,9 +24,9 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use node_patch::{load_property, replace_property, NodePatchSender, Property};
+use node_patch::NodePatchSender;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
-use schema::{Article, ExecutionStatus, Node, NodeId};
+use schema::{Article, Node, NodeId};
 
 mod sync_directory;
 mod sync_file;
@@ -136,6 +137,9 @@ pub enum Command {
     /// Save the document
     SaveDocument,
 
+    /// Compile the entire document
+    CompileDocument,
+
     /// Execute the entire document
     ExecuteDocument(ExecuteOptions),
 
@@ -175,6 +179,24 @@ pub enum CommandScope {
     PlusUpstreamDownstream,
 }
 
+/// The status of a command
+#[derive(Clone)]
+pub enum CommandStatus {
+    Ignored,
+    Waiting,
+    Running,
+    Succeeded,
+    Failed,
+    Interrupted,
+}
+
+impl CommandStatus {
+    fn is_finished(&self) -> bool {
+        use CommandStatus::*;
+        matches!(self, Ignored | Succeeded | Failed | Interrupted)
+    }
+}
+
 type DocumentKernels = Arc<RwLock<Kernels>>;
 
 type DocumentStore = Arc<RwLock<WriteStore>>;
@@ -187,8 +209,13 @@ type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 
 type DocumentPatchSender = NodePatchSender;
 
-type DocumentCommandSender = mpsc::Sender<Command>;
-type DocumentCommandReceiver = mpsc::Receiver<Command>;
+type DocumentCommandCounter = AtomicU64;
+
+type DocumentCommandSender = mpsc::Sender<(Command, u64)>;
+type DocumentCommandReceiver = mpsc::Receiver<(Command, u64)>;
+
+type DocumentCommandStatusSender = broadcast::Sender<(u64, CommandStatus)>;
+type DocumentCommandStatusReceiver = broadcast::Receiver<(u64, CommandStatus)>;
 
 /// A document
 ///
@@ -227,14 +254,20 @@ pub struct Document {
     /// A channel sender for sending patches to the root [`Node`]
     patch_sender: DocumentPatchSender,
 
+    /// A counter of commands used for creating unique command ids
+    command_counter: DocumentCommandCounter,
+
     /// A channel sender for sending commands to the document
     command_sender: DocumentCommandSender,
+
+    /// A channel for receiving notifications of command status
+    command_status_receiver: DocumentCommandStatusReceiver,
 }
 
 impl Document {
     /// Initialize a new document
     ///
-    /// This initializes the document's "watch", "update", and "command" channels and
+    /// This initializes the document's "watch", "update", and "command" channels, and
     /// starts its background tasks.
     #[tracing::instrument(skip(store))]
     fn init(store: WriteStore, home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
@@ -259,8 +292,12 @@ impl Document {
             Self::update_task(update_receiver, patch_receiver, store_clone, watch_sender).await
         });
 
+        // Start counter at one, so tasks that do not wait can use zero
+        let command_counter = AtomicU64::new(1);
+
         // Start the command task
         let (command_sender, command_receiver) = mpsc::channel(256);
+        let (command_status_sender, command_status_receiver) = broadcast::channel(256);
         let home_clone = home.clone();
         let store_clone = store.clone();
         let kernels_clone = kernels.clone();
@@ -268,6 +305,7 @@ impl Document {
         tokio::spawn(async move {
             Self::command_task(
                 command_receiver,
+                command_status_sender,
                 home_clone,
                 store_clone,
                 kernels_clone,
@@ -285,11 +323,13 @@ impl Document {
             watch_receiver,
             update_sender,
             patch_sender,
+            command_counter,
             command_sender,
+            command_status_receiver,
         })
     }
 
-    /// Crete a new in-memory document
+    /// Create a new in-memory document
     pub fn new(r#type: DocumentType) -> Result<Self> {
         let root = r#type.empty();
 
@@ -508,63 +548,57 @@ impl Document {
         Ok(entries)
     }
 
-    /// Perform a command on the document
+    /// Perform a command on the document and optionally wait for it to complete
     #[tracing::instrument(skip(self))]
-    pub async fn command(&self, command: Command) -> Result<()> {
+    pub async fn command(&self, command: Command, wait: bool) -> Result<()> {
         tracing::trace!("Performing document command");
 
-        self.command_sender.send(command).await?;
+        // If not waiting then just send the command and return
+        if !wait {
+            self.command_sender.send((command, 0)).await?;
+
+            return Ok(());
+        }
+
+        // Set up things to be able to wait for completion
+        let command_id: u64 = self
+            .command_counter
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let mut status_receiver = self.command_status_receiver.resubscribe();
+
+        // Send command
+        self.command_sender.send((command, command_id)).await?;
+
+        // Wait for the command status to be finished
+        tracing::trace!("Waiting for command to finish");
+        while let Ok((id, status)) = status_receiver.recv().await {
+            if id == command_id {
+                if status.is_finished() {
+                    break;
+                }
+            }
+        }
+
+        // TODO: This is a hack to wait for any patches to be applied to the
+        // store (e.g. updating execution status etc). Currently we have no
+        // way to know when that is complete, so this this just sleeps for a bit
+        // in the hope that this will be long enough.
+        sleep(Duration::from_millis(50)).await;
 
         Ok(())
     }
 
-    /// Execute the document
-    ///
-    /// This is intended to be called from the CLI. It waits for the document to
-    /// finish executing before returning.
+    /// Compile the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, options: ExecuteOptions) -> Result<()> {
+    pub async fn compile(&self, wait: bool) -> Result<()> {
+        tracing::trace!("Compiling document");
+        self.command(Command::CompileDocument, wait).await
+    }
+
+    /// Execute the document
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(&self, options: ExecuteOptions, wait: bool) -> Result<()> {
         tracing::trace!("Executing document");
-
-        // TODO: these two lines are just to get the id of the root node
-        // but requires loading the entire do. The root node's id is fixed so
-        // this should not be necessary
-        let root = self.load().await?;
-        let node_id = root.node_id().expect("should have a root id");
-
-        // Set the execution status of the root node to `Pending`
-        // so that the following wait loop does not finish immediately.
-        // Although the `command_task` will also do this, because it happens
-        // asynchronously, we can't rely on hit to be done before reaching the loop
-        {
-            let mut store = self.store.write().await;
-            replace_property(
-                &mut store,
-                &node_id,
-                Property::ExecutionStatus,
-                ExecutionStatus::Pending.into(),
-            )?;
-        }
-
-        // Send the command to execute the whole document
-        self.command_sender
-            .send(Command::ExecuteDocument(options))
-            .await?;
-
-        // Wait for the execution status to no longer be pending or running
-        loop {
-            let status: ExecutionStatus = {
-                let store = self.store.read().await;
-                load_property(&*store, &node_id, Property::ExecutionStatus)?
-            };
-
-            if !matches!(status, ExecutionStatus::Pending | ExecutionStatus::Running) {
-                break;
-            }
-
-            sleep(Duration::from_millis(100)).await;
-        }
-
-        Ok(())
+        self.command(Command::ExecuteDocument(options), wait).await
     }
 }

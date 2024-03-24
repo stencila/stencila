@@ -317,7 +317,7 @@ impl Document {
 
                             FormatOperation::Command(command) => {
                                 if let Some(command_sender) = &command_sender {
-                                    if let Err(error) = command_sender.send(command).await {
+                                    if let Err(error) = command_sender.send((command, 0)).await {
                                         tracing::error!("While sending document command: {error}");
                                     }
                                 } else {

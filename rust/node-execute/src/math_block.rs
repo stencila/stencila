@@ -4,9 +4,9 @@ use crate::prelude::*;
 
 impl Executable for MathBlock {
     #[tracing::instrument(skip_all)]
-    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Executing MathBlock {node_id}");
+        tracing::trace!("Compiling MathBlock {node_id}");
 
         let code = self.code.trim();
         if !code.is_empty() {

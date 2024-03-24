@@ -4,9 +4,9 @@ use crate::prelude::*;
 
 impl Executable for StyledBlock {
     #[tracing::instrument(skip_all)]
-    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Executing StyledBlock {node_id}");
+        tracing::trace!("Compiling StyledBlock {node_id}");
 
         let code = self.code.trim();
         if !code.is_empty() {
@@ -49,6 +49,12 @@ impl Executable for StyledBlock {
             );
         };
 
-        WalkControl::Break
+        WalkControl::Continue
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+        // Re-compile in case required variables were not available on compile
+        self.compile(executor).await
     }
 }

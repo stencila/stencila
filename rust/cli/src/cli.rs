@@ -257,6 +257,26 @@ enum Command {
         strip_options: StripOptions,
     },
 
+    /// Compile a document
+    Compile {
+        /// The path of the file to execute
+        ///
+        /// If not supplied the input content is read from `stdin`.
+        input: PathBuf,
+
+        /// The path of the file to write the compiled document to
+        ///
+        /// If not supplied the output content is written to `stdout`.
+        output: Option<PathBuf>,
+
+        /// The format to encode to (or codec to use)
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the `output`. If no `output` is supplied, defaults to JSON.
+        #[arg(long, short)]
+        to: Option<String>,
+    },
+
     /// Execute a document
     #[command(alias = "exec")]
     Execute {
@@ -587,6 +607,28 @@ impl Cli {
                 }
             }
 
+            Command::Compile { input, output, to } => {
+                let doc = Document::open(&input).await?;
+                doc.compile(true).await?;
+
+                let format = to.map(|to| Format::from_name(&to));
+
+                let content = doc
+                    .export(
+                        output.as_deref(),
+                        Some(codecs::EncodeOptions {
+                            format: format.clone(),
+                            ..Default::default()
+                        }),
+                    )
+                    .await?;
+
+                if !content.is_empty() {
+                    let format = format.unwrap_or(Format::Json);
+                    Code::new(format, &content).to_stdout();
+                }
+            }
+
             Command::Execute {
                 input,
                 output,
@@ -594,7 +636,8 @@ impl Cli {
                 options,
             } => {
                 let doc = Document::open(&input).await?;
-                doc.execute(options).await?;
+                doc.compile(true).await?;
+                doc.execute(options, true).await?;
 
                 let format = to.map(|to| Format::from_name(&to));
 

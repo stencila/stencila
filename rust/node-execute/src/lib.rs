@@ -42,6 +42,25 @@ mod math_inline;
 mod styled_block;
 mod styled_inline;
 
+/// Walk over a root node and compile it and child nodes
+pub async fn compile(
+    home: PathBuf,
+    store: Arc<RwLock<WriteStore>>,
+    kernels: Arc<RwLock<Kernels>>,
+    patch_sender: NodePatchSender,
+    node_ids: Option<NodeIds>,
+    options: Option<ExecuteOptions>,
+) -> Result<()> {
+    let mut root = {
+        // This is within a block to ensure that the lock on `store` gets dropped
+        let store = store.read().await;
+        Node::load(&*store).unwrap()
+    };
+
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, options);
+    executor.compile(&mut root).await
+}
+
 /// Walk over a root node and execute it and child nodes
 pub async fn execute(
     home: PathBuf,
@@ -52,8 +71,7 @@ pub async fn execute(
     options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = {
-        // This is within a block to ensure that the lock on `store` gets
-        // dropped before execution
+        // This is within a block to ensure that the lock on `store` gets dropped
         let store = store.read().await;
         Node::load(&*store).unwrap()
     };
@@ -72,8 +90,7 @@ pub async fn interrupt(
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
     let mut root = {
-        // This is within a block to ensure that the lock on `store` gets
-        // dropped before execution
+        // This is within a block to ensure that the lock on `store` gets dropped
         let store = store.read().await;
         Node::load(&*store).unwrap()
     };
@@ -83,12 +100,19 @@ pub async fn interrupt(
 }
 
 /// A trait for an executable node
+///
+/// Default action does nothing to the node but continues walking
+/// over its descendants. Implementation will normally at least
+/// override `compile` and/or `execute`. If `execute` is implemented,
+/// so to should `pending`
 #[allow(unused)]
 trait Executable {
+    /// Compile the node
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
+
     /// Set the execution status of the node to pending
-    ///
-    /// This default action does nothing to the node but continues walking
-    /// over its descendants.
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         WalkControl::Continue
     }
@@ -99,12 +123,11 @@ trait Executable {
     /// executable nodes to handle any errors associated with their execution
     /// and record them in `execution_messages` so that they are visible
     /// to the user.
-    async fn execute(&mut self, executor: &mut Executor) -> WalkControl;
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Interrupt execution of the node
-    ///
-    /// This default action does nothing to the node but continues walking
-    /// over its descendants.
     async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
         WalkControl::Continue
     }
@@ -206,6 +229,7 @@ pub struct ExecuteOptions {
 /// These phases determine which method of each [`Executable`] is called as
 /// the executor walks over the root node.
 enum Phase {
+    Compile,
     Pending,
     Execute,
     Interrupt,
@@ -234,10 +258,15 @@ impl Executor {
         }
     }
 
+    /// Run [`Phase::Compile`]
+    async fn compile(&mut self, root: &mut Node) -> Result<()> {
+        self.phase = Phase::Compile;
+        root.walk_async(self).await
+    }
+
     /// Run [`Phase::Pending`]
     async fn pending(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Pending;
-        self.is_last = false;
         root.walk_async(self).await
     }
 
@@ -257,7 +286,6 @@ impl Executor {
     /// Run [`Phase::Interrupt`]
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
-        self.is_last = false;
         root.walk_async(self).await
     }
 
@@ -447,6 +475,7 @@ impl Executor {
     /// Visit an executable node and call the appropriate method for the phase
     async fn visit_executable<E: Executable>(&mut self, node: &mut E) -> WalkControl {
         match self.phase {
+            Phase::Compile => node.compile(self).await,
             Phase::Pending => node.pending(self).await,
             Phase::Execute => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
