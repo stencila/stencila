@@ -1,8 +1,4 @@
-use comfy_table::{
-    modifiers::{UTF8_ROUND_CORNERS, UTF8_SOLID_INNER_BORDERS},
-    presets::UTF8_FULL,
-    ContentArrangement,
-};
+use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_BORDERS_ONLY, ContentArrangement};
 
 // Re-exports
 pub use comfy_table::{Attribute, Cell, CellAlignment, Color, Table};
@@ -14,9 +10,8 @@ pub use comfy_table::{Attribute, Cell, CellAlignment, Color, Table};
 pub fn new() -> Table {
     let mut table = Table::new();
     table
-        .load_preset(UTF8_FULL)
+        .load_preset(UTF8_BORDERS_ONLY)
         .apply_modifier(UTF8_ROUND_CORNERS)
-        .apply_modifier(UTF8_SOLID_INNER_BORDERS)
         .set_content_arrangement(ContentArrangement::Dynamic);
     table
 }
