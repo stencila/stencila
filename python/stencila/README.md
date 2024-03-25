@@ -1,6 +1,6 @@
 # Stencila SDK for Python
 
-**Types and function bindings for using Stencila from Python**
+**Bindings for using Stencila from Python**
 
 <a href="https://pypi.org/project/stencila/">
     <img src="https://img.shields.io/pypi/v/stencila.svg?logo=python&label=stencila&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">

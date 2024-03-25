@@ -63,8 +63,9 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-python_files = ["test_*.py", "bench_*.py"]
-python_functions = ["test_*", "bench_*"]
+# Don't run bench files.
+# python_files = ["test_*.py", "bench_*.py"]
+# python_functions = ["test_*", "bench_*"]
 asyncio_mode = "auto"
 
 [tool.coverage.run]

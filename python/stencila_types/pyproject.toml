@@ -5,26 +5,26 @@ description = "Python types for Stencila"
 readme = "README.md"
 authors = [{ name = "Nokome Bentley", email = "nokome@stencila.io" }]
 dependencies = [
-  "cattrs>=23.2.3",
-  "beartype>=0.17.2",
-  "strenum>=0.4.15; python_version < \"3.11\"",
+    "cattrs>=23.2.3",
+    "beartype>=0.17.2",
+    "strenum>=0.4.15; python_version < \"3.11\"",
 ]
 requires-python = ">=3.10"
 keywords = [
-  "programmable",
-  "reproducible",
-  "interactive",
-  "documents",
-  "python",
-  "SDK",
+    "programmable",
+    "reproducible",
+    "interactive",
+    "documents",
+    "python",
+    "SDK",
 ]
 classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Education",
-  "Topic :: Software Development",
-  "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Topic :: Software Development",
+    "License :: OSI Approved :: Apache Software License",
 ]
 
 [project.license]
@@ -42,7 +42,12 @@ build-backend = "pdm.backend"
 distribution = true
 
 [tool.pdm.dev-dependencies]
-testing = ["pytest>=8.1.1", "pytest-regressions>=2.5.0"]
+dev = [
+    "pytest>=8.1.1",
+    "pytest-regressions>=2.5.0",
+    "pytest-coverage>=0.0",
+    "pip-audit>=2.7.2",
+]
 
 [tool.pytest.ini_options]
 markers = ["skip_relaxed_json: avoid testing JSON that is not strict"]
@@ -54,29 +59,29 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = [
-  "F",
-  "E",
-  "W",
-  "C90",
-  "N",
-  "UP",
-  "S",
-  "B",
-  "A",
-  "C4",
-  "PIE",
-  "ISC",
-  "T20",
-  "PT",
-  "RET",
-  "SIM",
-  "PTH",
-  "Q",
-  "PLR",
-  "PLE",
-  "I001",
+    "F",
+    "E",
+    "W",
+    "C90",
+    "N",
+    "UP",
+    "S",
+    "B",
+    "A",
+    "C4",
+    "PIE",
+    "ISC",
+    "T20",
+    "PT",
+    "RET",
+    "SIM",
+    "PTH",
+    "Q",
+    "PLR",
+    "PLE",
+    "I001",
 ]
-ignore = ["N812", "RET504"]
+ignore = ["N812", "RET504", "ISC001"]
 unfixable = ["T20", "F841"]
 
 [tool.ruff.lint.per-file-ignores]

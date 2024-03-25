@@ -1,20 +1,20 @@
 all: fix audit test build
 
-# Bootstrap the project with minimum dependencies (pip in required for maturin)
-bootstrap:
-	pdm venv create --with-pip --with venv 3.10 && pdm install
+# Bootstrap the project
+.venv:
+	test -d .venv || pdm venv create --with venv 3.10 && pdm install
 
 # Install dependencies
-pdm.lock: pyproject.toml
+pdm.lock: pyproject.toml .venv
 	pdm sync
 	touch pdm.lock
 
-# Install alias for consistency
 install: pdm.lock
 
 # Make formatting and linting fixes
 fix: pdm.lock
 	pdm run ruff format
+
 
 # Run linting checks
 lint: pdm.lock
@@ -36,8 +36,7 @@ run: pdm.lock
 
 # List outdated dependencies
 outdated:
-	pdm show --outdated
-	cargo outdated -d 1
+	pdm update --dry-run --unconstrained
 
 # Audit dependencies
 audit: pdm.lock

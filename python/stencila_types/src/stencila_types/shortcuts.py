@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import Optional, TypeAlias, Union
+from typing import TypeAlias
 
 from beartype import beartype
 

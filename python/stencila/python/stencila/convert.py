@@ -1,12 +1,10 @@
-from typing import Optional
-
 from stencila_types.types import Node
 from stencila_types.utilities import from_json, to_json
 
 from stencila import _stencila
 
 
-async def from_string(string: str, format: Optional[str] = "json") -> Node:
+async def from_string(string: str, format: str | None = "json") -> Node:
     """
     Decode a Stencila Schema node from a string.
 
@@ -20,7 +18,7 @@ async def from_string(string: str, format: Optional[str] = "json") -> Node:
     return from_json(await _stencila.convert.from_string(string, {"format": format}))
 
 
-async def from_path(path: str, format: Optional[str] = None) -> Node:
+async def from_path(path: str, format: str | None = None) -> Node:
     """
     Decode a Stencila Schema node from a filesystem path.
 
@@ -38,7 +36,7 @@ async def from_path(path: str, format: Optional[str] = None) -> Node:
 async def to_string(
     node: Node,
     *,
-    format: Optional[str] = "json",
+    format: str | None = "json",
     standalone: bool = False,
     compact: bool = False,
 ) -> str:
@@ -64,7 +62,7 @@ async def to_path(
     node: Node,
     path: str,
     *,
-    format: Optional[str] = None,
+    format: str | None = None,
     standalone: bool = False,
     compact: bool = False,
 ):
@@ -89,8 +87,8 @@ async def to_path(
 
 
 async def from_to(  # noqa: PLR0913
-    input: Optional[str] = None,
-    output: Optional[str] = None,
+    input: str | None = None,
+    output: str | None = None,
     *,
     from_format=None,
     to_format=None,

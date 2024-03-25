@@ -1,11 +1,11 @@
 all: fix audit test build
 
-# Bootstrap the project with minimum dependencies (pip in required for maturin)
-bootstrap:
-	pdm venv create --with-pip --with venv 3.10
+# Bootstrap the project
+.venv:
+	test -d .venv || pdm venv create --with-pip --with venv 3.10 && pdm install
 
 # Install dependencies
-pdm.lock: pyproject.toml
+pdm.lock: pyproject.toml .venv
 	pdm sync
 	touch pdm.lock
 
@@ -22,12 +22,12 @@ lint: pdm.lock
 
 # Run tests
 test: pdm.lock
-	pdm run maturin develop --skip-install
+	pdm run maturin develop
 	pdm run pytest
 
 # Run tests with coverage
 cover: pdm.lock
-	pdm run maturin develop --skip-install
+	pdm run maturin develop
 	pdm run coverage run -m pytest
 	pdm run coverage lcov
 
@@ -39,13 +39,12 @@ bench: pdm.lock
 # Build the Python module in debug mode and open a python shell to
 # import it and try it out in
 run: pdm.lock
-	pdm run maturin develop --skip-install
+	pdm run maturin develop
 	pdm run python
 
-# List outdated dependencies
+# Audit dependencies
 outdated:
-	pdm show --outdated
-	cargo outdated -d 1
+	pdm update --dry-run --unconstrained
 
 # Audit dependencies
 audit: pdm.lock

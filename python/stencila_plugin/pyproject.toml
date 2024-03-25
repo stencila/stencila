@@ -7,10 +7,7 @@ authors = [
     { name = "Nokome Bentley", email = "nokome@stencila.io" },
     { name = "Brett Calcott", email = "brett@dragonfly.co.nz" },
 ]
-dependencies = [
-    "aiohttp>=3.9.3",
-    "stencila-types>=2.0.0a26",
-]
+dependencies = ["aiohttp>=3.9.3", "stencila-types>=2.0.0a26"]
 requires-python = ">=3.10"
 keywords = [
     "programmable",
@@ -37,19 +34,14 @@ Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
 [build-system]
-requires = [
-    "pdm-backend",
-]
+requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
 
 [tool.pdm.dev-dependencies]
-dev = [
-    "pytest-asyncio>=0.23.6",
-    "pytest>=8.1.1",
-]
+dev = ["pytest-asyncio>=0.23.6", "pytest>=8.1.1", "pip-audit>=2.7.2"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -57,10 +49,7 @@ asyncio_mode = "auto"
 [tool.ruff]
 target-version = "py310"
 line-length = 88
-src = [
-    "src",
-    "tests",
-]
+src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -86,16 +75,8 @@ select = [
     "PLE",
     "I001",
 ]
-ignore = [
-    "N812",
-    "RET504",
-]
-unfixable = [
-    "T20",
-    "F841",
-]
+ignore = ["N812", "RET504", "ISC001"]
+unfixable = ["T20", "F841"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = [
-    "S101",
-]
+"tests/**" = ["S101"]
