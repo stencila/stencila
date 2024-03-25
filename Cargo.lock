@@ -1483,6 +1483,7 @@ dependencies = [
  "rand",
  "regex",
  "reqwest 0.12.0",
+ "seahash",
  "serde",
  "serde_json",
  "serde_with",
@@ -3910,12 +3911,14 @@ name = "node-execute"
 version = "0.0.0"
 dependencies = [
  "assistants",
+ "codec-cbor",
  "codecs",
  "common",
  "context",
  "kernels",
  "node-patch",
  "node-store",
+ "parsers",
  "schema",
 ]
 
@@ -4380,6 +4383,23 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-targets 0.48.5",
+]
+
+[[package]]
+name = "parser"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "format",
+ "schema",
+]
+
+[[package]]
+name = "parsers"
+version = "0.1.0"
+dependencies = [
+ "cached",
+ "parser",
 ]
 
 [[package]]
