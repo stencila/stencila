@@ -102,6 +102,8 @@ pub enum KernelAvailability {
     Installable,
     /// Not available on this machine
     Unavailable,
+    /// Available on this machine but disabled
+    Disabled,
 }
 
 /// Whether a kernel supports the interrupt signal on the current machine

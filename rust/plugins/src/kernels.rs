@@ -12,7 +12,7 @@ use kernel::{
     KernelProvider, KernelTerminate,
 };
 
-use crate::{plugins, Plugin, PluginInstance};
+use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 
 /// A kernel provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -75,8 +75,24 @@ impl Kernel for PluginKernel {
     }
 
     fn availability(&self) -> KernelAvailability {
-        // Assume that the kernel is available if the plugin if available
-        KernelAvailability::Available
+        match &self.plugin {
+            Some(plugin) => match plugin.availability() {
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::Yes,
+                ) => KernelAvailability::Available,
+
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::No,
+                ) => KernelAvailability::Disabled,
+
+                (PluginStatus::Installable, _) => KernelAvailability::Installable,
+
+                _ => KernelAvailability::Unavailable,
+            },
+            None => KernelAvailability::Unavailable,
+        }
     }
 
     fn supports_languages(&self) -> Vec<Format> {

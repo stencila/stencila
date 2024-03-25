@@ -89,7 +89,8 @@ impl List {
                 },
                 match availability {
                     Available => Cell::new(availability).fg(Color::Green),
-                    Installable => Cell::new(availability).fg(Color::DarkYellow),
+                    Disabled => Cell::new(availability).fg(Color::DarkBlue),
+                    Installable => Cell::new(availability).fg(Color::Cyan),
                     Unavailable => Cell::new(availability).fg(Color::Grey),
                 },
                 Cell::new(langs),
