@@ -31,7 +31,7 @@ def from_value(value) -> T.Node | list[T.Node]:  # pragma: no cover
     """
     Create a `Node` from a value
     """
-    if value is None or isinstance(value, (bool, int, float, str)):
+    if value is None or isinstance(value, bool | int | float | str):
         return value
 
     # Handle lists.
