@@ -607,12 +607,6 @@ impl PluginRuntime {
         Ok(())
     }
 
-    // async fn find_program(&self, program: str, dir: Path) -> Result<Path>:
-    //     match self {
-    //         PluginRuntime::Node => Self::find_program_node(program, dir).await,
-    //         PluginRuntime::Python => Self::find_program_python(program, dir).await,
-    //     }
-
     /// Build the command to run the plugin.
     /// This should provide the correct binary and arguments to run the plugin in this dir.
     async fn get_command(&self, command_str: &str, dir: &Path) -> Result<Command> {
