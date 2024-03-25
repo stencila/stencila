@@ -292,8 +292,7 @@ class {name}({base}):
     {description}
     """
 
-{fields}
-"#
+{fields}"#
         );
 
         Ok(cls_def)

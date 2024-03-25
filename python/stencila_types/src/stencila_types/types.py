@@ -404,6 +404,7 @@ class TimeUnit(StrEnum):
     Attosecond = "Attosecond"
 
 
+
 @dataclass(kw_only=True, repr=False)
 class Entity(_Base):
     """
