@@ -31,13 +31,13 @@ seahash = "4.1.0"
 serde = { version = "1.0.197", features = ["derive", "rc"] }
 serde_json = { version = "1.0.114", features = ["preserve_order"] }
 serde_with = "3.7.0"
-serde_yaml = "0.9.33"
+serde_yaml = "0.9.34+deprecated"
 similar = { version = "2.4.0", features = ["unicode"] }
 slug = "0.1.5"
 smart-default = "0.7.1"
 smol_str = "0.2.1"
 strum = { version = "0.26.2", features = ["derive"] }
-syn = "2.0.53"
+syn = "2.0.55"
 tar = "0.4.40"
 tempfile = "3.10.1"
 tokio = { version = "1.36.0", features = ["full", "tracing"] }
