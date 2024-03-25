@@ -68,7 +68,9 @@ class Plugin:
 
     def __init__(self, kernels: list[type[Kernel]] | None = None):
         kernels = kernels or []
-        self.kernels: dict[KernelName, type[Kernel]] = {k.__name__: k for k in kernels}
+        self.kernels: dict[KernelName, type[Kernel]] = {
+            k.get_name(): k for k in kernels
+        }
         self.kernel_instances: dict[KernelId, Kernel] = {}
 
     async def health(self) -> Json:

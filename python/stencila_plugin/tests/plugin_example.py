@@ -8,6 +8,10 @@ from stencila_plugin.plugin import Plugin
 
 
 class MyKernel(Kernel):
+    @classmethod
+    def get_name(cls) -> str:
+        return "test"
+
     async def get_info(self) -> T.SoftwareApplication:
         return T.SoftwareApplication(
             name="MyKernel",

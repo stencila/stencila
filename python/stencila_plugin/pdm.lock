@@ -755,7 +755,7 @@ files = [
 
 [[package]]
 name = "stencila-types"
-version = "2.0.0a26"
+version = "2.0.0a28"
 requires_python = ">=3.10"
 summary = "Python types for Stencila"
 groups = ["default"]
@@ -765,8 +765,8 @@ dependencies = [
     "strenum>=0.4.15; python_version < \"3.11\"",
 ]
 files = [
-    {file = "stencila_types-2.0.0a26-py3-none-any.whl", hash = "sha256:3fcff88971c750a87b3cd8bf1b5a32efe88a60ca88da304cb77792df2b563de1"},
-    {file = "stencila_types-2.0.0a26.tar.gz", hash = "sha256:aceb64ae851643b694431fc70e15d7198196dc63d95cd0e40106b6f3192e5718"},
+    {file = "stencila_types-2.0.0a28-py3-none-any.whl", hash = "sha256:06bdc54ac90c929865faa43fa991707a2da91200c6365e7cfc16fa30feb1035e"},
+    {file = "stencila_types-2.0.0a28.tar.gz", hash = "sha256:c52404a7e9fae6a3bb20e00d20a9e4db8b6fc8cfc79736114312ddbf8aba8db1"},
 ]
 
 [[package]]

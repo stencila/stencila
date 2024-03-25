@@ -32,7 +32,7 @@ async def test_bad_json(harness: Harness):
 
 
 async def test_kernel_rpc(harness: Harness):
-    result = await harness.send_rpc("kernel_start", kernel="MyKernel")
+    result = await harness.send_rpc("kernel_start", kernel="test")
     assert result is not None
     ki = KernelInstance(**result)
 
@@ -49,7 +49,7 @@ async def test_kernel_rpc(harness: Harness):
 
 async def test_kernel_invoke(harness: Harness):
     """Try out harness methods that reconstruct the result."""
-    ki = await harness.send_rpc("kernel_start", kernel="MyKernel")
+    ki = await harness.send_rpc("kernel_start", kernel="test")
     instance = ki.get("instance")
 
     result = await harness.invoke("kernel_info", instance=instance)

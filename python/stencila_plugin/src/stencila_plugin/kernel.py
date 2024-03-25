@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TypeAlias
 
@@ -19,7 +20,7 @@ class KernelInstance:
     instance: str
 
 
-class Kernel:
+class Kernel(ABC):
     """
     Base class for kernels.
 
@@ -30,11 +31,12 @@ class Kernel:
     def __init__(self, ident: KernelId):
         self.ident = ident
 
-    async def on_start(self):
-        pass
+    @classmethod
+    @abstractmethod
+    def get_name(cls) -> str: ...
 
-    async def on_stop(self):
-        pass
+    async def on_start(self): ...
+    async def on_stop(self): ...
 
     async def get_info(self) -> SoftwareApplication:
         return SoftwareApplication(
@@ -60,8 +62,5 @@ class Kernel:
     async def get_variable(self, name: str) -> Variable | None:
         return None
 
-    async def set_variable(self, name: str, value: Any):
-        pass
-
-    async def remove_variable(self, name: str):
-        pass
+    async def set_variable(self, name: str, value: Any): ...
+    async def remove_variable(self, name: str): ...
