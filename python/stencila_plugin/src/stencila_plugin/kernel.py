@@ -39,9 +39,7 @@ class Kernel(ABC):
     async def on_stop(self): ...
 
     async def get_info(self) -> SoftwareApplication:
-        return SoftwareApplication(
-            name=self.__class__.__name__,
-        )
+        return SoftwareApplication(name=self.__class__.get_name())
 
     async def get_packages(self) -> list[SoftwareSourceCode]:
         return []
