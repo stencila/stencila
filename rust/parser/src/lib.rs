@@ -44,8 +44,12 @@ pub trait Parser: Sync + Send {
 
     /// Extract execution tags from some code
     fn execution_tags(&self, code: &str) -> Option<Vec<ExecutionTag>> {
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"@(pure|impure|assigns|changes|uses|imports|reads|writes|watches)\s*([^\n]*)").expect("Invalid regex"));
+        static REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(
+                r"@(pure|impure|assigns|changes|uses|imports|reads|writes|watches)\s*([^\n]*)",
+            )
+            .expect("Invalid regex")
+        });
 
         let tags = REGEX
             .captures_iter(code)

@@ -4,7 +4,7 @@ pub use parser::{ParseInfo, Parser};
 
 /// Parse some code in a language
 pub fn parse(code: &str, language: &str) -> ParseInfo {
-    static PARSERS: Lazy<Vec<Box<dyn Parser>>> = Lazy::new(|| vec![]);
+    static PARSERS: Lazy<Vec<Box<dyn Parser>>> = Lazy::new(Vec::new);
 
     let format = Format::from_name(language);
     for parser in PARSERS.iter() {

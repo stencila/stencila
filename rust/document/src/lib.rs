@@ -572,10 +572,8 @@ impl Document {
         // Wait for the command status to be finished
         tracing::trace!("Waiting for command to finish");
         while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id {
-                if status.is_finished() {
-                    break;
-                }
+            if id == command_id && status.is_finished() {
+                break;
             }
         }
 

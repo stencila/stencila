@@ -425,7 +425,7 @@ impl Plugin {
         // Check if already installed and if so if up-to-date
         if let Ok(dir) = Plugin::plugin_dir(&self.name, false) {
             // Do not use symlinked dirs for plugins that are not linked
-            if !(dir.is_symlink() && !self.linked) {
+            if !dir.is_symlink() || self.linked {
                 if let Ok(installed) = Plugin::read_manifest(&self.name) {
                     let enabled = Plugin::read_enabled(&self.name).unwrap_or_default();
                     return if installed.version == self.version {
