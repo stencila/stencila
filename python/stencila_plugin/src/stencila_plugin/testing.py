@@ -28,7 +28,7 @@ from .plugin import Json, JsonDict
 def _find_available_port() -> int:
     """Find an available port on the local machine."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("", 0))  # Bind to an available port provided by the OS
+        s.bind(("127.0.0.1", 0))  # Bind to local port provided by the OS
         s.listen(1)
         port = s.getsockname()[1]  # Retrieve the port number
 
