@@ -108,15 +108,22 @@ impl Schemas {
                 topo_sort.add_dependency(name, base);
             }
         }
+
         let mut dep_order = Vec::new();
         loop {
+            // This gives us the dependencies in reverse order.
+            // So we will reverse them again below.
             let mut deps = topo_sort.pop_all();
             if deps.is_empty() {
                 break;
             }
             deps.sort(); // Sort to maintain ordering between generations
+            deps.reverse(); // Reverse to maintain alpha sort order in file.
             dep_order.append(&mut deps);
         }
+        // Note: Reverse the order of the dependencies so that base classes come first.
+        dep_order.reverse();
+
         for name in dep_order {
             let schema = self.schemas.get(&name).expect("Schema not found");
             sections.push(self.python_class(&name, schema).await?);
