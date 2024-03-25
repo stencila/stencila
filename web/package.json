@@ -69,7 +69,7 @@
     "@codemirror/lang-json": "6.0.1",
     "@codemirror/lang-markdown": "6.2.4",
     "@codemirror/lang-python": "6.1.4",
-    "@codemirror/lang-sql": "6.6.1",
+    "@codemirror/lang-sql": "6.6.2",
     "@codemirror/lang-xml": "6.1.0",
     "@codemirror/language": "6.10.1",
     "@codemirror/legacy-modes": "6.3.3",
