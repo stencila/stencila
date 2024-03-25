@@ -32,6 +32,7 @@ pub use quote;
 pub use rand;
 pub use regex;
 pub use reqwest;
+pub use seahash;
 pub use serde;
 pub use serde_json;
 pub use serde_with;

@@ -20,8 +20,8 @@ use node_patch::{
 use node_store::{ReadNode, WriteStore};
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Block, Inline, InstructionBlock, InstructionInline, Node, NodeId, SuggestionBlockType,
-    SuggestionInlineType, SuggestionStatus,
+    AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
+    Node, NodeId, SuggestionBlockType, SuggestionInlineType, SuggestionStatus,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -314,8 +314,14 @@ impl Executor {
         self.context.clone()
     }
 
-    /// Should the executor execute a code-based node (derived from `CodeExecutable`)
-    pub fn should_execute_code(&self, node_id: &NodeId) -> bool {
+    /// Should the executor execute a code-based node (a node derived from `CodeExecutable`)
+    pub fn should_execute_code(
+        &self,
+        node_id: &NodeId,
+        auto_exec: &Option<AutomaticExecution>,
+        compilation_digest: &Option<CompilationDigest>,
+        execution_digest: &Option<CompilationDigest>,
+    ) -> bool {
         if self.options.force_all {
             return true;
         }
@@ -326,7 +332,18 @@ impl Executor {
             }
         }
 
-        !self.options.skip_code
+        if self.options.skip_code {
+            return false;
+        }
+
+        match auto_exec {
+            Some(AutomaticExecution::Never) => false,
+            Some(AutomaticExecution::Always) => true,
+            Some(AutomaticExecution::Needed) | None => {
+                (compilation_digest.is_none() && execution_digest.is_none())
+                    || compilation_digest != execution_digest
+            }
+        }
     }
 
     /// Should the executor execute an `Instruction` based on the the

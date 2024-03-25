@@ -6,6 +6,19 @@ impl Executable for MathInline {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        let compilation_digest = parsers::parse(
+            &self.code,
+            self.math_language.as_deref().unwrap_or_default(),
+        )
+        .compilation_digest;
+
+        if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
+            tracing::trace!("Skipping compiling MathInline {node_id}");
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Compiling MathInline {node_id}");
 
         let code = self.code.trim();
@@ -40,6 +53,7 @@ impl Executable for MathInline {
                 [
                     (Property::MathMl, mathml.into()),
                     (Property::CompilationMessages, messages.into()),
+                    (Property::CompilationDigest, compilation_digest.into()),
                 ],
             );
         } else {
@@ -48,10 +62,11 @@ impl Executable for MathInline {
                 [
                     (Property::MathMl, Value::None),
                     (Property::CompilationMessages, Value::None),
+                    (Property::CompilationDigest, compilation_digest.into()),
                 ],
             );
         };
 
-        WalkControl::Break
+        WalkControl::Continue
     }
 }

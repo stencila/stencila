@@ -4,6 +4,27 @@ use crate::{interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::debug!("Compiling CodeChunk {node_id}");
+
+        let info = parsers::parse(
+            &self.code,
+            self.programming_language.as_deref().unwrap_or_default(),
+        );
+
+        executor.replace_properties(
+            &node_id,
+            [
+                (Property::CompilationDigest, info.compilation_digest.into()),
+                (Property::ExecutionTags, info.execution_tags.into()),
+            ],
+        );
+
+        WalkControl::Continue
+    }
+
+    #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::debug!("Pending CodeChunk {node_id}");
@@ -17,7 +38,12 @@ impl Executable for CodeChunk {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(&node_id) {
+        if !executor.should_execute_code(
+            &node_id,
+            &self.auto_exec,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
             tracing::debug!("Skipping CodeChunk {node_id}");
 
             return WalkControl::Break;
@@ -32,6 +58,8 @@ impl Executable for CodeChunk {
                 (Property::ExecutionMessages, Value::None),
             ],
         );
+
+        let compilation_digest = self.options.compilation_digest.clone();
 
         let code = self.code.trim();
         if !code.is_empty() {
@@ -69,6 +97,7 @@ impl Executable for CodeChunk {
                     (Property::ExecutionDuration, duration.into()),
                     (Property::ExecutionEnded, ended.into()),
                     (Property::ExecutionCount, count.into()),
+                    (Property::ExecutionDigest, compilation_digest.into()),
                 ],
             );
         } else {
@@ -81,6 +110,7 @@ impl Executable for CodeChunk {
                     (Property::ExecutionMessages, Value::None),
                     (Property::ExecutionDuration, Value::None),
                     (Property::ExecutionEnded, Value::None),
+                    (Property::ExecutionDigest, compilation_digest.into()),
                 ],
             );
         };

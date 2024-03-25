@@ -1,8 +1,27 @@
-use schema::CodeExpression;
+use schema::{AutomaticExecution, CodeExpression};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for CodeExpression {
+    #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::debug!("Compiling CodeExpression {node_id}");
+
+        let info = parsers::parse(
+            &self.code,
+            self.programming_language.as_deref().unwrap_or_default(),
+        );
+
+        executor.replace_property(
+            &node_id,
+            Property::CompilationDigest,
+            info.compilation_digest.into(),
+        );
+
+        WalkControl::Continue
+    }
+
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
@@ -17,7 +36,12 @@ impl Executable for CodeExpression {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(&node_id) {
+        if !executor.should_execute_code(
+            &node_id,
+            &self.auto_exec.clone().or(Some(AutomaticExecution::Always)),
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
             tracing::debug!("Skipping CodeExpression {node_id}");
 
             return WalkControl::Break;
@@ -32,6 +56,8 @@ impl Executable for CodeExpression {
                 (Property::ExecutionMessages, Value::None),
             ],
         );
+
+        let compilation_digest = self.options.compilation_digest.clone();
 
         let code = self.code.trim();
         if !code.is_empty() {
@@ -69,6 +95,7 @@ impl Executable for CodeExpression {
                     (Property::ExecutionDuration, duration.into()),
                     (Property::ExecutionEnded, ended.into()),
                     (Property::ExecutionCount, count.into()),
+                    (Property::ExecutionDigest, compilation_digest.into()),
                 ],
             );
         } else {
@@ -80,6 +107,7 @@ impl Executable for CodeExpression {
                     (Property::ExecutionMessages, Value::None),
                     (Property::ExecutionDuration, Value::None),
                     (Property::ExecutionEnded, Value::None),
+                    (Property::ExecutionDigest, compilation_digest.into()),
                 ],
             );
         };
