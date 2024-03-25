@@ -68,7 +68,7 @@ cattrs = "23.2.3"
 [tool.poetry.group.dev.dependencies]
 black = "24.3.0"
 coverage = "7.4.4"
-maturin = "1.5.0"
+maturin = "1.5.1"
 pip-audit = "2.7.2"
 pytest = "7.4.4"
 pytest-asyncio = "0.23.5.post1"
