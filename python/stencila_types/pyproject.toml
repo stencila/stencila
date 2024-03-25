@@ -1,0 +1,124 @@
+[project]
+name = "stencila_types"
+version = "2.0.0a28"
+description = "Python types for Stencila"
+readme = "README.md"
+authors = [
+    { name = "Nokome Bentley", email = "nokome@stencila.io" },
+]
+dependencies = [
+    "cattrs>=23.2.3",
+    "beartype>=0.17.2",
+    "strenum>=0.4.15; python_version < \"3.11\"",
+]
+requires-python = ">=3.10"
+keywords = [
+    "programmable",
+    "reproducible",
+    "interactive",
+    "documents",
+    "python",
+    "SDK",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Topic :: Software Development",
+    "License :: OSI Approved :: Apache Software License",
+]
+
+[project.license]
+text = "Apache-2.0"
+
+[project.urls]
+Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
+Repository = "https://github.com/stencila/stencila"
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=8.1.1",
+    "pytest-regressions>=2.5.0",
+    "pytest-coverage>=0.0",
+    "pip-audit>=2.7.2",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "skip_relaxed_json: avoid testing JSON that is not strict",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+src = [
+    "src",
+    "tests",
+]
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    "C90",
+    "N",
+    "UP",
+    "S",
+    "B",
+    "A",
+    "C4",
+    "PIE",
+    "ISC",
+    "T20",
+    "PT",
+    "RET",
+    "SIM",
+    "PTH",
+    "Q",
+    "PLR",
+    "PLE",
+    "I001",
+]
+ignore = [
+    "N812",
+    "RET504",
+    "ISC001",
+]
+unfixable = [
+    "T20",
+    "F841",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/stencila_types/types.py" = [
+    "E501",
+    "UP007",
+]
+"tests/**" = [
+    "S101",
+]
+
+[tool.ruff.format]
+exclude = [
+    "src/stencila_types/types.py",
+]
+
+[tool.pyright]
+include = [
+    "src",
+    "tests",
+]
+pythonVersion = "3.10"
+venvPath = "."
+venv = ".venv"

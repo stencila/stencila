@@ -25,7 +25,7 @@ const HEADER: &str = r#"# Generated file; do not edit. See the Rust `schema-gen`
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from typing import Literal, Union
 
 if sys.version_info >= (3, 11):
@@ -49,6 +49,27 @@ Primitive = Union[
 ]
 
 Object = dict[str, Primitive]
+
+
+class _Base:
+    """Provide a base class with a simplified repr that ignores None values."""
+
+    def __repr__(self):
+        if not is_dataclass(self):
+            raise TypeError("_Base should only be used with dataclasses")
+
+        field_names = [f.name for f in fields(self)]
+        valid_fields = {
+            name: getattr(self, name)
+            for name in field_names
+            if getattr(self, name) is not None
+        }
+        repr_str = (
+            f"{self.__class__.__name__}("  # type: ignore
+            + ", ".join([f"{key}={value!r}" for key, value in valid_fields.items()])
+            + ")"
+        )
+        return repr_str
 "#;
 
 // This is for error checking. These are the primitives we currently expect in the schema and deal with manually above.
@@ -70,7 +91,8 @@ impl Schemas {
         eprintln!("Generating Python types");
 
         // The top level destination
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../python/python/stencila");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../python/stencila_types/src/stencila_types");
         let dest = dest
             .canonicalize()
             .context(format!("can not find directory `{}`", dest.display()))?;
@@ -140,7 +162,9 @@ impl Schemas {
         }
 
         // Create a module for each schema
-        write(dest.join("stencila_types.py"), sections.join("\n\n")).await?;
+        // let futures = schema_order.iter().map(|s| self.python_module(&types, s));
+        // let v: Vec<_> = try_join_all(futures).await?.into_iter().collect();
+        write(dest.join("types.py"), sections.join("\n\n")).await?;
 
         Ok(())
     }
@@ -198,8 +222,12 @@ impl Schemas {
     ///
     /// Returns the generated `class` text.
     async fn python_class(&self, name: &String, schema: &Schema) -> Result<String> {
-        // Get the base class
-        let base = schema.extends.clone().join(", ");
+        // Add our custom base class to the extends list.
+        let base = if name == "Entity" {
+            "_Base".to_string()
+        } else {
+            schema.extends.clone().join(", ")
+        };
         let mut fields = Vec::new();
 
         // Always add the `type` field as a literal
@@ -258,14 +286,13 @@ impl Schemas {
 
         let cls_def = format!(
             r#"
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class {name}({base}):
     """
     {description}
     """
 
-{fields}
-"#
+{fields}"#
         );
 
         Ok(cls_def)
