@@ -1,9 +1,11 @@
 [project]
 name = "stencila_types"
-version = "2.0.0a27"
+version = "2.0.0a28"
 description = "Python types for Stencila"
 readme = "README.md"
-authors = [{ name = "Nokome Bentley", email = "nokome@stencila.io" }]
+authors = [
+    { name = "Nokome Bentley", email = "nokome@stencila.io" },
+]
 dependencies = [
     "cattrs>=23.2.3",
     "beartype>=0.17.2",
@@ -35,7 +37,9 @@ Homepage = "https://github.com/stencila/stencila/tree/main/python#readme"
 Repository = "https://github.com/stencila/stencila"
 
 [build-system]
-requires = ["pdm-backend"]
+requires = [
+    "pdm-backend",
+]
 build-backend = "pdm.backend"
 
 [tool.pdm]
@@ -50,12 +54,17 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-markers = ["skip_relaxed_json: avoid testing JSON that is not strict"]
+markers = [
+    "skip_relaxed_json: avoid testing JSON that is not strict",
+]
 
 [tool.ruff]
 target-version = "py310"
 line-length = 88
-src = ["src", "tests"]
+src = [
+    "src",
+    "tests",
+]
 
 [tool.ruff.lint]
 select = [
@@ -81,18 +90,35 @@ select = [
     "PLE",
     "I001",
 ]
-ignore = ["N812", "RET504", "ISC001"]
-unfixable = ["T20", "F841"]
+ignore = [
+    "N812",
+    "RET504",
+    "ISC001",
+]
+unfixable = [
+    "T20",
+    "F841",
+]
 
 [tool.ruff.lint.per-file-ignores]
-"src/stencila_types/types.py" = ["E501", "UP007"]
-"tests/**" = ["S101"]
+"src/stencila_types/types.py" = [
+    "E501",
+    "UP007",
+]
+"tests/**" = [
+    "S101",
+]
 
 [tool.ruff.format]
-exclude = ["src/stencila_types/types.py"]
+exclude = [
+    "src/stencila_types/types.py",
+]
 
 [tool.pyright]
-include = ["src", "tests"]
+include = [
+    "src",
+    "tests",
+]
 pythonVersion = "3.10"
 venvPath = "."
 venv = ".venv"
