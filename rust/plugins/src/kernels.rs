@@ -9,7 +9,7 @@ use kernel::{
     format::Format,
     schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelTerminate,
+    KernelProvider, KernelTerminate,
 };
 
 use crate::{plugins, Plugin, PluginInstance};
@@ -59,6 +59,19 @@ impl PluginKernel {
 impl Kernel for PluginKernel {
     fn name(&self) -> String {
         self.name.clone()
+    }
+
+    fn provider(&self) -> KernelProvider {
+        match &self.plugin {
+            Some(plugin) => {
+                let mut name = plugin.name.clone();
+                if plugin.linked {
+                    name += " (linked)";
+                }
+                KernelProvider::Plugin(name)
+            }
+            None => KernelProvider::Plugin("unknown".to_string()),
+        }
     }
 
     fn availability(&self) -> KernelAvailability {

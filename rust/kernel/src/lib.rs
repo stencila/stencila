@@ -31,6 +31,11 @@ pub trait Kernel: Sync + Send {
     /// This name should be unique amongst all kernels.
     fn name(&self) -> String;
 
+    /// Get the provider of the kernel
+    fn provider(&self) -> KernelProvider {
+        KernelProvider::Builtin
+    }
+
     /// Get the availability of the kernel on the current machine
     fn availability(&self) -> KernelAvailability {
         KernelAvailability::Available
@@ -78,6 +83,12 @@ pub trait Kernel: Sync + Send {
 
     /// Create a new instance of the kernel
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
+}
+
+/// The provider of a kernel
+pub enum KernelProvider {
+    Builtin,
+    Plugin(String),
 }
 
 /// The availability of a kernel on the current machine
