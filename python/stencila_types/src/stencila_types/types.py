@@ -30,63 +30,25 @@ Primitive = Union[
 Object = dict[str, Primitive]
 
 
-class AdmonitionType(StrEnum):
-    """
-    The type of an `Admonition`.
-    """
+class _Base:
+    """Provide a base class with a simplified repr that ignores None values."""
 
-    Note = "Note"
-    Info = "Info"
-    Tip = "Tip"
-    Important = "Important"
-    Success = "Success"
-    Failure = "Failure"
-    Warning = "Warning"
-    Danger = "Danger"
-    Error = "Error"
+    def __repr__(self):
+        if not is_dataclass(self):
+            raise TypeError("_Base should only be used with dataclasses")
 
-
-class AuthorRoleName(StrEnum):
-    """
-    A `roleName` for an `AuthorRole`.
-    """
-
-class AdmonitionType(StrEnum):
-    """
-    The type of an `Admonition`.
-    """
-
-    Note = "Note"
-    Info = "Info"
-    Tip = "Tip"
-    Important = "Important"
-    Success = "Success"
-    Failure = "Failure"
-    Warning = "Warning"
-    Danger = "Danger"
-    Error = "Error"
-
-
-class AuthorRoleName(StrEnum):
-    """
-    A `roleName` for an `AuthorRole`.
-    """
-
-    Writer = "Writer"
-    Verifier = "Verifier"
-    Instructor = "Instructor"
-    Prompter = "Prompter"
-    Generator = "Generator"
-
-
-class AutomaticExecution(StrEnum):
-    """
-    Under which circumstances the document node should be automatically executed.
-    """
-
-    Never = "Never"
-    Needed = "Needed"
-    Always = "Always"
+        field_names = [f.name for f in fields(self)]
+        valid_fields = {
+            name: getattr(self, name)
+            for name in field_names
+            if getattr(self, name) is not None
+        }
+        repr_str = (
+            f"{self.__class__.__name__}("  # type: ignore
+            + ", ".join([f"{key}={value!r}" for key, value in valid_fields.items()])
+            + ")"
+        )
+        return repr_str
 
 
 class AdmonitionType(StrEnum):
@@ -237,15 +199,17 @@ class CitationMode(StrEnum):
 
 class ClaimType(StrEnum):
     """
-    The severity level of a message.
+    The type of a `Claim`.
     """
 
-    Trace = "Trace"
-    Debug = "Debug"
-    Info = "Info"
-    Warning = "Warning"
-    Error = "Error"
-    Exception = "Exception"
+    Statement = "Statement"
+    Theorem = "Theorem"
+    Lemma = "Lemma"
+    Proof = "Proof"
+    Postulate = "Postulate"
+    Hypothesis = "Hypothesis"
+    Proposition = "Proposition"
+    Corollary = "Corollary"
 
 
 class ExecutionDependantRelation(StrEnum):
@@ -261,12 +225,15 @@ class ExecutionDependantRelation(StrEnum):
 
 class ExecutionDependencyRelation(StrEnum):
     """
-    The type of a `Note` which determines where the note content is displayed within the document.
+    The relation between a node and its execution dependency.
     """
 
-    Footnote = "Footnote"
-    Endnote = "Endnote"
-    Sidenote = "Sidenote"
+    Calls = "Calls"
+    Derives = "Derives"
+    Imports = "Imports"
+    Includes = "Includes"
+    Reads = "Reads"
+    Uses = "Uses"
 
 
 class ExecutionRequired(StrEnum):
@@ -274,15 +241,34 @@ class ExecutionRequired(StrEnum):
     Whether, and why, the execution of a node is required or not.
     """
 
-    is_folded: bool | None = None
-    """Whether the admonition is folded."""
+    No = "No"
+    NeverExecuted = "NeverExecuted"
+    SemanticsChanged = "SemanticsChanged"
+    DependenciesChanged = "DependenciesChanged"
+    DependenciesFailed = "DependenciesFailed"
+    ExecutionFailed = "ExecutionFailed"
+    ExecutionCancelled = "ExecutionCancelled"
+    ExecutionInterrupted = "ExecutionInterrupted"
+    KernelRestarted = "KernelRestarted"
+    UserRequested = "UserRequested"
 
-    content: list[Block]
-    """The content within the section."""
 
-    authors: list[Author] | None = None
-    """The authors of the admonition."""
+class ExecutionStatus(StrEnum):
+    """
+    Status of the most recent, including any current, execution of a document node.
+    """
 
+    Scheduled = "Scheduled"
+    Pending = "Pending"
+    Skipped = "Skipped"
+    Empty = "Empty"
+    Running = "Running"
+    Succeeded = "Succeeded"
+    Warnings = "Warnings"
+    Errors = "Errors"
+    Exceptions = "Exceptions"
+    Cancelled = "Cancelled"
+    Interrupted = "Interrupted"
 
 
 class FormDeriveAction(StrEnum):
@@ -416,488 +402,6 @@ class Entity(_Base):
     id: str | None = None
     """The identifier for this item."""
 
-@dataclass(kw_only=True, repr=False)
-class ObjectHint(Entity):
-    """
-    A hint to the structure of an `Object`.
-    """
-
-    type: Literal["ObjectHint"] = "ObjectHint"
-
-    length: int
-    """The number of entries in the object."""
-
-    keys: list[str]
-    """The keys of the object's entries."""
-
-    values: list[Hint]
-    """Hints to the values of the object's entries."""
-
-
-@dataclass(kw_only=True, repr=False)
-class List(Entity):
-    """
-    A list of items.
-    """
-
-    type: Literal["List"] = "List"
-
-    items: list[ListItem]
-    """The items in the list."""
-
-    order: ListOrder
-    """The ordering of the list."""
-
-    authors: list[Author] | None = None
-    """The authors of the list."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Date(Entity):
-    """
-    A calendar date encoded as a ISO 8601 string.
-    """
-
-    type: Literal["Date"] = "Date"
-
-    value: str
-    """The date as an ISO 8601 string."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Section(Entity):
-    """
-    A section of a document.
-    """
-
-    type: Literal["Section"] = "Section"
-
-    content: list[Block]
-    """The content within the section."""
-
-    section_type: SectionType | None = None
-    """The type of section."""
-
-
-@dataclass(kw_only=True, repr=False)
-class TimeValidator(Entity):
-    """
-    A validator specifying the constraints on a time.
-    """
-
-    type: Literal["TimeValidator"] = "TimeValidator"
-
-    minimum: Time | None = None
-    """The inclusive lower limit for a time."""
-
-    maximum: Time | None = None
-    """The inclusive upper limit for a time."""
-
-
-@dataclass(kw_only=True, repr=False)
-class DatatableColumnHint(Entity):
-    """
-    A hint to the type and values in a `DatatableColumn`.
-    """
-
-    type: Literal["DatatableColumnHint"] = "DatatableColumnHint"
-
-    name: str
-    """The name of the column."""
-
-    item_type: str
-    """The type of items in the column."""
-
-    minimum: Primitive | None = None
-    """The minimum value in the column."""
-
-    maximum: Primitive | None = None
-    """The maximum value in the column."""
-
-    nulls: int | None = None
-    """The number of `Null` values in the column."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Paragraph(Entity):
-    """
-    A paragraph.
-    """
-
-    type: Literal["Paragraph"] = "Paragraph"
-
-    content: list[Inline]
-    """The contents of the paragraph."""
-
-    authors: list[Author] | None = None
-    """The authors of the paragraph."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Heading(Entity):
-    """
-    A heading.
-    """
-
-    type: Literal["Heading"] = "Heading"
-
-    level: int = 0
-    """The level of the heading."""
-
-    content: list[Inline]
-    """Content of the heading."""
-
-    authors: list[Author] | None = None
-    """The authors of the heading."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ArrayHint(Entity):
-    """
-    A hint to the content of an `Array`.
-    """
-
-    type: Literal["ArrayHint"] = "ArrayHint"
-
-    length: int
-    """The length (number of items) of the array."""
-
-    item_types: list[str] | None = None
-    """The distinct types of the array items."""
-
-    minimum: Primitive | None = None
-    """The minimum value in the array."""
-
-    maximum: Primitive | None = None
-    """The maximum value in the array."""
-
-    nulls: int | None = None
-    """The number of `Null` values in the array."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Variable(Entity):
-    """
-    A variable representing a name / value pair.
-    """
-
-    type: Literal["Variable"] = "Variable"
-
-    name: str
-    """The name of the variable."""
-
-    programming_language: str | None = None
-    """The programming language that the variable is defined in e.g. Python, JSON."""
-
-    native_type: str | None = None
-    """The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`"""
-
-    node_type: str | None = None
-    """The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`."""
-
-    value: Node | None = None
-    """The value of the variable."""
-
-    hint: Hint | None = None
-    """A hint to the value and/or structure of the variable."""
-
-    native_hint: str | None = None
-    """A textual hint to the value and/or structure of the variable."""
-
-
-@dataclass(kw_only=True, repr=False)
-class StringPatch(Entity):
-    """
-    An set of operations to modify a string.
-    """
-
-    type: Literal["StringPatch"] = "StringPatch"
-
-    operations: list[StringOperation]
-    """The operations to be applied to the string."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Suggestion(Entity):
-    """
-    Abstract base type for nodes that indicate a suggested change to content.
-    """
-
-    type: Literal["Suggestion"] = "Suggestion"
-
-    suggestion_status: SuggestionStatus | None = None
-    """The status of the suggestion including whether it is proposed, accepted, or rejected."""
-
-
-@dataclass(kw_only=True, repr=False)
-class SuggestionInline(Suggestion):
-    """
-    Abstract base type for nodes that indicate a suggested change to inline content.
-    """
-
-    type: Literal["SuggestionInline"] = "SuggestionInline"
-
-    content: list[Inline]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
-
-
-@dataclass(kw_only=True, repr=False)
-class DeleteInline(SuggestionInline):
-    """
-    A suggestion to delete some inline content.
-    """
-
-    type: Literal["DeleteInline"] = "DeleteInline"
-
-
-@dataclass(kw_only=True, repr=False)
-class ModifyInline(SuggestionInline):
-    """
-    A suggestion to modify some inline content.
-    """
-
-    type: Literal["ModifyInline"] = "ModifyInline"
-
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
-
-
-@dataclass(kw_only=True, repr=False)
-class InsertInline(SuggestionInline):
-    """
-    A suggestion to insert some inline content.
-    """
-
-    type: Literal["InsertInline"] = "InsertInline"
-
-
-@dataclass(kw_only=True, repr=False)
-class ReplaceInline(SuggestionInline):
-    """
-    A suggestion to replace some inline content with new inline content.
-    """
-
-    type: Literal["ReplaceInline"] = "ReplaceInline"
-
-    replacement: list[Inline]
-    """The new replacement inline content."""
-
-
-@dataclass(kw_only=True, repr=False)
-class SuggestionBlock(Suggestion):
-    """
-    Abstract base type for nodes that indicate a suggested change to block content.
-    """
-
-    type: Literal["SuggestionBlock"] = "SuggestionBlock"
-
-    content: list[Block]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
-
-
-@dataclass(kw_only=True, repr=False)
-class DeleteBlock(SuggestionBlock):
-    """
-    A suggestion to delete some block content.
-    """
-
-    type: Literal["DeleteBlock"] = "DeleteBlock"
-
-
-@dataclass(kw_only=True, repr=False)
-class ModifyBlock(SuggestionBlock):
-    """
-    A suggestion to modify some block content.
-    """
-
-    type: Literal["ModifyBlock"] = "ModifyBlock"
-
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ReplaceBlock(SuggestionBlock):
-    """
-    A suggestion to replace some block content with new block content.
-    """
-
-    type: Literal["ReplaceBlock"] = "ReplaceBlock"
-
-    replacement: list[Block]
-    """The new replacement block content."""
-
-
-@dataclass(kw_only=True, repr=False)
-class InsertBlock(SuggestionBlock):
-    """
-    A suggestion to insert some block content.
-    """
-
-    type: Literal["InsertBlock"] = "InsertBlock"
-
-
-@dataclass(kw_only=True, repr=False)
-class EnumValidator(Entity):
-    """
-    A schema specifying that a node must be one of several values.
-    """
-
-    type: Literal["EnumValidator"] = "EnumValidator"
-
-    values: list[Node]
-    """A node is valid if it is equal to any of these values."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ExecutionTag(Entity):
-    """
-    A tag on code that affects its execution.
-    """
-
-    type: Literal["ExecutionTag"] = "ExecutionTag"
-
-    name: str
-    """The name of the tag"""
-
-    value: str
-    """The value of the tag"""
-
-    is_global: bool
-    """Whether the tag is global to the document"""
-
-
-@dataclass(kw_only=True, repr=False)
-class StringOperation(Entity):
-    """
-    An operation that modifies a string.
-    """
-
-    type: Literal["StringOperation"] = "StringOperation"
-
-    start_position: UnsignedInteger
-    """The start position in the string of the operation."""
-
-    end_position: UnsignedInteger | None = None
-    """The end position in the string of the operation."""
-
-    value: str | None = None
-    """The string value to insert or use as the replacement."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Cite(Entity):
-    """
-    A reference to a `CreativeWork` that is cited in another `CreativeWork`.
-    """
-
-    type: Literal["Cite"] = "Cite"
-
-    target: str
-    """The target of the citation (URL or reference ID)."""
-
-    citation_mode: CitationMode
-    """Determines how the citation is shown within the surrounding text."""
-
-    citation_intent: list[CitationIntent] | None = None
-    """The type/s of the citation, both factually and rhetorically."""
-
-    content: list[Inline] | None = None
-    """Optional structured content/text of this citation."""
-
-    page_start: int | str | None = None
-    """The page on which the work starts; for example "135" or "xiii"."""
-
-    page_end: int | str | None = None
-    """The page on which the work ends; for example "138" or "xvi"."""
-
-    pagination: str | None = None
-    """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
-
-    citation_prefix: str | None = None
-    """Text to show before the citation."""
-
-    citation_suffix: str | None = None
-    """Text to show after the citation."""
-
-
-@dataclass(kw_only=True, repr=False)
-class DateTimeValidator(Entity):
-    """
-    A validator specifying the constraints on a date-time.
-    """
-
-    type: Literal["DateTimeValidator"] = "DateTimeValidator"
-
-    minimum: DateTime | None = None
-    """The inclusive lower limit for a date-time."""
-
-    maximum: DateTime | None = None
-    """The inclusive upper limit for a date-time."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Math(Entity):
-    """
-    Abstract base type for a mathematical variable or equation.
-    """
-
-    type: Literal["Math"] = "Math"
-
-    code: Cord
-    """The code of the equation in the `mathLanguage`."""
-
-    math_language: str | None = None
-    """The language used for the equation e.g tex, mathml, asciimath."""
-
-    authors: list[Author] | None = None
-    """The authors of the math."""
-
-    compilation_digest: CompilationDigest | None = None
-    """A digest of the `code` and `mathLanguage`."""
-
-    compilation_messages: list[CompilationMessage] | None = None
-    """Messages generated while parsing and compiling the math expression."""
-
-    mathml: str | None = None
-    """The MathML transpiled from the `code`."""
-
-
-@dataclass(kw_only=True, repr=False)
-class MathInline(Math):
-    """
-    A fragment of math, e.g a variable name, to be treated as inline content.
-    """
-
-    type: Literal["MathInline"] = "MathInline"
-
-
-@dataclass(kw_only=True, repr=False)
-class MathBlock(Math):
-    """
-    A block of math, e.g an equation, to be treated as block content.
-    """
-
-    type: Literal["MathBlock"] = "MathBlock"
-
-    label: str | None = None
-    """A short label for the math block."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Note(Entity):
-    """
-    Additional content which is not part of the main content of a document.
-    """
-
-    type: Literal["Note"] = "Note"
-
-    note_type: NoteType
-    """Determines where the note content is displayed within the document."""
-
-    content: list[Block]
-    """Content of the note, usually a paragraph."""
-
 
 @dataclass(kw_only=True, repr=False)
 class Thing(Entity):
@@ -924,6 +428,7 @@ class Thing(Entity):
 
     url: str | None = None
     """The URL of the item."""
+
 
 @dataclass(kw_only=True, repr=False)
 class CreativeWork(Thing):
@@ -1008,223 +513,6 @@ class CreativeWork(Thing):
 
 @dataclass(kw_only=True, repr=False)
 class Executable(Entity):
-    """
-    A code block.
-    """
-
-    type: Literal["CodeBlock"] = "CodeBlock"
-
-
-
-@dataclass(kw_only=True)
-class CodeChunk(CodeExecutable):
-    """
-    A executable chunk of code.
-    """
-
-    type: Literal["CodeChunk"] = "CodeChunk"
-
-    label_type: LabelType | None = None
-    """The type of the label for the chunk."""
-
-    label: str | None = None
-    """A short label for the chunk."""
-
-    caption: list[Block] | None = None
-    """A caption for the chunk."""
-
-    outputs: list[Node] | None = None
-    """Outputs from executing the chunk."""
-
-    execution_pure: bool | None = None
-    """Whether the code should be treated as side-effect free when executed."""
-
-
-
-@dataclass(kw_only=True)
-class CodeExpression(CodeExecutable):
-    """
-    An executable programming code expression.
-    """
-
-    type: Literal["CodeExpression"] = "CodeExpression"
-
-    output: Node | None = None
-    """The value of the expression when it was last evaluated."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Suggestion(Entity):
-    """
-    Abstract base type for nodes that indicate a suggested change to content.
-    """
-
-    type: Literal["Suggestion"] = "Suggestion"
-
-    suggestion_status: SuggestionStatus | None = None
-    """The status of the suggestion including whether it is proposed, accepted, or rejected."""
-
-
-@dataclass(kw_only=True, repr=False)
-class CodeExecutable(Executable):
-    """
-    Abstract base type for executable code nodes (e.g. `CodeChunk`).
-    """
-
-    type: Literal["CodeExecutable"] = "CodeExecutable"
-
-    code: Cord
-    """The code."""
-
-    programming_language: str | None = None
-    """The programming language of the code."""
-
-    authors: list[Author] | None = None
-    """The authors of the executable code."""
-
-
-@dataclass(kw_only=True, repr=False)
-class CodeStatic(Entity):
-    """
-    Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
-    """
-
-    type: Literal["CodeStatic"] = "CodeStatic"
-
-    code: Cord
-    """The code."""
-
-    programming_language: str | None = None
-    """The programming language of the code."""
-
-    authors: list[Author] | None = None
-    """The authors of the code."""
-
-    end_column: UnsignedInteger | None = None
-    """The 1-based index if the last column on which the error occurred."""
-
-@dataclass(kw_only=True, repr=False)
-class ContactPoint(Thing):
-    """
-    A contact point, usually within an organization.
-    """
-
-    type: Literal["ContactPoint"] = "ContactPoint"
-
-    emails: list[str] | None = None
-    """Email address for correspondence."""
-
-    telephone_numbers: list[str] | None = None
-    """Telephone numbers for the contact point."""
-
-    available_languages: list[str] | None = None
-    """Languages (human not programming) in which it is possible to communicate with the organization/department etc."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Grant(Thing):
-    """
-    A grant, typically financial or otherwise quantifiable, of resources.
-    """
-
-    type: Literal["Grant"] = "Grant"
-
-    funded_items: list[Thing] | None = None
-    """Indicates an item funded or sponsored through a Grant."""
-
-    sponsors: list[Person | Organization] | None = None
-    """A person or organization that supports a thing through a pledge, promise, or financial contribution."""
-
-    comment_aspect: str | None = None
-    """The part or facet of the item that is being commented on."""
-
-
-
-@dataclass(kw_only=True)
-class CompilationDigest(Entity):
-    """
-    A digest of the content, semantics and dependencies of an executable node.
-    """
-
-    type: Literal["CompilationDigest"] = "CompilationDigest"
-
-    state_digest: UnsignedInteger
-    """A digest of the state of a node."""
-
-    semantic_digest: UnsignedInteger | None = None
-    """A digest of the semantics of the node with respect to the dependency graph."""
-
-    dependencies_digest: UnsignedInteger | None = None
-    """A digest of the semantic digests of the dependencies of a node."""
-
-    dependencies_stale: UnsignedInteger | None = None
-    """A count of the number of dependencies that are stale."""
-
-    dependencies_failed: UnsignedInteger | None = None
-    """A count of the number of dependencies that failed."""
-
-@dataclass(kw_only=True, repr=False)
-class Instruction(Executable):
-    """
-    Abstract base type for a document editing instruction.
-    """
-
-    type: Literal["Instruction"] = "Instruction"
-
-    messages: list[InstructionMessage]
-    """Messages involved in the instruction."""
-
-    candidates: list[str] | None = None
-    """A list of candidates for the assignee property."""
-
-    assignee: str | None = None
-    """An identifier for the agent assigned to perform the instruction"""
-
-    authors: list[Author] | None = None
-    """The authors of the instruction."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Mark(Entity):
-    """
-    Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
-    """
-
-    type: Literal["Mark"] = "Mark"
-
-    content: list[Inline]
-    """The content that is marked."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Math(Entity):
-    """
-    Abstract base type for a mathematical variable or equation.
-    """
-
-    type: Literal["Math"] = "Math"
-
-    code: Cord
-    """The code of the equation in the `mathLanguage`."""
-
-    math_language: str | None = None
-    """The language used for the equation e.g tex, mathml, asciimath."""
-
-    authors: list[Author] | None = None
-    """The authors of the math."""
-
-    compilation_digest: CompilationDigest | None = None
-    """A digest of the `code` and `mathLanguage`."""
-
-    compilation_messages: list[CompilationMessage] | None = None
-    """Messages generated while parsing and compiling the math expression."""
-
-    mathml: str | None = None
-    """The MathML transpiled from the `code`."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Figure(CreativeWork):
     """
     Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
     """
@@ -1459,8 +747,6 @@ class MediaObject(CreativeWork):
     media_type: str | None = None
     """IANA media type (MIME type)."""
 
-    value: str
-    """The date as an ISO 8601 string."""
 
 @dataclass(kw_only=True, repr=False)
 class NumberValidator(Entity):
@@ -1516,13 +802,11 @@ class Parameter(Executable):
 @dataclass(kw_only=True, repr=False)
 class Role(Entity):
     """
-    A value that represents the difference between two timestamps.
+    Represents additional information about a relationship or property.
     """
 
-    type: Literal["Duration"] = "Duration"
+    type: Literal["Role"] = "Role"
 
-    value: int
-    """The time difference in `timeUnit`s."""
 
 @dataclass(kw_only=True, repr=False)
 class Styled(Entity):
@@ -1550,8 +834,8 @@ class Styled(Entity):
     css: str | None = None
     """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
 
-    classes: list[str] | None = None
-    """A list of class names associated with the node."""
+    class_list: str | None = None
+    """A space separated list of class names associated with the node."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1581,21 +865,25 @@ class SuggestionInline(Suggestion):
 @dataclass(kw_only=True, repr=False)
 class Admonition(Entity):
     """
-    A tag on code that affects its execution.
+    A admonition within a document.
     """
 
-    type: Literal["ExecutionTag"] = "ExecutionTag"
+    type: Literal["Admonition"] = "Admonition"
 
-    name: str
-    """The name of the tag"""
+    admonition_type: AdmonitionType
+    """The type of admonition."""
 
-    value: str
-    """The value of the tag"""
+    title: list[Inline] | None = None
+    """The title of the admonition."""
 
-    is_global: bool
-    """Whether the tag is global to the document"""
+    is_folded: bool | None = None
+    """Whether the admonition is folded."""
 
+    content: list[Block]
+    """The content within the section."""
 
+    authors: list[Author] | None = None
+    """The authors of the admonition."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1656,9 +944,6 @@ class Article(CreativeWork, Executable):
     """
 
     type: Literal["Article"] = "Article"
-
-    variable: str
-    """The name to give to the variable representing each item in the iterated array"""
 
     content: list[Block]
     """The content of the article."""
@@ -1849,8 +1134,6 @@ class CodeBlock(CodeStatic):
 
     type: Literal["CodeBlock"] = "CodeBlock"
 
-    content: list[Block]
-    """The content of the list item."""
 
 @dataclass(kw_only=True, repr=False)
 class CodeChunk(CodeExecutable):
@@ -1896,8 +1179,6 @@ class CodeInline(CodeStatic):
 
     type: Literal["CodeInline"] = "CodeInline"
 
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
 
 @dataclass(kw_only=True, repr=False)
 class CodeLocation(Entity):
@@ -1931,8 +1212,6 @@ class Collection(CreativeWork):
 
     type: Literal["Collection"] = "Collection"
 
-    amounts: float | None = None
-    """The amount of money."""
 
 @dataclass(kw_only=True, repr=False)
 class Comment(CreativeWork):
@@ -2008,8 +1287,6 @@ class ConstantValidator(Entity):
     value: Node
     """The value that the node must have."""
 
-    brands: list[Brand] | None = None
-    """Brands that the organization is connected with."""
 
 @dataclass(kw_only=True, repr=False)
 class Datatable(CreativeWork):
@@ -2158,13 +1435,11 @@ class DeleteBlock(SuggestionBlock):
 @dataclass(kw_only=True, repr=False)
 class DeleteInline(SuggestionInline):
     """
-    A part of a successively published publication such as a periodical or publication volume, often numbered.
+    A suggestion to delete some inline content.
     """
 
-    type: Literal["PublicationIssue"] = "PublicationIssue"
+    type: Literal["DeleteInline"] = "DeleteInline"
 
-    issue_number: int | str | None = None
-    """Identifies the issue of publication; for example, "iii" or "2"."""
 
 @dataclass(kw_only=True, repr=False)
 class Directory(Entity):
@@ -2202,16 +1477,19 @@ class Duration(Entity):
 @dataclass(kw_only=True, repr=False)
 class DurationValidator(Entity):
     """
-    A value that represents the difference between two timestamps.
+    A validator specifying the constraints on a duration.
     """
 
-    type: Literal["Duration"] = "Duration"
+    type: Literal["DurationValidator"] = "DurationValidator"
 
-    value: int
-    """The time difference in `timeUnit`s."""
+    time_units: list[TimeUnit] | None = None
+    """The time units that the duration can have."""
 
-    time_unit: TimeUnit
-    """The time unit that the `value` represents."""
+    minimum: Duration | None = None
+    """The inclusive lower limit for a duration."""
+
+    maximum: Duration | None = None
+    """The inclusive upper limit for a duration."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2307,17 +1585,19 @@ class ExecutionMessage(Entity):
 @dataclass(kw_only=True, repr=False)
 class ExecutionTag(Entity):
     """
-    A review of an item, e.g of an `Article` or `SoftwareApplication`.
+    A tag on code that affects its execution.
     """
 
-    type: Literal["Review"] = "Review"
+    type: Literal["ExecutionTag"] = "ExecutionTag"
 
-    item_reviewed: Thing | None = None
-    """The item that is being reviewed."""
+    name: str
+    """The name of the tag"""
 
-    review_aspect: str | None = None
-    """The part or facet of the item that is being reviewed."""
+    value: str
+    """The value of the tag"""
 
+    is_global: bool
+    """Whether the tag is global to the document"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2478,8 +1758,6 @@ class ImageObject(MediaObject):
     thumbnail: ImageObject | None = None
     """Thumbnail image of this image."""
 
-    pattern: str | None = None
-    """A regular expression that a string node must match."""
 
 @dataclass(kw_only=True, repr=False)
 class InsertBlock(SuggestionBlock):
@@ -2601,15 +1879,19 @@ class List(Entity):
 @dataclass(kw_only=True, repr=False)
 class ListItem(Thing):
     """
-    Textual content.
+    A single item in a list.
     """
 
-    type: Literal["Text"] = "Text"
+    type: Literal["ListItem"] = "ListItem"
 
-    value: Cord
-    """The value of the text content"""
+    content: list[Block]
+    """The content of the list item."""
 
+    item: Node | None = None
+    """The item represented by this list item."""
 
+    is_checked: bool | None = None
+    """A flag to indicate if this list item is checked."""
 
     position: int | None = None
     """The position of the item in a series or sequence of items."""
@@ -2775,15 +2057,21 @@ class Paragraph(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class StringHint(Entity):
+class Periodical(CreativeWork):
     """
-    A hint to the structure of an `String`.
+    A periodical publication.
     """
 
-    type: Literal["StringHint"] = "StringHint"
+    type: Literal["Periodical"] = "Periodical"
 
-    chars: int
-    """The number of characters in the string."""
+    date_start: Date | None = None
+    """The date this Periodical was first published."""
+
+    date_end: Date | None = None
+    """The date this Periodical ceased publication."""
+
+    issns: list[str] | None = None
+    """The International Standard Serial Number(s) (ISSN) that identifies this serial publication."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3035,28 +2323,28 @@ class SoftwareApplication(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class SoftwareSourceCode(CreativeWork):
     """
-    A clause within an `IfBlock` node.
+    Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
     """
 
-    type: Literal["IfBlockClause"] = "IfBlockClause"
+    type: Literal["SoftwareSourceCode"] = "SoftwareSourceCode"
 
-    alternate_names: list[str] | None = None
-    """Alternate names (aliases) for the item."""
+    programming_language: str
+    """The computer programming language."""
 
-    description: Text | None = None
-    """A description of the item."""
+    code_repository: str | None = None
+    """Link to the repository where the un-compiled, human readable code and related code is located."""
 
-    identifiers: list[PropertyValue | str] | None = None
-    """Any kind of identifier for any kind of Thing."""
+    code_sample_type: str | None = None
+    """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template."""
 
-    images: list[ImageObject] | None = None
-    """Images of the item."""
+    runtime_platform: list[str] | None = None
+    """Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0)."""
 
-    name: str | None = None
-    """The name of the item."""
+    software_requirements: list[SoftwareSourceCode | SoftwareApplication | str] | None = None
+    """Dependency requirements for the software."""
 
-    url: str | None = None
-    """The URL of the item."""
+    target_products: list[SoftwareApplication] | None = None
+    """Target operating system or product to which the code applies."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3396,388 +2684,6 @@ class VideoObject(MediaObject):
 
     transcript: str | None = None
     """The transcript of this video recording."""
-
-
-
-@dataclass(kw_only=True)
-class InsertBlock(SuggestionBlock):
-    """
-    A suggestion to insert some block content.
-    """
-
-    type: Literal["InsertBlock"] = "InsertBlock"
-
-    caption: list[Inline] | None = None
-    """The caption for this audio recording."""
-
-    transcript: str | None = None
-    """The transcript of this audio recording."""
-
-
-@dataclass(kw_only=True)
-class DeleteBlock(SuggestionBlock):
-    """
-    A suggestion to delete some block content.
-    """
-
-    type: Literal["DeleteBlock"] = "DeleteBlock"
-
-    thumbnail: ImageObject | None = None
-    """Thumbnail image of this image."""
-
-
-@dataclass(kw_only=True)
-class ModifyBlock(SuggestionBlock):
-    """
-    A suggestion to modify some block content.
-    """
-
-    type: Literal["ModifyBlock"] = "ModifyBlock"
-
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
-
-    code_sample_type: str | None = None
-    """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template."""
-
-    runtime_platform: list[str] | None = None
-    """Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0)."""
-
-    software_requirements: (
-        list[SoftwareSourceCode | SoftwareApplication | str] | None
-    ) = None
-    """Dependency requirements for the software."""
-
-    target_products: list[SoftwareApplication] | None = None
-    """Target operating system or product to which the code applies."""
-
-
-@dataclass(kw_only=True)
-class SuggestionInline(Suggestion):
-    """
-    Abstract base type for nodes that indicate a suggested change to inline content.
-    """
-
-    type: Literal["SuggestionInline"] = "SuggestionInline"
-
-    content: list[Inline]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
-
-    operating_system: str | None = None
-    """Operating systems supported (e.g. Windows 7, OS X 10.6)."""
-
-
-@dataclass(kw_only=True)
-class DeleteInline(SuggestionInline):
-    """
-    A suggestion to delete some inline content.
-    """
-
-    type: Literal["DeleteInline"] = "DeleteInline"
-
-    issns: list[str] | None = None
-    """The International Standard Serial Number(s) (ISSN) that identifies this serial publication."""
-
-
-@dataclass(kw_only=True)
-class ModifyInline(SuggestionInline):
-    """
-    A suggestion to modify some inline content.
-    """
-
-    type: Literal["ModifyInline"] = "ModifyInline"
-
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
-
-
-
-@dataclass(kw_only=True)
-class ReplaceInline(SuggestionInline):
-    """
-    A suggestion to replace some inline content with new inline content.
-    """
-
-    type: Literal["ReplaceInline"] = "ReplaceInline"
-
-    replacement: list[Inline]
-    """The new replacement inline content."""
-
-
-
-@dataclass(kw_only=True)
-class InsertInline(SuggestionInline):
-    """
-    A suggestion to insert some inline content.
-    """
-
-    type: Literal["InsertInline"] = "InsertInline"
-
-
-
-@dataclass(kw_only=True)
-class Note(Entity):
-    """
-    Additional content which is not part of the main content of a document.
-    """
-
-    type: Literal["Note"] = "Note"
-
-    note_type: NoteType
-    """Determines where the note content is displayed within the document."""
-
-    content: list[Block]
-    """The content within the styled block"""
-
-
-@dataclass(kw_only=True, repr=False)
-class StyledInline(Styled):
-    """
-    Styled inline content.
-    """
-
-    type: Literal["StyledInline"] = "StyledInline"
-
-    content: list[Inline]
-    """The content within the span."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Subscript(Mark):
-    """
-    Subscripted content.
-    """
-
-    type: Literal["Subscript"] = "Subscript"
-
-
-@dataclass(kw_only=True, repr=False)
-class Superscript(Mark):
-    """
-    Superscripted content.
-    """
-
-    type: Literal["Superscript"] = "Superscript"
-
-
-@dataclass(kw_only=True, repr=False)
-class Table(CreativeWork):
-    """
-    A table.
-    """
-
-    type: Literal["Table"] = "Table"
-
-    label: str | None = None
-    """A short label for the table."""
-
-    caption: list[Block] | None = None
-    """A caption for the table."""
-
-    rows: list[TableRow]
-    """Rows of cells in the table."""
-
-    notes: list[Block] | None = None
-    """Notes for the table."""
-
-
-@dataclass(kw_only=True, repr=False)
-class TableCell(Entity):
-    """
-    A cell within a `Table`.
-    """
-
-    type: Literal["TableCell"] = "TableCell"
-
-    cell_type: TableCellType | None = None
-    """The type of cell."""
-
-    name: str | None = None
-    """The name of the cell."""
-
-    column_span: int | None = None
-    """How many columns the cell extends."""
-
-    row_span: int | None = None
-    """How many columns the cell extends."""
-
-    content: list[Block]
-    """Contents of the table cell."""
-
-
-@dataclass(kw_only=True, repr=False)
-class TableRow(Entity):
-    """
-    A row within a Table.
-    """
-
-    type: Literal["TableRow"] = "TableRow"
-
-    cells: list[TableCell]
-    """An array of cells in the row."""
-
-    row_type: TableRowType | None = None
-    """The type of row."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Text(Entity):
-    """
-    Textual content.
-    """
-
-    type: Literal["Text"] = "Text"
-
-    value: Cord
-    """The value of the text content"""
-
-
-@dataclass(kw_only=True, repr=False)
-class ThematicBreak(Entity):
-    """
-    A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
-    """
-
-    type: Literal["ThematicBreak"] = "ThematicBreak"
-
-
-@dataclass(kw_only=True, repr=False)
-class Time(Entity):
-    """
-    A point in time recurring on multiple days.
-    """
-
-    type: Literal["Time"] = "Time"
-
-    value: str
-    """The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`."""
-
-
-@dataclass(kw_only=True, repr=False)
-class TimeValidator(Entity):
-    """
-    A validator specifying the constraints on a time.
-    """
-
-    type: Literal["TimeValidator"] = "TimeValidator"
-
-    minimum: Time | None = None
-    """The inclusive lower limit for a time."""
-
-    maximum: Time | None = None
-    """The inclusive upper limit for a time."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Timestamp(Entity):
-    """
-    A value that represents a point in time.
-    """
-
-    type: Literal["Timestamp"] = "Timestamp"
-
-    value: int
-    """The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z)."""
-
-    time_unit: TimeUnit
-    """The time unit that the `value` represents."""
-
-
-@dataclass(kw_only=True, repr=False)
-class TimestampValidator(Entity):
-    """
-    A validator specifying the constraints on a timestamp.
-    """
-
-    type: Literal["TimestampValidator"] = "TimestampValidator"
-
-    time_units: list[TimeUnit] | None = None
-    """The time units that the timestamp can have."""
-
-    minimum: Timestamp | None = None
-    """The inclusive lower limit for a timestamp."""
-
-    maximum: Timestamp | None = None
-    """The inclusive upper limit for a timestamp."""
-
-
-@dataclass(kw_only=True, repr=False)
-class TupleValidator(Entity):
-    """
-    A validator specifying constraints on an array of heterogeneous items.
-    """
-
-    type: Literal["TupleValidator"] = "TupleValidator"
-
-    items: list[Validator] | None = None
-    """An array of validators specifying the constraints on each successive item in the array."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Underline(Mark):
-    """
-    Inline text that is underlined.
-    """
-
-    type: Literal["Underline"] = "Underline"
-
-
-@dataclass(kw_only=True, repr=False)
-class Unknown(Entity):
-    """
-    A type to indicate a value or or other type in unknown.
-    """
-
-    type: Literal["Unknown"] = "Unknown"
-
-
-@dataclass(kw_only=True, repr=False)
-class Variable(Entity):
-    """
-    A variable representing a name / value pair.
-    """
-
-    type: Literal["Variable"] = "Variable"
-
-    name: str
-    """The name of the variable."""
-
-    programming_language: str | None = None
-    """The programming language that the variable is defined in e.g. Python, JSON."""
-
-    native_type: str | None = None
-    """The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`"""
-
-    node_type: str | None = None
-    """The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`."""
-
-    value: Node | None = None
-    """The value of the variable."""
-
-    hint: Hint | None = None
-    """A hint to the value and/or structure of the variable."""
-
-    native_hint: str | None = None
-    """A textual hint to the value and/or structure of the variable."""
-
-
-@dataclass(kw_only=True, repr=False)
-class VideoObject(MediaObject):
-    """
-    A video file.
-    """
-
-    type: Literal["VideoObject"] = "VideoObject"
-
-    caption: list[Inline] | None = None
-    """The caption for this video recording."""
-
-    thumbnail: ImageObject | None = None
-    """Thumbnail image of this video recording."""
-
-    transcript: str | None = None
-    """The transcript of this video recording."""
-
 
 Author = Union[
     Person,
