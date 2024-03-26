@@ -8,7 +8,6 @@ use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, Args, Parser, Subcommand},
     eyre::{eyre, Result},
-    itertools::Itertools,
     tokio::{self},
     tracing,
 };
@@ -304,9 +303,7 @@ enum Command {
     /// Serve
     Serve(ServeOptions),
 
-    /// List the available AI assistants
-    Assistants,
-
+    Assistants(assistants::cli::Cli),
     Kernels(kernels::cli::Cli),
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
@@ -659,47 +656,7 @@ impl Cli {
 
             Command::Serve(options) => serve(options).await?,
 
-            Command::Assistants => {
-                let assistants = assistants::list().await;
-
-                if assistants.is_empty() {
-                    println!("There are no assistants available. Perhaps you need to set some environment variables with API keys?")
-                } else {
-                    println!(
-                        "{:<35} {:<12} {:<30} {:<24} {:>12} {:>5} {:>12} {:>12}",
-                        "Id",
-                        "Publisher",
-                        "Name",
-                        "Version",
-                        "Context len.",
-                        "Pref.",
-                        "Inputs",
-                        "Outputs"
-                    );
-                    for assistant in assistants {
-                        println!(
-                            "{:<35} {:<12} {:<30} {:<24} {:>12} {:>5} {:>12} {:>12}",
-                            assistant.id(),
-                            assistant.publisher(),
-                            assistant.name(),
-                            assistant.version(),
-                            assistant.context_length(),
-                            assistant.preference_rank(),
-                            assistant
-                                .supported_inputs()
-                                .iter()
-                                .map(|input| input.to_string())
-                                .join(", "),
-                            assistant
-                                .supported_outputs()
-                                .iter()
-                                .map(|output| output.to_string())
-                                .join(", "),
-                        )
-                    }
-                }
-            }
-
+            Command::Assistants(assistants) => assistants.run().await?,
             Command::Kernels(kernels) => kernels.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,
