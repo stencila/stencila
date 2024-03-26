@@ -97,10 +97,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Setup Python dev dependencies
-        run: pip install ruff pyright
-
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1
+        run: pip install pdm ruff pyright
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
