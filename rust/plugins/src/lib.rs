@@ -24,7 +24,7 @@ use cli_utils::{
 };
 use common::{
     derive_more::Deref,
-    eyre::{bail, eyre, Context, OptionExt, Report, Result},
+    eyre::{bail, eyre, OptionExt, Report, Result},
     itertools::Itertools,
     rand::{distributions::Alphanumeric, thread_rng, Rng},
     reqwest::{self, header, Client, Url},
