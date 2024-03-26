@@ -123,7 +123,7 @@ impl Kernel for PluginKernel {
     }
 }
 
-/// An instance of a microkernel
+/// An instance of a plugin kernel
 pub struct PluginKernelInstance {
     /// The kernel specification for this instance
     kernel: PluginKernel,
