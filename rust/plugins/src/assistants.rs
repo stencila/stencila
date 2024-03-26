@@ -176,7 +176,14 @@ impl Assistant for PluginAssistant {
         } else {
             output.format.clone()
         };
-        GenerateOutput::from_plugin(output, self, &format, task.instruction(), options).await
+        let mut output = GenerateOutput::from_plugin(output, self, &format, task.instruction(), options).await?;
+
+        // If this had a system prompt then assign as the prompter
+        if self.system_prompt.is_some() {
+            output.assign_prompter(self);
+        }
+
+        Ok(output)
     }
 }
 
