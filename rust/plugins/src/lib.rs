@@ -6,10 +6,14 @@ use std::{
     path::{Path, PathBuf},
     process::Stdio,
     str::FromStr,
-    sync::atomic::{AtomicU64, Ordering},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
     time::Duration,
 };
 
+use assistant::Assistant;
 use kernel::Kernel;
 use semver::{Version, VersionReq};
 
@@ -37,7 +41,9 @@ use common::{
     toml, tracing, which,
     which::which,
 };
+
 use kernels::PluginKernel;
+use assistants::PluginAssistant;
 
 use list::{list, ListArgs};
 
@@ -50,6 +56,7 @@ mod list;
 mod show;
 mod uninstall;
 
+pub mod assistants;
 pub mod cli;
 pub mod kernels;
 
@@ -147,6 +154,10 @@ pub struct Plugin {
     /// The execution kernels provided by the plugin
     #[serde(default)]
     kernels: Vec<PluginKernel>,
+
+    /// The assistants provided by the plugin
+    #[serde(default)]
+    assistants: Vec<PluginAssistant>,
 }
 
 impl Plugin {
@@ -470,6 +481,21 @@ impl Plugin {
             PluginStatus::UnavailableRuntime,
             PluginEnabled::NotApplicable,
         )
+    }
+
+    /// Get a list of assistants provided by the plugin
+    ///
+    /// Each assistant is bound to this plugin so that it can
+    /// be started (by starting the plugin first).
+    fn assistants(&self) -> Vec<Arc<dyn Assistant>> {
+        self.assistants
+            .clone()
+            .into_iter()
+            .map(|mut assistant| {
+                assistant.bind(self);
+                Arc::new(assistant) as Arc<dyn Assistant>
+            })
+            .collect()
     }
 
     /// Get a list of kernels provided by the plugin
@@ -811,7 +837,11 @@ impl ToStdout for PluginList {
 }
 
 /// A running instance of a plugin
+#[derive(Debug)]
 pub struct PluginInstance {
+    /// The name of the plugin this instance is for
+    plugin: String,
+
     /// The plugin child process
     child: Child,
 
@@ -923,6 +953,7 @@ impl PluginInstance {
         }
 
         Ok(Self {
+            plugin: plugin.name.clone(),
             child,
             transport,
             http_client,
@@ -956,10 +987,19 @@ impl PluginInstance {
 
         let result = match response.result {
             JsonRpcResult::Success { result } => result,
-            JsonRpcResult::Error { error } => bail!("{}", error.message),
+            JsonRpcResult::Error { error } => bail!(
+                "While calling method `{method}` of plugin `{}`: {}",
+                self.plugin,
+                error.message
+            ),
         };
 
-        Ok(serde_json::from_value(result)?)
+        serde_json::from_value(result).map_err(|error| {
+            eyre!(
+                "While deserializing result for method `{method}` of plugin `{}`: {error}",
+                self.plugin
+            )
+        })
     }
 
     /// Call a method of the plugin instance via stdio

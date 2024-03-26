@@ -294,6 +294,8 @@ dependencies = [
  "assistant-ollama",
  "assistant-openai",
  "assistant-specialized",
+ "cli-utils",
+ "plugins",
 ]
 
 [[package]]
@@ -4659,6 +4661,7 @@ name = "plugins"
 version = "0.0.0"
 dependencies = [
  "app",
+ "assistant",
  "cli-utils",
  "common",
  "common-dev",

@@ -15,9 +15,11 @@ use assistant::{
 
 pub use assistant;
 
+pub mod cli;
+
 /// Get a list of available assistants in descending preference rank
 pub async fn list() -> Vec<Arc<dyn Assistant>> {
-    let futures = (0..=5).map(|provider| async move {
+    let futures = (0..=6).map(|provider| async move {
         let (provider, result) = match provider {
             0 => ("Anthropic", assistant_anthropic::list().await),
             1 => ("Google", assistant_google::list().await),
@@ -25,6 +27,7 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
             3 => ("Ollama", assistant_ollama::list().await),
             4 => ("OpenAI", assistant_openai::list().await),
             5 => ("specialized", assistant_specialized::list()),
+            6 => ("plugin", plugins::assistants::list().await),
             _ => return vec![],
         };
 
@@ -61,12 +64,7 @@ where
 {
     let instruction = Instruction::from(instruction);
 
-    let mut task = GenerateTask {
-        instruction,
-        context: Some(context),
-        ..Default::default()
-    };
-
+    let mut task = GenerateTask::new(instruction, Some(context));
     let assistant = get_assistant(&mut task).await?;
     assistant.perform_task(&task, &options).await
 }
@@ -79,7 +77,7 @@ where
 pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>> {
     let assistants = list().await;
 
-    let assistant = if let Some(assignee) = task.instruction.assignee() {
+    let assistant = if let Some(assignee) = task.instruction().assignee() {
         let id = if assignee.contains('/') {
             assignee.to_string()
         } else {
