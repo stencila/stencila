@@ -7,7 +7,7 @@ use anthropic::{
 use assistant::{
     common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
     schema::MessagePart,
-    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
     IsAssistantMessage,
 };
 
@@ -39,6 +39,10 @@ impl Assistant for AnthropicAssistant {
         format!("anthropic/{}", self.model)
     }
 
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Remote
+    }
+
     fn context_length(&self) -> usize {
         self.context_length
     }
@@ -59,7 +63,7 @@ impl Assistant for AnthropicAssistant {
         // TODO: This does not use the new Messages API and instead concatenates messages into a chat string
         // https://docs.anthropic.com/claude/reference/messages_post
 
-        let system_prompt = match &task.system_prompt {
+        let system_prompt = match &task.system_prompt() {
             Some(prompt) => prompt.clone(),
             None => String::new(),
         };
@@ -127,7 +131,7 @@ impl Assistant for AnthropicAssistant {
             .trim_start()
             .to_string();
 
-        GenerateOutput::from_text(self, task, options, text).await
+        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
     }
 }
 
@@ -161,7 +165,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+    use assistant::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
     async fn list_assistants() -> Result<()> {
@@ -187,7 +191,7 @@ mod tests {
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 
-        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+        assert_eq!(output.content, "HELLO".to_string());
 
         Ok(())
     }

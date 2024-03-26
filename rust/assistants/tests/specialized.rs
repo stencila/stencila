@@ -21,13 +21,13 @@ struct TestCases(Vec<AssistantTest>);
 
 async fn local_get_assistant(itype: InstructionType, text: String) -> Result<(String, f32)> {
     let mut task = match itype {
-        InstructionType::InsertBlocks => GenerateTask::new(Instruction::block_text(text)),
+        InstructionType::InsertBlocks => GenerateTask::new(Instruction::block_text(text), None),
         InstructionType::ModifyBlocks => {
-            GenerateTask::new(Instruction::block_text_with(text, vec![]))
+            GenerateTask::new(Instruction::block_text_with(text, vec![]), None)
         }
-        InstructionType::InsertInlines => GenerateTask::new(Instruction::inline_text(text)),
+        InstructionType::InsertInlines => GenerateTask::new(Instruction::inline_text(text), None),
         InstructionType::ModifyInlines => {
-            GenerateTask::new(Instruction::inline_text_with(text, vec![]))
+            GenerateTask::new(Instruction::inline_text_with(text, vec![]), None)
         }
     };
     let assistant = get_assistant(&mut task).await?;

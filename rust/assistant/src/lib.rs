@@ -12,7 +12,6 @@ use common::{
     itertools::Itertools,
     regex::Regex,
     serde::{de::Error, Deserialize, Deserializer, Serialize},
-    serde_json,
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
     strum::Display,
@@ -342,14 +341,28 @@ pub struct GenerateTask {
     /// The instruction provided by the user
     pub instruction: Instruction,
 
+    /// The instruction text provided for convenient access in the
+    /// user prompt template
+    instruction_text: String,
+
+    /// The instruction embedding
+    ///
+    /// Not serialized because not necessary to send to plugin assistants.
+    #[serde(skip)]
+    instruction_embedding: Embeddings,
+
+    /// The content of the instruction in the format specified
+    /// in the `GenerateOptions` (defaulting to HTML)
+    pub content_formatted: Option<String>,
+
     /// The context of the instruction
     ///
     /// This is available to assistants so that they can tailor
     /// their responses given the broader context of the document
-    /// that the instruction is within. For specialized list_assistants
+    /// that the instruction is within. For specialized assistants
     /// it is available as the variable `context` within the
     /// system prompt template.
-    pub context: Option<Context>,
+    context: Option<Context>,
 
     /// The input type of the task
     pub input: AssistantIO,
@@ -367,56 +380,37 @@ pub struct GenerateTask {
     /// assistant being used for the task.
     pub context_length: Option<usize>,
 
-    /// The content of the document in the format specified
-    /// in the `GenerateOptions` (defaulting to HTML)
-    pub document_formatted: Option<String>,
-
-    /// The instruction text provided for convenient access in the
-    /// user prompt template
-    pub instruction_text: String,
-
-    /// The instruction embedding
-    pub instruction_embedding: Embeddings,
-
-    /// The content of the instruction in the format specified
-    /// in the `GenerateOptions` (defaulting to HTML)
-    pub content_formatted: Option<String>,
-
     /// An optional system prompt
     pub system_prompt: Option<String>,
 }
 
 impl GenerateTask {
     /// Create a generation task from an instruction
-    pub fn new(instruction: Instruction) -> Self {
+    pub fn new(instruction: Instruction, context: Option<Context>) -> Self {
         // Pull the text out of the instruction here.
         // TODO: Should we just build the embeddings here?
         let text = instruction.text().to_string();
         Self {
             instruction,
             instruction_text: text,
+            context,
             ..Default::default()
         }
     }
 
-    /// Get the messages of the task
+    /// Get the task's instruction
+    pub fn instruction(&self) -> &Instruction {
+        &self.instruction
+    }
+
+    /// Get the messages of the task's instruction
     pub fn instruction_messages(&self) -> impl Iterator<Item = &InstructionMessage> {
         self.instruction.messages().iter()
     }
 
-    // REMOVED FOR NOW (We do it in the constructor)
-    // /// Get the text of the instruction
-    // ///
-    // /// Will populate `self.instruction_text` if necessary for use
-    // /// in user prompt templates
-    // pub fn instruction_text(&mut self) -> &str {
-    //     self.instruction_text
-    //         .get_or_insert_with(|| self.instruction.text().to_string())
-    // }
-
     /// Get the similarity between the text of the instruction and some other, precalculated embedding
     ///
-    /// Will populate `self.instruction_embedding` is necessary, so that this only needs to
+    /// Will populate `self.instruction_embedding` if necessary, so that this only needs to
     /// be done once for each call to this function (e.g. when calculating similarity with
     /// a number of other embeddings).
     pub fn instruction_similarity(&mut self, embeddings: &Embeddings) -> Result<f32> {
@@ -424,10 +418,31 @@ impl GenerateTask {
             self.instruction_embedding
                 .build(vec![&self.instruction_text])?;
         }
+
         Ok(self
             .instruction_embedding
             .score_match(embeddings)
             .unwrap_or(0.1))
+    }
+
+    /// Get the task's desired input type
+    pub fn input(&self) -> &AssistantIO {
+        &self.input
+    }
+
+    /// Get the task's desired output type
+    pub fn output(&self) -> &AssistantIO {
+        &self.output
+    }
+
+    /// Get the task's desired output format
+    pub fn format(&self) -> &Format {
+        &self.format
+    }
+
+    /// Get the task's system prompt
+    pub fn system_prompt(&self) -> &Option<String> {
+        &self.system_prompt
     }
 }
 
@@ -665,21 +680,32 @@ where
 ///
 /// Yes, this could have been named `GeneratedOutput`! But it wasn't to
 /// maintain consistency with `GenerateTask` and `GenerateOptions`.
-#[derive(Debug)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields, crate = "common::serde")]
 pub struct GenerateOutput {
-    /// The assistant the generated the prompt for the task
+    /// The assistant that created the prompt for the task
     pub prompter: Option<SoftwareApplication>,
 
-    /// The assistant that generated the contest
+    /// The assistant that generated the content
     pub generator: SoftwareApplication,
 
-    /// The content generated by the assistant
-    pub content: GenerateContent,
+    /// The kind of output in the content
+    ///
+    /// Used to determine how to handle the `content` before
+    /// decoding it into nodes.
+    pub kind: GenerateKind,
 
     /// The format of the generated content
+    ///
+    /// Used by to decode the generated `content` into a set of
+    /// Stencila Schema nodes.
     pub format: Format,
 
-    /// Stencila Schema nodes derived from the generated content
+    /// The content generated by the assistant
+    pub content: String,
+
+    /// Stencila Schema nodes generated by the assistant or decoded from `content`
     pub nodes: Nodes,
 }
 
@@ -691,8 +717,9 @@ impl GenerateOutput {
         Ok(Self {
             prompter: None,
             generator: assistant.to_software_application(),
-            content: GenerateContent::Text(String::new()),
+            kind: GenerateKind::Text,
             format: Format::Unknown,
+            content: (String::new()),
             nodes: Nodes::Blocks(vec![]),
         })
     }
@@ -703,13 +730,14 @@ impl GenerateOutput {
     /// then assumes it is Markdown.
     pub async fn from_text(
         assistant: &dyn Assistant,
-        task: &GenerateTask,
+        format: &Format,
+        instruction: &Instruction,
         options: &GenerateOptions,
         text: String,
     ) -> Result<Self> {
-        let format = match task.format {
+        let format = match format {
             Format::Unknown => Format::Markdown,
-            _ => task.format.clone(),
+            _ => format.clone(),
         };
 
         // Decode text to an article
@@ -727,7 +755,7 @@ impl GenerateOutput {
 
         // Transform content to blocks or inlines depending upon instruction type
         let nodes = if matches!(
-            InstructionType::from(&task.instruction),
+            InstructionType::from(instruction),
             InstructionType::InsertBlocks | InstructionType::ModifyBlocks
         ) {
             Nodes::Blocks(content)
@@ -812,8 +840,9 @@ impl GenerateOutput {
         Ok(Self {
             prompter: None,
             generator: assistant.to_software_application(),
-            content: GenerateContent::Text(text),
+            kind: GenerateKind::Text,
             format,
+            content: text,
             nodes,
         })
     }
@@ -821,7 +850,6 @@ impl GenerateOutput {
     /// Create a `GenerateOutput` from a URL with a specific media type
     pub async fn from_url(
         assistant: &dyn Assistant,
-        _task: &GenerateTask,
         media_type: &str,
         url: String,
     ) -> Result<Self> {
@@ -864,10 +892,41 @@ impl GenerateOutput {
         Ok(Self {
             prompter: None,
             generator: assistant.to_software_application(),
-            content: GenerateContent::Url(url),
+            kind: GenerateKind::Url,
             format,
+            content: url,
             nodes,
         })
+    }
+
+    /// Update an assistant after it has been deserialized from a plugin based assistant
+    pub async fn from_plugin(
+        mut other: Self,
+        assistant: &dyn Assistant,
+        format: &Format,
+        instruction: &Instruction,
+        options: &GenerateOptions,
+    ) -> Result<Self> {
+        let mut output = if !other.nodes.is_empty() {
+            author_roles(
+                &mut other.nodes,
+                vec![assistant.to_author_role(AuthorRoleName::Generator)],
+            );
+            other
+        } else {
+            match other.kind {
+                GenerateKind::Text => {
+                    Self::from_text(assistant, format, instruction, options, other.content).await?
+                }
+                GenerateKind::Url => {
+                    Self::from_url(assistant, &format.media_type(), other.content).await?
+                }
+            }
+        };
+
+        output.generator = assistant.to_software_application();
+
+        Ok(output)
     }
 
     /// Assign a `Assistant` as the prompter to this output
@@ -896,10 +955,10 @@ impl GenerateOutput {
         .collect();
         let authors = Some(authors);
 
-        let parts = vec![match &self.content {
-            GenerateContent::Text(text) => MessagePart::Text(text.into()),
-            GenerateContent::Url(url) => {
-                let url = url.clone();
+        let parts = vec![match &self.kind {
+            GenerateKind::Text => MessagePart::Text(self.content.clone().into()),
+            GenerateKind::Url => {
+                let url = self.content.clone();
                 if self.format.is_audio() {
                     MessagePart::AudioObject(AudioObject::new(url))
                 } else if self.format.is_image() {
@@ -957,49 +1016,18 @@ impl GenerateOutput {
             })
         }
     }
-
-    /// Display the generated output as Markdown
-    ///
-    /// This is mainly intended for the `stencila ai repl` and `stencila ai test`
-    /// commands. It provides an easily human readable representation of the output
-    /// of a generative task.
-    pub fn display(&self) -> String {
-        let mut md = String::new();
-
-        // Display the output's generated content
-        md += &format!(
-            "The generated {format}:\n\n",
-            format = if self.format.is_unknown() {
-                "content"
-            } else {
-                self.format.name()
-            }
-        );
-        md += &match &self.content {
-            GenerateContent::Text(text) => text.to_string(),
-            GenerateContent::Url(url) => format!("![]({url})"),
-        };
-        md += "\n";
-
-        // Display nodes as a JSON code block
-        let nodes = format!(
-            "\nThis content was decoded to these nodes:\n\n```json\n{}\n```\n",
-            serde_json::to_string_pretty(&self.nodes).unwrap_or_default()
-        );
-        md += &nodes;
-
-        md
-    }
 }
 
-/// The content generated for a task
-#[derive(Debug, PartialEq, Eq)]
-pub enum GenerateContent {
-    /// Generated text
-    Text(String),
+/// The kind of content generated for a task
+#[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+pub enum GenerateKind {
+    /// Generated text in a text format
+    #[default]
+    Text,
 
     /// Generated content at a URL
-    Url(String),
+    Url,
 }
 
 /// Generated nodes
@@ -1007,14 +1035,27 @@ pub enum GenerateContent {
 /// This enum allows us to differentiate between different types of
 /// generated nodes associated with different types of instructions
 /// (block or inline)
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Nodes {
     Blocks(Vec<Block>),
     Inlines(Vec<Inline>),
 }
 
+impl Default for Nodes {
+    fn default() -> Self {
+        Self::Blocks(Vec::new())
+    }
+}
+
 impl Nodes {
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Nodes::Blocks(blocks) => blocks.is_empty(),
+            Nodes::Inlines(inlines) => inlines.is_empty(),
+        }
+    }
+
     /// Move nodes into blocks
     pub fn into_blocks(self) -> Vec<Block> {
         match self {
@@ -1053,6 +1094,7 @@ pub enum AssistantIO {
     Image,
     Audio,
     Video,
+    Nodes,
 }
 
 /// An AI assistant
@@ -1068,6 +1110,11 @@ pub trait Assistant: Sync + Send {
     /// use a large language model (as opposed to a custom assistant that delegates)
     /// the id should follow the pattern <PUBLISHER>/<MODEL>.
     fn id(&self) -> String;
+
+    /// Get the provider of the assistant
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Builtin
+    }
 
     /// Get the name of the publisher of the assistant
     ///
@@ -1166,7 +1213,9 @@ pub trait Assistant: Sync + Send {
     ///
     /// Used by custom assistants to dynamically adjust the content of prompts
     /// based on the context length of the underlying model being delegated to.
-    fn context_length(&self) -> usize;
+    fn context_length(&self) -> usize {
+        0
+    }
 
     /// Does the assistant support a specific task
     ///
@@ -1218,6 +1267,14 @@ pub trait Assistant: Sync + Send {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput>;
+}
+
+/// The provider of an assistant
+pub enum AssistantType {
+    Builtin,
+    Local,
+    Remote,
+    Plugin(String),
 }
 
 /// Generate a test task which has system, user and assistant messages

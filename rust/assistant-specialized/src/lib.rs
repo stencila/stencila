@@ -7,6 +7,7 @@
 
 use std::{fs::read_to_string, sync::Arc};
 
+use assistant::AssistantType;
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
 use rust_embed::RustEmbed;
@@ -452,11 +453,11 @@ impl SpecializedAssistant {
             losses: LossesResponse::Debug,
             ..Default::default()
         };
-        if let Some(nodes) = &task.instruction.content() {
+        if let Some(nodes) = task.instruction().content() {
             let mut content = String::new();
             for node in nodes {
                 content += &codecs::to_string(
-                    node,
+                    &node,
                     Some(EncodeOptions {
                         format: self
                             .content_format
@@ -537,6 +538,10 @@ impl Assistant for SpecializedAssistant {
         self.id.clone()
     }
 
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Builtin
+    }
+
     fn name(&self) -> String {
         let id = self.id();
         let name = id.rsplit_once('/').map(|(.., name)| name).unwrap_or(&id);
@@ -554,7 +559,7 @@ impl Assistant for SpecializedAssistant {
     fn supports_task(&self, task: &GenerateTask) -> bool {
         // If instruction type is specified then the instruction must match
         if let Some(instruction_type) = self.instruction_type {
-            if instruction_type != InstructionType::from(&task.instruction) {
+            if instruction_type != InstructionType::from(task.instruction()) {
                 return false;
             }
         }
@@ -567,7 +572,7 @@ impl Assistant for SpecializedAssistant {
     }
 
     fn supported_outputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+        &[AssistantIO::Nodes]
     }
 
     fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
@@ -601,9 +606,10 @@ impl Assistant for SpecializedAssistant {
             // This differs from `options.dry_run` in that the prompt is decoded into nodes
             // (including transformations associated with `expected_nodes`) in the call to `from_text`.
             let task = self.prepare_task(task, None).await?;
-            let prompt = task.system_prompt.clone().unwrap_or_default();
+            let prompt = task.system_prompt().clone().unwrap_or_default();
 
-            GenerateOutput::from_text(self, &task, &options, prompt).await?
+            GenerateOutput::from_text(self, task.format(), task.instruction(), &options, prompt)
+                .await?
         } else {
             // Get the first available assistant to delegate to
             let delegate = self.first_available_delegate(&task).await?;
@@ -826,10 +832,13 @@ mod tests {
                 [t("")],
             )),
             */
-            GenerateTask::new(Instruction::block_text("insert-blocks")),
-            GenerateTask::new(Instruction::block_text_with("modify-blocks", [p([])])),
-            GenerateTask::new(Instruction::inline_text("insert-inlines")),
-            GenerateTask::new(Instruction::inline_text_with("modify-inlines", [t("")])),
+            GenerateTask::new(Instruction::block_text("insert-blocks"), None),
+            GenerateTask::new(Instruction::block_text_with("modify-blocks", [p([])]), None),
+            GenerateTask::new(Instruction::inline_text("insert-inlines"), None),
+            GenerateTask::new(
+                Instruction::inline_text_with("modify-inlines", [t("")]),
+                None,
+            ),
         ];
 
         let assistants = [
@@ -894,7 +903,7 @@ mod tests {
         // Iterate over tasks (in reverse order, generic to specific) and ensure that the assistants
         // that it matches against has the name equal to the instruction text of the task
         for task in tasks.iter().rev() {
-            let task_name = task.instruction.text();
+            let task_name = task.instruction().text();
 
             let mut matched = false;
             for assistant in &assistants {
@@ -922,10 +931,13 @@ mod tests {
     #[test]
     fn suitability_score_works_as_expected() -> Result<()> {
         let mut task_improve_wording =
-            GenerateTask::new(Instruction::inline_text("improve wording"));
-        let mut task_the_improve_wording_of_this =
-            GenerateTask::new(Instruction::inline_text("improve the wording of this"));
-        let mut task_make_table = GenerateTask::new(Instruction::inline_text("make a 4x4 table"));
+            GenerateTask::new(Instruction::inline_text("improve wording"), None);
+        let mut task_the_improve_wording_of_this = GenerateTask::new(
+            Instruction::inline_text("improve the wording of this"),
+            None,
+        );
+        let mut task_make_table =
+            GenerateTask::new(Instruction::inline_text("make a 4x4 table"), None);
 
         let mut assistant_improve_wording = SpecializedAssistant {
             instruction_examples: Some(vec![String::from("improve wording")]),
