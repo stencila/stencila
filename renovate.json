@@ -16,7 +16,7 @@
     {
       "groupName": "Python dev dependencies",
       "description": "Group development dependencies from pyproject.toml",
-      "matchFileNames": ["python/pyproject.toml"],
+      "matchFileNames": ["python/stencila/pyproject.toml"],
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "schedule": ["before 4am on monday"]
