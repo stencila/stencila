@@ -3,7 +3,7 @@ use std::str::FromStr;
 use context::Context;
 use merge::Merge;
 
-use codecs::DecodeOptions;
+use codecs::{DecodeOptions, EncodeOptions, LossesResponse};
 use common::{
     async_trait::async_trait,
     clap::{self, Args, ValueEnum},
@@ -15,6 +15,7 @@ use common::{
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
     strum::Display,
+    tracing,
 };
 use format::Format;
 use node_authorship::author_roles;
@@ -41,6 +42,8 @@ pub use merge;
 pub use node_authorship;
 pub use schema;
 pub use secrets;
+
+mod jinja;
 
 /// An instruction created within a document
 #[skip_serializing_none]
@@ -143,17 +146,19 @@ impl Instruction {
 
     /// Get the text of the instruction
     ///
-    /// TODO: This is temporary as a replacement to previous approach. It is preferable
-    /// to use all messages. This just uses first one, and only if it is text!
+    /// This joins all the text parts from all the messages in the instruction that are
+    /// not from assistants. It is generally better to use messages individually but
+    /// this is provided for convenience in circumstances when the aggregate text suffices.
     pub fn text(&self) -> String {
         self.messages()
-            .first()
-            .and_then(|message| message.parts.first())
-            .map(|part| match part {
-                MessagePart::Text(text) => text.to_value_string(),
-                _ => String::new(),
+            .iter()
+            .filter(|message| !message.is_assistant())
+            .flat_map(|message| message.parts.iter())
+            .filter_map(|part| match part {
+                MessagePart::Text(text) => Some(text.to_value_string()),
+                _ => None,
             })
-            .unwrap_or_default()
+            .join(" ")
     }
 
     /// Get the content of the instruction (if any)
@@ -339,10 +344,9 @@ impl Embeddings {
 #[serde(crate = "common::serde")]
 pub struct GenerateTask {
     /// The instruction provided by the user
-    pub instruction: Instruction,
+    instruction: Instruction,
 
-    /// The instruction text provided for convenient access in the
-    /// user prompt template
+    /// The instruction text provided for convenient access in prompt template
     instruction_text: String,
 
     /// The instruction embedding
@@ -352,8 +356,8 @@ pub struct GenerateTask {
     instruction_embedding: Embeddings,
 
     /// The content of the instruction in the format specified
-    /// in the `GenerateOptions` (defaulting to HTML)
-    pub content_formatted: Option<String>,
+    /// in the `GenerateOptions` (defaulting to Markdown)
+    content_formatted: Option<String>,
 
     /// The context of the instruction
     ///
@@ -378,10 +382,10 @@ pub struct GenerateTask {
     /// Provided here so that user prompt templates can change rendering
     /// to take into account the specific context length of the specific base
     /// assistant being used for the task.
-    pub context_length: Option<usize>,
+    context_length: Option<usize>,
 
     /// An optional system prompt
-    pub system_prompt: Option<String>,
+    system_prompt: Option<String>,
 }
 
 impl GenerateTask {
@@ -401,6 +405,11 @@ impl GenerateTask {
     /// Get the task's instruction
     pub fn instruction(&self) -> &Instruction {
         &self.instruction
+    }
+
+    /// Get the task's instruction mutably
+    pub fn instruction_mut(&mut self) -> &mut Instruction {
+        &mut self.instruction
     }
 
     /// Get the messages of the task's instruction
@@ -443,6 +452,52 @@ impl GenerateTask {
     /// Get the task's system prompt
     pub fn system_prompt(&self) -> &Option<String> {
         &self.system_prompt
+    }
+
+    /// Prepare the task to be executed by a particular assistant
+    #[tracing::instrument(skip_all)]
+    pub async fn prepare(
+        &mut self,
+        assistant: Option<&dyn Assistant>,
+        content_format: Option<&Format>,
+        system_prompt: Option<&String>,
+    ) -> Result<()> {
+        // Update properties of the task related to the assistant that
+        // will perform the task
+        if let Some(assistant) = assistant {
+            self.context_length = Some(assistant.context_length());
+        }
+
+        // Encode content to desired format
+        let encode_options = EncodeOptions {
+            // Do not use compact encodings
+            compact: Some(false),
+            // Reduce log level for losses. Consider further reducing to `Ignore`.
+            losses: LossesResponse::Debug,
+            ..Default::default()
+        };
+        if let Some(nodes) = self.instruction().content() {
+            let mut content = String::new();
+            for node in nodes {
+                content += &codecs::to_string(
+                    &node,
+                    Some(EncodeOptions {
+                        format: content_format.cloned().or(Some(Format::Markdown)),
+                        ..encode_options.clone()
+                    }),
+                )
+                .await?;
+            }
+            self.content_formatted = Some(content);
+        }
+
+        // Render the system prompt with this task as context
+        if let Some(prompt) = system_prompt {
+            let rendered = jinja::render_template(prompt, self)?;
+            self.system_prompt = Some(rendered);
+        }
+
+        Ok(())
     }
 }
 

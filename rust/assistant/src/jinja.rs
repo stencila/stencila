@@ -1,18 +1,78 @@
 //! Functions used as filters and elsewhere in `minijinja` templates
 
-use assistant::{
-    common::{
-        eyre::{eyre, Report, Result},
-        minijinja::{value::ViaDeserialize, Error, Value},
-    },
-    schema::{
-        ArrayHint, Block, DatatableHint, Hint, InsertBlock, InstructionBlock, MathBlock,
-        MessagePart, Node, SuggestionBlockType, SuggestionStatus, Variable,
-    },
+use std::{
+    hash::{Hash, Hasher},
+    sync::Mutex,
 };
 
+use common::{
+    eyre::{eyre, Report, Result},
+    minijinja::{value::ViaDeserialize, Environment, Error, UndefinedBehavior, Value},
+    once_cell::sync::Lazy,
+    seahash::SeaHasher,
+    serde_json, serde_yaml,
+};
+use schema::{
+    ArrayHint, Block, DatatableHint, Hint, InsertBlock, InstructionBlock, MathBlock, MessagePart,
+    Node, SuggestionBlockType, SuggestionStatus, Variable,
+};
+
+use crate::GenerateTask;
+
+/// Render a prompt with the task as context
+pub fn render_template(prompt: &str, task: &GenerateTask) -> Result<String> {
+    let mut hasher = SeaHasher::new();
+    prompt.hash(&mut hasher);
+    let hash = hasher.finish().to_string();
+
+    let mut env = ENV
+        .lock()
+        .map_err(|error| eyre!("Unable to lock ENV: {error}"))?;
+
+    let template = match env.get_template(&hash) {
+        Ok(template) => template,
+        _ => {
+            env.add_template_owned(hash.clone(), prompt.to_string())
+                .map_err(minijinja_error_to_eyre)?;
+            env.get_template(&hash).expect("Should be just added")
+        }
+    };
+
+    let rendered = template
+        .render(task)
+        .map_err(minijinja_error_to_eyre)?
+        .trim()
+        .to_string();
+
+    Ok(rendered)
+}
+
+/// A template environment for rendering system prompts
+static ENV: Lazy<Mutex<Environment>> = Lazy::new(|| {
+    let mut env = Environment::new();
+    env.set_undefined_behavior(UndefinedBehavior::Strict);
+
+    // Serialization filters
+    env.add_filter("to_json", to_json);
+    env.add_filter("to_markdown", to_markdown);
+    env.add_filter("to_yaml", to_yaml);
+
+    // Trimming content filters
+    env.add_filter("trim_start_chars", trim_start_chars);
+    env.add_filter("trim_end_chars", trim_end_chars);
+
+    // Filters for describing document nodes
+    env.add_filter("describe_variable", describe_variable);
+
+    // Filters for providing few-shot examples
+    env.add_filter("insert_code_chunk_shots", insert_code_chunk_shots);
+    env.add_filter("insert_math_block_shots", insert_math_block_shots);
+
+    Mutex::new(env)
+});
+
 /// Expand a `minijinja` error to include the sources of the error (location etc)
-pub fn minijinja_error_to_eyre(error: Error) -> Report {
+fn minijinja_error_to_eyre(error: Error) -> Report {
     let mut error = &error as &dyn std::error::Error;
     let mut message = format!("{error:#}");
     while let Some(source) = error.source() {
@@ -22,13 +82,23 @@ pub fn minijinja_error_to_eyre(error: Error) -> Report {
     eyre!(message)
 }
 
+/// Generate a JSON representation of a Stencila node
+fn to_json(node: ViaDeserialize<Node>) -> String {
+    serde_json::to_string_pretty(&node.0).unwrap_or_default()
+}
+
 /// Generate a Markdown representation of a Stencila node
-pub fn to_markdown(node: ViaDeserialize<Node>) -> String {
+fn to_markdown(node: ViaDeserialize<Node>) -> String {
     codec_markdown_trait::to_markdown(&node.0)
 }
 
+/// Generate a YAML representation of a Stencila node
+fn to_yaml(node: ViaDeserialize<Node>) -> String {
+    serde_yaml::to_string(&node.0).unwrap_or_default()
+}
+
 /// Trim the starting characters from a string so that it is no longer than `length`
-pub fn trim_start_chars(content: &str, length: u32) -> String {
+fn trim_start_chars(content: &str, length: u32) -> String {
     let current_length = content.chars().count();
     content
         .chars()
@@ -38,13 +108,13 @@ pub fn trim_start_chars(content: &str, length: u32) -> String {
 }
 
 /// Trim the ending characters from a string so that it is no longer than `length`
-pub fn trim_end_chars(content: &str, length: u32) -> String {
+fn trim_end_chars(content: &str, length: u32) -> String {
     content.chars().take(length as usize).collect()
 }
 
 /// Create an Markdown description of a `Variable` as a list item with a
 /// nested child list describing its characteristics.
-pub fn describe_variable(variable: ViaDeserialize<Variable>) -> String {
+fn describe_variable(variable: ViaDeserialize<Variable>) -> String {
     let mut desc = format!("- Variable `{}`", variable.name);
 
     if let Some(native_type) = &variable.native_type {
@@ -193,7 +263,7 @@ where
 }
 
 /// Generate example shots for the 'insert-code-chunk' assistant
-pub fn insert_code_chunk_shots(
+fn insert_code_chunk_shots(
     instructions: ViaDeserialize<Vec<InstructionBlock>>,
     examples: ViaDeserialize<Vec<(String, String)>>,
 ) -> Result<Value, Error> {
@@ -209,7 +279,7 @@ pub fn insert_code_chunk_shots(
 }
 
 /// Generate example shots for the 'insert-math-block' assistant
-pub fn insert_math_block_shots(
+fn insert_math_block_shots(
     instructions: ViaDeserialize<Vec<InstructionBlock>>,
     examples: ViaDeserialize<Vec<(String, String)>>,
 ) -> Result<Value, Error> {

@@ -7,6 +7,7 @@ use assistant::{
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
+    inflector::Inflector,
     serde::{Deserialize, Serialize},
     tokio::sync::Mutex,
 };
@@ -20,6 +21,11 @@ pub struct PluginAssistant {
     /// The id of the assistant
     id: String,
 
+    /// The name of the assistant
+    ///
+    /// Will be extracted from the id if not supplied
+    name: Option<String>,
+
     /// The input types that the assistant supports
     #[serde(default)]
     inputs: Vec<AssistantIO>,
@@ -27,6 +33,15 @@ pub struct PluginAssistant {
     /// The output types that the assistant supports
     #[serde(default)]
     outputs: Vec<AssistantIO>,
+
+    /// The format that the content of the instruction should
+    /// be formatted using for use in the system prompt
+    #[serde(alias = "content-format")]
+    content_format: Option<Format>,
+
+    /// The system prompt template
+    #[serde(alias = "system-prompt")]
+    system_prompt: Option<String>,
 
     /// The plugin that provides this assistant
     ///
@@ -56,6 +71,24 @@ impl PluginAssistant {
 impl Assistant for PluginAssistant {
     fn id(&self) -> String {
         self.id.clone()
+    }
+
+    fn name(&self) -> String {
+        self.name.clone().unwrap_or_else(|| {
+            let id = self.id.clone();
+            let name = id
+                .rsplit_once('/')
+                .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
+                .unwrap_or(&id);
+            name.to_title_case()
+        })
+    }
+
+    fn version(&self) -> String {
+        self.plugin
+            .as_ref()
+            .map(|plugin| plugin.version.to_string())
+            .unwrap_or_default()
     }
 
     fn r#type(&self) -> AssistantType {
@@ -106,6 +139,17 @@ impl Assistant for PluginAssistant {
                 guard.as_mut().unwrap()
             }
         };
+
+        //  Prepare the task
+        let mut task = task.clone();
+        if self.content_format.is_some() || self.system_prompt.is_some() {
+            task.prepare(
+                Some(self),
+                self.content_format.as_ref(),
+                self.system_prompt.as_ref(),
+            )
+            .await?;
+        }
 
         // Call the plugin method
         #[derive(Serialize)]

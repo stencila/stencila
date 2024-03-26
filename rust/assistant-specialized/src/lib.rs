@@ -13,32 +13,23 @@ use cached::proc_macro::once;
 use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
-use assistant::common::eyre;
-use assistant::schema::{MessagePart, NodeType};
 use assistant::{
-    codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Result},
+        eyre::{self, bail, eyre, Result},
         glob::glob,
         inflector::Inflector,
         itertools::Itertools,
-        minijinja::{Environment, UndefinedBehavior},
         regex::Regex,
         serde::{de::Error, Deserialize, Deserializer, Serialize},
         serde_yaml, tracing,
     },
     deserialize_option_regex,
+    format::Format,
     merge::Merge,
-    schema::InstructionMessage,
+    schema::{InstructionMessage, MessagePart, NodeType},
     Assistant, AssistantIO, Embeddings, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
     InstructionType,
-};
-
-mod jinja;
-use jinja::{
-    describe_variable, insert_code_chunk_shots, insert_math_block_shots, minijinja_error_to_eyre,
-    to_markdown, trim_end_chars, trim_start_chars,
 };
 
 /// Default preference rank
@@ -242,9 +233,6 @@ pub struct SpecializedAssistant {
     /// respectively.
     format: Option<Format>,
 
-    /// The format to convert the document content into when rendered into the prompt.
-    document_format: Option<Format>,
-
     /// The format to convert the instruction content (if any) into when rendered into the prompt.
     content_format: Option<Format>,
 
@@ -254,10 +242,6 @@ pub struct SpecializedAssistant {
     /// The system prompt of the assistant
     #[serde(skip_deserializing)]
     system_prompt: Option<String>,
-
-    /// The template environment for the system prompt (if any)
-    #[serde(skip_deserializing)]
-    template_env: Option<Environment<'static>>,
 
     /// The maximum number of retries for generating valid nodes
     max_retries: Option<u8>,
@@ -311,8 +295,6 @@ where
     })
 }
 
-const SYSTEM_PROMPT_TEMPLATE_NAME: &str = "system_prompt";
-
 impl SpecializedAssistant {
     // Added for testing
     // TODO: Wrap these in test / debug assertions?
@@ -345,46 +327,17 @@ impl SpecializedAssistant {
         assistant.id = id.to_string();
         assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
 
-        // If the system prompt is blank then make it None
-        let prompt = parts.next().and_then(|prompt| {
+        // If the system prompt is not blank then use it
+        if let Some(prompt) = parts.next() {
             let trimmed = prompt.trim();
-            if trimmed.is_empty() {
-                None
-            } else {
-                Some(trimmed.to_string())
+            if !trimmed.is_empty() {
+                assistant.system_prompt = Some(trimmed.to_string());
             }
-        });
-
-        // If there is a system prompt then instantiate a template environment for it
-        if let Some(prompt) = prompt {
-            assistant.template_env = Some(Self::template_environment(prompt.clone())?);
-            assistant.system_prompt = Some(prompt);
         }
 
         assistant.init()?;
 
         Ok(assistant)
-    }
-
-    /// Create a template environment for rendering prompts
-    fn template_environment(prompt: String) -> Result<Environment<'static>> {
-        let mut env = Environment::new();
-        env.set_undefined_behavior(UndefinedBehavior::Strict);
-
-        env.add_filter("to_markdown", to_markdown);
-
-        env.add_filter("trim_start_chars", trim_start_chars);
-        env.add_filter("trim_end_chars", trim_end_chars);
-
-        env.add_filter("describe_variable", describe_variable);
-
-        env.add_filter("insert_code_chunk_shots", insert_code_chunk_shots);
-        env.add_filter("insert_math_block_shots", insert_math_block_shots);
-
-        env.add_template_owned(SYSTEM_PROMPT_TEMPLATE_NAME, prompt)
-            .map_err(minijinja_error_to_eyre)?;
-
-        Ok(env)
     }
 
     /// Initialize the assistant
@@ -431,72 +384,6 @@ impl SpecializedAssistant {
         let mut merged_options = self.options.clone();
         merged_options.merge(options.clone());
         merged_options
-    }
-
-    /// Prepare a `GenerateTask` with the system prompt, rendered user prompt of
-    /// this assistant, and other details
-    #[tracing::instrument(skip_all)]
-    async fn prepare_task(
-        &self,
-        mut task: GenerateTask,
-        delegate: Option<&dyn Assistant>,
-    ) -> Result<GenerateTask> {
-        if let Some(system_prompt) = &self.system_prompt {
-            task.system_prompt = Some(system_prompt.clone());
-        }
-
-        // Encode document and content with these defaults
-        let encode_options = EncodeOptions {
-            // Do not use compact encodings
-            compact: Some(false),
-            // Reduce log level for losses. Consider further reducing to `Ignore`.
-            losses: LossesResponse::Debug,
-            ..Default::default()
-        };
-        if let Some(nodes) = task.instruction().content() {
-            let mut content = String::new();
-            for node in nodes {
-                content += &codecs::to_string(
-                    &node,
-                    Some(EncodeOptions {
-                        format: self
-                            .content_format
-                            .clone()
-                            .or(self.format.clone())
-                            .or(Some(FORMAT)),
-                        ..encode_options.clone()
-                    }),
-                )
-                .await?;
-            }
-            task.content_formatted = Some(content);
-        }
-
-        // Update other properties of the task related to the delegate (if any)
-        if let Some(delegate) = delegate {
-            // TODO: set task.delegate
-            task.context_length = Some(delegate.context_length());
-        }
-
-        // If the assistant has a template env (and this a system prompt)
-        // then render the prompt with the task as its context
-        if let Some(env) = &self.template_env {
-            let template = env.get_template(SYSTEM_PROMPT_TEMPLATE_NAME)?;
-            let prompt = template
-                .render(&task)
-                .map_err(minijinja_error_to_eyre)?
-                .trim()
-                .to_string();
-
-            tracing::debug!(
-                "Rendered system prompt for assistant `{}`\n\n{prompt}",
-                self.id()
-            );
-
-            task.system_prompt = Some(prompt);
-        }
-
-        Ok(task)
     }
 
     /// Get the first assistant in the list of delegates capable to performing task
@@ -593,19 +480,27 @@ impl Assistant for SpecializedAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        let task = self.merge_task(task);
+        let mut task = self.merge_task(task);
         let options = self.merge_options(options);
+
+        let content_format = self
+            .content_format
+            .clone()
+            .or(self.format.clone())
+            .or(Some(FORMAT));
 
         let output = if options.dry_run {
             // Dry run so just prepare the task but return an empty output
-            let _task = self.prepare_task(task, None).await?;
+            task.prepare(None, content_format.as_ref(), self.system_prompt.as_ref())
+                .await?;
 
             GenerateOutput::empty(self)?
         } else if self.delegates.is_empty() {
             // No delegates, so simply render the template into output.
             // This differs from `options.dry_run` in that the prompt is decoded into nodes
             // (including transformations associated with `expected_nodes`) in the call to `from_text`.
-            let task = self.prepare_task(task, None).await?;
+            task.prepare(None, content_format.as_ref(), self.system_prompt.as_ref())
+                .await?;
             let prompt = task.system_prompt().clone().unwrap_or_default();
 
             GenerateOutput::from_text(self, task.format(), task.instruction(), &options, prompt)
@@ -615,7 +510,12 @@ impl Assistant for SpecializedAssistant {
             let delegate = self.first_available_delegate(&task).await?;
 
             // Update the task, to render template etc based on the delegate, before performing it
-            let mut task = self.prepare_task(task, Some(delegate.as_ref())).await?;
+            task.prepare(
+                Some(delegate.as_ref()),
+                content_format.as_ref(),
+                self.system_prompt.as_ref(),
+            )
+            .await?;
 
             // Try once, and then up to `max_retries`, breaking early if successful
             let max_retries = self.max_retries.unwrap_or(MAX_RETRIES);
@@ -642,7 +542,7 @@ impl Assistant for SpecializedAssistant {
                             parts: vec![MessagePart::Text(format!("Error: {error}").into())],
                             ..Default::default()
                         };
-                        match &mut task.instruction {
+                        match task.instruction_mut() {
                             Instruction::Block(instr) => instr.messages.push(message),
                             Instruction::Inline(instr) => instr.messages.push(message),
                         }

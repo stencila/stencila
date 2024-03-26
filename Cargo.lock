@@ -214,6 +214,7 @@ name = "assistant"
 version = "0.0.0"
 dependencies = [
  "app",
+ "codec-markdown-trait",
  "codecs",
  "common",
  "context",
@@ -279,7 +280,6 @@ dependencies = [
  "assistant-ollama",
  "assistant-openai",
  "cached",
- "codec-markdown-trait",
  "rust-embed",
 ]
 
