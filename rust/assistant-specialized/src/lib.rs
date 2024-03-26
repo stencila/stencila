@@ -251,14 +251,16 @@ pub struct SpecializedAssistant {
     options: GenerateOptions,
 }
 
-fn default_delegates() -> Vec<String> {
+/// Get the default list of delegates
+pub fn default_delegates() -> Vec<String> {
     DELEGATES
         .iter()
         .map(|delegate| delegate.to_string())
         .collect()
 }
 
-fn deserialize_delegates<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+/// Deserialize a list of delegates
+pub fn deserialize_delegates<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -267,6 +269,8 @@ where
     if let Some(mut specified) = Option::<Vec<String>>::deserialize(deserializer)? {
         if let Some("none") = specified.first().map(|id| id.as_str()) {
             return Ok(Vec::new());
+        } else if let Some("default") = specified.first().map(|id| id.as_str()) {
+            return Ok(defaults);
         } else if let Some("only") = specified.last().map(|id| id.as_str()) {
             specified.pop();
         } else {
@@ -277,6 +281,38 @@ where
     } else {
         Ok(defaults)
     }
+}
+
+/// Get the first assistant in the list of delegates capable to performing task
+#[tracing::instrument(skip_all)]
+pub async fn choose_delegate(delegates: &[String], task: &GenerateTask) -> Result<Arc<dyn Assistant>> {
+    for id in delegates {
+        let (provider, _model) = id
+            .split('/')
+            .collect_tuple()
+            .ok_or_else(|| eyre!("Expected delegate assistant name to have a forward slash"))?;
+
+        let list = match provider {
+            "anthropic" => assistant_anthropic::list().await?,
+            "google" => assistant_google::list().await?,
+            "mistral" => assistant_mistral::list().await?,
+            "ollama" => assistant_ollama::list().await?,
+            "openai" => assistant_openai::list().await?,
+            _ => bail!("Unknown assistant provider: {provider}"),
+        };
+
+        if let Some(assistant) = list
+            .into_iter()
+            .find(|assistant| &assistant.id() == id)
+            .take()
+        {
+            if assistant.supports_task(task) {
+                return Ok(assistant);
+            }
+        }
+    }
+
+    bail!("Unable to delegate task, none of the assistants listed in `delegates` are available or capable of performing task: {}", delegates.join(", "))
 }
 
 fn deserialize_option_vec_regex<'de, D>(deserializer: D) -> Result<Option<Vec<Regex>>, D::Error>
@@ -385,38 +421,6 @@ impl SpecializedAssistant {
         merged_options.merge(options.clone());
         merged_options
     }
-
-    /// Get the first assistant in the list of delegates capable to performing task
-    #[tracing::instrument(skip_all)]
-    async fn first_available_delegate(&self, task: &GenerateTask) -> Result<Arc<dyn Assistant>> {
-        for id in &self.delegates {
-            let (provider, _model) = id
-                .split('/')
-                .collect_tuple()
-                .ok_or_else(|| eyre!("Expected delegate assistant name to have a forward slash"))?;
-
-            let list = match provider {
-                "anthropic" => assistant_anthropic::list().await?,
-                "google" => assistant_google::list().await?,
-                "mistral" => assistant_mistral::list().await?,
-                "ollama" => assistant_ollama::list().await?,
-                "openai" => assistant_openai::list().await?,
-                _ => bail!("Unknown assistant provider: {provider}"),
-            };
-
-            if let Some(assistant) = list
-                .into_iter()
-                .find(|assistant| &assistant.id() == id)
-                .take()
-            {
-                if assistant.supports_task(task) {
-                    return Ok(assistant);
-                }
-            }
-        }
-
-        bail!("Unable to delegate task, none of the assistants listed in `delegates` are available or capable of performing task: {}", self.delegates.join(", "))
-    }
 }
 
 #[async_trait]
@@ -507,7 +511,7 @@ impl Assistant for SpecializedAssistant {
                 .await?
         } else {
             // Get the first available assistant to delegate to
-            let delegate = self.first_available_delegate(&task).await?;
+            let delegate = choose_delegate(&self.delegates, &task).await?;
 
             // Update the task, to render template etc based on the delegate, before performing it
             task.prepare(
