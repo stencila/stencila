@@ -1159,12 +1159,12 @@ pub enum AssistantIO {
 /// `supports_generating` and other methods.
 #[async_trait]
 pub trait Assistant: Sync + Send {
-    /// Get the id of the assistant
+    /// Get the name of the assistant
     ///
-    /// This id should be unique amongst assistants. For base assistants which directly
+    /// The name should be unique amongst assistants. For base assistants which directly
     /// use a large language model (as opposed to a custom assistant that delegates)
-    /// the id should follow the pattern <PUBLISHER>/<MODEL>.
-    fn id(&self) -> String;
+    /// the name should follow the pattern <PUBLISHER>/<MODEL>.
+    fn name(&self) -> String;
 
     /// Get the provider of the assistant
     fn r#type(&self) -> AssistantType {
@@ -1174,38 +1174,38 @@ pub trait Assistant: Sync + Send {
     /// Get the name of the publisher of the assistant
     ///
     /// This default implementation returns the title cased name
-    /// before the first forward slash in the id. Derived assistants
+    /// before the first forward slash in the name. Derived assistants
     /// should override if necessary.
     fn publisher(&self) -> String {
-        let id = self.id();
-        let publisher = id
+        let name = self.name();
+        let publisher = name
             .split_once('/')
             .map(|(publisher, ..)| publisher)
-            .unwrap_or(&id);
+            .unwrap_or(&name);
         publisher.to_title_case()
     }
 
-    /// Get the name of the assistant
+    /// Get the title of the assistant
     ///
     /// This default implementation returns the title cased name
-    /// after the last forward slash but before the first dash in the id.
+    /// after the last forward slash but before the first dash in the name.
     /// Derived assistants should override if necessary.
-    fn name(&self) -> String {
-        let id = self.id();
-        let name = id
+    fn title(&self) -> String {
+        let name = self.name();
+        let name = name
             .rsplit_once('/')
             .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
-            .unwrap_or(&id);
+            .unwrap_or(&name);
         name.to_title_case()
     }
 
     /// Get the version of the assistant
     ///
     /// This default implementation returns the version after the
-    /// first dash in the id. Derived assistants should override if necessary.
+    /// first dash in the name. Derived assistants should override if necessary.
     fn version(&self) -> String {
-        let id = self.id();
-        let version = id
+        let name = self.name();
+        let version = name
             .split_once('-')
             .map(|(.., version)| version)
             .unwrap_or_default();
@@ -1231,8 +1231,8 @@ pub trait Assistant: Sync + Send {
     /// only.
     fn to_software_application(&self) -> SoftwareApplication {
         SoftwareApplication {
-            id: Some(self.id()),
-            name: self.name(),
+            id: Some(self.name()),
+            name: self.title(),
             options: Box::new(SoftwareApplicationOptions {
                 version: Some(StringOrNumber::String(self.version())),
                 ..Default::default()
@@ -1247,8 +1247,8 @@ pub trait Assistant: Sync + Send {
     /// of the root `CreativeWork`.
     fn to_software_application_complete(&self) -> SoftwareApplication {
         SoftwareApplication {
-            id: Some(self.id()),
-            name: self.name(),
+            id: Some(self.name()),
+            name: self.title(),
             options: Box::new(SoftwareApplicationOptions {
                 version: Some(StringOrNumber::String(self.version())),
                 publisher: Some(PersonOrOrganization::Organization(Organization {

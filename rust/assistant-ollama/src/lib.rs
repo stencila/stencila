@@ -77,7 +77,7 @@ impl OllamaAssistant {
 
 #[async_trait]
 impl Assistant for OllamaAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         format!("ollama/{}", self.model)
     }
 
@@ -89,21 +89,21 @@ impl Assistant for OllamaAssistant {
         "Ollama".to_string()
     }
 
-    fn name(&self) -> String {
-        let id = self.id();
-        let name = id
+    fn title(&self) -> String {
+        let name = self.name();
+        let name = name
             .rsplit_once('/')
             .map(|(.., name)| name.split_once(':').map_or(name, |(name, ..)| name))
-            .unwrap_or(&id);
+            .unwrap_or(&name);
         name.to_title_case()
     }
 
     fn version(&self) -> String {
-        let id = self.id();
-        let version = id
+        let name = self.name();
+        let version = name
             .split_once(':')
             .map(|(.., version)| version)
-            .unwrap_or(&id);
+            .unwrap_or(&name);
         version.to_string()
     }
 
@@ -148,14 +148,14 @@ impl Assistant for OllamaAssistant {
                             } else {
                                 tracing::warn!(
                                     "Image does not appear to have a DataURI so was ignored by assistant `{}`",
-                                    self.id()
+                                    self.name()
                                 );
                             }
                         }
                         _ => {
                             tracing::warn!(
                                 "Message part `{part}` is ignored by assistant `{}`",
-                                self.id()
+                                self.name()
                             );
                         }
                     }
@@ -193,7 +193,7 @@ impl Assistant for OllamaAssistant {
                     tracing::warn!(
                         "Option `{}` is ignored by assistant `{}` for text-to-text generation",
                         stringify!($name),
-                        self.id()
+                        self.name()
                     )
                 }
             };

@@ -46,7 +46,7 @@ impl MistralAssistant {
 
 #[async_trait]
 impl Assistant for MistralAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         format!("mistral/{}", self.model)
     }
 
@@ -93,7 +93,7 @@ impl Assistant for MistralAssistant {
                         _ => {
                             tracing::warn!(
                                 "Message part of type `{part}` is ignored by assistant `{}`",
-                                self.id()
+                                self.name()
                             );
                             None
                         }
@@ -152,7 +152,7 @@ struct ModelsResponse {
 #[derive(Deserialize)]
 #[serde(crate = "assistant::common::serde")]
 struct Model {
-    id: String,
+    name: String,
 }
 
 /// A chat completion request
@@ -235,9 +235,9 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 
     let assistants = models
         .into_iter()
-        .filter(|model| !model.id.ends_with("-embed"))
-        .sorted_by(|a, b| a.id.cmp(&b.id))
-        .map(|Model { id: model }| {
+        .filter(|model| !model.name.ends_with("-embed"))
+        .sorted_by(|a, b| a.name.cmp(&b.name))
+        .map(|Model { name: model }| {
             let context_length = match model.as_str() {
                 "mistral-tiny" => 4_096,
                 "mistral-small" => 8_192,

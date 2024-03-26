@@ -54,7 +54,7 @@ impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
         table.set_header([
-            "Id",
+            "Name",
             "Provider",
             "Version",
             "Context len.",
@@ -76,7 +76,7 @@ impl List {
                 .join(", ");
 
             table.add_row([
-                Cell::new(assistant.id()).add_attribute(Attribute::Bold),
+                Cell::new(assistant.name()).add_attribute(Attribute::Bold),
                 match assistant.r#type() {
                     AssistantType::Builtin => Cell::new("builtin").fg(Color::Green),
                     AssistantType::Local => Cell::new("local").fg(Color::Cyan),

@@ -46,7 +46,7 @@ impl GoogleAssistant {
 
 #[async_trait]
 impl Assistant for GoogleAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         format!("google/{}", self.model)
     }
 
@@ -113,7 +113,7 @@ impl Assistant for GoogleAssistant {
                             } else {
                                 tracing::warn!(
                                     "Image does not appear to have a DataURI so was ignored by assistant `{}`",
-                                    self.id()
+                                    self.name()
                                 );
                                 None
                             }
@@ -121,7 +121,7 @@ impl Assistant for GoogleAssistant {
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by assistant `{}`",
-                                self.id()
+                                self.name()
                             );
                             None
                         }
@@ -356,7 +356,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
         .filter(|model| !model.name.starts_with("models/embedding-"))
         .sorted_by(|a, b| a.name.cmp(&b.name))
         .map(|model| {
-            let id = model
+            let name = model
                 .name
                 .strip_prefix("models/")
                 .unwrap_or(&model.name)
@@ -364,7 +364,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 
             let context_length = model.input_token_limit.unwrap_or(4_096);
 
-            Arc::new(GoogleAssistant::new(id, context_length)) as Arc<dyn Assistant>
+            Arc::new(GoogleAssistant::new(name, context_length)) as Arc<dyn Assistant>
         })
         .collect();
 

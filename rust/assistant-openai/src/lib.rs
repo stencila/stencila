@@ -67,7 +67,7 @@ impl OpenAIAssistant {
 
 #[async_trait]
 impl Assistant for OpenAIAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         format!("openai/{}", self.model)
     }
 
@@ -79,7 +79,7 @@ impl Assistant for OpenAIAssistant {
         "OpenAI".to_string()
     }
 
-    fn name(&self) -> String {
+    fn title(&self) -> String {
         if self.model.starts_with("gpt") {
             "GPT".to_string()
         } else if self.model.starts_with("tts") {
@@ -134,7 +134,7 @@ impl Assistant for OpenAIAssistant {
                 "{} to {} is not supported by assistant `{}`",
                 task.input(),
                 task.output(),
-                self.id()
+                self.name()
             ),
         }
     }
@@ -192,7 +192,7 @@ impl OpenAIAssistant {
                                     ),
                                     _ => {
                                         tracing::warn!(
-                                            "User message part `{part}` is ignored by assistant `{}`", self.id()
+                                            "User message part `{part}` is ignored by assistant `{}`", self.name()
                                         );
                                         None
                                     }
@@ -213,7 +213,7 @@ impl OpenAIAssistant {
                                     MessagePart::Text(text) => Some(text.to_value_string()),
                                     _ => {
                                         tracing::warn!(
-                                            "Assistant message part `{part}` is ignored by assistant `{}`", self.id()
+                                            "Assistant message part `{part}` is ignored by assistant `{}`", self.name()
                                         );
                                         None
                                     }
@@ -252,7 +252,7 @@ impl OpenAIAssistant {
                     tracing::warn!(
                         "Option `{}` is ignored by assistant `{}` for chat completion",
                         stringify!($name),
-                        self.id()
+                        self.name()
                     )
                 }
             };
@@ -308,7 +308,7 @@ impl OpenAIAssistant {
                         _ => {
                             tracing::warn!(
                                 "Message part `{part}` is ignored by assistant `{}`",
-                                self.id()
+                                self.name()
                             );
                             None
                         }
@@ -375,7 +375,7 @@ impl OpenAIAssistant {
                     tracing::warn!(
                         "Option `{}` is ignored by assistant `{}` for text-to-image generation",
                         stringify!($name),
-                        self.id()
+                        self.name()
                     )
                 }
             };
@@ -520,7 +520,7 @@ mod tests {
         let list = list().await?;
         let assistant = list
             .iter()
-            .find(|assistant| assistant.name().starts_with("GPT"))
+            .find(|assistant| assistant.title().starts_with("GPT"))
             .unwrap();
         let output = assistant
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())

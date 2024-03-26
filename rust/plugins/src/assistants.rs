@@ -87,11 +87,11 @@ impl PluginAssistant {
 
 #[async_trait]
 impl Assistant for PluginAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         self.id.clone()
     }
 
-    fn name(&self) -> String {
+    fn title(&self) -> String {
         self.name.clone().unwrap_or_else(|| {
             let id = self.id.clone();
             let name = id
@@ -174,7 +174,7 @@ impl Assistant for PluginAssistant {
                 .call(
                     "assistant_system_prompt",
                     Params {
-                        assistant: self.id(),
+                        assistant: self.name(),
                         task: task.clone(),
                         options: options.clone(),
                     },
@@ -220,7 +220,7 @@ impl Assistant for PluginAssistant {
                 .call(
                     "assistant_execute",
                     Params {
-                        assistant: self.id(),
+                        assistant: self.name(),
                         task: task.clone(),
                         options: options.clone(),
                     },

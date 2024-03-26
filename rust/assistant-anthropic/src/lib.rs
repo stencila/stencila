@@ -35,7 +35,7 @@ impl AnthropicAssistant {
 
 #[async_trait]
 impl Assistant for AnthropicAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         format!("anthropic/{}", self.model)
     }
 
@@ -84,7 +84,7 @@ impl Assistant for AnthropicAssistant {
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by assistant `{}`",
-                                self.id()
+                                self.name()
                             );
                             None
                         }
