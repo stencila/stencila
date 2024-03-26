@@ -42,8 +42,8 @@ use common::{
     which::which,
 };
 
-use kernels::PluginKernel;
 use assistants::PluginAssistant;
+use kernels::PluginKernel;
 
 use list::{list, ListArgs};
 
@@ -380,10 +380,10 @@ impl Plugin {
     /// Read the plugin from a manifest file
     pub fn read_manifest_from(path: &Path) -> Result<Self> {
         let manifest = std::fs::read_to_string(path)
-            .wrap_err_with(|| eyre!("While reading plugin from `{}`", path.display()))?;
+            .map_err(|error| eyre!("While reading plugin from `{}`: {error}", path.display()))?;
 
         let plugin = toml::from_str(&manifest)
-            .wrap_err_with(|| eyre!("While parsing plugin from `{}`", path.display()))?;
+            .map_err(|error| eyre!("While parsing plugin from `{}`: {error}", path.display()))?;
 
         Ok(plugin)
     }
