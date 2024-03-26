@@ -1,6 +1,6 @@
 [project]
 name = "stencila_plugin"
-version = "2.0.0a28"
+version = "2.0.0a29"
 description = "Library for building Stencila Plugins"
 readme = "README.md"
 authors = [

@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import uuid
+from collections.abc import Sequence
 from typing import Any
 
 import cattrs
@@ -29,7 +30,7 @@ IdType = str | int | None
 ParamsType = list | dict | None
 
 
-# TODO: We should really raise an exception in the python code.
+# TODO: We should really raise exceptions in the python code.
 class RPCErrorCodes:
     """JSON-RPC error codes.
 
@@ -74,7 +75,12 @@ class Plugin:
         self.kernel_instances: dict[KernelId, Kernel] = {}
 
     async def health(self) -> Json:
-        """Minimal check that the plugin runs."""
+        """Get the health of the plugin.
+
+        At present this method is only used to check communication with the
+        plugin. In the future, the expected response object may be used for
+        more detailed statistics about resource usage etc by the plugin.
+        """
         return {
             "timestamp": int(time.time()),
             "status": "OK",
@@ -87,7 +93,9 @@ class Plugin:
 
         uid = uuid.uuid4()
         kernel_id = f"{kernel}-{uid}"
-        self.kernel_instances[kernel_id] = kernel_cls(kernel_id)
+        instance = kernel_cls(kernel_id)
+        self.kernel_instances[kernel_id] = instance
+        await instance.on_start()
 
         return KernelInstance(kernel_id)
 
@@ -110,7 +118,7 @@ class Plugin:
 
     async def kernel_execute(
         self, code: str, instance: str
-    ) -> tuple[list[Node], list[ExecutionMessage]]:
+    ) -> tuple[Sequence[Node], list[ExecutionMessage]]:
         kernel = self.kernel_instances.get(instance)
         if kernel:
             return await kernel.execute(code)
@@ -120,7 +128,7 @@ class Plugin:
 
     async def kernel_evaluate(
         self, code: str, instance: str
-    ) -> tuple[list[Node], list[ExecutionMessage]]:
+    ) -> tuple[Sequence[Node], list[ExecutionMessage]]:
         kernel = self.kernel_instances.get(instance)
         if kernel:
             return await kernel.evaluate(code)
@@ -160,7 +168,6 @@ class Plugin:
             await _listen_stdio(self)
         elif protocol == "http":
             port = int(os.environ.get("STENCILA_PORT", "0"))
-            # TODO: is this safe?
             token = os.environ.get("STENCILA_TOKEN", "")
             await _listen_http(self, port, token)
         else:
