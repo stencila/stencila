@@ -4662,6 +4662,7 @@ version = "0.0.0"
 dependencies = [
  "app",
  "assistant",
+ "assistant-specialized",
  "cli-utils",
  "common",
  "common-dev",
