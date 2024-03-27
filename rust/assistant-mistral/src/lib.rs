@@ -152,7 +152,7 @@ struct ModelsResponse {
 #[derive(Deserialize)]
 #[serde(crate = "assistant::common::serde")]
 struct Model {
-    name: String,
+    id: String,
 }
 
 /// A chat completion request
@@ -235,9 +235,9 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 
     let assistants = models
         .into_iter()
-        .filter(|model| !model.name.ends_with("-embed"))
-        .sorted_by(|a, b| a.name.cmp(&b.name))
-        .map(|Model { name: model }| {
+        .filter(|model| !model.id.ends_with("-embed"))
+        .sorted_by(|a, b| a.id.cmp(&b.id))
+        .map(|Model { id: model }| {
             let context_length = match model.as_str() {
                 "mistral-tiny" => 4_096,
                 "mistral-small" => 8_192,
