@@ -32,7 +32,7 @@ async fn local_get_assistant(itype: InstructionType, text: String) -> Result<(St
     };
     let assistant = get_assistant(&mut task).await?;
     let score = assistant.suitability_score(&mut task)?;
-    Ok((assistant.id(), score))
+    Ok((assistant.name(), score))
 }
 
 fn short_name(id: &str) -> String {
@@ -49,7 +49,7 @@ async fn check_we_get_the_right_assistant() -> Result<()> {
         assistant_specialized::list_builtin_as_specialized()?
             .into_iter()
             // Remove "stencila/"
-            .map(|a| (short_name(&a.id()), a))
+            .map(|a| (short_name(&a.name()), a))
             .collect();
 
     let file_content =
@@ -118,9 +118,9 @@ fn ensure_instruction_examples_are_distinct() -> Result<()> {
             println!(
                 "{:.4} | {}: `{}` --- {}: `{}`",
                 Embeddings::calculate_similarity(v1, v2),
-                short_name(&a1.id()),
+                short_name(&a1.name()),
                 t1,
-                short_name(&a2.id()),
+                short_name(&a2.name()),
                 t2,
             );
         }

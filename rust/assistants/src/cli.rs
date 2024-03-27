@@ -8,7 +8,7 @@ use assistant::{
     context::Context,
     format::Format,
     schema::{InstructionBlock, InstructionMessage},
-    AssistantType, GenerateOptions,
+    AssistantAvailability, AssistantType, GenerateOptions,
 };
 use cli_utils::{
     table::{self, Attribute, Cell, CellAlignment, Color},
@@ -54,7 +54,7 @@ impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
         table.set_header([
-            "Id",
+            "Name",
             "Provider",
             "Version",
             "Context len.",
@@ -63,6 +63,9 @@ impl List {
         ]);
 
         for assistant in super::list().await {
+            use AssistantAvailability::*;
+            let availability = assistant.availability();
+
             let inputs = assistant
                 .supported_inputs()
                 .iter()
@@ -76,7 +79,7 @@ impl List {
                 .join(", ");
 
             table.add_row([
-                Cell::new(assistant.id()).add_attribute(Attribute::Bold),
+                Cell::new(assistant.name()).add_attribute(Attribute::Bold),
                 match assistant.r#type() {
                     AssistantType::Builtin => Cell::new("builtin").fg(Color::Green),
                     AssistantType::Local => Cell::new("local").fg(Color::Cyan),
@@ -85,7 +88,15 @@ impl List {
                         Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
                     }
                 },
-                Cell::new(assistant.version()),
+                match availability {
+                    Available => Cell::new(assistant.version()),
+                    _ => match availability {
+                        Available => Cell::new(availability).fg(Color::Green),
+                        Disabled => Cell::new(availability).fg(Color::DarkBlue),
+                        Installable => Cell::new(availability).fg(Color::Cyan),
+                        Unavailable => Cell::new(availability).fg(Color::Grey),
+                    },
+                },
                 match assistant.context_length() {
                     0 => Cell::new(""),
                     _ => Cell::new(assistant.context_length()).set_alignment(CellAlignment::Right),

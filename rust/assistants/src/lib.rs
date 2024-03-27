@@ -46,7 +46,7 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
         .flatten()
         .sorted_by(
             |a, b| match a.preference_rank().cmp(&b.preference_rank()).reverse() {
-                Ordering::Equal => a.id().cmp(&b.id()),
+                Ordering::Equal => a.name().cmp(&b.name()),
                 ordering => ordering,
             },
         )
@@ -78,7 +78,7 @@ pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>
     let assistants = list().await;
 
     let assistant = if let Some(assignee) = task.instruction().assignee() {
-        let id = if assignee.contains('/') {
+        let name = if assignee.contains('/') {
             assignee.to_string()
         } else {
             ["stencila/", assignee].concat()
@@ -86,15 +86,15 @@ pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>
 
         let assistant = assistants
             .iter()
-            .find(|assistant| assistant.id() == id)
-            .ok_or_else(|| eyre!("No assistant with id `{id}`"))?;
+            .find(|assistant| assistant.name() == name)
+            .ok_or_else(|| eyre!("No assistant with name `{name}`"))?;
 
         // Check that the assignee supports the task
         if !assistant.supports_task(task) {
-            bail!("The assigned assistant `{id}` does not support this task")
+            bail!("The assigned assistant `{name}` does not support this task")
         }
 
-        tracing::debug!("Using assistant with id: {}", assistant.id());
+        tracing::debug!("Using assistant with name: {}", assistant.name());
         assistant
     } else {
         // It is tempting to use the position_max iterator method here but, in the case of
@@ -119,7 +119,7 @@ pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>
 
         tracing::debug!(
             "Found assistant `{}`, with best score {}",
-            assistant.id(),
+            assistant.name(),
             max
         );
         assistant

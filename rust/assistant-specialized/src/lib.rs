@@ -285,7 +285,10 @@ where
 
 /// Get the first assistant in the list of delegates capable to performing task
 #[tracing::instrument(skip_all)]
-pub async fn choose_delegate(delegates: &[String], task: &GenerateTask) -> Result<Arc<dyn Assistant>> {
+pub async fn choose_delegate(
+    delegates: &[String],
+    task: &GenerateTask,
+) -> Result<Arc<dyn Assistant>> {
     for id in delegates {
         let (provider, _model) = id
             .split('/')
@@ -303,7 +306,7 @@ pub async fn choose_delegate(delegates: &[String], task: &GenerateTask) -> Resul
 
         if let Some(assistant) = list
             .into_iter()
-            .find(|assistant| &assistant.id() == id)
+            .find(|assistant| &assistant.name() == id)
             .take()
         {
             if assistant.supports_task(task) {
@@ -425,7 +428,7 @@ impl SpecializedAssistant {
 
 #[async_trait]
 impl Assistant for SpecializedAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         self.id.clone()
     }
 
@@ -433,8 +436,8 @@ impl Assistant for SpecializedAssistant {
         AssistantType::Builtin
     }
 
-    fn name(&self) -> String {
-        let id = self.id();
+    fn title(&self) -> String {
+        let id = self.name();
         let name = id.rsplit_once('/').map(|(.., name)| name).unwrap_or(&id);
         name.to_title_case()
     }

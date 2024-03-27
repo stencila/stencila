@@ -46,7 +46,7 @@ impl MistralAssistant {
 
 #[async_trait]
 impl Assistant for MistralAssistant {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         format!("mistral/{}", self.model)
     }
 
@@ -93,7 +93,7 @@ impl Assistant for MistralAssistant {
                         _ => {
                             tracing::warn!(
                                 "Message part of type `{part}` is ignored by assistant `{}`",
-                                self.id()
+                                self.name()
                             );
                             None
                         }

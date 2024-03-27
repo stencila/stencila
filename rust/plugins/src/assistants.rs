@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use assistant::{
-    format::Format, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput,
-    GenerateTask,
+    format::Format, Assistant, AssistantAvailability, AssistantIO, AssistantType, GenerateOptions,
+    GenerateOutput, GenerateTask,
 };
 use assistant_specialized::{choose_delegate, deserialize_delegates};
 use common::{
@@ -13,19 +13,19 @@ use common::{
     tokio::sync::Mutex,
 };
 
-use crate::{plugins, Plugin, PluginInstance};
+use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 
 /// A assistant provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct PluginAssistant {
-    /// The id of the assistant
-    id: String,
+    /// The name of the assistant
+    name: String,
 
     /// The name of the assistant
     ///
-    /// Will be extracted from the id if not supplied
-    name: Option<String>,
+    /// Will be extracted from the name if not supplied
+    title: Option<String>,
 
     /// A description of the assistant
     description: Option<String>,
@@ -87,26 +87,8 @@ impl PluginAssistant {
 
 #[async_trait]
 impl Assistant for PluginAssistant {
-    fn id(&self) -> String {
-        self.id.clone()
-    }
-
     fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| {
-            let id = self.id.clone();
-            let name = id
-                .rsplit_once('/')
-                .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
-                .unwrap_or(&id);
-            name.to_title_case()
-        })
-    }
-
-    fn version(&self) -> String {
-        self.plugin
-            .as_ref()
-            .map(|plugin| plugin.version.to_string())
-            .unwrap_or_default()
+        self.name.clone()
     }
 
     fn r#type(&self) -> AssistantType {
@@ -120,6 +102,45 @@ impl Assistant for PluginAssistant {
             }
             None => AssistantType::Plugin("unknown".to_string()),
         }
+    }
+
+    fn availability(&self) -> AssistantAvailability {
+        match &self.plugin {
+            Some(plugin) => match plugin.availability() {
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::Yes,
+                ) => AssistantAvailability::Available,
+
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::No,
+                ) => AssistantAvailability::Disabled,
+
+                (PluginStatus::Installable, _) => AssistantAvailability::Installable,
+
+                _ => AssistantAvailability::Unavailable,
+            },
+            None => AssistantAvailability::Unavailable,
+        }
+    }
+
+    fn title(&self) -> String {
+        self.title.clone().unwrap_or_else(|| {
+            let id = self.name.clone();
+            let name = id
+                .rsplit_once('/')
+                .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
+                .unwrap_or(&id);
+            name.to_title_case()
+        })
+    }
+
+    fn version(&self) -> String {
+        self.plugin
+            .as_ref()
+            .map(|plugin| plugin.version.to_string())
+            .unwrap_or_default()
     }
 
     fn supported_inputs(&self) -> &[AssistantIO] {
@@ -174,7 +195,7 @@ impl Assistant for PluginAssistant {
                 .call(
                     "assistant_system_prompt",
                     Params {
-                        assistant: self.id(),
+                        assistant: self.name(),
                         task: task.clone(),
                         options: options.clone(),
                     },
@@ -208,7 +229,7 @@ impl Assistant for PluginAssistant {
             // Get delegate to perform the task
             delegate.perform_task(&task, options).await?
         } else {
-            // Call the plugin assistant's `execute` method
+            // Call the plugin assistant's `perform_task` method
             #[derive(Serialize)]
             #[serde(crate = "common::serde")]
             struct Params {
@@ -218,9 +239,9 @@ impl Assistant for PluginAssistant {
             }
             instance
                 .call(
-                    "assistant_execute",
+                    "assistant_perform_task",
                     Params {
-                        assistant: self.id(),
+                        assistant: self.name(),
                         task: task.clone(),
                         options: options.clone(),
                     },
