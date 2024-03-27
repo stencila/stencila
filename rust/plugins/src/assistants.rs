@@ -208,7 +208,7 @@ impl Assistant for PluginAssistant {
             // Get delegate to perform the task
             delegate.perform_task(&task, options).await?
         } else {
-            // Call the plugin assistant's `execute` method
+            // Call the plugin assistant's `perform_task` method
             #[derive(Serialize)]
             #[serde(crate = "common::serde")]
             struct Params {
@@ -218,7 +218,7 @@ impl Assistant for PluginAssistant {
             }
             instance
                 .call(
-                    "assistant_execute",
+                    "assistant_perform_task",
                     Params {
                         assistant: self.name(),
                         task: task.clone(),
