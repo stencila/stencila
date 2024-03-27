@@ -34,7 +34,7 @@ export class UiNodeOutputs extends LitElement {
         .collapsed=${false}
       >
         <span slot="title">Outputs</span>
-        <div slot="content" class="px-6 py-3 flex flex-col gap-y-1">
+        <div slot="content" class="px-4 py-3 flex flex-col gap-y-1">
           <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>

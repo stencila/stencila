@@ -22,7 +22,7 @@ export class Boolean extends Entity {
   private bodyStyles = apply([
     'flex justify-center',
     'w-full',
-    'py-2 px-6',
+    'py-2 px-4',
     'font-bold font-mono',
   ])
 

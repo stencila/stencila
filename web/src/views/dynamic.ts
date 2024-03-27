@@ -7,7 +7,7 @@ import type { DocumentId, DocumentAccess } from '../types'
 
 import '../nodes'
 
-import { outputCSS } from './styles/outputs'
+import { outputCSS } from './styles/global-styles'
 
 /**
  * Dynamic view of a document
