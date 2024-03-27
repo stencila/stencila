@@ -19,6 +19,13 @@ from stencila_types.types import (
     Variable,
 )
 
+from .assistant import (
+    Assistant,
+    AssistantId,
+    GenerateOptions,
+    GenerateOutput,
+    GenerateTask,
+)
 from .kernel import Kernel, KernelId, KernelInstance, KernelName
 
 # https://github.com/kevinheavey/jsonalias
@@ -60,19 +67,28 @@ def _error(msg_id: IdType, code: int, message: str) -> Json:  # noqa: A002
     }
 
 
-@beartype
+# @beartype
 class Plugin:
     """A Stencila plugin.
 
     This routes the requests to the Kernel instances (and other APIs that are coming).
     """
 
-    def __init__(self, kernels: list[type[Kernel]] | None = None):
+    def __init__(
+        self,
+        kernels: list[type[Kernel]] | None = None,
+        assistants: list[type[Assistant]] | None = None,
+    ):
         kernels = kernels or []
         self.kernels: dict[KernelName, type[Kernel]] = {
             k.get_name(): k for k in kernels
         }
         self.kernel_instances: dict[KernelId, Kernel] = {}
+
+        # TODO: Maybe we should do this on demand?
+        self.assistants: dict[AssistantId, Assistant] = (
+            {cls.get_name(): cls() for cls in assistants} if assistants else {}
+        )
 
     async def health(self) -> Json:
         """Get the health of the plugin.
@@ -157,6 +173,29 @@ class Plugin:
         kernel = self.kernel_instances.get(instance)
         if kernel:
             await kernel.remove_variable(name)
+
+        kernel = self.kernel_instances.get(instance)
+        if kernel:
+            await kernel.remove_variable(name)
+
+    async def assistant_system_prompt(
+        self, task: GenerateTask, options: GenerateOptions, assistant: AssistantId
+    ) -> str | None:
+        instance = self.assistants.get(assistant)
+        # Error?
+        if instance is None:
+            return None
+        return await instance.system_prompt(task, options)
+
+    async def assistant_execute(
+        self, task: dict[str, Any], options: GenerateOptions, assistant: AssistantId
+    ) -> GenerateOutput:
+        instance = self.assistants.get(assistant)
+        if instance is None:
+            return GenerateOutput(content="ERROR")
+
+        dtask = cattrs.structure(task, GenerateTask)
+        return await instance.execute(dtask, options)
 
     async def run(self) -> None:
         """Invoke the plugin.
