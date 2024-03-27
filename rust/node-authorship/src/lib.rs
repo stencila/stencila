@@ -31,7 +31,8 @@ impl Authorship {
                             if current_author_role.author == author_role.author
                                 && current_author_role.role_name == author_role.role_name
                             {
-                                current_author_role.last_modified = author_role.last_modified.clone();
+                                current_author_role.last_modified =
+                                    author_role.last_modified.clone();
                                 updated = true;
                                 break;
                             }
