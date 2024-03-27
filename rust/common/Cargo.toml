@@ -9,7 +9,7 @@ async-recursion = "1.1.0"
 async-trait = "0.1.79"
 base64 = "0.22.0"
 bs58 = "0.5.1"
-chrono = { version = "0.4.35", features = ["serde"] }
+chrono = { version = "0.4.37", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive", "color"] }
 derivative = "2.2.0"
 derive_more = "0.99.17"
