@@ -81,7 +81,7 @@
     "@lezer/markdown": "1.2.0",
     "@lit-labs/observers": "2.0.2",
     "@lit/context": "1.1.0",
-    "@shoelace-style/shoelace": "2.14.0",
+    "@shoelace-style/shoelace": "2.15.0",
     "@stencila/types": "2.0.0-alpha.25",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "0.5.10",
