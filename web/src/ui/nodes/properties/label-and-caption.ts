@@ -38,7 +38,7 @@ export class UINodeExecutionDuration extends LitElement {
       text += ` ${this.label} `
     }
 
-    return html`<div class="p-3">
+    return html`<div class="px-4">
       <span class="font-bold">${text}</span>
       <slot name="caption"></slot>
     </div>`

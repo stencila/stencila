@@ -56,7 +56,7 @@ export class Chevron extends LitElement {
 
     return html`
       <button
-        class="${this.customClass} cursor-pointer"
+        class="${this.customClass} cursor-pointer leading-[0px]"
         @click=${(e: Event) => {
           this.changePosition()
           this.clickEvent(e)

@@ -63,7 +63,7 @@ export class UINodeExecutionDetails extends LitElement {
     const classes = apply([
       'flex flex-col gap-3',
       'text-xs leading-tight',
-      'py-2 px-6',
+      'py-1.5 px-4',
       `bg-[${borderColour}]`,
       'border-t border-b border-black/20',
     ])

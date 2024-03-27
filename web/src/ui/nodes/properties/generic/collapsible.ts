@@ -29,14 +29,14 @@ export class UINodeCollapsibleProperty extends LitElement {
     const { borderColour: headerBg } = nodeUi(this.type)
 
     const contentClasses = apply([
-      this.collapsed ? 'max-h-0' : 'max-h-[1500px]',
+      this.collapsed ? 'max-h-0 overflow-hidden' : 'max-h-[150000px]',
       'transition-max-h duration-200',
     ])
 
     return html`
-      <div class=${`overflow-hidden ${this.wrapperCSS ?? ''}`}>
+      <div class=${`${this.wrapperCSS ?? ''}`}>
         <div
-          class=${`flex flex-row items-center px-6 py-3 cursor-pointer ${headerBg ? `bg-[${headerBg}]` : ''}`}
+          class=${`flex flex-row items-center px-4 py-1.5 cursor-pointer ${headerBg ? `bg-[${headerBg}]` : ''}`}
           @click=${() => (this.collapsed = !this.collapsed)}
         >
           ${this.iconName &&
@@ -46,7 +46,7 @@ export class UINodeCollapsibleProperty extends LitElement {
             class="text-base"
           ></sl-icon>`}
 
-          <div class=${`grow select-none ${this.iconName && 'ml-4'}`}>
+          <div class=${`grow select-none text-sm ${this.iconName && 'ml-4'}`}>
             <slot name="title"></slot>
           </div>
           <stencila-chevron-button

@@ -48,6 +48,12 @@ export class UINodeCard extends LitElement {
   toggle: boolean = false
 
   /**
+   * If we encounter no content is in the slot, we need to hide the content area.
+   */
+  @state()
+  showContent: boolean = true
+
+  /**
    * Internal copy of the ui attributes.
    */
   private ui: ReturnType<typeof nodeUi> | undefined = undefined
@@ -61,20 +67,30 @@ export class UINodeCard extends LitElement {
     this.ui = nodeUi(this.type)
   }
 
+  protected override firstUpdated() {
+    const slot: HTMLSlotElement = this.renderRoot.querySelector(
+      'slot[name="content"]'
+    )
+
+    if (slot) {
+      this.showContent = slot.assignedElements({ flatten: true }).length !== 0
+    }
+  }
+
   override render() {
     const cardStyles = apply([
       'group',
       'transition duration-400',
       'border border-[transparent]',
       this.display && 'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
+      this.view === 'source' ? 'flex flex-col h-full' : '',
       this.display === 'on-demand' &&
         this.toggle &&
         `border-[${this.ui.borderColour}]`,
     ])
 
     const contentStyles = apply([
-      'flex',
+      this.showContent ? 'flex' : 'hidden',
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
@@ -84,11 +100,7 @@ export class UINodeCard extends LitElement {
 
     return html` <div class=${`${cardStyles}`}>
       <div class="relative">
-        <stencila-ui-collapsible-animation
-          class=${this.toggle || this.display === 'auto' ? 'opened' : ''}
-        >
-          ${this.renderHeader()} ${this.renderBody()}
-        </stencila-ui-collapsible-animation>
+        ${this.renderAnimation()}
         <div class=${contentStyles}>
           ${this.renderChip()}
           <div class="inline grow">
@@ -99,13 +111,25 @@ export class UINodeCard extends LitElement {
     </div>`
   }
 
+  private renderAnimation() {
+    if (this.display === 'on-demand') {
+      return html`<stencila-ui-collapsible-animation
+        class=${this.toggle ? 'opened' : ''}
+      >
+        ${this.renderHeader()} ${this.renderBody()}
+      </stencila-ui-collapsible-animation>`
+    }
+
+    return html`${this.renderHeader()} ${this.renderBody()}`
+  }
+
   private renderHeader() {
     const { iconLibrary, icon, title, borderColour } = this.ui
 
     const headerStyles = apply([
       'flex items-center',
       'w-full',
-      'px-6 py-3',
+      'px-4 py-1',
       'gap-x-2',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}]`,

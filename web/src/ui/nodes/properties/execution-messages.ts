@@ -36,7 +36,7 @@ export class UINodeExecutionMessages extends LitElement {
         ?collapsed=${this.warningCount + this.errorCount == 0}
       >
         <div slot="title" class="flex justify-between mr-2">
-          <span>Messages</span>
+          <span class="text-sm">Messages</span>
           <div class="flex">
             ${this.warningCount > 0
               ? this.renderLozenge('Warning', this.warningCount)
@@ -60,7 +60,7 @@ export class UINodeExecutionMessages extends LitElement {
     const styles = apply([
       'flex items-center',
       `bg-[${nodeColour}]`,
-      `text-sm text-${colour}`,
+      `text-xs text-${colour}`,
       'px-1.5 ml-1',
       'rounded-full',
     ])
