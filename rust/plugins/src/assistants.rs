@@ -19,13 +19,13 @@ use crate::{plugins, Plugin, PluginInstance};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct PluginAssistant {
-    /// The id of the assistant
-    id: String,
+    /// The name of the assistant
+    name: String,
 
     /// The name of the assistant
     ///
-    /// Will be extracted from the id if not supplied
-    name: Option<String>,
+    /// Will be extracted from the name if not supplied
+    title: Option<String>,
 
     /// A description of the assistant
     description: Option<String>,
@@ -88,12 +88,12 @@ impl PluginAssistant {
 #[async_trait]
 impl Assistant for PluginAssistant {
     fn name(&self) -> String {
-        self.id.clone()
+        self.name.clone()
     }
 
     fn title(&self) -> String {
-        self.name.clone().unwrap_or_else(|| {
-            let id = self.id.clone();
+        self.title.clone().unwrap_or_else(|| {
+            let id = self.name.clone();
             let name = id
                 .rsplit_once('/')
                 .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
