@@ -18,7 +18,12 @@ impl Executable for IfBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(&node_id) {
+        if !executor.should_execute_code(
+            &node_id,
+            &self.auto_exec,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
             tracing::debug!("Skipping IfBlock {node_id}");
 
             return WalkControl::Break;

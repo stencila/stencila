@@ -97,11 +97,10 @@ pub struct StyledInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub css: Option<String>,
 
-    /// A list of class names associated with the node.
-    #[serde(alias = "class")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    /// A space separated list of class names associated with the node.
+    #[serde(alias = "class-list", alias = "class_list")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub classes: Option<Vec<String>>,
+    pub class_list: Option<String>,
 }
 
 impl StyledInline {

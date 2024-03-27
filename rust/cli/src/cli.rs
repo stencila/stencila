@@ -8,7 +8,6 @@ use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, Args, Parser, Subcommand},
     eyre::{eyre, Result},
-    itertools::Itertools,
     tokio::{self},
     tracing,
 };
@@ -257,6 +256,26 @@ enum Command {
         strip_options: StripOptions,
     },
 
+    /// Compile a document
+    Compile {
+        /// The path of the file to execute
+        ///
+        /// If not supplied the input content is read from `stdin`.
+        input: PathBuf,
+
+        /// The path of the file to write the compiled document to
+        ///
+        /// If not supplied the output content is written to `stdout`.
+        output: Option<PathBuf>,
+
+        /// The format to encode to (or codec to use)
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the `output`. If no `output` is supplied, defaults to JSON.
+        #[arg(long, short)]
+        to: Option<String>,
+    },
+
     /// Execute a document
     #[command(alias = "exec")]
     Execute {
@@ -284,9 +303,7 @@ enum Command {
     /// Serve
     Serve(ServeOptions),
 
-    /// List the available AI assistants
-    Assistants,
-
+    Assistants(assistants::cli::Cli),
     Kernels(kernels::cli::Cli),
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
@@ -587,6 +604,28 @@ impl Cli {
                 }
             }
 
+            Command::Compile { input, output, to } => {
+                let doc = Document::open(&input).await?;
+                doc.compile(true).await?;
+
+                let format = to.map(|to| Format::from_name(&to));
+
+                let content = doc
+                    .export(
+                        output.as_deref(),
+                        Some(codecs::EncodeOptions {
+                            format: format.clone(),
+                            ..Default::default()
+                        }),
+                    )
+                    .await?;
+
+                if !content.is_empty() {
+                    let format = format.unwrap_or(Format::Json);
+                    Code::new(format, &content).to_stdout();
+                }
+            }
+
             Command::Execute {
                 input,
                 output,
@@ -594,7 +633,8 @@ impl Cli {
                 options,
             } => {
                 let doc = Document::open(&input).await?;
-                doc.execute(options).await?;
+                doc.compile(true).await?;
+                doc.execute(options, true).await?;
 
                 let format = to.map(|to| Format::from_name(&to));
 
@@ -616,47 +656,7 @@ impl Cli {
 
             Command::Serve(options) => serve(options).await?,
 
-            Command::Assistants => {
-                let assistants = assistants::list().await;
-
-                if assistants.is_empty() {
-                    println!("There are no assistants available. Perhaps you need to set some environment variables with API keys?")
-                } else {
-                    println!(
-                        "{:<35} {:<12} {:<30} {:<24} {:>12} {:>5} {:>12} {:>12}",
-                        "Id",
-                        "Publisher",
-                        "Name",
-                        "Version",
-                        "Context len.",
-                        "Pref.",
-                        "Inputs",
-                        "Outputs"
-                    );
-                    for assistant in assistants {
-                        println!(
-                            "{:<35} {:<12} {:<30} {:<24} {:>12} {:>5} {:>12} {:>12}",
-                            assistant.id(),
-                            assistant.publisher(),
-                            assistant.name(),
-                            assistant.version(),
-                            assistant.context_length(),
-                            assistant.preference_rank(),
-                            assistant
-                                .supported_inputs()
-                                .iter()
-                                .map(|input| input.to_string())
-                                .join(", "),
-                            assistant
-                                .supported_outputs()
-                                .iter()
-                                .map(|output| output.to_string())
-                                .join(", "),
-                        )
-                    }
-                }
-            }
-
+            Command::Assistants(assistants) => assistants.run().await?,
             Command::Kernels(kernels) => kernels.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,

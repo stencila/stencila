@@ -67,9 +67,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "dom": {
-        "elem": "code"
-      },
       "html": {
         "content": true
       },

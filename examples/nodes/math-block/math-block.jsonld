@@ -10,7 +10,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A TeX block."
+          "value": "A TeX block:"
         }
       ]
     },
@@ -24,7 +24,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An ASCIIMath block."
+          "value": "An AsciiMath block:"
         }
       ]
     },
@@ -38,13 +38,13 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A MathML block."
+          "value": "A MathML block:"
         }
       ]
     },
     {
       "@type": "stencila:MathBlock",
-      "stencila:code": "<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>",
+      "stencila:code": "<math display=\"block\"><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>",
       "stencila:mathLanguage": "mathml"
     }
   ]

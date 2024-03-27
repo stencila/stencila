@@ -1,0 +1,98 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with a static style using Tailwind classes:"
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": " bg-indigo-100 rounded border border-indigo-400 p-3 text-indigo-800 ",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Indigo background, border and text."
+            }
+          ]
+        }
+      ],
+      "css": ".styled{& .bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity))}& .rounded{border-radius:.25rem}& .border{border-width:1px}& .border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248/var(--tw-border-opacity))}& .p-3{padding:.75rem}& .text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163/var(--tw-text-opacity))}}",
+      "classList": "bg-indigo-100 rounded border border-indigo-400 p-3 text-indigo-800"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with a static style using CSS:"
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": " background-color:#fce7f3; color:#9d174d; padding:0.75rem ",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Pink background and text."
+            }
+          ]
+        }
+      ],
+      "css": ".styled{background-color:#fce7f3;color:#9d174d;padding:.75rem}",
+      "classList": ""
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with a style with a syntax error:"
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": " background-color: ",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Not styled because syntax error in style specification."
+            }
+          ]
+        }
+      ],
+      "css": ".styled{background-color:}",
+      "classList": ""
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1711242582934,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 26,
+    "timeUnit": "Millisecond"
+  }
+}

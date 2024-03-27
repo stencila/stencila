@@ -12,3 +12,7 @@ For each kernel, assigns an array in a `CodeChunk` and then iterates over it in 
 ## `nested-python.md`
 
 Has a `ForBlock` nested within another. Tests that this executes as expected.
+
+## `otherwise-js.md`
+
+Has a `ForBlock` with an `otherwise` property - content that will be shown if there are no items in the iterator. Tests that the otherwise property is compiled, and executed, if there are no items.

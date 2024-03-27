@@ -1,20 +1,22 @@
 <article>
   <p>
-    <span>With a number output:</span>
+    <span>With a number output</span>
     <stencila-code-expression code='6 * 7' programming-language='python'>
       <span slot='output'>
         <stencila-integer>42</stencila-integer>
       </span>
     </stencila-code-expression>
+    <span>.</span>
   </p>
   <p>
-    <span>With a string output:</span>
+    <span>With a string output</span>
     <stencila-code-expression code='a string' programming-language='python'>
       <span slot='output'>a string</span>
     </stencila-code-expression>
+    <span>.</span>
   </p>
   <p>
-    <span>With an array output:</span>
+    <span>With an array output</span>
     <stencila-code-expression code='[1, 2, 3]' programming-language='python'>
       <span slot='output'>
         <stencila-array>
@@ -30,9 +32,10 @@
         </stencila-array>
       </span>
     </stencila-code-expression>
+    <span>.</span>
   </p>
   <p>
-    <span>With an object output:</span>
+    <span>With an object output</span>
     <stencila-code-expression code='dict(a=1,b=dict())' programming-language='python'>
       <span slot='output'>
         <stencila-object>
@@ -46,15 +49,18 @@
         </stencila-object>
       </span>
     </stencila-code-expression>
+    <span>.</span>
   </p>
   <p>
-    <span>With no language:</span>
+    <span>With no language specified and no output</span>
     <stencila-code-expression code='a + b'>
     </stencila-code-expression>
+    <span>.</span>
   </p>
   <p>
-    <span>With automatic execution behavior specified</span>
+    <span>With automatic execution behavior specified and no output</span>
     <stencila-code-expression auto-exec='Never' code='c * d' programming-language='javascript'>
     </stencila-code-expression>
+    <span>.</span>
   </p>
 </article>

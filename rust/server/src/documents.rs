@@ -80,6 +80,7 @@ impl Documents {
         }
 
         let doc = Document::open(path).await?;
+        doc.compile(false).await?;
 
         if let Some(direction) = sync {
             doc.sync_file(path, direction, None, None).await?;
@@ -493,7 +494,9 @@ async fn command_document(
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
-    doc.command(command).await.map_err(InternalError::new)?;
+    doc.command(command, false)
+        .await
+        .map_err(InternalError::new)?;
 
     Ok(StatusCode::OK.into_response())
 }

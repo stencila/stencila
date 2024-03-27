@@ -48,9 +48,6 @@
     "message": {
       "@id": "stencila:message",
       "description": "The text of the message.",
-      "dom": {
-        "elem": "pre"
-      },
       "type": "string"
     },
     "errorType": {
@@ -71,7 +68,7 @@
         "code_location"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "$ref": "CodeLocation.schema.json"
     },
@@ -83,9 +80,6 @@
         "stack-trace",
         "stack_trace"
       ],
-      "dom": {
-        "elem": "pre"
-      },
       "type": "string"
     }
   }

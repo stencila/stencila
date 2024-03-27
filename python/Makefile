@@ -1,56 +1,31 @@
 all: fix audit test build
 
-# Install dependencies
-poetry.lock: pyproject.toml
-	poetry install --sync
-	touch poetry.lock
+install:
+	make -C stencila install
+	make -C stencila_types install
+	make -C stencila_plugin install
 
-# Install alias for consistency
-install: poetry.lock
+lint:
+	make -C stencila lint
+	make -C stencila_types lint
+	make -C stencila_plugin lint
 
-# Make formatting and linting fixes
-fix: poetry.lock
-	poetry run black python --exclude types
+audit:
+	make -C stencila audit
+	make -C stencila_types audit
+	make -C stencila_plugin audit
 
-# Run linting checks
-lint: poetry.lock
-	poetry run black python --exclude types --check --diff
+test:
+	make -C stencila test
+	make -C stencila_types test
+	make -C stencila_plugin test
 
-# Run tests
-test: poetry.lock
-	poetry run maturin develop
-	poetry run pytest
+build:
+	make -C stencila build
+	make -C stencila_types build
+	make -C stencila_plugin build
 
-# Run tests with coverage
-cover: poetry.lock
-	poetry run maturin develop
-	poetry run coverage run -m pytest
-	poetry run coverage lcov
-
-# Run benchmarks with local release build
-bench: poetry.lock
-	poetry run maturin develop --release
-	poetry run pytest --benchmark-json benchmarks.json
-
-# Build the Python module in debug mode and open a python shell to
-# import it and try it out in
-run: poetry.lock
-	poetry run maturin develop
-	poetry run python
-
-# List outdated dependencies
-outdated:
-	poetry show --outdated
-	cargo outdated -d 1
-
-# Audit dependencies
-audit: poetry.lock
-	poetry run pip-audit
-
-# Build Python wheel for distribution
-# This is intended to be close the 'Build wheel' step in the `release.yml` workflow
-build: poetry.lock
-	poetry run maturin build --release --out dist --interpreter 3.8 3.9 3.10 3.11 3.12
-
-clean:
-	rm -rf .pytest_cache python/stencila/_stencila.*
+fix:
+	make -C stencila fix
+	make -C stencila_types fix
+	make -C stencila_plugin fix

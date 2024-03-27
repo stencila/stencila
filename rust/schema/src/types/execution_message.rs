@@ -26,7 +26,6 @@ pub struct ExecutionMessage {
     pub level: MessageLevel,
 
     /// The text of the message.
-    #[dom(elem = "pre")]
     pub message: String,
 
     /// The type of error e.g. "SyntaxError", "ZeroDivisionError".
@@ -35,12 +34,11 @@ pub struct ExecutionMessage {
 
     /// The location that the error occurred or other message emanated from.
     #[serde(alias = "code-location", alias = "code_location")]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub code_location: Option<CodeLocation>,
 
     /// Stack trace leading up to the error.
     #[serde(alias = "trace", alias = "stack-trace", alias = "stack_trace")]
-    #[dom(elem = "pre")]
     pub stack_trace: Option<String>,
 
     /// A unique identifier for a node within a document

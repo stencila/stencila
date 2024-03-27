@@ -16,7 +16,7 @@ fix:
 	make -C rust fix
 	make -C ts fix
 	make -C node fix
-	make -C python fix
+	make -C python/stencila fix
 	make -C web fix
 
 # Run linting checks
@@ -24,7 +24,7 @@ lint:
 	make -C rust lint
 	make -C ts lint
 	make -C node lint
-	make -C python lint
+	make -C python/stencila lint
 	make -C web lint
 
 # Run tests
@@ -32,20 +32,20 @@ test:
 	make -C rust test
 	make -C ts test
 	make -C node test
-	make -C python test
+	make -C python/stencila test
 
 # Run tests with coverage
 cover:
 	make -C rust cover
 	make -C ts test
 	make -C node cover
-	make -C python cover
+	make -C python/stencila cover
 
 # Run and collate benchmarks
 bench:
 	make -C rust bench
 	make -C node bench
-	make -C python bench
+	make -C python/stencila bench
 	make -C docs/develop/benchmarks update
 
 # List outdated dependencies
@@ -53,7 +53,7 @@ outdated:
 	make -C rust outdated
 	make -C ts outdated
 	make -C node outdated
-	make -C python outdated
+	make -C python/stencila outdated
 	make -C web outdated
 
 # Run accessibility checks
@@ -70,7 +70,7 @@ audit:
 	make -C rust audit
 	make -C ts audit
 	make -C node audit
-	make -C python audit
+	make -C python/stencila audit
 	make -C web audit
 
 # Build packages
@@ -78,7 +78,7 @@ build:
 	make -C rust build
 	make -C ts build
 	make -C node build
-	make -C python build
+	make -C python/stencila build
 	make -C web build
 
 # Build Docker image
@@ -99,5 +99,5 @@ clean:
 	make -C rust clean
 	make -C ts clean
 	make -C node clean
-	make -C python clean
+	make -C python/stencila clean
 	make -C web clean

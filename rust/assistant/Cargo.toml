@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app" }
+codec-markdown-trait = { path = "../codec-markdown-trait" }
 codecs = { path = "../codecs" }
 context = { path = "../context" }
 common = { path = "../common" }

@@ -5,10 +5,12 @@ edition = "2021"
 
 [dependencies]
 assistants = { path = "../assistants" }
+codec-cbor = { path = "../codec-cbor" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 context = { path = "../context" }
 kernels = { path = "../kernels" }
 node-patch = { path = "../node-patch" }
 node-store = { path = "../node-store" }
+parsers = { path = "../parsers" }
 schema = { path = "../schema" }

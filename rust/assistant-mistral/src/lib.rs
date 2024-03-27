@@ -13,7 +13,7 @@ use assistant::{
         tracing,
     },
     schema::MessagePart,
-    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
     IsAssistantMessage,
 };
 
@@ -50,6 +50,10 @@ impl Assistant for MistralAssistant {
         format!("mistral/{}", self.model)
     }
 
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Remote
+    }
+
     fn context_length(&self) -> usize {
         self.context_length
     }
@@ -69,7 +73,7 @@ impl Assistant for MistralAssistant {
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         let messages = task
-            .system_prompt
+            .system_prompt()
             .iter()
             .map(|prompt| ChatMessage {
                 role: ChatRole::System,
@@ -129,7 +133,7 @@ impl Assistant for MistralAssistant {
 
         let text = response.choices.swap_remove(0).message.content;
 
-        GenerateOutput::from_text(self, task, options, text).await
+        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
     }
 }
 
@@ -251,7 +255,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+    use assistant::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
     async fn list_assistants() -> Result<()> {
@@ -277,11 +281,7 @@ mod tests {
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 
-        let text = match output.content {
-            GenerateContent::Text(text) => text,
-            _ => bail!("Expected text content"),
-        };
-        assert!(text.starts_with("HELLO"));
+        assert!(output.content.starts_with("HELLO"));
 
         Ok(())
     }

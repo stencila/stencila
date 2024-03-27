@@ -1,7 +1,7 @@
 //! Generation of Typescript types from Stencila Schema
 
 use std::{
-    collections::HashSet,
+    collections::{BTreeMap, HashSet},
     fs::read_dir,
     path::{Path, PathBuf},
 };
@@ -10,7 +10,6 @@ use common::{
     async_recursion::async_recursion,
     eyre::{bail, Context, Report, Result},
     futures::future::try_join_all,
-    indexmap::IndexMap,
     inflector::Inflector,
     itertools::Itertools,
     tokio::fs::{self, create_dir_all, remove_file, write},
@@ -146,7 +145,7 @@ impl Schemas {
                 let mut node_types = Vec::new();
                 for (descendent_name, descendent_schema) in &self.schemas {
                     fn is_descendent(
-                        schemas: &IndexMap<String, Schema>,
+                        schemas: &BTreeMap<String, Schema>,
                         base: &str,
                         nest: &Schema,
                     ) -> bool {

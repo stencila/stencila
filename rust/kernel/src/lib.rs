@@ -5,7 +5,7 @@ use common::{
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
     strum::Display,
-    tokio::sync::{mpsc, watch},
+    tokio::sync::{broadcast, mpsc, watch},
 };
 use format::Format;
 
@@ -14,7 +14,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable};
+use schema::{ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -31,8 +31,15 @@ pub trait Kernel: Sync + Send {
     /// This name should be unique amongst all kernels.
     fn name(&self) -> String;
 
+    /// Get the provider of the kernel
+    fn provider(&self) -> KernelProvider {
+        KernelProvider::Builtin
+    }
+
     /// Get the availability of the kernel on the current machine
-    fn availability(&self) -> KernelAvailability;
+    fn availability(&self) -> KernelAvailability {
+        KernelAvailability::Available
+    }
 
     /// Is the kernel available on the current machine
     fn is_available(&self) -> bool {
@@ -40,7 +47,9 @@ pub trait Kernel: Sync + Send {
     }
 
     /// Get the languages supported by the kernel
-    fn supports_languages(&self) -> Vec<Format>;
+    fn supports_languages(&self) -> Vec<Format> {
+        Vec::new()
+    }
 
     /// Does the kernel support a particular language?
     fn supports_language(&self, format: &Format) -> bool {
@@ -48,19 +57,38 @@ pub trait Kernel: Sync + Send {
     }
 
     /// Does the kernel support the interrupt signal?
-    fn supports_interrupt(&self) -> KernelInterrupt;
+    fn supports_interrupt(&self) -> KernelInterrupt {
+        KernelInterrupt::No
+    }
 
     /// Does the kernel support the terminate signal?
-    fn supports_terminate(&self) -> KernelTerminate;
+    fn supports_terminate(&self) -> KernelTerminate {
+        KernelTerminate::No
+    }
 
     /// Does the kernel support the kill signal?
-    fn supports_kill(&self) -> KernelKill;
+    fn supports_kill(&self) -> KernelKill {
+        KernelKill::No
+    }
 
     /// Does the kernel support forking?
-    fn supports_forks(&self) -> KernelForks;
+    fn supports_forks(&self) -> KernelForks {
+        KernelForks::No
+    }
+
+    /// Does the kernel support requesting variables on-demand from other kernels
+    fn supports_variable_requests(&self) -> bool {
+        false
+    }
 
     /// Create a new instance of the kernel
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
+}
+
+/// The provider of a kernel
+pub enum KernelProvider {
+    Builtin,
+    Plugin(String),
 }
 
 /// The availability of a kernel on the current machine
@@ -74,6 +102,8 @@ pub enum KernelAvailability {
     Installable,
     /// Not available on this machine
     Unavailable,
+    /// Available on this machine but disabled
+    Disabled,
 }
 
 /// Whether a kernel supports the interrupt signal on the current machine
@@ -133,7 +163,35 @@ pub enum KernelForks {
     No,
 }
 
+pub struct KernelVariableRequest {
+    /// The name of the kernel instance making the request
+    ///
+    /// Used to ensure that no attempt is made to fulfil the request from
+    /// the same kernel (which could result in a deadlock)
+    pub instance: String,
+
+    /// The name of the requested variable
+    pub variable: String,
+}
+
+pub type KernelVariableRequester = mpsc::UnboundedSender<KernelVariableRequest>;
+
+#[derive(Default, Clone)]
+pub struct KernelVariableResponse {
+    /// The name of the requested variable
+    pub variable: String,
+
+    /// The name of the variable's home kernel instance
+    pub instance: Option<String>,
+
+    /// The value of the variable
+    pub value: Option<Node>,
+}
+
+pub type KernelVariableResponder = broadcast::Receiver<KernelVariableResponse>;
+
 /// An instance of a kernel
+#[allow(unused)]
 #[async_trait]
 pub trait KernelInstance: Sync + Send {
     /// Get the name of the kernel instance
@@ -143,16 +201,14 @@ pub trait KernelInstance: Sync + Send {
     fn name(&self) -> String;
 
     /// Get the status of the kernel instance
-    async fn status(&self) -> Result<KernelStatus>;
-
-    /// Get a watcher of the status of the kernel instance
-    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>>;
-
-    /// Get a signaller to interrupt or kill the kernel instance
-    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>>;
+    async fn status(&self) -> Result<KernelStatus> {
+        Ok(KernelStatus::Ready)
+    }
 
     /// Start the kernel in a working directory
-    async fn start(&mut self, directory: &Path) -> Result<()>;
+    async fn start(&mut self, directory: &Path) -> Result<()> {
+        Ok(())
+    }
 
     /// Start the kernel in the current working directory
     async fn start_here(&mut self) -> Result<()> {
@@ -160,35 +216,73 @@ pub trait KernelInstance: Sync + Send {
     }
 
     /// Stop the kernel
-    async fn stop(&mut self) -> Result<()>;
+    async fn stop(&mut self) -> Result<()> {
+        Ok(())
+    }
 
     /// Execute code, possibly with side effects, in the kernel instance
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)>;
 
     /// Evaluate a code expression, without side effects, in the kernel instance
-    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)>;
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
+        let (nodes, messages) = self.execute(code).await?;
+        Ok((
+            nodes
+                .first()
+                .map_or_else(|| Node::Null(Null), |node| node.clone()),
+            messages,
+        ))
+    }
 
     /// Get runtime information about the kernel instance
     async fn info(&mut self) -> Result<SoftwareApplication>;
 
     /// Get a list of packages available in the kernel instance
-    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>>;
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
+        Ok(Vec::new())
+    }
 
     /// Get a list of variables in the kernel instance
-    async fn list(&mut self) -> Result<Vec<Variable>>;
+    async fn list(&mut self) -> Result<Vec<Variable>> {
+        Ok(Vec::new())
+    }
 
     /// Get a variable from the kernel instance
-    async fn get(&mut self, name: &str) -> Result<Option<Node>>;
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        Ok(None)
+    }
 
     /// Set a variable in the kernel instance
-    async fn set(&mut self, name: &str, value: &Node) -> Result<()>;
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        Ok(())
+    }
 
     /// Remove a variable from the kernel instance
-    async fn remove(&mut self, name: &str) -> Result<()>;
+    async fn remove(&mut self, name: &str) -> Result<()> {
+        Ok(())
+    }
 
     /// Create a fork of the kernel instance
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
         bail!("Kernel `{}` does not support forks", self.name())
+    }
+
+    /// Get a watcher of the status of the kernel instance
+    fn status_watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
+        bail!("Kernel `{}` does not support watching", self.name())
+    }
+
+    /// Get a signaller to interrupt or kill the kernel instance
+    fn signal_sender(&self) -> Result<mpsc::Sender<KernelSignal>> {
+        bail!("Kernel `{}` does not support signals", self.name())
+    }
+
+    /// Set the channel for requesting variables from other kernels
+    fn variable_channel(
+        &mut self,
+        requester: KernelVariableRequester,
+        responder: KernelVariableResponder,
+    ) {
     }
 }
 
@@ -571,7 +665,7 @@ pub mod tests {
         terminate_step: Option<&str>,
         kill_step: Option<&str>,
     ) -> Result<()> {
-        let mut watcher = instance.watcher()?;
+        let mut watcher = instance.status_watcher()?;
 
         // Convenience macro for checking changes in the watched status
         macro_rules! assert_status_changed {
@@ -591,7 +685,7 @@ pub mod tests {
         assert_eq!(instance.status().await?, KernelStatus::Ready);
 
         // Signaller is only available once kernel has started
-        let signaller = instance.signaller()?;
+        let signaller = instance.signal_sender()?;
 
         // Move the kernel into a task so we can asynchronously do things within it.
         // The "step" channel helps coordinate with this thread.

@@ -17,8 +17,6 @@ properties:
     description: The code.
     $ref: Cord
     strip: [code]
-    dom:
-      elem: pre
     jats:
       content: true
     proptest:

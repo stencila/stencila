@@ -1,0 +1,9 @@
+content:
+- id: null
+  type: Text
+  value: Example
+id: null
+rel: null
+target: https://example.com
+title: null
+type: Link

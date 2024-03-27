@@ -4,11 +4,11 @@ use common::{
     tokio::{self, task::JoinHandle},
     tracing,
 };
-use node_execute::{execute, interrupt, ExecuteOptions};
+use node_execute::{compile, execute, interrupt, ExecuteOptions};
 
 use crate::{
-    Command, CommandNodes, Document, DocumentCommandReceiver, DocumentKernels, DocumentPatchSender,
-    DocumentStore,
+    Command, CommandNodes, CommandStatus, Document, DocumentCommandReceiver,
+    DocumentCommandStatusSender, DocumentKernels, DocumentPatchSender, DocumentStore,
 };
 
 impl Document {
@@ -16,6 +16,7 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub(super) async fn command_task(
         mut command_receiver: DocumentCommandReceiver,
+        command_status_sender: DocumentCommandStatusSender,
         home: PathBuf,
         store: DocumentStore,
         kernels: DocumentKernels,
@@ -23,27 +24,37 @@ impl Document {
     ) {
         tracing::debug!("Document command task started");
 
-        let mut current: Option<(Command, JoinHandle<()>)> = None;
-        while let Some(new_command) = command_receiver.recv().await {
-            tracing::trace!("Document command `{}` received", new_command.to_string());
+        let send_status = |id, status| {
+            if let Err(error) = command_status_sender.send((id, status)) {
+                tracing::error!("While sending command status: {error}");
+            }
+        };
+
+        let mut current: Option<(Command, u64, JoinHandle<()>)> = None;
+        while let Some((command, command_id)) = command_receiver.recv().await {
+            tracing::trace!("Document command `{}` received", command.to_string());
 
             use Command::*;
 
-            if let Some((current_command, current_task)) = &current {
+            // If there is already a command running, decide whether to ignore the new command,
+            // interrupt execution, or wait for the current command to finish.
+            if let Some((current_command, current_command_id, current_task)) = &current {
                 if !current_task.is_finished() {
-                    match (&new_command, current_command) {
-                        (ExecuteDocument(..), ExecuteDocument(..)) => {
-                            tracing::info!(
-                                "Ignoring document execution command: already executing"
-                            );
+                    match (&command, current_command) {
+                        (CompileDocument | ExecuteDocument(..), ExecuteDocument(..)) => {
+                            tracing::debug!("Ignoring document command: already executing");
 
+                            send_status(command_id, CommandStatus::Ignored);
                             continue;
                         }
                         (InterruptDocument, ExecuteDocument(..)) => {
-                            tracing::info!("Interrupting document execution");
+                            tracing::debug!("Interrupting document execution");
+
+                            send_status(command_id, CommandStatus::Running);
 
                             current_task.abort();
-                            if let Err(error) = interrupt(
+
+                            let status = if let Err(error) = interrupt(
                                 home.clone(),
                                 store.clone(),
                                 kernels.clone(),
@@ -52,9 +63,14 @@ impl Document {
                             )
                             .await
                             {
-                                tracing::error!("While interrupting document: {error}")
-                            }
+                                tracing::error!("While interrupting document: {error}");
+                                CommandStatus::Failed
+                            } else {
+                                send_status(*current_command_id, CommandStatus::Interrupted);
+                                CommandStatus::Succeeded
+                            };
 
+                            send_status(command_id, status);
                             continue;
                         }
                         _ => {}
@@ -62,31 +78,49 @@ impl Document {
                 }
             }
 
-            match new_command.clone() {
-                ExecuteDocument(options) => {
-                    let home = home.clone();
-                    let store = store.clone();
-                    let kernels = kernels.clone();
-                    let patch_sender = patch_sender.clone();
+            let home = home.clone();
+            let store = store.clone();
+            let kernels = kernels.clone();
+            let patch_sender = patch_sender.clone();
+            let status_sender = command_status_sender.clone();
+
+            match command.clone() {
+                CompileDocument => {
                     let task = tokio::spawn(async move {
-                        if let Err(error) =
+                        let status = if let Err(error) =
+                            compile(home, store, kernels, patch_sender, None, None).await
+                        {
+                            tracing::error!("While compiling document: {error}");
+                            CommandStatus::Failed
+                        } else {
+                            CommandStatus::Succeeded
+                        };
+
+                        status_sender.send((command_id, status)).ok();
+                    });
+                    current = Some((command, command_id, task));
+                }
+                ExecuteDocument(options) => {
+                    let task = tokio::spawn(async move {
+                        let status = if let Err(error) =
                             execute(home, store, kernels, patch_sender, None, Some(options)).await
                         {
-                            tracing::error!("While executing document: {error}")
-                        }
+                            tracing::error!("While executing document: {error}");
+                            CommandStatus::Failed
+                        } else {
+                            CommandStatus::Succeeded
+                        };
+
+                        status_sender.send((command_id, status)).ok();
                     });
-                    current = Some((new_command, task));
+                    current = Some((command, command_id, task));
                 }
                 ExecuteNodes(CommandNodes { node_ids, .. }) => {
-                    let home = home.clone();
-                    let store = store.clone();
-                    let kernels = kernels.clone();
-                    let patch_sender = patch_sender.clone();
                     let task = tokio::spawn(async move {
                         let options = ExecuteOptions::default();
                         // TODO: set other options based on scope
 
-                        if let Err(error) = execute(
+                        let status = if let Err(error) = execute(
                             home,
                             store,
                             kernels,
@@ -96,13 +130,22 @@ impl Document {
                         )
                         .await
                         {
-                            tracing::error!("While executing nodes: {error}")
-                        }
+                            tracing::error!("While executing nodes: {error}");
+                            CommandStatus::Failed
+                        } else {
+                            CommandStatus::Succeeded
+                        };
+
+                        status_sender.send((command_id, status)).ok();
                     });
-                    current = Some((Command::ExecuteNodes(CommandNodes::default()), task));
+                    current = Some((
+                        Command::ExecuteNodes(CommandNodes::default()),
+                        command_id,
+                        task,
+                    ));
                 }
                 _ => {
-                    tracing::warn!("TODO: handle {new_command} command");
+                    tracing::warn!("Document command `{command}` not handled yet");
                 }
             }
         }

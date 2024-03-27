@@ -78,7 +78,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -114,7 +114,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -135,7 +135,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -156,7 +156,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -257,7 +257,7 @@
         "execution"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {

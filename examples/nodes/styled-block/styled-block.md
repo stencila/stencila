@@ -4,7 +4,7 @@ Paragraph within division.
 
 :::
 
-::: css {color:red}
+::: {color:red}
 
 With style language specified.
 

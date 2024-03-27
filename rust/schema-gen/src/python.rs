@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use topo_sort::TopoSort;
+use topological_sort::TopologicalSort;
 
 use common::{
     async_recursion::async_recursion,
@@ -25,7 +25,7 @@ const HEADER: &str = r#"# Generated file; do not edit. See the Rust `schema-gen`
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from typing import Literal, Union
 
 if sys.version_info >= (3, 11):
@@ -49,6 +49,27 @@ Primitive = Union[
 ]
 
 Object = dict[str, Primitive]
+
+
+class _Base:
+    """Provide a base class with a simplified repr that ignores None values."""
+
+    def __repr__(self):
+        if not is_dataclass(self):
+            raise TypeError("_Base should only be used with dataclasses")
+
+        field_names = [f.name for f in fields(self)]
+        valid_fields = {
+            name: getattr(self, name)
+            for name in field_names
+            if getattr(self, name) is not None
+        }
+        repr_str = (
+            f"{self.__class__.__name__}("  # type: ignore
+            + ", ".join([f"{key}={value!r}" for key, value in valid_fields.items()])
+            + ")"
+        )
+        return repr_str
 "#;
 
 // This is for error checking. These are the primitives we currently expect in the schema and deal with manually above.
@@ -70,7 +91,8 @@ impl Schemas {
         eprintln!("Generating Python types");
 
         // The top level destination
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../python/python/stencila");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../python/stencila_types/src/stencila_types");
         let dest = dest
             .canonicalize()
             .context(format!("can not find directory `{}`", dest.display()))?;
@@ -80,14 +102,14 @@ impl Schemas {
         // 2. Object schemas that get turned into Python classes.
         // 3. AnyOf schemas that get turned into Python Union types.
         // 4. Raw types or primitives.
-        let (mut enums, mut clses, mut unions) = (Vec::new(), Vec::new(), Vec::new());
+        let (mut enums, mut classes, mut unions) = (Vec::new(), Vec::new(), Vec::new());
         for (name, schema) in self.schemas.iter() {
             if schema.extends.contains(&"Enumeration".to_string()) {
                 enums.push(name.clone());
             } else if schema.any_of.is_some() {
                 unions.push(name.clone());
             } else if schema.r#type.is_none() {
-                clses.push(name.clone());
+                classes.push(name.clone());
             } else if !EXPECTED_PRIMITIVES.contains(&&**name) {
                 bail!("Unexpected primitive: {}", name);
             }
@@ -95,37 +117,54 @@ impl Schemas {
 
         let mut sections: Vec<String> = vec![HEADER.to_string()];
 
-        for nm in enums.iter() {
-            let schema = self.schemas.get(nm).expect("Schema not found");
-            sections.push(Self::python_enum(nm, schema)?);
+        for name in enums.iter() {
+            let schema = self.schemas.get(name).expect("Schema not found");
+            sections.push(Self::python_enum(name, schema)?);
         }
 
         // The order of class definitions matters. Base classes must come first.
-        let mut topo_sort = TopoSort::with_capacity(clses.len());
-        for nm in clses.iter() {
-            let schema = self.schemas.get(nm).expect("Schema not found");
-            topo_sort.insert(nm.clone(), schema.extends.clone());
+        let mut topo_sort = TopologicalSort::new();
+        for name in classes.iter() {
+            let schema = self.schemas.get(name).expect("Schema not found");
+            for base in &schema.extends {
+                topo_sort.add_dependency(name, base);
+            }
         }
-        let dep_order = topo_sort.try_vec_nodes()?;
-        for nm in dep_order {
-            let schema = self.schemas.get(nm).expect("Schema not found");
-            sections.push(self.python_class(nm, schema).await?);
+
+        let mut dep_order = Vec::new();
+        loop {
+            // This gives us the dependencies in reverse order.
+            // So we will reverse them again below.
+            let mut deps = topo_sort.pop_all();
+            if deps.is_empty() {
+                break;
+            }
+            deps.sort(); // Sort to maintain ordering between generations
+            deps.reverse(); // Reverse to maintain alpha sort order in file.
+            dep_order.append(&mut deps);
+        }
+        // Note: Reverse the order of the dependencies so that base classes come first.
+        dep_order.reverse();
+
+        for name in dep_order {
+            let schema = self.schemas.get(&name).expect("Schema not found");
+            sections.push(self.python_class(&name, schema).await?);
         }
 
         // Finally, do the unions. These reference all the types already generated.
-        for nm in unions.iter() {
+        for name in unions.iter() {
             // We did this already.
-            if nm == "Primitive" {
+            if name == "Primitive" {
                 continue;
             }
-            let schema = self.schemas.get(nm).expect("Schema not found");
+            let schema = self.schemas.get(name).expect("Schema not found");
             sections.push(self.python_union(schema).await?);
         }
 
         // Create a module for each schema
         // let futures = schema_order.iter().map(|s| self.python_module(&types, s));
         // let v: Vec<_> = try_join_all(futures).await?.into_iter().collect();
-        write(dest.join("stencila_types.py"), sections.join("\n\n")).await?;
+        write(dest.join("types.py"), sections.join("\n\n")).await?;
 
         Ok(())
     }
@@ -183,8 +222,12 @@ impl Schemas {
     ///
     /// Returns the generated `class` text.
     async fn python_class(&self, name: &String, schema: &Schema) -> Result<String> {
-        // Get the base class
-        let base = schema.extends.clone().join(", ");
+        // Add our custom base class to the extends list.
+        let base = if name == "Entity" {
+            "_Base".to_string()
+        } else {
+            schema.extends.clone().join(", ")
+        };
         let mut fields = Vec::new();
 
         // Always add the `type` field as a literal
@@ -243,14 +286,13 @@ impl Schemas {
 
         let cls_def = format!(
             r#"
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class {name}({base}):
     """
     {description}
     """
 
-{fields}
-"#
+{fields}"#
         );
 
         Ok(cls_def)

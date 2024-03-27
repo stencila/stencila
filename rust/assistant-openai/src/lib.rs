@@ -23,7 +23,7 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
     IsAssistantMessage,
 };
 
@@ -69,6 +69,10 @@ impl OpenAIAssistant {
 impl Assistant for OpenAIAssistant {
     fn id(&self) -> String {
         format!("openai/{}", self.model)
+    }
+
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Remote
     }
 
     fn publisher(&self) -> String {
@@ -123,13 +127,13 @@ impl Assistant for OpenAIAssistant {
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         use AssistantIO::*;
-        match (task.input, task.output) {
+        match (task.input(), task.output()) {
             (Text, Text) => self.chat_completion(task, options).await,
             (Text, Image) => self.create_image(task, options).await,
             _ => bail!(
                 "{} to {} is not supported by assistant `{}`",
-                task.input,
-                task.output,
+                task.input(),
+                task.output(),
                 self.id()
             ),
         }
@@ -155,7 +159,7 @@ impl OpenAIAssistant {
 
         // Create messages
         let messages = task
-            .system_prompt
+            .system_prompt()
             .iter()
             .map(|prompt| ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
                 role: Role::System,
@@ -280,7 +284,7 @@ impl OpenAIAssistant {
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(self, task, options, text).await
+        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
     }
 
     #[tracing::instrument(skip_all)]
@@ -414,7 +418,7 @@ impl OpenAIAssistant {
 
         match image.as_ref() {
             Image::Url { url, .. } => {
-                GenerateOutput::from_url(self, task, "image/png", url.to_string()).await
+                GenerateOutput::from_url(self, "image/png", url.to_string()).await
             }
             _ => bail!("Unexpected image type"),
         }
@@ -492,7 +496,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+    use assistant::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
     async fn list_assistants() -> Result<()> {
@@ -522,7 +526,7 @@ mod tests {
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 
-        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+        assert_eq!(output.content, "HELLO".to_string());
 
         Ok(())
     }

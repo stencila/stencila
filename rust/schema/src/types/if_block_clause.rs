@@ -51,7 +51,6 @@ pub struct IfBlockClause {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
-    #[dom(elem = "pre")]
     #[jats(content)]
     pub code: Cord,
 
@@ -112,7 +111,7 @@ pub struct IfBlockClauseOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
@@ -127,7 +126,7 @@ pub struct IfBlockClauseOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
@@ -135,7 +134,7 @@ pub struct IfBlockClauseOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
@@ -143,7 +142,7 @@ pub struct IfBlockClauseOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -189,7 +188,7 @@ pub struct IfBlockClauseOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
+    #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// The authors of the executable code.

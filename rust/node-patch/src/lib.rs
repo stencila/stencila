@@ -6,8 +6,8 @@ use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
 };
 use schema::{
-    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, Section,
-    SuggestionBlockType, SuggestionInlineType, Timestamp,
+    Block, CompilationDigest, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus,
+    ExecutionTag, Node, NodeId, Section, SuggestionBlockType, SuggestionInlineType, Timestamp,
 };
 
 /// Replace a property of a node with a value
@@ -102,14 +102,19 @@ pub struct ReplaceProperty {
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub enum Property {
+    ClassList,
+    CompilationDigest,
     CompilationMessages,
     Content,
+    Css,
     ExecutionCount,
+    ExecutionDigest,
     ExecutionDuration,
     ExecutionEnded,
     ExecutionMessages,
     ExecutionRequired,
     ExecutionStatus,
+    ExecutionTags,
     InstructionStatus,
     IsActive,
     Iterations,
@@ -200,6 +205,12 @@ impl From<Timestamp> for Value {
     }
 }
 
+impl From<CompilationDigest> for Value {
+    fn from(value: CompilationDigest) -> Self {
+        Value::One(Node::CompilationDigest(value))
+    }
+}
+
 impl From<ExecutionRequired> for Value {
     fn from(value: ExecutionRequired) -> Self {
         Value::One(Node::String(value.to_string()))
@@ -215,6 +226,12 @@ impl From<ExecutionStatus> for Value {
 impl From<Vec<ExecutionMessage>> for Value {
     fn from(value: Vec<ExecutionMessage>) -> Self {
         Value::Many(value.into_iter().map(Node::ExecutionMessage).collect_vec())
+    }
+}
+
+impl From<Vec<ExecutionTag>> for Value {
+    fn from(value: Vec<ExecutionTag>) -> Self {
+        Value::Many(value.into_iter().map(Node::ExecutionTag).collect_vec())
     }
 }
 

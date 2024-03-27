@@ -4,16 +4,15 @@ use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
-    tokio::sync::{mpsc, watch},
 };
 use kernel::{
     format::Format,
     schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelSignal, KernelStatus, KernelTerminate,
+    KernelProvider, KernelTerminate,
 };
 
-use crate::{plugins, Plugin, PluginInstance};
+use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 
 /// A kernel provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -62,9 +61,38 @@ impl Kernel for PluginKernel {
         self.name.clone()
     }
 
+    fn provider(&self) -> KernelProvider {
+        match &self.plugin {
+            Some(plugin) => {
+                let mut name = plugin.name.clone();
+                if plugin.linked {
+                    name += " (linked)";
+                }
+                KernelProvider::Plugin(name)
+            }
+            None => KernelProvider::Plugin("unknown".to_string()),
+        }
+    }
+
     fn availability(&self) -> KernelAvailability {
-        // Assume that the kernel is available if the plugin if available
-        KernelAvailability::Available
+        match &self.plugin {
+            Some(plugin) => match plugin.availability() {
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::Yes,
+                ) => KernelAvailability::Available,
+
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::No,
+                ) => KernelAvailability::Disabled,
+
+                (PluginStatus::Installable, _) => KernelAvailability::Installable,
+
+                _ => KernelAvailability::Unavailable,
+            },
+            None => KernelAvailability::Unavailable,
+        }
     }
 
     fn supports_languages(&self) -> Vec<Format> {
@@ -95,7 +123,7 @@ impl Kernel for PluginKernel {
     }
 }
 
-/// An instance of a microkernel
+/// An instance of a plugin kernel
 pub struct PluginKernelInstance {
     /// The kernel specification for this instance
     kernel: PluginKernel,
@@ -138,18 +166,6 @@ impl KernelInstance for PluginKernelInstance {
         self.kernel_instance
             .clone()
             .unwrap_or_else(|| String::from("unnamed"))
-    }
-
-    async fn status(&self) -> Result<KernelStatus> {
-        todo!()
-    }
-
-    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
-        todo!()
-    }
-
-    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>> {
-        todo!()
     }
 
     async fn start(&mut self, _directory: &Path) -> Result<()> {
@@ -362,10 +378,6 @@ impl KernelInstance for PluginKernelInstance {
                 },
             )
             .await
-    }
-
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        todo!()
     }
 }
 

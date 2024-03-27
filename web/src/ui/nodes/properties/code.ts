@@ -19,8 +19,8 @@ import { nodeUi } from '../icons-and-colours'
 import '../../buttons/chevron'
 
 /**
- * A component for displaying the `code` property of `CodeStatic`, `CodeExecutable`
- * and `Math` nodes
+ * A component for rendering the `code` property of `CodeStatic`, `CodeExecutable`
+ * `Math`, and `Styled` nodes
  */
 @customElement('stencila-ui-node-code')
 @withTwind()
@@ -29,7 +29,13 @@ export class UINodeCode extends LitElement {
   type: NodeType
 
   /**
-   * The language of the code. Used to determine the syntax highlighting.
+   * The code to be rendered
+   */
+  @property()
+  code: string
+
+  /**
+   * The language of the code. Used to determine the syntax highlighting
    */
   @property()
   language: string
@@ -38,7 +44,7 @@ export class UINodeCode extends LitElement {
    * Whether the code, and language, are readonly or not
    */
   @property({ type: Boolean, attribute: 'read-only' })
-  readonly: boolean = false
+  readOnly: boolean = false
 
   /**
    * Whether the code shown be collapsed by default or not
@@ -49,17 +55,32 @@ export class UINodeCode extends LitElement {
   /**
    * A CodeMirror editor for the code
    */
-  private editorView: EditorView
+  private editorView?: EditorView
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
-   *
-   * Note: The first language description is used as the default.
    */
   static languageDescriptions = [
     LanguageDescription.of({
+      name: 'bash',
+      alias: ['sh', 'shell'],
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/shell').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.shell))
+        )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'jinja',
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/jinja2').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
+        )
+      },
+    }),
+    LanguageDescription.of({
       name: 'javascript',
-      extensions: ['js'],
+      alias: ['js'],
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
@@ -68,7 +89,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'latex',
-      extensions: ['latex', 'tex'],
+      alias: ['tex'],
       load: async () => {
         return import('@codemirror/legacy-modes/mode/stex').then(
           (mode) => new LanguageSupport(StreamLanguage.define(mode.stexMath))
@@ -77,23 +98,28 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'python',
-      extensions: ['py'],
+      alias: ['py'],
       load: async () => {
         return import('@codemirror/lang-python').then((obj) => obj.python())
       },
     }),
     LanguageDescription.of({
       name: 'r',
-      extensions: ['r'],
       load: async () => {
         return import('codemirror-lang-r').then((obj) => obj.r())
       },
     }),
     LanguageDescription.of({
       name: 'sql',
-      extensions: ['sql'],
       load: async () => {
         return import('@codemirror/lang-sql').then((obj) => obj.sql())
+      },
+    }),
+    LanguageDescription.of({
+      name: 'xml',
+      alias: ['mathml'],
+      load: async () => {
+        return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
   ]
@@ -102,16 +128,23 @@ export class UINodeCode extends LitElement {
    * Get the CodeMirror editor extensions
    */
   private async getEditorExtensions(): Promise<Extension[]> {
-    const lang =
-      LanguageDescription.matchLanguageName(
-        UINodeCode.languageDescriptions,
-        this.language
-      ) ?? UINodeCode.languageDescriptions[0]
+    const languageDescription = LanguageDescription.matchLanguageName(
+      UINodeCode.languageDescriptions,
+      this.language,
+      true
+    )
+
+    let languageExtension: LanguageSupport[]
+    if (languageDescription) {
+      languageExtension = [await languageDescription.load()]
+    } else {
+      languageExtension = []
+    }
 
     return [
-      EditorView.editable.of(!this.readonly),
-      EditorState.readOnly.of(this.readonly),
-      await lang.load(),
+      EditorView.editable.of(!this.readOnly),
+      EditorState.readOnly.of(this.readOnly),
+      ...languageExtension,
       lineNumbers(),
       foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
@@ -123,15 +156,27 @@ export class UINodeCode extends LitElement {
    */
   private getLanguageTitle(): string {
     switch (this.language.toLowerCase()) {
+      case 'asciimath':
+        return 'AsciiMath'
+      case 'bash':
+        return 'Bash'
+      case 'jinja':
+        return 'Jinja'
       case 'js':
         return 'JavaScript'
       case 'latex':
         return 'LaTeX'
+      case 'mathml':
+        return 'MathML'
       case 'py':
       case 'python':
         return 'Python'
       case 'r':
         return 'R'
+      case 'rhai':
+        return 'Rhai'
+      case 'shell':
+        return 'Shell'
       case 'sql':
         return 'SQL'
       case 'tex':
@@ -148,20 +193,25 @@ export class UINodeCode extends LitElement {
       // Destroy the existing editor if there is one
       this.editorView?.destroy()
 
-      // Get the code content
-      const code =
-        this.shadowRoot
-          .querySelector('slot')
-          ?.assignedElements({ flatten: true })[0]?.textContent ?? ''
-
       // Create a new editor
       this.getEditorExtensions().then((extensions) => {
         this.editorView = new EditorView({
           parent: this.renderRoot.querySelector('#codemirror'),
           extensions,
-          doc: code,
+          doc: this.code,
         })
       })
+    } else if (changedProperties.has('code')) {
+      // Update the editor state
+      const view = this.editorView
+      const state = view?.state
+      if (view && state) {
+        view.dispatch(
+          state.update({
+            changes: { from: 0, to: state.doc.length, insert: this.code },
+          })
+        )
+      }
     }
   }
 

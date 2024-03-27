@@ -8,3 +8,4 @@ node_modules
 /tags
 /python/.idea
 /python/.envrc
+python/stencila/.venv

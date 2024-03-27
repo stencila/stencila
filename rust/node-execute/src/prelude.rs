@@ -1,5 +1,9 @@
+use std::hash::{Hash, Hasher};
+
+use common::seahash::SeaHasher;
 pub use common::{eyre::Report, tracing};
 pub use node_patch::{Property, Value};
+pub use parsers::ParseInfo;
 pub use schema::{
     walk::{WalkControl, WalkNode},
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
@@ -7,6 +11,14 @@ pub use schema::{
 };
 
 pub(crate) use crate::{Executable, Executor};
+
+/// Add to an existing digest
+pub fn add_to_digest(digest: &mut u64, bytes: &[u8]) {
+    let mut hash = SeaHasher::new();
+    digest.hash(&mut hash);
+    bytes.hash(&mut hash);
+    *digest = hash.finish()
+}
 
 /// Create an `ExecutionMessage` from an `eyre::Report`
 pub fn error_to_message(context: &str, error: Report) -> ExecutionMessage {

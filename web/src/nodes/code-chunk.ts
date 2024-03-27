@@ -80,11 +80,11 @@ export class CodeChunk extends CodeExecutable {
 
         <stencila-ui-node-code
           type="CodeChunk"
+          code=${this.code}
           language=${this.programmingLanguage}
           read-only
           collapsed
         >
-          <slot name="code"></slot>
         </stencila-ui-node-code>
 
         <stencila-ui-node-execution-messages

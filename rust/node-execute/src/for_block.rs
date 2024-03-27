@@ -1,9 +1,48 @@
+use codec_cbor::r#trait::CborCodec;
 use common::itertools::Itertools;
 use schema::{ForBlock, Section, SectionType};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for ForBlock {
+    #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::debug!("Compiling ForBlock {node_id}");
+
+        let language = self.programming_language.as_deref().unwrap_or_default();
+        let ParseInfo {
+            mut compilation_digest,
+            ..
+        } = parsers::parse(&self.code, language);
+
+        // Add a digest of the `content` to the state digest given that
+        // if the content changes all the `iterations` become stale.
+        // Use CBOR for this since is it faster and more compact to encode than JSON etc
+        match self.content.to_cbor() {
+            Ok(bytes) => add_to_digest(&mut compilation_digest.state_digest, &bytes),
+            Err(error) => {
+                tracing::error!("While encoding `content` to CBOR: {error}")
+            }
+        }
+
+        executor.replace_property(
+            &node_id,
+            Property::CompilationDigest,
+            compilation_digest.into(),
+        );
+
+        // Walk over `otherwise` here because this function returns `Break` so it
+        // will not be walked over otherwise (pardon the pun) but needs to be
+        if let Err(error) = self.otherwise.walk_async(executor).await {
+            tracing::error!("While compiling `otherwise`: {error}")
+        }
+
+        // Break walk to avoid walking over `content` (already captured in state digest)
+        // and `iterations` (compilation digest is not required)
+        WalkControl::Break
+    }
+
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
@@ -19,7 +58,12 @@ impl Executable for ForBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(&node_id) {
+        if !executor.should_execute_code(
+            &node_id,
+            &self.auto_exec,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
             tracing::debug!("Skipping ForBlock {node_id}");
 
             return WalkControl::Break;
@@ -41,6 +85,7 @@ impl Executable for ForBlock {
         let mut has_iterations = false;
         let mut is_empty = true;
 
+        let compilation_digest = self.options.compilation_digest.clone();
         let variable = self.variable.trim();
         let code = self.code.trim();
         if !(variable.is_empty() && code.is_empty()) {
@@ -181,6 +226,7 @@ impl Executable for ForBlock {
                     (Property::ExecutionDuration, duration.into()),
                     (Property::ExecutionEnded, ended.into()),
                     (Property::ExecutionCount, count.into()),
+                    (Property::ExecutionDigest, compilation_digest.into()),
                 ],
             );
         } else {
@@ -193,6 +239,7 @@ impl Executable for ForBlock {
                     (Property::ExecutionMessages, messages.into()),
                     (Property::ExecutionDuration, Value::None),
                     (Property::ExecutionEnded, Value::None),
+                    (Property::ExecutionDigest, compilation_digest.into()),
                 ],
             );
         }

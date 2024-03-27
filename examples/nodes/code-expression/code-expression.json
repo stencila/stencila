@@ -7,14 +7,15 @@
       "content": [
         {
           "type": "Text",
-          "value": "With a number output: "
+          "value": "With a number output "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "python",
           "code": "6 * 7",
           "output": 42
-        }
+        },
+        { "type": "Text", "value": "." }
       ]
     },
     {
@@ -22,14 +23,15 @@
       "content": [
         {
           "type": "Text",
-          "value": "With a string output: "
+          "value": "With a string output "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "python",
           "code": "'a string'",
           "output": "a string"
-        }
+        },
+        { "type": "Text", "value": "." }
       ]
     },
     {
@@ -37,14 +39,15 @@
       "content": [
         {
           "type": "Text",
-          "value": "With an array output: "
+          "value": "With an array output "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "python",
           "code": "[1, 2, 3]",
           "output": [1, 2, 3]
-        }
+        },
+        { "type": "Text", "value": "." }
       ]
     },
     {
@@ -52,14 +55,15 @@
       "content": [
         {
           "type": "Text",
-          "value": "With an object output: "
+          "value": "With an object output "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "python",
           "code": "dict(a=1,b=dict())",
           "output": { "a": 1, "b": {} }
-        }
+        },
+        { "type": "Text", "value": "." }
       ]
     },
     {
@@ -67,12 +71,13 @@
       "content": [
         {
           "type": "Text",
-          "value": "With no language: "
+          "value": "With no language specified and no output "
         },
         {
           "type": "CodeExpression",
           "code": "a + b"
-        }
+        },
+        { "type": "Text", "value": "." }
       ]
     },
     {
@@ -80,14 +85,15 @@
       "content": [
         {
           "type": "Text",
-          "value": "With automatic execution behavior specified "
+          "value": "With automatic execution behavior specified and no output "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "javascript",
           "code": "c * d",
           "autoExec": "Never"
-        }
+        },
+        { "type": "Text", "value": "." }
       ]
     }
   ]

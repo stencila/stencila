@@ -17,7 +17,8 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
+    Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
+    IsAssistantMessage,
 };
 
 /// An assistant running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -80,6 +81,10 @@ impl Assistant for OllamaAssistant {
         format!("ollama/{}", self.model)
     }
 
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Local
+    }
+
     fn publisher(&self) -> String {
         "Ollama".to_string()
     }
@@ -120,7 +125,7 @@ impl Assistant for OllamaAssistant {
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         let messages = task
-            .system_prompt
+            .system_prompt()
             .iter()
             .map(|prompt| ChatMessage::new(MessageRole::System, prompt.clone()))
             .chain(task.instruction_messages().map(|message| {
@@ -234,7 +239,7 @@ impl Assistant for OllamaAssistant {
             .map(|message| message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(self, task, options, text).await
+        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
     }
 }
 
@@ -268,7 +273,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+    use assistant::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
     async fn list_assistants() -> Result<()> {
@@ -290,7 +295,7 @@ mod tests {
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 
-        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+        assert_eq!(output.content, "HELLO".to_string());
 
         Ok(())
     }

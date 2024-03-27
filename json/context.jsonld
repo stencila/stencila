@@ -209,7 +209,7 @@
     "citationSuffix": "stencila:citationSuffix",
     "cite": "stencila:cite",
     "claimType": "stencila:claimType",
-    "classes": "stencila:classes",
+    "classList": "stencila:classList",
     "clauses": "stencila:clauses",
     "code": "stencila:code",
     "codeLocation": "stencila:codeLocation",

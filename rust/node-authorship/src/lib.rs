@@ -17,14 +17,29 @@ struct Authorship {
 }
 
 impl Authorship {
-    /// Add the authors to the current list of authors for a node (if any)
+    /// Add the authors to the current list of authors for a node
+    ///
+    /// If there is already an `AuthorRole` with the same `author` and `role_name`, then
+    /// this will update the `last_modified` property of that role.
     fn apply(&self, current: &mut Option<Vec<Author>>) {
         match current {
             Some(current) => {
                 for author_role in &self.author_roles {
-                    let author = Author::AuthorRole(author_role.clone());
-                    if !current.contains(&author) {
-                        current.push(author.clone())
+                    let mut updated = false;
+                    for current_author in current.iter_mut() {
+                        if let Author::AuthorRole(current_author_role) = current_author {
+                            if current_author_role.author == author_role.author
+                                && current_author_role.role_name == author_role.role_name
+                            {
+                                current_author_role.last_modified = author_role.last_modified.clone();
+                                updated = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if !updated {
+                        current.push(Author::AuthorRole(author_role.clone()))
                     }
                 }
             }

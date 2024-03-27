@@ -13,7 +13,7 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
     IsAssistantMessage,
 };
 
@@ -50,6 +50,10 @@ impl Assistant for GoogleAssistant {
         format!("google/{}", self.model)
     }
 
+    fn r#type(&self) -> AssistantType {
+        AssistantType::Remote
+    }
+
     fn context_length(&self) -> usize {
         self.context_length
     }
@@ -73,7 +77,7 @@ impl Assistant for GoogleAssistant {
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         let contents = task
-            .system_prompt
+            .system_prompt()
             .iter()
             .flat_map(|prompt| {
                 // There is no "system" role and successive user prompts are not
@@ -171,18 +175,16 @@ impl Assistant for GoogleAssistant {
         match content {
             Part {
                 text: Some(text), ..
-            } => GenerateOutput::from_text(self, task, options, text).await,
+            } => {
+                GenerateOutput::from_text(self, task.format(), task.instruction(), options, text)
+                    .await
+            }
             Part {
                 inline_data: Some(Blob { mime_type, data }),
                 ..
             } => {
-                GenerateOutput::from_url(
-                    self,
-                    task,
-                    &mime_type,
-                    format!("{};base64,{}", mime_type, data),
-                )
-                .await
+                GenerateOutput::from_url(self, &mime_type, format!("{};base64,{}", mime_type, data))
+                    .await
             }
             _ => bail!("Unexpected response content part"),
         }
@@ -372,7 +374,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+    use assistant::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
     async fn list_assistants() -> Result<()> {
@@ -398,7 +400,7 @@ mod tests {
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 
-        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+        assert_eq!(output.content, "HELLO".to_string());
 
         Ok(())
     }

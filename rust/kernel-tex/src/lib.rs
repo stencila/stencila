@@ -1,21 +1,12 @@
-use std::path::Path;
-
 use kernel::{
     common::{
-        async_trait::async_trait,
-        eyre::{bail, Result},
-        once_cell::sync::Lazy,
-        regex::Regex,
-        tokio::sync::{mpsc, watch},
-        tracing,
+        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
     },
     format::Format,
     schema::{
         ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
-        SoftwareSourceCode, Variable,
     },
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelSignal, KernelStatus, KernelTerminate,
+    Kernel, KernelInstance,
 };
 use latex2mathml::{latex_to_mathml, DisplayStyle};
 
@@ -32,28 +23,8 @@ impl Kernel for TexKernel {
         "tex".to_string()
     }
 
-    fn availability(&self) -> KernelAvailability {
-        KernelAvailability::Available
-    }
-
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Tex, Format::Latex]
-    }
-
-    fn supports_interrupt(&self) -> KernelInterrupt {
-        KernelInterrupt::No
-    }
-
-    fn supports_terminate(&self) -> KernelTerminate {
-        KernelTerminate::No
-    }
-
-    fn supports_kill(&self) -> KernelKill {
-        KernelKill::No
-    }
-
-    fn supports_forks(&self) -> KernelForks {
-        KernelForks::No
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
@@ -106,26 +77,6 @@ impl KernelInstance for TexKernelInstance {
         "tex".to_string()
     }
 
-    async fn status(&self) -> Result<KernelStatus> {
-        Ok(KernelStatus::Ready)
-    }
-
-    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
-        bail!("Not implemented")
-    }
-
-    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>> {
-        bail!("Not implemented")
-    }
-
-    async fn start(&mut self, _directory: &Path) -> Result<()> {
-        Ok(())
-    }
-
-    async fn stop(&mut self) -> Result<()> {
-        Ok(())
-    }
-
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Transpiling TeX to MathML");
 
@@ -155,26 +106,6 @@ impl KernelInstance for TexKernelInstance {
             }),
             ..Default::default()
         })
-    }
-
-    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
-        Ok(vec![])
-    }
-
-    async fn list(&mut self) -> Result<Vec<Variable>> {
-        Ok(vec![])
-    }
-
-    async fn get(&mut self, _name: &str) -> Result<Option<Node>> {
-        Ok(None)
-    }
-
-    async fn set(&mut self, _name: &str, _node: &Node) -> Result<()> {
-        Ok(())
-    }
-
-    async fn remove(&mut self, _name: &str) -> Result<()> {
-        Ok(())
     }
 }
 

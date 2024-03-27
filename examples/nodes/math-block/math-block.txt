@@ -1,1 +1,1 @@
-A TeX block. 2 \pi r^2tex An ASCIIMath block. 2 pi r^2asciimath A MathML block. <math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>mathml
+A TeX block: 2 \pi r^2tex An AsciiMath block: 2 pi r^2asciimath A MathML block: <math display="block"><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>mathml

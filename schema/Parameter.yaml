@@ -61,7 +61,7 @@ properties:
       This property is large (in terms of bytes) so is best kept as a non-core
       property, so as not to inflate the size of the `Inline` enum in Rust.
     dom:
-      elem: div
+      elem: span
     html:
       content: true
     $ref: Validator

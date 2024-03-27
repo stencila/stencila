@@ -148,17 +148,15 @@
       "description": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
       "type": "string"
     },
-    "classes": {
-      "@id": "stencila:classes",
-      "description": "A list of class names associated with the node.",
+    "classList": {
+      "@id": "stencila:classList",
+      "description": "A space separated list of class names associated with the node.",
       "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
       "aliases": [
-        "class"
+        "class-list",
+        "class_list"
       ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "type": "string"
     },
     "content": {
       "@id": "stencila:content",

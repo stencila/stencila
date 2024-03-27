@@ -29,7 +29,7 @@ properties:
     items:
       $ref: CompilationMessage
     dom:
-      elem: div
+      elem: span
   executionDigest:
     '@id': stencila:executionDigest
     description: The `compilationDigest` of the node when it was last executed.
@@ -45,7 +45,7 @@ properties:
     items:
       $ref: ExecutionDependency
     dom:
-      elem: div
+      elem: span
   executionDependants:
     '@id': stencila:executionDependants
     description: The downstream dependants of this node.
@@ -54,7 +54,7 @@ properties:
     items:
       $ref: ExecutionDependant
     dom:
-      elem: div
+      elem: span
   executionTags:
     '@id': stencila:executionTags
     description: Tags in the code which affect its execution.
@@ -63,7 +63,7 @@ properties:
     items:
       $ref: ExecutionTag
     dom:
-      elem: div
+      elem: span
   executionCount:
     '@id': stencila:executionCount
     description: A count of the number of times that the node has been executed.
@@ -111,4 +111,4 @@ properties:
     items:
       $ref: ExecutionMessage
     dom:
-      elem: div
+      elem: span

@@ -32,10 +32,10 @@ export class CodeBlock extends CodeStatic {
 
           <stencila-ui-node-code
             type="CodeBlock"
+            code=${this.code}
             language=${this.programmingLanguage}
             read-only
           >
-            <slot name="code"></slot>
           </stencila-ui-node-code>
         </div>
       </stencila-ui-node-card>

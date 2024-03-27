@@ -3,3 +3,9 @@ compact.jats.xml:
     strip-types:
       # TODO: Implement encoding and decoding `StyledBlock`
       - StyledBlock
+
+md:
+  decode:
+    strip-props:
+      # Not supported in Markdown
+      - StyledBlock.style_language

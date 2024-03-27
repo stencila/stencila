@@ -315,11 +315,11 @@ impl KernelInstance for MicrokernelInstance {
         self.get_status()
     }
 
-    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
+    fn status_watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
         Ok(self.status_sender.subscribe())
     }
 
-    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>> {
+    fn signal_sender(&self) -> Result<mpsc::Sender<KernelSignal>> {
         match &self.signal_sender {
             Some(sender) => Ok(sender.clone()),
             None => bail!("Microkernel has not started yet!"),

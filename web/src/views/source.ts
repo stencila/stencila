@@ -98,7 +98,7 @@ export class SourceView extends TWLitElement {
    *  Turn on/off the node gutter markers.
    *  Gutters will be disabled automatically in "writeOnly" mode.
    */
-  @property({ attribute: 'gutter-markers' })
+  @property({ attribute: 'gutter-markers', type: Boolean })
   gutterMarkers: boolean = true
 
   /**
@@ -146,7 +146,7 @@ export class SourceView extends TWLitElement {
   static languageDescriptions = [
     LanguageDescription.of({
       name: 'markdown',
-      extensions: ['md'],
+      alias: ['md'],
       load: async () => {
         return import('../languages/markdown').then((md) =>
           md.stencilaMarkdown()
@@ -155,35 +155,31 @@ export class SourceView extends TWLitElement {
     }),
     LanguageDescription.of({
       name: 'jats',
-      extensions: ['jats.xml'],
       load: async () => {
         return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
     LanguageDescription.of({
       name: 'json',
-      extensions: ['json'],
       load: async () => {
         return import('@codemirror/lang-json').then((obj) => obj.json())
       },
     }),
     LanguageDescription.of({
       name: 'json5',
-      extensions: ['json5'],
       load: async () => {
         return import('codemirror-json5').then((obj) => obj.json5())
       },
     }),
     LanguageDescription.of({
       name: 'html',
-      extensions: ['html'],
       load: async () => {
         return import('@codemirror/lang-html').then((obj) => obj.html())
       },
     }),
     LanguageDescription.of({
       name: 'yaml',
-      extensions: ['yaml', 'yml'],
+      alias: ['yml'],
       load: async () => {
         return import('@codemirror/legacy-modes/mode/yaml').then(
           (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml))
@@ -192,7 +188,6 @@ export class SourceView extends TWLitElement {
     }),
     LanguageDescription.of({
       name: 'dom',
-      extensions: ['dom'],
       load: async () => {
         return import('@codemirror/lang-html').then((obj) => obj.html())
       },
@@ -231,29 +226,21 @@ export class SourceView extends TWLitElement {
   }
 
   /**
-   * Get the CodeMirror `LanguageSupport` for a particular format
-   *
-   * Defaults to the first `SourceView.languageDescriptions` if it does no
-   * matching language extension is found.
-   *
-   * @param {string} format `format` parameter of the source view
-   * @returns `LanguageSupport` instance
-   */
-  private async getLanguageExtension(format: string): Promise<LanguageSupport> {
-    const ext =
-      LanguageDescription.matchLanguageName(
-        SourceView.languageDescriptions,
-        format
-      ) ?? SourceView.languageDescriptions[0]
-
-    return await ext.load()
-  }
-
-  /**
    * Get the CodeMirror editor view extensions
    */
   private async getViewExtensions(): Promise<Extension[]> {
-    const langExt = await this.getLanguageExtension(this.format)
+    const languageDescription = LanguageDescription.matchLanguageName(
+      SourceView.languageDescriptions,
+      this.format,
+      true
+    )
+
+    let languageExtension: LanguageSupport[]
+    if (languageDescription) {
+      languageExtension = [await languageDescription.load()]
+    } else {
+      languageExtension = []
+    }
 
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
@@ -277,7 +264,7 @@ export class SourceView extends TWLitElement {
         : defaultHighlightStyle
 
     const extensions = [
-      langExt,
+      ...languageExtension,
       keyMaps,
       history(),
       search({ top: true }),

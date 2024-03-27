@@ -20,8 +20,8 @@ use node_patch::{
 use node_store::{ReadNode, WriteStore};
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Block, Inline, InstructionBlock, InstructionInline, Node, NodeId, SuggestionBlockType,
-    SuggestionInlineType, SuggestionStatus,
+    AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
+    Node, NodeId, SuggestionBlockType, SuggestionInlineType, SuggestionStatus,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -39,7 +39,27 @@ mod instruction_block;
 mod instruction_inline;
 mod math_block;
 mod math_inline;
-mod styled;
+mod styled_block;
+mod styled_inline;
+
+/// Walk over a root node and compile it and child nodes
+pub async fn compile(
+    home: PathBuf,
+    store: Arc<RwLock<WriteStore>>,
+    kernels: Arc<RwLock<Kernels>>,
+    patch_sender: NodePatchSender,
+    node_ids: Option<NodeIds>,
+    options: Option<ExecuteOptions>,
+) -> Result<()> {
+    let mut root = {
+        // This is within a block to ensure that the lock on `store` gets dropped
+        let store = store.read().await;
+        Node::load(&*store).unwrap()
+    };
+
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, options);
+    executor.compile(&mut root).await
+}
 
 /// Walk over a root node and execute it and child nodes
 pub async fn execute(
@@ -51,8 +71,7 @@ pub async fn execute(
     options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = {
-        // This is within a block to ensure that the lock on `store` gets
-        // dropped before execution
+        // This is within a block to ensure that the lock on `store` gets dropped
         let store = store.read().await;
         Node::load(&*store).unwrap()
     };
@@ -71,8 +90,7 @@ pub async fn interrupt(
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
     let mut root = {
-        // This is within a block to ensure that the lock on `store` gets
-        // dropped before execution
+        // This is within a block to ensure that the lock on `store` gets dropped
         let store = store.read().await;
         Node::load(&*store).unwrap()
     };
@@ -82,12 +100,19 @@ pub async fn interrupt(
 }
 
 /// A trait for an executable node
+///
+/// Default action does nothing to the node but continues walking
+/// over its descendants. Implementation will normally at least
+/// override `compile` and/or `execute`. If `execute` is implemented,
+/// so to should `pending`
 #[allow(unused)]
 trait Executable {
+    /// Compile the node
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
+
     /// Set the execution status of the node to pending
-    ///
-    /// This default action does nothing to the node but continues walking
-    /// over its descendants.
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         WalkControl::Continue
     }
@@ -98,12 +123,11 @@ trait Executable {
     /// executable nodes to handle any errors associated with their execution
     /// and record them in `execution_messages` so that they are visible
     /// to the user.
-    async fn execute(&mut self, executor: &mut Executor) -> WalkControl;
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Interrupt execution of the node
-    ///
-    /// This default action does nothing to the node but continues walking
-    /// over its descendants.
     async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
         WalkControl::Continue
     }
@@ -205,6 +229,7 @@ pub struct ExecuteOptions {
 /// These phases determine which method of each [`Executable`] is called as
 /// the executor walks over the root node.
 enum Phase {
+    Compile,
     Pending,
     Execute,
     Interrupt,
@@ -233,10 +258,15 @@ impl Executor {
         }
     }
 
+    /// Run [`Phase::Compile`]
+    async fn compile(&mut self, root: &mut Node) -> Result<()> {
+        self.phase = Phase::Compile;
+        root.walk_async(self).await
+    }
+
     /// Run [`Phase::Pending`]
     async fn pending(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Pending;
-        self.is_last = false;
         root.walk_async(self).await
     }
 
@@ -256,7 +286,6 @@ impl Executor {
     /// Run [`Phase::Interrupt`]
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
-        self.is_last = false;
         root.walk_async(self).await
     }
 
@@ -285,8 +314,14 @@ impl Executor {
         self.context.clone()
     }
 
-    /// Should the executor execute a code-based node (derived from `CodeExecutable`)
-    pub fn should_execute_code(&self, node_id: &NodeId) -> bool {
+    /// Should the executor execute a code-based node (a node derived from `CodeExecutable`)
+    pub fn should_execute_code(
+        &self,
+        node_id: &NodeId,
+        auto_exec: &Option<AutomaticExecution>,
+        compilation_digest: &Option<CompilationDigest>,
+        execution_digest: &Option<CompilationDigest>,
+    ) -> bool {
         if self.options.force_all {
             return true;
         }
@@ -297,7 +332,18 @@ impl Executor {
             }
         }
 
-        !self.options.skip_code
+        if self.options.skip_code {
+            return false;
+        }
+
+        match auto_exec {
+            Some(AutomaticExecution::Never) => false,
+            Some(AutomaticExecution::Always) => true,
+            Some(AutomaticExecution::Needed) | None => {
+                (compilation_digest.is_none() && execution_digest.is_none())
+                    || compilation_digest != execution_digest
+            }
+        }
     }
 
     /// Should the executor execute an `Instruction` based on the the
@@ -328,7 +374,7 @@ impl Executor {
         if self.options.force_all {
             return true;
         }
-        
+
         if let Some(node_ids) = &self.node_ids {
             if node_ids.contains(node_id) {
                 return true;
@@ -367,7 +413,7 @@ impl Executor {
         if self.options.force_all {
             return true;
         }
-        
+
         if let Some(node_ids) = &self.node_ids {
             if node_ids.contains(node_id) {
                 return true;
@@ -446,6 +492,7 @@ impl Executor {
     /// Visit an executable node and call the appropriate method for the phase
     async fn visit_executable<E: Executable>(&mut self, node: &mut E) -> WalkControl {
         match self.phase {
+            Phase::Compile => node.compile(self).await,
             Phase::Pending => node.pending(self).await,
             Phase::Execute => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
@@ -504,7 +551,7 @@ impl VisitorAsync for Executor {
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
-            // TODO: StyledBlock(node) => self.visit_executable(node).await,
+            StyledBlock(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
 
@@ -538,7 +585,7 @@ impl VisitorAsync for Executor {
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
             // TODO: Parameter(node) => self.visit_executable(node).await,
-            // TODO: StyledInline(node) => self.visit_executable(node).await,
+            StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
 
