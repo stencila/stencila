@@ -1,46 +1,21 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import type { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html, LitElement } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { PropertyValueMap, html } from 'lit'
+import { customElement, state } from 'lit/decorators'
 
-import { withTwind } from '../../twind'
-import { DocumentView } from '../../types'
-
-import { nodeUi } from './icons-and-colours'
-
-import '../animation/collapsible'
+import { withTwind } from '../../../twind'
+import '../../animation/collapsible'
+import { UIBaseClass } from '../mixins/uiBaseClass'
 
 /**
- * A component for displaying information about a node type (e.g. a `Heading` or `Table`)
+ * UI block-on-demand
+ *
+ * A component to render a node-card on demand - i.e. a user requests to see
+ * the info rather than just the content of a card.
  */
-@customElement('stencila-ui-node-card')
+@customElement('stencila-ui-block-on-demand')
 @withTwind()
-export class UINodeCard extends LitElement {
-  /**
-   * The type of node that this card is for
-   *
-   * Used to determine the title, icon and colors of the card.
-   */
-  @property()
-  type: NodeType
-
-  /**
-   * The view that this card is within
-   *
-   * Used for adapting styling for the view.
-   */
-  @property()
-  view: DocumentView
-
-  /**
-   * Determine how to display the node-card. By default, we simply display the
-   * card as is (`auto`). However, if we show the card in the dynamic view, we
-   * need the ability to only show the card only when needed.
-   */
-  @property()
-  display: 'on-demand' | 'auto' = 'auto'
-
+export class UIBlockOnDemand extends UIBaseClass {
   /**
    * Manages showing/hiding the card info (when rendering display = 'on-demand')
    */
@@ -48,53 +23,27 @@ export class UINodeCard extends LitElement {
   toggle: boolean = false
 
   /**
-   * Internal copy of the ui attributes.
+   * Disables showing content if slot has no content.
    */
-  private ui: ReturnType<typeof nodeUi> | undefined = undefined
-
-  /**
-   * Provide ui options based on the node type.
-   */
-  override connectedCallback() {
-    super.connectedCallback()
-
-    this.ui = nodeUi(this.type)
-  }
+  @state()
+  displayContent: boolean = false
 
   override render() {
     const cardStyles = apply([
       'group',
       'transition duration-400',
       'border border-[transparent]',
-      this.display && 'rounded',
+      'rounded',
       this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
-      this.display === 'on-demand' &&
-        this.toggle &&
-        `border-[${this.ui.borderColour}]`,
+      this.toggle && `border-[${this.ui.borderColour}]`,
     ])
 
-    const contentStyles = apply([
-      'flex',
-      'relative',
-      'transition-[padding] ease-in-out duration-[250ms]',
-      'px-0',
-      'w-full',
-      this.display === 'on-demand' && this.toggle && 'px-3',
-    ])
-
-    return html` <div class=${`${cardStyles}`}>
+    return html`<div class=${`${cardStyles}`}>
       <div class="relative">
-        <stencila-ui-collapsible-animation
-          class=${this.toggle || this.display === 'auto' ? 'opened' : ''}
-        >
+        <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
           ${this.renderHeader()} ${this.renderBody()}
         </stencila-ui-collapsible-animation>
-        <div class=${contentStyles}>
-          ${this.renderChip()}
-          <div class="inline grow">
-            <slot name="content"></slot>
-          </div>
-        </div>
+        ${this.renderContent()}
       </div>
     </div>`
   }
@@ -139,7 +88,7 @@ export class UINodeCard extends LitElement {
       'relative',
       'w-full h-full',
       `bg-[${colour}]`,
-      this.display === 'auto' && `border border-[${borderColour}] rounded-b`,
+      `border border-[${borderColour}] rounded-b`,
     ])
 
     return html`<div class=${bodyStyles}>
@@ -148,12 +97,7 @@ export class UINodeCard extends LitElement {
   }
 
   private renderClose() {
-    const styles = apply([
-      'text-base',
-      'cursor-pointer',
-      'grow-0 shrink-0',
-      this.display === 'auto' && 'hidden pointer-events-none',
-    ])
+    const styles = apply(['text-base', 'cursor-pointer', 'grow-0 shrink-0'])
 
     return html`<sl-icon
       class=${styles}
@@ -167,9 +111,8 @@ export class UINodeCard extends LitElement {
     const { iconLibrary, icon, colour, borderColour } = this.ui
 
     const styles = apply([
-      this.display === 'auto' && `hidden pointer-events-none`,
-      this.display === 'on-demand' && this.toggle && 'pointer-events-none',
-      this.display === 'on-demand' && !this.toggle && 'group-hover:opacity-100',
+      this.toggle && 'pointer-events-none',
+      !this.toggle && 'group-hover:opacity-100',
       'h-8',
       'flex items-center',
       'opacity-0',
@@ -196,7 +139,40 @@ export class UINodeCard extends LitElement {
     `
   }
 
+  private renderContent() {
+    const contentStyles = apply([
+      !this.displayContent && this.toggle ? 'hidden' : 'flex',
+      'relative',
+      'transition-[padding] ease-in-out duration-[250ms]',
+      'px-0',
+      this.toggle && 'px-3',
+    ])
+
+    return html` <div class=${contentStyles}>
+      ${this.renderChip()}
+      <slot name="content"></slot>
+    </div>`
+  }
+
   private toggleCardDisplay() {
     this.toggle = !this.toggle
+  }
+
+  protected override update(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+  ) {
+    super.update(changedProperties)
+    const slot: HTMLSlotElement = this.shadowRoot.querySelector(
+      'slot[name="content"]'
+    )
+
+    if (slot) {
+      const hasItems = slot.assignedElements({ flatten: true }).length !== 0
+
+      if (hasItems !== this.displayContent) {
+        this.displayContent = hasItems
+      }
+    }
   }
 }

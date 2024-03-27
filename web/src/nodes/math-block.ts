@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/card'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -25,7 +26,7 @@ export class MathBlock extends Math {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="MathBlock" view="source">
+      <stencila-ui-block-in-flow type="MathBlock" view="source">
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">
             <slot name="authors"></slot>
@@ -40,11 +41,11 @@ export class MathBlock extends Math {
           >
           </stencila-ui-node-code>
 
-          <div class="p-6">
+          <div class="px-4 py-3">
             <slot name="mathml"></slot>
           </div>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 

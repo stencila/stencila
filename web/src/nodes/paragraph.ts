@@ -1,4 +1,4 @@
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
@@ -16,6 +16,12 @@ import { Entity } from './entity'
 @customElement('stencila-paragraph')
 @withTwind()
 export class Paragraph extends Entity {
+  static override styles = css`
+    ::slotted(p) {
+      display: flex;
+    }
+  `
+
   /**
    * In static view just render the `content`.
    */
@@ -41,7 +47,9 @@ export class Paragraph extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <slot name="content" slot="content"></slot>
+        <div slot="content" class="content">
+          <slot name="content"></slot>
+        </div>
       </stencila-ui-node-card>
     `
   }
