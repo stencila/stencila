@@ -31,7 +31,7 @@ async fn media_objects() -> Result<()> {
         r#"<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p><inline-media xlink:href="http://example.org/audio.mp3" mimetype="audio"></inline-media><inline-graphic xlink:href="http://example.org/image.png"></inline-graphic><inline-media xlink:href="http://example.org/video.mp4" mimetype="video"></inline-media></p></body></article>"#
     );
 
-    let (doc2, _) = codec.from_str(&jats, None).await?;
+    let (doc2, ..) = codec.from_str(&jats, None).await?;
     assert_eq!(doc2, doc1);
 
     Ok(())
@@ -61,7 +61,7 @@ async fn spans() -> Result<()> {
         r#"<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p><styled-content style="&#9;&#10;&#13;"></styled-content></p></body></article>"#
     );
 
-    let (doc2, _) = codec.from_str(&jats, None).await?;
+    let (doc2, ..) = codec.from_str(&jats, None).await?;
     assert_eq!(doc2, doc1);
 
     Ok(())

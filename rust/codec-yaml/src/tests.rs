@@ -34,7 +34,7 @@ content:
 "#
     );
 
-    let (doc2, _) = codec.from_str(&yaml, None).await?;
+    let (doc2, ..) = codec.from_str(&yaml, None).await?;
     assert_eq!(doc2, doc1);
 
     Ok(())

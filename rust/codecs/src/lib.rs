@@ -77,7 +77,7 @@ pub fn get(
 /// Decode a Stencila Schema node from a string
 #[tracing::instrument]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
-    let (node, losses) = from_str_with_losses(str, options.clone()).await?;
+    let (node, losses, ..) = from_str_with_info(str, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         let format = options
@@ -95,10 +95,10 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
 
 /// Decode a Stencila Schema node from a string with decoding losses
 #[tracing::instrument]
-pub async fn from_str_with_losses(
+pub async fn from_str_with_info(
     str: &str,
     options: Option<DecodeOptions>,
-) -> Result<(Node, Losses)> {
+) -> Result<(Node, Losses, Mapping)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = options
@@ -124,7 +124,7 @@ pub async fn from_str_with_losses(
 /// Decode a Stencila Schema node from a file system path
 #[tracing::instrument]
 pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
-    let (node, losses) = from_path_with_losses(path, options.clone()).await?;
+    let (node, losses, ..) = from_path_with_info(path, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         losses.respond(
@@ -167,10 +167,10 @@ pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node>
 
 /// Decode a Stencila Schema node from a file system path with decoding losses
 #[tracing::instrument]
-pub async fn from_path_with_losses(
+pub async fn from_path_with_info(
     path: &Path,
     options: Option<DecodeOptions>,
-) -> Result<(Node, Losses)> {
+) -> Result<(Node, Losses, Mapping)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {
@@ -211,7 +211,7 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
 /// Encode a Stencila Schema node to a string
 #[tracing::instrument(skip(node))]
 pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let (content, losses, ..) = to_string_with(node, options.clone()).await?;
+    let (content, losses, ..) = to_string_with_info(node, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         let format = options
@@ -226,7 +226,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
 
 /// Encode a Stencila Schema node to a string with encoding losses
 #[tracing::instrument(skip(node))]
-pub async fn to_string_with(
+pub async fn to_string_with_info(
     node: &Node,
     options: Option<EncodeOptions>,
 ) -> Result<(String, Losses, Mapping)> {
@@ -264,7 +264,7 @@ pub async fn to_string_with(
 /// Encode a Stencila Schema node to a file system path
 #[tracing::instrument(skip(node))]
 pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
-    let losses = to_path_with_losses(node, path, options.clone()).await?;
+    let (losses, ..) = to_path_with_losses(node, path, options.clone()).await?;
     if !losses.is_empty() {
         losses.respond(
             format!("While encoding to `{path}`", path = path.display()),
@@ -281,7 +281,7 @@ pub async fn to_path_with_losses(
     node: &Node,
     path: &Path,
     options: Option<EncodeOptions>,
-) -> Result<Losses> {
+) -> Result<(Losses, Mapping)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {

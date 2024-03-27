@@ -91,8 +91,13 @@ impl Codec for MarkdownCodec {
         }
     }
 
-    async fn from_str(&self, str: &str, options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
-        decode::decode(str, options)
+    async fn from_str(
+        &self,
+        str: &str,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses, Mapping)> {
+        let (node, losses) = decode::decode(str, options)?;
+        Ok((node, losses, Mapping::none()))
     }
 
     async fn to_string(

@@ -35,10 +35,14 @@ impl Codec for Json5Codec {
         CodecSupport::NoLoss
     }
 
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+    async fn from_str(
+        &self,
+        str: &str,
+        _options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses, Mapping)> {
         let node = Node::from_json5(str)?;
 
-        Ok((node, Losses::none()))
+        Ok((node, Losses::none(), Mapping::none()))
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

@@ -420,7 +420,7 @@ async fn examples() -> Result<()> {
                 });
 
                 // Decode from file
-                let (mut decoded, losses) = codec
+                let (mut decoded, losses, ..) = codec
                     .from_path(&file, decode_options)
                     .await
                     .wrap_err_with(|| format!("while decoding {}", file.display()))?;
