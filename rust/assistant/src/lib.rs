@@ -1161,9 +1161,8 @@ pub enum AssistantIO {
 pub trait Assistant: Sync + Send {
     /// Get the name of the assistant
     ///
-    /// The name should be unique amongst assistants. For base assistants which directly
-    /// use a large language model (as opposed to a custom assistant that delegates)
-    /// the name should follow the pattern <PUBLISHER>/<MODEL>.
+    /// The name should be unique amongst assistants.
+    /// The name should follow the pattern <PUBLISHER>/<MODEL>.
     fn name(&self) -> String;
 
     /// Get the provider of the assistant
