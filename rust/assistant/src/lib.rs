@@ -1170,6 +1170,11 @@ pub trait Assistant: Sync + Send {
         AssistantType::Builtin
     }
 
+    /// Get the availability of the assistant
+    fn availability(&self) -> AssistantAvailability {
+        AssistantAvailability::Available
+    }
+
     /// Get the name of the publisher of the assistant
     ///
     /// This default implementation returns the title cased name
@@ -1329,6 +1334,20 @@ pub enum AssistantType {
     Local,
     Remote,
     Plugin(String),
+}
+
+/// The availability of a assistant on the current machine
+#[derive(Display, Clone, Copy)]
+#[strum(serialize_all = "lowercase")]
+pub enum AssistantAvailability {
+    /// Available on this machine
+    Available,
+    /// Available on this machine but requires installation
+    Installable,
+    /// Not available on this machine
+    Unavailable,
+    /// Available on this machine but disabled
+    Disabled,
 }
 
 /// Generate a test task which has system, user and assistant messages

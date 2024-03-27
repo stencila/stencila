@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use assistant::{
-    format::Format, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput,
-    GenerateTask,
+    format::Format, Assistant, AssistantAvailability, AssistantIO, AssistantType, GenerateOptions,
+    GenerateOutput, GenerateTask,
 };
 use assistant_specialized::{choose_delegate, deserialize_delegates};
 use common::{
@@ -13,7 +13,7 @@ use common::{
     tokio::sync::Mutex,
 };
 
-use crate::{plugins, Plugin, PluginInstance};
+use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 
 /// A assistant provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -91,6 +91,40 @@ impl Assistant for PluginAssistant {
         self.name.clone()
     }
 
+    fn r#type(&self) -> AssistantType {
+        match &self.plugin {
+            Some(plugin) => {
+                let mut name = plugin.name.clone();
+                if plugin.linked {
+                    name += " (linked)";
+                }
+                AssistantType::Plugin(name)
+            }
+            None => AssistantType::Plugin("unknown".to_string()),
+        }
+    }
+
+    fn availability(&self) -> AssistantAvailability {
+        match &self.plugin {
+            Some(plugin) => match plugin.availability() {
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::Yes,
+                ) => AssistantAvailability::Available,
+
+                (
+                    PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
+                    PluginEnabled::No,
+                ) => AssistantAvailability::Disabled,
+
+                (PluginStatus::Installable, _) => AssistantAvailability::Installable,
+
+                _ => AssistantAvailability::Unavailable,
+            },
+            None => AssistantAvailability::Unavailable,
+        }
+    }
+
     fn title(&self) -> String {
         self.title.clone().unwrap_or_else(|| {
             let id = self.name.clone();
@@ -107,19 +141,6 @@ impl Assistant for PluginAssistant {
             .as_ref()
             .map(|plugin| plugin.version.to_string())
             .unwrap_or_default()
-    }
-
-    fn r#type(&self) -> AssistantType {
-        match &self.plugin {
-            Some(plugin) => {
-                let mut name = plugin.name.clone();
-                if plugin.linked {
-                    name += " (linked)";
-                }
-                AssistantType::Plugin(name)
-            }
-            None => AssistantType::Plugin("unknown".to_string()),
-        }
     }
 
     fn supported_inputs(&self) -> &[AssistantIO] {
