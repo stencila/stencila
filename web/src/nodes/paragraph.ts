@@ -1,9 +1,9 @@
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/card'
+import '../ui/nodes/on-demand/block'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
@@ -16,12 +16,6 @@ import { Entity } from './entity'
 @customElement('stencila-paragraph')
 @withTwind()
 export class Paragraph extends Entity {
-  static override styles = css`
-    ::slotted(p) {
-      display: flex;
-    }
-  `
-
   /**
    * In static view just render the `content`.
    */
@@ -37,20 +31,16 @@ export class Paragraph extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-node-card
-        type="Paragraph"
-        view="dynamic"
-        display="on-demand"
-      >
+      <stencila-ui-block-on-demand type="Paragraph" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div slot="content" class="content">
+        <div slot="content" class="inline-elements">
           <slot name="content"></slot>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -62,13 +52,13 @@ export class Paragraph extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-node-card type="Paragraph" view="source">
+      <stencila-ui-block-on-demand type="Paragraph" view="source">
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 }

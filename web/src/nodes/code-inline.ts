@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import '../ui/nodes/card'
+import '../ui/nodes/on-demand/in-line'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -24,7 +24,7 @@ export class CodeInline extends CodeStatic {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="CodeInline" view="dynamic">
+      <stencila-ui-inline-on-demand type="CodeInline" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="CodeInline">
             <slot name="authors"></slot>
@@ -38,7 +38,8 @@ export class CodeInline extends CodeStatic {
           >
           </stencila-ui-node-code>
         </div>
-      </stencila-ui-node-card>
+        <span slot="content"> ${this.code} </span>
+      </stencila-ui-inline-on-demand>
     `
   }
 

@@ -1,6 +1,6 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import { apply } from '@twind/core'
-import { PropertyValueMap, css, html } from 'lit'
+import { apply, css as twCss, Twind } from '@twind/core'
+import { PropertyValueMap, html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
@@ -28,31 +28,21 @@ export class UIInlineOnDemand extends UIBaseClass {
   @state()
   displayContent: boolean = false
 
-  static override styles = css`
-    :host {
-      flex-grow: 0;
-      background-color: red;
-      width: 100%;
-    }
-  `
+  @state()
+  isToolTipOpen: boolean = false
+
+  private tw: Twind
 
   override render() {
     const cardStyles = apply([
       'group',
       'transition duration-400',
-      'border border-[transparent]',
       'rounded',
       this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
-      this.toggle && `border-[${this.ui.borderColour}]`,
     ])
 
     return html`<div class=${`${cardStyles}`}>
-      <div class="relative">
-        <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
-          ${this.renderHeader()} ${this.renderBody()}
-        </stencila-ui-collapsible-animation>
-        ${this.renderContent()}
-      </div>
+      ${this.renderContentContainer()}
     </div>`
   }
 
@@ -62,11 +52,11 @@ export class UIInlineOnDemand extends UIBaseClass {
     const headerStyles = apply([
       'flex items-center',
       'w-full',
-      'px-6 py-3',
+      'px-4 py-1',
       'gap-x-2',
       `bg-[${borderColour}]`,
-      `border border-[${borderColour}]`,
-      this.view === 'source' ? '' : 'rounded-t',
+      'border-b border-black/20',
+      'rounded-t',
       'font-medium',
     ])
 
@@ -109,7 +99,7 @@ export class UIInlineOnDemand extends UIBaseClass {
 
     return html`<sl-icon
       class=${styles}
-      name="chevron-down"
+      name="chevron-up"
       library="default"
       @click=${this.toggleCardDisplay}
     ></sl-icon>`
@@ -135,7 +125,7 @@ export class UIInlineOnDemand extends UIBaseClass {
     ])
 
     return html`
-      <div class="-ml-[40px] pr-[6px] mt-2">
+      <div class="-ml-[40px] pr-[6px] top-1/2 -translate-y-1/2 absolute">
         <div class=${`${styles}`} @click=${this.toggleCardDisplay}>
           <sl-icon
             library=${iconLibrary}
@@ -147,18 +137,54 @@ export class UIInlineOnDemand extends UIBaseClass {
     `
   }
 
-  private renderContent() {
-    const contentStyles = apply([
+  private renderContentContainer() {
+    const containerStyles = apply([
       !this.displayContent && this.toggle ? 'hidden' : 'flex',
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
-      this.toggle && 'px-3',
     ])
 
-    return html` <div class=${contentStyles}>
+    const css = twCss
+    const colors = this.tw.theme().colors
+
+    const toolTipStyles = css`
+      &::part(body) {
+        --sl-tooltip-padding: 0;
+        --sl-tooltip-border-radius: 0;
+        --sl-tooltip-background-color: transparent;
+        --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
+
+        pointer-events: all;
+      }
+    `
+
+    const contentStyles = apply([
+      'inline-block',
+      `bg-[${this.ui.borderColour}]`,
+      'rounded-md',
+      'cursor-default',
+      `text-black leading-5`,
+      'mb-auto mx-1 -mt-[0.125rem]',
+      'py-[0.125rem] px-1.5',
+    ])
+
+    return html` <div
+      class=${containerStyles}
+      style="--sl-tooltip-arrow-size: 0;"
+    >
       ${this.renderChip()}
-      <slot name="content"></slot>
+      <sl-tooltip
+        trigger="manual"
+        class=${`${toolTipStyles}`}
+        .open=${this.toggle}
+        placement="bottom"
+      >
+        <div slot="content">${this.renderHeader()} ${this.renderBody()}</div>
+        <div class=${contentStyles}>
+          <slot name="content"></slot>
+        </div>
+      </sl-tooltip>
     </div>`
   }
 
