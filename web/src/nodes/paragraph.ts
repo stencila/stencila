@@ -37,7 +37,7 @@ export class Paragraph extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div slot="content" class="inline-elements">
+        <div slot="content">
           <slot name="content"></slot>
         </div>
       </stencila-ui-block-on-demand>

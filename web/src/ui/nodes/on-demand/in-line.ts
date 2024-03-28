@@ -1,6 +1,6 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { apply, css as twCss, Twind } from '@twind/core'
-import { PropertyValueMap, html } from 'lit'
+import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
@@ -33,12 +33,18 @@ export class UIInlineOnDemand extends UIBaseClass {
 
   private tw: Twind
 
+  static override styles = css`
+    :host {
+      display: inline-block;
+    }
+  `
+
   override render() {
     const cardStyles = apply([
       'group',
       'transition duration-400',
       'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
+      this.view === 'source' ? 'flex flex-col h-full' : '',
     ])
 
     return html`<div class=${`${cardStyles}`}>
@@ -52,7 +58,7 @@ export class UIInlineOnDemand extends UIBaseClass {
     const headerStyles = apply([
       'flex items-center',
       'w-full',
-      'px-4 py-1',
+      'px-4 py-2',
       'gap-x-2',
       `bg-[${borderColour}]`,
       'border-b border-black/20',
@@ -156,6 +162,19 @@ export class UIInlineOnDemand extends UIBaseClass {
         --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
 
         pointer-events: all;
+      }
+
+      &::part(body)::after {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        mix-blend-mode: multiply;
+        content: '';
+
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: -1;
       }
     `
 

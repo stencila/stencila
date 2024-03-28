@@ -62,6 +62,7 @@ export class SplitView extends LitElement {
             format=${this.format}
             displayMode="split"
             slot="left"
+            ?gutter-markers=${true}
           >
           </stencila-source-view>
           <div slot="right" class="${dynamicStyles}">

@@ -67,16 +67,17 @@ export class DragSplit extends TWLitElement {
   override render() {
     const panel = apply([
       'w-full min-w-full',
-      'h-[calc(50vh-32px)]',
-      'lg:(max-h-screen min-h-screen min-w-0)',
+      'h-[calc(100%-1px)]',
+      'lg:(max-h-[calc(100vh-5rem-1px)] min-w-0)',
+      'border-r',
     ])
 
-    return html`<div class="flex h-screen flex-col lg:flex-row">
-      <div class="${panel} overflow-scroll" ${ref(this.leftRef)}>
+    return html`<div class="flex h-[calc(100vh-5rem-1px)] flex-col lg:flex-row">
+      <div class="${panel} overflow-hidden" ${ref(this.leftRef)}>
         <slot name="left"></slot>
       </div>
       ${this.renderDrag()}
-      <div class="${panel} overflow-y-scroll" ${ref(this.rightRef)}>
+      <div class="overflow-y-scroll" ${ref(this.rightRef)}>
         <slot name="right"></slot>
       </div>
     </div>`

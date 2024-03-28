@@ -54,7 +54,7 @@ export class UIBlockOnDemand extends UIBaseClass {
     const headerStyles = apply([
       'flex items-center',
       'w-full',
-      'px-6 py-3',
+      'px-4 py-2',
       'gap-x-2',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}]`,

@@ -29,7 +29,7 @@ export class UIBlockInFlow extends UIBaseClass {
       'border border-[transparent]',
       'rounded',
       this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
-      `border-[${this.ui.borderColour}]`,
+      this.ui.borderColour && `border-[${this.ui.borderColour}]`,
     ])
 
     return html`<div class=${`${cardStyles}`}>
@@ -48,7 +48,7 @@ export class UIBlockInFlow extends UIBaseClass {
     const headerStyles = apply([
       'flex items-center',
       'w-full',
-      'px-6 py-3',
+      'px-4 py-2',
       'gap-x-2',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}]`,
