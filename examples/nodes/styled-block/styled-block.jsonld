@@ -38,37 +38,6 @@
     },
     {
       "@type": "stencila:StyledBlock",
-      "stencila:code": "bg-$color-100 p-2",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": "A styled block with this parameter "
-            },
-            {
-              "@type": "stencila:Parameter",
-              "name": "color",
-              "stencila:validator": {
-                "@type": "stencila:EnumValidator",
-                "stencila:values": [
-                  "red",
-                  "blue",
-                  "green"
-                ]
-              }
-            },
-            {
-              "@type": "Text",
-              "value": " interpolated into background color"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "@type": "stencila:StyledBlock",
       "stencila:code": "bg-red-100 p-2",
       "stencila:content": [
         {
