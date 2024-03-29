@@ -207,29 +207,29 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
                     // If the the block before this one was an instruction and this is a suggestion
                     // then associate the two
-                    if is_suggestion {
-                        if matches!(
+                    if is_suggestion
+                        && matches!(
                             blocks.iter().rev().nth(1),
                             Some(Block::InstructionBlock(..))
-                        ) {
-                            let suggestion = match blocks.pop() {
-                                Some(Block::InsertBlock(block)) => {
-                                    SuggestionBlockType::InsertBlock(block)
-                                }
-                                Some(Block::DeleteBlock(block)) => {
-                                    SuggestionBlockType::DeleteBlock(block)
-                                }
-                                Some(Block::ReplaceBlock(block)) => {
-                                    SuggestionBlockType::ReplaceBlock(block)
-                                }
-                                Some(Block::ModifyBlock(block)) => {
-                                    SuggestionBlockType::ModifyBlock(block)
-                                }
-                                _ => unreachable!(),
-                            };
-                            if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
-                                instruct.options.suggestion = Some(suggestion);
+                        )
+                    {
+                        let suggestion = match blocks.pop() {
+                            Some(Block::InsertBlock(block)) => {
+                                SuggestionBlockType::InsertBlock(block)
                             }
+                            Some(Block::DeleteBlock(block)) => {
+                                SuggestionBlockType::DeleteBlock(block)
+                            }
+                            Some(Block::ReplaceBlock(block)) => {
+                                SuggestionBlockType::ReplaceBlock(block)
+                            }
+                            Some(Block::ModifyBlock(block)) => {
+                                SuggestionBlockType::ModifyBlock(block)
+                            }
+                            _ => unreachable!(),
+                        };
+                        if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                            instruct.options.suggestion = Some(suggestion);
                         }
                     }
 
@@ -1002,6 +1002,7 @@ fn mds_to_quote_block_or_admonition(
         .map(|Text { value, .. }| value.to_string())
         .unwrap_or_default();
 
+    #[allow(clippy::type_complexity)]
     let parsed: IResult<&str, (&str, Option<&str>, Option<&str>, Option<char>)> =
         tuple((
             delimited(tag("[!"), is_not("]"), tag("]")),
