@@ -214,6 +214,7 @@ fn div_start(line: &str) -> IResult<&str, Block> {
         div_delete_block,
         div_insert_block,
         div_replace_block,
+        div_modify_block,
         div_claim,
         div_styled_block,
         // Section parser is permissive of label so needs to
@@ -488,6 +489,23 @@ pub fn div_replace_block(input: &str) -> IResult<&str, Block> {
         )),
         |status| {
             Block::ReplaceBlock(ReplaceBlock {
+                suggestion_status: status
+                    .and_then(|status| SuggestionStatus::from_str(status).ok()),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a [`ModifyBlock`] node
+pub fn div_modify_block(input: &str) -> IResult<&str, Block> {
+    map(
+        all_consuming(preceded(
+            tuple((semis, multispace0, tag("modify"), multispace0)),
+            opt(not_line_ending),
+        )),
+        |status| {
+            Block::ModifyBlock(ModifyBlock {
                 suggestion_status: status
                     .and_then(|status| SuggestionStatus::from_str(status).ok()),
                 ..Default::default()
