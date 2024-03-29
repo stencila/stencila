@@ -4,9 +4,9 @@ use markdown::{mdast, unist::Position};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while1},
-    character::complete::{char, multispace0},
+    character::complete::{anychar, char, multispace0, multispace1},
     combinator::{map, not, opt, peek},
-    multi::{fold_many0, separated_list1},
+    multi::{fold_many0, many_till, separated_list1},
     sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
@@ -17,18 +17,19 @@ use codec::{
     schema::{
         AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
-        ImageObject, Inline, InsertInline, IntegerValidator, Link, MathInline, ModifyInline, Node,
-        Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline,
-        Strikeout, StringValidator, Strong, StyledInline, Subscript, Superscript, Text,
-        TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+        ImageObject, Inline, InsertInline, InstructionInline, InstructionInlineOptions,
+        InstructionMessage, IntegerValidator, Link, MathInline, ModifyInline, Node, Note, NoteType,
+        NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline, Strikeout,
+        StringValidator, Strong, StyledInline, Subscript, Superscript, Text, TimeValidator,
+        TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
 use super::{
     shared::{
-        attrs, name, node_to_option_date, node_to_option_datetime, node_to_option_duration,
-        node_to_option_i64, node_to_option_number, node_to_option_time, node_to_option_timestamp,
-        node_to_string, take_until_unbalanced,
+        assignee, attrs, name, node_to_option_date, node_to_option_datetime,
+        node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
+        node_to_option_timestamp, node_to_string, take_until_unbalanced,
     },
     Context,
 };
@@ -209,7 +210,7 @@ pub(super) fn parse_inlines(
             subscript,
             superscript,
             underline,
-            //instruction_inline,
+            instruction_inline,
             insert_inline,
             delete_inline,
             replace_inline,
@@ -726,6 +727,35 @@ fn underline(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("<u>"), take_until("</u>"), tag("</u>")),
         |content: &str| Inline::Underline(Underline::new(parse_inlines_or_text(content))),
+    )(input)
+}
+
+/// Parse a string into a `InstructionInline` node
+fn instruction_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(
+            terminated(tag("{//"), multispace0),
+            tuple((
+                opt(delimited(char('@'), assignee, multispace1)),
+                map(
+                    many_till(anychar, peek(alt((tag("/>"), tag("//}"))))),
+                    |(chars, ..)| -> String { chars.iter().collect() },
+                ),
+                opt(preceded(tag("/>"), take_until("//}"))),
+            )),
+            tag("//}"),
+        ),
+        |(assignee, text, content)| {
+            Inline::InstructionInline(InstructionInline {
+                messages: vec![InstructionMessage::from(text.trim())],
+                options: Box::new(InstructionInlineOptions {
+                    assignee: assignee.map(|handle| handle.to_string()),
+                    ..Default::default()
+                }),
+                content: content.map(parse_inlines_or_text),
+                ..Default::default()
+            })
+        },
     )(input)
 }
 
