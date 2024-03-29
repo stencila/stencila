@@ -80,6 +80,7 @@
         "morphdom",
         "msvc",
         "mult",
+        "multispace",
         "napi",
         "ndarray",
         "numpy",
