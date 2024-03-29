@@ -5,11 +5,7 @@ use markdown::{mdast, unist::Position};
 use codec::{
     format::Format,
     schema::{
-        AudioObject, BooleanValidator, CodeExpression, CodeInline, DateTimeValidator,
-        DateValidator, DurationValidator, Emphasis, EnumValidator, ImageObject, Inline,
-        IntegerValidator, Link, MathInline, Node, Note, NoteType, NumberValidator, Parameter,
-        ParameterOptions, QuoteInline, Strikeout, StringValidator, Strong, StyledInline, Subscript,
-        Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+        AudioObject, BooleanValidator, CodeExpression, CodeInline, DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator, ImageObject, Inline, InsertInline, IntegerValidator, Link, MathInline, ModifyInline, Node, Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline, Strikeout, StringValidator, Strong, StyledInline, Subscript, Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject
     },
 };
 use nom::{
@@ -18,7 +14,7 @@ use nom::{
     character::complete::{char, multispace0},
     combinator::{map, not, opt, peek},
     multi::fold_many0,
-    sequence::{delimited, pair, preceded, tuple},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
 
@@ -106,8 +102,6 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
             let title = title.map(|title| vec![Inline::Text(Text::from(title))]);
             let caption = (!alt.is_empty()).then_some(vec![Inline::Text(Text::from(alt))]);
 
-            
-
             if let Ok(format) = Format::from_url(&content_url) {
                 if format.is_audio() {
                     let node = AudioObject {
@@ -191,7 +185,10 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
 ///
 /// Whilst accumulating, will combine adjacent `Text` nodes.
 /// This is necessary because of the catch all `character` parser.
-pub(super) fn parse_inlines(input: &str, _position: Option<Position>) -> IResult<&str, Vec<Inline>> {
+pub(super) fn parse_inlines(
+    input: &str,
+    _position: Option<Position>,
+) -> IResult<&str, Vec<Inline>> {
     fold_many0(
         alt((
             //button,
@@ -207,10 +204,10 @@ pub(super) fn parse_inlines(input: &str, _position: Option<Position>) -> IResult
             superscript,
             underline,
             //instruction_inline,
-            //insert_inline,
-            //delete_inline,
-            //replace_inline,
-            //modify_inline,
+            insert_inline,
+            delete_inline,
+            replace_inline,
+            modify_inline,
             string,
             character,
         )),
@@ -620,6 +617,54 @@ fn underline(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("<u>"), take_until("</u>"), tag("</u>")),
         |content: &str| Inline::Underline(Underline::new(parse_inlines_or_text(content))),
+    )(input)
+}
+
+/// Parse a string into a `InsertInline` node
+fn insert_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(tag("{++"), take_until("++}"), tag("++}")),
+        |content: &str| Inline::InsertInline(InsertInline::new(parse_inlines_or_text(content))),
+    )(input)
+}
+
+/// Parse a string into a `DeleteInline` node
+fn delete_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(tag("{--"), take_until("--}"), tag("--}")),
+        |content: &str| Inline::DeleteInline(DeleteInline::new(parse_inlines_or_text(content))),
+    )(input)
+}
+
+/// Parse a string into a `ReplaceInline` node
+fn replace_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(
+            tag("{~~"),
+            pair(terminated(take_until("~>"), tag("~>")), take_until("~~}")),
+            tag("~~}"),
+        ),
+        |(content, replacement)| {
+            Inline::ReplaceInline(ReplaceInline::new(
+                parse_inlines_or_text(content),
+                parse_inlines_or_text(replacement),
+            ))
+        },
+    )(input)
+}
+
+/// Parse a string into a `ModifyInline` node
+///
+/// Note that the parsed content and modification preview are ignored
+/// since this is "read-only".
+fn modify_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(
+            tag("{!!"),
+            pair(terminated(take_until("!>"), tag("!>")), take_until("!!}")),
+            tag("!!}"),
+        ),
+        |(_content, _preview)| Inline::ModifyInline(ModifyInline::default()),
     )(input)
 }
 

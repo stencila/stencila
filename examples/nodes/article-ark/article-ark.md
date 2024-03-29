@@ -2,7 +2,7 @@ This article attempts to have at least one of each node type. Nodes are intentio
 
 This is a paragraph with ![audio](https://example.org/cat.mp3), `code expression`{exec}, `inline code`{--, delete--}, _emphasis_, ![image](https://example.org/cat.jpg){++, insert++}, [link](https://example.org), $inline math$, [^1], &[parameter], <q>inline quote</q>{~~, old~>, new~~}, [styled inline]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
 
-<< this/is/a/call()
+::: call this/is/a/call ()
 
 ::: statement
 
@@ -18,11 +18,11 @@ This is a code block
 This is a code chunk
 ```
 
---
+::: delete
 
 This paragraph is to be deleted
 
---
+:::
 
 ::: for item in items
 
@@ -38,13 +38,13 @@ This is an if block
 
 :::
 
-<< this/is/an/include
+::: include this/is/an/include
 
-++
+::: insert
 
 This paragraph is to be inserted
 
-++
+:::
 
 - This is a list
 
@@ -54,15 +54,15 @@ $$
 
 > This is a quote block
 
-~~
+::: replace
 
 Old paragraph
 
-~>
+::: with
 
 New paragraph
 
-~~
+:::
 
 ::: section
 
