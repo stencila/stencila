@@ -8,8 +8,8 @@ use codec::{
         Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
         CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, LabelType, List, ListItem, ListOrder, MathBlock,
-        Paragraph, QuoteBlock, Section, StyledBlock, SuggestionStatus, Table, TableCell, TableRow,
-        TableRowType, Text, ThematicBreak,
+        ModifyBlock, Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionStatus,
+        Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 use nom::{
@@ -48,7 +48,11 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
     for md in mds {
         // Detect fenced div paragraphs (starting with `:::`) and handle them specially...
-        if let mdast::Node::Paragraph(mdast::Paragraph { children, position: _ }) = &md {
+        if let mdast::Node::Paragraph(mdast::Paragraph {
+            children,
+            position: _,
+        }) = &md
+        {
             if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
                 let line = value.trim_end();
 
@@ -87,6 +91,33 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             _ => {
                                 tracing::warn!(
                                     "Found an `::: else` without a preceding `::: if` or `::: for`"
+                                );
+                            }
+                        }
+                    }
+
+                    divs.push(blocks.len());
+
+                    continue;
+                } else if div_with(line) {
+                    // If this is an `::: with` then handle it depending on the parents block
+
+                    let children = if let Some(div) = divs.pop() {
+                        blocks.drain(div..).collect()
+                    } else {
+                        Vec::new()
+                    };
+
+                    if let Some(block) = blocks.last_mut() {
+                        match block {
+                            Block::ReplaceBlock(ReplaceBlock { content, .. })
+                            | Block::ModifyBlock(ModifyBlock { content, .. }) => {
+                                *content = children;
+                            }
+
+                            _ => {
+                                tracing::warn!(
+                                    "Found a `::: with` without a preceding `::: replace` or `::: modify`"
                                 );
                             }
                         }
@@ -182,6 +213,7 @@ fn div_start(line: &str) -> IResult<&str, Block> {
         div_for_block,
         div_delete_block,
         div_insert_block,
+        div_replace_block,
         div_claim,
         div_styled_block,
         // Section parser is permissive of label so needs to
@@ -447,6 +479,23 @@ pub fn div_insert_block(input: &str) -> IResult<&str, Block> {
     )(input)
 }
 
+/// Parse a [`ReplaceBlock`] node
+pub fn div_replace_block(input: &str) -> IResult<&str, Block> {
+    map(
+        all_consuming(preceded(
+            tuple((semis, multispace0, tag("replace"), multispace0)),
+            opt(not_line_ending),
+        )),
+        |status| {
+            Block::ReplaceBlock(ReplaceBlock {
+                suggestion_status: status
+                    .and_then(|status| SuggestionStatus::from_str(status).ok()),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
 /// Parse a [`Section`] node
 pub fn div_section(input: &str) -> IResult<&str, Block> {
     map(
@@ -490,6 +539,18 @@ pub fn div_table(input: &str) -> IResult<&str, Block> {
             })
         },
     )(input)
+}
+
+/// Parse a `with` fenced div
+fn div_with(input: &str) -> bool {
+    all_consuming(recognize(tuple((
+        semis,
+        multispace0,
+        tag("with"),
+        // Allow for, but ignore, trailing content
+        opt(pair(multispace1, is_not(""))),
+    ))))(input)
+    .is_ok()
 }
 
 /// Parse an `else` fenced div
@@ -598,6 +659,9 @@ fn div_finalize(parent: &mut Block, mut children: Vec<Block>) {
         } else {
             tracing::error!("Expected if block to have at least one clause but there was none");
         }
+    } else if let Block::ReplaceBlock(replace_block) = parent {
+        // At the end of replace block `::with` so set replacement
+        replace_block.replacement = children;
     } else if let Block::Table(table) = parent {
         if children
             .iter()

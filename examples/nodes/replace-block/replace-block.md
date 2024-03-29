@@ -1,10 +1,10 @@
-~~
+::: replace
 
 Old paragraph
 
 Another old paragraph
 
-~>
+::: with
 
 New paragraph
 
@@ -14,24 +14,24 @@ A new code chunk
 
 Another new paragraph
 
-~~
+:::
 
-~~ accepted
+::: replace accepted
 
 Old paragraph
 
-~>
+::: with
 
 Accepted new paragraph
 
-~~
+:::
 
-~~ rejected
+::: replace rejected
 
 Old paragraph
 
-~>
+::: with
 
 Rejected new paragraph
 
-~~
+:::
