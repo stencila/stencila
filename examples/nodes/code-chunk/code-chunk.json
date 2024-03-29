@@ -4,7 +4,7 @@
   "content": [
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "With no language: "}]
+      "content": [{"type": "Text", "value": "With no language:"}]
     },
     {
       "type": "CodeChunk",
@@ -12,7 +12,7 @@
     },
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "With language: "}]
+      "content": [{"type": "Text", "value": "With language:"}]
     },
     {
       "type": "CodeChunk",
@@ -21,7 +21,7 @@
     },
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "With language and autoExec: "}]
+      "content": [{"type": "Text", "value": "With language and autoExec:"}]
     },
     {
       "type": "CodeChunk",
@@ -31,7 +31,7 @@
     },
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "With label: "}]
+      "content": [{"type": "Text", "value": "With label:"}]
     },
     {
       "type": "CodeChunk",
@@ -40,7 +40,7 @@
     },
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "Code figure with caption: "}]
+      "content": [{"type": "Text", "value": "Code figure with caption:"}]
     },
     {
       "type": "CodeChunk",
@@ -55,7 +55,7 @@
     },
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "Code table with caption: "}]
+      "content": [{"type": "Text", "value": "Code table with caption:"}]
     },
     {
       "type": "CodeChunk",

@@ -3,13 +3,13 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'With no language: '
+    value: 'With no language:'
 - type: CodeChunk
   code: No language
 - type: Paragraph
   content:
   - type: Text
-    value: 'With language: '
+    value: 'With language:'
 - type: CodeChunk
   code: |-
     # Some python code
@@ -18,7 +18,7 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'With language and autoExec: '
+    value: 'With language and autoExec:'
 - type: CodeChunk
   autoExec: Always
   code: // Javascript
@@ -26,14 +26,14 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'With label: '
+    value: 'With label:'
 - type: CodeChunk
   code: '# Chunk 1A'
   label: 1A
 - type: Paragraph
   content:
   - type: Text
-    value: 'Code figure with caption: '
+    value: 'Code figure with caption:'
 - type: CodeChunk
   code: plot(y~x)
   programmingLanguage: r
@@ -47,7 +47,7 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'Code table with caption: '
+    value: 'Code table with caption:'
 - type: CodeChunk
   code: head(mtcars)
   programmingLanguage: r

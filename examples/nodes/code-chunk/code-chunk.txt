@@ -1,2 +1,2 @@
-With no language:  No language With language:  # Some python code
-a = 3python With language and autoExec:  Always// Javascriptjs With label:  # Chunk 1A1A Code figure with caption:  plot(y~x)rFigureLabel1Y against X. Code table with caption:  head(mtcars)rTableLabel1Some cars.
+With no language: No language With language: # Some python code
+a = 3python With language and autoExec: Always// Javascriptjs With label: # Chunk 1A1A Code figure with caption: plot(y~x)rFigureLabel1Y against X. Code table with caption: head(mtcars)rTableLabel1Some cars.
