@@ -1335,6 +1335,7 @@ dependencies = [
  "codec-markdown-trait",
  "codec-text-trait",
  "common-dev",
+ "markdown",
  "nom",
  "pulldown-cmark",
 ]
@@ -3599,6 +3600,15 @@ name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
+
+[[package]]
+name = "markdown"
+version = "1.0.0-alpha.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b0f0025e8c0d89b84d6dc63e859475e40e8e82ab1a08be0a93ad5731513a508"
+dependencies = [
+ "unicode-id",
+]
 
 [[package]]
 name = "matchers"
@@ -6894,6 +6904,12 @@ name = "unicode-case-mapping"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "916a391c62ffbc5b6220fdafa353e93b530d21904d82ca1a2e29cdb5cfb4399f"
+
+[[package]]
+name = "unicode-id"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1b6def86329695390197b82c1e244a54a131ceb66c996f2088a3876e2ae083f"
 
 [[package]]
 name = "unicode-ident"

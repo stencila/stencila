@@ -8,6 +8,7 @@ codec = { path = "../codec" }
 codec-json5-trait = { path = "../codec-json5-trait" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
+markdown = "1.0.0-alpha.16"
 nom = "7.1.3"
 # TODO: check for a new release later than this rev
 # https://github.com/stencila/stencila/issues/1840

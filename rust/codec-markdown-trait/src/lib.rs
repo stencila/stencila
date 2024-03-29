@@ -96,6 +96,12 @@ impl MarkdownEncodeContext {
         self
     }
 
+    /// Get the semicolons for a fenced div
+    pub fn push_semis(&mut self) -> &mut Self {
+        self.content.push_str(&":".repeat(3 + self.depth * 2));
+        self
+    }
+
     /// Set the escape chars
     pub fn set_escape(&mut self, char: &str) -> &mut Self {
         self.escape_char = Some(char.to_string());

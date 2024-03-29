@@ -10,7 +10,7 @@ use nom::{
         is_digit,
     },
     combinator::{map, map_res, opt, peek, recognize},
-    multi::{many0, many0_count, many1, separated_list0},
+    multi::{many0, separated_list0},
     number::complete::double,
     sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
@@ -23,22 +23,18 @@ use codec::{
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
 
-/// Parse a symbol (e.g. the name of a `Parameter` or `CallArgument`)
+/// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
-/// Will only recognize names that are valid (in most programming languages). An alternative is to be more
-/// permissive here and to check validity of symbol names elsewhere.
-pub fn symbol(input: &str) -> IResult<&str, String> {
-    map_res(
-        recognize(tuple((
-            many1(alt((alpha1, tag("_")))),
-            many0(alt((alphanumeric1, tag("_")))),
-        ))),
-        |str: &str| -> Result<String> { Ok(str.to_string()) },
-    )(input)
+/// Will only recognize names that are valid in (most) programming languages.
+pub(super) fn name(input: &str) -> IResult<&str, &str> {
+    recognize(pair(
+        alt((alpha1, tag("_"))),
+        many0(alt((alphanumeric1, tag("_")))),
+    ))(input)
 }
 
-/// Parse the id of an assignee of an instruction (e.g. `insert-image-object`, `openai/gpt-4`, `joe@example.org`)
-pub fn assignee(input: &str) -> IResult<&str, &str> {
+/// Parse the name of an assignee of an instruction (e.g. `insert-image-object`, `openai/gpt-4`, `joe@example.org`)
+pub(super) fn assignee(input: &str) -> IResult<&str, &str> {
     recognize(pair(
         alpha1,
         many0(alt((
@@ -52,41 +48,92 @@ pub fn assignee(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
-/// Parse attributes inside curly braces
+/// Take characters until `opening` and `closing` are unbalanced
 ///
-/// Curly braced attributes are used to specify options on various inline
-/// attributes.
+/// Based on https://docs.rs/parse-hyperlinks/latest/parse_hyperlinks/fn.take_until_unbalanced.html
+pub(super) fn take_until_unbalanced(
+    opening: char,
+    closing: char,
+) -> impl Fn(&str) -> IResult<&str, &str> {
+    use nom::{
+        error::{Error, ErrorKind, ParseError},
+        Err,
+    };
+
+    move |input: &str| {
+        let mut index = 0;
+        let mut bracket_counter = 0;
+        while let Some(n) = &input[index..].find(&[opening, closing, '\\'][..]) {
+            index += n;
+            let mut it = input[index..].chars();
+            match it.next() {
+                Some('\\') => {
+                    // Skip the escape char `\`.
+                    index += '\\'.len_utf8();
+                    // Skip also the following char.
+                    if let Some(c) = it.next() {
+                        index += c.len_utf8();
+                    }
+                }
+                Some(c) if c == opening => {
+                    bracket_counter += 1;
+                    index += opening.len_utf8();
+                }
+                Some(c) if c == closing => {
+                    bracket_counter -= 1;
+                    index += closing.len_utf8();
+                }
+                _ => unreachable!(),
+            };
+            // We found the unmatched closing.
+            if bracket_counter == -1 {
+                //Do not consume it.
+                index -= closing.len_utf8();
+                return Ok((&input[index..], &input[0..index]));
+            };
+        }
+
+        if bracket_counter == 0 {
+            Ok(("", input))
+        } else {
+            Err(Err::Error(Error::from_error_kind(
+                input,
+                ErrorKind::TakeUntil,
+            )))
+        }
+    }
+}
+
+/// Parse "curly braced attrs" (options inside curly braces)
 ///
-/// This is lenient to the form of attributes and consumes everything
-/// until the closing bracket. Attribute names are converted to snake_case
-/// (so that users don't have to remember which case to use).
-pub fn curly_attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
+/// Curly braced options are used to specify options on various
+/// node types.
+pub(super) fn attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
     alt((
         map(tag("{}"), |_| Vec::new()),
         delimited(
             terminated(char('{'), multispace0),
-            separated_list0(multispace1, curly_attr),
+            separated_list0(multispace1, attr),
             preceded(multispace0, char('}')),
         ),
     ))(input)
 }
 
-/// Parse an attribute inside a curly braced attributes into a string/node pair
+/// Parse a single attr inside `attrs`
 ///
-/// Attributes can be single values (i.e. flags) or key-value pairs (separated
-/// by `=` or `:`).
-pub fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
+/// Attributes can be single values (i.e. flags) or key-value pairs (separated by `=`).
+pub(super) fn attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
     map_res(
         alt((
             map(
                 tuple((
-                    curly_attr_name,
-                    tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
+                    name,
+                    tuple((multispace0, tag("="), multispace0)),
                     alt((primitive_node, unquoted_string_node)),
                 )),
                 |(name, _s, value)| (name, Some(value)),
             ),
-            map(curly_attr_name, |name| (name, None)),
+            map(name, |name| (name, None)),
         )),
         |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
             // Previously this used snake case by that was problematic for attributes such as "json5"
@@ -96,11 +143,18 @@ pub fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
     )(input)
 }
 
-/// Parse a name of curly braces attribute
-pub fn curly_attr_name(input: &str) -> IResult<&str, &str> {
-    recognize(pair(
-        alt((alpha1, tag("_"))),
-        many0_count(alt((alphanumeric1, tag("_"), tag("-")))),
+/// Any primitive node
+pub(super) fn primitive_node(input: &str) -> IResult<&str, Node> {
+    alt((
+        object_node,
+        array_node,
+        datetime_node,
+        date_node,
+        time_node,
+        string_node,
+        integer_node,
+        number_node,
+        boolean_node,
     ))(input)
 }
 
@@ -225,21 +279,6 @@ fn object_node(input: &str) -> IResult<&str, Node> {
     )(input)
 }
 
-/// Any primitive node
-fn primitive_node(input: &str) -> IResult<&str, Node> {
-    alt((
-        object_node,
-        array_node,
-        datetime_node,
-        date_node,
-        time_node,
-        string_node,
-        integer_node,
-        number_node,
-        boolean_node,
-    ))(input)
-}
-
 /// Convert a [`Node`] to a `String`
 pub fn node_to_string(node: Node) -> String {
     node.to_text().0
@@ -360,14 +399,11 @@ mod tests {
     }
 
     #[test]
-    fn test_curly_attrs() -> Result<()> {
-        assert_eq!(
-            curly_attrs(r#"{a}"#).unwrap().1,
-            vec![("a".to_string(), None),]
-        );
+    fn test_attrs() -> Result<()> {
+        assert_eq!(attrs(r#"{a}"#).unwrap().1, vec![("a".to_string(), None),]);
 
         assert_eq!(
-            curly_attrs(r#"{a=1 b='2' c:-3 d = 4.0}"#)?.1,
+            attrs(r#"{a=1 b='2' c=-3 d = 4.0}"#)?.1,
             vec![
                 ("a".to_string(), Some(Node::Integer(1))),
                 ("b".to_string(), Some(Node::String("2".to_string()))),
@@ -377,7 +413,7 @@ mod tests {
         );
 
         assert_eq!(
-            curly_attrs(r#"{date min=2022-09-01 max='2022-09-30' def="2022-09-15"}"#)?.1,
+            attrs(r#"{date min=2022-09-01 max='2022-09-30' def="2022-09-15"}"#)?.1,
             vec![
                 ("date".to_string(), None),
                 (
@@ -397,7 +433,7 @@ mod tests {
 
         // Multiple spaces are fine
         assert_eq!(
-            curly_attrs(r#"{   a     b=21 c : 1.234 d="   Internal  spaces "  }"#)?.1,
+            attrs(r#"{   a     b=21 c = 1.234 d="   Internal  spaces "  }"#)?.1,
             vec![
                 ("a".to_string(), None),
                 ("b".to_string(), Some(Node::Integer(21))),

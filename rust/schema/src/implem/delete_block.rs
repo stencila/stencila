@@ -7,7 +7,8 @@ impl MarkdownCodec for DeleteBlock {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .push_str("--");
+            .push_semis()
+            .push_str(" delete");
 
         if let Some(status) = &self.suggestion_status {
             context
@@ -18,7 +19,8 @@ impl MarkdownCodec for DeleteBlock {
         context
             .push_str("\n\n")
             .push_prop_fn("content", |context| self.content.to_markdown(context))
-            .push_str("--\n")
+            .push_semis()
+            .newline()
             .exit_node()
             .newline();
     }
