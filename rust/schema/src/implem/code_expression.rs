@@ -15,9 +15,11 @@ impl MarkdownCodec for CodeExpression {
             .push_str("`{");
 
         if let Some(lang) = &self.programming_language {
-            context
-                .push_prop_str("programming_language", lang)
-                .push_str(" ");
+            if !lang.is_empty() {
+                context
+                    .push_prop_str("programming_language", lang)
+                    .push_str(" ");
+            }
         }
 
         context.push_str("exec");
