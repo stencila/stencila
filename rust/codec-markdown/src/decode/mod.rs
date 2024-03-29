@@ -1,9 +1,17 @@
 use std::collections::HashMap;
 
-use markdown::{mdast, to_mdast, unist::Position, ParseOptions};
+use markdown::{
+    mdast::{self, Root},
+    to_mdast,
+    unist::Position,
+    ParseOptions,
+};
 
 use codec::{
-    common::eyre::{bail, eyre, Result},
+    common::{
+        eyre::{bail, eyre, Result},
+        serde_json, serde_yaml, tracing,
+    },
     schema::{
         walk::{VisitorMut, WalkControl},
         Article, Block, Inline, Node, NodeId, NodeType,
@@ -11,13 +19,68 @@ use codec::{
     DecodeOptions, Losses, Mapping,
 };
 
+use self::{blocks::mds_to_blocks, inlines::mds_to_inlines};
+
 mod blocks;
 mod inlines;
 mod shared;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
 pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses, Mapping)> {
+    let mdast = to_mdast(md, &parse_options()).map_err(|error| eyre!(error))?;
+
+    let mut context = Context::default();
+
+    let Some(mut node) = md_to_node(mdast, &mut context) else {
+        bail!("No node decoded from Markdown")
+    };
+
+    if let Some(Node::Article(front)) = context.frontmatter() {
+        if let Node::Article(body) = node {
+            node = Node::Article(Article {
+                content: body.content,
+                ..front
+            });
+        }
+    }
+
+    if !context.footnotes.is_empty() {
+        context.visit(&mut node);
+    }
+
+    Ok((node, context.losses, context.mapping))
+}
+
+/// Decode a string to blocks
+fn decode_blocks(md: &str) -> Vec<Block> {
+    let mut context = Context::default();
+    match to_mdast(md, &parse_options()) {
+        Ok(mdast::Node::Root(Root { children, .. })) => mds_to_blocks(children, &mut context),
+        _ => vec![],
+    }
+}
+
+/// Decode a string to inlines
+fn decode_inlines(md: &str) -> Vec<Inline> {
+    let mut context = Context::default();
+    match to_mdast(md, &parse_options()) {
+        Ok(mdast::Node::Root(Root { children, .. })) => {
+            if let Some(mdast::Node::Paragraph(mdast::Paragraph { children, .. })) =
+                children.first()
+            {
+                mds_to_inlines(children.clone(), &mut context)
+            } else {
+                vec![]
+            }
+        }
+        _ => vec![],
+    }
+}
+
+/// Markdown parsing options
+fn parse_options() -> ParseOptions {
     let mut options = ParseOptions::gfm();
+    options.constructs.frontmatter = true;
     // Do not parse inline code since we have a custom parser for that
     options.constructs.code_text = false;
     // Do not parse GFM single strikethrough
@@ -30,20 +93,7 @@ pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node,
     options.constructs.html_text = false;
     options.constructs.html_flow = false;
 
-    let mdast = to_mdast(md, &options).map_err(|error| eyre!(error))?;
-
-    let mut context = Context::default();
-    let Some(mut node) = md_to_node(mdast, &mut context) else {
-        bail!("No node decoded from Markdown")
-    };
-
-    // TODO: parse frontmatter into Article
-
-    if !context.footnotes.is_empty() {
-        context.visit(&mut node);
-    }
-
-    Ok((node, context.losses, context.mapping))
+    options
 }
 
 #[derive(Default)]
@@ -83,6 +133,68 @@ impl Context {
                 None,
             );
         }
+    }
+
+    /// Parse any YAML frontmatter
+    fn frontmatter(&self) -> Option<Node> {
+        let Some(yaml) = &self.yaml else {
+            return None;
+        };
+
+        // Deserialize YAML to a value, and add `type: Article` if necessary
+        let mut value = match serde_yaml::from_str(yaml) {
+            Ok(serde_json::Value::Object(mut value)) => {
+                if value.get("type").is_none() {
+                    value.insert(
+                        "type".to_string(),
+                        serde_json::Value::String("Article".to_string()),
+                    );
+                    value.insert("content".to_string(), serde_json::Value::Array(vec![]));
+                }
+                serde_json::Value::Object(value)
+            }
+            Ok(_) => {
+                tracing::debug!("YAML frontmatter is not an object, will be ignored");
+                return None;
+            }
+            Err(error) => {
+                tracing::warn!(
+                    "Error while parsing YAML frontmatter, will be ignored: {}",
+                    error
+                );
+                return None;
+            }
+        };
+
+        // Parse title and abstract as Markdown (need to do here before deserializing to node
+        // and remove from value so does not cause an error when deserializing)
+        let (title, abs) = if let Some(object) = value.as_object_mut() {
+            let title = object
+                .remove("title")
+                .and_then(|value| value.as_str().map(String::from))
+                .map(|title| decode_inlines(&title));
+            let abs = object
+                .remove("abstract")
+                .and_then(|value| value.as_str().map(String::from))
+                .map(|abs| decode_blocks(&abs));
+            (title, abs)
+        } else {
+            (None, None)
+        };
+
+        // Deserialize to a `Node` not that `type` is ensured to be present
+        let Ok(mut node) = serde_json::from_value(value) else {
+            tracing::warn!("Error while parsing YAML frontmatter, will be ignored",);
+            return None;
+        };
+
+        // Set title and abstract if node is Article
+        if let Node::Article(article) = &mut node {
+            article.title = title;
+            article.r#abstract = abs;
+        }
+
+        Some(node)
     }
 }
 
