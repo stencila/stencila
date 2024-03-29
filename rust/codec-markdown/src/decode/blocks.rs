@@ -18,16 +18,18 @@ use codec::{
     schema::{
         Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
         CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, LabelType, List, ListItem, ListOrder, MathBlock,
-        ModifyBlock, Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionStatus,
-        Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionBlockOptions,
+        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock,
+        Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlockType,
+        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 
 use super::{
     inlines::mds_to_inlines,
     shared::{
-        attrs, name, node_to_from_str, node_to_string, primitive_node, take_until_unbalanced,
+        assignee, attrs, name, node_to_from_str, node_to_string, primitive_node,
+        take_until_unbalanced,
     },
     Context,
 };
@@ -166,6 +168,14 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     blocks.push(block);
 
                     continue;
+                } else if let Ok((.., (has_content, block))) = div_instruction_block(line) {
+                    blocks.push(block);
+
+                    if has_content {
+                        divs.push(blocks.len());
+                    }
+
+                    continue;
                 } else if let Ok((.., block)) = div_start(line) {
                     // If this is the start of a fenced div block then push it on to
                     // blocks and add a division marker to store its children.
@@ -181,8 +191,46 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     // the last parent block
 
                     let children = pop_div(&mut blocks, &mut divs);
-                    if let Some(parent) = blocks.last_mut() {
+                    let is_suggestion = if let Some(parent) = blocks.last_mut() {
                         div_finalize(parent, children);
+
+                        matches!(
+                            parent,
+                            Block::InsertBlock(..)
+                                | Block::DeleteBlock(..)
+                                | Block::ReplaceBlock(..)
+                                | Block::ModifyBlock(..)
+                        )
+                    } else {
+                        false
+                    };
+
+                    // If the the block before this one was an instruction and this is a suggestion
+                    // then associate the two
+                    if is_suggestion {
+                        if matches!(
+                            blocks.iter().rev().nth(1),
+                            Some(Block::InstructionBlock(..))
+                        ) {
+                            let suggestion = match blocks.pop() {
+                                Some(Block::InsertBlock(block)) => {
+                                    SuggestionBlockType::InsertBlock(block)
+                                }
+                                Some(Block::DeleteBlock(block)) => {
+                                    SuggestionBlockType::DeleteBlock(block)
+                                }
+                                Some(Block::ReplaceBlock(block)) => {
+                                    SuggestionBlockType::ReplaceBlock(block)
+                                }
+                                Some(Block::ModifyBlock(block)) => {
+                                    SuggestionBlockType::ModifyBlock(block)
+                                }
+                                _ => unreachable!(),
+                            };
+                            if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                                instruct.options.suggestion = Some(suggestion);
+                            }
+                        }
                     }
 
                     continue;
@@ -359,6 +407,34 @@ pub fn div_code_chunk(input: &str) -> IResult<&str, Block> {
             })
         },
     )(input)
+}
+
+/// Start an [`InstructionBlock`]
+pub fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
+    let (input, has_content) = if let Some(stripped) = input.strip_suffix(":::") {
+        (stripped, true)
+    } else {
+        (input, false)
+    };
+
+    let (remains, (assignee, text)) = preceded(
+        tuple((semis, multispace0, tag("do"), multispace0)),
+        pair(
+            opt(delimited(char('@'), assignee, multispace1)),
+            is_not("\n"),
+        ),
+    )(input)?;
+
+    let block = Block::InstructionBlock(InstructionBlock {
+        messages: vec![InstructionMessage::from(text)],
+        options: Box::new(InstructionBlockOptions {
+            assignee: assignee.map(String::from),
+            ..Default::default()
+        }),
+        ..Default::default()
+    });
+
+    Ok((remains, (has_content, block)))
 }
 
 /// Parse a [`DeleteBlock`] node
@@ -677,6 +753,8 @@ fn div_finalize(parent: &mut Block, mut children: Vec<Block>) {
         } else {
             tracing::error!("Expected if block to have at least one clause but there was none");
         }
+    } else if let Block::InstructionBlock(InstructionBlock { content, .. }) = parent {
+        *content = Some(children);
     } else if let Block::ReplaceBlock(replace_block) = parent {
         // At the end of replace block `::with` so set replacement
         replace_block.replacement = children;
