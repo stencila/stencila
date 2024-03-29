@@ -1,17 +1,17 @@
---
+::: delete
 
 Proposed deleted paragraph
 
---
+:::
 
--- accepted
+::: delete accepted
 
 Accepted deleted paragraph
 
---
+:::
 
--- rejected
+::: delete rejected
 
 Rejected deleted paragraph
 
---
+:::
