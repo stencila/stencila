@@ -1,17 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
 use markdown::{mdast, unist::Position};
-
-use codec::{
-    common::tracing,
-    schema::{
-        Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
-        CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, LabelType, List, ListItem, ListOrder, MathBlock,
-        ModifyBlock, Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionStatus,
-        Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
-    },
-};
 use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag, take_until},
@@ -22,6 +11,17 @@ use nom::{
     multi::{many0, many_m_n, separated_list0},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
+};
+
+use codec::{
+    common::tracing,
+    schema::{
+        Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
+        CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        IncludeBlock, Inline, InsertBlock, LabelType, List, ListItem, ListOrder, MathBlock,
+        ModifyBlock, Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionStatus,
+        Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+    },
 };
 
 use super::{
@@ -1051,7 +1051,10 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
 
 #[cfg(test)]
 mod tests {
-    use codec::common::eyre::Result;
+    use codec::{
+        common::eyre::Result,
+        schema::{ClaimType, Node},
+    };
 
     use super::*;
 
@@ -1059,7 +1062,6 @@ mod tests {
     fn test_call_arg() -> Result<()> {
         call_arg("arg=1")?;
         call_arg("arg = 1")?;
-
         call_arg("arg=`1*1`")?;
 
         Ok(())
@@ -1067,9 +1069,223 @@ mod tests {
 
     #[test]
     fn test_call_block() -> Result<()> {
-        call_block("::: call source ()")?;
-        call_block("::: call source (arg=1)")?;
+        assert_eq!(
+            call_block("::: call file.md ()")?.1,
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            call_block("::: call file.md (a=1)")?.1,
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                arguments: vec![CallArgument {
+                    name: "a".to_string(),
+                    value: Some(Box::new(Node::Integer(1))),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            call_block(r#"::: call file.md (parAm_eter_1="string")"#)?.1,
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                arguments: vec![CallArgument {
+                    name: "parAm_eter_1".to_string(),
+                    value: Some(Box::new(Node::String("string".to_string()))),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            call_block("::: call file.md (a=1.23, b=`var`, c='string')")?.1,
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                arguments: vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        value: Some(Box::new(Node::Number(1.23))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        code: "var".into(),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        value: Some(Box::new(Node::String("string".to_string()))),
+                        ..Default::default()
+                    }
+                ],
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            call_block("::: call file.md (a=1,b = 2  , c=3, d =4)")?.1,
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                arguments: vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        value: Some(Box::new(Node::Integer(1))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        value: Some(Box::new(Node::Integer(2))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        value: Some(Box::new(Node::Integer(3))),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "d".to_string(),
+                        value: Some(Box::new(Node::Integer(4))),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            }),
+        );
 
         Ok(())
+    }
+
+    #[test]
+    fn test_claim() -> Result<()> {
+        assert_eq!(
+            div_claim("::: hypothesis")?.1,
+            Block::Claim(Claim {
+                claim_type: ClaimType::Hypothesis,
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            div_claim("::: lemma Lemma 1")?.1,
+            Block::Claim(Claim {
+                claim_type: ClaimType::Lemma,
+                label: Some(String::from("Lemma 1")),
+                ..Default::default()
+            })
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_for() -> Result<()> {
+        // Simple
+        assert_eq!(
+            div_for_block("::: for item in expr").unwrap().1,
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "expr".into(),
+                ..Default::default()
+            })
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            div_for_block(":::for item  in    expr").unwrap().1,
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "expr".into(),
+                ..Default::default()
+            })
+        );
+
+        // With language specified
+        assert_eq!(
+            div_for_block("::: for item in expr {python}").unwrap().1,
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "expr".into(),
+                programming_language: Some("python".to_string()),
+                ..Default::default()
+            })
+        );
+
+        // With more complex expression
+        assert_eq!(
+            div_for_block("::: for i in 1:10").unwrap().1,
+            Block::ForBlock(ForBlock {
+                variable: "i".to_string(),
+                code: "1:10".into(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            div_for_block("::: for row in select * from table { sql }")
+                .unwrap()
+                .1,
+            Block::ForBlock(ForBlock {
+                variable: "row".to_string(),
+                code: "select * from table".into(),
+                programming_language: Some("sql".to_string()),
+                ..Default::default()
+            })
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_div_if_block() -> Result<()> {
+        // Simple
+        assert_eq!(
+            div_if_elif("::: if expr")?.1 .1,
+            IfBlockClause {
+                code: "expr".into(),
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            div_if_elif(":::if    expr")?.1 .1,
+            IfBlockClause {
+                code: "expr".into(),
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            div_if_elif("::: if expr {python}")?.1 .1,
+            IfBlockClause {
+                code: "expr".into(),
+                programming_language: Some("python".to_string()),
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            div_if_elif("::: if a > 1 and b[8] < 1.23")?.1 .1,
+            IfBlockClause {
+                code: "a > 1 and b[8] < 1.23".into(),
+                ..Default::default()
+            }
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_dev_end() {
+        assert!(div_end(":::"));
+        assert!(div_end("::::"));
+        assert!(div_end("::::::"));
+
+        assert!(!div_end(":::some chars"));
+        assert!(!div_end("::"));
+        assert!(!div_end(":"));
     }
 }
