@@ -1,21 +1,27 @@
 use std::collections::HashMap;
 
 use markdown::{mdast, unist::Position};
-
-use codec::{
-    format::Format,
-    schema::{
-        AudioObject, BooleanValidator, CodeExpression, CodeInline, DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator, ImageObject, Inline, InsertInline, IntegerValidator, Link, MathInline, ModifyInline, Node, Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline, Strikeout, StringValidator, Strong, StyledInline, Subscript, Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject
-    },
-};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while1},
     character::complete::{char, multispace0},
     combinator::{map, not, opt, peek},
-    multi::fold_many0,
+    multi::{fold_many0, separated_list1},
     sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
+};
+
+use codec::{
+    common::indexmap::IndexMap,
+    format::Format,
+    schema::{
+        AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
+        DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
+        ImageObject, Inline, InsertInline, IntegerValidator, Link, MathInline, ModifyInline, Node,
+        Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline,
+        Strikeout, StringValidator, Strong, StyledInline, Subscript, Superscript, Text,
+        TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+    },
 };
 
 use super::{
@@ -191,11 +197,11 @@ pub(super) fn parse_inlines(
 ) -> IResult<&str, Vec<Inline>> {
     fold_many0(
         alt((
-            //button,
+            button,
             code_attrs,
             double_braces,
-            //cite_group,
-            //cite,
+            cite_group,
+            cite,
             parameter,
             styled_inline,
             quote,
@@ -331,6 +337,76 @@ fn double_braces(input: &str) -> IResult<&str, Inline> {
                 programming_language: lang,
                 ..Default::default()
             })
+        },
+    )(input)
+}
+
+/// Parse a string into a narrative `Cite` node
+///
+/// This attempts to follow Pandoc's citation handling as closely as possible
+/// (see <https://pandoc.org/MANUAL.html#citations>).
+///
+/// The following properties of a `Cite` are parsed:
+///   - [x] target
+///   - [ ] citation_mode
+///   - [ ] page_start
+///   - [ ] page_end
+///   - [ ] pagination
+///   - [ ] citation_prefix
+///   - [ ] citation_suffix
+///   - [ ] citation_intent
+fn cite(input: &str) -> IResult<&str, Inline> {
+    // TODO: Parse more properties of citations
+    map(
+        preceded(char('@'), take_while1(|chr: char| chr.is_alphanumeric())),
+        |res: &str| {
+            let target = res.into();
+            Inline::Cite(Cite {
+                target,
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a string into a `CiteGroup` node or parenthetical `Cite` node.
+///
+/// If there is only one citation within square brackets then a parenthetical `Cite` node is
+/// returned. Otherwise, the `Cite` nodes are grouped into into a `CiteGroup`.
+fn cite_group(input: &str) -> IResult<&str, Inline> {
+    let cite = map(
+        preceded(char('@'), take_while1(|chr: char| chr.is_alphanumeric())),
+        |res: &str| {
+            let target = res.into();
+            Inline::Cite(Cite {
+                target,
+                ..Default::default()
+            })
+        },
+    );
+
+    map(
+        delimited(
+            char('['),
+            separated_list1(tuple((multispace0, tag(";"), multispace0)), cite),
+            char(']'),
+        ),
+        |items: Vec<Inline>| {
+            if items.len() == 1 {
+                items[0].clone()
+            } else {
+                Inline::CiteGroup(CiteGroup {
+                    items: items
+                        .iter()
+                        .filter_map(|item| match item {
+                            Inline::Cite(cite) => Some(cite),
+                            _ => None,
+                        })
+                        .cloned()
+                        .collect(),
+                    ..Default::default()
+                })
+            }
         },
     )(input)
 }
@@ -552,6 +628,39 @@ fn parameter(input: &str) -> IResult<&str, Inline> {
                     default,
                     ..Default::default()
                 }),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a `Button`
+fn button(input: &str) -> IResult<&str, Inline> {
+    map(
+        tuple((
+            delimited(tag("#["), take_until("]"), char(']')),
+            opt(delimited(char('`'), take_until("`"), char('`'))),
+            opt(attrs),
+        )),
+        |(name, condition, options)| {
+            let mut options: IndexMap<String, Option<Node>> =
+                options.unwrap_or_default().into_iter().collect();
+
+            let programming_language = if let Some((lang, None)) = options.first() {
+                Some(lang.clone())
+            } else {
+                None
+            };
+
+            let code = condition.map_or_else(Cord::default, Cord::from);
+
+            let label = options.swap_remove("label").flatten().map(node_to_string);
+
+            Inline::Button(Button {
+                name: name.to_string(),
+                programming_language,
+                code,
+                label,
                 ..Default::default()
             })
         },
