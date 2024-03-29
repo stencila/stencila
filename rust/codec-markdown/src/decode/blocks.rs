@@ -280,7 +280,12 @@ fn semis(line: &str) -> IResult<&str, &str> {
 pub fn include_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
-            tuple((semis, multispace0, tag("include"), multispace1)),
+            tuple((
+                semis,
+                multispace0,
+                alt((tag("include"), tag("inc"))),
+                multispace1,
+            )),
             tuple((is_not("{"), opt(attrs))),
         )),
         |(source, attrs)| {
@@ -441,7 +446,12 @@ pub fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
 pub fn div_delete_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
-            tuple((semis, multispace0, tag("delete"), multispace0)),
+            tuple((
+                semis,
+                multispace0,
+                alt((tag("delete"), tag("del"))),
+                multispace0,
+            )),
             opt(not_line_ending),
         )),
         |status| {
@@ -543,7 +553,12 @@ pub fn div_if_elif(input: &str) -> IResult<&str, (bool, IfBlockClause)> {
 pub fn div_insert_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
-            tuple((semis, multispace0, tag("insert"), multispace0)),
+            tuple((
+                semis,
+                multispace0,
+                alt((tag("insert"), tag("ins"))),
+                multispace0,
+            )),
             opt(not_line_ending),
         )),
         |status| {
@@ -560,7 +575,12 @@ pub fn div_insert_block(input: &str) -> IResult<&str, Block> {
 pub fn div_replace_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
-            tuple((semis, multispace0, tag("replace"), multispace0)),
+            tuple((
+                semis,
+                multispace0,
+                alt((tag("replace"), tag("rep"))),
+                multispace0,
+            )),
             opt(not_line_ending),
         )),
         |status| {
@@ -577,7 +597,12 @@ pub fn div_replace_block(input: &str) -> IResult<&str, Block> {
 pub fn div_modify_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
-            tuple((semis, multispace0, tag("modify"), multispace0)),
+            tuple((
+                semis,
+                multispace0,
+                alt((tag("modify"), tag("mod"))),
+                multispace0,
+            )),
             opt(not_line_ending),
         )),
         |status| {
