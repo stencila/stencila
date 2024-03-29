@@ -65,8 +65,7 @@
             },
             {
               "@type": "stencila:CodeExpression",
-              "stencila:code": "2 + 2",
-              "programmingLanguage": ""
+              "stencila:code": "2 + 2"
             }
           ]
         },

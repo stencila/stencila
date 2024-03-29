@@ -1,3 +1,3 @@
-Some {--deleted --}text.
+Some [[delete deleted ]]text.
 
-Several deleted inlines {--**strongly emphasized** and <u>underlined</u> and `2 + 2`{ exec}--}.
+Several deleted inlines [[delete **strongly emphasized** and <u>underlined</u> and `2 + 2`{exec}]].

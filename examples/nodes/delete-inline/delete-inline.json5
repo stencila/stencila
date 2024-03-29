@@ -61,8 +61,7 @@
             },
             {
               type: "CodeExpression",
-              code: "2 + 2",
-              programmingLanguage: ""
+              code: "2 + 2"
             }
           ]
         },
