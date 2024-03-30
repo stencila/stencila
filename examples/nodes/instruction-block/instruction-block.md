@@ -26,12 +26,28 @@ Another paragraph to be improved.
 
 An insert instruction with an assignee and a suggestion:
 
-::: do @assistant insert a code chunk
+::: do @insert-code-chunk analyze data
 
 ::: insert
 
 ```exec
 some code
 ```
+
+:::
+
+An edit instruction with a suggestion:
+
+::: do more succinct
+::: with
+
+A rather long winded paragraph.
+
+:::
+
+::: replace
+::: with
+
+A paragraph.
 
 :::

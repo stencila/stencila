@@ -28,6 +28,14 @@
   <p>
     <span>An insert instruction with an assignee and a suggestion:</span>
   </p>
-  <stencila-instruction-block messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":"insert a code chunk"}]}]' assignee='assistant' suggestion='{"type":"InsertBlock","content":[{"type":"CodeChunk","code":"some code"}]}'>
+  <stencila-instruction-block messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":"analyze data"}]}]' assignee='insert-code-chunk' suggestion='{"type":"InsertBlock","content":[{"type":"CodeChunk","code":"some code"}]}'>
+  </stencila-instruction-block>
+  <p>
+    <span>An edit instruction with a suggestion:</span>
+  </p>
+  <stencila-instruction-block messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":"more succinct"}]}]' suggestion='{"type":"ReplaceBlock","content":[],"replacement":[{"type":"Paragraph","content":[{"type":"Text","value":"A paragraph."}]}]}'>
+    <p>
+      <span>A rather long winded paragraph.</span>
+    </p>
   </stencila-instruction-block>
 </article>

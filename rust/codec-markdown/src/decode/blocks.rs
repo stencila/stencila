@@ -283,7 +283,7 @@ fn semis(line: &str) -> IResult<&str, &str> {
 }
 
 /// Parse an [`IncludeBlock`] node
-pub fn include_block(input: &str) -> IResult<&str, Block> {
+fn include_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((
@@ -309,7 +309,7 @@ pub fn include_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`CallBlock`] node
-pub fn call_block(input: &str) -> IResult<&str, Block> {
+fn call_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("call"), multispace1)),
@@ -363,7 +363,7 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
 }
 
 /// Parse a [`Claim`] node
-pub fn div_claim(line: &str) -> IResult<&str, Block> {
+fn div_claim(line: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -392,7 +392,7 @@ pub fn div_claim(line: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
-pub fn div_code_chunk(input: &str) -> IResult<&str, Block> {
+fn div_code_chunk(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("chunk"), multispace0)),
@@ -421,7 +421,7 @@ pub fn div_code_chunk(input: &str) -> IResult<&str, Block> {
 }
 
 /// Start an [`InstructionBlock`]
-pub fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
+fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
     let (input, has_content) = if let Some(stripped) = input
         .strip_suffix("::: with")
         .or_else(|| input.strip_suffix(":::"))
@@ -451,8 +451,23 @@ pub fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
     Ok((remains, (has_content, block)))
 }
 
+/// Parse a suggestion status
+fn suggestion_status(input: &str) -> IResult<&str, SuggestionStatus> {
+    alt((
+        map(alt((tag("accepted"), tag("accept"))), |_| {
+            SuggestionStatus::Accepted
+        }),
+        map(alt((tag("rejected"), tag("reject"))), |_| {
+            SuggestionStatus::Rejected
+        }),
+        map(alt((tag("proposed"), tag("propose"))), |_| {
+            SuggestionStatus::Proposed
+        }),
+    ))(input)
+}
+
 /// Parse a [`DeleteBlock`] node
-pub fn div_delete_block(input: &str) -> IResult<&str, Block> {
+fn div_delete_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((
@@ -461,12 +476,11 @@ pub fn div_delete_block(input: &str) -> IResult<&str, Block> {
                 alt((tag("delete"), tag("del"))),
                 multispace0,
             )),
-            opt(not_line_ending),
+            opt(suggestion_status),
         )),
-        |status| {
+        |suggestion_status| {
             Block::DeleteBlock(DeleteBlock {
-                suggestion_status: status
-                    .and_then(|status| SuggestionStatus::from_str(status).ok()),
+                suggestion_status,
                 ..Default::default()
             })
         },
@@ -474,7 +488,7 @@ pub fn div_delete_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`Figure`] node with a label and/or caption
-pub fn div_figure(input: &str) -> IResult<&str, Block> {
+fn div_figure(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((
@@ -495,7 +509,7 @@ pub fn div_figure(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`ForBlock`] node
-pub fn div_for_block(input: &str) -> IResult<&str, Block> {
+fn div_for_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("for"), multispace1)),
@@ -523,7 +537,7 @@ pub fn div_for_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
-pub fn div_if_elif(input: &str) -> IResult<&str, (bool, IfBlockClause)> {
+fn div_if_elif(input: &str) -> IResult<&str, (bool, IfBlockClause)> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -559,7 +573,7 @@ pub fn div_if_elif(input: &str) -> IResult<&str, (bool, IfBlockClause)> {
 }
 
 /// Parse a [`InsertBlock`] node
-pub fn div_insert_block(input: &str) -> IResult<&str, Block> {
+fn div_insert_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((
@@ -568,12 +582,11 @@ pub fn div_insert_block(input: &str) -> IResult<&str, Block> {
                 alt((tag("insert"), tag("ins"))),
                 multispace0,
             )),
-            opt(not_line_ending),
+            opt(suggestion_status),
         )),
-        |status| {
+        |suggestion_status| {
             Block::InsertBlock(InsertBlock {
-                suggestion_status: status
-                    .and_then(|status| SuggestionStatus::from_str(status).ok()),
+                suggestion_status,
                 ..Default::default()
             })
         },
@@ -581,21 +594,21 @@ pub fn div_insert_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`ReplaceBlock`] node
-pub fn div_replace_block(input: &str) -> IResult<&str, Block> {
+fn div_replace_block(input: &str) -> IResult<&str, Block> {
     map(
-        all_consuming(preceded(
+        all_consuming(delimited(
             tuple((
                 semis,
                 multispace0,
                 alt((tag("replace"), tag("rep"))),
                 multispace0,
             )),
-            opt(not_line_ending),
+            opt(suggestion_status),
+            opt(delimited(multispace0, tag("::: with"), multispace0)),
         )),
-        |status| {
+        |suggestion_status| {
             Block::ReplaceBlock(ReplaceBlock {
-                suggestion_status: status
-                    .and_then(|status| SuggestionStatus::from_str(status).ok()),
+                suggestion_status,
                 ..Default::default()
             })
         },
@@ -603,21 +616,21 @@ pub fn div_replace_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`ModifyBlock`] node
-pub fn div_modify_block(input: &str) -> IResult<&str, Block> {
+fn div_modify_block(input: &str) -> IResult<&str, Block> {
     map(
-        all_consuming(preceded(
+        all_consuming(delimited(
             tuple((
                 semis,
                 multispace0,
                 alt((tag("modify"), tag("mod"))),
                 multispace0,
             )),
-            opt(not_line_ending),
+            opt(suggestion_status),
+            opt(delimited(multispace0, tag("::: with"), multispace0)),
         )),
-        |status| {
+        |suggestion_status| {
             Block::ModifyBlock(ModifyBlock {
-                suggestion_status: status
-                    .and_then(|status| SuggestionStatus::from_str(status).ok()),
+                suggestion_status,
                 ..Default::default()
             })
         },
@@ -625,7 +638,7 @@ pub fn div_modify_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`Section`] node
-pub fn div_section(input: &str) -> IResult<&str, Block> {
+fn div_section(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(tuple((semis, multispace0)), alpha1)),
         |typ| {
@@ -638,7 +651,7 @@ pub fn div_section(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`StyledBlock`] node
-pub fn div_styled_block(input: &str) -> IResult<&str, Block> {
+fn div_styled_block(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -654,7 +667,7 @@ pub fn div_styled_block(input: &str) -> IResult<&str, Block> {
 }
 
 /// Parse a [`Table`] with a label and/or caption
-pub fn div_table(input: &str) -> IResult<&str, Block> {
+fn div_table(input: &str) -> IResult<&str, Block> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("table"), multispace0)),
@@ -847,7 +860,7 @@ fn div_finalize(parent: &mut Block, mut children: Vec<Block>) {
 }
 
 /// Parse an `auto_exec` property
-pub fn parse_auto_exec(input: &str) -> Option<AutomaticExecution> {
+fn parse_auto_exec(input: &str) -> Option<AutomaticExecution> {
     let result: IResult<&str, &str> = preceded(
         tuple((tag("auto"), delimited(multispace0, char('='), multispace0))),
         alt((tag("always"), tag("needed"), tag("never"))),
