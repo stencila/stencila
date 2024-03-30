@@ -420,10 +420,11 @@ async fn examples() -> Result<()> {
                 });
 
                 // Decode from file
-                let (mut decoded, losses, ..) = codec
-                    .from_path(&file, decode_options)
-                    .await
-                    .wrap_err_with(|| format!("while decoding {}", file.display()))?;
+                let (mut decoded, losses, mapping) =
+                    codec
+                        .from_path(&file, decode_options)
+                        .await
+                        .wrap_err_with(|| format!("while decoding {}", file.display()))?;
 
                 // Write any losses to file
                 let mut losses_file = path.clone();
@@ -432,6 +433,15 @@ async fn examples() -> Result<()> {
                     remove_file(losses_file).await.ok();
                 } else {
                     write(losses_file, serde_yaml::to_string(&losses)?).await?;
+                }
+
+                // Write any mapping to file
+                let mut mapping_file = path.clone();
+                mapping_file.set_extension([extension.as_str(), ".decode.mapping"].concat());
+                if mapping.entries().is_empty() {
+                    remove_file(mapping_file).await.ok();
+                } else {
+                    write(mapping_file, mapping.to_string()).await?;
                 }
 
                 // Apply decode strip options to both original and decoded value for fair valid comparison

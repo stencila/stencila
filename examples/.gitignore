@@ -1,1 +1,2 @@
+nodes/**/*.decode.mapping
 nodes/**/*.encode.mapping
