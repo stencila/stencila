@@ -9,7 +9,7 @@ An insert instruction with an assignee:
 An edit instruction (has content) with no assignee:
 
 ::: do improve this paragraph
-:::
+::: with
 
 The paragraph to be improved.
 
@@ -18,7 +18,7 @@ The paragraph to be improved.
 An edit instruction with an assignee:
 
 ::: do @anne please improve this paragraph
-:::
+::: with
 
 Another paragraph to be improved.
 

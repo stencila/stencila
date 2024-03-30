@@ -112,6 +112,12 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
                     if let Some(block) = blocks.last_mut() {
                         match block {
+                            Block::InstructionBlock(InstructionBlock { content, .. }) => {
+                                // This allows for when the `::: with` of an instruction block is a
+                                // separate paragraph (i.e. space between it and `::: do`)
+                                *content = Some(vec![])
+                            }
+
                             Block::ReplaceBlock(ReplaceBlock { content, .. })
                             | Block::ModifyBlock(ModifyBlock { content, .. }) => {
                                 *content = children;
@@ -119,7 +125,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
                             _ => {
                                 tracing::warn!(
-                                    "Found a `::: with` without a preceding `::: replace` or `::: modify`"
+                                    "Found a `::: with` without a preceding `::: do`, `::: replace` or `::: modify`"
                                 );
                             }
                         }
@@ -416,7 +422,10 @@ pub fn div_code_chunk(input: &str) -> IResult<&str, Block> {
 
 /// Start an [`InstructionBlock`]
 pub fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
-    let (input, has_content) = if let Some(stripped) = input.strip_suffix(":::") {
+    let (input, has_content) = if let Some(stripped) = input
+        .strip_suffix("::: with")
+        .or_else(|| input.strip_suffix(":::"))
+    {
         (stripped, true)
     } else {
         (input, false)

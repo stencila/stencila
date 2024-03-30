@@ -28,7 +28,7 @@ impl MarkdownCodec for InstructionBlock {
         if let Some(content) = &self.content {
             context
                 .push_semis()
-                .push_str("\n\n")
+                .push_str(" with\n\n")
                 .push_prop_fn("content", |context| content.to_markdown(context))
                 .push_semis()
                 .newline();
