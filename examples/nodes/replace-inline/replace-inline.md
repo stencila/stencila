@@ -1,1 +1,1 @@
-Some {~~old~>new~~} text.
+Some [[replace old>>new]] text.

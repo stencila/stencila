@@ -15,7 +15,7 @@ use super::suggestion_status::SuggestionStatus;
 #[derive(derive_more::Display)]
 #[display(fmt = "InsertInline")]
 #[html(elem = "ins")]
-#[markdown(template = "{++{{content}}++}")]
+#[markdown(template = "[[insert {{content}}]]")]
 pub struct InsertInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

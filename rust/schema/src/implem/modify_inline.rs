@@ -9,15 +9,15 @@ impl MarkdownCodec for ModifyInline {
             .merge_losses(lost_options!(self, id));
 
         context
-            .push_str("{!!")
+            .push_str("[[modify ")
             .push_prop_fn("content", |context| self.content.to_markdown(context));
 
         let modified =
             ModifyOperation::apply_many(&self.operations, &self.content).unwrap_or_default();
         context
-            .push_str("!>")
+            .push_str(">>")
             .push_prop_fn("operations", |context| modified.to_markdown(context));
 
-        context.push_str("!!}").exit_node();
+        context.push_str("]]").exit_node();
     }
 }

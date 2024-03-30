@@ -6,7 +6,7 @@ use nom::{
     bytes::complete::{tag, take, take_until, take_while1},
     character::complete::{anychar, char, multispace0, multispace1},
     combinator::{map, not, opt, peek},
-    multi::{fold_many0, many_till, separated_list1},
+    multi::{many0, many_till, separated_list1},
     sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
@@ -34,24 +34,108 @@ use super::{
     Context,
 };
 
-pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Inline> {
-    let mut inlines = Vec::new();
+const EDIT_START: &str = "[[";
+const EDIT_WITH: &str = ">>";
+const EDIT_END: &str = "]]";
 
+pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Inline> {
+    // Collate all the inline nodes
+    let mut nodes = Vec::new();
     for md in mds {
         if let mdast::Node::Text(mdast::Text { value, position }) = md {
             // Parse the string for extensions not handled by the `markdown` crate e.g.
-            // inline code, subscripts, superscripts etc
-            if let Ok((.., mut parsed)) = parse_inlines(&value, position) {
-                inlines.append(&mut parsed);
-            }
+            // inline code, subscripts, superscripts etc and sentinel text like EDIT_END
+            let mut parsed = parse_inlines(&value, position);
+            nodes.append(&mut parsed);
         } else if let Some(inline) = md_to_inline(md, context) {
-            inlines.push(inline)
+            nodes.push(inline)
+        }
+    }
+
+    // Iterate over the inlines
+    let mut inlines = Vec::with_capacity(nodes.len());
+    let mut boundaries = Vec::new();
+    for node in nodes {
+        if let Inline::Text(text) = &node {
+            if text.value.as_str() == EDIT_WITH {
+                println!(
+                    "{} {:?} {:?}",
+                    text.value.as_str(),
+                    boundaries,
+                    inlines.last()
+                );
+                if let Some(boundary) = boundaries.pop() {
+                    let children = inlines.drain(boundary..).collect();
+                    match inlines.last_mut() {
+                        Some(
+                            Inline::ReplaceInline(ReplaceInline { content, .. })
+                            | Inline::ModifyInline(ModifyInline { content, .. }),
+                        ) => {
+                            *content = children;
+                            boundaries.push(inlines.len());
+                        }
+
+                        _ => inlines.push(node),
+                    }
+                } else {
+                    inlines.push(node)
+                }
+            } else if text.value.as_str() == EDIT_END {
+                if let Some(boundary) = boundaries.pop() {
+                    let children = inlines.drain(boundary..).collect();
+                    match inlines.last_mut() {
+                        Some(
+                            Inline::InstructionInline(InstructionInline {
+                                content: Some(content),
+                                ..
+                            })
+                            | Inline::InsertInline(InsertInline { content, .. })
+                            | Inline::DeleteInline(DeleteInline { content, .. }),
+                        ) => {
+                            *content = children;
+                        }
+
+                        Some(Inline::ReplaceInline(ReplaceInline { replacement, .. })) => {
+                            *replacement = children;
+                        }
+
+                        Some(Inline::ModifyInline(..)) => {
+                            // Ignore "simulated" replacement content
+                        }
+
+                        _ => inlines.push(node),
+                    }
+                } else {
+                    inlines.push(node)
+                }
+            } else {
+                if let Some(Inline::Text(previous_text)) = inlines.last_mut() {
+                    previous_text.value.push_str(&text.value);
+                } else {
+                    inlines.push(node)
+                }
+            }
+        } else if matches!(
+            node,
+            Inline::InstructionInline(InstructionInline {
+                content: Some(..),
+                ..
+            }) | Inline::InsertInline(..)
+                | Inline::DeleteInline(..)
+                | Inline::ReplaceInline(..)
+                | Inline::ModifyInline(..)
+        ) {
+            inlines.push(node);
+            boundaries.push(inlines.len());
+        } else {
+            inlines.push(node)
         }
     }
 
     inlines
 }
 
+/// Transform MDAST inline nodes to Stencila inlines nodes
 fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
     Some(match md {
         mdast::Node::Delete(mdast::Delete { children, position }) => {
@@ -189,53 +273,31 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
 }
 
 /// Parse a text string into a vector of `Inline` nodes
-///
-/// Whilst accumulating, will combine adjacent `Text` nodes.
-/// This is necessary because of the catch all `character` parser.
-pub(super) fn parse_inlines(
-    input: &str,
-    _position: Option<Position>,
-) -> IResult<&str, Vec<Inline>> {
-    fold_many0(
-        alt((
-            button,
-            code_attrs,
-            double_braces,
-            cite_group,
-            cite,
-            parameter,
-            styled_inline,
-            quote,
-            strikeout,
-            subscript,
-            superscript,
-            underline,
-            instruction_inline,
-            insert_inline,
-            delete_inline,
-            replace_inline,
-            modify_inline,
-            string,
-            character,
-        )),
-        Vec::new,
-        |mut vec: Vec<Inline>, node| {
-            if let Inline::Text(text) = &node {
-                match vec.last_mut() {
-                    Some(Inline::Text(last)) => last.value.push_str(&text.value),
-                    _ => vec.push(node),
-                }
-            } else {
-                vec.push(node)
-            }
-            vec
-        },
-    )(input)
-}
-
-/// Parse a string into a vector of `Inline` nodes falling back to a single `Text` node on error
-pub fn parse_inlines_or_text(input: &str) -> Vec<Inline> {
-    parse_inlines(input, None).map_or_else(
+pub(super) fn parse_inlines(input: &str, _position: Option<Position>) -> Vec<Inline> {
+    many0(alt((
+        button,
+        code_attrs,
+        double_braces,
+        cite_group,
+        cite,
+        parameter,
+        styled_inline,
+        quote,
+        strikeout,
+        subscript,
+        superscript,
+        underline,
+        instruction_inline,
+        insert_inline,
+        delete_inline,
+        replace_inline,
+        modify_inline,
+        edit_with,
+        edit_end,
+        string,
+        character,
+    )))(input)
+    .map_or_else(
         |_| vec![Inline::Text(Text::from(input))],
         |(.., inlines)| inlines,
     )
@@ -677,7 +739,7 @@ fn styled_inline(input: &str) -> IResult<&str, Inline> {
         )),
         |(content, code): (&str, &str)| {
             Inline::StyledInline(StyledInline {
-                content: parse_inlines_or_text(content),
+                content: parse_inlines(content, None),
                 code: code.into(),
                 ..Default::default()
             })
@@ -689,7 +751,7 @@ fn styled_inline(input: &str) -> IResult<&str, Inline> {
 fn strikeout(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("~~"), take_until("~~"), tag("~~")),
-        |content: &str| Inline::Strikeout(Strikeout::new(parse_inlines_or_text(content))),
+        |content: &str| Inline::Strikeout(Strikeout::new(parse_inlines(content, None))),
     )(input)
 }
 
@@ -702,7 +764,7 @@ fn subscript(input: &str) -> IResult<&str, Inline> {
             take_until("~"),
             char('~'),
         ),
-        |content: &str| Inline::Subscript(Subscript::new(parse_inlines_or_text(content))),
+        |content: &str| Inline::Subscript(Subscript::new(parse_inlines(content, None))),
     )(input)
 }
 
@@ -710,7 +772,7 @@ fn subscript(input: &str) -> IResult<&str, Inline> {
 fn superscript(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(char('^'), take_until("^"), char('^')),
-        |content: &str| Inline::Superscript(Superscript::new(parse_inlines_or_text(content))),
+        |content: &str| Inline::Superscript(Superscript::new(parse_inlines(content, None))),
     )(input)
 }
 
@@ -718,7 +780,7 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
 fn quote(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("<q>"), take_until("</q>"), tag("</q>")),
-        |content: &str| Inline::QuoteInline(QuoteInline::new(parse_inlines_or_text(content))),
+        |content: &str| Inline::QuoteInline(QuoteInline::new(parse_inlines(content, None))),
     )(input)
 }
 
@@ -726,33 +788,32 @@ fn quote(input: &str) -> IResult<&str, Inline> {
 fn underline(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("<u>"), take_until("</u>"), tag("</u>")),
-        |content: &str| Inline::Underline(Underline::new(parse_inlines_or_text(content))),
+        |content: &str| Inline::Underline(Underline::new(parse_inlines(content, None))),
     )(input)
 }
 
 /// Parse a string into a `InstructionInline` node
 fn instruction_inline(input: &str) -> IResult<&str, Inline> {
     map(
-        delimited(
-            terminated(tag("{//"), multispace0),
+        preceded(
+            terminated(tag("[[do"), multispace0),
             tuple((
                 opt(delimited(char('@'), assignee, multispace1)),
                 map(
-                    many_till(anychar, peek(alt((tag("/>"), tag("//}"))))),
+                    many_till(anychar, peek(alt((tag(EDIT_WITH), tag(EDIT_END))))),
                     |(chars, ..)| -> String { chars.iter().collect() },
                 ),
-                opt(preceded(tag("/>"), take_until("//}"))),
+                alt((tag(EDIT_WITH), tag(EDIT_END))),
             )),
-            tag("//}"),
         ),
-        |(assignee, text, content)| {
+        |(assignee, text, term)| {
             Inline::InstructionInline(InstructionInline {
                 messages: vec![InstructionMessage::from(text.trim())],
+                content: (term == EDIT_WITH).then_some(Vec::new()),
                 options: Box::new(InstructionInlineOptions {
                     assignee: assignee.map(|handle| handle.to_string()),
                     ..Default::default()
                 }),
-                content: content.map(parse_inlines_or_text),
                 ..Default::default()
             })
         },
@@ -762,49 +823,44 @@ fn instruction_inline(input: &str) -> IResult<&str, Inline> {
 /// Parse a string into a `InsertInline` node
 fn insert_inline(input: &str) -> IResult<&str, Inline> {
     map(
-        delimited(tag("{++"), take_until("++}"), tag("++}")),
-        |content: &str| Inline::InsertInline(InsertInline::new(parse_inlines_or_text(content))),
+        tuple((tag(EDIT_START), alt((tag("insert"), tag("ins"))), tag(" "))),
+        |_| Inline::InsertInline(InsertInline::default()),
     )(input)
 }
 
 /// Parse a string into a `DeleteInline` node
 fn delete_inline(input: &str) -> IResult<&str, Inline> {
     map(
-        delimited(tag("{--"), take_until("--}"), tag("--}")),
-        |content: &str| Inline::DeleteInline(DeleteInline::new(parse_inlines_or_text(content))),
+        tuple((tag(EDIT_START), alt((tag("delete"), tag("del"))), tag(" "))),
+        |_| Inline::DeleteInline(DeleteInline::default()),
     )(input)
 }
 
 /// Parse a string into a `ReplaceInline` node
 fn replace_inline(input: &str) -> IResult<&str, Inline> {
     map(
-        delimited(
-            tag("{~~"),
-            pair(terminated(take_until("~>"), tag("~>")), take_until("~~}")),
-            tag("~~}"),
-        ),
-        |(content, replacement)| {
-            Inline::ReplaceInline(ReplaceInline::new(
-                parse_inlines_or_text(content),
-                parse_inlines_or_text(replacement),
-            ))
-        },
+        tuple((tag(EDIT_START), alt((tag("replace"), tag("rep"))), tag(" "))),
+        |_| Inline::ReplaceInline(ReplaceInline::default()),
     )(input)
 }
 
 /// Parse a string into a `ModifyInline` node
-///
-/// Note that the parsed content and modification preview are ignored
-/// since this is "read-only".
 fn modify_inline(input: &str) -> IResult<&str, Inline> {
     map(
-        delimited(
-            tag("{!!"),
-            pair(terminated(take_until("!>"), tag("!>")), take_until("!!}")),
-            tag("!!}"),
-        ),
-        |(_content, _preview)| Inline::ModifyInline(ModifyInline::default()),
+        tuple((tag(EDIT_START), alt((tag("modify"), tag("mod"))), tag(" "))),
+        |_| Inline::ModifyInline(ModifyInline::default()),
     )(input)
+}
+
+/// Parse a `with:` word indicating the replacement content for a `ReplaceInline` or `ModifyInline` node
+fn edit_with(input: &str) -> IResult<&str, Inline> {
+    map(tag(EDIT_WITH), |_| Inline::Text(Text::from(EDIT_WITH)))(input)
+}
+
+/// Parse double closing square brackets `]]` indicating the end of content
+/// for an edit node
+fn edit_end(input: &str) -> IResult<&str, Inline> {
+    map(tag(EDIT_END), |_| Inline::Text(Text::from(EDIT_END)))(input)
 }
 
 /// Accumulate characters into a `Text` node
@@ -812,7 +868,7 @@ fn modify_inline(input: &str) -> IResult<&str, Inline> {
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &str) -> IResult<&str, Inline> {
-    const CHARS: &str = "~@#$^&[{`<";
+    const CHARS: &str = "~@#$^&[]{`<>";
     map(
         take_while1(|chr: char| !CHARS.contains(chr)),
         |val: &str| Inline::Text(Text::new(val.into())),
@@ -854,9 +910,29 @@ mod tests {
         underline("<u></u>")?;
         underline("<u>underlined</u>")?;
 
-        let inlines = parse_inlines("this is <u>underlined</u>.", None)?.1;
+        let inlines = parse_inlines("before <u>underlined</u> after", None);
         assert_eq!(inlines.len(), 3);
         assert!(matches!(inlines[1], Inline::Underline(..)));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_instruction_inline() -> Result<()> {
+        instruction_inline("[[do something]]")?;
+        instruction_inline("[[do something to:")?;
+
+        let inlines = parse_inlines("before [[do something]] after", None);
+        assert_eq!(inlines.len(), 3);
+        assert!(matches!(inlines[1], Inline::InstructionInline(..)));
+
+        let inlines = parse_inlines("before [[do something to: this]] after", None);
+        assert_eq!(inlines.len(), 5);
+        assert_eq!(inlines[0], Inline::Text(Text::from("before ")));
+        assert!(matches!(inlines[1], Inline::InstructionInline(..)));
+        assert_eq!(inlines[2], Inline::Text(Text::from(" this")));
+        assert_eq!(inlines[3], Inline::Text(Text::from("]]")));
+        assert_eq!(inlines[4], Inline::Text(Text::from(" after")));
 
         Ok(())
     }

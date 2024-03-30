@@ -1,3 +1,3 @@
-Some {++inserted ++}text.
+Some [[insert inserted ]]text.
 
-Several inserted inlines{++**strongly emphasized** and ^superscripted^ and `2 + 2`{ exec}++}.
+Several inserted inlines[[insert **strongly emphasized** and ^superscripted^ and `2 + 2`{exec}]].

@@ -7,6 +7,5 @@ description: A suggestion to insert some inline content.
 html:
   elem: ins
 markdown:
-  # CriticMarkup for "Additions"
-  template: '{++{{content}}++}'
+  template: '[[insert {{content}}]]'
 proptest: {}

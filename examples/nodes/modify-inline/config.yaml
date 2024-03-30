@@ -8,5 +8,4 @@ md:
     strip-props:
       # This stripping should be part of the codec/merging
       # back in to prevent overwrite of in-memory properties
-      - ModifyInline.content
       - ModifyInline.operations
