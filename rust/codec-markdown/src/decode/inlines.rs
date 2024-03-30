@@ -20,8 +20,8 @@ use codec::{
         ImageObject, Inline, InsertInline, InstructionInline, InstructionInlineOptions,
         InstructionMessage, IntegerValidator, Link, MathInline, ModifyInline, Node, Note, NoteType,
         NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline, Strikeout,
-        StringValidator, Strong, StyledInline, Subscript, Superscript, Text, TimeValidator,
-        TimestampValidator, Underline, Validator, VideoObject,
+        StringValidator, Strong, StyledInline, Subscript, SuggestionInlineType, Superscript, Text,
+        TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
@@ -58,12 +58,6 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
     for node in nodes {
         if let Inline::Text(text) = &node {
             if text.value.as_str() == EDIT_WITH {
-                println!(
-                    "{} {:?} {:?}",
-                    text.value.as_str(),
-                    boundaries,
-                    inlines.last()
-                );
                 if let Some(boundary) = boundaries.pop() {
                     let children = inlines.drain(boundary..).collect();
                     match inlines.last_mut() {
@@ -104,6 +98,31 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                         }
 
                         _ => inlines.push(node),
+                    }
+
+                    // If the the inline before this one was an instruction then associate the two
+                    if matches!(
+                        inlines.iter().rev().nth(1),
+                        Some(Inline::InstructionInline(..))
+                    ) {
+                        let suggestion = match inlines.pop() {
+                            Some(Inline::InsertInline(block)) => {
+                                SuggestionInlineType::InsertInline(block)
+                            }
+                            Some(Inline::DeleteInline(block)) => {
+                                SuggestionInlineType::DeleteInline(block)
+                            }
+                            Some(Inline::ReplaceInline(block)) => {
+                                SuggestionInlineType::ReplaceInline(block)
+                            }
+                            Some(Inline::ModifyInline(block)) => {
+                                SuggestionInlineType::ModifyInline(block)
+                            }
+                            _ => unreachable!(),
+                        };
+                        if let Some(Inline::InstructionInline(instruct)) = inlines.last_mut() {
+                            instruct.options.suggestion = Some(suggestion);
+                        }
                     }
                 } else {
                     inlines.push(node)
