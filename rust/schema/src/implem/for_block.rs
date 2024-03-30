@@ -6,12 +6,8 @@ impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_exec_options!(self));
-
-        let fence = ":".repeat(3 + context.depth * 2);
-
-        context
-            .push_str(&fence)
+            .merge_losses(lost_exec_options!(self))
+            .push_semis()
             .push_str(" for ")
             .push_prop_str("variable", &self.variable)
             .push_str(" in ")
@@ -34,13 +30,13 @@ impl MarkdownCodec for ForBlock {
 
         if let Some(otherwise) = &self.otherwise {
             context
-                .push_str(&fence)
+                .push_semis()
                 .push_str(" else\n\n")
                 .increase_depth()
                 .push_prop_fn("otherwise", |context| otherwise.to_markdown(context))
                 .decrease_depth();
         }
 
-        context.push_str(&fence).newline().exit_node().newline();
+        context.push_semis().newline().exit_node().newline();
     }
 }

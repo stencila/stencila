@@ -9,11 +9,9 @@ impl MarkdownCodec for CodeChunk {
             .merge_losses(lost_options!(self, id, outputs))
             .merge_losses(lost_exec_options!(self));
 
-        let fence = ":".repeat(3 + context.depth * 2);
-
         let wrapped = if self.label_type.is_some() || self.label.is_some() || self.caption.is_some()
         {
-            context.push_str(&fence);
+            context.push_semis();
 
             if let Some(label_type) = &self.label_type {
                 context.push_str(match label_type {
@@ -68,7 +66,7 @@ impl MarkdownCodec for CodeChunk {
         context.push_str("```\n");
 
         if wrapped {
-            context.newline().push_str(&fence).newline();
+            context.newline().push_semis().newline();
         }
 
         context.exit_node().newline();

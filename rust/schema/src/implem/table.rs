@@ -41,10 +41,8 @@ impl MarkdownCodec for Table {
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_work_options!(self));
 
-        let fence = ":".repeat(3 + context.depth * 2);
-
         let wrapped = if self.label.is_some() || self.caption.is_some() {
-            context.push_str(&fence).push_str(" table");
+            context.push_semis().push_str(" table");
 
             if let Some(label) = &self.label {
                 context.push_str(" ");
@@ -156,7 +154,7 @@ impl MarkdownCodec for Table {
             if self.notes.is_none() {
                 context.newline();
             }
-            context.push_str(&fence).newline();
+            context.push_semis().newline();
         }
 
         context.exit_node().newline();
