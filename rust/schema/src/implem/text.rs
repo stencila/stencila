@@ -29,3 +29,14 @@ impl DomCodec for Text {
             .exit_elem();
     }
 }
+
+impl MarkdownCodec for Text {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        // To avoid unnecessary, redundant entries for `Text.value` in `Mapping`
+        // this custom implementation just pushes the string.
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_str(&self.value)
+            .exit_node();
+    }
+}
