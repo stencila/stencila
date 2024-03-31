@@ -71,6 +71,7 @@
         "maplit",
         "mathemascii",
         "mathml",
+        "mdast",
         "microkernel",
         "microkernels",
         "minijinja",
