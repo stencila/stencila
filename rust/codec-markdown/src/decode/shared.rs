@@ -2,149 +2,100 @@
 
 use std::str::FromStr;
 
-use nom::{
-    branch::alt,
-    bytes::complete::{escaped, is_not, tag, tag_no_case, take_while_m_n},
-    character::{
-        complete::{alpha1, alphanumeric1, char, digit1, multispace0, multispace1, none_of},
-        is_digit,
-    },
-    combinator::{map, map_res, opt, peek, recognize},
-    multi::{many0, separated_list0},
-    number::complete::double,
-    sequence::{delimited, pair, preceded, terminated, tuple},
-    IResult,
+use winnow::{
+    ascii::{dec_int, float, multispace0, multispace1, take_escaped, Caseless},
+    combinator::{alt, delimited, not, opt, peek, separated, separated_pair, terminated},
+    error::{ErrMode, ErrorKind, ParserError},
+    stream::Stream,
+    token::{none_of, take_while},
+    PResult, Parser,
 };
 
-use codec::{
-    common::eyre::Result,
-    schema::{Date, DateTime, Duration, Node, Time, Timestamp},
-};
+use codec::schema::{Date, DateTime, Duration, Node, Time, Timestamp};
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
 
 /// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
 /// Will only recognize names that are valid in (most) programming languages.
-pub(super) fn name(input: &str) -> IResult<&str, &str> {
-    recognize(pair(
-        alt((alpha1, tag("_"))),
-        many0(alt((alphanumeric1, tag("_")))),
-    ))(input)
+pub(super) fn name<'s>(input: &mut &'s str) -> PResult<&'s str> {
+    (
+        take_while(1.., |c: char| c.is_ascii_alphabetic() || c == '_'),
+        take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_'),
+    )
+        .recognize()
+        .parse_next(input)
 }
 
 /// Parse the name of an assignee of an instruction (e.g. `insert-image-object`, `openai/gpt-4`, `joe@example.org`)
-pub(super) fn assignee(input: &str) -> IResult<&str, &str> {
-    recognize(pair(
-        alpha1,
-        many0(alt((
-            alphanumeric1,
-            tag("_"),
-            tag("-"),
-            tag("/"),
-            tag("."),
-            tag("@"),
-        ))),
-    ))(input)
+pub(super) fn assignee<'s>(input: &mut &'s str) -> PResult<&'s str> {
+    (
+        take_while(1.., |c: char| c.is_ascii_alphabetic()),
+        take_while(0.., |c: char| {
+            c.is_ascii_alphanumeric() || "_-/.@".contains(c)
+        }),
+    )
+        .recognize()
+        .parse_next(input)
 }
 
 /// Take characters until `opening` and `closing` are unbalanced
-///
-/// Based on https://docs.rs/parse-hyperlinks/latest/parse_hyperlinks/fn.take_until_unbalanced.html
-pub(super) fn take_until_unbalanced(
+pub(super) fn take_until_unbalanced<'s>(
     opening: char,
     closing: char,
-) -> impl Fn(&str) -> IResult<&str, &str> {
-    use nom::{
-        error::{Error, ErrorKind, ParseError},
-        Err,
-    };
+) -> impl Fn(&mut &'s str) -> PResult<&'s str> {
+    move |input: &mut &'s str| {
+        let mut counter = 0;
+        for (index, char) in input.char_indices() {
+            if char == opening {
+                counter += 1
+            } else if char == closing {
+                counter -= 1
+            }
 
-    move |input: &str| {
-        let mut index = 0;
-        let mut bracket_counter = 0;
-        while let Some(n) = &input[index..].find(&[opening, closing, '\\'][..]) {
-            index += n;
-            let mut it = input[index..].chars();
-            match it.next() {
-                Some('\\') => {
-                    // Skip the escape char `\`.
-                    index += '\\'.len_utf8();
-                    // Skip also the following char.
-                    if let Some(c) = it.next() {
-                        index += c.len_utf8();
-                    }
-                }
-                Some(c) if c == opening => {
-                    bracket_counter += 1;
-                    index += opening.len_utf8();
-                }
-                Some(c) if c == closing => {
-                    bracket_counter -= 1;
-                    index += closing.len_utf8();
-                }
-                _ => unreachable!(),
-            };
-            // We found the unmatched closing.
-            if bracket_counter == -1 {
-                //Do not consume it.
-                index -= closing.len_utf8();
-                return Ok((&input[index..], &input[0..index]));
-            };
+            if counter < 0 {
+                return Ok(input.next_slice(index));
+            }
         }
-
-        if bracket_counter == 0 {
-            Ok(("", input))
-        } else {
-            Err(Err::Error(Error::from_error_kind(
-                input,
-                ErrorKind::TakeUntil,
-            )))
-        }
+        Ok(input.next_slice(input.len()))
     }
 }
 
 /// Parse "curly braced attrs" (options inside curly braces)
 ///
 /// Curly braced options are used to specify options on various
-/// node types.
-pub(super) fn attrs(input: &str) -> IResult<&str, Vec<(String, Option<Node>)>> {
-    alt((
-        map(tag("{}"), |_| Vec::new()),
-        delimited(
-            terminated(char('{'), multispace0),
-            separated_list0(multispace1, attr),
-            preceded(multispace0, char('}')),
+/// node types. Separated by whitespace with optional commas
+pub(super) fn attrs<'s>(input: &mut &'s str) -> PResult<Vec<(&'s str, Option<Node>)>> {
+    delimited(
+        ('{', multispace0),
+        separated(
+            0..,
+            attr,
+            alt(((multispace0, ',', multispace0).recognize(), multispace1)),
         ),
-    ))(input)
+        (multispace0, '}'),
+    )
+    .parse_next(input)
 }
 
 /// Parse a single attr inside `attrs`
 ///
 /// Attributes can be single values (i.e. flags) or key-value pairs (separated by `=`).
-pub(super) fn attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
-    map_res(
-        alt((
-            map(
-                tuple((
-                    name,
-                    tuple((multispace0, tag("="), multispace0)),
-                    alt((primitive_node, unquoted_string_node)),
-                )),
-                |(name, _s, value)| (name, Some(value)),
-            ),
-            map(name, |name| (name, None)),
-        )),
-        |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
-            // Previously this used snake case by that was problematic for attributes such as "json5"
-            // (got converted to "json_5"). Instead, we replace dashes with underscores.
-            Ok((name.replace('-', "_"), value))
-        },
-    )(input)
+pub(super) fn attr<'s>(input: &mut &'s str) -> PResult<(&'s str, Option<Node>)> {
+    alt((
+        separated_pair(
+            name,
+            (multispace0, '=', multispace0),
+            alt((primitive_node, unquoted_string_node)),
+        )
+        .map(|(name, value)| (name, Some(value))),
+        name.map(|name| (name, None)),
+    ))
+    .parse_next(input)
 }
 
 /// Any primitive node
-pub(super) fn primitive_node(input: &str) -> IResult<&str, Node> {
+pub(super) fn primitive_node(input: &mut &str) -> PResult<Node> {
     alt((
         object_node,
         array_node,
@@ -155,128 +106,104 @@ pub(super) fn primitive_node(input: &str) -> IResult<&str, Node> {
         integer_node,
         number_node,
         boolean_node,
-    ))(input)
+    ))
+    .parse_next(input)
 }
 
 /// Parse a true/false (case-insensitive) into a `Boolean` node
-fn boolean_node(input: &str) -> IResult<&str, Node> {
-    map_res(
-        alt((tag_no_case("true"), tag_no_case("false"))),
-        |str: &str| -> Result<Node> { Ok(Node::Boolean(str == "true")) },
-    )(input)
+fn boolean_node(input: &mut &str) -> PResult<Node> {
+    alt((Caseless("true"), Caseless("false")))
+        .map(|str: &str| Node::Boolean(str.to_lowercase() == "true"))
+        .parse_next(input)
 }
 
-/// Parse one or more digits into an `Integer` node
-fn integer_node(input: &str) -> IResult<&str, Node> {
-    map_res(
-        // The peek avoids a float input being partially parsed as an integer
-        // There is probably a better way/place to do this.
-        tuple((opt(tag("-")), digit1, peek(is_not(".")))),
-        |(sign, digits, _peek): (Option<&str>, &str, _)| -> Result<Node> {
-            Ok(Node::Integer(
-                (sign.unwrap_or_default().to_string() + digits).parse()?,
-            ))
-        },
-    )(input)
+/// Parse an `Integer` node
+fn integer_node(input: &mut &str) -> PResult<Node> {
+    (dec_int, peek(not(".")))
+        .map(|(num, ..)| Node::Integer(num))
+        .parse_next(input)
 }
 
-/// Parse one or more digits into an `Number` node
-fn number_node(input: &str) -> IResult<&str, Node> {
-    map_res(double, |num| -> Result<Node> { Ok(Node::Number(num)) })(input)
+/// Parse a `Number` node
+fn number_node(input: &mut &str) -> PResult<Node> {
+    float.map(Node::Number).parse_next(input)
+}
+
+/// Parse a single or double quoted string into a `String` node
+fn string_node(input: &mut &str) -> PResult<Node> {
+    alt((single_quoted_string_node, double_quoted_string_node)).parse_next(input)
 }
 
 /// Parse a single quoted string into a `String` node
-fn single_quoted_string_node(input: &str) -> IResult<&str, &str> {
-    let escaped = escaped(none_of("\\\'"), '\\', char('\''));
-    let empty = tag("");
-    delimited(char('\''), alt((escaped, empty)), char('\''))(input)
+fn single_quoted_string_node(input: &mut &str) -> PResult<Node> {
+    delimited('\'', take_escaped(none_of(['\\', '\'']), '\\', '\''), '\'')
+        .map(|value: &str| Node::String(value.to_string()))
+        .parse_next(input)
 }
 
 /// Parse a double quoted string into a `String` node
-fn double_quoted_string_node(input: &str) -> IResult<&str, &str> {
-    let escaped = escaped(none_of("\\\""), '\\', char('"'));
-    let empty = tag("");
-    delimited(char('"'), alt((escaped, empty)), char('"'))(input)
+fn double_quoted_string_node(input: &mut &str) -> PResult<Node> {
+    delimited('"', take_escaped(none_of(['\\', '"']), '\\', '"'), '"')
+        .map(|value: &str| Node::String(value.to_string()))
+        .parse_next(input)
 }
 
 /// Parse characters into string into a `String` node
 ///
 /// Excludes character that may be significant in places that this is used.
-fn unquoted_string_node(input: &str) -> IResult<&str, Node> {
-    map_res(is_not(" }"), |str: &str| -> Result<Node> {
-        Ok(Node::String(str.to_string()))
-    })(input)
-}
-
-/// Parse a single or double quoted string into a `String` node
-fn string_node(input: &str) -> IResult<&str, Node> {
-    map_res(
-        alt((single_quoted_string_node, double_quoted_string_node)),
-        |str: &str| -> Result<Node> { Ok(Node::String(str.to_string())) },
-    )(input)
-}
-
-/// Parse a YYYY-mm-dd date
-fn date_node(input: &str) -> IResult<&str, Node> {
-    map_res(
-        recognize(tuple((
-            take_while_m_n(4, 4, |c| is_digit(c as u8)),
-            char('-'),
-            take_while_m_n(2, 2, |c| is_digit(c as u8)),
-            char('-'),
-            take_while_m_n(2, 2, |c| is_digit(c as u8)),
-        ))),
-        |str: &str| -> Result<Node> { Ok(Node::Date(Date::new(str.to_string()))) },
-    )(input)
-}
-
-/// Parse a HH::MM::SS time
-fn time_node(input: &str) -> IResult<&str, Node> {
-    map_res(
-        recognize(tuple((
-            take_while_m_n(2, 2, |c| is_digit(c as u8)),
-            char(':'),
-            take_while_m_n(2, 2, |c| is_digit(c as u8)),
-            char(':'),
-            take_while_m_n(2, 2, |c| is_digit(c as u8)),
-        ))),
-        |str: &str| -> Result<Node> { Ok(Node::Time(Time::new(str.to_string()))) },
-    )(input)
+fn unquoted_string_node(input: &mut &str) -> PResult<Node> {
+    take_while(1.., |c: char| c != ' ' && c != '}')
+        .recognize()
+        .map(|value: &str| Node::String(value.to_string()))
+        .parse_next(input)
 }
 
 /// Parse a YYYY-mm-ddTHH::MM::SS datetime
-fn datetime_node(input: &str) -> IResult<&str, Node> {
-    map_res(
-        recognize(terminated(
-            tuple((date_node, char('T'), time_node)),
-            opt(char('Z')),
-        )),
-        |str: &str| -> Result<Node> { Ok(Node::DateTime(DateTime::new(str.to_string()))) },
-    )(input)
+fn datetime_node(input: &mut &str) -> PResult<Node> {
+    terminated((date_node, 'T', time_node), opt('Z'))
+        .recognize()
+        .map(|str: &str| Node::DateTime(DateTime::new(str.to_string())))
+        .parse_next(input)
+}
+
+fn digits4<'s>(input: &mut &'s str) -> PResult<&'s str> {
+    take_while(4..=4, '0'..='9').parse_next(input)
+}
+
+fn digits2<'s>(input: &mut &'s str) -> PResult<&'s str> {
+    take_while(2..=2, '0'..='9').parse_next(input)
+}
+
+/// Parse a YYYY-mm-dd date
+fn date_node(input: &mut &str) -> PResult<Node> {
+    (digits4, '-', digits2, '-', digits2)
+        .recognize()
+        .map(|str: &str| Node::Date(Date::new(str.to_string())))
+        .parse_next(input)
+}
+
+/// Parse a HH::MM::SS time
+fn time_node(input: &mut &str) -> PResult<Node> {
+    (digits2, ':', digits2, ':', digits2)
+        .recognize()
+        .map(|str: &str| Node::Time(Time::new(str.to_string())))
+        .parse_next(input)
 }
 
 /// Parse a JSON5-style square bracketed array into an `Array` node
-///
-/// Inner closing brackets can be escaped.
-fn array_node(input: &str) -> IResult<&str, Node> {
-    let escaped = escaped(none_of("\\]"), '\\', tag("]"));
-    let empty = tag("");
-    map_res(
-        delimited(tag("["), alt((escaped, empty)), tag("]")),
-        |inner: &str| -> Result<Node> { Node::from_json5(&["[", inner, "]"].concat()) },
-    )(input)
+fn array_node(input: &mut &str) -> PResult<Node> {
+    let json5 = ('[', take_until_unbalanced('[', ']'), ']')
+        .recognize()
+        .parse_next(input)?;
+    Node::from_json5(json5).map_err(|_| ErrMode::from_error_kind(input, ErrorKind::Verify))
 }
 
 /// Parse a JSON5-style curly braced object into an `Object` node
-///
-/// Inner closing braces can be escaped.
-fn object_node(input: &str) -> IResult<&str, Node> {
-    let escaped = escaped(none_of("\\}"), '\\', tag("}"));
-    let empty = tag("");
-    map_res(
-        delimited(tag("{"), alt((escaped, empty)), tag("}")),
-        |inner: &str| -> Result<Node> { Node::from_json5(&["{", inner, "}"].concat()) },
-    )(input)
+fn object_node(input: &mut &str) -> PResult<Node> {
+    let json5 = ('{', take_until_unbalanced('{', '}'), '}')
+        .recognize()
+        .parse_next(input)?;
+    Node::from_json5(json5).map_err(|_| ErrMode::from_error_kind(input, ErrorKind::Verify))
 }
 
 /// Convert a [`Node`] to a `String`
@@ -351,48 +278,81 @@ pub fn node_to_option_duration(node: Node) -> Option<Duration> {
 
 #[cfg(test)]
 mod tests {
+    use codec::common::eyre::Result;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 
     #[test]
-    fn test_single_quoted() {
-        let (_, res) = single_quoted_string_node(r#"' \' 🤖 '"#).unwrap();
-        assert_eq!(res, r#" \' 🤖 "#);
-        let (_, res) = single_quoted_string_node("' → x'").unwrap();
-        assert_eq!(res, " → x");
-        let (_, res) = single_quoted_string_node("'  '").unwrap();
-        assert_eq!(res, "  ");
-        let (_, res) = single_quoted_string_node("''").unwrap();
-        assert_eq!(res, "");
-    }
-
-    #[test]
-    fn test_double_quoted() {
-        let (_, res) = double_quoted_string_node(r#""a\"b""#).unwrap();
-        assert_eq!(res, r#"a\"b"#);
-        let (_, res) = double_quoted_string_node(r#"" \" 🤖 ""#).unwrap();
-        assert_eq!(res, r#" \" 🤖 "#);
-        let (_, res) = double_quoted_string_node(r#"" → x""#).unwrap();
-        assert_eq!(res, " → x");
-        let (_, res) = double_quoted_string_node(r#""  ""#).unwrap();
-        assert_eq!(res, "  ");
-        let (_, res) = double_quoted_string_node(r#""""#).unwrap();
-        assert_eq!(res, "");
-    }
-
-    #[test]
-    fn test_square_bracketed() -> Result<()> {
-        let (_, res) = array_node("[1,2,3]")?;
-        assert_eq!(res, Node::from_json5("[1, 2, 3]")?);
-
-        let (_, res) = array_node("['a', 'b']").unwrap();
-        assert_eq!(res, Node::from_json5(r#"["a", "b"]"#)?);
-
-        let (_, res) = array_node("[\"string \\] with closing bracket\"]").unwrap();
+    fn test_single_quoted_string_node() -> Result<()> {
         assert_eq!(
-            res,
-            Node::from_json5(r#"["string ] with closing bracket"]"#)?
+            single_quoted_string_node(&mut r#"' \' abc'"#).unwrap(),
+            Node::String(r#" \' abc"#.to_string())
+        );
+
+        assert_eq!(
+            single_quoted_string_node(&mut "'  '").unwrap(),
+            Node::String("  ".to_string())
+        );
+
+        assert_eq!(
+            single_quoted_string_node(&mut "''").unwrap(),
+            Node::String("".to_string())
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_double_quoted_string_node() -> Result<()> {
+        assert_eq!(
+            double_quoted_string_node(&mut r#"" \" abc""#).unwrap(),
+            Node::String(r#" \" abc"#.to_string())
+        );
+
+        assert_eq!(
+            double_quoted_string_node(&mut r#""  ""#).unwrap(),
+            Node::String("  ".to_string())
+        );
+
+        assert_eq!(
+            double_quoted_string_node(&mut r#""""#).unwrap(),
+            Node::String("".to_string())
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_array_node() -> Result<()> {
+        assert_eq!(
+            array_node(&mut "[1,2,3]").unwrap(),
+            Node::from_json5("[1, 2, 3]")?
+        );
+
+        assert_eq!(
+            array_node(&mut "['a', 'b']").unwrap(),
+            Node::from_json5(r#"["a", "b"]"#)?
+        );
+
+        assert_eq!(
+            array_node(&mut "[1, [2, 3]]").unwrap(),
+            Node::from_json5("[1, [2, 3]]")?
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_object_node() -> Result<()> {
+        assert_eq!(
+            object_node(&mut "{a: 1}").unwrap(),
+            Node::from_json5("{a: 1}")?
+        );
+
+        assert_eq!(
+            object_node(&mut "{a: {ab: 1, abc: [1, 2, 3]}}").unwrap(),
+            Node::from_json5("{a: {ab: 1, abc: [1, 2, 3]}}")?
         );
 
         Ok(())
@@ -400,51 +360,93 @@ mod tests {
 
     #[test]
     fn test_attrs() -> Result<()> {
-        assert_eq!(attrs(r#"{a}"#).unwrap().1, vec![("a".to_string(), None),]);
+        assert_eq!(attrs(&mut r#"{a}"#).unwrap(), vec![("a", None)]);
 
         assert_eq!(
-            attrs(r#"{a=1 b='2' c=-3 d = 4.0}"#)?.1,
+            attrs(&mut r#"{a=true}"#).unwrap(),
+            vec![("a", Some(Node::Boolean(true)))]
+        );
+
+        assert_eq!(
+            attrs(&mut r#"{a=true b=123}"#).unwrap(),
             vec![
-                ("a".to_string(), Some(Node::Integer(1))),
-                ("b".to_string(), Some(Node::String("2".to_string()))),
-                ("c".to_string(), Some(Node::Integer(-3))),
-                ("d".to_string(), Some(Node::Number(4.0)))
+                ("a", Some(Node::Boolean(true))),
+                ("b", Some(Node::Integer(123)))
             ]
         );
 
         assert_eq!(
-            attrs(r#"{date min=2022-09-01 max='2022-09-30' def="2022-09-15"}"#)?.1,
+            attrs(&mut r#"{a=1.23 b='b' c="c"}"#).unwrap(),
             vec![
-                ("date".to_string(), None),
-                (
-                    "min".to_string(),
-                    Some(Node::Date(Date::new("2022-09-01".to_string())))
-                ),
-                (
-                    "max".to_string(),
-                    Some(Node::String("2022-09-30".to_string()))
-                ),
-                (
-                    "def".to_string(),
-                    Some(Node::String("2022-09-15".to_string()))
-                ),
+                ("a", Some(Node::Number(1.23))),
+                ("b", Some(Node::String("b".to_string()))),
+                ("c", Some(Node::String("c".to_string())))
             ]
         );
 
-        // Multiple spaces are fine
         assert_eq!(
-            attrs(r#"{   a     b=21 c = 1.234 d="   Internal  spaces "  }"#)?.1,
+            attrs(&mut r#"{a=1, b='2' ,c=-3 ,  d = 4.0}"#).unwrap(),
             vec![
-                ("a".to_string(), None),
-                ("b".to_string(), Some(Node::Integer(21))),
-                ("c".to_string(), Some(Node::Number(1.234))),
-                (
-                    "d".to_string(),
-                    Some(Node::String("   Internal  spaces ".to_string()))
-                )
+                ("a", Some(Node::Integer(1))),
+                ("b", Some(Node::String("2".to_string()))),
+                ("c", Some(Node::Integer(-3))),
+                ("d", Some(Node::Number(4.0)))
+            ]
+        );
+
+        assert_eq!(
+            attrs(&mut r#"{date min=2022-09-01 max=2022-09-30 def=2022-09-15}"#).unwrap(),
+            vec![
+                ("date", None),
+                ("min", Some(Node::Date(Date::new("2022-09-01".to_string())))),
+                ("max", Some(Node::Date(Date::new("2022-09-30".to_string())))),
+                ("def", Some(Node::Date(Date::new("2022-09-15".to_string())))),
+            ]
+        );
+
+        assert_eq!(
+            attrs(&mut r#"{time min=00:11:22}"#).unwrap(),
+            vec![
+                ("time", None),
+                ("min", Some(Node::Time(Time::new("00:11:22".to_string())))),
+            ]
+        );
+
+        assert_eq!(
+            attrs(&mut r#"{   a     b=21 c = 1.234 d="   Internal  spaces "  }"#).unwrap(),
+            vec![
+                ("a", None),
+                ("b", Some(Node::Integer(21))),
+                ("c", Some(Node::Number(1.234))),
+                ("d", Some(Node::String("   Internal  spaces ".to_string())))
             ]
         );
 
         Ok(())
+    }
+
+    #[test]
+    fn test_take_until_unbalanced() {
+        assert_eq!(
+            take_until_unbalanced('{', '}')
+                .parse_next(&mut "abc }")
+                .unwrap(),
+            "abc "
+        );
+
+        assert_eq!(
+            take_until_unbalanced('{', '}')
+                .parse_next(&mut "a{{b}c}} foo")
+                .unwrap(),
+            "a{{b}c}"
+        );
+
+        assert_eq!(
+            ('{', take_until_unbalanced('{', '}'), '}')
+                .recognize()
+                .parse_next(&mut "{a:1, b:2}")
+                .unwrap(),
+            "{a:1, b:2}"
+        );
     }
 }

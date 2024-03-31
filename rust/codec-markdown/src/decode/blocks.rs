@@ -1,20 +1,15 @@
 use std::collections::HashMap;
 
 use markdown::{mdast, unist::Position};
-use nom::{
-    branch::alt,
-    bytes::complete::{escaped, is_not, tag, take_until},
-    character::complete::{
-        alpha1, char, multispace0, multispace1, newline, none_of, not_line_ending,
-    },
-    combinator::{all_consuming, map, opt, recognize},
-    multi::{many0, many_m_n, separated_list0},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
-    IResult,
+use winnow::{
+    ascii::{alphanumeric1, multispace0, multispace1, space0},
+    combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
+    token::{take_until, take_while},
+    IResult, PResult, Parser,
 };
 
 use codec::{
-    common::tracing,
+    common::{indexmap::IndexMap, tracing},
     schema::{
         Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
         CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
@@ -27,21 +22,18 @@ use codec::{
 
 use super::{
     inlines::mds_to_inlines,
-    shared::{
-        assignee, attrs, name, node_to_from_str, node_to_string, primitive_node,
-        take_until_unbalanced,
-    },
+    shared::{assignee, attrs, name, node_to_from_str, node_to_string, primitive_node},
     Context,
 };
 
 /// Transform MDAST nodes to Stencila Schema `Block`
 pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Block> {
     let mut blocks = Vec::new();
-    let mut divs = Vec::new();
+    let mut boundaries: Vec<usize> = Vec::new();
 
-    // Get all the blocks since the last fenced div
-    fn pop_div(blocks: &mut Vec<Block>, divs: &mut Vec<usize>) -> Vec<Block> {
-        if let Some(div) = divs.pop() {
+    // Get all the blocks since the last boundary
+    fn pop_blocks(blocks: &mut Vec<Block>, boundary: &mut Vec<usize>) -> Vec<Block> {
+        if let Some(div) = boundary.pop() {
             blocks.drain(div..).collect()
         } else {
             Vec::new()
@@ -49,92 +41,113 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     }
 
     for md in mds {
-        // Detect fenced div paragraphs (starting with `:::`) and handle them specially...
+        // Parse "fenced div" paragraphs (starting with `:::`) and handle them specially...
         if let mdast::Node::Paragraph(mdast::Paragraph {
             children,
             position: _,
         }) = &md
         {
             if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
-                let line = value.trim_end();
+                if let Ok(divider) = divider(&mut value.as_str()) {
+                    let children = pop_blocks(&mut blocks, &mut boundaries);
 
-                if div_else(line) {
-                    // If this is an `::: else` then handle it depending on the parents block
+                    match divider {
+                        Divider::With => {
+                            if let Some(block) = blocks.last_mut() {
+                                match block {
+                                    Block::InstructionBlock(InstructionBlock {
+                                        content, ..
+                                    }) => {
+                                        // This allows for when the `::: with` of an instruction block is a
+                                        // separate paragraph (i.e. blank line between `::: do` and `::: with`)
+                                        *content = Some(vec![])
+                                    }
 
-                    let children = if let Some(div) = divs.pop() {
-                        blocks.drain(div..).collect()
-                    } else {
-                        Vec::new()
-                    };
+                                    Block::ReplaceBlock(ReplaceBlock { content, .. })
+                                    | Block::ModifyBlock(ModifyBlock { content, .. }) => {
+                                        *content = children;
+                                    }
 
-                    if let Some(block) = blocks.last_mut() {
-                        match block {
-                            // Parent is a `ForBlock` so assign children to its `content` and
-                            // create a placeholder `otherwise` to indicate that when the else finishes
-                            // the tail of blocks should be popped to the `otherwise` of the current `ForBlock`
-                            Block::ForBlock(for_block) => {
-                                for_block.content = children;
-                                for_block.otherwise = Some(Vec::new());
-                            }
-
-                            // Parent is an `IfBlock` so assign children to the  `content` of
-                            // the last clause and add a final clause with no code or language
-                            Block::IfBlock(if_block) => {
-                                if let Some(last) = if_block.clauses.last_mut() {
-                                    last.content = children;
-                                } else {
-                                    tracing::error!(
-                                        "Expected there to be at least one if clause already"
-                                    )
+                                    _ => tracing::warn!("Found a `::: with` without a preceding `::: do`, `::: replace` or `::: modify`")
                                 }
-                                if_block.clauses.push(IfBlockClause::default());
+                            }
+                            boundaries.push(blocks.len());
+                        }
+                        Divider::Else => {
+                            if let Some(block) = blocks.last_mut() {
+                                match block {
+                                    // Parent is a `ForBlock` so assign children to its `content` and
+                                    // create a placeholder `otherwise` to indicate that when the else finishes
+                                    // the tail of blocks should be popped to the `otherwise` of the current `ForBlock`
+                                    Block::ForBlock(for_block) => {
+                                        for_block.content = children;
+                                        for_block.otherwise = Some(Vec::new());
+                                    }
+
+                                    // Parent is an `IfBlock` so assign children to the `content` of
+                                    // the last clause and add a final clause with no code or language
+                                    Block::IfBlock(if_block) => {
+                                        if let Some(last) = if_block.clauses.last_mut() {
+                                            last.content = children;
+                                        } else {
+                                            tracing::error!("Expected there to be at least one if clause already")
+                                        }
+                                        if_block.clauses.push(IfBlockClause::default());
+                                    }
+
+                                    _ => tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`"),
+                                }
                             }
 
-                            _ => {
-                                tracing::warn!(
-                                    "Found an `::: else` without a preceding `::: if` or `::: for`"
-                                );
+                            boundaries.push(blocks.len());
+                        }
+                        Divider::End => {
+                            // Finalize the last parent block and determine if it is a suggestion
+                            let is_suggestion = if let Some(parent) = blocks.last_mut() {
+                                finalize(parent, children);
+
+                                matches!(
+                                    parent,
+                                    Block::InsertBlock(..)
+                                        | Block::DeleteBlock(..)
+                                        | Block::ReplaceBlock(..)
+                                        | Block::ModifyBlock(..)
+                                )
+                            } else {
+                                false
+                            };
+
+                            // If the the block before this one was an instruction and this is a suggestion
+                            // then associate the two
+                            if is_suggestion
+                                && matches!(
+                                    blocks.iter().rev().nth(1),
+                                    Some(Block::InstructionBlock(..))
+                                )
+                            {
+                                let suggestion = match blocks.pop() {
+                                    Some(Block::InsertBlock(block)) => {
+                                        SuggestionBlockType::InsertBlock(block)
+                                    }
+                                    Some(Block::DeleteBlock(block)) => {
+                                        SuggestionBlockType::DeleteBlock(block)
+                                    }
+                                    Some(Block::ReplaceBlock(block)) => {
+                                        SuggestionBlockType::ReplaceBlock(block)
+                                    }
+                                    Some(Block::ModifyBlock(block)) => {
+                                        SuggestionBlockType::ModifyBlock(block)
+                                    }
+                                    _ => unreachable!(),
+                                };
+                                if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                                    instruct.options.suggestion = Some(suggestion);
+                                }
                             }
                         }
                     }
-
-                    divs.push(blocks.len());
-
                     continue;
-                } else if div_with(line) {
-                    // If this is an `::: with` then handle it depending on the parents block
-
-                    let children = if let Some(div) = divs.pop() {
-                        blocks.drain(div..).collect()
-                    } else {
-                        Vec::new()
-                    };
-
-                    if let Some(block) = blocks.last_mut() {
-                        match block {
-                            Block::InstructionBlock(InstructionBlock { content, .. }) => {
-                                // This allows for when the `::: with` of an instruction block is a
-                                // separate paragraph (i.e. space between it and `::: do`)
-                                *content = Some(vec![])
-                            }
-
-                            Block::ReplaceBlock(ReplaceBlock { content, .. })
-                            | Block::ModifyBlock(ModifyBlock { content, .. }) => {
-                                *content = children;
-                            }
-
-                            _ => {
-                                tracing::warn!(
-                                    "Found a `::: with` without a preceding `::: do`, `::: replace` or `::: modify`"
-                                );
-                            }
-                        }
-                    }
-
-                    divs.push(blocks.len());
-
-                    continue;
-                } else if let Ok((.., (is_if, if_clause))) = div_if_elif(line) {
+                } else if let Ok((is_if, if_clause)) = if_elif(&mut value.as_str()) {
                     if is_if {
                         // This is a `::: if` so start a new `IfBlock`
                         blocks.push(Block::IfBlock(IfBlock {
@@ -142,11 +155,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             ..Default::default()
                         }));
 
-                        divs.push(blocks.len());
-
+                        boundaries.push(blocks.len());
                         continue;
                     } else {
-                        let mut children = pop_div(&mut blocks, &mut divs);
+                        let mut children = pop_blocks(&mut blocks, &mut boundaries);
 
                         if let Some(Block::IfBlock(if_block)) = blocks.last_mut() {
                             // This is a `::: elif` so assign children to the  `content` of
@@ -160,7 +172,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             }
                             if_block.clauses.push(if_clause);
 
-                            divs.push(blocks.len());
+                            boundaries.push(blocks.len());
                             continue;
                         } else {
                             // There was no parent `IfBlock` so issue a warning and do not `continue`
@@ -170,75 +182,20 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             blocks.append(&mut children);
                         }
                     }
-                } else if let Ok((.., block)) = fenced_para(line) {
-                    blocks.push(block);
-
-                    continue;
-                } else if let Ok((.., (has_content, block))) = div_instruction_block(line) {
-                    blocks.push(block);
-
-                    if has_content {
-                        divs.push(blocks.len());
-                    }
-
-                    continue;
-                } else if let Ok((.., block)) = div_start(line) {
-                    // If this is the start of a fenced div block then push it on to
-                    // blocks and add a division marker to store its children.
+                } else if let Ok(block) = block(&mut value.as_str()) {
+                    // If this is the start of a "fenced div" block then push it on to
+                    // blocks and add a boundary marker for its children.
                     // This clause must come after `::: else` and others above to avoid `div_section`
                     // prematurely matching.
 
+                    // Only add a boundary for blocks that will have children to collect
+                    let add_boundary =
+                        !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..));
+
                     blocks.push(block);
-                    divs.push(blocks.len());
-
-                    continue;
-                } else if div_end(line) {
-                    // If this the end of a fenced div, i.e. `:::`, then get children and finalize
-                    // the last parent block
-
-                    let children = pop_div(&mut blocks, &mut divs);
-                    let is_suggestion = if let Some(parent) = blocks.last_mut() {
-                        div_finalize(parent, children);
-
-                        matches!(
-                            parent,
-                            Block::InsertBlock(..)
-                                | Block::DeleteBlock(..)
-                                | Block::ReplaceBlock(..)
-                                | Block::ModifyBlock(..)
-                        )
-                    } else {
-                        false
-                    };
-
-                    // If the the block before this one was an instruction and this is a suggestion
-                    // then associate the two
-                    if is_suggestion
-                        && matches!(
-                            blocks.iter().rev().nth(1),
-                            Some(Block::InstructionBlock(..))
-                        )
-                    {
-                        let suggestion = match blocks.pop() {
-                            Some(Block::InsertBlock(block)) => {
-                                SuggestionBlockType::InsertBlock(block)
-                            }
-                            Some(Block::DeleteBlock(block)) => {
-                                SuggestionBlockType::DeleteBlock(block)
-                            }
-                            Some(Block::ReplaceBlock(block)) => {
-                                SuggestionBlockType::ReplaceBlock(block)
-                            }
-                            Some(Block::ModifyBlock(block)) => {
-                                SuggestionBlockType::ModifyBlock(block)
-                            }
-                            _ => unreachable!(),
-                        };
-                        if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
-                            instruct.options.suggestion = Some(suggestion);
-                        }
+                    if add_boundary {
+                        boundaries.push(blocks.len());
                     }
-
                     continue;
                 }
             }
@@ -252,467 +209,395 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     blocks
 }
 
-/// Parse the start of a fenced paragraph: not a div with children
-/// but starts with three or more semicolons
-fn fenced_para(line: &str) -> IResult<&str, Block> {
-    alt((include_block, call_block))(line)
-}
-
-/// Parse the start of a fenced div
-fn div_start(line: &str) -> IResult<&str, Block> {
-    alt((
-        div_code_chunk,
-        div_figure,
-        div_table,
-        div_for_block,
-        div_delete_block,
-        div_insert_block,
-        div_replace_block,
-        div_modify_block,
-        div_claim,
-        div_styled_block,
-        // Section parser is permissive of label so needs to
-        // come last to avoid prematurely matching others above
-        div_section,
-    ))(line)
-}
-
-/// Detect at least three semicolons
-fn semis(line: &str) -> IResult<&str, &str> {
-    recognize(many_m_n(3, 100, char(':')))(line)
-}
-
-/// Parse an [`IncludeBlock`] node
-fn include_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((
-                semis,
-                multispace0,
-                alt((tag("include"), tag("inc"))),
-                multispace1,
-            )),
-            tuple((is_not("{"), opt(attrs))),
+/// Parse a "div": a paragraph starting with at least three semicolons
+fn block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        (take_while(3.., ':'), space0),
+        alt((
+            call_block,
+            include_block,
+            code_chunk,
+            figure,
+            table,
+            for_block,
+            instruction_block,
+            delete_block,
+            insert_block,
+            replace_block,
+            modify_block,
+            claim,
+            styled_block,
+            // Section parser is permissive of label so needs to
+            // come last to avoid prematurely matching others above
+            div_section,
         )),
-        |(source, attrs)| {
-            let mut options: HashMap<String, _> = attrs.unwrap_or_default().into_iter().collect();
-
-            Block::IncludeBlock(IncludeBlock {
-                source: source.trim().to_string(),
-                media_type: options.remove("format").flatten().map(node_to_string),
-                select: options.remove("select").flatten().map(node_to_string),
-                auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
-                ..Default::default()
-            })
-        },
-    )(input)
-}
-
-/// Parse a [`CallBlock`] node
-fn call_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0, tag("call"), multispace1)),
-            tuple((
-                is_not("("),
-                delimited(
-                    pair(char('('), multispace0),
-                    separated_list0(delimited(multispace0, tag(","), multispace0), call_arg),
-                    pair(multispace0, char(')')),
-                ),
-                opt(attrs),
-            )),
-        )),
-        |(source, args, attrs)| {
-            let mut options: HashMap<String, _> = attrs.unwrap_or_default().into_iter().collect();
-
-            Block::CallBlock(CallBlock {
-                source: source.trim().to_string(),
-                arguments: args,
-                media_type: options.remove("format").flatten().map(node_to_string),
-                select: options.remove("select").flatten().map(node_to_string),
-                auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
-                ..Default::default()
-            })
-        },
-    )(input)
+    )
+    .parse_next(input)
 }
 
 /// Parse an argument to a `CallBlock`.
 ///
 /// Arguments must be key-value or key-symbol pairs separated by `=`.
-fn call_arg(input: &str) -> IResult<&str, CallArgument> {
-    map(
-        // TODO allow for programming language to be specified
-        pair(
-            terminated(name, delimited(multispace0, tag("="), multispace0)),
-            alt((
-                map(delimited(char('`'), take_until("`"), char('`')), |code| {
-                    (code, None)
-                }),
-                map(primitive_node, |node| ("", Some(node))),
-            )),
-        ),
-        |(name, (code, value))| CallArgument {
+fn call_arg(input: &mut &str) -> PResult<CallArgument> {
+    // TODO allow for programming language to be specified
+    (
+        terminated(name, delimited(multispace0, "=", multispace0)),
+        alt((
+            delimited('`', take_until(0.., "`"), '`').map(|code| (code, None)),
+            primitive_node.map(|node| ("", Some(node))),
+        )),
+    )
+        .map(|(name, (code, value))| CallArgument {
             name: name.into(),
             code: code.into(),
             value: value.map(Box::new),
             ..Default::default()
-        },
-    )(input)
+        })
+        .parse_next(input)
+}
+
+/// Parse a [`CallBlock`] node
+fn call_block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        ("call", multispace1),
+        (
+            take_until(1.., '('),
+            delimited(
+                ('(', multispace0),
+                separated(0.., call_arg, delimited(multispace0, ",", multispace0)),
+                (multispace0, ')'),
+            ),
+            opt(attrs),
+        ),
+    )
+    .map(|(source, args, options)| {
+        let mut options: HashMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+
+        Block::CallBlock(CallBlock {
+            source: source.trim().to_string(),
+            arguments: args,
+            media_type: options.remove("format").flatten().map(node_to_string),
+            select: options.remove("select").flatten().map(node_to_string),
+            auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Parse an [`IncludeBlock`] node
+fn include_block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        (alt(("include", "inc")), multispace1),
+        (take_while(1.., |c| c != '{'), opt(attrs)),
+    )
+    .map(|(source, attrs)| {
+        let mut options: HashMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
+
+        Block::IncludeBlock(IncludeBlock {
+            source: source.trim().to_string(),
+            media_type: options.remove("format").flatten().map(node_to_string),
+            select: options.remove("select").flatten().map(node_to_string),
+            auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`Claim`] node
-fn div_claim(line: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0)),
-            tuple((
-                alt((
-                    tag("corollary"),
-                    tag("hypothesis"),
-                    tag("lemma"),
-                    tag("postulate"),
-                    tag("proof"),
-                    tag("proposition"),
-                    tag("statement"),
-                    tag("theorem"),
-                )),
-                opt(preceded(multispace1, not_line_ending)),
+fn claim(input: &mut &str) -> PResult<Block> {
+    (
+        terminated(
+            alt((
+                "corollary",
+                "hypothesis",
+                "lemma",
+                "postulate",
+                "proof",
+                "proposition",
+                "statement",
+                "theorem",
             )),
-        )),
-        |(claim_type, label)| {
+            multispace0,
+        ),
+        opt(take_while(1.., |_| true)),
+    )
+        .map(|(claim_type, label): (&str, Option<&str>)| {
             Block::Claim(Claim {
                 claim_type: claim_type.parse().unwrap_or_default(),
                 label: label.map(String::from),
                 ..Default::default()
             })
-        },
-    )(line)
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
-fn div_code_chunk(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0, tag("chunk"), multispace0)),
-            pair(
-                opt(terminated(
-                    alt((tag("figure"), tag("fig"), tag("fig."), tag("table"))),
-                    multispace0,
-                )),
-                opt(not_line_ending),
-            ),
-        )),
-        |(label_type, label)| {
-            Block::CodeChunk(CodeChunk {
-                label_type: label_type.and_then(|label_type| {
-                    match label_type.to_lowercase().as_str() {
-                        "figure" | "fig" | "fig." => Some(LabelType::FigureLabel),
-                        "table" => Some(LabelType::TableLabel),
-                        _ => None,
-                    }
-                }),
-                label: label.map(|label| label.to_string()),
-                ..Default::default()
-            })
-        },
-    )(input)
-}
-
-/// Start an [`InstructionBlock`]
-fn div_instruction_block(input: &str) -> IResult<&str, (bool, Block)> {
-    let (input, has_content) = if let Some(stripped) = input
-        .strip_suffix("::: with")
-        .or_else(|| input.strip_suffix(":::"))
-    {
-        (stripped, true)
-    } else {
-        (input, false)
-    };
-
-    let (remains, (assignee, text)) = preceded(
-        tuple((semis, multispace0, tag("do"), multispace0)),
-        pair(
-            opt(delimited(char('@'), assignee, multispace1)),
-            is_not("\n"),
-        ),
-    )(input)?;
-
-    let block = Block::InstructionBlock(InstructionBlock {
-        messages: vec![InstructionMessage::from(text)],
-        options: Box::new(InstructionBlockOptions {
-            assignee: assignee.map(String::from),
-            ..Default::default()
-        }),
-        ..Default::default()
-    });
-
-    Ok((remains, (has_content, block)))
-}
-
-/// Parse a suggestion status
-fn suggestion_status(input: &str) -> IResult<&str, SuggestionStatus> {
-    alt((
-        map(alt((tag("accepted"), tag("accept"))), |_| {
-            SuggestionStatus::Accepted
-        }),
-        map(alt((tag("rejected"), tag("reject"))), |_| {
-            SuggestionStatus::Rejected
-        }),
-        map(alt((tag("proposed"), tag("propose"))), |_| {
-            SuggestionStatus::Proposed
-        }),
-    ))(input)
-}
-
-/// Parse a [`DeleteBlock`] node
-fn div_delete_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((
-                semis,
-                multispace0,
-                alt((tag("delete"), tag("del"))),
+fn code_chunk(input: &mut &str) -> PResult<Block> {
+    preceded(
+        ("chunk", multispace0),
+        (
+            opt(terminated(
+                alt(("figure", "fig", "fig.", "table")),
                 multispace0,
             )),
-            opt(suggestion_status),
-        )),
-        |suggestion_status| {
-            Block::DeleteBlock(DeleteBlock {
-                suggestion_status,
-                ..Default::default()
-            })
-        },
-    )(input)
+            opt(take_while(1.., |_| true)),
+        ),
+    )
+    .map(|(label_type, label): (Option<&str>, Option<&str>)| {
+        Block::CodeChunk(CodeChunk {
+            label_type: label_type.and_then(|label_type| {
+                match label_type.to_lowercase().as_str() {
+                    "figure" | "fig" | "fig." => Some(LabelType::FigureLabel),
+                    "table" => Some(LabelType::TableLabel),
+                    _ => None,
+                }
+            }),
+            label: label.map(|label| label.to_string()),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`Figure`] node with a label and/or caption
-fn div_figure(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((
-                semis,
-                multispace0,
-                alt((tag("figure"), tag("fig"), tag("fig."))),
-                multispace0,
-            )),
-            opt(not_line_ending),
-        )),
-        |label| {
-            Block::Figure(Figure {
-                label: label.and_then(|label| (!label.is_empty()).then_some(label.to_string())),
-                ..Default::default()
-            })
-        },
-    )(input)
+fn figure(input: &mut &str) -> PResult<Block> {
+    preceded(
+        (alt(("figure", "fig", "fig.")), multispace0),
+        opt(take_while(1.., |_| true)),
+    )
+    .map(|label: Option<&str>| {
+        Block::Figure(Figure {
+            label: label.and_then(|label| (!label.is_empty()).then_some(label.to_string())),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`ForBlock`] node
-fn div_for_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0, tag("for"), multispace1)),
-            tuple((
-                separated_pair(
-                    name,
-                    tuple((multispace1, tag("in"), multispace1)),
-                    is_not("{"),
-                ),
-                opt(preceded(
-                    multispace0,
-                    delimited(char('{'), take_until("}"), char('}')),
+fn for_block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        ("for", multispace1),
+        (
+            separated_pair(
+                name,
+                (multispace1, "in", multispace1),
+                alt((
+                    delimited('`', take_until(0.., '`'), '`'),
+                    take_while(1.., |c| c != '{'),
                 )),
-            )),
-        )),
-        |((variable, expr), lang)| {
-            Block::ForBlock(ForBlock {
-                variable: variable.into(),
-                code: expr.trim().into(),
-                programming_language: lang.map(|lang| lang.trim().to_string()),
-                ..Default::default()
-            })
-        },
-    )(input)
+            ),
+            opt(preceded(multispace0, attrs)),
+        ),
+    )
+    .map(|((variable, expr), options)| {
+        let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+
+        Block::ForBlock(ForBlock {
+            variable: variable.into(),
+            code: expr.trim().into(),
+            programming_language: options.first().map(|(name, _)| name.to_string()),
+            auto_exec: options
+                .swap_remove("auto")
+                .flatten()
+                .and_then(node_to_from_str),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
-fn div_if_elif(input: &str) -> IResult<&str, (bool, IfBlockClause)> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0)),
-            tuple((
-                alt((tag("if"), tag("elif"))),
-                alt((
-                    preceded(
-                        multispace1,
-                        delimited(char('`'), escaped(none_of("`"), '\\', char('`')), char('`')),
-                    ),
-                    preceded(multispace1, is_not("{")),
-                    multispace0,
-                )),
-                opt(attrs),
-            )),
+fn if_elif(input: &mut &str) -> PResult<(bool, IfBlockClause)> {
+    (
+        delimited(
+            (take_while(3.., ':'), space0),
+            alt(("if", "elif")),
+            multispace1,
+        ),
+        alt((
+            delimited('`', take_until(0.., '`'), '`'),
+            take_while(1.., |c| c != '{'),
         )),
-        |(tag, expr, options)| {
-            let lang = options
-                .iter()
-                .flatten()
-                .next()
-                .map(|tuple| tuple.0.trim().to_string());
+        opt(preceded(multispace0, attrs)),
+    )
+        .map(|(tag, expr, options)| {
+            let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+
             (
                 tag == "if",
                 IfBlockClause {
                     code: expr.trim().into(),
-                    programming_language: lang,
+                    programming_language: options.first().map(|(name, _)| name.to_string()),
+                    auto_exec: options
+                        .swap_remove("auto")
+                        .flatten()
+                        .and_then(node_to_from_str),
                     ..Default::default()
                 },
             )
-        },
-    )(input)
+        })
+        .parse_next(input)
+}
+
+/// Start an [`InstructionBlock`]
+fn instruction_block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        ("do", multispace0),
+        (
+            opt(delimited('@', assignee, multispace1)),
+            alt((
+                terminated(take_until(0.., ':'), take_while(3.., ':')),
+                take_while(0.., |_| true),
+            )),
+        ),
+    )
+    .map(|(assignee, text): (Option<&str>, &str)| {
+        Block::InstructionBlock(InstructionBlock {
+            messages: vec![InstructionMessage::from(text.trim())],
+            options: Box::new(InstructionBlockOptions {
+                assignee: assignee.map(String::from),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Parse a suggestion status
+fn suggestion_status(input: &mut &str) -> PResult<SuggestionStatus> {
+    alt((
+        alt(("accepted", "accept")).map(|_| SuggestionStatus::Accepted),
+        alt(("rejected", "reject")).map(|_| SuggestionStatus::Rejected),
+        alt(("proposed", "propose")).map(|_| SuggestionStatus::Proposed),
+    ))
+    .parse_next(input)
 }
 
 /// Parse a [`InsertBlock`] node
-fn div_insert_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((
-                semis,
-                multispace0,
-                alt((tag("insert"), tag("ins"))),
-                multispace0,
-            )),
-            opt(suggestion_status),
-        )),
-        |suggestion_status| {
-            Block::InsertBlock(InsertBlock {
-                suggestion_status,
-                ..Default::default()
-            })
-        },
-    )(input)
+fn insert_block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        (alt(("insert", "ins")), multispace0),
+        opt(suggestion_status),
+    )
+    .map(|suggestion_status| {
+        Block::InsertBlock(InsertBlock {
+            suggestion_status,
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Parse a [`DeleteBlock`] node
+fn delete_block(input: &mut &str) -> PResult<Block> {
+    preceded(
+        (alt(("delete", "del")), multispace0),
+        opt(suggestion_status),
+    )
+    .map(|suggestion_status| {
+        Block::DeleteBlock(DeleteBlock {
+            suggestion_status,
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`ReplaceBlock`] node
-fn div_replace_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(delimited(
-            tuple((
-                semis,
-                multispace0,
-                alt((tag("replace"), tag("rep"))),
-                multispace0,
-            )),
-            opt(suggestion_status),
-            opt(delimited(multispace0, tag("::: with"), multispace0)),
-        )),
-        |suggestion_status| {
-            Block::ReplaceBlock(ReplaceBlock {
-                suggestion_status,
-                ..Default::default()
-            })
-        },
-    )(input)
+fn replace_block(input: &mut &str) -> PResult<Block> {
+    delimited(
+        (alt(("replace", "rep")), multispace0),
+        opt(suggestion_status),
+        opt(delimited(multispace0, "::: with", multispace0)),
+    )
+    .map(|suggestion_status| {
+        Block::ReplaceBlock(ReplaceBlock {
+            suggestion_status,
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`ModifyBlock`] node
-fn div_modify_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(delimited(
-            tuple((
-                semis,
-                multispace0,
-                alt((tag("modify"), tag("mod"))),
-                multispace0,
-            )),
-            opt(suggestion_status),
-            opt(delimited(multispace0, tag("::: with"), multispace0)),
-        )),
-        |suggestion_status| {
-            Block::ModifyBlock(ModifyBlock {
-                suggestion_status,
-                ..Default::default()
-            })
-        },
-    )(input)
+fn modify_block(input: &mut &str) -> PResult<Block> {
+    delimited(
+        (alt(("modify", "mod")), multispace0),
+        opt(suggestion_status),
+        opt(delimited(multispace0, "::: with", multispace0)),
+    )
+    .map(|suggestion_status| {
+        Block::ModifyBlock(ModifyBlock {
+            suggestion_status,
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`Section`] node
-fn div_section(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(tuple((semis, multispace0)), alpha1)),
-        |typ| {
+fn div_section(input: &mut &str) -> PResult<Block> {
+    alphanumeric1
+        .map(|section_type: &str| {
             Block::Section(Section {
-                section_type: typ.parse().ok(),
+                section_type: section_type.parse().ok(),
                 ..Default::default()
             })
-        },
-    )(input)
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`StyledBlock`] node
-fn div_styled_block(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0)),
-            delimited(char('{'), take_until_unbalanced('{', '}'), char('}')),
-        )),
-        |code| {
+fn styled_block(input: &mut &str) -> PResult<Block> {
+    delimited('{', take_until(0.., '}'), '}')
+        .map(|code: &str| {
             Block::StyledBlock(StyledBlock {
-                code: code.into(),
+                code: code.trim().into(),
                 ..Default::default()
             })
-        },
-    )(input)
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`Table`] with a label and/or caption
-fn div_table(input: &str) -> IResult<&str, Block> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0, tag("table"), multispace0)),
-            opt(not_line_ending),
-        )),
-        |label| {
+fn table(input: &mut &str) -> PResult<Block> {
+    preceded(("table", multispace0), opt(take_while(1.., |_| true)))
+        .map(|label: Option<&str>| {
             Block::Table(Table {
                 label: label.map(|label| label.to_string()),
                 ..Default::default()
             })
-        },
-    )(input)
+        })
+        .parse_next(input)
 }
 
-/// Parse a `with` fenced div
-fn div_with(input: &str) -> bool {
-    all_consuming(recognize(tuple((
-        semis,
-        multispace0,
-        tag("with"),
-        // Allow for, but ignore, trailing content
-        opt(pair(multispace1, is_not(""))),
-    ))))(input)
-    .is_ok()
+/// Parse a divider between sections of content
+fn divider(input: &mut &str) -> PResult<Divider> {
+    delimited(
+        (take_while(3.., ':'), space0),
+        alt((
+            "else".map(|_| Divider::Else),
+            "with".map(|_| Divider::With),
+            "".map(|_| Divider::End),
+        )),
+        (space0, eof),
+    )
+    .parse_next(input)
 }
 
-/// Parse an `else` fenced div
-fn div_else(input: &str) -> bool {
-    all_consuming(recognize(tuple((
-        semis,
-        multispace0,
-        tag("else"),
-        // Allow for, but ignore, trailing content
-        opt(pair(multispace1, is_not(""))),
-    ))))(input)
-    .is_ok()
+#[derive(Debug, PartialEq)]
+enum Divider {
+    With,
+    Else,
+    End,
 }
 
-/// Parse the end of a fenced div
-fn div_end(line: &str) -> bool {
-    line.starts_with(":::") && line.ends_with(":::")
-}
-
-/// Finalize a parent div by assigning children etc
-fn div_finalize(parent: &mut Block, mut children: Vec<Block>) {
+/// Finalize a block by assigning children etc
+fn finalize(parent: &mut Block, mut children: Vec<Block>) {
     if let Block::DeleteBlock(DeleteBlock { content, .. })
     | Block::InsertBlock(InsertBlock { content, .. })
     | Block::Claim(Claim { content, .. })
@@ -859,22 +744,17 @@ fn div_finalize(parent: &mut Block, mut children: Vec<Block>) {
     }
 }
 
-/// Parse an `auto_exec` property
-fn parse_auto_exec(input: &str) -> Option<AutomaticExecution> {
-    let result: IResult<&str, &str> = preceded(
-        tuple((tag("auto"), delimited(multispace0, char('='), multispace0))),
-        alt((tag("always"), tag("needed"), tag("never"))),
-    )(input);
-
-    match result {
-        Ok((.., value)) => match value {
-            "always" => Some(AutomaticExecution::Always),
-            "needed" => Some(AutomaticExecution::Needed),
-            "never" => Some(AutomaticExecution::Never),
-            _ => None,
-        },
-        Err(..) => None,
-    }
+/// Parse a suggestion status
+fn parse_auto_exec(input: &mut &str) -> PResult<AutomaticExecution> {
+    preceded(
+        ("auto", multispace0, '=', multispace0),
+        alt((
+            "always".map(|_| AutomaticExecution::Always),
+            "needed".map(|_| AutomaticExecution::Needed),
+            "never".map(|_| AutomaticExecution::Never),
+        )),
+    )
+    .parse_next(input)
 }
 
 /// Transform an MDAST node to a Stencila `Block`
@@ -897,7 +777,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
         }) => {
             let meta = meta.unwrap_or_default();
             let is_exec = meta.starts_with("exec") || lang.as_deref() == Some("exec");
-            let meta = meta.strip_prefix("exec").unwrap_or_default().trim();
+            let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
             if is_exec {
                 let node = CodeChunk {
                     code: value.into(),
@@ -906,7 +786,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
                     } else {
                         lang
                     },
-                    auto_exec: parse_auto_exec(meta),
+                    auto_exec: parse_auto_exec(&mut meta).ok(),
                     ..Default::default()
                 };
                 context.map(position, node.node_type(), node.node_id());
@@ -1050,13 +930,13 @@ fn mds_to_quote_block_or_admonition(
         .unwrap_or_default();
 
     #[allow(clippy::type_complexity)]
-    let parsed: IResult<&str, (&str, Option<&str>, Option<&str>, Option<char>)> =
-        tuple((
-            delimited(tag("[!"), is_not("]"), tag("]")),
-            opt(preceded(many0(char(' ')), alt((tag("+"), tag("-"))))),
-            opt(preceded(many0(char(' ')), not_line_ending)),
-            opt(newline),
-        ))(&first_string);
+    let parsed: IResult<&str, (&str, Option<&str>, Option<&str>, Option<char>)> = (
+        delimited("[!", take_until(1.., "]"), "]"),
+        opt(preceded(space0, alt(("+", "-")))),
+        opt(preceded(space0, take_while(1.., |c| c != '\n'))),
+        opt('\n'),
+    )
+        .parse_peek(first_string.as_str());
 
     if let Ok((rest, (admonition_type, fold, title, ..))) = parsed {
         if let Ok(admonition_type) = admonition_type.parse::<AdmonitionType>() {
@@ -1177,33 +1057,28 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
 
 #[cfg(test)]
 mod tests {
-    use codec::{
-        common::eyre::Result,
-        schema::{ClaimType, Node},
-    };
+    use codec::schema::{ClaimType, Node};
 
     use super::*;
 
     #[test]
-    fn test_call_arg() -> Result<()> {
-        call_arg("arg=1")?;
-        call_arg("arg = 1")?;
-        call_arg("arg=`1*1`")?;
-
-        Ok(())
+    fn test_call_arg() {
+        call_arg(&mut "arg=1").unwrap();
+        call_arg(&mut "arg = 1").unwrap();
+        call_arg(&mut "arg=`1*1`").unwrap();
     }
 
     #[test]
-    fn test_call_block() -> Result<()> {
+    fn test_call_block() {
         assert_eq!(
-            call_block("::: call file.md ()")?.1,
+            call_block(&mut "call file.md ()").unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 ..Default::default()
             })
         );
         assert_eq!(
-            call_block("::: call file.md (a=1)")?.1,
+            call_block(&mut "call file.md (a=1)").unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -1215,7 +1090,7 @@ mod tests {
             })
         );
         assert_eq!(
-            call_block(r#"::: call file.md (parAm_eter_1="string")"#)?.1,
+            call_block(&mut r#"call file.md (parAm_eter_1="string")"#).unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -1227,7 +1102,7 @@ mod tests {
             })
         );
         assert_eq!(
-            call_block("::: call file.md (a=1.23, b=`var`, c='string')")?.1,
+            call_block(&mut "call file.md (a=1.23, b=`var`, c='string')").unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -1251,7 +1126,7 @@ mod tests {
             })
         );
         assert_eq!(
-            call_block("::: call file.md (a=1,b = 2  , c=3, d =4)")?.1,
+            call_block(&mut "call file.md (a=1,b = 2  , c=3, d =4)").unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -1279,14 +1154,12 @@ mod tests {
                 ..Default::default()
             }),
         );
-
-        Ok(())
     }
 
     #[test]
-    fn test_claim() -> Result<()> {
+    fn test_claim() {
         assert_eq!(
-            div_claim("::: hypothesis")?.1,
+            claim(&mut "hypothesis").unwrap(),
             Block::Claim(Claim {
                 claim_type: ClaimType::Hypothesis,
                 ..Default::default()
@@ -1294,22 +1167,20 @@ mod tests {
         );
 
         assert_eq!(
-            div_claim("::: lemma Lemma 1")?.1,
+            claim(&mut "lemma Lemma 1").unwrap(),
             Block::Claim(Claim {
                 claim_type: ClaimType::Lemma,
                 label: Some(String::from("Lemma 1")),
                 ..Default::default()
             })
         );
-
-        Ok(())
     }
 
     #[test]
-    fn test_for() -> Result<()> {
+    fn test_for_block() {
         // Simple
         assert_eq!(
-            div_for_block("::: for item in expr").unwrap().1,
+            for_block(&mut "for item in expr").unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "item".to_string(),
                 code: "expr".into(),
@@ -1319,7 +1190,7 @@ mod tests {
 
         // With less/extra spacing
         assert_eq!(
-            div_for_block(":::for item  in    expr").unwrap().1,
+            for_block(&mut "for item  in    expr").unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "item".to_string(),
                 code: "expr".into(),
@@ -1329,7 +1200,7 @@ mod tests {
 
         // With language specified
         assert_eq!(
-            div_for_block("::: for item in expr {python}").unwrap().1,
+            for_block(&mut "for item in expr {python}").unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "item".to_string(),
                 code: "expr".into(),
@@ -1340,78 +1211,136 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            div_for_block("::: for i in 1:10").unwrap().1,
+            for_block(&mut "for i in 1:10").unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "i".to_string(),
                 code: "1:10".into(),
                 ..Default::default()
             })
         );
+
+        // With more complex expression using backticks and language
         assert_eq!(
-            div_for_block("::: for row in select * from table { sql }")
-                .unwrap()
-                .1,
+            for_block(&mut "for iTem_ in `[{},{}]` {js}").unwrap(),
             Block::ForBlock(ForBlock {
-                variable: "row".to_string(),
-                code: "select * from table".into(),
-                programming_language: Some("sql".to_string()),
+                variable: "iTem_".to_string(),
+                code: "[{},{}]".into(),
+                programming_language: Some("js".to_string()),
                 ..Default::default()
             })
         );
 
-        Ok(())
+        // With more complex expression and language and auto exec
+        assert_eq!(
+            for_block(&mut "for row in select * from table { sql, auto=never }").unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "row".to_string(),
+                code: "select * from table".into(),
+                programming_language: Some("sql".to_string()),
+                auto_exec: Some(AutomaticExecution::Never),
+                ..Default::default()
+            })
+        );
     }
 
     #[test]
-    fn test_div_if_block() -> Result<()> {
+    fn test_if_elif() {
         // Simple
         assert_eq!(
-            div_if_elif("::: if expr")?.1 .1,
-            IfBlockClause {
-                code: "expr".into(),
-                ..Default::default()
-            }
+            if_elif(&mut "::: if expr").unwrap(),
+            (
+                true,
+                IfBlockClause {
+                    code: "expr".into(),
+                    ..Default::default()
+                }
+            )
         );
 
         // With less/extra spacing
         assert_eq!(
-            div_if_elif(":::if    expr")?.1 .1,
-            IfBlockClause {
-                code: "expr".into(),
-                ..Default::default()
-            }
+            if_elif(&mut "::: if    expr").unwrap(),
+            (
+                true,
+                IfBlockClause {
+                    code: "expr".into(),
+                    ..Default::default()
+                }
+            )
         );
 
         // With language specified
         assert_eq!(
-            div_if_elif("::: if expr {python}")?.1 .1,
-            IfBlockClause {
-                code: "expr".into(),
-                programming_language: Some("python".to_string()),
-                ..Default::default()
-            }
+            if_elif(&mut "::: if expr {python}").unwrap(),
+            (
+                true,
+                IfBlockClause {
+                    code: "expr".into(),
+                    programming_language: Some("python".to_string()),
+                    ..Default::default()
+                }
+            )
         );
 
         // With more complex expression
         assert_eq!(
-            div_if_elif("::: if a > 1 and b[8] < 1.23")?.1 .1,
-            IfBlockClause {
-                code: "a > 1 and b[8] < 1.23".into(),
-                ..Default::default()
-            }
+            if_elif(&mut "::: elif a > 1 and b[8] < 1.23").unwrap(),
+            (
+                false,
+                IfBlockClause {
+                    code: "a > 1 and b[8] < 1.23".into(),
+                    ..Default::default()
+                }
+            )
         );
 
-        Ok(())
+        // With more complex expression and language
+        assert_eq!(
+            if_elif(&mut "::: elif `a if true else b - c[5:-1] + {}['d']` {python}").unwrap(),
+            (
+                false,
+                IfBlockClause {
+                    code: "a if true else b - c[5:-1] + {}['d']".into(),
+                    programming_language: Some("python".to_string()),
+                    ..Default::default()
+                }
+            )
+        );
     }
 
     #[test]
-    fn test_dev_end() {
-        assert!(div_end(":::"));
-        assert!(div_end("::::"));
-        assert!(div_end("::::::"));
+    fn test_styled_block() {
+        assert_eq!(
+            styled_block(&mut "{}").unwrap(),
+            Block::StyledBlock(StyledBlock {
+                ..Default::default()
+            })
+        );
 
-        assert!(!div_end(":::some chars"));
-        assert!(!div_end("::"));
-        assert!(!div_end(":"));
+        assert_eq!(
+            styled_block(&mut "{ color: red }").unwrap(),
+            Block::StyledBlock(StyledBlock {
+                code: "color: red".into(),
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
+    fn test_divider() {
+        assert_eq!(divider(&mut "::: with").unwrap(), Divider::With);
+        assert_eq!(divider(&mut "::::: with  ").unwrap(), Divider::With);
+
+        assert_eq!(divider(&mut "::: else").unwrap(), Divider::Else);
+        assert_eq!(divider(&mut "::::: else  ").unwrap(), Divider::Else);
+
+        assert_eq!(divider(&mut ":::").unwrap(), Divider::End);
+        assert_eq!(divider(&mut "::::").unwrap(), Divider::End);
+        assert_eq!(divider(&mut "::::::").unwrap(), Divider::End);
+
+        assert!(divider(&mut "::: some chars").is_err());
+        assert!(divider(&mut "::: with :::").is_err());
+        assert!(divider(&mut "::").is_err());
+        assert!(divider(&mut ":").is_err());
     }
 }
