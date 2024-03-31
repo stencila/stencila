@@ -218,7 +218,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             context.map_start(position.start.offset, block.node_type(), node_id);
                         }
                     } else {
-                        context.map(position, block.node_type(), block.node_id());
+                        context.map_position(position, block.node_type(), block.node_id());
                     }
 
                     blocks.push(block);
@@ -230,7 +230,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
         // MDAST nodes that can be directly translated into blocks
         if let Some((block, position)) = md_to_block(md, context) {
-            context.map(&position, block.node_type(), block.node_id());
+            context.map_position(&position, block.node_type(), block.node_id());
             blocks.push(block);
         };
     }
@@ -1011,7 +1011,7 @@ fn mds_to_list_items(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<ListIt
                     is_checked: checked,
                     ..Default::default()
                 };
-                context.map(&position, node.node_type(), Some(node.node_id()));
+                context.map_position(&position, node.node_type(), Some(node.node_id()));
                 Some(node)
             } else {
                 context.lost("non-ListItem");
@@ -1038,7 +1038,7 @@ fn mds_to_table_rows(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<TableR
                     row_type,
                     ..Default::default()
                 };
-                context.map(&position, node.node_type(), Some(node.node_id()));
+                context.map_position(&position, node.node_type(), Some(node.node_id()));
 
                 Some(node)
             } else {
@@ -1064,7 +1064,7 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
                     content,
                     ..Default::default()
                 };
-                context.map(&position, node.node_type(), Some(node.node_id()));
+                context.map_position(&position, node.node_type(), Some(node.node_id()));
                 Some(node)
             } else {
                 context.lost("non-TableCell");

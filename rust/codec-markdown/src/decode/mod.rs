@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Range};
 
 use markdown::{
     mdast::{self, Root},
@@ -125,8 +125,13 @@ impl Context {
         self.losses.add(label)
     }
 
-    /// Map the position of a node in the source
-    fn map(&mut self, position: &Option<Position>, node_type: NodeType, node_id: Option<NodeId>) {
+    /// Map the position of a node in the source using an optional (but normally present) `mdast::Position`
+    fn map_position(
+        &mut self,
+        position: &Option<Position>,
+        node_type: NodeType,
+        node_id: Option<NodeId>,
+    ) {
         if let (Some(position), Some(node_id)) = (position, node_id) {
             self.mapping.add(
                 position.start.offset,
@@ -135,6 +140,14 @@ impl Context {
                 node_id,
                 None,
             );
+        }
+    }
+
+    /// Map the position of a node in the source using a `Range<usize>` span
+    fn map_span(&mut self, span: Range<usize>, node_type: NodeType, node_id: Option<NodeId>) {
+        if let Some(node_id) = node_id {
+            self.mapping
+                .add(span.start, span.end, node_type, node_id, None);
         }
     }
 
@@ -233,7 +246,7 @@ fn md_to_node(md: mdast::Node, context: &mut Context) -> Option<Node> {
     Some(match md {
         mdast::Node::Root(mdast::Root { children, position }) => {
             let node = Article::new(blocks::mds_to_blocks(children, context));
-            context.map(&position, node.node_type(), Some(node.node_id()));
+            context.map_position(&position, node.node_type(), Some(node.node_id()));
             Node::Article(node)
         }
         _ => {

@@ -41,21 +41,39 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
     let mut nodes = Vec::new();
     for md in mds {
         if let mdast::Node::Text(mdast::Text { value, position }) = md {
-            // Parse the string for extensions not handled by the `markdown` crate e.g.
+            // Parse the text string for extensions not handled by the `markdown` crate e.g.
             // inline code, subscripts, superscripts etc and sentinel text like EDIT_END
-            let mut parsed = inlines(&value, position);
-            nodes.append(&mut parsed);
-        } else if let Some(inline) = md_to_inline(md, context) {
-            nodes.push(inline)
+            let mut inlines = inlines(&value)
+                .into_iter()
+                .map(|(inline, span)| {
+                    let span = position
+                        .as_ref()
+                        .map(|position| {
+                            (position.start.offset + span.start)..(position.start.offset + span.end)
+                        })
+                        .unwrap_or_default();
+                    (inline, span)
+                })
+                .collect();
+            nodes.append(&mut inlines);
+        } else if let Some((inline, position)) = md_to_inline(md, context) {
+            let span = position
+                .map(|position| position.start.offset..position.end.offset)
+                .unwrap_or_default();
+            nodes.push((inline, span))
         }
     }
 
-    // Iterate over the inlines
+    // Iterate over the inlines and their spans, adding mapping entries and coalescing where needed
     let mut inlines = Vec::with_capacity(nodes.len());
     let mut boundaries = Vec::new();
-    for node in nodes {
-        if let Inline::Text(text) = &node {
+    for (inline, span) in nodes {
+        if let Inline::Text(text) = &inline {
+            // Note: currently, mainly for performance reasons, we do not add mapping entries
+            // for `Inline::Text` nodes.
             if text.value.as_str() == EDIT_WITH {
+                // A `>>` separator so associated inlines since last boundary with the previous
+                // `ReplaceInline` or `ModifyInline`
                 if let Some(boundary) = boundaries.pop() {
                     let children = inlines.drain(boundary..).collect();
                     match inlines.last_mut() {
@@ -67,12 +85,18 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                             boundaries.push(inlines.len());
                         }
 
-                        _ => inlines.push(node),
+                        _ => {
+                            // This should not happen, but if it does push the separator
+                            inlines.push(inline);
+                        }
                     }
                 } else {
-                    inlines.push(node)
+                    // A `>>` fragment that is not a separator, so just push
+                    inlines.push(inline);
                 }
             } else if text.value.as_str() == EDIT_END {
+                // A `]]` terminator so associate inlines since last boundary with the previous
+                // `InstructionInline`, `InsertInline`, `DeleteInline`, etc and map end
                 if let Some(boundary) = boundaries.pop() {
                     let children = inlines.drain(boundary..).collect();
                     match inlines.last_mut() {
@@ -95,7 +119,10 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                             // Ignore "simulated" replacement content
                         }
 
-                        _ => inlines.push(node),
+                        _ => {
+                            // This should not happen, but if it does push the terminator
+                            inlines.push(inline);
+                        }
                     }
 
                     // If the the inline before this one was an instruction then associate the two
@@ -122,16 +149,21 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                             instruct.options.suggestion = Some(suggestion);
                         }
                     }
+
+                    context.map_end(span.end);
                 } else {
-                    inlines.push(node)
+                    // A `]]` fragment that is not a terminator, so just push
+                    inlines.push(inline);
                 }
             } else if let Some(Inline::Text(previous_text)) = inlines.last_mut() {
+                // The previous inline was text so merge the two
                 previous_text.value.push_str(&text.value);
             } else {
-                inlines.push(node)
+                // Just a plain text node so just map and push
+                inlines.push(inline);
             }
         } else if matches!(
-            node,
+            inline,
             Inline::InstructionInline(InstructionInline {
                 content: Some(..),
                 ..
@@ -140,10 +172,16 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                 | Inline::ReplaceInline(..)
                 | Inline::ModifyInline(..)
         ) {
-            inlines.push(node);
+            // An inline that registers a boundary
+            if let Some(node_id) = inline.node_id() {
+                context.map_start(span.start, inline.node_type(), node_id)
+            }
+            inlines.push(inline);
             boundaries.push(inlines.len());
         } else {
-            inlines.push(node)
+            // Some other inline that does not need a boundary
+            context.map_span(span, inline.node_type(), inline.node_id());
+            inlines.push(inline)
         }
     }
 
@@ -151,8 +189,8 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
 }
 
 /// Transform MDAST inline nodes to Stencila inlines nodes
-fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
-    let (inline, position) = match md {
+fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<(Inline, Option<Position>)> {
+    Some(match md {
         mdast::Node::Delete(mdast::Delete { children, position }) => (
             Inline::Strikeout(Strikeout::new(mds_to_inlines(children, context))),
             position,
@@ -268,16 +306,12 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
             context.lost("Inline");
             return None;
         }
-    };
-
-    context.map(&position, inline.node_type(), inline.node_id());
-
-    Some(inline)
+    })
 }
 
-/// Parse a text string into a vector of `Inline` nodes
-pub(super) fn inlines(input: &str, _position: Option<Position>) -> Vec<Inline> {
-    let result: Result<Vec<_>, _> = repeat(
+/// Parse a text string into a vector of `Inline` nodes with spans
+pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
+    repeat(
         0..,
         alt((
             code_attrs,
@@ -304,15 +338,16 @@ pub(super) fn inlines(input: &str, _position: Option<Position>) -> Vec<Inline> {
         ))
         .with_span(),
     )
-    .parse(Located::new(input));
+    .parse(Located::new(input))
+    .unwrap_or_else(|_| vec![(Inline::Text(Text::from(input)), 0..input.len())])
+}
 
-    match result {
-        Ok(inlines) => inlines
-            .into_iter()
-            .map(|(inline, _span): (Inline, Range<usize>)| inline)
-            .collect(),
-        Err(..) => vec![Inline::Text(Text::from(input))],
-    }
+/// Parse a text string into a vector of `Inline` nodes
+fn inlines_only(input: &str) -> Vec<Inline> {
+    inlines(input)
+        .into_iter()
+        .map(|(inlines, ..)| inlines)
+        .collect()
 }
 
 /// Parse inline code with optional attributes in curly braces e.g. `\`code\`{attr1 attr2}`
@@ -727,7 +762,7 @@ fn styled_inline(input: &mut Located<&str>) -> PResult<Inline> {
     )
         .map(|(content, code): (&str, &str)| {
             Inline::StyledInline(StyledInline {
-                content: inlines(content, None),
+                content: inlines_only(content),
                 code: code.into(),
                 ..Default::default()
             })
@@ -738,7 +773,7 @@ fn styled_inline(input: &mut Located<&str>) -> PResult<Inline> {
 /// Parse a string into a `Strikeout` node
 fn strikeout(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("~~", take_until(0.., "~~"), "~~")
-        .map(|content: &str| Inline::Strikeout(Strikeout::new(inlines(content, None))))
+        .map(|content: &str| Inline::Strikeout(Strikeout::new(inlines_only(content))))
         .parse_next(input)
 }
 
@@ -750,28 +785,28 @@ fn subscript(input: &mut Located<&str>) -> PResult<Inline> {
         take_until(1.., '~'),
         '~',
     )
-    .map(|content: &str| Inline::Subscript(Subscript::new(inlines(content, None))))
+    .map(|content: &str| Inline::Subscript(Subscript::new(inlines_only(content))))
     .parse_next(input)
 }
 
 /// Parse a string into a `Superscript` node
 fn superscript(input: &mut Located<&str>) -> PResult<Inline> {
     delimited('^', take_until(0.., '^'), '^')
-        .map(|content: &str| Inline::Superscript(Superscript::new(inlines(content, None))))
+        .map(|content: &str| Inline::Superscript(Superscript::new(inlines_only(content))))
         .parse_next(input)
 }
 
 /// Parse <q> tags into a `QuoteInline` node
 fn quote(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("<q>", take_until(0.., "</q>"), "</q>")
-        .map(|content: &str| Inline::QuoteInline(QuoteInline::new(inlines(content, None))))
+        .map(|content: &str| Inline::QuoteInline(QuoteInline::new(inlines_only(content))))
         .parse_next(input)
 }
 
 /// Parse <u> tags into a `Underline` node
 fn underline(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("<u>", take_until(0.., "</u>"), "</u>")
-        .map(|content: &str| Inline::Underline(Underline::new(inlines(content, None))))
+        .map(|content: &str| Inline::Underline(Underline::new(inlines_only(content))))
         .parse_next(input)
 }
 
@@ -908,27 +943,27 @@ mod tests {
         underline(&mut Located::new("<u></u>")).unwrap();
         underline(&mut Located::new("<u>underlined</u>")).unwrap();
 
-        let inlines = inlines("before <u>underlined</u> after", None);
+        let inlines = inlines("before <u>underlined</u> after");
         assert_eq!(inlines.len(), 3);
-        assert!(matches!(inlines[1], Inline::Underline(..)));
+        assert!(matches!(inlines[1].0, Inline::Underline(..)));
     }
 
     #[test]
     fn test_instruction_inline() {
         instruction_inline(&mut Located::new("[[do something]]")).unwrap();
 
-        let ins = inlines("before [[do something]] after", None);
+        let ins = inlines("before [[do something]] after");
         assert_eq!(ins.len(), 3);
-        assert_eq!(ins[0], Inline::Text(Text::from("before ")));
-        assert!(matches!(ins[1], Inline::InstructionInline(..)));
-        assert_eq!(ins[2], Inline::Text(Text::from(" after")));
+        assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
+        assert!(matches!(ins[1].0, Inline::InstructionInline(..)));
+        assert_eq!(ins[2].0, Inline::Text(Text::from(" after")));
 
-        let ins = inlines("before [[do something >> this]] after", None);
+        let ins = inlines("before [[do something >> this]] after");
         assert_eq!(ins.len(), 5);
-        assert_eq!(ins[0], Inline::Text(Text::from("before ")));
-        assert!(matches!(ins[1], Inline::InstructionInline(..)));
-        assert_eq!(ins[2], Inline::Text(Text::from(" this")));
-        assert_eq!(ins[3], Inline::Text(Text::from("]]")));
-        assert_eq!(ins[4], Inline::Text(Text::from(" after")));
+        assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
+        assert!(matches!(ins[1].0, Inline::InstructionInline(..)));
+        assert_eq!(ins[2].0, Inline::Text(Text::from(" this")));
+        assert_eq!(ins[3].0, Inline::Text(Text::from("]]")));
+        assert_eq!(ins[4].0, Inline::Text(Text::from(" after")));
     }
 }
