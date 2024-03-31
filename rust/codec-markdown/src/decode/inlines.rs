@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Range};
 
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{multispace0, multispace1, space0},
     combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
-    stream::Stream,
+    stream::{Located, Stream},
     token::{take, take_until, take_while},
     PResult, Parser,
 };
@@ -152,18 +152,16 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
 
 /// Transform MDAST inline nodes to Stencila inlines nodes
 fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
-    Some(match md {
-        mdast::Node::Delete(mdast::Delete { children, position }) => {
-            let node = Strikeout::new(mds_to_inlines(children, context));
-            context.map(position, node.node_type(), node.node_id());
-            Inline::Strikeout(node)
-        }
+    let (inline, position) = match md {
+        mdast::Node::Delete(mdast::Delete { children, position }) => (
+            Inline::Strikeout(Strikeout::new(mds_to_inlines(children, context))),
+            position,
+        ),
 
-        mdast::Node::Emphasis(mdast::Emphasis { children, position }) => {
-            let node = Emphasis::new(mds_to_inlines(children, context));
-            context.map(position, node.node_type(), node.node_id());
-            Inline::Emphasis(node)
-        }
+        mdast::Node::Emphasis(mdast::Emphasis { children, position }) => (
+            Inline::Emphasis(Emphasis::new(mds_to_inlines(children, context))),
+            position,
+        ),
 
         mdast::Node::FootnoteReference(mdast::FootnoteReference {
             identifier,
@@ -179,25 +177,21 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
                 content: vec![],
                 ..Default::default()
             };
-            context.map(position, node.node_type(), node.node_id());
-            Inline::Note(node)
+            (Inline::Note(node), position)
         }
 
         mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
-            let node = CodeInline::new(value.into());
-            context.map(position, node.node_type(), node.node_id());
-            Inline::CodeInline(node)
+            (Inline::CodeInline(CodeInline::new(value.into())), position)
         }
 
-        mdast::Node::InlineMath(mdast::InlineMath { value, position }) => {
-            let node = MathInline {
+        mdast::Node::InlineMath(mdast::InlineMath { value, position }) => (
+            Inline::MathInline(MathInline {
                 code: value.into(),
                 math_language: Some("tex".to_string()),
                 ..Default::default()
-            };
-            context.map(position, node.node_type(), node.node_id());
-            Inline::MathInline(node)
-        }
+            }),
+            position,
+        ),
 
         mdast::Node::Image(mdast::Image {
             url: content_url,
@@ -208,45 +202,39 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
             let title = title.map(|title| vec![Inline::Text(Text::from(title))]);
             let caption = (!alt.is_empty()).then_some(vec![Inline::Text(Text::from(alt))]);
 
-            if let Ok(format) = Format::from_url(&content_url) {
+            let inline = if let Ok(format) = Format::from_url(&content_url) {
                 if format.is_audio() {
-                    let node = AudioObject {
+                    Inline::AudioObject(AudioObject {
                         content_url,
                         caption,
                         title,
                         ..Default::default()
-                    };
-                    context.map(position, node.node_type(), node.node_id());
-                    Inline::AudioObject(node)
+                    })
                 } else if format.is_video() {
-                    let node = VideoObject {
+                    Inline::VideoObject(VideoObject {
                         content_url,
                         caption,
                         title,
                         ..Default::default()
-                    };
-                    context.map(position, node.node_type(), node.node_id());
-                    Inline::VideoObject(node)
+                    })
                 } else {
-                    let node = ImageObject {
+                    Inline::ImageObject(ImageObject {
                         content_url,
                         caption,
                         title,
                         ..Default::default()
-                    };
-                    context.map(position, node.node_type(), node.node_id());
-                    Inline::ImageObject(node)
+                    })
                 }
             } else {
-                let node = ImageObject {
+                Inline::ImageObject(ImageObject {
                     content_url,
                     caption,
                     title,
                     ..Default::default()
-                };
-                context.map(position, node.node_type(), node.node_id());
-                Inline::ImageObject(node)
-            }
+                })
+            };
+
+            (inline, position)
         }
 
         mdast::Node::Link(mdast::Link {
@@ -254,29 +242,25 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
             url,
             title,
             position,
-        }) => {
-            let node = Link {
+        }) => (
+            Inline::Link(Link {
                 target: url,
                 title,
                 content: mds_to_inlines(children, context),
                 ..Default::default()
-            };
-            context.map(position, node.node_type(), node.node_id());
-            Inline::Link(node)
-        }
+            }),
+            position,
+        ),
 
-        mdast::Node::Strong(mdast::Strong { children, position }) => {
-            let node = Strong::new(mds_to_inlines(children, context));
-            context.map(position, node.node_type(), node.node_id());
-            Inline::Strong(node)
-        }
+        mdast::Node::Strong(mdast::Strong { children, position }) => (
+            Inline::Strong(Strong::new(mds_to_inlines(children, context))),
+            position,
+        ),
 
         mdast::Node::Text(mdast::Text { value, position }) => {
             // This should not be reach because plain text nodes are handled elsewhere
             // but it case it is, return it so not lost
-            let node = Text::from(value);
-            context.map(position, node.node_type(), node.node_id());
-            Inline::Text(node)
+            (Inline::Text(Text::from(value)), position)
         }
 
         _ => {
@@ -284,12 +268,16 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<Inline> {
             context.lost("Inline");
             return None;
         }
-    })
+    };
+
+    context.map(&position, inline.node_type(), inline.node_id());
+
+    Some(inline)
 }
 
 /// Parse a text string into a vector of `Inline` nodes
 pub(super) fn inlines(input: &str, _position: Option<Position>) -> Vec<Inline> {
-    repeat(
+    let result: Result<Vec<_>, _> = repeat(
         0..,
         alt((
             code_attrs,
@@ -313,10 +301,18 @@ pub(super) fn inlines(input: &str, _position: Option<Position>) -> Vec<Inline> {
             edit_end,
             string,
             character,
-        )),
+        ))
+        .with_span(),
     )
-    .parse(input)
-    .map_or_else(|_| vec![Inline::Text(Text::from(input))], |inlines| inlines)
+    .parse(Located::new(input));
+
+    match result {
+        Ok(inlines) => inlines
+            .into_iter()
+            .map(|(inline, _span): (Inline, Range<usize>)| inline)
+            .collect(),
+        Err(..) => vec![Inline::Text(Text::from(input))],
+    }
 }
 
 /// Parse inline code with optional attributes in curly braces e.g. `\`code\`{attr1 attr2}`
@@ -324,7 +320,7 @@ pub(super) fn inlines(input: &str, _position: Option<Position>) -> Vec<Inline> {
 ///
 /// The `attrs` are optional because plain `CodeFragment`s also end up being
 /// passed to this function
-fn code_attrs(input: &mut &str) -> PResult<Inline> {
+fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
     preceded(
         not(peek(('=', space0))), // Avoid matching call arguments using backticks
         (delimited('`', take_until(0.., '`'), '`'), opt(attrs)),
@@ -395,7 +391,7 @@ fn code_attrs(input: &mut &str) -> PResult<Inline> {
 /// The language of the code expression can be added in a curly brace suffix.
 /// e.g. `{{2 * 2}}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
 /// `\`r 2 * 2\` in R Markdown.
-fn double_braces(input: &mut &str) -> PResult<Inline> {
+fn double_braces(input: &mut Located<&str>) -> PResult<Inline> {
     (delimited("{{", take_until(0.., "}}"), "}}"), opt(attrs))
         .map(|(code, options)| {
             let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
@@ -427,7 +423,7 @@ fn double_braces(input: &mut &str) -> PResult<Inline> {
 ///   - [ ] citation_prefix
 ///   - [ ] citation_suffix
 ///   - [ ] citation_intent
-fn cite(input: &mut &str) -> PResult<Inline> {
+fn cite(input: &mut Located<&str>) -> PResult<Inline> {
     // TODO: Parse more properties of citations
     preceded('@', take_while(1.., |chr: char| chr.is_alphanumeric()))
         .map(|target: &str| {
@@ -443,7 +439,7 @@ fn cite(input: &mut &str) -> PResult<Inline> {
 ///
 /// If there is only one citation within square brackets then a parenthetical `Cite` node is
 /// returned. Otherwise, the `Cite` nodes are grouped into into a `CiteGroup`.
-fn cite_group(input: &mut &str) -> PResult<Inline> {
+fn cite_group(input: &mut Located<&str>) -> PResult<Inline> {
     let cite =
         preceded('@', take_while(1.., |chr: char| chr.is_alphanumeric())).map(|res: &str| {
             let target = res.into();
@@ -479,7 +475,7 @@ fn cite_group(input: &mut &str) -> PResult<Inline> {
 }
 
 /// Parse a `Parameter`.
-fn parameter(input: &mut &str) -> PResult<Inline> {
+fn parameter(input: &mut Located<&str>) -> PResult<Inline> {
     (delimited("&[", name, ']'), opt(attrs))
         .map(|(name, attrs)| {
             let attrs = attrs.unwrap_or_default();
@@ -702,7 +698,7 @@ fn parameter(input: &mut &str) -> PResult<Inline> {
 }
 
 /// Parse a `Button`
-fn button(input: &mut &str) -> PResult<Inline> {
+fn button(input: &mut Located<&str>) -> PResult<Inline> {
     (
         delimited("#[", take_until(0.., ']'), ']'),
         opt(delimited('`', take_until(0.., "`"), '`')),
@@ -724,7 +720,7 @@ fn button(input: &mut &str) -> PResult<Inline> {
 }
 
 /// Parse a [`StyledInline`].
-fn styled_inline(input: &mut &str) -> PResult<Inline> {
+fn styled_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (
         delimited('[', take_until_unbalanced('[', ']'), ']'),
         delimited('{', take_until_unbalanced('{', '}'), '}'),
@@ -740,14 +736,14 @@ fn styled_inline(input: &mut &str) -> PResult<Inline> {
 }
 
 /// Parse a string into a `Strikeout` node
-fn strikeout(input: &mut &str) -> PResult<Inline> {
+fn strikeout(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("~~", take_until(0.., "~~"), "~~")
         .map(|content: &str| Inline::Strikeout(Strikeout::new(inlines(content, None))))
         .parse_next(input)
 }
 
 /// Parse a string into a `Subscript` node
-fn subscript(input: &mut &str) -> PResult<Inline> {
+fn subscript(input: &mut Located<&str>) -> PResult<Inline> {
     delimited(
         // Only match single tilde, because doubles are for `Strikeout`
         ('~', peek(not('~'))),
@@ -759,28 +755,28 @@ fn subscript(input: &mut &str) -> PResult<Inline> {
 }
 
 /// Parse a string into a `Superscript` node
-fn superscript(input: &mut &str) -> PResult<Inline> {
+fn superscript(input: &mut Located<&str>) -> PResult<Inline> {
     delimited('^', take_until(0.., '^'), '^')
         .map(|content: &str| Inline::Superscript(Superscript::new(inlines(content, None))))
         .parse_next(input)
 }
 
 /// Parse <q> tags into a `QuoteInline` node
-fn quote(input: &mut &str) -> PResult<Inline> {
+fn quote(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("<q>", take_until(0.., "</q>"), "</q>")
         .map(|content: &str| Inline::QuoteInline(QuoteInline::new(inlines(content, None))))
         .parse_next(input)
 }
 
 /// Parse <u> tags into a `Underline` node
-fn underline(input: &mut &str) -> PResult<Inline> {
+fn underline(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("<u>", take_until(0.., "</u>"), "</u>")
         .map(|content: &str| Inline::Underline(Underline::new(inlines(content, None))))
         .parse_next(input)
 }
 
 /// Parse a string into a `InstructionInline` node
-fn instruction_inline(input: &mut &str) -> PResult<Inline> {
+fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
     preceded(
         terminated("[[do", multispace0),
         (opt(delimited('@', assignee, multispace1)), take_until_edit),
@@ -800,7 +796,7 @@ fn instruction_inline(input: &mut &str) -> PResult<Inline> {
 }
 
 /// Take characters until `EDIT_WITH` or `EDIT_END`
-fn take_until_edit<'s>(input: &mut &'s str) -> PResult<(&'s str, &'static str)> {
+fn take_until_edit<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, &'static str)> {
     let mut last = ' ';
     for (index, char) in input.char_indices() {
         if (last == '>' && char == '>') || last == ']' && char == ']' {
@@ -815,35 +811,35 @@ fn take_until_edit<'s>(input: &mut &'s str) -> PResult<(&'s str, &'static str)> 
 }
 
 /// Parse a string into a `InsertInline` node
-fn insert_inline(input: &mut &str) -> PResult<Inline> {
+fn insert_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (EDIT_START, alt(("insert", "ins")), ' ')
         .map(|_| Inline::InsertInline(InsertInline::default()))
         .parse_next(input)
 }
 
 /// Parse a string into a `DeleteInline` node
-fn delete_inline(input: &mut &str) -> PResult<Inline> {
+fn delete_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (EDIT_START, alt(("delete", "del")), ' ')
         .map(|_| Inline::DeleteInline(DeleteInline::default()))
         .parse_next(input)
 }
 
 /// Parse a string into a `ReplaceInline` node
-fn replace_inline(input: &mut &str) -> PResult<Inline> {
+fn replace_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (EDIT_START, alt(("replace", "rep")), ' ')
         .map(|_| Inline::ReplaceInline(ReplaceInline::default()))
         .parse_next(input)
 }
 
 /// Parse a string into a `ModifyInline` node
-fn modify_inline(input: &mut &str) -> PResult<Inline> {
+fn modify_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (EDIT_START, alt(("modify", "mod")), ' ')
         .map(|_| Inline::ModifyInline(ModifyInline::default()))
         .parse_next(input)
 }
 
 /// Parse a `with:` word indicating the replacement content for a `ReplaceInline` or `ModifyInline` node
-fn edit_with(input: &mut &str) -> PResult<Inline> {
+fn edit_with(input: &mut Located<&str>) -> PResult<Inline> {
     EDIT_WITH
         .map(|_| Inline::Text(Text::from(EDIT_WITH)))
         .parse_next(input)
@@ -851,7 +847,7 @@ fn edit_with(input: &mut &str) -> PResult<Inline> {
 
 /// Parse double closing square brackets `]]` indicating the end of content
 /// for an edit node
-fn edit_end(input: &mut &str) -> PResult<Inline> {
+fn edit_end(input: &mut Located<&str>) -> PResult<Inline> {
     EDIT_END
         .map(|_| Inline::Text(Text::from(EDIT_END)))
         .parse_next(input)
@@ -861,7 +857,7 @@ fn edit_end(input: &mut &str) -> PResult<Inline> {
 ///
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
-fn string(input: &mut &str) -> PResult<Inline> {
+fn string(input: &mut Located<&str>) -> PResult<Inline> {
     const CHARS: &str = "~@#$^&[]{`<>";
     take_while(1.., |chr: char| !CHARS.contains(chr))
         .map(|val: &str| Inline::Text(Text::new(val.into())))
@@ -871,7 +867,7 @@ fn string(input: &mut &str) -> PResult<Inline> {
 /// Take a single character into a `Text` node
 ///
 /// Necessary so that the characters not consumed by `string` are not lost.
-fn character(input: &mut &str) -> PResult<Inline> {
+fn character(input: &mut Located<&str>) -> PResult<Inline> {
     take(1usize)
         .map(|val: &str| Inline::Text(Text::new(val.into())))
         .parse_next(input)
@@ -886,15 +882,15 @@ mod tests {
 
     #[test]
     fn test_code_attrs() {
-        code_attrs(&mut "``").unwrap();
-        code_attrs(&mut "``{}").unwrap();
-        code_attrs(&mut "`a + b`{}").unwrap();
-        code_attrs(&mut "`a + b`{python}").unwrap();
-        code_attrs(&mut "`a + b`{python exec}").unwrap();
-        code_attrs(&mut "`a + b`{python exec auto=always}").unwrap();
+        code_attrs(&mut Located::new("``")).unwrap();
+        code_attrs(&mut Located::new("``{}")).unwrap();
+        code_attrs(&mut Located::new("`a + b`{}")).unwrap();
+        code_attrs(&mut Located::new("`a + b`{python}")).unwrap();
+        code_attrs(&mut Located::new("`a + b`{python exec}")).unwrap();
+        code_attrs(&mut Located::new("`a + b`{python exec auto=always}")).unwrap();
 
         assert_eq!(
-            code_attrs(&mut "`a + b`{javascript exec auto=never}").unwrap(),
+            code_attrs(&mut Located::new("`a + b`{javascript exec auto=never}")).unwrap(),
             Inline::CodeExpression(CodeExpression {
                 code: "a + b".into(),
                 programming_language: Some("javascript".into()),
@@ -903,8 +899,8 @@ mod tests {
             })
         );
 
-        assert!(code_attrs(&mut "=`1*1`").is_err());
-        assert!(code_attrs(&mut "= `2+2`").is_err());
+        assert!(code_attrs(&mut Located::new("=`1*1`")).is_err());
+        assert!(code_attrs(&mut Located::new("= `2+2`")).is_err());
     }
 
     #[test]

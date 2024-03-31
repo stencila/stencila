@@ -8,7 +8,7 @@ use winnow::{
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
     token::{none_of, take_while},
-    PResult, Parser,
+    Located, PResult, Parser,
 };
 
 use codec::schema::{Date, DateTime, Duration, Node, Time, Timestamp};
@@ -18,7 +18,7 @@ use codec_text_trait::TextCodec;
 /// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
 /// Will only recognize names that are valid in (most) programming languages.
-pub(super) fn name<'s>(input: &mut &'s str) -> PResult<&'s str> {
+pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     (
         take_while(1.., |c: char| c.is_ascii_alphabetic() || c == '_'),
         take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_'),
@@ -28,7 +28,7 @@ pub(super) fn name<'s>(input: &mut &'s str) -> PResult<&'s str> {
 }
 
 /// Parse the name of an assignee of an instruction (e.g. `insert-image-object`, `openai/gpt-4`, `joe@example.org`)
-pub(super) fn assignee<'s>(input: &mut &'s str) -> PResult<&'s str> {
+pub(super) fn assignee<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     (
         take_while(1.., |c: char| c.is_ascii_alphabetic()),
         take_while(0.., |c: char| {
@@ -43,8 +43,8 @@ pub(super) fn assignee<'s>(input: &mut &'s str) -> PResult<&'s str> {
 pub(super) fn take_until_unbalanced<'s>(
     opening: char,
     closing: char,
-) -> impl Fn(&mut &'s str) -> PResult<&'s str> {
-    move |input: &mut &'s str| {
+) -> impl Fn(&mut Located<&'s str>) -> PResult<&'s str> {
+    move |input: &mut Located<&'s str>| {
         let mut counter = 0;
         for (index, char) in input.char_indices() {
             if char == opening {
@@ -65,7 +65,7 @@ pub(super) fn take_until_unbalanced<'s>(
 ///
 /// Curly braced options are used to specify options on various
 /// node types. Separated by whitespace with optional commas
-pub(super) fn attrs<'s>(input: &mut &'s str) -> PResult<Vec<(&'s str, Option<Node>)>> {
+pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> PResult<Vec<(&'s str, Option<Node>)>> {
     delimited(
         ('{', multispace0),
         separated(
@@ -81,7 +81,7 @@ pub(super) fn attrs<'s>(input: &mut &'s str) -> PResult<Vec<(&'s str, Option<Nod
 /// Parse a single attr inside `attrs`
 ///
 /// Attributes can be single values (i.e. flags) or key-value pairs (separated by `=`).
-pub(super) fn attr<'s>(input: &mut &'s str) -> PResult<(&'s str, Option<Node>)> {
+pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, Option<Node>)> {
     alt((
         separated_pair(
             name,
@@ -95,7 +95,7 @@ pub(super) fn attr<'s>(input: &mut &'s str) -> PResult<(&'s str, Option<Node>)> 
 }
 
 /// Any primitive node
-pub(super) fn primitive_node(input: &mut &str) -> PResult<Node> {
+pub(super) fn primitive_node(input: &mut Located<&str>) -> PResult<Node> {
     alt((
         object_node,
         array_node,
@@ -111,38 +111,38 @@ pub(super) fn primitive_node(input: &mut &str) -> PResult<Node> {
 }
 
 /// Parse a true/false (case-insensitive) into a `Boolean` node
-fn boolean_node(input: &mut &str) -> PResult<Node> {
+fn boolean_node(input: &mut Located<&str>) -> PResult<Node> {
     alt((Caseless("true"), Caseless("false")))
         .map(|str: &str| Node::Boolean(str.to_lowercase() == "true"))
         .parse_next(input)
 }
 
 /// Parse an `Integer` node
-fn integer_node(input: &mut &str) -> PResult<Node> {
+fn integer_node(input: &mut Located<&str>) -> PResult<Node> {
     (dec_int, peek(not(".")))
         .map(|(num, ..)| Node::Integer(num))
         .parse_next(input)
 }
 
 /// Parse a `Number` node
-fn number_node(input: &mut &str) -> PResult<Node> {
+fn number_node(input: &mut Located<&str>) -> PResult<Node> {
     float.map(Node::Number).parse_next(input)
 }
 
 /// Parse a single or double quoted string into a `String` node
-fn string_node(input: &mut &str) -> PResult<Node> {
+fn string_node(input: &mut Located<&str>) -> PResult<Node> {
     alt((single_quoted_string_node, double_quoted_string_node)).parse_next(input)
 }
 
 /// Parse a single quoted string into a `String` node
-fn single_quoted_string_node(input: &mut &str) -> PResult<Node> {
+fn single_quoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
     delimited('\'', take_escaped(none_of(['\\', '\'']), '\\', '\''), '\'')
         .map(|value: &str| Node::String(value.to_string()))
         .parse_next(input)
 }
 
 /// Parse a double quoted string into a `String` node
-fn double_quoted_string_node(input: &mut &str) -> PResult<Node> {
+fn double_quoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
     delimited('"', take_escaped(none_of(['\\', '"']), '\\', '"'), '"')
         .map(|value: &str| Node::String(value.to_string()))
         .parse_next(input)
@@ -151,7 +151,7 @@ fn double_quoted_string_node(input: &mut &str) -> PResult<Node> {
 /// Parse characters into string into a `String` node
 ///
 /// Excludes character that may be significant in places that this is used.
-fn unquoted_string_node(input: &mut &str) -> PResult<Node> {
+fn unquoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
     take_while(1.., |c: char| c != ' ' && c != '}')
         .recognize()
         .map(|value: &str| Node::String(value.to_string()))
@@ -159,23 +159,23 @@ fn unquoted_string_node(input: &mut &str) -> PResult<Node> {
 }
 
 /// Parse a YYYY-mm-ddTHH::MM::SS datetime
-fn datetime_node(input: &mut &str) -> PResult<Node> {
+fn datetime_node(input: &mut Located<&str>) -> PResult<Node> {
     terminated((date_node, 'T', time_node), opt('Z'))
         .recognize()
         .map(|str: &str| Node::DateTime(DateTime::new(str.to_string())))
         .parse_next(input)
 }
 
-fn digits4<'s>(input: &mut &'s str) -> PResult<&'s str> {
+fn digits4<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     take_while(4..=4, '0'..='9').parse_next(input)
 }
 
-fn digits2<'s>(input: &mut &'s str) -> PResult<&'s str> {
+fn digits2<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     take_while(2..=2, '0'..='9').parse_next(input)
 }
 
 /// Parse a YYYY-mm-dd date
-fn date_node(input: &mut &str) -> PResult<Node> {
+fn date_node(input: &mut Located<&str>) -> PResult<Node> {
     (digits4, '-', digits2, '-', digits2)
         .recognize()
         .map(|str: &str| Node::Date(Date::new(str.to_string())))
@@ -183,7 +183,7 @@ fn date_node(input: &mut &str) -> PResult<Node> {
 }
 
 /// Parse a HH::MM::SS time
-fn time_node(input: &mut &str) -> PResult<Node> {
+fn time_node(input: &mut Located<&str>) -> PResult<Node> {
     (digits2, ':', digits2, ':', digits2)
         .recognize()
         .map(|str: &str| Node::Time(Time::new(str.to_string())))
@@ -191,7 +191,7 @@ fn time_node(input: &mut &str) -> PResult<Node> {
 }
 
 /// Parse a JSON5-style square bracketed array into an `Array` node
-fn array_node(input: &mut &str) -> PResult<Node> {
+fn array_node(input: &mut Located<&str>) -> PResult<Node> {
     let json5 = ('[', take_until_unbalanced('[', ']'), ']')
         .recognize()
         .parse_next(input)?;
@@ -199,7 +199,7 @@ fn array_node(input: &mut &str) -> PResult<Node> {
 }
 
 /// Parse a JSON5-style curly braced object into an `Object` node
-fn object_node(input: &mut &str) -> PResult<Node> {
+fn object_node(input: &mut Located<&str>) -> PResult<Node> {
     let json5 = ('{', take_until_unbalanced('{', '}'), '}')
         .recognize()
         .parse_next(input)?;

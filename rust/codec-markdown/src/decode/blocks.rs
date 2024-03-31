@@ -5,7 +5,7 @@ use winnow::{
     ascii::{alphanumeric1, multispace0, multispace1, space0},
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
     token::{take_until, take_while},
-    IResult, PResult, Parser,
+    IResult, Located, PResult, Parser,
 };
 
 use codec::{
@@ -42,11 +42,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
     for md in mds {
         // Parse "fenced div" paragraphs (starting with `:::`) and handle them specially...
-        if let mdast::Node::Paragraph(mdast::Paragraph {
-            children,
-            position: _,
-        }) = &md
-        {
+        if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
             if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
                 if let Ok(divider) = divider(&mut value.as_str()) {
                     let children = pop_blocks(&mut blocks, &mut boundaries);
@@ -102,6 +98,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             boundaries.push(blocks.len());
                         }
                         Divider::End => {
+                            if let Some(position) = position {
+                                context.map_end(position.end.offset);
+                            }
+
                             // Finalize the last parent block and determine if it is a suggestion
                             let is_suggestion = if let Some(parent) = blocks.last_mut() {
                                 finalize(parent, children);
@@ -147,17 +147,40 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                         }
                     }
                     continue;
-                } else if let Ok((is_if, if_clause)) = if_elif(&mut value.as_str()) {
+                } else if let Ok((is_if, if_clause)) = if_elif(&mut Located::new(value)) {
                     if is_if {
+                        let ifc_nt = if_clause.node_type();
+                        let ifc_ni = if_clause.node_id();
+
                         // This is a `::: if` so start a new `IfBlock`
-                        blocks.push(Block::IfBlock(IfBlock {
+                        let if_block = IfBlock {
                             clauses: vec![if_clause],
                             ..Default::default()
-                        }));
+                        };
 
+                        if let Some(position) = position {
+                            context.map_start(
+                                position.start.offset,
+                                if_block.node_type(),
+                                if_block.node_id(),
+                            );
+                            context.map_start(position.start.offset, ifc_nt, ifc_ni);
+                        }
+
+                        blocks.push(Block::IfBlock(if_block));
                         boundaries.push(blocks.len());
+
                         continue;
                     } else {
+                        if let Some(position) = position {
+                            context.map_end(position.end.offset.saturating_sub(1));
+                            context.map_start(
+                                position.start.offset,
+                                if_clause.node_type(),
+                                if_clause.node_id(),
+                            );
+                        }
+
                         let mut children = pop_blocks(&mut blocks, &mut boundaries);
 
                         if let Some(Block::IfBlock(if_block)) = blocks.last_mut() {
@@ -182,26 +205,32 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             blocks.append(&mut children);
                         }
                     }
-                } else if let Ok(block) = block(&mut value.as_str()) {
+                } else if let Ok(block) = block(&mut Located::new(value)) {
                     // If this is the start of a "fenced div" block then push it on to
                     // blocks and add a boundary marker for its children.
                     // This clause must come after `::: else` and others above to avoid `div_section`
                     // prematurely matching.
 
                     // Only add a boundary for blocks that will have children to collect
-                    let add_boundary =
-                        !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..));
+                    if !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..)) {
+                        boundaries.push(blocks.len() + 1);
+                        if let (Some(position), Some(node_id)) = (position, block.node_id()) {
+                            context.map_start(position.start.offset, block.node_type(), node_id);
+                        }
+                    } else {
+                        context.map(position, block.node_type(), block.node_id());
+                    }
 
                     blocks.push(block);
-                    if add_boundary {
-                        boundaries.push(blocks.len());
-                    }
+
                     continue;
                 }
             }
         }
 
-        if let Some(block) = md_to_block(md, context) {
+        // MDAST nodes that can be directly translated into blocks
+        if let Some((block, position)) = md_to_block(md, context) {
+            context.map(&position, block.node_type(), block.node_id());
             blocks.push(block);
         };
     }
@@ -210,7 +239,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 }
 
 /// Parse a "div": a paragraph starting with at least three semicolons
-fn block(input: &mut &str) -> PResult<Block> {
+fn block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (take_while(3.., ':'), space0),
         alt((
@@ -238,7 +267,7 @@ fn block(input: &mut &str) -> PResult<Block> {
 /// Parse an argument to a `CallBlock`.
 ///
 /// Arguments must be key-value or key-symbol pairs separated by `=`.
-fn call_arg(input: &mut &str) -> PResult<CallArgument> {
+fn call_arg(input: &mut Located<&str>) -> PResult<CallArgument> {
     // TODO allow for programming language to be specified
     (
         terminated(name, delimited(multispace0, "=", multispace0)),
@@ -257,7 +286,7 @@ fn call_arg(input: &mut &str) -> PResult<CallArgument> {
 }
 
 /// Parse a [`CallBlock`] node
-fn call_block(input: &mut &str) -> PResult<Block> {
+fn call_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("call", multispace1),
         (
@@ -286,7 +315,7 @@ fn call_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse an [`IncludeBlock`] node
-fn include_block(input: &mut &str) -> PResult<Block> {
+fn include_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (alt(("include", "inc")), multispace1),
         (take_while(1.., |c| c != '{'), opt(attrs)),
@@ -306,7 +335,7 @@ fn include_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`Claim`] node
-fn claim(input: &mut &str) -> PResult<Block> {
+fn claim(input: &mut Located<&str>) -> PResult<Block> {
     (
         terminated(
             alt((
@@ -334,7 +363,7 @@ fn claim(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
-fn code_chunk(input: &mut &str) -> PResult<Block> {
+fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("chunk", multispace0),
         (
@@ -362,7 +391,7 @@ fn code_chunk(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`Figure`] node with a label and/or caption
-fn figure(input: &mut &str) -> PResult<Block> {
+fn figure(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (alt(("figure", "fig", "fig.")), multispace0),
         opt(take_while(1.., |_| true)),
@@ -377,7 +406,7 @@ fn figure(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`ForBlock`] node
-fn for_block(input: &mut &str) -> PResult<Block> {
+fn for_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("for", multispace1),
         (
@@ -410,7 +439,7 @@ fn for_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
-fn if_elif(input: &mut &str) -> PResult<(bool, IfBlockClause)> {
+fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
     (
         delimited(
             (take_while(3.., ':'), space0),
@@ -443,7 +472,7 @@ fn if_elif(input: &mut &str) -> PResult<(bool, IfBlockClause)> {
 }
 
 /// Start an [`InstructionBlock`]
-fn instruction_block(input: &mut &str) -> PResult<Block> {
+fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("do", multispace0),
         (
@@ -468,7 +497,7 @@ fn instruction_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a suggestion status
-fn suggestion_status(input: &mut &str) -> PResult<SuggestionStatus> {
+fn suggestion_status(input: &mut Located<&str>) -> PResult<SuggestionStatus> {
     alt((
         alt(("accepted", "accept")).map(|_| SuggestionStatus::Accepted),
         alt(("rejected", "reject")).map(|_| SuggestionStatus::Rejected),
@@ -478,7 +507,7 @@ fn suggestion_status(input: &mut &str) -> PResult<SuggestionStatus> {
 }
 
 /// Parse a [`InsertBlock`] node
-fn insert_block(input: &mut &str) -> PResult<Block> {
+fn insert_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (alt(("insert", "ins")), multispace0),
         opt(suggestion_status),
@@ -493,7 +522,7 @@ fn insert_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`DeleteBlock`] node
-fn delete_block(input: &mut &str) -> PResult<Block> {
+fn delete_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (alt(("delete", "del")), multispace0),
         opt(suggestion_status),
@@ -508,7 +537,7 @@ fn delete_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`ReplaceBlock`] node
-fn replace_block(input: &mut &str) -> PResult<Block> {
+fn replace_block(input: &mut Located<&str>) -> PResult<Block> {
     delimited(
         (alt(("replace", "rep")), multispace0),
         opt(suggestion_status),
@@ -524,7 +553,7 @@ fn replace_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`ModifyBlock`] node
-fn modify_block(input: &mut &str) -> PResult<Block> {
+fn modify_block(input: &mut Located<&str>) -> PResult<Block> {
     delimited(
         (alt(("modify", "mod")), multispace0),
         opt(suggestion_status),
@@ -540,7 +569,7 @@ fn modify_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`Section`] node
-fn div_section(input: &mut &str) -> PResult<Block> {
+fn div_section(input: &mut Located<&str>) -> PResult<Block> {
     alphanumeric1
         .map(|section_type: &str| {
             Block::Section(Section {
@@ -552,7 +581,7 @@ fn div_section(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`StyledBlock`] node
-fn styled_block(input: &mut &str) -> PResult<Block> {
+fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
     delimited('{', take_until(0.., '}'), '}')
         .map(|code: &str| {
             Block::StyledBlock(StyledBlock {
@@ -564,7 +593,7 @@ fn styled_block(input: &mut &str) -> PResult<Block> {
 }
 
 /// Parse a [`Table`] with a label and/or caption
-fn table(input: &mut &str) -> PResult<Block> {
+fn table(input: &mut Located<&str>) -> PResult<Block> {
     preceded(("table", multispace0), opt(take_while(1.., |_| true)))
         .map(|label: Option<&str>| {
             Block::Table(Table {
@@ -758,16 +787,17 @@ fn parse_auto_exec(input: &mut &str) -> PResult<AutomaticExecution> {
 }
 
 /// Transform an MDAST node to a Stencila `Block`
-fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
+fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<Position>)> {
     Some(match md {
         mdast::Node::Yaml(mdast::Yaml { value, .. }) => {
             context.yaml = Some(value);
             return None;
         }
 
-        mdast::Node::BlockQuote(mdast::BlockQuote { children, position }) => {
-            mds_to_quote_block_or_admonition(children, position, context)
-        }
+        mdast::Node::BlockQuote(mdast::BlockQuote { children, position }) => (
+            mds_to_quote_block_or_admonition(children, context),
+            position,
+        ),
 
         mdast::Node::Code(mdast::Code {
             lang,
@@ -778,8 +808,9 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
             let meta = meta.unwrap_or_default();
             let is_exec = meta.starts_with("exec") || lang.as_deref() == Some("exec");
             let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
-            if is_exec {
-                let node = CodeChunk {
+
+            let block = if is_exec {
+                Block::CodeChunk(CodeChunk {
                     code: value.into(),
                     programming_language: if lang.as_deref() == Some("exec") {
                         None
@@ -788,29 +819,25 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
                     },
                     auto_exec: parse_auto_exec(&mut meta).ok(),
                     ..Default::default()
-                };
-                context.map(position, node.node_type(), node.node_id());
-                Block::CodeChunk(node)
+                })
             } else if matches!(
                 lang.as_deref(),
                 Some("asciimath") | Some("mathml") | Some("latex") | Some("tex")
             ) {
-                let node = MathBlock {
+                Block::MathBlock(MathBlock {
                     code: value.into(),
                     math_language: lang,
                     ..Default::default()
-                };
-                context.map(position, node.node_type(), node.node_id());
-                Block::MathBlock(node)
+                })
             } else {
-                let node = CodeBlock {
+                Block::CodeBlock(CodeBlock {
                     code: value.into(),
                     programming_language: lang,
                     ..Default::default()
-                };
-                context.map(position, node.node_type(), node.node_id());
-                Block::CodeBlock(node)
-            }
+                })
+            };
+
+            (block, position)
         }
 
         mdast::Node::FootnoteDefinition(mdast::FootnoteDefinition {
@@ -833,11 +860,13 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
             depth,
             children,
             position,
-        }) => {
-            let node = Heading::new(depth as i64, mds_to_inlines(children, context));
-            context.map(position, node.node_type(), node.node_id());
-            Block::Heading(node)
-        }
+        }) => (
+            Block::Heading(Heading::new(
+                depth as i64,
+                mds_to_inlines(children, context),
+            )),
+            position,
+        ),
 
         mdast::Node::List(mdast::List {
             ordered,
@@ -850,30 +879,29 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
             } else {
                 ListOrder::Unordered
             };
-            let node = List::new(mds_to_list_items(children, context), order);
-            context.map(position, node.node_type(), node.node_id());
-            Block::List(node)
+            (
+                Block::List(List::new(mds_to_list_items(children, context), order)),
+                position,
+            )
         }
 
         mdast::Node::Math(mdast::Math {
             meta,
             value,
             position,
-        }) => {
-            let node = MathBlock {
+        }) => (
+            Block::MathBlock(MathBlock {
                 code: value.into(),
                 math_language: meta.or_else(|| Some("tex".to_string())),
                 ..Default::default()
-            };
-            context.map(position, node.node_type(), node.node_id());
-            Block::MathBlock(node)
-        }
+            }),
+            position,
+        ),
 
-        mdast::Node::Paragraph(mdast::Paragraph { children, position }) => {
-            let node = Paragraph::new(mds_to_inlines(children, context));
-            context.map(position, node.node_type(), node.node_id());
-            Block::Paragraph(node)
-        }
+        mdast::Node::Paragraph(mdast::Paragraph { children, position }) => (
+            Block::Paragraph(Paragraph::new(mds_to_inlines(children, context))),
+            position,
+        ),
 
         mdast::Node::Table(mdast::Table {
             children,
@@ -881,15 +909,14 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
             position,
         }) => {
             // TODO: use table alignment
-            let node = Table::new(mds_to_table_rows(children, context));
-            context.map(position, node.node_type(), node.node_id());
-            Block::Table(node)
+            (
+                Block::Table(Table::new(mds_to_table_rows(children, context))),
+                position,
+            )
         }
 
         mdast::Node::ThematicBreak(mdast::ThematicBreak { position }) => {
-            let node = ThematicBreak::new();
-            context.map(position, node.node_type(), node.node_id());
-            Block::ThematicBreak(node)
+            (Block::ThematicBreak(ThematicBreak::new()), position)
         }
 
         _ => {
@@ -900,11 +927,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<Block> {
     })
 }
 
-fn mds_to_quote_block_or_admonition(
-    mds: Vec<mdast::Node>,
-    position: Option<Position>,
-    context: &mut Context,
-) -> Block {
+fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context) -> Block {
     let mut content = mds_to_blocks(mds, context);
 
     let first_text = content
@@ -960,21 +983,17 @@ fn mds_to_quote_block_or_admonition(
                 first_text.value = rest.into();
             }
 
-            let node = Admonition {
+            return Block::Admonition(Admonition {
                 admonition_type,
                 is_folded,
                 title,
                 content,
                 ..Default::default()
-            };
-            context.map(position, node.node_type(), node.node_id());
-            return Block::Admonition(node);
+            });
         }
     }
 
-    let node = QuoteBlock::new(content);
-    context.map(position, node.node_type(), node.node_id());
-    Block::QuoteBlock(node)
+    Block::QuoteBlock(QuoteBlock::new(content))
 }
 
 fn mds_to_list_items(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<ListItem> {
@@ -992,7 +1011,7 @@ fn mds_to_list_items(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<ListIt
                     is_checked: checked,
                     ..Default::default()
                 };
-                context.map(position, node.node_type(), node.node_id());
+                context.map(&position, node.node_type(), Some(node.node_id()));
                 Some(node)
             } else {
                 context.lost("non-ListItem");
@@ -1019,7 +1038,7 @@ fn mds_to_table_rows(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<TableR
                     row_type,
                     ..Default::default()
                 };
-                context.map(position, node.node_type(), node.node_id());
+                context.map(&position, node.node_type(), Some(node.node_id()));
 
                 Some(node)
             } else {
@@ -1045,7 +1064,7 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
                     content,
                     ..Default::default()
                 };
-                context.map(position, node.node_type(), node.node_id());
+                context.map(&position, node.node_type(), Some(node.node_id()));
                 Some(node)
             } else {
                 context.lost("non-TableCell");

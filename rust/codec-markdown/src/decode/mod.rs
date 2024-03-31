@@ -109,6 +109,9 @@ struct Context {
 
     /// Position-to-node mapping
     mapping: Mapping,
+
+    /// Start positions of nodes
+    map_stack: Vec<(usize, NodeType, NodeId)>,
 }
 
 impl Context {
@@ -123,8 +126,8 @@ impl Context {
     }
 
     /// Map the position of a node in the source
-    fn map(&mut self, position: Option<Position>, node_type: NodeType, node_id: NodeId) {
-        if let Some(position) = position {
+    fn map(&mut self, position: &Option<Position>, node_type: NodeType, node_id: Option<NodeId>) {
+        if let (Some(position), Some(node_id)) = (position, node_id) {
             self.mapping.add(
                 position.start.offset,
                 position.end.offset,
@@ -132,6 +135,18 @@ impl Context {
                 node_id,
                 None,
             );
+        }
+    }
+
+    /// Record the start position of a node in the source
+    fn map_start(&mut self, offset: usize, node_type: NodeType, node_id: NodeId) {
+        self.map_stack.push((offset, node_type, node_id));
+    }
+
+    /// Map the position of a node in the source using the previously stored start
+    fn map_end(&mut self, end: usize) {
+        if let Some((start, node_type, node_id)) = self.map_stack.pop() {
+            self.mapping.add(start, end, node_type, node_id, None);
         }
     }
 
@@ -218,7 +233,7 @@ fn md_to_node(md: mdast::Node, context: &mut Context) -> Option<Node> {
     Some(match md {
         mdast::Node::Root(mdast::Root { children, position }) => {
             let node = Article::new(blocks::mds_to_blocks(children, context));
-            context.map(position, node.node_type(), node.node_id());
+            context.map(&position, node.node_type(), Some(node.node_id()));
             Node::Article(node)
         }
         _ => {
