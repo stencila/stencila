@@ -25,8 +25,8 @@ impl MarkdownCodec for IfBlock {
 
         if !self.clauses.is_empty() {
             context.push_semis().newline().exit_node().newline();
+        } else {
+            context.exit_node();
         }
-
-        context.exit_node();
     }
 }
