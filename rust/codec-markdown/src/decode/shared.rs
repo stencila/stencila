@@ -286,17 +286,17 @@ mod tests {
     #[test]
     fn test_single_quoted_string_node() -> Result<()> {
         assert_eq!(
-            single_quoted_string_node(&mut r#"' \' abc'"#).unwrap(),
+            single_quoted_string_node(&mut Located::new(r#"' \' abc'"#)).unwrap(),
             Node::String(r#" \' abc"#.to_string())
         );
 
         assert_eq!(
-            single_quoted_string_node(&mut "'  '").unwrap(),
+            single_quoted_string_node(&mut Located::new("'  '")).unwrap(),
             Node::String("  ".to_string())
         );
 
         assert_eq!(
-            single_quoted_string_node(&mut "''").unwrap(),
+            single_quoted_string_node(&mut Located::new("''")).unwrap(),
             Node::String("".to_string())
         );
 
@@ -306,17 +306,17 @@ mod tests {
     #[test]
     fn test_double_quoted_string_node() -> Result<()> {
         assert_eq!(
-            double_quoted_string_node(&mut r#"" \" abc""#).unwrap(),
+            double_quoted_string_node(&mut Located::new(r#"" \" abc""#)).unwrap(),
             Node::String(r#" \" abc"#.to_string())
         );
 
         assert_eq!(
-            double_quoted_string_node(&mut r#""  ""#).unwrap(),
+            double_quoted_string_node(&mut Located::new(r#""  ""#)).unwrap(),
             Node::String("  ".to_string())
         );
 
         assert_eq!(
-            double_quoted_string_node(&mut r#""""#).unwrap(),
+            double_quoted_string_node(&mut Located::new(r#""""#)).unwrap(),
             Node::String("".to_string())
         );
 
@@ -326,17 +326,17 @@ mod tests {
     #[test]
     fn test_array_node() -> Result<()> {
         assert_eq!(
-            array_node(&mut "[1,2,3]").unwrap(),
+            array_node(&mut Located::new("[1,2,3]")).unwrap(),
             Node::from_json5("[1, 2, 3]")?
         );
 
         assert_eq!(
-            array_node(&mut "['a', 'b']").unwrap(),
+            array_node(&mut Located::new("['a', 'b']")).unwrap(),
             Node::from_json5(r#"["a", "b"]"#)?
         );
 
         assert_eq!(
-            array_node(&mut "[1, [2, 3]]").unwrap(),
+            array_node(&mut Located::new("[1, [2, 3]]")).unwrap(),
             Node::from_json5("[1, [2, 3]]")?
         );
 
@@ -346,12 +346,12 @@ mod tests {
     #[test]
     fn test_object_node() -> Result<()> {
         assert_eq!(
-            object_node(&mut "{a: 1}").unwrap(),
+            object_node(&mut Located::new("{a: 1}")).unwrap(),
             Node::from_json5("{a: 1}")?
         );
 
         assert_eq!(
-            object_node(&mut "{a: {ab: 1, abc: [1, 2, 3]}}").unwrap(),
+            object_node(&mut Located::new("{a: {ab: 1, abc: [1, 2, 3]}}")).unwrap(),
             Node::from_json5("{a: {ab: 1, abc: [1, 2, 3]}}")?
         );
 
@@ -360,15 +360,18 @@ mod tests {
 
     #[test]
     fn test_attrs() -> Result<()> {
-        assert_eq!(attrs(&mut r#"{a}"#).unwrap(), vec![("a", None)]);
+        assert_eq!(
+            attrs(&mut Located::new(r#"{a}"#)).unwrap(),
+            vec![("a", None)]
+        );
 
         assert_eq!(
-            attrs(&mut r#"{a=true}"#).unwrap(),
+            attrs(&mut Located::new(r#"{a=true}"#)).unwrap(),
             vec![("a", Some(Node::Boolean(true)))]
         );
 
         assert_eq!(
-            attrs(&mut r#"{a=true b=123}"#).unwrap(),
+            attrs(&mut Located::new(r#"{a=true b=123}"#)).unwrap(),
             vec![
                 ("a", Some(Node::Boolean(true))),
                 ("b", Some(Node::Integer(123)))
@@ -376,7 +379,7 @@ mod tests {
         );
 
         assert_eq!(
-            attrs(&mut r#"{a=1.23 b='b' c="c"}"#).unwrap(),
+            attrs(&mut Located::new(r#"{a=1.23 b='b' c="c"}"#)).unwrap(),
             vec![
                 ("a", Some(Node::Number(1.23))),
                 ("b", Some(Node::String("b".to_string()))),
@@ -385,7 +388,7 @@ mod tests {
         );
 
         assert_eq!(
-            attrs(&mut r#"{a=1, b='2' ,c=-3 ,  d = 4.0}"#).unwrap(),
+            attrs(&mut Located::new(r#"{a=1, b='2' ,c=-3 ,  d = 4.0}"#)).unwrap(),
             vec![
                 ("a", Some(Node::Integer(1))),
                 ("b", Some(Node::String("2".to_string()))),
@@ -395,7 +398,10 @@ mod tests {
         );
 
         assert_eq!(
-            attrs(&mut r#"{date min=2022-09-01 max=2022-09-30 def=2022-09-15}"#).unwrap(),
+            attrs(&mut Located::new(
+                r#"{date min=2022-09-01 max=2022-09-30 def=2022-09-15}"#
+            ))
+            .unwrap(),
             vec![
                 ("date", None),
                 ("min", Some(Node::Date(Date::new("2022-09-01".to_string())))),
@@ -405,7 +411,7 @@ mod tests {
         );
 
         assert_eq!(
-            attrs(&mut r#"{time min=00:11:22}"#).unwrap(),
+            attrs(&mut Located::new(r#"{time min=00:11:22}"#)).unwrap(),
             vec![
                 ("time", None),
                 ("min", Some(Node::Time(Time::new("00:11:22".to_string())))),
@@ -413,7 +419,10 @@ mod tests {
         );
 
         assert_eq!(
-            attrs(&mut r#"{   a     b=21 c = 1.234 d="   Internal  spaces "  }"#).unwrap(),
+            attrs(&mut Located::new(
+                r#"{   a     b=21 c = 1.234 d="   Internal  spaces "  }"#
+            ))
+            .unwrap(),
             vec![
                 ("a", None),
                 ("b", Some(Node::Integer(21))),
@@ -429,14 +438,14 @@ mod tests {
     fn test_take_until_unbalanced() {
         assert_eq!(
             take_until_unbalanced('{', '}')
-                .parse_next(&mut "abc }")
+                .parse_next(&mut Located::new("abc }"))
                 .unwrap(),
             "abc "
         );
 
         assert_eq!(
             take_until_unbalanced('{', '}')
-                .parse_next(&mut "a{{b}c}} foo")
+                .parse_next(&mut Located::new("a{{b}c}} foo"))
                 .unwrap(),
             "a{{b}c}"
         );
@@ -444,7 +453,7 @@ mod tests {
         assert_eq!(
             ('{', take_until_unbalanced('{', '}'), '}')
                 .recognize()
-                .parse_next(&mut "{a:1, b:2}")
+                .parse_next(&mut Located::new("{a:1, b:2}"))
                 .unwrap(),
             "{a:1, b:2}"
         );

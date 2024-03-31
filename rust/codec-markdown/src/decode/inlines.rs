@@ -905,8 +905,8 @@ mod tests {
 
     #[test]
     fn test_underline() {
-        underline(&mut "<u></u>").unwrap();
-        underline(&mut "<u>underlined</u>").unwrap();
+        underline(&mut Located::new("<u></u>")).unwrap();
+        underline(&mut Located::new("<u>underlined</u>")).unwrap();
 
         let inlines = inlines("before <u>underlined</u> after", None);
         assert_eq!(inlines.len(), 3);
@@ -915,7 +915,7 @@ mod tests {
 
     #[test]
     fn test_instruction_inline() {
-        instruction_inline(&mut "[[do something]]").unwrap();
+        instruction_inline(&mut Located::new("[[do something]]")).unwrap();
 
         let ins = inlines("before [[do something]] after", None);
         assert_eq!(ins.len(), 3);

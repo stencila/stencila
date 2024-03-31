@@ -1082,22 +1082,22 @@ mod tests {
 
     #[test]
     fn test_call_arg() {
-        call_arg(&mut "arg=1").unwrap();
-        call_arg(&mut "arg = 1").unwrap();
-        call_arg(&mut "arg=`1*1`").unwrap();
+        call_arg(&mut Located::new("arg=1")).unwrap();
+        call_arg(&mut Located::new("arg = 1")).unwrap();
+        call_arg(&mut Located::new("arg=`1*1`")).unwrap();
     }
 
     #[test]
     fn test_call_block() {
         assert_eq!(
-            call_block(&mut "call file.md ()").unwrap(),
+            call_block(&mut Located::new("call file.md ()")).unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 ..Default::default()
             })
         );
         assert_eq!(
-            call_block(&mut "call file.md (a=1)").unwrap(),
+            call_block(&mut Located::new("call file.md (a=1)")).unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -1109,7 +1109,7 @@ mod tests {
             })
         );
         assert_eq!(
-            call_block(&mut r#"call file.md (parAm_eter_1="string")"#).unwrap(),
+            call_block(&mut Located::new(r#"call file.md (parAm_eter_1="string")"#)).unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -1121,7 +1121,10 @@ mod tests {
             })
         );
         assert_eq!(
-            call_block(&mut "call file.md (a=1.23, b=`var`, c='string')").unwrap(),
+            call_block(&mut Located::new(
+                "call file.md (a=1.23, b=`var`, c='string')"
+            ))
+            .unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -1145,7 +1148,7 @@ mod tests {
             })
         );
         assert_eq!(
-            call_block(&mut "call file.md (a=1,b = 2  , c=3, d =4)").unwrap(),
+            call_block(&mut Located::new("call file.md (a=1,b = 2  , c=3, d =4)")).unwrap(),
             Block::CallBlock(CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -1178,7 +1181,7 @@ mod tests {
     #[test]
     fn test_claim() {
         assert_eq!(
-            claim(&mut "hypothesis").unwrap(),
+            claim(&mut Located::new("hypothesis")).unwrap(),
             Block::Claim(Claim {
                 claim_type: ClaimType::Hypothesis,
                 ..Default::default()
@@ -1186,7 +1189,7 @@ mod tests {
         );
 
         assert_eq!(
-            claim(&mut "lemma Lemma 1").unwrap(),
+            claim(&mut Located::new("lemma Lemma 1")).unwrap(),
             Block::Claim(Claim {
                 claim_type: ClaimType::Lemma,
                 label: Some(String::from("Lemma 1")),
@@ -1199,7 +1202,7 @@ mod tests {
     fn test_for_block() {
         // Simple
         assert_eq!(
-            for_block(&mut "for item in expr").unwrap(),
+            for_block(&mut Located::new("for item in expr")).unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "item".to_string(),
                 code: "expr".into(),
@@ -1209,7 +1212,7 @@ mod tests {
 
         // With less/extra spacing
         assert_eq!(
-            for_block(&mut "for item  in    expr").unwrap(),
+            for_block(&mut Located::new("for item  in    expr")).unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "item".to_string(),
                 code: "expr".into(),
@@ -1219,7 +1222,7 @@ mod tests {
 
         // With language specified
         assert_eq!(
-            for_block(&mut "for item in expr {python}").unwrap(),
+            for_block(&mut Located::new("for item in expr {python}")).unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "item".to_string(),
                 code: "expr".into(),
@@ -1230,7 +1233,7 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            for_block(&mut "for i in 1:10").unwrap(),
+            for_block(&mut Located::new("for i in 1:10")).unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "i".to_string(),
                 code: "1:10".into(),
@@ -1240,7 +1243,7 @@ mod tests {
 
         // With more complex expression using backticks and language
         assert_eq!(
-            for_block(&mut "for iTem_ in `[{},{}]` {js}").unwrap(),
+            for_block(&mut Located::new("for iTem_ in `[{},{}]` {js}")).unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "iTem_".to_string(),
                 code: "[{},{}]".into(),
@@ -1251,7 +1254,10 @@ mod tests {
 
         // With more complex expression and language and auto exec
         assert_eq!(
-            for_block(&mut "for row in select * from table { sql, auto=never }").unwrap(),
+            for_block(&mut Located::new(
+                "for row in select * from table { sql, auto=never }"
+            ))
+            .unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "row".to_string(),
                 code: "select * from table".into(),
@@ -1266,7 +1272,7 @@ mod tests {
     fn test_if_elif() {
         // Simple
         assert_eq!(
-            if_elif(&mut "::: if expr").unwrap(),
+            if_elif(&mut Located::new("::: if expr")).unwrap(),
             (
                 true,
                 IfBlockClause {
@@ -1278,7 +1284,7 @@ mod tests {
 
         // With less/extra spacing
         assert_eq!(
-            if_elif(&mut "::: if    expr").unwrap(),
+            if_elif(&mut Located::new("::: if    expr")).unwrap(),
             (
                 true,
                 IfBlockClause {
@@ -1290,7 +1296,7 @@ mod tests {
 
         // With language specified
         assert_eq!(
-            if_elif(&mut "::: if expr {python}").unwrap(),
+            if_elif(&mut Located::new("::: if expr {python}")).unwrap(),
             (
                 true,
                 IfBlockClause {
@@ -1303,7 +1309,7 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            if_elif(&mut "::: elif a > 1 and b[8] < 1.23").unwrap(),
+            if_elif(&mut Located::new("::: elif a > 1 and b[8] < 1.23")).unwrap(),
             (
                 false,
                 IfBlockClause {
@@ -1315,7 +1321,10 @@ mod tests {
 
         // With more complex expression and language
         assert_eq!(
-            if_elif(&mut "::: elif `a if true else b - c[5:-1] + {}['d']` {python}").unwrap(),
+            if_elif(&mut Located::new(
+                "::: elif `a if true else b - c[5:-1] + {}['d']` {python}"
+            ))
+            .unwrap(),
             (
                 false,
                 IfBlockClause {
@@ -1330,14 +1339,14 @@ mod tests {
     #[test]
     fn test_styled_block() {
         assert_eq!(
-            styled_block(&mut "{}").unwrap(),
+            styled_block(&mut Located::new("{}")).unwrap(),
             Block::StyledBlock(StyledBlock {
                 ..Default::default()
             })
         );
 
         assert_eq!(
-            styled_block(&mut "{ color: red }").unwrap(),
+            styled_block(&mut Located::new("{ color: red }")).unwrap(),
             Block::StyledBlock(StyledBlock {
                 code: "color: red".into(),
                 ..Default::default()
