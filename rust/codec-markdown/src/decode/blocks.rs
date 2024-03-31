@@ -104,7 +104,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
                             // Finalize the last parent block and determine if it is a suggestion
                             let is_suggestion = if let Some(parent) = blocks.last_mut() {
-                                finalize(parent, children);
+                                finalize(parent, children, context);
 
                                 matches!(
                                     parent,
@@ -626,7 +626,7 @@ enum Divider {
 }
 
 /// Finalize a block by assigning children etc
-fn finalize(parent: &mut Block, mut children: Vec<Block>) {
+fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context) {
     if let Block::DeleteBlock(DeleteBlock { content, .. })
     | Block::InsertBlock(InsertBlock { content, .. })
     | Block::Claim(Claim { content, .. })
@@ -640,9 +640,13 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>) {
         // Parent div code chunk with label and caption etc
         for child in children {
             if let Block::CodeChunk(inner) = child {
+                let node_id = inner.node_id();
                 chunk.programming_language = inner.programming_language;
                 chunk.auto_exec = inner.auto_exec;
                 chunk.code = inner.code;
+
+                // Remove the inner code chunk from the mapping
+                context.map_remove(node_id)
             } else {
                 match &mut chunk.caption {
                     Some(caption) => {
@@ -667,16 +671,19 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>) {
                 .iter()
                 .position(|block| matches!(block, Block::CodeChunk(..)))
                 .expect("checked above");
-            let Block::CodeChunk(chunk) = children.remove(chunk) else {
+            let Block::CodeChunk(mut chunk) = children.remove(chunk) else {
                 unreachable!("checked above")
             };
 
-            *parent = Block::CodeChunk(CodeChunk {
-                label_type: Some(LabelType::FigureLabel),
-                label: figure.label.clone(),
-                caption: (!children.is_empty()).then_some(children),
-                ..chunk
-            });
+            chunk.label_type = Some(LabelType::FigureLabel);
+            chunk.label = figure.label.clone();
+            chunk.caption = (!children.is_empty()).then_some(children);
+
+            // Replace the mapping entry for figure, with one for chunk
+            context.map_remove(chunk.node_id());
+            context.map_replace(figure.node_id(), chunk.node_type(), chunk.node_id());
+
+            *parent = Block::CodeChunk(chunk);
         } else {
             // Put all paragraphs into the caption (unless they have just a single image) and
             // everything else in the content
@@ -732,16 +739,19 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>) {
                 .iter()
                 .position(|block| matches!(block, Block::CodeChunk(..)))
                 .expect("checked above");
-            let Block::CodeChunk(chunk) = children.remove(chunk) else {
+            let Block::CodeChunk(mut chunk) = children.remove(chunk) else {
                 unreachable!("checked above")
             };
 
-            *parent = Block::CodeChunk(CodeChunk {
-                label_type: Some(LabelType::TableLabel),
-                label: table.label.clone(),
-                caption: (!children.is_empty()).then_some(children),
-                ..chunk
-            });
+            chunk.label_type = Some(LabelType::TableLabel);
+            chunk.label = table.label.clone();
+            chunk.caption = (!children.is_empty()).then_some(children);
+
+            // Replace the mapping entry for figure, with one for chunk
+            context.map_remove(chunk.node_id());
+            context.map_replace(table.node_id(), chunk.node_type(), chunk.node_id());
+
+            *parent = Block::CodeChunk(chunk);
         } else {
             // Put all children before the table into caption, and after into notes.
             let mut before = true;

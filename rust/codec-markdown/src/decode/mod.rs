@@ -163,6 +163,16 @@ impl Context {
         }
     }
 
+    /// Replace an entry in the mapping
+    fn map_replace(&mut self, node_id: NodeId, new_node_type: NodeType, new_node_id: NodeId) {
+        self.mapping.replace(node_id, new_node_type, new_node_id);
+    }
+
+    /// Remove an entry for a node id from the mapping
+    fn map_remove(&mut self, node_id: NodeId) {
+        self.mapping.remove(node_id);
+    }
+
     /// Parse any YAML frontmatter
     fn frontmatter(&self) -> Option<Node> {
         let Some(yaml) = &self.yaml else {

@@ -77,6 +77,22 @@ impl Mapping {
         };
         self.entries.push(entry)
     }
+
+    /// Replace an entry for with a new node type and id
+    pub fn replace(&mut self, node_id: NodeId, new_node_type: NodeType, new_node_id: NodeId) {
+        self.entries
+            .iter_mut()
+            .find(|entry| entry.node_id == node_id)
+            .map(|entry| {
+                entry.node_type = new_node_type;
+                entry.node_id = new_node_id;
+            });
+    }
+
+    /// Remove an entry
+    pub fn remove(&mut self, node_id: NodeId) {
+        self.entries.retain(|entry| entry.node_id != node_id)
+    }
 }
 
 impl Display for Mapping {
