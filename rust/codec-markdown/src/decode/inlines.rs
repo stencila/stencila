@@ -98,6 +98,9 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                 // A `]]` terminator so associate inlines since last boundary with the previous
                 // `InstructionInline`, `InsertInline`, `DeleteInline`, etc and map end
                 if let Some(boundary) = boundaries.pop() {
+                    // End the mapping for the previous inline
+                    context.map_end(span.end);
+
                     let children = inlines.drain(boundary..).collect();
                     match inlines.last_mut() {
                         Some(
@@ -125,32 +128,36 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                         }
                     }
 
-                    // If the the inline before this one was an instruction then associate the two
+                    // If the inline before this one was an instruction then associate the two.
+                    // Also extend the range of the mapping for the instruction to the end of
+                    // the suggestion.
                     if matches!(
                         inlines.iter().rev().nth(1),
                         Some(Inline::InstructionInline(..))
                     ) {
-                        let suggestion = match inlines.pop() {
-                            Some(Inline::InsertInline(block)) => {
-                                SuggestionInlineType::InsertInline(block)
+                        let (node_id, suggestion) = match inlines.pop() {
+                            Some(Inline::InsertInline(inline)) => {
+                                (inline.node_id(), SuggestionInlineType::InsertInline(inline))
                             }
-                            Some(Inline::DeleteInline(block)) => {
-                                SuggestionInlineType::DeleteInline(block)
+                            Some(Inline::DeleteInline(inline)) => {
+                                (inline.node_id(), SuggestionInlineType::DeleteInline(inline))
                             }
-                            Some(Inline::ReplaceInline(block)) => {
-                                SuggestionInlineType::ReplaceInline(block)
+                            Some(Inline::ReplaceInline(inline)) => {
+                                (inline.node_id(), SuggestionInlineType::ReplaceInline(inline))
                             }
-                            Some(Inline::ModifyInline(block)) => {
-                                SuggestionInlineType::ModifyInline(block)
+                            Some(Inline::ModifyInline(inline)) => {
+                                (inline.node_id(), SuggestionInlineType::ModifyInline(inline))
                             }
                             _ => unreachable!(),
                         };
                         if let Some(Inline::InstructionInline(instruct)) = inlines.last_mut() {
+                            // Associate the suggestion with the instruction
                             instruct.options.suggestion = Some(suggestion);
+
+                            // Extend the instruction to the end of the suggestion
+                            context.map_extend(instruct.node_id(), node_id);
                         }
                     }
-
-                    context.map_end(span.end);
                 } else {
                     // A `]]` fragment that is not a terminator, so just push
                     inlines.push(inline);
