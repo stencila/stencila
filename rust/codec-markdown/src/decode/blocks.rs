@@ -88,7 +88,20 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                         } else {
                                             tracing::error!("Expected there to be at least one if clause already")
                                         }
-                                        if_block.clauses.push(IfBlockClause::default());
+
+                                        let if_block_clause = IfBlockClause::default();
+
+                                        // End the mapping for the previous `IfBlockClause` and start a new one
+                                        if let Some(position) = position {
+                                            context.map_end(position.start.offset.saturating_sub(1));
+                                            context.map_start(
+                                                position.start.offset,
+                                                if_block_clause.node_type(),
+                                                if_block_clause.node_id(),
+                                            );
+                                        }
+
+                                        if_block.clauses.push(if_block_clause);
                                     }
 
                                     _ => tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`"),
@@ -98,16 +111,24 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             boundaries.push(blocks.len());
                         }
                         Divider::End => {
+                            // End the mapping for the previous block
                             if let Some(position) = position {
                                 context.map_end(position.end.offset);
                             }
 
-                            // Finalize the last parent block and determine if it is a suggestion
-                            let is_suggestion = if let Some(parent) = blocks.last_mut() {
-                                finalize(parent, children, context);
+                            // Finalize the last block and determine if it is a suggestion
+                            let is_suggestion = if let Some(last_block) = blocks.last_mut() {
+                                finalize(last_block, children, context);
+
+                                // If the last block is a `IfBlock` then also need end the mapping for that
+                                if matches!(last_block, Block::IfBlock(..)) {
+                                    if let Some(position) = position {
+                                        context.map_end(position.end.offset);
+                                    }
+                                }
 
                                 matches!(
-                                    parent,
+                                    last_block,
                                     Block::InsertBlock(..)
                                         | Block::DeleteBlock(..)
                                         | Block::ReplaceBlock(..)
@@ -152,12 +173,13 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                         let ifc_nt = if_clause.node_type();
                         let ifc_ni = if_clause.node_id();
 
-                        // This is a `::: if` so start a new `IfBlock`
+                        // This is an `::: if` so start a new `IfBlock`
                         let if_block = IfBlock {
                             clauses: vec![if_clause],
                             ..Default::default()
                         };
 
+                        // Start mapping entries for both the `IfBlock` and `IfBlockClause`
                         if let Some(position) = position {
                             context.map_start(
                                 position.start.offset,
@@ -172,8 +194,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
                         continue;
                     } else {
+                        // This is an `::: elif` so end the mapping for the previous `IfBlockClause`
+                        // and start a new one
                         if let Some(position) = position {
-                            context.map_end(position.end.offset.saturating_sub(1));
+                            context.map_end(position.start.offset.saturating_sub(1));
                             context.map_start(
                                 position.start.offset,
                                 if_clause.node_type(),
@@ -184,8 +208,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                         let mut children = pop_blocks(&mut blocks, &mut boundaries);
 
                         if let Some(Block::IfBlock(if_block)) = blocks.last_mut() {
-                            // This is a `::: elif` so assign children to the  `content` of
-                            // the last clause and add a clause
+                            // Assign children to the  `content` of the last clause and add a clause
                             if let Some(last) = if_block.clauses.last_mut() {
                                 last.content = children;
                             } else {
