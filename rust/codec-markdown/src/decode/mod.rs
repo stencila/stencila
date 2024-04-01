@@ -168,6 +168,11 @@ impl Context {
         self.mapping.replace(node_id, new_node_type, new_node_id);
     }
 
+    /// Extend an entry in the mapping to the end range of another
+    fn map_extend(&mut self, first_node_id: NodeId, second_node_id: NodeId) {
+        self.mapping.extend(first_node_id, second_node_id);
+    }
+
     /// Remove an entry for a node id from the mapping
     fn map_remove(&mut self, node_id: NodeId) {
         self.mapping.remove(node_id);

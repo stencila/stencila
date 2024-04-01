@@ -139,30 +139,35 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             };
 
                             // If the the block before this one was an instruction and this is a suggestion
-                            // then associate the two
+                            // then associate the two. Also extend the range of the mapping for the
+                            // instruction to the end of the suggestion.
                             if is_suggestion
                                 && matches!(
                                     blocks.iter().rev().nth(1),
                                     Some(Block::InstructionBlock(..))
                                 )
                             {
-                                let suggestion = match blocks.pop() {
+                                let (node_id, suggestion) = match blocks.pop() {
                                     Some(Block::InsertBlock(block)) => {
-                                        SuggestionBlockType::InsertBlock(block)
+                                        (block.node_id(), SuggestionBlockType::InsertBlock(block))
                                     }
                                     Some(Block::DeleteBlock(block)) => {
-                                        SuggestionBlockType::DeleteBlock(block)
+                                        (block.node_id(), SuggestionBlockType::DeleteBlock(block))
                                     }
                                     Some(Block::ReplaceBlock(block)) => {
-                                        SuggestionBlockType::ReplaceBlock(block)
+                                        (block.node_id(), SuggestionBlockType::ReplaceBlock(block))
                                     }
                                     Some(Block::ModifyBlock(block)) => {
-                                        SuggestionBlockType::ModifyBlock(block)
+                                        (block.node_id(), SuggestionBlockType::ModifyBlock(block))
                                     }
                                     _ => unreachable!(),
                                 };
                                 if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                                    // Associate the suggestion with the instruction
                                     instruct.options.suggestion = Some(suggestion);
+
+                                    // Extend the instruction to the end of the suggestion
+                                    context.map_extend(instruct.node_id(), node_id);
                                 }
                             }
                         }
@@ -235,13 +240,18 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     // prematurely matching.
 
                     // Only add a boundary for blocks that will have children to collect
-                    if !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..)) {
+                    if matches!(
+                        block,
+                        Block::IncludeBlock(..)
+                            | Block::CallBlock(..)
+                            | Block::InstructionBlock(InstructionBlock { content: None, .. })
+                    ) {
+                        context.map_position(position, block.node_type(), block.node_id());
+                    } else {
                         boundaries.push(blocks.len() + 1);
                         if let (Some(position), Some(node_id)) = (position, block.node_id()) {
                             context.map_start(position.start.offset, block.node_type(), node_id);
                         }
-                    } else {
-                        context.map_position(position, block.node_type(), block.node_id());
                     }
 
                     blocks.push(block);
@@ -501,21 +511,27 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         (
             opt(delimited('@', assignee, multispace1)),
             alt((
-                terminated(take_until(0.., ':'), take_while(3.., ':')),
-                take_while(0.., |_| true),
+                (
+                    take_until(0.., ':'),
+                    (take_while(3.., ':'), multispace0, opt("with")).value(true),
+                ),
+                (take_while(0.., |_| true), "".value(false)),
             )),
         ),
     )
-    .map(|(assignee, text): (Option<&str>, &str)| {
-        Block::InstructionBlock(InstructionBlock {
-            messages: vec![InstructionMessage::from(text.trim())],
-            options: Box::new(InstructionBlockOptions {
-                assignee: assignee.map(String::from),
+    .map(
+        |(assignee, (text, content)): (Option<&str>, (&str, bool))| {
+            Block::InstructionBlock(InstructionBlock {
+                messages: vec![InstructionMessage::from(text.trim())],
+                content: if content { Some(Vec::new()) } else { None },
+                options: Box::new(InstructionBlockOptions {
+                    assignee: assignee.map(String::from),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        })
-    })
+            })
+        },
+    )
     .parse_next(input)
 }
 
