@@ -1,0 +1,9 @@
+ start    end    offsets   node_id                  node_type+property
+     0      9        0/9   hea_11111112v            Heading
+    11     21      11/12   hea_11111112x            Heading
+    23     34      12/13   hea_11111112z            Heading
+    36     48      13/14   hea_111111132            Heading
+    50     63      14/15   hea_111111134            Heading
+    65     79      15/16   hea_111111136            Heading
+    81     95      16/16   hea_111111138            Heading
+     0     95      -81/0   art_111111139            Article

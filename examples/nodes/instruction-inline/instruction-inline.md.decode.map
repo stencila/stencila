@@ -1,0 +1,15 @@
+ start    end    offsets   node_id                  node_type+property
+    50     73      50/73   isi_1111117E             InstructionInline
+     0     74      -50/1   pgh_1111117G             Paragraph
+   139    176    139/102   isi_1111117L             InstructionInline
+    76    177      -63/1   pgh_1111117Q             Paragraph
+   210    270     134/93   isi_1111117U             InstructionInline
+   275    324      65/54   isi_1111117Y             InstructionInline
+   179    325      -96/1   pgh_1111117c             Paragraph
+   409    420      50/20   mti_1111117i             MathInline
+   400    422       -9/2   ini_1111117h             InsertInline
+   359    422      -41/0   isi_1111117g             InstructionInline
+   459    489      32/30   rpi_1111117r             ReplaceInline
+   427    489      -32/0   isi_1111117o             InstructionInline
+   327    490     -100/1   pgh_1111117w             Paragraph
+     0    490     -327/0   art_1111117x             Article

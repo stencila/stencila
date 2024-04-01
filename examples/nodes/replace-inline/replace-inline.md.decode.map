@@ -1,0 +1,4 @@
+ start    end    offsets   node_id                  node_type+property
+     5     25       5/25   rpi_111111125            ReplaceInline
+     0     31       -5/6   pgh_11111112B            Paragraph
+     0     31        0/0   art_11111112C            Article
