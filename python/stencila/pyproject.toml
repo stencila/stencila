@@ -60,6 +60,7 @@ dev = [
     "ruff>=0.3.3",
     "pip-audit>=2.7.2",
     "pyright>=1.1.355",
+    "maturin>=1.5.1",
 ]
 
 [tool.pytest.ini_options]
