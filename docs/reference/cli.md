@@ -12,9 +12,12 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila log`↴](#stencila-log)
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
+* [`stencila compile`↴](#stencila-compile)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila assistants`↴](#stencila-assistants)
+* [`stencila assistants list`↴](#stencila-assistants-list)
+* [`stencila assistants execute`↴](#stencila-assistants-execute)
 * [`stencila kernels`↴](#stencila-kernels)
 * [`stencila kernels list`↴](#stencila-kernels-list)
 * [`stencila kernels info`↴](#stencila-kernels-info)
@@ -52,9 +55,10 @@ CLI subcommands and global options
 * `log` — Display the history of commits to the document
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
+* `compile` — Compile a document
 * `execute` — Execute a document
 * `serve` — Serve
-* `assistants` — List the available AI assistants
+* `assistants` — Manage assistants
 * `kernels` — Manage execution kernels
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets used by Stencila (e.g. API keys)
@@ -343,6 +347,23 @@ Convert a document between formats
 
 
 
+## `stencila compile`
+
+Compile a document
+
+**Usage:** `stencila compile [OPTIONS] <INPUT> [OUTPUT]`
+
+###### **Arguments:**
+
+* `<INPUT>` — The path of the file to execute
+* `<OUTPUT>` — The path of the file to write the compiled document to
+
+###### **Options:**
+
+* `-t`, `--to <TO>` — The format to encode to (or codec to use)
+
+
+
 ## `stencila execute`
 
 Execute a document
@@ -357,6 +378,10 @@ Execute a document
 ###### **Options:**
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
+* `--force-all` — Re-execute all node types regardless of current state
+
+  Possible values: `true`, `false`
+
 * `--skip-code` — Skip executing code
 
   Possible values: `true`, `false`
@@ -421,9 +446,37 @@ Serve
 
 ## `stencila assistants`
 
-List the available AI assistants
+Manage assistants
 
-**Usage:** `stencila assistants`
+**Usage:** `stencila assistants [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the assistant available
+* `execute` — Execute an instruction with an assistant
+
+
+
+## `stencila assistants list`
+
+List the assistant available
+
+**Usage:** `stencila assistants list`
+
+
+
+## `stencila assistants execute`
+
+Execute an instruction with an assistant
+
+Mainly intended for quick testing of assistants during development.
+
+**Usage:** `stencila assistants execute <ID> <INSTRUCTION>`
+
+###### **Arguments:**
+
+* `<ID>` — The id of the assistant to execute the instruction
+* `<INSTRUCTION>` — The instruction to execute
 
 
 
