@@ -1,0 +1,6 @@
+ start    end    offsets   node_id                  node_type+property
+    17     31      17/31   cdi_11111112Y            CodeInline
+     0     32      -17/1   pgh_11111112a            Paragraph
+    49     64      49/32   cdi_11111112c            CodeInline
+    34     65      -15/1   pgh_11111112e            Paragraph
+     0     65      -34/0   art_11111112f            Article

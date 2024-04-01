@@ -207,7 +207,7 @@ impl Document {
         // Create initial encoding of the root node
         let node = self.load().await?;
         let (initial_content, .., initial_mapping) =
-            codecs::to_string_with(&node, encode_options.clone()).await?;
+            codecs::to_string_with_info(&node, encode_options.clone()).await?;
 
         // Create the mutex for the current content and mapping and initialize the version
         let current = Arc::new(Mutex::new((
@@ -374,7 +374,7 @@ impl Document {
 
                     // Encode the node to a string in the format
                     let (new_content, .., new_mapping) =
-                        match codecs::to_string_with(&node, encode_options.clone()).await {
+                        match codecs::to_string_with_info(&node, encode_options.clone()).await {
                             Ok(string) => string,
                             Err(error) => {
                                 tracing::error!("While encoding node to string: {error}");

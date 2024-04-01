@@ -19,7 +19,7 @@ html:
 jats:
   special: true
 markdown:
-  template: '{{value}}'
+  derive: false
 proptest: {}
 required:
   - value

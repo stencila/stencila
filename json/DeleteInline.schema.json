@@ -14,7 +14,7 @@
     "elem": "del"
   },
   "markdown": {
-    "template": "{--{{content}}--}"
+    "template": "[[delete {{content}}]]"
   },
   "required": [
     "type",

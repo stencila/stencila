@@ -1,17 +1,17 @@
-++
+::: insert
 
 Proposed inserted paragraph
 
-++
+:::
 
-++ accepted
+::: insert accepted
 
 Accepted inserted paragraph
 
-++
+:::
 
-++ rejected
+::: insert rejected
 
 Rejected inserted paragraph
 
-++
+:::

@@ -1,0 +1,9 @@
+ start    end    offsets   node_id                  node_type+property
+     5     24       5/24   dei_11111113d            DeleteInline
+     0     29       -5/5   pgh_11111113h            Paragraph
+    64     87      64/58   str_11111113m            Strong
+    92    109      28/22   und_11111113p            Underline
+   114    127      22/18   cde_11111113r            CodeExpression
+    55    129      -59/2   dei_11111113j            DeleteInline
+    31    130      -24/1   pgh_11111113u            Paragraph
+     0    130      -31/0   art_11111113v            Article

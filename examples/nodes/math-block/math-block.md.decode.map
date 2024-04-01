@@ -1,0 +1,8 @@
+ start    end    offsets   node_id                  node_type+property
+     0     12       0/12   pgh_11111112f            Paragraph
+    14     29      14/17   mtb_11111112g            MathBlock
+    31     50      17/21   pgh_11111112i            Paragraph
+    52     77      21/27   mtb_11111112j            MathBlock
+    79     94      27/17   pgh_11111112m            Paragraph
+    96    206     17/112   mtb_11111112n            MathBlock
+     0    206      -96/0   art_11111112o            Article

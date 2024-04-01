@@ -7,11 +7,9 @@ impl MarkdownCodec for Figure {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .merge_losses(lost_work_options!(self));
-
-        let fence = ":".repeat(3 + context.depth * 2);
-
-        context.push_str(&fence).push_str(" figure");
+            .merge_losses(lost_work_options!(self))
+            .push_semis()
+            .push_str(" figure");
 
         if let Some(label) = &self.label {
             context.push_str(" ");
@@ -24,11 +22,10 @@ impl MarkdownCodec for Figure {
             context.push_prop_fn("caption", |context| caption.to_markdown(context));
         }
 
-        context.push_prop_fn("content", |context| self.content.to_markdown(context));
-
         context
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
             .decrease_depth()
-            .push_str(&fence)
+            .push_semis()
             .newline()
             .exit_node()
             .newline();

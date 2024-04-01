@@ -1,0 +1,13 @@
+ start    end    offsets   node_id                  node_type+property
+   111    115    111/115   not_11111114b            Note
+   119    123        8/8   not_11111114d            Note
+   127    131        8/8   not_11111114f            Note
+     0    132     -127/1   pgh_11111114h            Paragraph
+   140    151     140/19   pgh_11111114j            Paragraph
+   159    175      19/24   pgh_11111114m            Paragraph
+   181    198      22/23   pgh_11111114o            Paragraph
+   206    218      25/20   pgh_11111114q            Paragraph
+   224    252      18/34   cdb_11111114r            CodeBlock
+   260    273      36/21   pgh_11111114t            Paragraph
+   258    273       -2/0   qtb_11111114u            QuoteBlock
+     0    273     -258/0   art_11111114v            Article

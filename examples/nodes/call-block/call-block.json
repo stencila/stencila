@@ -21,7 +21,7 @@
       "content": [
         {
           "type": "Text",
-          "value": "A call with one argument"
+          "value": "A call with one value argument"
         }
       ]
     },
@@ -32,7 +32,8 @@
         {
           "type": "CallArgument",
           "name": "arg1",
-          "code": "123"
+          "code": "",
+          "value": 123
         }
       ]
     },
@@ -41,7 +42,7 @@
       "content": [
         {
           "type": "Text",
-          "value": "A call with several arguments"
+          "value": "A call with one code expression argument"
         }
       ]
     },
@@ -52,22 +53,50 @@
         {
           "type": "CallArgument",
           "name": "arg1",
-          "code": "123"
+          "code": "1 + 2 + 3"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A call with several arguments with mixed naming and types"
+        }
+      ]
+    },
+    {
+      "type": "CallBlock",
+      "source": "../parameter/parameter.md",
+      "arguments": [
+        {
+          "type": "CallArgument",
+          "name": "arg1",
+          "code": "1 + 2 + 3"
         },
         {
           "type": "CallArgument",
           "name": "argtwo",
-          "code": "\"two\""
+          "code": "",
+          "value": "t w o"
         },
         {
           "type": "CallArgument",
           "name": "arg_three",
-          "code": "3.0"
+          "code": "",
+          "value": 1.23
         },
         {
           "type": "CallArgument",
           "name": "arg4",
           "code": "2 * 2"
+        },
+        {
+          "type": "CallArgument",
+          "name": "argFive",
+          "code": "",
+          "value": [1, 2, 3]
         }
       ]
     }

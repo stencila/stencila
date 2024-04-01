@@ -35,33 +35,6 @@
     },
     {
       "type": "StyledBlock",
-      "code": "bg-$color-100 p-2",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": "A styled block with this parameter "
-            },
-            {
-              "type": "Parameter",
-              "name": "color",
-              "validator": {
-                "type": "EnumValidator",
-                "values": ["red", "blue", "green"]
-              }
-            },
-            {
-              "type": "Text",
-              "value": " interpolated into background color"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "StyledBlock",
       "code": "bg-red-100 p-2",
       "content": [
         {

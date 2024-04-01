@@ -1,0 +1,17 @@
+ start    end    offsets   node_id                  node_type+property
+     0     57       0/57   txt_11111111             Text
+    59     67      59/10   txt_11111112             Text
+    59     67        0/0   emp_11111113             Emphasis.content
+    58     68       -1/1   emp_11111113             Emphasis
+    68     70       10/2   txt_11111114             Text
+    71     75        3/5   txt_11111115             Text
+    71     75        0/0   lin_11111116             Link.content
+    77     96       6/21   lin_11111116             Link.target
+    70     97       -7/1   lin_11111116             Link
+    58     97      -12/0   sti_11111117             StyledInline.content
+    99    112      41/15   sti_11111117             StyledInline.code
+    57    113      -42/1   sti_11111117             StyledInline
+     0    113      -57/0   pgh_11111118             Paragraph.content
+     0    114        0/1   pgh_11111118             Paragraph
+     0    115        0/1   art_11111119             Article.content
+     0    114       0/-1   art_11111119             Article

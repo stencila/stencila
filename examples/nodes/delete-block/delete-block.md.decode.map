@@ -1,0 +1,8 @@
+ start    end    offsets   node_id                  node_type+property
+    12     38      12/38   pgh_11111112Z            Paragraph
+     0     43      -12/5   deb_11111112X            DeleteBlock
+    66     92      66/49   pgh_11111112c            Paragraph
+    45     97      -21/5   deb_11111112a            DeleteBlock
+   120    146      75/49   pgh_11111112f            Paragraph
+    99    151      -21/5   deb_11111112d            DeleteBlock
+     0    151      -99/0   art_11111112g            Article

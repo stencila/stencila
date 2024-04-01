@@ -1,23 +1,23 @@
-With no language: 
+With no language:
 
 ```exec
 No language
 ```
 
-With language: 
+With language:
 
 ```python exec
 # Some python code
 a = 3
 ```
 
-With language and autoExec: 
+With language and autoExec:
 
 ```js exec auto=always
 // Javascript
 ```
 
-With label: 
+With label:
 
 ::: chunk 1A
 
@@ -27,7 +27,7 @@ With label:
 
 :::
 
-Code figure with caption: 
+Code figure with caption:
 
 ::: figure 1
 
@@ -39,7 +39,7 @@ plot(y~x)
 
 :::
 
-Code table with caption: 
+Code table with caption:
 
 ::: table 1
 

@@ -84,7 +84,7 @@ async fn compact() -> Result<()> {
         r#"{"type":"Article","content":[{"type":"Paragraph","content":[{"type":"Text","value":"Hello world"}]}]}"#
     );
 
-    let (doc2, _) = codec.from_str(&json, None).await?;
+    let (doc2, ..) = codec.from_str(&json, None).await?;
     assert_eq!(doc2, doc1);
 
     Ok(())
@@ -126,7 +126,7 @@ async fn standalone() -> Result<()> {
 }"#
     );
 
-    let (doc2, _) = codec.from_str(&json, None).await?;
+    let (doc2, ..) = codec.from_str(&json, None).await?;
     assert_eq!(doc2, doc1);
 
     Ok(())

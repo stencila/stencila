@@ -1,0 +1,9 @@
+ start    end    offsets   node_id                  node_type+property
+    67     93      67/93   pgh_11111112j            Paragraph
+     0     98      -67/5   stb_11111112h            StyledBlock
+   117    147     117/49   pgh_11111112n            Paragraph
+   100    152      -17/5   stb_11111112k            StyledBlock
+   197    217      97/65   pgh_11111112r            Paragraph
+   176    224      -21/7   stb_11111112p            StyledBlock
+   154    229      -22/5   stb_11111112o            StyledBlock
+     0    229     -154/0   art_11111112s            Article

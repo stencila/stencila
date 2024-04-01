@@ -134,18 +134,67 @@
           parts: [
             {
               type: "Text",
-              value: "insert a code chunk"
+              value: "analyze data"
             }
           ]
         }
       ],
-      assignee: "assistant",
+      assignee: "insert-code-chunk",
       suggestion: {
         type: "InsertBlock",
         content: [
           {
             type: "CodeChunk",
             code: "some code"
+          }
+        ]
+      }
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "An edit instruction with a suggestion:"
+        }
+      ]
+    },
+    {
+      type: "InstructionBlock",
+      messages: [
+        {
+          type: "InstructionMessage",
+          parts: [
+            {
+              type: "Text",
+              value: "more succinct"
+            }
+          ]
+        }
+      ],
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "A rather long winded paragraph."
+            }
+          ]
+        }
+      ],
+      suggestion: {
+        type: "ReplaceBlock",
+        content: [],
+        replacement: [
+          {
+            type: "Paragraph",
+            content: [
+              {
+                type: "Text",
+                value: "A paragraph."
+              }
+            ]
           }
         ]
       }

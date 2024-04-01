@@ -1,0 +1,10 @@
+ start    end    offsets   node_id                  node_type+property
+     9     41       9/41   img_11111113v            ImageObject
+    58     95      49/54   img_11111113y            ImageObject
+   122    169      64/74   img_111111143            ImageObject
+     0    169     -122/0   pgh_111111144            Paragraph
+   182    214     182/45   aud_111111147            AudioObject
+   171    214      -11/0   pgh_111111148            Paragraph
+   224    256      53/42   vid_11111114B            VideoObject
+   216    256       -8/0   pgh_11111114C            Paragraph
+     0    256     -216/0   art_11111114D            Article

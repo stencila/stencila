@@ -1,0 +1,9 @@
+ start    end    offsets   node_id                  node_type+property
+     5     25       5/25   ini_11111113d            InsertInline
+     0     30       -5/5   pgh_11111113h            Paragraph
+    65     88      65/58   str_11111113m            Strong
+    93    108      28/20   sup_11111113p            Superscript
+   113    126      20/18   cde_11111113r            CodeExpression
+    56    128      -57/2   ini_11111113j            InsertInline
+    32    129      -24/1   pgh_11111113u            Paragraph
+     0    129      -32/0   art_11111113v            Article

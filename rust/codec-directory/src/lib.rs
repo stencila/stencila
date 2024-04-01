@@ -13,7 +13,7 @@ use codec::{
     format::Format,
     schema::{Directory, File, FileOrDirectory, Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, Losses, Mapping,
 };
 
 /// A codec for "decoding" a directory to a Stencila `Directory` node
@@ -79,7 +79,7 @@ impl Codec for DirectoryCodec {
         &self,
         root: &Path,
         _options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses)> {
+    ) -> Result<(Node, Losses, Mapping)> {
         let path = root.canonicalize()?;
 
         let mut dirs: Vec<(usize, Directory)> = Vec::new();
@@ -186,6 +186,6 @@ impl Codec for DirectoryCodec {
 
         let node = Node::Directory(root);
 
-        Ok((node, Losses::none()))
+        Ok((node, Losses::none(), Mapping::none()))
     }
 }

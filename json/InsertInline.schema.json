@@ -14,7 +14,7 @@
     "elem": "ins"
   },
   "markdown": {
-    "template": "{++{{content}}++}"
+    "template": "[[insert {{content}}]]"
   },
   "required": [
     "type",

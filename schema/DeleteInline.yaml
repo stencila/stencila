@@ -7,6 +7,5 @@ description: A suggestion to delete some inline content.
 html:
   elem: del
 markdown:
-  # CriticMarkup for "Deletions"
-  template: '{--{{content}}--}'
+  template: '[[delete {{content}}]]'
 proptest: {}

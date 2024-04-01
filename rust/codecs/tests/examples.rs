@@ -1,6 +1,6 @@
 //! Tests on examples of Stencila documents
 
-use std::{collections::BTreeMap, fs::File, path::PathBuf};
+use std::{collections::BTreeMap, env, fs::File, path::PathBuf};
 
 use codec::{
     common::{
@@ -17,6 +17,7 @@ use codec::{
         },
     },
     format::Format,
+    schema::NodeType,
     DecodeOptions, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
@@ -298,12 +299,22 @@ async fn examples() -> Result<()> {
         .to_string()
         + "/*";
 
-    let update = std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true";
+    let update = env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true";
+    let include = env::var("INCLUDE_EXAMPLES")
+        .ok()
+        .map(|var| var.split(',').map(String::from).collect_vec());
 
     let examples = glob(&pattern)?.flatten().collect_vec();
 
     for dir in examples {
-        let name = dir.file_name().unwrap().to_string_lossy();
+        let name = dir.file_name().unwrap().to_string_lossy().to_string();
+
+        if let Some(include) = include.as_ref() {
+            if !include.contains(&name) {
+                continue;
+            }
+        }
+
         eprintln!("{name}");
 
         // If the folder has a config.yaml file then read it in and merge into the
@@ -398,11 +409,28 @@ async fn examples() -> Result<()> {
 
                     // Write any mapping to file
                     let mut mapping_file = path.clone();
-                    mapping_file.set_extension([extension.as_str(), ".encode.mapping"].concat());
-                    if mapping.entries().is_empty() {
-                        remove_file(mapping_file).await.ok();
-                    } else {
-                        write(mapping_file, mapping.to_string()).await?;
+                    mapping_file.set_extension([extension.as_str(), ".encode.map"].concat());
+                    let actual = mapping.to_string();
+                    if mapping_file.exists() {
+                        let expected = read_to_string(&mapping_file).await?;
+                        if actual != expected {
+                            if update {
+                                if mapping.entries().is_empty() {
+                                    remove_file(mapping_file).await.ok();
+                                } else {
+                                    write(mapping_file, actual).await?;
+                                }
+                            } else {
+                                assert_eq!(actual, expected, "Encode mapping differs");
+                            }
+                        }
+                    } else if !mapping.entries().is_empty() {
+                        write(mapping_file, actual).await?;
+                    }
+
+                    // Check that mapping ends with an `Article`
+                    if let Some(entry) = mapping.entries().last() {
+                        assert_eq!(entry.node_type, NodeType::Article);
                     }
                 } else {
                     // Just encode to file if it does not yet exist or updating. At present not attempting
@@ -420,10 +448,11 @@ async fn examples() -> Result<()> {
                 });
 
                 // Decode from file
-                let (mut decoded, losses) = codec
-                    .from_path(&file, decode_options)
-                    .await
-                    .wrap_err_with(|| format!("while decoding {}", file.display()))?;
+                let (mut decoded, losses, mapping) =
+                    codec
+                        .from_path(&file, decode_options)
+                        .await
+                        .wrap_err_with(|| format!("while decoding {}", file.display()))?;
 
                 // Write any losses to file
                 let mut losses_file = path.clone();
@@ -432,6 +461,32 @@ async fn examples() -> Result<()> {
                     remove_file(losses_file).await.ok();
                 } else {
                     write(losses_file, serde_yaml::to_string(&losses)?).await?;
+                }
+
+                // Write any mapping to file
+                let mut mapping_file = path.clone();
+                mapping_file.set_extension([extension.as_str(), ".decode.map"].concat());
+                let actual = mapping.to_string();
+                if mapping_file.exists() {
+                    let expected = read_to_string(&mapping_file).await?;
+                    if actual != expected {
+                        if update {
+                            if mapping.entries().is_empty() {
+                                remove_file(mapping_file).await.ok();
+                            } else {
+                                write(mapping_file, actual).await?;
+                            }
+                        } else {
+                            assert_eq!(actual, expected, "Decode mapping differs");
+                        }
+                    }
+                } else if !mapping.entries().is_empty() {
+                    write(mapping_file, actual).await?;
+                }
+
+                // Check that mapping ends with an `Article`
+                if let Some(entry) = mapping.entries().last() {
+                    assert_eq!(entry.node_type, NodeType::Article);
                 }
 
                 // Apply decode strip options to both original and decoded value for fair valid comparison

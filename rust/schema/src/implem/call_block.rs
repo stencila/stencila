@@ -7,12 +7,11 @@ impl MarkdownCodec for CallBlock {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, content))
-            .merge_losses(lost_exec_options!(self));
-
-        context
-            .push_str("<< ")
+            .merge_losses(lost_exec_options!(self))
+            .push_semis()
+            .push_str(" call ")
             .push_prop_str("source", &self.source)
-            .push_str("(");
+            .push_str(" (");
 
         for (index, arg) in self.arguments.iter().enumerate() {
             if index != 0 {

@@ -48,7 +48,43 @@ content:
         value: please improve this
     content:
     - type: Text
-      value: ' existing content'
+      value: existing content
     assignee: joe
+  - type: Text
+    value: .
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'Instructions with a suggestion: '
+  - type: InstructionInline
+    messages:
+    - type: InstructionMessage
+      parts:
+      - type: Text
+        value: area of circle
+    assignee: insert-inline-math
+    suggestion:
+      type: InsertInline
+      content:
+      - type: MathInline
+        code: 2 /pi r^2
+        mathLanguage: tex
+  - type: Text
+    value: ' and '
+  - type: InstructionInline
+    messages:
+    - type: InstructionMessage
+      parts:
+      - type: Text
+        value: improve
+    content:
+    - type: Text
+      value: existing content
+    suggestion:
+      type: ReplaceInline
+      content: []
+      replacement:
+      - type: Text
+        value: improved content
   - type: Text
     value: .

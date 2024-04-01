@@ -1,0 +1,8 @@
+ start    end    offsets   node_id                  node_type+property
+    12     39      12/39   pgh_11111112Z            Paragraph
+     0     44      -12/5   inb_11111112X            InsertBlock
+    67     94      67/50   pgh_11111112c            Paragraph
+    46     99      -21/5   inb_11111112a            InsertBlock
+   122    149      76/50   pgh_11111112f            Paragraph
+   101    154      -21/5   inb_11111112d            InsertBlock
+     0    154     -101/0   art_11111112g            Article

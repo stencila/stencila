@@ -3,6 +3,57 @@ use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 use crate::{prelude::*, transforms::blocks_to_inlines, *};
 
 impl Inline {
+    pub fn node_type(&self) -> NodeType {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match self {
+                    $(Inline::$variant(node) => node.node_type(),)*
+
+                    Inline::Null(..) => NodeType::Null,
+                    Inline::Boolean(..) => NodeType::Boolean,
+                    Inline::Integer(..) => NodeType::Integer,
+                    Inline::UnsignedInteger(..) => NodeType::UnsignedInteger,
+                    Inline::Number(..) => NodeType::Number,
+                }
+            };
+        }
+
+        variants!(
+            AudioObject,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            DeleteInline,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InsertInline,
+            InstructionInline,
+            Link,
+            MathInline,
+            MediaObject,
+            ModifyInline,
+            Note,
+            Parameter,
+            QuoteInline,
+            ReplaceInline,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject
+        )
+    }
+
     pub fn node_id(&self) -> Option<NodeId> {
         macro_rules! variants {
             ($( $variant:ident ),*) => {

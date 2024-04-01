@@ -1,4 +1,7 @@
 Article#: 1
-InstructionInline#: 4
-InstructionMessage#: 4
-Paragraph#: 3
+InsertInline#: 1
+InstructionInline#: 6
+InstructionMessage#: 6
+MathInline#: 1
+Paragraph#: 4
+ReplaceInline#: 1

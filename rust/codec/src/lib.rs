@@ -184,7 +184,7 @@ pub trait Codec: Sync + Send {
         &self,
         bytes: &[u8],
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses)> {
+    ) -> Result<(Node, Losses, Mapping)> {
         bail!(
             "Decoding from bytes is not implemented for codec `{}`",
             self.name()
@@ -193,7 +193,11 @@ pub trait Codec: Sync + Send {
 
     /// Decode a Stencila Schema node from a string
     #[allow(unused_variables, clippy::wrong_self_convention)]
-    async fn from_str(&self, str: &str, options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+    async fn from_str(
+        &self,
+        str: &str,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses, Mapping)> {
         self.from_bytes(str.as_bytes(), options).await
     }
 
@@ -207,7 +211,7 @@ pub trait Codec: Sync + Send {
         &self,
         file: &mut File,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses)> {
+    ) -> Result<(Node, Losses, Mapping)> {
         if self.supports_from_bytes() {
             let mut content = Vec::new();
             file.read_to_end(&mut content).await?;
@@ -225,7 +229,7 @@ pub trait Codec: Sync + Send {
         &self,
         path: &Path,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses)> {
+    ) -> Result<(Node, Losses, Mapping)> {
         if !path.exists() {
             bail!("Path `{}` does not exist", path.display());
         }
@@ -240,7 +244,7 @@ pub trait Codec: Sync + Send {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(Vec<u8>, Losses)> {
+    ) -> Result<(Vec<u8>, Losses, Mapping)> {
         bail!(
             "Encoding to bytes is not implemented for codec `{}`",
             self.name()
@@ -254,13 +258,11 @@ pub trait Codec: Sync + Send {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, Losses, Mapping)> {
-        self.to_bytes(node, options).await.map(|(bytes, losses)| {
-            (
-                String::from_utf8_lossy(&bytes).to_string(),
-                losses,
-                Mapping::none(),
-            )
-        })
+        self.to_bytes(node, options)
+            .await
+            .map(|(bytes, losses, mapping)| {
+                (String::from_utf8_lossy(&bytes).to_string(), losses, mapping)
+            })
     }
 
     /// Encode a Stencila Schema to a file
@@ -270,22 +272,22 @@ pub trait Codec: Sync + Send {
         node: &Node,
         file: &mut File,
         options: Option<EncodeOptions>,
-    ) -> Result<Losses> {
+    ) -> Result<(Losses, Mapping)> {
         let mut options = options.unwrap_or_default();
         if options.standalone.is_none() {
             options.standalone = Some(true);
         }
 
-        let (content, losses) = if self.supports_to_bytes() {
+        let (content, losses, mapping) = if self.supports_to_bytes() {
             self.to_bytes(node, Some(options)).await
         } else {
             self.to_string(node, Some(options))
                 .await
-                .map(|(string, losses, ..)| (string.as_bytes().to_vec(), losses))
+                .map(|(string, losses, mapping)| (string.as_bytes().to_vec(), losses, mapping))
         }?;
         file.write_all(&content).await?;
 
-        Ok(losses)
+        Ok((losses, mapping))
     }
 
     /// Encode a Stencila Schema to a file system path
@@ -295,7 +297,7 @@ pub trait Codec: Sync + Send {
         node: &Node,
         path: &Path,
         options: Option<EncodeOptions>,
-    ) -> Result<Losses> {
+    ) -> Result<(Losses, Mapping)> {
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;
         }

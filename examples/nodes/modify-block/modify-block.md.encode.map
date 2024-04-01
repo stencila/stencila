@@ -1,0 +1,15 @@
+ start    end    offsets   node_id                  node_type+property
+     0     55       0/55   txt_11111111             Text
+     0     55        0/0   pgh_11111112             Paragraph.content
+     0     56        0/1   pgh_11111112             Paragraph
+    72     78      72/22   cdc_11111113             CodeChunk.programming_language
+    84     95      12/17   cdc_11111113             CodeChunk.code
+    69    100      -15/5   cdc_11111113             CodeChunk
+    69    101        0/1   mdb_11111118             ModifyBlock.content
+   114    124      45/23   cdc_11111112R            CodeChunk.programming_language
+   130    142      16/18   cdc_11111112R            CodeChunk.code
+   111    147      -19/5   cdc_11111112R            CodeChunk
+   111    148        0/1   mdb_11111118             ModifyBlock.operations
+    57    152      -54/4   mdb_11111118             ModifyBlock
+     0    153      -57/1   art_11111119             Article.content
+     0    152       0/-1   art_11111119             Article

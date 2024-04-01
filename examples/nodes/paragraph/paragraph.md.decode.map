@@ -1,0 +1,6 @@
+ start    end    offsets   node_id                  node_type+property
+     0     44       0/44   pgh_11111113L            Paragraph
+    46     82      46/38   pgh_11111113N            Paragraph
+    84    188     38/106   pgh_11111113Q            Paragraph
+   190    303    106/115   pgh_11111113S            Paragraph
+     0    303     -190/0   art_11111113T            Article

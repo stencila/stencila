@@ -14,7 +14,7 @@ use super::suggestion_status::SuggestionStatus;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ReplaceInline")]
-#[markdown(template = "{~~{{content}}~>{{replacement}}~~}")]
+#[markdown(template = "[[replace {{content}}>>{{replacement}}]]")]
 pub struct ReplaceInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

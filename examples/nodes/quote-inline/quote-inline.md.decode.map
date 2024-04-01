@@ -1,0 +1,4 @@
+ start    end    offsets   node_id                  node_type+property
+    16     68      16/68   qti_111111123            QuoteInline
+     0     69      -16/1   pgh_111111125            Paragraph
+     0     69        0/0   art_111111126            Article

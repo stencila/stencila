@@ -30,6 +30,5 @@ content:
       value: ' and '
     - type: CodeExpression
       code: 2 + 2
-      programmingLanguage: ''
   - type: Text
     value: .

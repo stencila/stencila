@@ -10,7 +10,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With no language: "
+          "value": "With no language:"
         }
       ]
     },
@@ -23,7 +23,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With language: "
+          "value": "With language:"
         }
       ]
     },
@@ -37,7 +37,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With language and autoExec: "
+          "value": "With language and autoExec:"
         }
       ]
     },
@@ -52,7 +52,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With label: "
+          "value": "With label:"
         }
       ]
     },
@@ -66,7 +66,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Code figure with caption: "
+          "value": "Code figure with caption:"
         }
       ]
     },
@@ -93,7 +93,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Code table with caption: "
+          "value": "Code table with caption:"
         }
       ]
     },

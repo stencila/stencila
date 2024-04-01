@@ -8,7 +8,8 @@ impl MarkdownCodec for IncludeBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self))
-            .push_str("<< ")
+            .push_semis()
+            .push_str(" include ")
             .push_prop_str("source", &self.source);
 
         if self.auto_exec.is_some() || self.media_type.is_some() || self.select.is_some() {

@@ -76,7 +76,11 @@ impl Codec for JsonLdCodec {
         CodecSupport::NoLoss
     }
 
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+    async fn from_str(
+        &self,
+        str: &str,
+        _options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses, Mapping)> {
         let mut value: Value = serde_json::from_str(str)?;
 
         value.as_object_mut().map(|obj| obj.remove("@context"));
@@ -87,7 +91,7 @@ impl Codec for JsonLdCodec {
             serde_json::from_value(value)?
         };
 
-        Ok((node, Losses::none()))
+        Ok((node, Losses::none(), Mapping::none()))
     }
 
     async fn to_string(

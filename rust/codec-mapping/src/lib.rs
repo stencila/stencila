@@ -1,6 +1,8 @@
 use std::{fmt::Display, ops::Range};
 
-use common::{serde::Serialize, serde_with::skip_serializing_none, smol_str::SmolStr};
+use common::{
+    itertools::Itertools, serde::Serialize, serde_with::skip_serializing_none, smol_str::SmolStr,
+};
 
 pub use node_id::NodeId;
 pub use node_type::NodeType;
@@ -77,12 +79,73 @@ impl Mapping {
         };
         self.entries.push(entry)
     }
+
+    /// Replace an entry for with a new node type and id
+    pub fn replace(&mut self, node_id: NodeId, new_node_type: NodeType, new_node_id: NodeId) {
+        self.entries
+            .iter_mut()
+            .find(|entry| entry.node_id == node_id)
+            .map(|entry| {
+                entry.node_type = new_node_type;
+                entry.node_id = new_node_id;
+            });
+    }
+
+    /// Extend an entry to the end of another
+    pub fn extend(&mut self, first_node_id: NodeId, second_node_id: NodeId) {
+        // Get the second entry
+        if let Some((second_index, second_entry)) = self
+            .entries
+            .iter()
+            .find_position(|entry| entry.node_id == second_node_id)
+        {
+            let second_start = second_entry.range.start;
+            let second_end = second_entry.range.end;
+
+            // Find the first entry
+            if let Some((first_index, ..)) = self
+                .entries
+                .iter()
+                .find_position(|entry| entry.node_id == first_node_id)
+            {
+                // Remove the first entry
+                let MappingEntry {
+                    range: Range { start, .. },
+                    node_type,
+                    node_id,
+                    property,..
+                } = self.entries.remove(first_index);
+
+                // Add a new entry after the second with appropriate offsets
+                let entry = MappingEntry {
+                    range: start..second_end,
+                    start_offset: start as i32 - second_start as i32,
+                    end_offset: 0,
+                    node_type,
+                    node_id,
+                    property,
+                };
+                self.entries.insert(second_index, entry);
+            }
+        }
+    }
+
+    /// Remove an entry
+    pub fn remove(&mut self, node_id: NodeId) {
+        self.entries.retain(|entry| entry.node_id != node_id)
+    }
 }
 
 impl Display for Mapping {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(
+            f,
+            "{:>6} {:>6} {:>10}   {:<24} {}",
+            "start", "end", "offsets", "node_id", "node_type+property"
+        )?;
+
         for MappingEntry {
-            range,
+            range: Range { start, end },
             start_offset,
             end_offset,
             node_type,
@@ -90,14 +153,17 @@ impl Display for Mapping {
             property,
         } in &self.entries
         {
+            let offsets = format!("{start_offset}/{end_offset}");
+
+            let node_id = node_id.to_string();
+
+            let prop = property
+                .as_ref()
+                .map_or_else(String::new, |prop| format!(".{prop}"));
+
             writeln!(
                 f,
-                "{:<5} {:<5} {start_offset:<5} {end_offset:<5} {node_id} {node_type}{}",
-                range.start,
-                range.end,
-                property
-                    .as_ref()
-                    .map_or_else(String::new, |prop| format!(".{prop}"))
+                "{start:>6} {end:>6} {offsets:>10}   {node_id:<24} {node_type}{prop}"
             )?;
         }
 

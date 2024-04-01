@@ -138,18 +138,67 @@
           "hasParts": [
             {
               "@type": "Text",
-              "value": "insert a code chunk"
+              "value": "analyze data"
             }
           ]
         }
       ],
-      "stencila:assignee": "assistant",
+      "stencila:assignee": "insert-code-chunk",
       "stencila:suggestion": {
         "@type": "stencila:InsertBlock",
         "stencila:content": [
           {
             "@type": "stencila:CodeChunk",
             "stencila:code": "some code"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An edit instruction with a suggestion:"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:messages": [
+        {
+          "@type": "stencila:InstructionMessage",
+          "hasParts": [
+            {
+              "@type": "Text",
+              "value": "more succinct"
+            }
+          ]
+        }
+      ],
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "A rather long winded paragraph."
+            }
+          ]
+        }
+      ],
+      "stencila:suggestion": {
+        "@type": "stencila:ReplaceBlock",
+        "stencila:content": [],
+        "stencila:replacement": [
+          {
+            "@type": "stencila:Paragraph",
+            "stencila:content": [
+              {
+                "@type": "Text",
+                "value": "A paragraph."
+              }
+            ]
           }
         ]
       }

@@ -1,15 +1,15 @@
 An insert instruction with no assignee:
 
-// insert a 4x10 table
+::: do insert a 4x10 table
 
 An insert instruction with an assignee:
 
-// @insert-table top five highest mountains, with height in metres
+::: do @insert-table top five highest mountains, with height in metres
 
 An edit instruction (has content) with no assignee:
 
-// improve this paragraph
-:::
+::: do improve this paragraph
+::: with
 
 The paragraph to be improved.
 
@@ -17,8 +17,8 @@ The paragraph to be improved.
 
 An edit instruction with an assignee:
 
-// @anne please improve this paragraph
-:::
+::: do @anne please improve this paragraph
+::: with
 
 Another paragraph to be improved.
 
@@ -26,12 +26,28 @@ Another paragraph to be improved.
 
 An insert instruction with an assignee and a suggestion:
 
-// @assistant insert a code chunk
+::: do @insert-code-chunk analyze data
 
-++
+::: insert
 
 ```exec
 some code
 ```
 
-++
+:::
+
+An edit instruction with a suggestion:
+
+::: do more succinct
+::: with
+
+A rather long winded paragraph.
+
+:::
+
+::: replace
+::: with
+
+A paragraph.
+
+:::

@@ -1,4 +1,4 @@
-# TODO: Consider encoding `Delete` and `Insert` to JATS 
+# TODO: Consider encoding `InsertBlock` to JATS 
 compact.jats.xml:
   decode:
     skip: true

@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "With no language: "
+          value: "With no language:"
         }
       ]
     },
@@ -19,7 +19,7 @@
       content: [
         {
           type: "Text",
-          value: "With language: "
+          value: "With language:"
         }
       ]
     },
@@ -33,7 +33,7 @@
       content: [
         {
           type: "Text",
-          value: "With language and autoExec: "
+          value: "With language and autoExec:"
         }
       ]
     },
@@ -48,7 +48,7 @@
       content: [
         {
           type: "Text",
-          value: "With label: "
+          value: "With label:"
         }
       ]
     },
@@ -62,7 +62,7 @@
       content: [
         {
           type: "Text",
-          value: "Code figure with caption: "
+          value: "Code figure with caption:"
         }
       ]
     },
@@ -89,7 +89,7 @@
       content: [
         {
           type: "Text",
-          value: "Code table with caption: "
+          value: "Code table with caption:"
         }
       ]
     },

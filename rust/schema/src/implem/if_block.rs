@@ -8,11 +8,9 @@ impl MarkdownCodec for IfBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self));
 
-        let fence = ":".repeat(3 + context.depth * 2);
-
         for (index, clause @ IfBlockClause { code, .. }) in self.clauses.iter().enumerate() {
             context
-                .push_str(&fence)
+                .push_semis()
                 .push_str(if index == 0 {
                     " if "
                 } else if code.is_empty() && index == self.clauses.len() - 1 {
@@ -26,9 +24,9 @@ impl MarkdownCodec for IfBlock {
         }
 
         if !self.clauses.is_empty() {
-            context.push_str(&fence).newline().exit_node().newline();
+            context.push_semis().newline().exit_node().newline();
+        } else {
+            context.exit_node();
         }
-
-        context.exit_node();
     }
 }

@@ -26,15 +26,13 @@ impl MarkdownCodec for Section {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        let fence = ":".repeat(3 + context.depth * 2);
-
         if let Some(section) = &self.section_type {
             context
-                .push_str(&fence)
+                .push_semis()
                 .push_str(" ")
                 .push_prop_str("section_type", &section.to_string().to_lowercase());
         } else {
-            context.push_str(&fence).push_str(" section");
+            context.push_semis().push_str(" section");
         }
 
         context
@@ -42,7 +40,7 @@ impl MarkdownCodec for Section {
             .increase_depth()
             .push_prop_fn("content", |context| self.content.to_markdown(context))
             .decrease_depth()
-            .push_str(&fence)
+            .push_semis()
             .newline()
             .exit_node()
             .newline();
