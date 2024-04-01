@@ -1,10 +1,4 @@
-# TODO: Consider encoding `Delete` and `Insert` to JATS
+# TODO: Consider encoding `InsertInline` to JATS
 compact.jats.xml:
-  decode:
-    skip: true
-
-# TODO: Enable when decoding of `InsertInline` with more complex
-# inlines is implemented
-md:
   decode:
     skip: true
