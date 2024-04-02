@@ -71,12 +71,6 @@ impl MarkdownCodec for Parameter {
             context.push_prop_str("validator", name);
         }
 
-        if let Some(val) = &self.value {
-            context
-                .push_str(" val=")
-                .push_prop_str("value", &node_to_md(val));
-        }
-
         if let Some(val) = &self.options.default {
             context
                 .push_str(" def=")

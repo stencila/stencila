@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <p>Examples of the parameter type can be inferred from options when using Markdown.</p>
+    <p>No options and no type, so no validator:<parameter name="par1">
+      </parameter>.</p>
+    <p>Options only found on string parameters:<parameter name="par1">
+      </parameter>,<parameter name="par2">
+      </parameter>,<parameter name="par3">
+      </parameter>.</p>
+    <p>Option<code>vals</code>is only on &quot;enum&quot; parameters:<parameter name="par1">
+      </parameter>.</p>
+    <p>Options specified as bool:<parameter name="par1">
+      </parameter>.</p>
+    <p>Options specified as integer:<parameter name="par1">
+      </parameter>,<parameter name="par2">
+      </parameter>,<parameter name="par3">
+      </parameter>.</p>
+    <p>Options specified as number:<parameter name="par1">
+      </parameter>,<parameter name="par2">
+      </parameter>,<parameter name="par3">
+      </parameter>,<parameter name="par4">
+      </parameter>.</p>
+    <p>Options specified as date:<parameter name="par1">
+      </parameter>.</p>
+    <p>Options specified as time:<parameter name="par1">
+      </parameter>.</p>
+    <p>Options specified as datetime:<parameter name="par1">
+      </parameter>.</p>
+  </body>
+</article>

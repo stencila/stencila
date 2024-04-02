@@ -213,13 +213,13 @@ impl MarkdownCodec for StringValidator {
 
         if let Some(min) = &self.min_length {
             context
-                .push_str(" min=")
+                .push_str(" minlen=")
                 .push_prop_str("min_length", &min.to_string());
         }
 
         if let Some(max) = &self.max_length {
             context
-                .push_str(" max=")
+                .push_str(" maxlen=")
                 .push_prop_str("max_length", &max.to_string());
         }
 

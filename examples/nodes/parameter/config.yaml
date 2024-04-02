@@ -5,3 +5,9 @@ compact.jats.xml:
       - Parameter.value
       - ParameterOptions.default
       - ParameterOptions.validator
+
+md:
+  decode:
+    # Encoding/decoding of parameter to Markdown is not supported (source property)
+    strip-props:
+      - Parameter.value

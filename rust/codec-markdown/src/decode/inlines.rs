@@ -10,16 +10,16 @@ use winnow::{
 };
 
 use codec::{
-    common::{indexmap::IndexMap, itertools::Itertools},
+    common::{indexmap::IndexMap, itertools::Itertools, tracing},
     format::Format,
     schema::{
         AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
         ImageObject, Inline, InsertInline, InstructionInline, InstructionInlineOptions,
-        InstructionMessage, IntegerValidator, Link, MathInline, ModifyInline, Node, Note, NoteType,
-        NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline, Strikeout,
-        StringValidator, Strong, StyledInline, Subscript, SuggestionInlineType, Superscript, Text,
-        TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+        InstructionMessage, IntegerValidator, Link, MathInline, ModifyInline, Node, NodeType, Note,
+        NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline,
+        Strikeout, StringValidator, Strong, StyledInline, Subscript, SuggestionInlineType,
+        Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
@@ -520,217 +520,192 @@ fn cite_group(input: &mut Located<&str>) -> PResult<Inline> {
 fn parameter(input: &mut Located<&str>) -> PResult<Inline> {
     (delimited("&[", name, ']'), opt(attrs))
         .map(|(name, attrs)| {
-            let attrs = attrs.unwrap_or_default();
-            let first = attrs
-                .first()
-                .map(|(name, ..)| Some(Node::String(name.to_string())));
+            let mut options: HashMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
 
-            let mut options: HashMap<&str, Option<Node>> = attrs.into_iter().collect();
-
-            let typ = options
-                .remove("type")
-                .or(first.clone())
-                .flatten()
-                .map(node_to_string);
-            let typ = typ.as_deref();
-
+            // Properties for parameters, regardless of validator type
             let label = options.remove("label").flatten().map(node_to_string);
+            let default = options
+                .remove("default")
+                .or_else(|| options.remove("def"))
+                .flatten();
 
-            let validator = if matches!(typ, Some("boolean")) || matches!(typ, Some("bool")) {
-                Some(Validator::BooleanValidator(BooleanValidator::default()))
-            } else if matches!(typ, Some("enum")) {
-                let values = options.remove("vals").flatten();
-                let values = match values {
-                    Some(node) => match node {
-                        // Usually the supplied node is an array, which we need to convert
-                        // to a vector of `Node`s
-                        Node::Array(array) => array
-                            .iter()
-                            .map(|primitive| primitive.clone().into())
-                            .collect(),
-                        _ => vec![node],
-                    },
-                    None => vec![],
-                };
-                Some(Validator::EnumValidator(EnumValidator {
-                    values,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("integer")) || matches!(typ, Some("int")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let exclusive_minimum = options
-                    .remove("emin")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let exclusive_maximum = options
-                    .remove("emax")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let multiple_of = options
-                    .remove("mult")
-                    .or_else(|| options.remove("step"))
-                    .flatten()
-                    .and_then(node_to_option_number);
-                Some(Validator::IntegerValidator(IntegerValidator {
-                    minimum,
-                    exclusive_minimum,
-                    maximum,
-                    exclusive_maximum,
-                    multiple_of,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("number")) || matches!(typ, Some("num")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let exclusive_minimum = options
-                    .remove("emin")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let exclusive_maximum = options
-                    .remove("emax")
-                    .flatten()
-                    .and_then(node_to_option_number);
-                let multiple_of = options
-                    .remove("mult")
-                    .or_else(|| options.remove("step"))
-                    .flatten()
-                    .and_then(node_to_option_number);
-                Some(Validator::NumberValidator(NumberValidator {
-                    minimum,
-                    exclusive_minimum,
-                    maximum,
-                    exclusive_maximum,
-                    multiple_of,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("string")) || matches!(typ, Some("str")) {
-                let min_length = options
-                    .remove("minlength")
-                    .or_else(|| options.remove("min"))
-                    .flatten()
-                    .and_then(node_to_option_i64);
-                let max_length = options
-                    .remove("maxlength")
-                    .or_else(|| options.remove("max"))
-                    .flatten()
-                    .and_then(node_to_option_i64);
-                let pattern = options
-                    .remove("pattern")
-                    .or_else(|| options.remove("regex"))
-                    .flatten()
-                    .map(node_to_string);
-                Some(Validator::StringValidator(StringValidator {
-                    min_length,
-                    max_length,
-                    pattern,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("date")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_date);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_date);
-                Some(Validator::DateValidator(DateValidator {
-                    minimum,
-                    maximum,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("time")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_time);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_time);
-                Some(Validator::TimeValidator(TimeValidator {
-                    minimum,
-                    maximum,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("datetime")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_datetime);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_datetime);
-                Some(Validator::DateTimeValidator(DateTimeValidator {
-                    minimum,
-                    maximum,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("timestamp")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_timestamp);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_timestamp);
-                Some(Validator::TimestampValidator(TimestampValidator {
-                    minimum,
-                    maximum,
-                    ..Default::default()
-                }))
-            } else if matches!(typ, Some("duration")) {
-                let minimum = options
-                    .remove("min")
-                    .flatten()
-                    .and_then(node_to_option_duration);
-                let maximum = options
-                    .remove("max")
-                    .flatten()
-                    .and_then(node_to_option_duration);
-                Some(Validator::DurationValidator(DurationValidator {
-                    minimum,
-                    maximum,
-                    ..Default::default()
-                }))
+            // The type of validator: either using the explicit `type=` or the attribute
+            // that does not have a value e.g `bool`, `num`
+            let validator_type = options
+                .remove("type")
+                .flatten()
+                .map(node_to_string)
+                .or_else(|| {
+                    options
+                        .iter()
+                        .find_map(|(key, value)| value.is_none().then_some(key.to_string()))
+                });
+
+            // Properties for many types of validators
+            let minimum = options.remove("min").flatten();
+            let maximum = options.remove("max").flatten();
+
+            // Properties for `EnumValidator`
+            let values = options.remove("vals").flatten();
+
+            // Properties for `IntegerValidator` and `NumberValidator`
+            let exclusive_minimum = options.remove("emin").flatten();
+            let exclusive_maximum = options.remove("emax").flatten();
+            let multiple_of = options
+                .remove("mult")
+                .or_else(|| options.remove("step"))
+                .flatten();
+
+            // Properties for `StringValidator`
+            let min_length = options
+                .remove("minlen")
+                .or_else(|| options.remove("minlength"))
+                .flatten();
+            let max_length = options
+                .remove("maxlen")
+                .or_else(|| options.remove("maxlength"))
+                .flatten();
+            let pattern = options
+                .remove("pattern")
+                .or_else(|| options.remove("regex"))
+                .flatten();
+
+            // If the validator type is specified with a string, map that to the actual type.
+            // If it is not specified, attempt to infer it from other options.
+            let validator_type = if let Some(validator_type) = validator_type {
+                match validator_type.to_lowercase().as_str() {
+                    "bool" | "boolean" => Some(NodeType::BooleanValidator),
+                    "enum" => Some(NodeType::EnumValidator),
+                    "int" | "integer" => Some(NodeType::IntegerValidator),
+                    "num" | "number" => Some(NodeType::NumberValidator),
+                    "str" | "string" => Some(NodeType::StringValidator),
+                    "date" => Some(NodeType::DateValidator),
+                    "time" => Some(NodeType::TimeValidator),
+                    "datetime" => Some(NodeType::DateTimeValidator),
+                    "timestamp" => Some(NodeType::TimestampValidator),
+                    "duration" => Some(NodeType::DurationValidator),
+                    _ => {
+                        tracing::warn!("Unknown parameter type `{validator_type}`");
+                        None
+                    }
+                }
+            } else if min_length.is_some() || max_length.is_some() || pattern.is_some() {
+                Some(NodeType::StringValidator)
+            } else if let Some(node) = default
+                .as_ref()
+                .or(minimum.as_ref())
+                .or(maximum.as_ref())
+                .or(exclusive_minimum.as_ref())
+                .or(exclusive_maximum.as_ref())
+                .or(multiple_of.as_ref())
+            {
+                match node {
+                    Node::Boolean(..) => Some(NodeType::BooleanValidator),
+                    Node::Integer(..) => Some(NodeType::IntegerValidator),
+                    Node::Number(..) => Some(NodeType::NumberValidator),
+                    Node::String(..) => Some(NodeType::StringValidator),
+                    Node::Date(..) => Some(NodeType::DateValidator),
+                    Node::Time(..) => Some(NodeType::TimeValidator),
+                    Node::DateTime(..) => Some(NodeType::DateTimeValidator),
+                    Node::Timestamp(..) => Some(NodeType::TimestampValidator),
+                    Node::Duration(..) => Some(NodeType::DurationValidator),
+                    _ => {
+                        tracing::warn!(
+                            "Unable to infer parameter type from default, min or max value"
+                        );
+                        None
+                    }
+                }
             } else {
                 None
             };
 
-            let default = options
-                .remove("default")
-                .or_else(|| options.remove("def"))
-                .flatten()
-                .map(Box::new);
-
-            let value = options
-                .remove("value")
-                .or_else(|| options.remove("val"))
-                .flatten()
-                .map(Box::new);
+            // Map the validator type into a validator
+            let validator = validator_type.and_then(|vt| match vt {
+                NodeType::BooleanValidator => {
+                    Some(Validator::BooleanValidator(BooleanValidator::default()))
+                }
+                NodeType::EnumValidator => {
+                    let values = values
+                        .map(|node| {
+                            match node {
+                                // Usually the supplied node is an array, which we need to convert
+                                // to a vector of `Node`s
+                                Node::Array(array) => array
+                                    .iter()
+                                    .map(|primitive| primitive.clone().into())
+                                    .collect(),
+                                _ => vec![node],
+                            }
+                        })
+                        .unwrap_or_default();
+                    Some(Validator::EnumValidator(EnumValidator {
+                        values,
+                        ..Default::default()
+                    }))
+                }
+                NodeType::IntegerValidator => Some(Validator::IntegerValidator(IntegerValidator {
+                    minimum: minimum.and_then(node_to_option_number),
+                    exclusive_minimum: exclusive_minimum.and_then(node_to_option_number),
+                    maximum: maximum.and_then(node_to_option_number),
+                    exclusive_maximum: exclusive_maximum.and_then(node_to_option_number),
+                    multiple_of: multiple_of.and_then(node_to_option_number),
+                    ..Default::default()
+                })),
+                NodeType::NumberValidator => Some(Validator::NumberValidator(NumberValidator {
+                    minimum: minimum.and_then(node_to_option_number),
+                    exclusive_minimum: exclusive_minimum.and_then(node_to_option_number),
+                    maximum: maximum.and_then(node_to_option_number),
+                    exclusive_maximum: exclusive_maximum.and_then(node_to_option_number),
+                    multiple_of: multiple_of.and_then(node_to_option_number),
+                    ..Default::default()
+                })),
+                NodeType::StringValidator => Some(Validator::StringValidator(StringValidator {
+                    min_length: min_length.and_then(node_to_option_i64),
+                    max_length: max_length.and_then(node_to_option_i64),
+                    pattern: pattern.map(node_to_string),
+                    ..Default::default()
+                })),
+                NodeType::DateValidator => Some(Validator::DateValidator(DateValidator {
+                    minimum: minimum.and_then(node_to_option_date),
+                    maximum: maximum.and_then(node_to_option_date),
+                    ..Default::default()
+                })),
+                NodeType::TimeValidator => Some(Validator::TimeValidator(TimeValidator {
+                    minimum: minimum.and_then(node_to_option_time),
+                    maximum: maximum.and_then(node_to_option_time),
+                    ..Default::default()
+                })),
+                NodeType::DateTimeValidator => {
+                    Some(Validator::DateTimeValidator(DateTimeValidator {
+                        minimum: minimum.and_then(node_to_option_datetime),
+                        maximum: maximum.and_then(node_to_option_datetime),
+                        ..Default::default()
+                    }))
+                }
+                NodeType::TimestampValidator => {
+                    Some(Validator::TimestampValidator(TimestampValidator {
+                        minimum: minimum.and_then(node_to_option_timestamp),
+                        maximum: maximum.and_then(node_to_option_timestamp),
+                        ..Default::default()
+                    }))
+                }
+                NodeType::DurationValidator => {
+                    Some(Validator::DurationValidator(DurationValidator {
+                        minimum: minimum.and_then(node_to_option_duration),
+                        maximum: maximum.and_then(node_to_option_duration),
+                        ..Default::default()
+                    }))
+                }
+                _ => None,
+            });
 
             Inline::Parameter(Parameter {
                 name: name.into(),
-                value,
                 options: Box::new(ParameterOptions {
                     label,
                     validator,
-                    default,
+                    default: default.map(Box::new),
                     ..Default::default()
                 }),
                 ..Default::default()

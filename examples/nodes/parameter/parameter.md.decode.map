@@ -1,24 +1,24 @@
  start    end    offsets   node_id                  node_type+property
     20     39      20/39   par_111111AV             Parameter
     56     84      36/45   par_111111AY             Parameter
-   111    149      55/65   par_111111Ab             Parameter
-     0    149     -111/0   pgh_111111Ac             Paragraph
-   172    189     172/40   par_111111Af             Parameter
-   206    231      34/42   par_111111Ai             Parameter
-   258    291      52/60   par_111111Am             Parameter
-   324    380      66/89   par_111111Ap             Parameter
-   151    380     -173/0   pgh_111111Aq             Paragraph
-   401    484    250/104   par_111111At             Parameter
-   382    484      -19/0   pgh_111111Au             Paragraph
-   505    573     123/89   par_111111Ax             Parameter
-   600    651      95/78   par_111111B1             Parameter
-   486    651     -114/0   pgh_111111B2             Paragraph
-   670    755    184/104   par_111111B7             Parameter
-   653    755      -17/0   pgh_111111B8             Paragraph
-   774    839     121/84   par_111111BD             Parameter
-   757    839      -17/0   pgh_111111BE             Paragraph
-   863    981    106/142   par_111111BK             Parameter
-   841    981      -22/0   pgh_111111BL             Paragraph
-  1001   1068     160/87   par_111111BP             Parameter
-   983   1068      -18/0   pgh_111111BQ             Paragraph
-     0   1068     -983/0   art_111111BR             Article
+   111    140      55/56   par_111111Ab             Parameter
+     0    140     -111/0   pgh_111111Ac             Paragraph
+   163    180     163/40   par_111111Af             Parameter
+   197    222      34/42   par_111111Ai             Parameter
+   249    274      52/52   par_111111Am             Parameter
+   307    356      58/82   par_111111Ap             Parameter
+   142    356     -165/0   pgh_111111Aq             Paragraph
+   377    452     235/96   par_111111At             Parameter
+   358    452      -19/0   pgh_111111Au             Paragraph
+   473    538     115/86   par_111111Ax             Parameter
+   565    606      92/68   par_111111B1             Parameter
+   454    606     -111/0   pgh_111111B2             Paragraph
+   625    693     171/87   par_111111B7             Parameter
+   608    693      -17/0   pgh_111111B8             Paragraph
+   712    765     104/72   par_111111BD             Parameter
+   695    765      -17/0   pgh_111111BE             Paragraph
+   789    884     94/119   par_111111BK             Parameter
+   767    884      -22/0   pgh_111111BL             Paragraph
+   904    961     137/77   par_111111BP             Parameter
+   886    961      -18/0   pgh_111111BQ             Paragraph
+     0    961     -886/0   art_111111BR             Article
