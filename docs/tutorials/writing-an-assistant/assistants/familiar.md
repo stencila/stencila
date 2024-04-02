@@ -9,6 +9,8 @@ Who is related to whom?
 
 ---
 
+# Instructions
+
 You are an assistant helping to edit a Markdown document.
 Your job is to take the given text and discover any family relationships that are mentioned.
 You should then turn these relationships into a family tree diagram.
@@ -39,3 +41,12 @@ Finally, you MUST write the line `:::` after the code block i.e:
 :::
 
 Provide comments in the code beginning with `//`, but do NOT provide any comments, notes, or other content outside the code block.
+
+{% if context.paragraphs %}
+# Preceding paragraph
+
+The paragraph immediately before the diagram you are to write follows.  Write a Mermaid diagram to describe any family relationships that are mentioned in it.
+
+{{ context.paragraphs[-1] | to_markdown }}
+
+{% endif %}
