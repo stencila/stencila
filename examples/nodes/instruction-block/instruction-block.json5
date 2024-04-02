@@ -53,6 +53,30 @@
       content: [
         {
           type: "Text",
+          value: "An insert instruction with an assignee but a blank instruction"
+        }
+      ]
+    },
+    {
+      type: "InstructionBlock",
+      messages: [
+        {
+          type: "InstructionMessage",
+          parts: [
+            {
+              type: "Text",
+              value: ""
+            }
+          ]
+        }
+      ],
+      assignee: "insert-code-chunk"
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
           value: "An edit instruction (has content) with no assignee:"
         }
       ]

@@ -57,6 +57,30 @@
       "stencila:content": [
         {
           "@type": "Text",
+          "value": "An insert instruction with an assignee but a blank instruction"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:messages": [
+        {
+          "@type": "stencila:InstructionMessage",
+          "hasParts": [
+            {
+              "@type": "Text",
+              "value": ""
+            }
+          ]
+        }
+      ],
+      "stencila:assignee": "insert-code-chunk"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
           "value": "An edit instruction (has content) with no assignee:"
         }
       ]

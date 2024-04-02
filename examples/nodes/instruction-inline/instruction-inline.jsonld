@@ -89,6 +89,25 @@
         },
         {
           "@type": "Text",
+          "value": " with a blank instruction "
+        },
+        {
+          "@type": "stencila:InstructionInline",
+          "stencila:messages": [
+            {
+              "@type": "stencila:InstructionMessage",
+              "hasParts": [
+                {
+                  "@type": "Text",
+                  "value": ""
+                }
+              ]
+            }
+          ],
+          "stencila:assignee": "insert-math-inline"
+        },
+        {
+          "@type": "Text",
           "value": " and "
         },
         {

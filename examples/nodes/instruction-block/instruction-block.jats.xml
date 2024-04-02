@@ -3,6 +3,7 @@
   <body>
     <p>An insert instruction with no assignee:</p>
     <p>An insert instruction with an assignee:</p>
+    <p>An insert instruction with an assignee but a blank instruction</p>
     <p>An edit instruction (has content) with no assignee:</p>
     <p>An edit instruction with an assignee:</p>
     <p>An insert instruction with an assignee and a suggestion:</p>

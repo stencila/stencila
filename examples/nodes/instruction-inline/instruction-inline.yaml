@@ -39,6 +39,15 @@ content:
         value: equation for surface area of cube
     assignee: insert-inline-math
   - type: Text
+    value: ' with a blank instruction '
+  - type: InstructionInline
+    messages:
+    - type: InstructionMessage
+      parts:
+      - type: Text
+        value: ''
+    assignee: insert-math-inline
+  - type: Text
     value: ' and '
   - type: InstructionInline
     messages:

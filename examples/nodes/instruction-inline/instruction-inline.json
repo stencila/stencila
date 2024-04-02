@@ -73,6 +73,20 @@
         },
         {
           "type": "Text",
+          "value": " with a blank instruction "
+        },
+        {
+          "type": "InstructionInline",
+          "assignee": "insert-math-inline",
+          "messages": [
+            {
+              "type": "InstructionMessage",
+              "parts": [{ "type": "Text", "value": "" }]
+            }
+          ]
+        },
+        {
+          "type": "Text",
           "value": " and "
         },
         {

@@ -509,18 +509,19 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("do", multispace0),
         (
-            opt(delimited('@', assignee, multispace1)),
-            alt((
+            opt(delimited('@', assignee, multispace0)),
+            opt(alt((
                 (
                     take_until(0.., ':'),
                     (take_while(3.., ':'), multispace0, opt("with")).value(true),
                 ),
                 (take_while(0.., |_| true), "".value(false)),
-            )),
+            ))),
         ),
     )
     .map(
-        |(assignee, (text, content)): (Option<&str>, (&str, bool))| {
+        |(assignee, message): (Option<&str>, Option<(&str, bool)>)| {
+            let (text, content) = message.unwrap_or_default();
             Block::InstructionBlock(InstructionBlock {
                 messages: vec![InstructionMessage::from(text.trim())],
                 content: if content { Some(Vec::new()) } else { None },
