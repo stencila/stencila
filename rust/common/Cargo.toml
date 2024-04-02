@@ -40,7 +40,7 @@ strum = { version = "0.26.2", features = ["derive"] }
 syn = "2.0.57"
 tar = "0.4.40"
 tempfile = "3.10.1"
-tokio = { version = "1.36.0", features = ["full", "tracing"] }
+tokio = { version = "1.37.0", features = ["full", "tracing"] }
 toml = "0.8.12"
 tracing = { version = "0.1.40", features = ["log"] }
 type-safe-id = "0.2.1"
