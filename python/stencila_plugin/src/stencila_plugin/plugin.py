@@ -7,9 +7,8 @@ import uuid
 from collections.abc import Sequence
 from typing import Any
 
-import cattrs
 from aiohttp import web
-from beartype import beartype
+from stencila_types import types as T
 from stencila_types.types import (
     ExecutionMessage,
     MessageLevel,
@@ -18,6 +17,7 @@ from stencila_types.types import (
     SoftwareSourceCode,
     Variable,
 )
+from stencila_types.utilities import from_value, make_stencila_converter
 
 from .assistant import (
     Assistant,
@@ -35,6 +35,25 @@ JsonDict = dict[str, Json]
 # According to the JSON-RPC spec, the id can be a string, integer, or null.
 IdType = str | int | None
 ParamsType = list | dict | None
+
+
+def make_rpc_converter():
+    """
+    Add some additional hooks for local unions that are NOT in the
+    stencila_types module.
+
+    SO AWKWARD!
+    """
+    converter = make_stencila_converter()
+    converter.register_structure_hook(
+        T.InstructionBlock | T.InstructionInline, lambda o, _: from_value(o)
+    )
+    return converter
+
+
+CONVERTER = make_rpc_converter()
+structure = CONVERTER.structure
+unstructure = CONVERTER.unstructure
 
 
 # TODO: We should really raise exceptions in the python code.
@@ -85,7 +104,7 @@ class Plugin:
         }
         self.kernel_instances: dict[KernelId, Kernel] = {}
 
-        # TODO: Maybe we should do this on demand?
+        # These are created per assistant (unlike kernels).
         self.assistants: dict[AssistantId, Assistant] = (
             {cls.get_name(): cls() for cls in assistants} if assistants else {}
         )
@@ -185,17 +204,21 @@ class Plugin:
         # Error?
         if instance is None:
             return None
+        task = structure(task, GenerateTask)
+        options = structure(options, GenerateOptions)
         return await instance.system_prompt(task, options)
 
-    async def assistant_execute(
-        self, task: dict[str, Any], options: GenerateOptions, assistant: AssistantId
+    async def assistant_perform_task(
+        self, task: dict[str, Any], options: dict[str, Any], assistant: AssistantId
     ) -> GenerateOutput:
         instance = self.assistants.get(assistant)
         if instance is None:
-            return GenerateOutput(content="ERROR")
+            # TODO: Unclear how errors are handled here.
+            return None
 
-        dtask = cattrs.structure(task, GenerateTask)
-        return await instance.execute(dtask, options)
+        task = structure(task, GenerateTask)
+        options = structure(options, GenerateOptions)
+        return await instance.perform_task(task, options)
 
     async def run(self) -> None:
         """Invoke the plugin.
@@ -245,14 +268,6 @@ async def _handle_json(
     return await _handle_rpc(plugin, method, params=params, msg_id=msg_id)  # type: ignore
 
 
-def _make_jsonable(result: Json):
-    if isinstance(result, bool | int | float | str | None):
-        return result
-
-    dct = cattrs.unstructure(result)
-    return dct
-
-
 async def _handle_rpc(
     plugin: Plugin,
     method: str,
@@ -282,14 +297,14 @@ async def _handle_rpc(
         try:
             result = await func(*args, **kwargs)
             try:
-                dct_result = _make_jsonable(result)
+                json_result = unstructure(result)
             except Exception as e:
                 return _error(
                     msg_id,
                     RPCErrorCodes.INTERNAL_ERROR,
                     f"Cannot convert result to JSON {e}",
                 )
-            return _success(msg_id, dct_result)
+            return _success(msg_id, json_result)
         except Exception as e:
             return _error(msg_id, RPCErrorCodes.INTERNAL_ERROR, f"Internal error: {e}")
     else:

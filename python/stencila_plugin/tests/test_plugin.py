@@ -1,13 +1,54 @@
 import pytest
+from stencila_types import shortcuts as S
 from stencila_types import types as T
 
+from stencila_plugin.assistant import GenerateOptions, GenerateOutput, GenerateTask
 from stencila_plugin.kernel import KernelInstance
+from stencila_plugin.plugin import Plugin, structure, unstructure
 from stencila_plugin.testing import (
     Harness,
     HttpHarness,
     HttpTestingError,
     RPCTestingError,
 )
+
+
+def test_structuring():
+    task = GenerateTask(
+        instruction=T.InstructionBlock(
+            messages=[],
+            content=[S.p("hello")],
+            suggestion=T.InsertBlock(content=[S.p("something")]),
+        ),
+        instruction_text="hello",
+        format="markdown",
+        content_formatted="",
+    )
+    x = unstructure(task)
+    structure(x, GenerateTask)
+
+
+async def test_assistant_direct():
+    from .plugin_example import MyAssistant, MyKernel
+
+    plugin = Plugin(kernels=[MyKernel], assistants=[MyAssistant])
+    task = GenerateTask(
+        instruction=T.InstructionBlock(
+            messages=[],
+            content=[S.p("hello")],
+            suggestion=T.InsertBlock(content=[S.p("something")]),
+        ),
+        instruction_text="hello",
+        format="markdown",
+        content_formatted="",
+    )
+    options = GenerateOptions()
+    output = await plugin.assistant_perform_task(
+        unstructure(task),
+        unstructure(options),
+        MyAssistant.get_name(),
+    )
+    assert isinstance(output, GenerateOutput)
 
 
 async def test_authentication_token_works(http_harness: HttpHarness):
@@ -34,24 +75,32 @@ async def test_bad_json(harness: Harness):
 async def test_kernel_rpc(harness: Harness):
     result = await harness.send_rpc("kernel_start", kernel="test")
     assert result is not None
-    ki = KernelInstance(**result)
+    ki = structure(result, KernelInstance)
 
     result = await harness.send_rpc("kernel_info", instance=ki.instance)
-
-    # Will throw if it cannot reconstruct it.
-    T.SoftwareApplication(**result)
+    structure(result, T.SoftwareApplication)
 
     result = await harness.send_rpc("kernel_packages", instance=ki.instance)
-    [T.SoftwareSourceCode(**dct) for dct in result]
+    structure(result, list[T.SoftwareSourceCode])
 
     await harness.send_rpc("kernel_stop", instance=ki.instance)
 
 
-async def test_kernel_invoke(harness: Harness):
-    """Try out harness methods that reconstruct the result."""
-    ki = await harness.send_rpc("kernel_start", kernel="test")
-    instance = ki.get("instance")
-
-    result = await harness.invoke("kernel_info", instance=instance)
-    assert isinstance(result, T.SoftwareApplication)
-    assert result.authors[0].name.startswith("Fred")
+async def test_assistant(stdio_harness: Harness):
+    task = unstructure(
+        GenerateTask(
+            instruction=T.InstructionBlock(
+                messages=[T.InstructionMessage(parts=[T.Text(value="hello")])]
+            ),
+            instruction_text="hello",
+            format="markdown",
+        )
+    )
+    await stdio_harness.send_rpc(
+        "assistant_system_prompt", task=task, options={}, assistant="test"
+    )
+    res = await stdio_harness.send_rpc(
+        "assistant_perform_task", task=task, options={}, assistant="test"
+    )
+    output = structure(res, GenerateOutput)
+    assert isinstance(output, GenerateOutput)

@@ -84,7 +84,7 @@ class Assistant(ABC):
     def get_name(cls) -> str:
         """Provide a name for the assistant.
 
-        This is required, and should be the same names that is provided in the
+        This is required, and should be the same name that is provided in the
         [[assistants]] section of the stencila_plugin.toml file.
         """
 
@@ -92,7 +92,7 @@ class Assistant(ABC):
         self, task: GenerateTask, options: GenerateOptions
     ) -> str | None:
         """
-        Execute an instruction using an assistant
+        Prepare the system prompt for an assistant
 
         This method is called by Stencila before executing an
         `InstructionBlock` or `InstructionInline` node so that the assistant
@@ -113,10 +113,16 @@ class Assistant(ABC):
         return ""
 
     @abstractmethod
-    async def execute(
+    async def perform_task(
         self, task: GenerateTask, options: GenerateOptions
     ) -> GenerateOutput:
-        """Execute the task and return the result.
-        This method should be implemented by subclasses to provide the
+        """
+        Execute an instruction using an assistant
+
+        This method is called by Stencila when executing `InstructionBlock` and
+        `InstructionInline` nodes.
+
+        It receives a `GenerateTask` and `GenerateOptions` and should return
+        a `GenerateOutput`. This default implementation raises an error.
         """
         raise NotImplementedError
