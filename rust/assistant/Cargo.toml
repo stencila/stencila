@@ -9,7 +9,7 @@ codec-markdown-trait = { path = "../codec-markdown-trait" }
 codecs = { path = "../codecs" }
 context = { path = "../context" }
 common = { path = "../common" }
-fastembed = { version = "3.2.0", optional = true }
+fastembed = { version = "3.3.0", optional = true }
 format = { path = "../format" }
 merge = "0.1.0"
 node-authorship = { path = "../node-authorship" }
