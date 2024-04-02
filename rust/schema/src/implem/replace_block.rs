@@ -1,6 +1,6 @@
 use codec_losses::lost_options;
 
-use crate::{prelude::*, ReplaceBlock};
+use crate::{prelude::*, ReplaceBlock, SuggestionStatus};
 
 impl MarkdownCodec for ReplaceBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
@@ -10,7 +10,9 @@ impl MarkdownCodec for ReplaceBlock {
             .push_semis()
             .push_str(" replace");
 
-        if let Some(status) = &self.suggestion_status {
+        if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
+            &self.suggestion_status
+        {
             context
                 .push_str(" ")
                 .push_prop_str("suggestion_status", &status.to_string().to_lowercase());

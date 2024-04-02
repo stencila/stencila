@@ -1,6 +1,6 @@
 use codec_losses::lost_options;
 
-use crate::{prelude::*, InsertBlock};
+use crate::{prelude::*, InsertBlock, SuggestionStatus};
 
 impl InsertBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -20,7 +20,9 @@ impl MarkdownCodec for InsertBlock {
             .push_semis()
             .push_str(" insert");
 
-        if let Some(status) = &self.suggestion_status {
+        if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
+            &self.suggestion_status
+        {
             context
                 .push_str(" ")
                 .push_prop_str("suggestion_status", &status.to_string().to_lowercase());
