@@ -15,4 +15,4 @@ The system prompt template renders to a `Paragraph` with a new instruction, assi
 
 ---
 
-{// @insert-inline-image {{ instruction_text }} //}
+[[do @insert-inline-image {{ instruction_text }} ]]
