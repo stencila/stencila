@@ -71,6 +71,25 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Containing variable interpolations "
+        },
+        {
+          "@type": "stencila:StyledInline",
+          "stencila:code": "color: {{var1}}; padding: {{var2}}; margin: $var3",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "styled"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -1,34 +1,73 @@
-<stencila-article id=art_1111111B root>
+<stencila-article id=art_1111111S root>
   <section slot=content>
-    <stencila-styled-block id=stb_11111113 code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
+    <stencila-paragraph id=pgh_11111112>
+      <p slot=content>
+        <stencila-text id=txt_11111111>A styled block with two paragraphs:</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-styled-block id=stb_11111117 code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
       <div slot=content>
-        <stencila-paragraph id=pgh_11111112>
+        <stencila-paragraph id=pgh_11111114>
           <p slot=content>
-            <stencila-text id=txt_11111111>Paragraph within division.</stencila-text>
+            <stencila-text id=txt_11111113>Styled paragraph one.</stencila-text>
+          </p>
+        </stencila-paragraph>
+        <stencila-paragraph id=pgh_11111116>
+          <p slot=content>
+            <stencila-text id=txt_11111115>Styled paragraph two.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-styled-block>
-    <stencila-styled-block id=stb_11111116 code=color:red style-language=css>
+    <stencila-paragraph id=pgh_11111119>
+      <p slot=content>
+        <stencila-text id=txt_11111118>With style language specified:</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-styled-block id=stb_1111111C code=color:red style-language=css>
       <div slot=content>
-        <stencila-paragraph id=pgh_11111115>
+        <stencila-paragraph id=pgh_1111111B>
           <p slot=content>
-            <stencila-text id=txt_11111114>With style language specified.</stencila-text>
+            <stencila-text id=txt_1111111A>Styled paragraph.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-styled-block>
-    <stencila-styled-block id=stb_1111111A code='bg-red-100 p-2'>
+    <stencila-paragraph id=pgh_1111111E>
+      <p slot=content>
+        <stencila-text id=txt_1111111D>Nested styled blocks:</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-styled-block id=stb_1111111L code='bg-red-100 p-2'>
       <div slot=content>
-        <stencila-styled-block id=stb_11111119 code=bg-blue-100>
+        <stencila-paragraph id=pgh_1111111G>
+          <p slot=content>
+            <stencila-text id=txt_1111111F>Outer paragraph.</stencila-text>
+          </p>
+        </stencila-paragraph>
+        <stencila-styled-block id=stb_1111111K code=bg-blue-100>
           <div slot=content>
-            <stencila-paragraph id=pgh_11111118>
+            <stencila-paragraph id=pgh_1111111J>
               <p slot=content>
-                <stencila-text id=txt_11111117>Nested styled block.</stencila-text>
+                <stencila-text id=txt_1111111H>Inner paragraph.</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-styled-block>
+      </div>
+    </stencila-styled-block>
+    <stencila-paragraph id=pgh_1111111N>
+      <p slot=content>
+        <stencila-text id=txt_1111111M>Containing variable interpolations:</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-styled-block id=stb_1111111R code='bg-red-{{var1}} p-$var2 m-$var3'>
+      <div slot=content>
+        <stencila-paragraph id=pgh_1111111Q>
+          <p slot=content>
+            <stencila-text id=txt_1111111P>Dynamically styled paragraph.</stencila-text>
+          </p>
+        </stencila-paragraph>
       </div>
     </stencila-styled-block>
   </section>

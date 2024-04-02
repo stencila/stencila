@@ -6,6 +6,15 @@
   "@type": "Article",
   "stencila:content": [
     {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A styled block with two paragraphs:"
+        }
+      ]
+    },
+    {
       "@type": "stencila:StyledBlock",
       "stencila:code": "rounded border border-solid border-blue-200 bg-blue-100 p-2",
       "stencila:content": [
@@ -14,9 +23,27 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Paragraph within division."
+              "value": "Styled paragraph one."
             }
           ]
+        },
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Styled paragraph two."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "With style language specified:"
         }
       ]
     },
@@ -30,9 +57,18 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "With style language specified."
+              "value": "Styled paragraph."
             }
           ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Nested styled blocks:"
         }
       ]
     },
@@ -40,6 +76,15 @@
       "@type": "stencila:StyledBlock",
       "stencila:code": "bg-red-100 p-2",
       "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Outer paragraph."
+            }
+          ]
+        },
         {
           "@type": "stencila:StyledBlock",
           "stencila:code": "bg-blue-100",
@@ -49,9 +94,33 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "Nested styled block."
+                  "value": "Inner paragraph."
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Containing variable interpolations:"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:StyledBlock",
+      "stencila:code": "bg-red-{{var1}} p-$var2 m-$var3",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Dynamically styled paragraph."
             }
           ]
         }

@@ -67,6 +67,25 @@
           ]
         }
       ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Containing variable interpolations "
+        },
+        {
+          type: "StyledInline",
+          code: "color: {{var1}}; padding: {{var2}}; margin: $var3",
+          content: [
+            {
+              type: "Text",
+              value: "styled"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -3,6 +3,12 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: An include of a sibling example
+    value: 'An include of a sibling example:'
 - type: IncludeBlock
   source: ../heading/heading.md
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'An include of a remote document:'
+- type: IncludeBlock
+  source: http://example.org/document.md

@@ -10,13 +10,26 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An include of a sibling example"
+          "value": "An include of a sibling example:"
         }
       ]
     },
     {
       "@type": "stencila:IncludeBlock",
       "stencila:source": "../heading/heading.md"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An include of a remote document:"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:IncludeBlock",
+      "stencila:source": "http://example.org/document.md"
     }
   ]
 }

@@ -5,5 +5,7 @@
     </p>
     <p>Containing other spans<styled-content style="text-blue-600">blue<styled-content style="text-red-600">red</styled-content>blue</styled-content>
     </p>
+    <p>Containing variable interpolations<styled-content style="color: {{var1}}; padding: {{var2}}; margin: $var3">styled</styled-content>
+    </p>
   </body>
 </article>

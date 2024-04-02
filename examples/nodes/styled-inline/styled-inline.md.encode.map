@@ -23,5 +23,12 @@
    112    158      -32/1   sti_1111111D             StyledInline
     89    158      -23/0   pgh_1111111E             Paragraph.content
     89    159        0/1   pgh_1111111E             Paragraph
-     0    160      -89/1   art_1111111F             Article.content
-     0    159       0/-1   art_1111111F             Article
+   160    195      71/36   txt_1111111F             Text
+   196    202       36/7   txt_1111111G             Text
+   196    202        0/0   sti_1111111H             StyledInline.content
+   204    253       8/51   sti_1111111H             StyledInline.code
+   195    254       -9/1   sti_1111111H             StyledInline
+   160    254      -35/0   pgh_1111111J             Paragraph.content
+   160    255        0/1   pgh_1111111J             Paragraph
+     0    256     -160/1   art_1111111K             Article.content
+     0    255       0/-1   art_1111111K             Article

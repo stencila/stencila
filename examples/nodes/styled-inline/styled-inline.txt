@@ -1,1 +1,1 @@
-A  text-green-600styled span , and one with language specified:  color:redcssCSS span Containing other spans  text-blue-600blue  text-red-600red  blue
+A  text-green-600styled span , and one with language specified:  color:redcssCSS span Containing other spans  text-blue-600blue  text-red-600red  blue Containing variable interpolations  color: {{var1}}; padding: {{var2}}; margin: $var3styled

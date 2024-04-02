@@ -1,9 +1,17 @@
  start    end    offsets   node_id                  node_type+property
-    67     93      67/93   pgh_11111112j            Paragraph
-     0     98      -67/5   stb_11111112h            StyledBlock
-   117    147     117/49   pgh_11111112n            Paragraph
-   100    152      -17/5   stb_11111112k            StyledBlock
-   197    217      97/65   pgh_11111112r            Paragraph
-   176    224      -21/7   stb_11111112p            StyledBlock
-   154    229      -22/5   stb_11111112o            StyledBlock
-     0    229     -154/0   art_11111112s            Article
+     0     35       0/35   pgh_11111115B            Paragraph
+   104    125     104/90   pgh_11111115E            Paragraph
+   127    148      23/23   pgh_11111115G            Paragraph
+    37    153      -90/5   stb_11111115C            StyledBlock
+   155    185     118/32   pgh_11111115J            Paragraph
+   204    221      49/36   pgh_11111115M            Paragraph
+   187    226      -17/5   stb_11111115K            StyledBlock
+   228    249      41/23   pgh_11111115P            Paragraph
+   273    289      45/40   pgh_1111115S             Paragraph
+   312    328      39/39   pgh_1111115V             Paragraph
+   291    335      -21/7   stb_1111115T             StyledBlock
+   251    340      -40/5   stb_11111115Q            StyledBlock
+   342    377      91/37   pgh_1111115X             Paragraph
+   418    447      76/70   pgh_1111115a             Paragraph
+   379    452      -39/5   stb_1111115Y             StyledBlock
+     0    452     -379/0   art_1111115b             Article
