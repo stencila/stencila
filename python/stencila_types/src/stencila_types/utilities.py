@@ -1,6 +1,8 @@
 import json
 import re
+from typing import Any
 
+from cattrs import Converter
 from cattrs.preconf.json import make_converter
 
 from stencila_types import types as T  # noqa: N812
@@ -8,14 +10,57 @@ from stencila_types import types as T  # noqa: N812
 JSON_CONVERTER = make_converter()
 
 
+def to_json(node: Any) -> str:
+    """
+    Serialize a node to a JSON string
+
+    The basic converter is unproblematic.
+    """
+    return JSON_CONVERTER.dumps(node)
+
+
+def make_stencila_converter():
+    """
+    Specialise a converter for structuring Stencila nodes
+
+    If we find any Stencila nodes or unions containing stencila nodes, we defer
+    to our own `from_value` function to convert them. This means we can also
+    handle types that wrap stencila nodes, letting cattrs deal with them. This
+    is required for some of the types that we use in the APIs that wrap
+    stencila nodes.
+
+    https://catt.rs/en/stable/unions.html
+    """
+
+    converter = Converter()
+
+    for u in T.UNIONS:
+        converter.register_structure_hook(u, lambda o, _: from_value(o))
+
+    for u in T.ANON_UNIONS:
+        # Skip unions that don't have any stencila types
+        for node in u.__args__:
+            if hasattr(node, "type"):
+                break
+        else:
+            continue
+
+        converter.register_structure_hook(u, lambda o, _: from_value(o))
+
+    for t in T.TYPES:
+        converter.register_structure_hook(t, lambda o, _: from_value(o))
+
+    return converter
+
+
+STENCILA_CONVERTER = make_stencila_converter()
+
+
 def from_json(json_string: str) -> T.Node:
     """
     Create a `Node` from a JSON string
     """
-    # TODO: JSON_CONVERTER is not used here as it currently breaks.
-    # We do it manually below.
-
-    return from_value(json.loads(json_string))
+    return STENCILA_CONVERTER.structure(json.loads(json_string), T.Node)  # type: ignore
 
 
 # https://stackoverflow.com/questions/1175208/
@@ -65,10 +110,3 @@ def from_value(value) -> T.Node | list[T.Node]:  # pragma: no cover
 
     # value is a dictionary of attributes
     return cls(**kwargs)
-
-
-def to_json(node: T.Node) -> str:
-    """
-    Serialize a node to a JSON string
-    """
-    return JSON_CONVERTER.dumps(node)
