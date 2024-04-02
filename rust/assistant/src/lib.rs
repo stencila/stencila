@@ -494,6 +494,11 @@ impl GenerateTask {
         // Render the system prompt with this task as context
         if let Some(prompt) = system_prompt {
             let rendered = jinja::render_template(prompt, self)?;
+
+            // This is very useful for debugging rendering of system prompts.
+            // Please consider that before removing :)
+            tracing::debug!("System prompt rendered:\n\n{rendered}");
+
             self.system_prompt = Some(rendered);
         }
 
