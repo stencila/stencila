@@ -3,10 +3,9 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'A TeX block:'
+    value: A math block with no languages specified (assumed to be TeX)
 - type: MathBlock
   code: 2 \pi r^2
-  mathLanguage: tex
 - type: Paragraph
   content:
   - type: Text

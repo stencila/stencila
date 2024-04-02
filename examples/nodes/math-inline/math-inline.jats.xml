@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
-    <p>A TeX fragment<inline-formula code="2 \pi r^2" language="tex">
+    <p>A TeX equation<inline-formula code="2 \pi r^2">
       </inline-formula>.</p>
-    <p>An ASCIIMath fragment<inline-formula code="2 pi r^2" language="asciimath">
+    <p>An ASCIIMath equation<inline-formula code="2 pi r^2" language="asciimath">
       </inline-formula>.</p>
-    <p>A MathML fragment<inline-formula code="&lt;math&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;π&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;" language="mathml">
+    <p>A MathML equation<inline-formula code="&lt;math&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;π&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;" language="mathml">
       </inline-formula>.</p>
   </body>
 </article>

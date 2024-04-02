@@ -10,14 +10,13 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A TeX block:"
+          "value": "A math block with no languages specified (assumed to be TeX)"
         }
       ]
     },
     {
       "@type": "stencila:MathBlock",
-      "stencila:code": "2 \\pi r^2",
-      "stencila:mathLanguage": "tex"
+      "stencila:code": "2 \\pi r^2"
     },
     {
       "@type": "stencila:Paragraph",

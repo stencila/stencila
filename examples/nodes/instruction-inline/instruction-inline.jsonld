@@ -163,8 +163,7 @@
             "stencila:content": [
               {
                 "@type": "stencila:MathInline",
-                "stencila:code": "2 /pi r^2",
-                "stencila:mathLanguage": "tex"
+                "stencila:code": "2 /pi r^2"
               }
             ]
           }

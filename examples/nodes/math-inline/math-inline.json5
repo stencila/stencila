@@ -6,12 +6,11 @@
       content: [
         {
           type: "Text",
-          value: "A TeX fragment "
+          value: "A TeX equation "
         },
         {
           type: "MathInline",
-          code: "2 \\pi r^2",
-          mathLanguage: "tex"
+          code: "2 \\pi r^2"
         },
         {
           type: "Text",
@@ -24,7 +23,7 @@
       content: [
         {
           type: "Text",
-          value: "An ASCIIMath fragment "
+          value: "An ASCIIMath equation "
         },
         {
           type: "MathInline",
@@ -42,7 +41,7 @@
       content: [
         {
           type: "Text",
-          value: "A MathML fragment "
+          value: "A MathML equation "
         },
         {
           type: "MathInline",

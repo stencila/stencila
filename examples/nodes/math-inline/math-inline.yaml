@@ -3,16 +3,15 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'A TeX fragment '
+    value: 'A TeX equation '
   - type: MathInline
     code: 2 \pi r^2
-    mathLanguage: tex
   - type: Text
     value: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'An ASCIIMath fragment '
+    value: 'An ASCIIMath equation '
   - type: MathInline
     code: 2 pi r^2
     mathLanguage: asciimath
@@ -21,7 +20,7 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'A MathML fragment '
+    value: 'A MathML equation '
   - type: MathInline
     code: <math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>
     mathLanguage: mathml

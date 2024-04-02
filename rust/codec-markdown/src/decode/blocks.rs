@@ -899,7 +899,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
                 })
             } else if matches!(
                 lang.as_deref(),
-                Some("asciimath") | Some("mathml") | Some("latex") | Some("tex")
+                Some("asciimath") | Some("math") | Some("mathml") | Some("latex") | Some("tex")
             ) {
                 Block::MathBlock(MathBlock {
                     code: value.into(),
@@ -969,7 +969,8 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
         }) => (
             Block::MathBlock(MathBlock {
                 code: value.into(),
-                math_language: meta.or_else(|| Some("tex".to_string())),
+                math_language: meta
+                    .and_then(|string| string.split_whitespace().next().map(String::from)),
                 ..Default::default()
             }),
             position,

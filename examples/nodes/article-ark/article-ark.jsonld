@@ -112,8 +112,7 @@
         },
         {
           "@type": "stencila:MathInline",
-          "stencila:code": "inline math",
-          "stencila:mathLanguage": "tex"
+          "stencila:code": "inline math"
         },
         {
           "@type": "Text",
@@ -411,8 +410,7 @@
     },
     {
       "@type": "stencila:MathBlock",
-      "stencila:code": "This is a math block",
-      "stencila:mathLanguage": "tex"
+      "stencila:code": "This is a math block"
     },
     {
       "@type": "stencila:QuoteBlock",

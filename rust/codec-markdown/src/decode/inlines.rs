@@ -233,7 +233,6 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<(Inline, Optio
         mdast::Node::InlineMath(mdast::InlineMath { value, position }) => (
             Inline::MathInline(MathInline {
                 code: value.into(),
-                math_language: Some("tex".to_string()),
                 ..Default::default()
             }),
             position,
@@ -401,7 +400,7 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
             })
         } else if matches!(
             lang.as_deref(),
-            Some("asciimath") | Some("mathml") | Some("latex") | Some("tex")
+            Some("asciimath") | Some("math") | Some("mathml") | Some("latex") | Some("tex")
         ) {
             Inline::MathInline(MathInline {
                 code: code.into(),

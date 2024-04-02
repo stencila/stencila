@@ -58,8 +58,7 @@
         { "type": "Text", "value": ", " },
         {
           "type": "MathInline",
-          "code": "inline math",
-          "mathLanguage": "tex"
+          "code": "inline math"
         },
         { "type": "Text", "value": ", " },
         {
@@ -155,7 +154,9 @@
       "content": [
         {
           "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "This paragraph is to be deleted" }]
+          "content": [
+            { "type": "Text", "value": "This paragraph is to be deleted" }
+          ]
         }
       ]
     },
@@ -208,7 +209,9 @@
       "content": [
         {
           "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "This paragraph is to be inserted" }]
+          "content": [
+            { "type": "Text", "value": "This paragraph is to be inserted" }
+          ]
         }
       ]
     },
@@ -229,8 +232,7 @@
     },
     {
       "type": "MathBlock",
-      "code": "This is a math block",
-      "mathLanguage": "tex"
+      "code": "This is a math block"
     },
     {
       "type": "QuoteBlock",
@@ -243,14 +245,18 @@
     },
     {
       "type": "ReplaceBlock",
-      "content": [{
-        "type": "Paragraph",
-        "content": [{ "type": "Text", "value": "Old paragraph" }]
-      }],
-      "replacement": [{
-        "type": "Paragraph",
-        "content": [{ "type": "Text", "value": "New paragraph"}]
-      }]
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "Old paragraph" }]
+        }
+      ],
+      "replacement": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "New paragraph" }]
+        }
+      ]
     },
     {
       "type": "Section",

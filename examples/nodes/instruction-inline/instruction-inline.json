@@ -132,8 +132,7 @@
             "content": [
               {
                 "type": "MathInline",
-                "code": "2 /pi r^2",
-                "mathLanguage": "tex"
+                "code": "2 /pi r^2"
               }
             ]
           }

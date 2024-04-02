@@ -53,7 +53,6 @@ content:
     value: ', '
   - type: MathInline
     code: inline math
-    mathLanguage: tex
   - type: Text
     value: ', '
   - type: Note
@@ -193,7 +192,6 @@ content:
   order: Unordered
 - type: MathBlock
   code: This is a math block
-  mathLanguage: tex
 - type: QuoteBlock
   content:
   - type: Paragraph

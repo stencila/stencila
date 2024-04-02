@@ -1,4 +1,4 @@
-A TeX block:
+A math block with no languages specified (assumed to be TeX)
 
 $$
 2 \pi r^2

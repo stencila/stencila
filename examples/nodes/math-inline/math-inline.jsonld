@@ -10,12 +10,11 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A TeX fragment "
+          "value": "A TeX equation "
         },
         {
           "@type": "stencila:MathInline",
-          "stencila:code": "2 \\pi r^2",
-          "stencila:mathLanguage": "tex"
+          "stencila:code": "2 \\pi r^2"
         },
         {
           "@type": "Text",
@@ -28,7 +27,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An ASCIIMath fragment "
+          "value": "An ASCIIMath equation "
         },
         {
           "@type": "stencila:MathInline",
@@ -46,7 +45,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A MathML fragment "
+          "value": "A MathML equation "
         },
         {
           "@type": "stencila:MathInline",

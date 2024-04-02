@@ -78,7 +78,7 @@ impl MarkdownCodec for MathInline {
             .unwrap_or("tex")
             .to_lowercase();
 
-        if lang == "tex" {
+        if lang == "tex" || lang == "latex" || lang == "math" {
             context
                 .push_str("$")
                 .push_prop_str("code", &self.code.replace('$', r"\$"))

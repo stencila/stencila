@@ -85,7 +85,7 @@ impl MarkdownCodec for MathBlock {
             .unwrap_or("tex")
             .to_lowercase();
 
-        if lang == "tex" {
+        if lang == "tex" || lang == "latex" || lang == "math" {
             context
                 .push_str("$$\n")
                 .push_prop_str("code", &self.code)
