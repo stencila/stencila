@@ -10,7 +10,7 @@ use winnow::{
 };
 
 use codec::{
-    common::indexmap::IndexMap,
+    common::{indexmap::IndexMap, itertools::Itertools},
     format::Format,
     schema::{
         AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
@@ -142,9 +142,10 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                             Some(Inline::DeleteInline(inline)) => {
                                 (inline.node_id(), SuggestionInlineType::DeleteInline(inline))
                             }
-                            Some(Inline::ReplaceInline(inline)) => {
-                                (inline.node_id(), SuggestionInlineType::ReplaceInline(inline))
-                            }
+                            Some(Inline::ReplaceInline(inline)) => (
+                                inline.node_id(),
+                                SuggestionInlineType::ReplaceInline(inline),
+                            ),
                             Some(Inline::ModifyInline(inline)) => {
                                 (inline.node_id(), SuggestionInlineType::ModifyInline(inline))
                             }
@@ -913,6 +914,37 @@ fn character(input: &mut Located<&str>) -> PResult<Inline> {
     take(1usize)
         .map(|val: &str| Inline::Text(Text::new(val.into())))
         .parse_next(input)
+}
+
+/// Transform MDAST inline nodes back to a Markdown String
+///
+/// Attempts, imperfectly, to recreate the string in the document.
+/// See call sites for why this is necessary.
+pub(super) fn mds_to_string(mds: &[mdast::Node]) -> String {
+    mds.iter()
+        .map(|md| match md {
+            mdast::Node::Delete(mdast::Delete { children, .. }) => {
+                ["~~", &mds_to_string(children), "~~"].concat()
+            }
+            mdast::Node::Emphasis(mdast::Emphasis { children, .. }) => {
+                ["_", &mds_to_string(children), "_"].concat()
+            }
+            mdast::Node::FootnoteReference(mdast::FootnoteReference { identifier, .. }) => {
+                ["[^", identifier, "]"].concat()
+            }
+            mdast::Node::InlineCode(mdast::InlineCode { value, .. }) => ["`", value, "`"].concat(),
+            mdast::Node::InlineMath(mdast::InlineMath { value, .. }) => ["$", value, "$"].concat(),
+            mdast::Node::Image(mdast::Image { url, alt, .. }) => {
+                ["[", alt, "](", url, ")"].concat()
+            }
+            mdast::Node::Link(mdast::Link { url, .. }) => url.clone(),
+            mdast::Node::Strong(mdast::Strong { children, .. }) => {
+                ["*", &mds_to_string(children), "*"].concat()
+            }
+            mdast::Node::Text(mdast::Text { value, .. }) => value.clone(),
+            _ => String::new(),
+        })
+        .join("")
 }
 
 #[cfg(test)]
