@@ -10,40 +10,40 @@ $$
 
 An insert math block instruction that has been accepted:
 
-// @insert-math-block the area of a circle
+::: do @insert-math-block the area of a circle
 
-++ accepted
+::: insert accept
 
 $$
 a = \pi r^2
 $$
 
-++
+:::
 
 An insert math block instruction that has been rejected:
 
-// @insert-math-block the diameter of a circle
+::: do @insert-math-block the diameter of a circle
 
-++ rejected
+::: insert reject
 
 $$
 d = foo
 $$
 
-++
+:::
 
 An insert math block instruction that has not yet been accepted or rejected:
 
-// @insert-math-block the circumference of a circle
+::: do @insert-math-block the circumference of a circle
 
-++
+::: insert
 
 $$
 c = 2\pi r
 $$
 
-++
+:::
 
 The test insert math block instruction. The volume of a sphere is:
 
-// @insert-math-block ...
+::: do @insert-math-block

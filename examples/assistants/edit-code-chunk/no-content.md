@@ -2,8 +2,8 @@
 # Test using `edit-code-chunk` in a document with no other content
 ---
 
-// @edit-code-chunk add comments
-:::
+::: do @edit-code-chunk add comments
+::: with
 
 ```r exec
 data <- read.csv('data.csv')
@@ -13,8 +13,8 @@ plot(height~age, data)
 :::
 
 
-// @edit-code-chunk simplify
-:::
+::: do @edit-code-chunk simplify
+::: with
 
 ```r exec
 data <- read.table(
@@ -27,8 +27,8 @@ data <- read.table(
 :::
 
 
-// @edit-code-chunk color points by species
-:::
+::: do @edit-code-chunk color points by species
+::: with
 
 ```r exec
 ggplot(data, aes(x=age, y=height)) + geom_point()

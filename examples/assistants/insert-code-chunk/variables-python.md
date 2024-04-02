@@ -9,6 +9,6 @@ with open('variables.py') as f:
   exec(f.read(), locals())
 ```
 
-// @insert-code-chunk compute something using all the local variables you know of
+::: do @insert-code-chunk compute something using all the local variables you know of
 
-// @insert-code-chunk assess what shaped rocket can best escape mars.
+::: do @insert-code-chunk assess what shaped rocket can best escape mars.

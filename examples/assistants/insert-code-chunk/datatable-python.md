@@ -12,4 +12,4 @@ data = pd.read_csv('data.csv')
 
 In the background a "hint" to the structure of the data is made available to assistants within system prompts. 
 
-// @insert-code-chunk plot data
+::: do @insert-code-chunk plot data

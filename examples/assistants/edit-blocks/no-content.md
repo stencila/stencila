@@ -2,24 +2,24 @@
 # Test using `edit-blocks` in a document with no other content
 ---
 
-// @edit-blocks expand into two paragraphs, less than 50 words each
-:::
+::: do @edit-blocks expand into two paragraphs, less than 50 words each
+::: with
 
 Common fruits and vegetables.
 
 :::
 
 
-// @edit-blocks rewrite as a list
-:::
+::: do @edit-blocks rewrite as a list
+::: with
 
 apple,pear, kiwi
 
 :::
 
 
-// @edit-blocks title cased and add species names
-:::
+::: do @edit-blocks title cased and add species names
+::: with
 
 - lion
 - tiger

@@ -8,8 +8,8 @@ import sys
 sys.version
 ```
 
-// @edit-code-chunk translate this to python.
-:::
+::: do @edit-code-chunk translate this to python.
+::: with
 ```r exec
 data <- read.table(
     'data.csv',
@@ -19,8 +19,8 @@ data <- read.table(
 ```
 :::
 
-// @edit-code-chunk translate this to python. Make it pretty though.
-:::
+::: do @edit-code-chunk translate this to python. Make it pretty though.
+::: with
 
 ```r exec
 ggplot(data, aes(x=age, y=height)) + geom_point()
