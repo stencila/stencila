@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use markdown::{mdast, unist::Position};
 use winnow::{
-    ascii::{alphanumeric1, multispace0, multispace1, space0},
+    ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
     token::{take_until, take_while},
     IResult, Located, PResult, Parser,
@@ -399,14 +399,14 @@ fn claim(input: &mut Located<&str>) -> PResult<Block> {
     (
         terminated(
             alt((
-                "corollary",
-                "hypothesis",
-                "lemma",
-                "postulate",
-                "proof",
-                "proposition",
-                "statement",
-                "theorem",
+                Caseless("corollary"),
+                Caseless("hypothesis"),
+                Caseless("lemma"),
+                Caseless("postulate"),
+                Caseless("proof"),
+                Caseless("proposition"),
+                Caseless("statement"),
+                Caseless("theorem"),
             )),
             multispace0,
         ),
@@ -428,7 +428,12 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
         ("chunk", multispace0),
         (
             opt(terminated(
-                alt(("figure", "fig", "fig.", "table")),
+                alt((
+                    Caseless("figure"),
+                    Caseless("fig"),
+                    Caseless("fig."),
+                    Caseless("table"),
+                )),
                 multispace0,
             )),
             opt(take_while(1.., |_| true)),
@@ -453,7 +458,10 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse a [`Figure`] node with a label and/or caption
 fn figure(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
-        (alt(("figure", "fig", "fig.")), multispace0),
+        (
+            alt((Caseless("figure"), Caseless("fig"), Caseless("fig."))),
+            multispace0,
+        ),
         opt(take_while(1.., |_| true)),
     )
     .map(|label: Option<&str>| {
@@ -661,14 +669,17 @@ fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`Table`] with a label and/or caption
 fn table(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(("table", multispace0), opt(take_while(1.., |_| true)))
-        .map(|label: Option<&str>| {
-            Block::Table(Table {
-                label: label.map(|label| label.to_string()),
-                ..Default::default()
-            })
+    preceded(
+        (Caseless("table"), multispace0),
+        opt(take_while(1.., |_| true)),
+    )
+    .map(|label: Option<&str>| {
+        Block::Table(Table {
+            label: label.map(|label| label.to_string()),
+            ..Default::default()
         })
-        .parse_next(input)
+    })
+    .parse_next(input)
 }
 
 /// Parse a divider between sections of content
