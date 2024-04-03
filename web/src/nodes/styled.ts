@@ -22,7 +22,7 @@ export abstract class Styled extends Entity {
   classes?: string
 
   /**
-   * Derived classes should class this in the render function
+   * Derived classes should call this in the render function
    */
   protected adoptCss() {
     if (this.css) {

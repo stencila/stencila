@@ -4,7 +4,7 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/card'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
@@ -54,7 +54,7 @@ export class CodeChunk extends CodeExecutable {
    * with execution actions and details and code read-only and collapsed.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type="CodeChunk" view="dynamic">
+    return html`<stencila-ui-block-in-flow type="CodeChunk" view="dynamic">
       <span slot="header-right">
         <stencila-ui-node-execution-commands node-id=${this.id}>
         </stencila-ui-node-execution-commands>
@@ -108,7 +108,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="caption" slot="caption"></slot>
         </stencila-ui-node-label-and-caption>
       </div>
-    </stencila-ui-node-card>`
+    </stencila-ui-block-in-flow>`
   }
 
   /**
@@ -116,7 +116,7 @@ export class CodeChunk extends CodeExecutable {
    * code, label, caption (because they are displayed in the source code).
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card type="CodeChunk" view="source">
+    return html`<stencila-ui-block-in-flow type="CodeChunk" view="source">
       <span slot="header-right">
         <stencila-ui-node-execution-commands node-id=${this.id}>
         </stencila-ui-node-execution-commands>
@@ -153,6 +153,6 @@ export class CodeChunk extends CodeExecutable {
           <slot name="outputs"></slot>
         </stencila-ui-node-outputs>
       </div>
-    </stencila-ui-node-card>`
+    </stencila-ui-block-in-flow>`
   }
 }

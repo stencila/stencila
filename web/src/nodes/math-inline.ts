@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/on-demand/in-line'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -53,7 +54,7 @@ export class MathInline extends Math {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="MathInline" view="source">
+      <stencila-ui-block-in-flow type="MathInline" view="source">
         <div slot="body">
           <stencila-ui-node-authors type="MathInline">
             <slot name="authors"></slot>
@@ -63,7 +64,7 @@ export class MathInline extends Math {
             <slot name="mathml"></slot>
           </div>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 }

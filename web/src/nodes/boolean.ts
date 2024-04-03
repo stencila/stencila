@@ -6,7 +6,7 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/card'
+import '../ui/nodes/in-flow/block'
 
 /**
  * Web component representing a Stencila Schema `Boolean` node
@@ -38,9 +38,9 @@ export class Boolean extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Boolean" view="dynamic">
+      <stencila-ui-block-in-flow type="Boolean" view="dynamic">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 
@@ -51,9 +51,9 @@ export class Boolean extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Boolean" view="source">
+      <stencila-ui-block-in-flow type="Boolean" view="source">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 }

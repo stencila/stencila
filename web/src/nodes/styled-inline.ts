@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '../ui/nodes/on-demand/in-line'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -67,12 +68,12 @@ export class StyledInline extends Styled {
    * TODO: Also render compiled CSS and styled content to help with debugging?
    */
   override renderSourceView() {
-    return html` <stencila-ui-node-card type="StyledBlock" view="source">
+    return html` <stencila-ui-block-in-flow type="StyledBlock" view="source">
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
       </div>
-    </stencila-ui-node-card>`
+    </stencila-ui-block-in-flow>`
   }
 }

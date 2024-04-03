@@ -2,8 +2,10 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import '../ui/nodes/on-demand/in-line'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/outputs'
 
 import { CodeStatic } from './code-static'
 
@@ -37,6 +39,9 @@ export class CodeInline extends CodeStatic {
             read-only
           >
           </stencila-ui-node-code>
+          <stencila-ui-node-outputs type="CodeInline">
+            <slot name="outputs">${this.code}</slot>
+          </stencila-ui-node-outputs>
         </div>
         <span slot="content"> ${this.code} </span>
       </stencila-ui-inline-on-demand>
@@ -49,13 +54,24 @@ export class CodeInline extends CodeStatic {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="CodeInline" view="source">
+      <stencila-ui-block-in-flow type="CodeInline" view="source">
         <div slot="body">
           <stencila-ui-node-authors>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+
+          <stencila-ui-node-code
+            type="CodeInline"
+            code=${this.code}
+            language=${this.programmingLanguage}
+            read-only
+          >
+          </stencila-ui-node-code>
+          <stencila-ui-node-outputs type="CodeInline">
+            <slot name="outputs">${this.code}</slot>
+          </stencila-ui-node-outputs>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 }

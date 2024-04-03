@@ -29,9 +29,9 @@ export class UIBaseClass extends LitElement {
   @property()
   view: DocumentView
 
-  // /**
-  //  * Internal copy of the ui attributes.
-  //  */
+  /**
+   * Internal copy of the ui attributes.
+   */
   protected ui: ReturnType<typeof nodeUi> | undefined = undefined
 
   /**

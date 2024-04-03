@@ -6,7 +6,7 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/card'
+import '../ui/nodes/in-flow/block'
 
 /**
  * Web component representing a Stencila Schema `Integer` node
@@ -38,9 +38,9 @@ export class Integer extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Integer" view="dynamic">
+      <stencila-ui-block-in-flow type="Integer" view="dynamic">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 
@@ -51,9 +51,9 @@ export class Integer extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Integer" view="source">
+      <stencila-ui-block-in-flow type="Integer" view="source">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 }
