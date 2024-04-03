@@ -202,6 +202,34 @@ pub enum NodeType {{
         )
         .await?;
 
+        //  Create an enum with unit variants for each node property
+        let node_properties = self
+            .schemas
+            .iter()
+            .flat_map(|(.., schema)| schema.properties.keys())
+            .cloned()
+            .collect::<HashSet<String>>()
+            .iter()
+            .sorted()
+            .map(|name| format!("    {}", name.to_pascal_case()))
+            .join(",\n");
+        write(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-type/src/node_property.rs"),
+            format!(
+                r#"{GENERATED_COMMENT}
+
+use common::strum::Display;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
+#[strum(serialize_all="camelCase", crate = "common::strum")]
+pub enum NodeProperty {{
+{node_properties},
+}}
+"#
+            ),
+        )
+        .await?;
+
         Ok(())
     }
 
@@ -311,6 +339,15 @@ pub enum NodeType {{
 
         if !NO_READ_NODE.contains(&title.as_str()) {
             derives.push("ReadNode");
+        }
+
+        if schema
+            .merge
+            .as_ref()
+            .map(|spec| spec.derive)
+            .unwrap_or(true)
+        {
+            derives.push("MergeNode");
         }
 
         // Codec derives
@@ -539,6 +576,20 @@ pub enum NodeType {{
             let walk = property.walk.unwrap_or_else(|| name == "content");
             if walk {
                 attrs.push(String::from("#[walk]"));
+            }
+
+            // If merge is not specified, defaults to all formats for `content` property
+            if let Some(formats) = property
+                .merge
+                .as_ref()
+                .and_then(|options| options.formats.clone())
+                .or_else(|| (name == "content").then(|| vec!["all".to_string()]))
+            {
+                let formats = formats
+                    .iter()
+                    .map(|format| format!("format = \"{format}\""))
+                    .join(", ");
+                attrs.push(format!("#[merge({formats})]"));
             }
 
             // Add proptest related attributes
@@ -971,6 +1022,15 @@ impl {title} {{
         let title = name.as_str();
         if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
+        }
+
+        if schema
+            .merge
+            .as_ref()
+            .map(|spec| spec.derive)
+            .unwrap_or(true)
+        {
+            derives.push("MergeNode");
         }
 
         // Codec derives

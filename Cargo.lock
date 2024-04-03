@@ -3988,6 +3988,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-merge"
+version = "0.0.0"
+dependencies = [
+ "codecs",
+ "common",
+ "common-dev",
+ "node-id",
+ "node-merge-derive",
+ "node-type",
+]
+
+[[package]]
+name = "node-merge-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling 0.20.8",
+]
+
+[[package]]
 name = "node-patch"
 version = "0.0.0"
 dependencies = [
@@ -5723,6 +5743,7 @@ dependencies = [
  "interim",
  "monostate",
  "node-id",
+ "node-merge",
  "node-store",
  "node-strip",
  "node-type",

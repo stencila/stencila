@@ -1,6 +1,8 @@
 mod node_type;
+mod node_property;
 
 pub use crate::node_type::NodeType;
+pub use node_property::NodeProperty;
 
 impl NodeType {
     /// Can the node type be executed?

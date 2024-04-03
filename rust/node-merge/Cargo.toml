@@ -1,0 +1,14 @@
+[package]
+name = "node-merge"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+node-id = { path = "../node-id" }
+node-merge-derive = { path = "../node-merge-derive" }
+node-type = { path = "../node-type" }
+
+[dev-dependencies]
+codecs = { path = "../codecs" }
+common-dev = { path = "../common-dev" }
