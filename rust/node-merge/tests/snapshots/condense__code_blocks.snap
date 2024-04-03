@@ -1,0 +1,7 @@
+---
+source: rust/node-merge/tests/condense.rs
+expression: "condense!(r#\"\n```\n# Some code\n```\n\n```r\n# With lang\n```\n\"#)"
+---
+art_11111113/cdb_11111111  Article:content.0.CodeBlock:code                 "# Some code"
+art_11111113/cdb_11111112  Article:content.1.CodeBlock:code                 "# With lang"
+art_11111113/cdb_11111112  Article:content.1.CodeBlock:programmingLanguage  "r"

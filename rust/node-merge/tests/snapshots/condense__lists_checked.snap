@@ -1,0 +1,9 @@
+---
+source: rust/node-merge/tests/condense.rs
+expression: "condense!(r#\"\n- [ ] Todo\n- [x] Done\n\"#)"
+---
+art_11111118/lst_11111117/lsi_11111113/pgh_11111112/txt_11111111  Article:content.0.List:items.0.ListItem:content.0.Paragraph:content.0.Text:value  "Todo"
+art_11111118/lst_11111117/lsi_11111113                            Article:content.0.List:items.0.ListItem:isChecked                                 "false"
+art_11111118/lst_11111117/lsi_11111116/pgh_11111115/txt_11111114  Article:content.0.List:items.1.ListItem:content.0.Paragraph:content.0.Text:value  "Done"
+art_11111118/lst_11111117/lsi_11111116                            Article:content.0.List:items.1.ListItem:isChecked                                 "true"
+art_11111118/lst_11111117                                         Article:content.0.List:order                                                      "Unordered"

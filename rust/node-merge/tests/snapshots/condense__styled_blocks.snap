@@ -1,0 +1,6 @@
+---
+source: rust/node-merge/tests/condense.rs
+expression: "condense!(r#\"\n::: { color: red }\n\nStyled\n\n:::\n\"#)"
+---
+art_11111114/stb_11111111                            Article:content.0.StyledBlock:code                                      "color: red"
+art_11111114/stb_11111111/pgh_11111113/txt_11111112  Article:content.0.StyledBlock:content.0.Paragraph:content.0.Text:value  "Styled"

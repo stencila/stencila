@@ -1,0 +1,8 @@
+---
+source: rust/node-merge/tests/condense.rs
+expression: "condense!(r#\"\n::: for item in [1,2,3]\n\nContent.\n\n::: else\n\nNo items.\n\n:::\n\"#)"
+---
+art_11111116/frb_11111111                            Article:content.0.ForBlock:code                                        "[1,2,3]"
+art_11111116/frb_11111111                            Article:content.0.ForBlock:variable                                    "item"
+art_11111116/frb_11111111/pgh_11111113/txt_11111112  Article:content.0.ForBlock:content.0.Paragraph:content.0.Text:value    "Content."
+art_11111116/frb_11111111/pgh_11111115/txt_11111114  Article:content.0.ForBlock:otherwise.0.Paragraph:content.0.Text:value  "No items."

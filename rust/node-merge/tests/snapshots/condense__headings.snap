@@ -1,0 +1,10 @@
+---
+source: rust/node-merge/tests/condense.rs
+expression: "condense!(r#\"\n# One\n\n## Two\n\n### Three\n\"#)"
+---
+art_11111117/hea_11111112               Article:content.0.Heading:level                 "1"
+art_11111117/hea_11111112/txt_11111111  Article:content.0.Heading:content.0.Text:value  "One"
+art_11111117/hea_11111114               Article:content.1.Heading:level                 "2"
+art_11111117/hea_11111114/txt_11111113  Article:content.1.Heading:content.0.Text:value  "Two"
+art_11111117/hea_11111116               Article:content.2.Heading:level                 "3"
+art_11111117/hea_11111116/txt_11111115  Article:content.2.Heading:content.0.Text:value  "Three"
