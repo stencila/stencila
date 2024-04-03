@@ -47,11 +47,19 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "SuggestionStatus.schema.json"
     },
     "content": {
       "@id": "stencila:content",
       "description": "The content that is suggested to be inserted, modified, replaced, or deleted.",
+      "dom": {
+        "elem": "div"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed paragraph.",
@@ -69,9 +77,6 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes",
           "strategy": "vec_blocks_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "div"
       },
       "type": "array",
       "items": {

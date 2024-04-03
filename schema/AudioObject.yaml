@@ -19,11 +19,13 @@ properties:
   caption:
     '@id': schema:caption
     description: The caption for this audio recording.
-    html:
-      attr: alt
     type: array
     items:
       $ref: Inline
+    merge:
+      formats: [md]
+    html:
+      attr: alt
   transcript:
     '@id': schema:transcript
     description: The transcript of this audio recording.

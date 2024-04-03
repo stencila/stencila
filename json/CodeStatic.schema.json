@@ -40,6 +40,17 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "html": {
+        "content": true
+      },
+      "jats": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -58,12 +69,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "html": {
-        "content": true
-      },
-      "jats": {
-        "content": true
-      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -73,6 +78,14 @@
         "programming-language",
         "programming_language"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "language"
+      },
       "proptest": {
         "min": {
           "description": "Do not generate a programming language.",
@@ -90,9 +103,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "language"
       },
       "type": "string"
     },

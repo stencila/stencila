@@ -10,6 +10,8 @@ use crate::{prelude::*, Object, Primitive};
 
 impl StripNode for Object {}
 
+impl MergeNode for Object {}
+
 impl ReadNode for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();

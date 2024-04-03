@@ -532,6 +532,11 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -578,6 +583,14 @@
         "content-url",
         "content_url"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "html": {
+        "attr": "src"
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed URL.",
@@ -595,9 +608,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary()"
         }
-      },
-      "html": {
-        "attr": "src"
       },
       "type": "string"
     },

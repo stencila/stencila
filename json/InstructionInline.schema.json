@@ -9,10 +9,10 @@
   ],
   "category": "edits",
   "description": "An instruction to edit some inline content.",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "messages"
@@ -52,6 +52,11 @@
       "strip": [
         "execution"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -351,6 +356,9 @@
       "@id": "stencila:content",
       "description": "The content to which the instruction applies.",
       "walk": true,
+      "dom": {
+        "elem": "span"
+      },
       "proptest": {
         "min": {
           "description": "No content",
@@ -368,9 +376,6 @@
           "description": "Generate up to four arbitrary, non-recursive, inline nodes",
           "strategy": "option::of(vec_inlines_non_recursive(4))"
         }
-      },
-      "dom": {
-        "elem": "span"
       },
       "type": "array",
       "items": {

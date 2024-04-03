@@ -9,10 +9,10 @@
   ],
   "category": "edits",
   "description": "A suggestion to replace some inline content with new inline content.",
-  "proptest": {},
   "markdown": {
     "template": "[[replace {{content}}>>{{replacement}}]]"
   },
+  "proptest": {},
   "required": [
     "type",
     "content",
@@ -51,11 +51,19 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "SuggestionStatus.schema.json"
     },
     "content": {
       "@id": "stencila:content",
       "description": "The content that is suggested to be inserted, modified, replaced, or deleted.",
+      "dom": {
+        "elem": "span"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
@@ -74,9 +82,6 @@
           "strategy": "vec_inlines_non_recursive(4)"
         }
       },
-      "dom": {
-        "elem": "span"
-      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"
@@ -85,6 +90,11 @@
     "replacement": {
       "@id": "stencila:replacement",
       "description": "The new replacement inline content.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "span"
       },

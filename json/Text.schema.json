@@ -10,7 +10,6 @@
   "category": "prose",
   "description": "Textual content.",
   "$comment": "Intended mostly for use for inline text e.g. the text in a paragraph.\n\nDiffers from the primitive `String` type in that it has a `type` and `id` property.\nThe `id` property allows use to identify text nodes with a sequence of inline nodes\nfor better diffing.\n\nAlso, in Rust, the `value` property is implemented as a CRDT.\n",
-  "proptest": {},
   "dom": {
     "derive": false
   },
@@ -23,6 +22,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "value"
@@ -52,6 +52,17 @@
     "value": {
       "@id": "schema:value",
       "description": "The value of the text content",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "none"
+      },
+      "html": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed string of text.",
@@ -69,12 +80,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
-      },
-      "dom": {
-        "elem": "none"
-      },
-      "html": {
-        "content": true
       },
       "$ref": "Cord.schema.json"
     }

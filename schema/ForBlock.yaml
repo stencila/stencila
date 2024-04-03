@@ -20,6 +20,8 @@ properties:
     description: The name to give to the variable representing each item in the iterated array
     type: string
     strip: [code]
+    merge:
+      formats: [md]
     proptest:
       min:
         description: Generate a fixed variable name.
@@ -44,6 +46,8 @@ properties:
       $ref: Block
     strip: [code]
     walk: true
+    merge:
+      formats: [md]
     dom:
       elem: div
     proptest:
@@ -64,6 +68,8 @@ properties:
       $ref: Block
     strip: [code]
     walk: true
+    merge:
+      formats: [md]
     dom:
       elem: div
     proptest:

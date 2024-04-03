@@ -49,6 +49,11 @@
         "min-length",
         "min_length"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "integer",
       "minimum": 0.0
     },
@@ -60,6 +65,11 @@
         "max-length",
         "max_length"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "integer",
       "minimum": 0.0
     },
@@ -67,6 +77,11 @@
       "@id": "stencila:pattern",
       "description": "A regular expression that a string node must match.",
       "$comment": "A string is valid if it is matched by the regular expression.\n",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "string"
     }
   }

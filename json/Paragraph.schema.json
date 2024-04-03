@@ -10,7 +10,6 @@
   "category": "prose",
   "description": "A paragraph.",
   "$comment": "Analogues of `Paragraph` in other schema include:\n  - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)\n  - JATS XML [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/p.html)\n  - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)\n  - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)\n  - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)\n",
-  "proptest": {},
   "html": {
     "elem": "p"
   },
@@ -20,6 +19,7 @@
   "markdown": {
     "template": "{{content}}\\n\\n"
   },
+  "proptest": {},
   "required": [
     "type",
     "content"
@@ -49,6 +49,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The contents of the paragraph.",
+      "dom": {
+        "elem": "p"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single arbitrary inline node",
@@ -66,9 +69,6 @@
           "description": "Generate up to eight arbitrary inline nodes without restrictions on their order",
           "strategy": "vec(Inline::arbitrary(), size_range(0..=8))"
         }
-      },
-      "dom": {
-        "elem": "p"
       },
       "type": "array",
       "items": {

@@ -43,6 +43,11 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of math.",
@@ -74,6 +79,11 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "No language.",

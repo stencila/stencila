@@ -8,7 +8,6 @@
   ],
   "category": "prose",
   "description": "A section of a document.",
-  "proptest": {},
   "html": {
     "elem": "section",
     "special": true
@@ -19,6 +18,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "content"
@@ -49,6 +49,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the section.",
+      "dom": {
+        "elem": "section"
+      },
       "proptest": {
         "min": {
           "description": "An empty vector",
@@ -67,9 +70,6 @@
           "strategy": "vec_blocks_non_recursive(8)"
         }
       },
-      "dom": {
-        "elem": "section"
-      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -82,6 +82,14 @@
         "section-type",
         "section_type"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "content-type"
+      },
       "proptest": {
         "min": {
           "description": "No type.",
@@ -91,9 +99,6 @@
           "description": "Generate an arbitrary section type.",
           "strategy": "option::of(SectionType::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "content-type"
       },
       "$ref": "SectionType.schema.json"
     }

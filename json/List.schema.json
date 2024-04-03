@@ -10,7 +10,6 @@
   "category": "prose",
   "description": "A list of items.",
   "$comment": "This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).\nRenaming was done as `List` was considered a more developer friendly alternative. Similarly,\nschema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.\nNote that, as with every other such renaming in Stencila Schema, a mapping between names is\ndefined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.\n",
-  "proptest": {},
   "dom": {
     "derive": false
   },
@@ -23,6 +22,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "items",
@@ -57,6 +57,14 @@
         "item"
       ],
       "walk": true,
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, list item.",
@@ -75,9 +83,6 @@
           "strategy": "vec(ListItem::arbitrary(), size_range(1..=8))"
         }
       },
-      "jats": {
-        "content": true
-      },
       "type": "array",
       "items": {
         "$ref": "ListItem.schema.json"
@@ -86,6 +91,14 @@
     "order": {
       "@id": "schema:itemListOrder",
       "description": "The ordering of the list.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "list-type"
+      },
       "proptest": {
         "min": {
           "description": "Always generate an unordered list.",
@@ -99,9 +112,6 @@
           "description": "Generate an arbitrary list ordering.",
           "strategy": "ListOrder::arbitrary()"
         }
-      },
-      "jats": {
-        "attr": "list-type"
       },
       "$ref": "ListOrder.schema.json"
     },

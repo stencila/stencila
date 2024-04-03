@@ -22,6 +22,7 @@ human_name = "2.0.3"
 interim = { version = "0.1.1", features = ["chrono"] }
 monostate = "0.1.11"
 node-id = { path = "../node-id" }
+node-merge = { path = "../node-merge" }
 node-store = { path = "../node-store" }
 node-strip = { path = "../node-strip" }
 node-type = { path = "../node-type" }

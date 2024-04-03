@@ -8,7 +8,7 @@ use super::time::Time;
 /// A validator specifying the constraints on a time.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, MergeNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "TimeValidator")]
@@ -22,9 +22,11 @@ pub struct TimeValidator {
     pub id: Option<String>,
 
     /// The inclusive lower limit for a time.
+    #[merge(format = "md")]
     pub minimum: Option<Time>,
 
     /// The inclusive upper limit for a time.
+    #[merge(format = "md")]
     pub maximum: Option<Time>,
 
     /// A unique identifier for a node within a document

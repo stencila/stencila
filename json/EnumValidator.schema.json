@@ -45,6 +45,11 @@
       "aliases": [
         "value"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "serde": {
         "deserializeWith": "none"
       },

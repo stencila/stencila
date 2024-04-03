@@ -41,6 +41,8 @@ properties:
     '@id': stencila:sectionType
     description: The type of section.
     $ref: SectionType
+    merge:
+      formats: [md]
     jats:
       attr: content-type
     proptest:

@@ -10,13 +10,13 @@
   "category": "style",
   "description": "Styled block content.",
   "status": "under-development",
-  "proptest": {},
   "html": {
     "elem": "div"
   },
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "code",
@@ -48,6 +48,14 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code of the equation in the `styleLanguage`.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "style"
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -66,9 +74,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "jats": {
-        "attr": "style"
-      },
       "$ref": "Cord.schema.json"
     },
     "styleLanguage": {
@@ -78,6 +83,14 @@
         "style-language",
         "style_language"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "style-detail"
+      },
       "proptest": {
         "min": {
           "description": "Do not generate a style language.",
@@ -95,9 +108,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "style-detail"
       },
       "type": "string"
     },
@@ -161,6 +171,11 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the styled block",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "div"
       },

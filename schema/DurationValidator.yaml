@@ -19,15 +19,21 @@ properties:
     description: The time units that the duration can have.
     $comment: |
       A duration is valid if its `timeUnit` is amongst the `timeUnits` of the validator.
+    merge:
+      formats: [md]
   minimum:
     '@id': stencila:minimum
     $ref: Duration
     description: The inclusive lower limit for a duration.
     $comment: |
       A duration is valid if it is greater than, or exactly equal to, `minimum`.
+    merge:
+      formats: [md]
   maximum:
     '@id': stencila:maximum
     $ref: Duration
     description: The inclusive upper limit for a duration.
     $comment: |
       A duration is valid if it is less than, or exactly equal to, `maximum`.
+    merge:
+      formats: [md]

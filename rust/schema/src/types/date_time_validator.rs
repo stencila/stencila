@@ -8,7 +8,7 @@ use super::string::String;
 /// A validator specifying the constraints on a date-time.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, MergeNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "DateTimeValidator")]
@@ -22,9 +22,11 @@ pub struct DateTimeValidator {
     pub id: Option<String>,
 
     /// The inclusive lower limit for a date-time.
+    #[merge(format = "md")]
     pub minimum: Option<DateTime>,
 
     /// The inclusive upper limit for a date-time.
+    #[merge(format = "md")]
     pub maximum: Option<DateTime>,
 
     /// A unique identifier for a node within a document

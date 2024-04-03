@@ -11,4 +11,6 @@ properties:
     '@id': stencila:suggestionStatus
     description: The status of the suggestion including whether it is proposed, accepted, or rejected.
     strip: [metadata]
+    merge:
+      formats: [md]
     $ref: SuggestionStatus

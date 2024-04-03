@@ -10,10 +10,10 @@
   "category": "flow",
   "description": "Call another document, optionally with arguments, and include its executed content.",
   "status": "under-development",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "source",
@@ -56,6 +56,11 @@
       "strip": [
         "execution"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -279,6 +284,11 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed path.",
@@ -328,6 +338,9 @@
       "strip": [
         "output"
       ],
+      "merge": {
+        "formats": []
+      },
       "dom": {
         "elem": "div"
       },
@@ -345,6 +358,14 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "div"
+      },
       "proptest": {
         "min": {
           "description": "An empty set of arguments.",
@@ -358,9 +379,6 @@
           "description": "Generate up to 10 arbitrary arguments",
           "strategy": "vec(CallArgument::arbitrary(), size_range(0..=10))"
         }
-      },
-      "dom": {
-        "elem": "div"
       },
       "type": "array",
       "items": {

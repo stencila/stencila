@@ -14,6 +14,8 @@ impl std::fmt::Display for Array {
 
 impl StripNode for Array {}
 
+impl MergeNode for Array {}
+
 impl ReadNode for Array {
     fn load_list<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         Ok(Self(Vec::<Primitive>::load_list(store, obj_id)?))

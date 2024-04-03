@@ -11,6 +11,12 @@ use crate::{prelude::*, Cord};
 
 impl StripNode for Cord {}
 
+impl MergeNode for Cord {
+    fn condense(&self, context: &mut CondenseContext) {
+        context.collect_value(&self.to_string());
+    }
+}
+
 impl ReadNode for Cord {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         Ok(Self::new(store.text(obj_id)?))

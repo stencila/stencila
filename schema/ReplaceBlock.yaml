@@ -16,5 +16,7 @@ properties:
     type: array
     items:
       $ref: Block
+    merge:
+      formats: [md]
     dom:
       elem: div

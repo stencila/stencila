@@ -281,7 +281,7 @@
       "@id": "schema:value",
       "@type": "rdfs:Property",
       "rdfs:label": "value",
-      "rdfs:comment": "The current value of the parameter.",
+      "rdfs:comment": "The current value of the argument.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Date"
@@ -303,6 +303,9 @@
         },
         {
           "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "stencila:CallArgument"
         },
         {
           "@id": "stencila:ConstantValidator"

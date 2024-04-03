@@ -9,10 +9,10 @@
   "category": "flow",
   "description": "Show and execute alternative content conditional upon an executed expression.",
   "status": "under-development",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "clauses"
@@ -51,6 +51,11 @@
       "strip": [
         "execution"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -278,6 +283,17 @@
         "code"
       ],
       "walk": true,
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "div"
+      },
+      "html": {
+        "slot": "div"
+      },
       "proptest": {
         "min": {
           "description": "A single fixed clause with a single paragraph.",
@@ -291,12 +307,6 @@
           "description": "Generate up to 5 arbitrary if clauses",
           "strategy": "vec(IfBlockClause::arbitrary(), size_range(1..=10))"
         }
-      },
-      "dom": {
-        "elem": "div"
-      },
-      "html": {
-        "slot": "div"
       },
       "type": "array",
       "items": {

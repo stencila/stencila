@@ -9,13 +9,13 @@
   ],
   "category": "works",
   "description": "A table.",
-  "proptest": {},
   "html": {
     "special": true
   },
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "rows"
@@ -537,6 +537,11 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -564,12 +569,25 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the table.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "string"
     },
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the table.",
       "walk": true,
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "caption"
+      },
       "proptest": {
         "min": {
           "description": "No caption.",
@@ -584,9 +602,6 @@
           "strategy": "option::of(vec_blocks_non_recursive(3))"
         }
       },
-      "dom": {
-        "elem": "caption"
-      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -599,6 +614,14 @@
         "row"
       ],
       "walk": true,
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "table"
+      },
       "proptest": {
         "min": {
           "description": "Generate up to a 2x2 table with a header row.",
@@ -617,9 +640,6 @@
           "strategy": "vec(TableRow::arbitrary(), size_range(1..=8))"
         }
       },
-      "dom": {
-        "elem": "table"
-      },
       "type": "array",
       "items": {
         "$ref": "TableRow.schema.json"
@@ -632,6 +652,14 @@
         "note"
       ],
       "walk": true,
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "aside"
+      },
       "proptest": {
         "min": {
           "description": "No notes.",
@@ -645,9 +673,6 @@
           "description": "Generate up to two arbitrary, non-recursive, block nodes.",
           "strategy": "option::of(vec_blocks_non_recursive(2))"
         }
-      },
-      "dom": {
-        "elem": "aside"
       },
       "type": "array",
       "items": {

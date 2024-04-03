@@ -21,6 +21,8 @@ properties:
     description: The code to be evaluated for the parameter.
     $ref: Cord
     strip: [code]
+    merge:
+      formats: [md]
     proptest:
       min:
         description: Generate a simple fixed string of code.
@@ -36,8 +38,16 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: String::arbitrary().prop_map(Cord::new)
+  value:
+    '@id': schema:value
+    description: The current value of the argument.
+    $ref: Node
+    merge:
+      formats: [md]
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
     strip: [code]
+    merge:
+      formats: [md]

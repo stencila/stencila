@@ -21,15 +21,19 @@ properties:
   claimType:
     '@id': stencila:claimType
     description: The type of the claim.
+    $ref: ClaimType
+    merge:
+      formats: [md]
     jats:
       attr: content-type
-    $ref: ClaimType
   label:
     '@id': stencila:label
     description: A short label for the claim.
+    type: string
+    merge:
+      formats: [md]
     jats:
       elem: label
-    type: string
   content:
     '@id': stencila:content
     description: Content of the claim, usually a single paragraph.

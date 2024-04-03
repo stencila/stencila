@@ -42,6 +42,11 @@
     "value": {
       "@id": "schema:value",
       "description": "The value that the node must have.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "Node.schema.json"
     }
   }

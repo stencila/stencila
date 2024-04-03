@@ -10,7 +10,6 @@
   "category": "code",
   "description": "An executable programming code expression.",
   "$comment": "Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.",
-  "proptest": {},
   "jats": {
     "elem": "code",
     "attrs": {
@@ -20,6 +19,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "code"
@@ -60,6 +60,11 @@
       "strip": [
         "execution"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -283,6 +288,14 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -301,9 +314,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "jats": {
-        "content": true
-      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -316,6 +326,14 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "language"
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string.",
@@ -333,9 +351,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "language"
       },
       "type": "string"
     },

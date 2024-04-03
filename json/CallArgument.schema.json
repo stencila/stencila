@@ -11,10 +11,10 @@
   "description": "The value of a `Parameter` to call a document with.",
   "$comment": "A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing\nan expression to be used to set the value of the parameter.\n",
   "status": "under-development",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "name",
@@ -56,6 +56,11 @@
       "strip": [
         "execution"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -277,6 +282,14 @@
       "@id": "schema:name",
       "description": "The name of the parameter.",
       "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "name"
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed name.",
@@ -295,31 +308,48 @@
           "strategy": "String::arbitrary()"
         }
       },
-      "jats": {
-        "attr": "name"
-      },
       "type": "string",
       "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
     },
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the parameter.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "string"
     },
     "value": {
       "@id": "schema:value",
-      "description": "The current value of the parameter.",
+      "description": "The current value of the argument.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "Node.schema.json"
     },
     "default": {
       "@id": "schema:defaultValue",
       "description": "The default value of the parameter.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "Node.schema.json"
     },
     "validator": {
       "@id": "stencila:validator",
       "description": "The validator that the value is validated against.",
       "$comment": "This property is large (in terms of bytes) so is best kept as a non-core\nproperty, so as not to inflate the size of the `Inline` enum in Rust.\n",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "span"
       },
@@ -343,6 +373,11 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -373,6 +408,11 @@
       "strip": [
         "code"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "string"
     }
   }

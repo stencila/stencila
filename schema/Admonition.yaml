@@ -21,6 +21,8 @@ properties:
     '@id': stencila:admonitionType
     description: The type of admonition.
     $ref: AdmonitionType
+    merge:
+      formats: [md]
     jats:
       attr: content-type
     proptest:
@@ -36,6 +38,8 @@ properties:
     type: array
     items:
       $ref: Inline
+    merge:
+      formats: [md]
     dom:
       elem: p
     jats:
@@ -57,6 +61,8 @@ properties:
       When an admonition is folded, its `content` is hidden by default, but
       can be toggled to be visible or hidden.
     type: boolean
+    merge:
+      formats: [md]
     jats:
       attr: is-folded
     proptest:

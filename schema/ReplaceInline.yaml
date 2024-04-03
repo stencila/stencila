@@ -16,5 +16,7 @@ properties:
     type: array
     items:
       $ref: Inline
+    merge:
+      formats: [md]
     dom:
       elem: span

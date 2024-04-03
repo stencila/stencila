@@ -30,6 +30,8 @@ properties:
     items:
       $ref: ListItem
     walk: true
+    merge:
+      formats: [md]
     jats:
       content: true
     proptest:
@@ -49,6 +51,8 @@ properties:
     '@id': 'schema:itemListOrder'
     description: The ordering of the list.
     $ref: ListOrder
+    merge:
+      formats: [md]
     jats:
       attr: list-type
     proptest:

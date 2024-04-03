@@ -9,10 +9,10 @@
   ],
   "category": "edits",
   "description": "A suggestion to replace some block content with new block content.",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "content",
@@ -51,11 +51,19 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "SuggestionStatus.schema.json"
     },
     "content": {
       "@id": "stencila:content",
       "description": "The content that is suggested to be inserted, modified, replaced, or deleted.",
+      "dom": {
+        "elem": "div"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed paragraph.",
@@ -74,9 +82,6 @@
           "strategy": "vec_blocks_non_recursive(4)"
         }
       },
-      "dom": {
-        "elem": "div"
-      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -85,6 +90,11 @@
     "replacement": {
       "@id": "stencila:replacement",
       "description": "The new replacement block content.",
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "div"
       },

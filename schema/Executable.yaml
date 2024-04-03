@@ -12,8 +12,10 @@ properties:
     description: Under which circumstances the code should be automatically executed.
     aliases:
       - auto
-    strip: [execution]
     $ref: AutomaticExecution
+    strip: [execution]
+    merge:
+      formats: [md]
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the content, semantics and dependencies of the node.

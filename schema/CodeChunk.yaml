@@ -25,6 +25,8 @@ properties:
       Without this property it is not possible to know if the chunk should be in the
       series of figures, or in the series of tables.
     $ref: LabelType
+    merge:
+      formats: [md]
     proptest:
       min:
         description: No label type
@@ -36,6 +38,8 @@ properties:
     "@id": stencila:label
     description: A short label for the chunk.
     type: string
+    merge:
+      formats: [md]
     proptest:
       min:
         description: No label
@@ -53,6 +57,8 @@ properties:
     items:
       $ref: Block
     walk: true
+    merge:
+      formats: [md]
     dom:
       elem: div
     proptest:

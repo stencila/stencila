@@ -45,6 +45,11 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "SuggestionStatus.schema.json"
     }
   }

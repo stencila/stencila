@@ -17,6 +17,8 @@ properties:
     description: The code.
     $ref: Cord
     strip: [code]
+    merge:
+      formats: [md]
     jats:
       content: true
     proptest:
@@ -40,6 +42,8 @@ properties:
     description: The programming language of the code.
     type: string
     strip: [code]
+    merge:
+      formats: [md]
     jats:
       attr: language
     proptest:

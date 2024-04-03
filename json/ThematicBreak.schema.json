@@ -9,7 +9,9 @@
   ],
   "category": "prose",
   "description": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.",
-  "proptest": {},
+  "merge": {
+    "derive": false
+  },
   "html": {
     "elem": "hr"
   },
@@ -19,6 +21,7 @@
   "markdown": {
     "template": "***\\n\\n"
   },
+  "proptest": {},
   "required": [
     "type"
   ],

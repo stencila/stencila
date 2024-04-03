@@ -9,10 +9,10 @@
   ],
   "category": "edits",
   "description": "A suggestion to modify some inline content.",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "content",
@@ -51,11 +51,19 @@
       "strip": [
         "metadata"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "SuggestionStatus.schema.json"
     },
     "content": {
       "@id": "stencila:content",
       "description": "The content that is suggested to be inserted, modified, replaced, or deleted.",
+      "dom": {
+        "elem": "span"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
@@ -73,9 +81,6 @@
           "description": "Generate up to four arbitrary, non-recursive, inline nodes",
           "strategy": "vec_inlines_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "span"
       },
       "type": "array",
       "items": {

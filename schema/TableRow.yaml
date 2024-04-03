@@ -19,6 +19,8 @@ properties:
     items:
       $ref: TableCell
     walk: true
+    merge:
+      formats: [md]
     dom:
       elem: tr
     proptest:
@@ -38,3 +40,5 @@ properties:
     '@id': stencila:rowType
     description: The type of row.
     $ref: TableRowType
+    merge:
+      formats: [md]

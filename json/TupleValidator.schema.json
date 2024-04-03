@@ -44,6 +44,11 @@
       "aliases": [
         "item"
       ],
+      "merge": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "array",
       "items": {
         "$ref": "Validator.schema.json"

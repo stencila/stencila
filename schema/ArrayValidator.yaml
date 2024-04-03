@@ -18,25 +18,37 @@ properties:
     '@id': stencila:itemsNullable
     description: Whether items can have the value `Node::Null`
     type: boolean
+    merge:
+      formats: [md]
   itemsValidator:
     '@id': stencila:itemsValidator
     description: Another validator node specifying the constraints on all items in the array.
     $ref: Validator
+    merge:
+      formats: [md]
   contains:
     '@id': stencila:contains
     description: An array node is valid if at least one of its items is valid against the `contains` schema.
     $ref: Validator
+    merge:
+      formats: [md]
   minItems:
     '@id': stencila:minItems
     description: An array node is valid if its size is greater than, or equal to, this value.
     type: integer
     minimum: 0
+    merge:
+      formats: [md]
   maxItems:
     '@id': stencila:maxItems
     description: An array node is valid if its size is less than, or equal to, this value.
     type: integer
     minimum: 0
+    merge:
+      formats: [md]
   uniqueItems:
     '@id': stencila:uniqueItems
     description: A flag to indicate that each value in the array should be unique.
     type: boolean
+    merge:
+      formats: [md]

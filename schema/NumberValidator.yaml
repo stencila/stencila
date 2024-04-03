@@ -24,24 +24,32 @@ properties:
     description: The inclusive lower limit for a numeric node.
     $comment: |
       A number is valid if it is greater than, or exactly equal to, `minimum`.
+    merge:
+      formats: [md]
   exclusiveMinimum:
     '@id': stencila:exclusiveMinimum
     type: number
     description: The exclusive lower limit for a numeric node.
     $comment: |
       A number is valid only if it has a value greater than (not equal to) `exclusiveMinimum`.
+    merge:
+      formats: [md]
   maximum:
     '@id': stencila:maximum
     type: number
     description: The inclusive upper limit for a numeric node.
     $comment: |
       A number is valid if it is less than, or exactly equal to, `maximum`.
+    merge:
+      formats: [md]
   exclusiveMaximum:
     '@id': stencila:exclusiveMaximum
     type: number
     description: The exclusive upper limit for a numeric node.
     $comment: |
       A number is valid only if it has a value less than (not equal to) `exclusiveMaximum`.
+    merge:
+      formats: [md]
   multipleOf:
     '@id': stencila:multipleOf
     type: number
@@ -49,3 +57,5 @@ properties:
     description: A number that a numeric node must be a multiple of.
     $comment: |
       A number is valid only if division by this value results in an integer.
+    merge:
+      formats: [md]

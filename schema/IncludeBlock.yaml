@@ -17,8 +17,10 @@ properties:
   source:
     '@id': stencila:source
     description: The external source of the content, a file path or URL.
-    strip: [code]
     type: string
+    strip: [code]
+    merge:
+      formats: [md]
     proptest:
       min:
         description: Generate a fixed path.
@@ -57,9 +59,12 @@ properties:
     $comment: |
       Assumes that included content will be block content i.e. that there will be limited
       instances where a user would want to use an `Include` node to transclude inline content.
-    strip: [output]
     type: array
     items:
       $ref: Block
+    strip: [output]
+    merge:
+      # Do not merge content since that is derived from `source`
+      formats: []
     dom:
       elem: div

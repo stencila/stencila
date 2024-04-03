@@ -38,6 +38,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content that is marked.",
+      "dom": {
+        "elem": "none"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
@@ -55,9 +58,6 @@
           "description": "Generate up to four arbitrary, non-recursive, inline nodes",
           "strategy": "vec_inlines_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "none"
       },
       "type": "array",
       "items": {

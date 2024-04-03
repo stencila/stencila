@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Cord } from "./Cord.js";
+import { Node } from "./Node.js";
 import { Parameter } from "./Parameter.js";
 
 /**
@@ -9,6 +10,11 @@ import { Parameter } from "./Parameter.js";
 export class CallArgument extends Parameter {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "CallArgument";
+
+  /**
+   * The current value of the argument.
+   */
+  value?: Node;
 
   /**
    * The code to be evaluated for the parameter.
