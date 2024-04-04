@@ -1,0 +1,16 @@
+---
+source: rust/node-merge/tests/diff.rs
+expression: "diff!(r#\"\n```js\nCode\n```\n\"#, r#\"\n```py\nCode\n```\n\"#)"
+---
+art_11111112.cdb_11111111  Article:content.0.CodeBlock:code                 CodeBlock:code                 "Code"
+art_11111112.cdb_11111111  Article:content.0.CodeBlock:programmingLanguage  CodeBlock:programmingLanguage  "js"
+
+art_11111112.cdb_11111111  Article:content.0.CodeBlock:code                 CodeBlock:code                 "Code"
+art_11111112.cdb_11111111  Article:content.0.CodeBlock:programmingLanguage  CodeBlock:programmingLanguage  "py"
+
+DiffOp       Old range    New range
+Equal        0..1         0..1
+Delete       1..2         2..2
+Insert       1..1         1..2
+
+Replace((MathBlock:code, "foo"))

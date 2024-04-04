@@ -1,6 +1,6 @@
 use codecs::{DecodeOptions, Format};
 use common::{eyre::Result, tokio};
-use common_dev::insta::assert_snapshot;
+use common_dev::insta::assert_debug_snapshot;
 use node_merge::{CondenseContext, MergeNode};
 
 /// Snapshot tests of the `MergeNode::condense` method
@@ -31,7 +31,7 @@ async fn condense() -> Result<()> {
         };
     }
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "inlines_marks",
         condense!(
             r#"
@@ -44,7 +44,7 @@ Three `code`, `R code`{r}, $math$, `am`{asciimath}.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "inlines_links",
         condense!(
             r#"
@@ -55,7 +55,7 @@ Two [alt](https://example.org/image2.png "title").
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "inlines_media",
         condense!(
             r#"
@@ -66,7 +66,7 @@ Two ![alt](https://example.org/image2.png "title"), ![alt](audio1.mp3 "title"), 
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "inlines_exec",
         condense!(
             r#"
@@ -77,7 +77,7 @@ Two `5 * 6`{py exec}, &[par2]{min=0 max=5}.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "inlines_edits",
         condense!(
             r#"
@@ -86,7 +86,7 @@ One [[insert add]], [[delete remove]], [[replace this>>that]].
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "headings",
         condense!(
             r#"
@@ -99,7 +99,7 @@ One [[insert add]], [[delete remove]], [[replace this>>that]].
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "lists",
         condense!(
             r#"
@@ -115,7 +115,7 @@ One [[insert add]], [[delete remove]], [[replace this>>that]].
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "lists",
         condense!(
             r#"
@@ -131,7 +131,7 @@ One [[insert add]], [[delete remove]], [[replace this>>that]].
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "lists_checked",
         condense!(
             r#"
@@ -141,7 +141,7 @@ One [[insert add]], [[delete remove]], [[replace this>>that]].
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "tables",
         condense!(
             r#"
@@ -152,7 +152,7 @@ One [[insert add]], [[delete remove]], [[replace this>>that]].
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "sections",
         condense!(
             r#"
@@ -177,7 +177,7 @@ Three.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "claims",
         condense!(
             r#"
@@ -196,7 +196,7 @@ Theorem.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "thematic_breaks",
         condense!(
             r#"
@@ -209,7 +209,7 @@ After.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "code_blocks",
         condense!(
             r#"
@@ -224,7 +224,7 @@ After.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "code_chunks",
         condense!(
             r#"
@@ -243,7 +243,7 @@ After.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "math_blocks",
         condense!(
             r#"
@@ -258,7 +258,7 @@ with lang specified
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "styled_blocks",
         condense!(
             r#"
@@ -271,7 +271,7 @@ Styled
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "if_blocks",
         condense!(
             r#"
@@ -292,7 +292,7 @@ Clause 3.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "for_blocks",
         condense!(
             r#"
@@ -310,7 +310,7 @@ No items.
     );
 
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "include_blocks",
         condense!(
             r#"
@@ -319,7 +319,7 @@ No items.
         )
     );
 
-    assert_snapshot!(
+    assert_debug_snapshot!(
         "call_blocks",
         condense!(
             r#"

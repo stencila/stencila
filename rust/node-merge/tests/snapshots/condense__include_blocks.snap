@@ -2,4 +2,4 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n::: include file.md\n\"#)"
 ---
-art_11111112/inc_11111111  Article:content.0.IncludeBlock:source  "file.md"
+art_11111112.inc_11111111  Article:content.0.IncludeBlock:source  IncludeBlock:source  "file.md"

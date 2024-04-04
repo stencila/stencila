@@ -1,0 +1,12 @@
+---
+source: rust/node-merge/tests/diff.rs
+expression: "diff!(r#\"One\"#, r#\"One\"#)"
+---
+art_11111113.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value  "One"
+
+art_11111113.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value  "One"
+
+DiffOp       Old range    New range
+Equal        0..1         0..1
+
+Replace((MathBlock:code, "foo"))

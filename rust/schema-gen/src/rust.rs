@@ -191,7 +191,7 @@ use common::{{
     strum::{{Display, EnumIter, EnumString}},
 }};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Display, EnumString, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
 #[strum(crate = "common::strum")]
 pub enum NodeType {{
@@ -220,7 +220,7 @@ pub enum NodeType {{
 
 use common::strum::Display;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display)]
 #[strum(serialize_all="camelCase", crate = "common::strum")]
 pub enum NodeProperty {{
 {node_properties},

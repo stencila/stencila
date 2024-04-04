@@ -2,7 +2,7 @@
 
 use common::strum::Display;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display)]
 #[strum(serialize_all="camelCase", crate = "common::strum")]
 pub enum NodeProperty {
     About,

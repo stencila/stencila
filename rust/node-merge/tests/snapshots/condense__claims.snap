@@ -2,9 +2,9 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n::: Lemma 1\n\nLemma.\n\n:::\n\n::: Theorem 1\n\nTheorem.\n\n:::\n\"#)"
 ---
-art_11111117/cla_11111111                            Article:content.0.Claim:claimType                                 "Lemma"
-art_11111117/cla_11111111                            Article:content.0.Claim:label                                     "1"
-art_11111117/cla_11111111/pgh_11111113/txt_11111112  Article:content.0.Claim:content.0.Paragraph:content.0.Text:value  "Lemma."
-art_11111117/cla_11111114                            Article:content.1.Claim:claimType                                 "Theorem"
-art_11111117/cla_11111114                            Article:content.1.Claim:label                                     "1"
-art_11111117/cla_11111114/pgh_11111116/txt_11111115  Article:content.1.Claim:content.0.Paragraph:content.0.Text:value  "Theorem."
+art_11111117.cla_11111111                            Article:content.0.Claim:claimType                                 Claim:claimType  "Lemma"
+art_11111117.cla_11111111                            Article:content.0.Claim:label                                     Claim:label      "1"
+art_11111117.cla_11111111.pgh_11111113.txt_11111112  Article:content.0.Claim:content.0.Paragraph:content.0.Text:value  Text:value       "Lemma."
+art_11111117.cla_11111114                            Article:content.1.Claim:claimType                                 Claim:claimType  "Theorem"
+art_11111117.cla_11111114                            Article:content.1.Claim:label                                     Claim:label      "1"
+art_11111117.cla_11111114.pgh_11111116.txt_11111115  Article:content.1.Claim:content.0.Paragraph:content.0.Text:value  Text:value       "Theorem."

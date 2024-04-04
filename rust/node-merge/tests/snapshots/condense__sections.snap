@@ -2,9 +2,9 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n::: Introduction\n\nOne.\n\n:::\n\n::: Methods\n\nTwo.\n\n:::\n\n::: Discussion\n\nThree.\n\n:::\n\"#)"
 ---
-art_1111111A/sec_11111111/pgh_11111113/txt_11111112  Article:content.0.Section:content.0.Paragraph:content.0.Text:value  "One."
-art_1111111A/sec_11111111                            Article:content.0.Section:sectionType                               "Introduction"
-art_1111111A/sec_11111114/pgh_11111116/txt_11111115  Article:content.1.Section:content.0.Paragraph:content.0.Text:value  "Two."
-art_1111111A/sec_11111114                            Article:content.1.Section:sectionType                               "Methods"
-art_1111111A/sec_11111117/pgh_11111119/txt_11111118  Article:content.2.Section:content.0.Paragraph:content.0.Text:value  "Three."
-art_1111111A/sec_11111117                            Article:content.2.Section:sectionType                               "Discussion"
+art_1111111A.sec_11111111.pgh_11111113.txt_11111112  Article:content.0.Section:content.0.Paragraph:content.0.Text:value  Text:value           "One."
+art_1111111A.sec_11111111                            Article:content.0.Section:sectionType                               Section:sectionType  "Introduction"
+art_1111111A.sec_11111114.pgh_11111116.txt_11111115  Article:content.1.Section:content.0.Paragraph:content.0.Text:value  Text:value           "Two."
+art_1111111A.sec_11111114                            Article:content.1.Section:sectionType                               Section:sectionType  "Methods"
+art_1111111A.sec_11111117.pgh_11111119.txt_11111118  Article:content.2.Section:content.0.Paragraph:content.0.Text:value  Text:value           "Three."
+art_1111111A.sec_11111117                            Article:content.2.Section:sectionType                               Section:sectionType  "Discussion"

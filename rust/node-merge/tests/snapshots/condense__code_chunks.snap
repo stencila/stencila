@@ -2,9 +2,9 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n```exec\n# Some code\n```\n\n```r exec\n# With lang\n```\n\n```r exec auto=never\n# With auto exec set\n```\n\"#)"
 ---
-art_11111114/cdc_11111111  Article:content.0.CodeChunk:code                 "# Some code"
-art_11111114/cdc_11111112  Article:content.1.CodeChunk:code                 "# With lang"
-art_11111114/cdc_11111112  Article:content.1.CodeChunk:programmingLanguage  "r"
-art_11111114/cdc_11111113  Article:content.2.CodeChunk:autoExec             "Never"
-art_11111114/cdc_11111113  Article:content.2.CodeChunk:code                 "# With auto exec set"
-art_11111114/cdc_11111113  Article:content.2.CodeChunk:programmingLanguage  "r"
+art_11111114.cdc_11111111  Article:content.0.CodeChunk:code                 CodeChunk:code                 "# Some code"
+art_11111114.cdc_11111112  Article:content.1.CodeChunk:code                 CodeChunk:code                 "# With lang"
+art_11111114.cdc_11111112  Article:content.1.CodeChunk:programmingLanguage  CodeChunk:programmingLanguage  "r"
+art_11111114.cdc_11111113  Article:content.2.CodeChunk:autoExec             CodeChunk:autoExec             "Never"
+art_11111114.cdc_11111113  Article:content.2.CodeChunk:code                 CodeChunk:code                 "# With auto exec set"
+art_11111114.cdc_11111113  Article:content.2.CodeChunk:programmingLanguage  CodeChunk:programmingLanguage  "r"

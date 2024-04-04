@@ -2,8 +2,8 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n| A | B |\n|---|---|\n|1  | 2 |\n\"#)"
 ---
-art_1111111G/tbl_1111111F/tbr_11111117/tbc_11111113/pgh_11111112/txt_11111111  Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  "A"
-art_1111111G/tbl_1111111F/tbr_11111117/tbc_11111116/pgh_11111115/txt_11111114  Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  "B"
-art_1111111G/tbl_1111111F/tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:rowType                                                     "HeaderRow"
-art_1111111G/tbl_1111111F/tbr_1111111E/tbc_1111111A/pgh_11111119/txt_11111118  Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  "1"
-art_1111111G/tbl_1111111F/tbr_1111111E/tbc_1111111D/pgh_1111111C/txt_1111111B  Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  "2"
+art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113.pgh_11111112.txt_11111111  Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "A"
+art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116.pgh_11111115.txt_11111114  Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "B"
+art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:rowType                                                     TableRow:rowType  "HeaderRow"
+art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A.pgh_11111119.txt_11111118  Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "1"
+art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D.pgh_1111111C.txt_1111111B  Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "2"

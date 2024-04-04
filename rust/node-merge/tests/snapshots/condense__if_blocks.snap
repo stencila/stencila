@@ -2,10 +2,10 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n::: if a < 1\n\nClause 1.\n\n::: elif a > 2 {python}\n\nClause 2.\n\n::: else\n\nClause 3.\n\n:::\n\"#)"
 ---
-art_1111111B/ifb_11111112/ibc_11111111                            Article:content.0.IfBlock:clauses.0.IfBlockClause:code                                      "a < 1"
-art_1111111B/ifb_11111112/ibc_11111111/pgh_11111114/txt_11111113  Article:content.0.IfBlock:clauses.0.IfBlockClause:content.0.Paragraph:content.0.Text:value  "Clause 1."
-art_1111111B/ifb_11111112/ibc_11111115                            Article:content.0.IfBlock:clauses.1.IfBlockClause:code                                      "a > 2"
-art_1111111B/ifb_11111112/ibc_11111115                            Article:content.0.IfBlock:clauses.1.IfBlockClause:programmingLanguage                       "python"
-art_1111111B/ifb_11111112/ibc_11111115/pgh_11111117/txt_11111116  Article:content.0.IfBlock:clauses.1.IfBlockClause:content.0.Paragraph:content.0.Text:value  "Clause 2."
-art_1111111B/ifb_11111112/ibc_11111118                            Article:content.0.IfBlock:clauses.2.IfBlockClause:code                                      ""
-art_1111111B/ifb_11111112/ibc_11111118/pgh_1111111A/txt_11111119  Article:content.0.IfBlock:clauses.2.IfBlockClause:content.0.Paragraph:content.0.Text:value  "Clause 3."
+art_1111111B.ifb_11111112.ibc_11111111                            Article:content.0.IfBlock:clauses.0.IfBlockClause:code                                      IfBlockClause:code                 "a < 1"
+art_1111111B.ifb_11111112.ibc_11111111.pgh_11111114.txt_11111113  Article:content.0.IfBlock:clauses.0.IfBlockClause:content.0.Paragraph:content.0.Text:value  Text:value                         "Clause 1."
+art_1111111B.ifb_11111112.ibc_11111115                            Article:content.0.IfBlock:clauses.1.IfBlockClause:code                                      IfBlockClause:code                 "a > 2"
+art_1111111B.ifb_11111112.ibc_11111115                            Article:content.0.IfBlock:clauses.1.IfBlockClause:programmingLanguage                       IfBlockClause:programmingLanguage  "python"
+art_1111111B.ifb_11111112.ibc_11111115.pgh_11111117.txt_11111116  Article:content.0.IfBlock:clauses.1.IfBlockClause:content.0.Paragraph:content.0.Text:value  Text:value                         "Clause 2."
+art_1111111B.ifb_11111112.ibc_11111118                            Article:content.0.IfBlock:clauses.2.IfBlockClause:code                                      IfBlockClause:code                 ""
+art_1111111B.ifb_11111112.ibc_11111118.pgh_1111111A.txt_11111119  Article:content.0.IfBlock:clauses.2.IfBlockClause:content.0.Paragraph:content.0.Text:value  Text:value                         "Clause 3."
