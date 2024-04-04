@@ -1,11 +1,12 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../animation/collapsible'
 import { UIBaseClass } from '../mixins/uiBaseClass'
+import '../../buttons/chevron'
 
 /**
  * UI in-flow-block
@@ -22,28 +23,51 @@ export class UIBlockInFlow extends UIBaseClass {
   @state()
   displayContent: boolean = false
 
+  /**
+   * Indicates whether we need to have border separating header items and the
+   * expand/collapse button.
+   */
+  @state()
+  hasHeaderContent: boolean = false
+
+  /**
+   * If the component can be collapsed, track whether it is in a collapsed state.
+   */
+  @property({ type: Boolean })
+  collapsed?: boolean = false
+
+  /**
+   * Allows us to switch the animation on/off.
+   */
+  @property({ type: Boolean, attribute: 'can-animate' })
+  canAnimate: boolean = true
+
   override render() {
     const cardStyles = apply([
       'group',
       'transition duration-400',
-      'border border-[transparent]',
+      'border border-[rgba(255,255,255,0)]',
       'rounded',
       this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
       this.ui.borderColour && `border-[${this.ui.borderColour}]`,
     ])
 
+    const animationClasses = `${!this.canAnimate ? 'no-animate' : ''} ${this.collapsed ? '' : 'opened'}`
+
     return html`<div class=${`${cardStyles}`}>
       <div class="relative">
-        <stencila-ui-collapsible-animation class=${'opened'}>
-          ${this.renderHeader()} ${this.renderBody()}
+        ${this.renderHeader()}
+
+        <stencila-ui-collapsible-animation class=${animationClasses}>
+          <div>${this.renderBody()} ${this.renderContent()}</div>
         </stencila-ui-collapsible-animation>
-        ${this.renderContent()}
       </div>
     </div>`
   }
 
   private renderHeader() {
     const { iconLibrary, icon, title, borderColour } = this.ui
+    const headerTitle = (this.title && this.title) || title
 
     const headerStyles = apply([
       'flex items-center',
@@ -54,10 +78,18 @@ export class UIBlockInFlow extends UIBaseClass {
       `border border-[${borderColour}]`,
       this.view === 'source' ? '' : 'rounded-t',
       'font-medium',
+      'cursor-pointer',
+      'transition duration-100 ease-in',
+      `hover:contrast-[103%]`,
     ])
 
     return html`<div class=${headerStyles}>
-      <div class="flex items-center gap-x-2 grow">
+      <div
+        class="flex items-center gap-x-2 grow"
+        @click=${() => {
+          this.collapsed = !this.collapsed
+        }}
+      >
         <span class="items-center flex grow-0 shrink-0">
           <sl-icon
             library=${iconLibrary}
@@ -66,10 +98,11 @@ export class UIBlockInFlow extends UIBaseClass {
           ></sl-icon>
         </span>
         <div class="flex justify-between items-center gap-x-2 grow">
-          <span class="font-bold grow">${title}</span>
-          <div class="">
+          <span class="font-bold grow">${headerTitle}</span>
+          <div class="relative z-[3]">
             <slot name="header-right"></slot>
           </div>
+          ${this.renderCollapse()}
         </div>
       </div>
     </div>`
@@ -86,6 +119,21 @@ export class UIBlockInFlow extends UIBaseClass {
 
     return html`<div class=${bodyStyles}>
       <slot name="body"></slot>
+    </div>`
+  }
+
+  private renderCollapse() {
+    const classes = apply([
+      'flex items-center',
+      'ml-3',
+      `border-[${this.ui.borderColour}] brightness-75`,
+      this.hasHeaderContent && 'pl-3 border-l-2',
+    ])
+    return html`<div class=${classes}>
+      <stencila-chevron-button
+        position=${this.collapsed ? 'left' : 'down'}
+        class="inline-flex"
+      ></stencila-chevron-button>
     </div>`
   }
 
@@ -107,15 +155,26 @@ export class UIBlockInFlow extends UIBaseClass {
     changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
   ) {
     super.update(changedProperties)
-    const slot: HTMLSlotElement = this.shadowRoot.querySelector(
-      'slot[name="content"]'
+    const slots: NodeListOf<HTMLSlotElement> = this.shadowRoot.querySelectorAll(
+      'slot[name="content"], slot[name="header-right"]'
     )
 
-    if (slot) {
+    for (const slot of slots) {
       const hasItems = slot.assignedElements({ flatten: true }).length !== 0
 
-      if (hasItems !== this.displayContent) {
-        this.displayContent = hasItems
+      switch (slot.name) {
+        case 'content':
+          if (hasItems !== this.displayContent) {
+            this.displayContent = hasItems
+          }
+          break
+        case 'header-right':
+          if (hasItems !== this.hasHeaderContent) {
+            this.hasHeaderContent = hasItems
+          }
+          break
+        default:
+          break
       }
     }
   }

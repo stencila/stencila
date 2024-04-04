@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/on-demand/in-line'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
@@ -34,7 +34,10 @@ export class CodeExpression extends CodeExecutable {
    * on demand with execution actions and details and code read-only.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-block-in-flow type="CodeExpression" view="dynamic">
+    return html`<stencila-ui-inline-on-demand
+      type="CodeExpression"
+      view="dynamic"
+    >
       <span slot="header-right">
         <stencila-ui-node-execution-commands node-id=${this.id}>
         </stencila-ui-node-execution-commands>
@@ -75,14 +78,13 @@ export class CodeExpression extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
-      </div>
-
-      <span slot="content">
         <stencila-ui-node-output type="CodeExpression">
           <slot name="output"></slot>
         </stencila-ui-node-output>
-      </span>
-    </stencila-ui-block-in-flow>`
+      </div>
+
+      <span slot="content">${this.code}</span>
+    </stencila-ui-inline-on-demand>`
   }
 
   /**

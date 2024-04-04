@@ -20,7 +20,7 @@ export class Chevron extends LitElement {
   disabled: boolean = false
 
   @property()
-  clickEvent: (e: Event) => void | undefined
+  clickEvent?: (e: Event) => void
 
   @property({ type: String, attribute: 'default-pos' })
   direction: Exclude<ChevronPosition, 'down'> = 'left'
@@ -59,7 +59,7 @@ export class Chevron extends LitElement {
         class="${this.customClass} cursor-pointer leading-[0px]"
         @click=${(e: Event) => {
           this.changePosition()
-          this.clickEvent(e)
+          this.clickEvent && this.clickEvent(e)
         }}
       >
         <sl-icon
