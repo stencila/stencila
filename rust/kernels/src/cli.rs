@@ -29,6 +29,7 @@ enum Command {
     Info(Info),
     Packages(Packages),
     Execute(Execute),
+    Evaluate(Evaluate),
 }
 
 impl Cli {
@@ -42,6 +43,7 @@ impl Cli {
             Command::Info(info) => info.run().await,
             Command::Packages(pkgs) => pkgs.run().await,
             Command::Execute(exec) => exec.run().await,
+            Command::Evaluate(eval) => eval.run().await,
         }
     }
 }
@@ -199,10 +201,10 @@ impl Packages {
     }
 }
 
-/// Execute some code in a kernel
+/// Execute code in a kernel
 ///
 /// Creates a temporary kernel instance, executes one or more lines of code,
-/// and returns any decoded outputs and execution messages.
+/// and returns any outputs and execution messages.
 ///
 /// Mainly intended for quick testing of kernels during development.
 #[derive(Debug, Args)]
@@ -231,6 +233,42 @@ impl Execute {
 
         println!("Outputs");
         Code::new(Format::Yaml, &serde_yaml::to_string(&outputs)?).to_stdout();
+
+        println!("Messages");
+        Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Evaluate a code expression in a kernel
+///
+/// Creates a temporary kernel instance, evaluates the expression in it,
+/// and returns the output and any execution messages.
+///
+/// Mainly intended for quick testing of kernels during development.
+#[derive(Debug, Args)]
+#[clap(alias = "eval")]
+struct Evaluate {
+    /// The name of the kernel to evaluate code in
+    name: String,
+
+    /// The code expression to evaluate
+    code: String,
+}
+
+impl Evaluate {
+    async fn run(self) -> Result<()> {
+        let mut kernels = Kernels::new_here();
+        let instance = kernels.create_instance(Some(&self.name)).await?;
+
+        let (output, messages) = instance.lock().await.evaluate(&self.code).await?;
+
+        // TODO: creates a `Map` output type that can be used to display sections with headers
+        // instead of the following printlns
+
+        println!("Output");
+        Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
 
         println!("Messages");
         Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
