@@ -6,6 +6,7 @@
 
 use std::fmt::{self, Debug};
 
+use common::similar::DiffTag;
 use common::{
     derive_more::{Deref, DerefMut},
     similar::{
@@ -37,7 +38,7 @@ pub trait MergeNode {
     /// Calculates the diff operations necessary to make `self` the
     /// same as the `new` node. Does so by condensing each node from a tree
     /// of properties into a list of diff-able properties. Which properties
-    /// are treated as diff-able will be dependant on the format from which
+    /// are treated as diff-able will be dependent on the format from which
     /// the `new` node was decoded. Presently however, only one format,
     /// Markdown is considered.
     fn diff<M>(&self, new: M) -> DiffResult
@@ -57,14 +58,37 @@ pub trait MergeNode {
         diff_slices(Algorithm::Patience, &mut diff_hook, &old, &new).unwrap();
         let diff_ops = diff_hook.into_inner().into_ops();
 
-        // TODO: transform the DiffOps into NodeOps using the paths. This is just an e.g.!
-        let patch_ops = vec![NodeOp::Replace((
-            NodePath(vec![NodeSlot::Property((
-                NodeType::MathBlock,
-                NodeProperty::Code,
-            ))]),
-            "foo".to_string(),
-        ))];
+        let mut patch_ops: Vec<NodeOp> = Vec::new();
+        for op in &diff_ops {
+            let (op, old, new) = op.as_tag_tuple();
+            match op {
+                DiffTag::Insert => {
+                    for i in new {
+                        let pth = new_context.properties[i].1.clone();
+                        let node = new_context.properties[i].3.clone();
+                        patch_ops.push(NodeOp::Add((pth, node)));
+                    }
+                    // patch_ops.push(NodeOp::Add(
+                    //     NodePath(vec![NodeSlot::Index(*old_index)]),
+                    //     new[*new_index..*new_index + *new_len].join("\n"),
+                    // )
+                }
+                // DiffOp::Delete(..) => {}
+                DiffTag::Delete => {
+                    for i in old {
+                        patch_ops.push(NodeOp::Remove(old_context.properties[i].1.clone()));
+                    }
+                }
+                _ => {}
+            }
+        }
+        // let patch_ops = vec![NodeOp::Replace((
+        //     NodePath(vec![NodeSlot::Property((
+        //         NodeType::MathBlock,
+        //         NodeProperty::Code,
+        //     ))]),
+        //     "foo".to_string(),
+        // ))];
 
         DiffResult {
             #[cfg(debug_assertions)]
@@ -365,7 +389,7 @@ impl CondenseContext {
 
 /// An operation to apply to a node
 ///
-/// Similar, and using the same operation names as operations in 
+/// Similar, and using the same operation names as operations in
 /// JSON Patch (https://jsonpatch.com/) (but using enum and tuples).
 #[derive(Debug)]
 enum NodeOp {
@@ -403,17 +427,16 @@ pub struct DiffResult {
 impl Debug for DiffResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.old_context.fmt(f)?;
-        f.write_str("\n")?;
-
+        writeln!(f)?;
         self.new_context.fmt(f)?;
-        f.write_str("\n")?;
+        writeln!(f)?;
 
-        write!(f, "DiffOp       Old range    New range\n")?;
+        writeln!(f, "DiffOp       Old range    New range")?;
         for op in &self.diff_ops {
             let (tag, old_range, new_range) = op.as_tag_tuple();
-            write!(
+            writeln!(
                 f,
-                "{:<10}   {}..{}         {}..{}\n",
+                "{:<10}   {}..{}         {}..{}",
                 format!("{tag:?}"),
                 old_range.start,
                 old_range.end,
@@ -422,9 +445,9 @@ impl Debug for DiffResult {
             )?;
         }
 
-        write!(f, "\n")?;
+        writeln!(f)?;
         for op in &self.node_ops {
-            f.write_str(&format!("{op:?}"))?;
+            writeln!(f, "{op:?}")?;
         }
 
         Ok(())

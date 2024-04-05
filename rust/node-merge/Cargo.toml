@@ -8,6 +8,7 @@ common = { path = "../common" }
 node-id = { path = "../node-id" }
 node-merge-derive = { path = "../node-merge-derive" }
 node-type = { path = "../node-type" }
+glob = "0.3.1"
 
 [dev-dependencies]
 codecs = { path = "../codecs" }

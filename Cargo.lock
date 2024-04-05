@@ -3994,6 +3994,7 @@ dependencies = [
  "codecs",
  "common",
  "common-dev",
+ "glob",
  "node-id",
  "node-merge-derive",
  "node-type",
