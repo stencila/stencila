@@ -1,0 +1,36 @@
+---
+source: rust/node-merge/tests/diff.rs
+expression: "diff(&files_content, name).await?"
+---
+art_1111111E.hea_11111112                            Article:content.0.Heading:level                                      Heading:level  "1"
+art_1111111E.hea_11111112.txt_11111111               Article:content.0.Heading:content.0.Text:value                       Text:value     "Forest"
+art_1111111E.pgh_11111119.txt_11111113               Article:content.1.Paragraph:content.0.Text:value                     Text:value     "grass "
+art_1111111E.pgh_11111119.emp_11111115.txt_11111114  Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value  Text:value     "rabbit"
+art_1111111E.pgh_11111119.txt_11111116               Article:content.1.Paragraph:content.2.Text:value                     Text:value     " grass "
+art_1111111E.pgh_11111119.emp_11111118.txt_11111117  Article:content.1.Paragraph:content.3.Emphasis:content.0.Text:value  Text:value     "rabbit"
+art_1111111E.hea_1111111B                            Article:content.2.Heading:level                                      Heading:level  "2"
+art_1111111E.hea_1111111B.txt_1111111A               Article:content.2.Heading:content.0.Text:value                       Text:value     "Maple"
+art_1111111E.pgh_1111111D.txt_1111111C               Article:content.3.Paragraph:content.0.Text:value                     Text:value     "leaf"
+
+art_1111111B.hea_11111112                            Article:content.0.Heading:level                                      Heading:level  "1"
+art_1111111B.hea_11111112.txt_11111111               Article:content.0.Heading:content.0.Text:value                       Text:value     "Forest"
+art_1111111B.pgh_11111116.txt_11111113               Article:content.1.Paragraph:content.0.Text:value                     Text:value     "grass grass "
+art_1111111B.pgh_11111116.emp_11111115.txt_11111114  Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value  Text:value     "rabbit"
+art_1111111B.hea_11111118                            Article:content.2.Heading:level                                      Heading:level  "2"
+art_1111111B.hea_11111118.txt_11111117               Article:content.2.Heading:content.0.Text:value                       Text:value     "Maple"
+art_1111111B.pgh_1111111A.txt_11111119               Article:content.3.Paragraph:content.0.Text:value                     Text:value     "leaf"
+
+DiffOp       Old range    New range
+Equal        0..1         0..1
+Equal        1..2         1..2
+Delete       2..5         3..3
+Insert       2..2         2..3
+Equal        5..6         3..4
+Equal        6..7         4..5
+Equal        7..8         5..6
+Equal        8..9         6..7
+
+Remove(Article:content.1.Paragraph:content.0.Text:value)
+Remove(Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value)
+Remove(Article:content.1.Paragraph:content.2.Text:value)
+Add((Article:content.1.Paragraph:content.0.Text:value, "grass grass "))

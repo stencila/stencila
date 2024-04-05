@@ -68,6 +68,7 @@ pub trait MergeNode {
                         let node = new_context.properties[i].3.clone();
                         patch_ops.push(NodeOp::Add((pth, node)));
                     }
+
                     // patch_ops.push(NodeOp::Add(
                     //     NodePath(vec![NodeSlot::Index(*old_index)]),
                     //     new[*new_index..*new_index + *new_len].join("\n"),
@@ -208,6 +209,37 @@ impl Debug for NodeSlot {
 /// Similar to the `path` of JSON Patch (https://jsonpatch.com/).
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut)]
 pub struct NodePath(Vec<NodeSlot>);
+
+impl NodePath {
+    fn ancestor_index(&self, other: &NodePath) -> Option<usize> {
+        let mut i: usize = 0;
+        for slots in self.iter().zip(other.iter()) {
+            if slots.0 != slots.1 {
+                break;
+            }
+            i += 1;
+        }
+        if i == 0 {
+            None
+        } else {
+            Some(i - 1)
+        }
+    }
+
+    fn find_ancestor_index(paths: &Vec<NodePath>) -> Option<usize> {
+        let split = paths.split_first();
+        let mut i: usize = 0;
+        if split.is_some() {
+            let (first, others) = split.unwrap();
+            for o in others {
+                let lca = first.ancestor_index(o);
+                lca?;
+                i = i.min(lca.unwrap());
+            }
+        }
+        Some(i)
+    }
+}
 
 /// Display the address as a dot separated list
 ///
@@ -451,5 +483,34 @@ impl Debug for DiffResult {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_path() {
+        let mut p1 = NodePath(vec![NodeSlot::Property((
+            NodeType::Article,
+            NodeProperty::Title,
+        ))]);
+        assert_eq!(p1.ancestor_index(&p1), Some(0));
+
+        let mut p2 = p1.clone();
+        p2.push(NodeSlot::Property((
+            NodeType::Article,
+            NodeProperty::Abstract,
+        )));
+        assert_eq!(p1.ancestor_index(&p2), Some(0));
+
+        let mut p3 = p2.clone();
+        p3.push(NodeSlot::Property((
+            NodeType::Article,
+            NodeProperty::Abstract,
+        )));
+        assert_eq!(p2.ancestor_index(&p3), Some(1));
+        assert_eq!(p1.ancestor_index(&p3), Some(0));
     }
 }

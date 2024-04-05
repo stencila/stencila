@@ -1,6 +1,6 @@
 ---
 source: rust/node-merge/tests/diff.rs
-expression: "diff(&files_content, \"text1\", \"text2\").await?"
+expression: "diff(&files_content, name).await?"
 ---
 art_1111111B.hea_11111112               Article:content.0.Heading:level                   Heading:level  "1"
 art_1111111B.hea_11111112.txt_11111111  Article:content.0.Heading:content.0.Text:value    Text:value     "title"
@@ -13,22 +13,22 @@ art_1111111B.pgh_1111111A.txt_11111119  Article:content.4.Paragraph:content.0.Te
 art_1111111C.hea_11111112               Article:content.0.Heading:level                   Heading:level                  "1"
 art_1111111C.hea_11111112.txt_11111111  Article:content.0.Heading:content.0.Text:value    Text:value                     "title"
 art_1111111C.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value                     "text"
-art_1111111C.pgh_11111116.txt_11111115  Article:content.2.Paragraph:content.0.Text:value  Text:value                     "more text"
-art_1111111C.hea_11111118               Article:content.3.Heading:level                   Heading:level                  "2"
-art_1111111C.hea_11111118.txt_11111117  Article:content.3.Heading:content.0.Text:value    Text:value                     "subtitle"
-art_1111111C.cdb_11111119               Article:content.4.CodeBlock:code                  CodeBlock:code                 "print(\\n    1)"
-art_1111111C.cdb_11111119               Article:content.4.CodeBlock:programmingLanguage   CodeBlock:programmingLanguage  "python"
+art_1111111C.cdb_11111115               Article:content.2.CodeBlock:code                  CodeBlock:code                 ""
+art_1111111C.cdb_11111115               Article:content.2.CodeBlock:programmingLanguage   CodeBlock:programmingLanguage  "python"
+art_1111111C.pgh_11111117.txt_11111116  Article:content.3.Paragraph:content.0.Text:value  Text:value                     "more text"
+art_1111111C.hea_11111119               Article:content.4.Heading:level                   Heading:level                  "2"
+art_1111111C.hea_11111119.txt_11111118  Article:content.4.Heading:content.0.Text:value    Text:value                     "subtitle"
 art_1111111C.pgh_1111111B.txt_1111111A  Article:content.5.Paragraph:content.0.Text:value  Text:value                     "subtext"
 
 DiffOp       Old range    New range
 Equal        0..1         0..1
 Equal        1..2         1..2
 Equal        2..3         2..3
-Equal        3..4         3..4
-Equal        4..5         4..5
-Equal        5..6         5..6
-Insert       6..6         6..8
+Insert       3..3         3..5
+Equal        3..4         5..6
+Equal        4..5         6..7
+Equal        5..6         7..8
 Equal        6..7         8..9
 
-Add((Article:content.4.CodeBlock:code, "print(\n    1)"))
-Add((Article:content.4.CodeBlock:programmingLanguage, "python"))
+Add((Article:content.2.CodeBlock:code, ""))
+Add((Article:content.2.CodeBlock:programmingLanguage, "python"))
