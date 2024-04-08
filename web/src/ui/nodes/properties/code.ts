@@ -154,7 +154,7 @@ export class UINodeCode extends LitElement {
   /**
    * Get the title of the language to display
    */
-  private getLanguageTitle(): string {
+  protected getLanguageTitle(): string {
     switch (this.language.toLowerCase()) {
       case 'asciimath':
         return 'AsciiMath'
