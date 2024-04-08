@@ -37,7 +37,10 @@ export abstract class Instruction extends Executable {
   override renderDynamicView() {
     return html`<stencila-ui-node-card type=${this.type} view="dynamic">
       <span slot="header-right">
-        <stencila-ui-node-execution-commands node-id=${this.id}>
+        <stencila-ui-node-execution-commands
+          node-id=${this.id}
+          type=${this.type}
+        >
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
@@ -85,7 +88,10 @@ export abstract class Instruction extends Executable {
   override renderSourceView() {
     return html`<stencila-ui-node-card type=${this.type} view="source">
       <span slot="header-right">
-        <stencila-ui-node-execution-commands node-id=${this.id}>
+        <stencila-ui-node-execution-commands
+          node-id=${this.id}
+          type=${this.type}
+        >
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">

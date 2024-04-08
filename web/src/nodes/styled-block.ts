@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '../ui/nodes/card'
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -83,7 +83,6 @@ export class StyledBlock extends Styled {
           code=${this.code}
           language=${this.styleLanguage}
           read-only
-          collapsed
         >
         </stencila-ui-node-code>
       </div>

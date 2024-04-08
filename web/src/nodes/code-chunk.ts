@@ -4,7 +4,7 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
@@ -34,7 +34,7 @@ export class CodeChunk extends CodeExecutable {
    */
   override renderStaticView() {
     return html`<div>
-      <stencila-ui-node-outputs>
+      <stencila-ui-node-outputs type="CodeChunk">
         <slot name="outputs"></slot>
       </stencila-ui-node-outputs>
       <div>
@@ -124,7 +124,10 @@ export class CodeChunk extends CodeExecutable {
   override renderSourceView() {
     return html`<stencila-ui-block-in-flow type="CodeChunk" view="source">
       <span slot="header-right">
-        <stencila-ui-node-execution-commands node-id=${this.id}>
+        <stencila-ui-node-execution-commands
+          node-id=${this.id}
+          type="CodeChunk"
+        >
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">

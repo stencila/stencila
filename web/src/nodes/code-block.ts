@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 

@@ -1,0 +1,74 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
+import { apply } from '@twind/core'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators'
+
+import { withTwind } from '../../../../twind'
+import '../../../animation/collapsible'
+import { ToggleChipMixin } from '../../mixins/toggle-chip'
+import { UIBaseCard } from '../base-card'
+
+/**
+ * UI block-on-demand
+ *
+ * A component to render a node-card on demand - i.e. a user requests to see
+ * the info rather than just the content of a card.
+ */
+@customElement('stencila-ui-block-on-demand')
+@withTwind()
+export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
+  protected override toggleChipPosition: string = 'mt-2'
+
+  override render() {
+    const cardStyles = apply([
+      'group',
+      'transition duration-400',
+      'border border-[transparent]',
+      'rounded',
+      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
+      this.toggle && `border-[${this.ui.borderColour}]`,
+    ])
+
+    return html`<div class=${`${cardStyles}`}>
+      <div class="relative">
+        <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
+          ${this.renderHeader()} ${this.renderBody()}
+        </stencila-ui-collapsible-animation>
+        ${this.renderContent()}
+      </div>
+    </div>`
+  }
+
+  protected override renderBody() {
+    const { colour, borderColour } = this.ui
+    const bodyStyles = apply([
+      'relative',
+      'w-full h-full',
+      `bg-[${colour}]`,
+      `border border-[${borderColour}] rounded-b`,
+    ])
+
+    return html`<div class=${bodyStyles}>
+      <slot name="body"></slot>
+    </div>`
+  }
+
+  protected override renderContent() {
+    const contentStyles = apply([
+      !this.displayContent && this.toggle ? 'hidden' : 'flex',
+      'relative',
+      'transition-[padding] ease-in-out duration-[250ms]',
+      'px-0',
+      this.toggle && 'px-3',
+    ])
+
+    return html` <div class=${contentStyles}>
+      ${this.renderChip(this.getIcon(), this.ui)}
+      <slot name="content"></slot>
+    </div>`
+  }
+
+  protected override toggleCardDisplay() {
+    this.toggle = !this.toggle
+  }
+}

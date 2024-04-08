@@ -34,6 +34,9 @@ export class Chevron extends LitElement {
   @property({ type: String })
   colour: string = 'black'
 
+  @property({ type: Boolean })
+  disableEvents?: boolean = false
+
   private changePosition = () => {
     this.position === this.direction
       ? (this.position = 'down')
@@ -58,6 +61,10 @@ export class Chevron extends LitElement {
       <button
         class="${this.customClass} cursor-pointer leading-[0px]"
         @click=${(e: Event) => {
+          if (this.disableEvents) {
+            return
+          }
+
           this.changePosition()
           this.clickEvent && this.clickEvent(e)
         }}

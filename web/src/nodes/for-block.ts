@@ -31,7 +31,10 @@ export class ForBlock extends CodeExecutable {
     return html`
       <stencila-ui-node-card type="ForBlock" view="dynamic">
         <span slot="header-right">
-          <stencila-ui-node-execution-commands node-id=${this.id}>
+          <stencila-ui-node-execution-commands
+            node-id=${this.id}
+            type="ForBlock"
+          >
           </stencila-ui-node-execution-commands>
         </span>
         <div slot="body" class="h-full">
@@ -47,7 +50,10 @@ export class ForBlock extends CodeExecutable {
     return html`
       <stencila-ui-node-card type="ForBlock" view="source">
         <span slot="header-right">
-          <stencila-ui-node-execution-commands node-id=${this.id}>
+          <stencila-ui-node-execution-commands
+            node-id=${this.id}
+            type="ForBlock"
+          >
           </stencila-ui-node-execution-commands>
         </span>
         <div slot="body" class="h-full">

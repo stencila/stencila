@@ -19,7 +19,7 @@ export class UINodeCollapsibleAnimation extends LitElement {
       max-height: 0;
       transition:
         max-height 400ms cubic-bezier(0, 1, 0, 1),
-        opacity 400ms;
+        opacity 800ms;
       transform: translate3d(0, 0, 0);
     }
 

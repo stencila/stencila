@@ -10,7 +10,7 @@ import {
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { NodeId } from '../../../types'
-import { UIBaseClass } from '../mixins/uiBaseClass'
+import { UIBaseClass } from '../mixins/ui-base-class'
 
 /**
  * A component for providing common execution related actions of executable nodes
@@ -42,7 +42,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
   override render() {
     const containerClasses = apply([
-      'flex flex-row items-center gap-x-3',
+      'flex flex-row items-center gap-x-3 flex-shrink-0',
       'text-black',
     ])
 
@@ -67,7 +67,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
             @click=${(e: Event) => {
               this.emitEvent(e, 'only')
             }}
-            class=${`${buttonClasses}`}
+            class=${`${buttonClasses} text-base`}
           ></sl-icon-button>
         </sl-tooltip>
 

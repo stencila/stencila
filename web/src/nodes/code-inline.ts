@@ -1,8 +1,8 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import '../ui/nodes/on-demand/in-line'
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/on-demand/in-line'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/outputs'
@@ -26,7 +26,11 @@ export class CodeInline extends CodeStatic {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-inline-on-demand type="CodeInline" view="dynamic">
+      <stencila-ui-inline-on-demand
+        type="CodeInline"
+        view="dynamic"
+        title=${this.programmingLanguage}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="CodeInline">
             <slot name="authors"></slot>
@@ -54,7 +58,11 @@ export class CodeInline extends CodeStatic {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-block-in-flow type="CodeInline" view="source">
+      <stencila-ui-block-in-flow
+        type="CodeInline"
+        view="source"
+        title=${this.programmingLanguage}
+      >
         <div slot="body">
           <stencila-ui-node-authors>
             <slot name="authors"></slot>
