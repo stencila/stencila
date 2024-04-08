@@ -2,6 +2,6 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n$$\nno lang, TeX assumed\n$$\n\n```asciimath\nwith lang specified\n```\n\"#)"
 ---
-art_11111113.mtb_11111111  Article:content.0.MathBlock:code          MathBlock:code          "no lang, TeX assumed"
-art_11111113.mtb_11111112  Article:content.1.MathBlock:code          MathBlock:code          "with lang specified"
-art_11111113.mtb_11111112  Article:content.1.MathBlock:mathLanguage  MathBlock:mathLanguage  "asciimath"
+0    art_11111113.mtb_11111111  Article:content.0.MathBlock:code          MathBlock:code          "no lang, TeX assumed"
+1    art_11111113.mtb_11111112  Article:content.1.MathBlock:code          MathBlock:code          "with lang specified"
+2    art_11111113.mtb_11111112  Article:content.1.MathBlock:mathLanguage  MathBlock:mathLanguage  "asciimath"

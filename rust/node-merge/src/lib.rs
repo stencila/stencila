@@ -64,8 +64,8 @@ pub trait MergeNode {
             match op {
                 DiffTag::Insert => {
                     for i in new {
-                        let pth = new_context.properties[i].1.clone();
-                        let node = new_context.properties[i].3.clone();
+                        let pth = new_context.properties[i].path.clone();
+                        let node = new_context.properties[i].value.clone();
                         patch_ops.push(NodeOp::Add((pth, node)));
                     }
 
@@ -77,7 +77,7 @@ pub trait MergeNode {
                 // DiffOp::Delete(..) => {}
                 DiffTag::Delete => {
                     for i in old {
-                        patch_ops.push(NodeOp::Remove(old_context.properties[i].1.clone()));
+                        patch_ops.push(NodeOp::Remove(old_context.properties[i].path.clone()));
                     }
                 }
                 _ => {}
@@ -258,6 +258,14 @@ impl Debug for NodePath {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct CondenseNode {
+    pub ancestry: NodeAncestry,
+    pub path: NodePath,
+    pub slot: NodeSlot,
+    pub value: String,
+}
+
 /// A context for the `condense` method of the `MergeNode` trait
 ///
 /// This context is passed to the `condense` method as we perform
@@ -291,7 +299,8 @@ pub struct CondenseContext {
     /// Most diff-able properties are strings but some are not e.g. integers, enums
     /// It may be better to use a `Primitive` instead of a `String` to avoid
     /// unnecessary string-ification and de-string-ification.
-    properties: Vec<(NodeAncestry, NodePath, NodeSlot, String)>,
+    // properties: Vec<(NodeAncestry, NodePath, NodeSlot, String)>,
+    properties: Vec<CondenseNode>,
 }
 
 impl CondenseContext {
@@ -312,7 +321,7 @@ impl CondenseContext {
     fn diffable_properties(&self) -> Vec<(&NodeSlot, &String)> {
         self.properties
             .iter()
-            .map(|(.., slot, value)| (slot, value))
+            .map(|node| (&node.slot, &node.value))
             .collect()
     }
 }
@@ -330,23 +339,23 @@ impl Debug for CondenseContext {
         // Find the maximum widths in each column
         let (ancestry_width, path_width, slot_width) = self.properties.iter().fold(
             (0, 0, 0),
-            |(ancestry_width, path_width, slot_width), (ancestry, path, slot, ..)| {
+            |(ancestry_width, path_width, slot_width), node| {
                 (
-                    ancestry_width.max(format!("{ancestry:?}").len()),
-                    path_width.max(format!("{path:?}").len()),
-                    slot_width.max(format!("{slot:?}").len()),
+                    ancestry_width.max(format!("{:?}", node.ancestry).len()),
+                    path_width.max(format!("{:?}", node.path).len()),
+                    slot_width.max(format!("{:?}", node.slot).len()),
                 )
             },
         );
 
         // Now, output using those widths
-        for (ancestry, path, slot, value) in self.properties.iter() {
-            let ancestry = format!("{ancestry:?}");
-            let path = format!("{path:?}");
-            let slot = format!("{slot:?}");
-            let value = value.replace('\n', r"\\n");
+        for (i, node) in self.properties.iter().enumerate() {
+            let ancestry = format!("{:?}", node.ancestry);
+            let path = format!("{:?}", node.path);
+            let slot = format!("{:?}", node.slot);
+            let value = node.value.replace('\n', r"\\n");
             f.write_fmt(format_args!(
-                "{ancestry:<ancestry_width$}  {path:<path_width$}  {slot:<slot_width$}  \"{value}\"\n",
+                "{i:<3}  {ancestry:<ancestry_width$}  {path:<path_width$}  {slot:<slot_width$}  \"{value}\"\n",
             ))?;
         }
 
@@ -409,12 +418,12 @@ impl CondenseContext {
             .cloned()
             .unwrap_or_else(|| NodeSlot::Index(0));
 
-        self.properties.push((
-            self.ancestry.clone(),
-            self.path.clone(),
-            slot,
-            value.to_string(),
-        ));
+        self.properties.push(CondenseNode {
+            ancestry: self.ancestry.clone(),
+            path: self.path.clone(),
+            slot: slot,
+            value: value.to_string(),
+        });
         self
     }
 }
@@ -492,7 +501,7 @@ mod tests {
 
     #[test]
     fn test_path() {
-        let mut p1 = NodePath(vec![NodeSlot::Property((
+        let p1 = NodePath(vec![NodeSlot::Property((
             NodeType::Article,
             NodeProperty::Title,
         ))]);

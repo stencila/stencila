@@ -2,6 +2,6 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\nBefore.\n\n***\n\nAfter.\n\"#)"
 ---
-art_11111116.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value          "Before."
-art_11111116.thb_11111113               Article:content.1.ThematicBreak:type              ThematicBreak:type  ""
-art_11111116.pgh_11111115.txt_11111114  Article:content.2.Paragraph:content.0.Text:value  Text:value          "After."
+0    art_11111116.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value          "Before."
+1    art_11111116.thb_11111113               Article:content.1.ThematicBreak:type              ThematicBreak:type  ""
+2    art_11111116.pgh_11111115.txt_11111114  Article:content.2.Paragraph:content.0.Text:value  Text:value          "After."
