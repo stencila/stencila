@@ -1,0 +1,100 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "ForBlock",
+      "code": "[]",
+      "programmingLanguage": "quickjs",
+      "variable": "item",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Content for each item."
+            }
+          ]
+        }
+      ],
+      "otherwise": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "There were no items and the date is "
+            },
+            {
+              "type": "CodeExpression",
+              "code": " new Date().toISOString() ",
+              "output": "2024-04-09T01:37:00.147Z",
+              "compilationDigest": {
+                "type": "CompilationDigest",
+                "stateDigest": 10858042282365217967
+              },
+              "executionDigest": {
+                "type": "CompilationDigest",
+                "stateDigest": 10858042282365217967
+              },
+              "executionCount": 1,
+              "executionRequired": "No",
+              "executionStatus": "Succeeded",
+              "executionEnded": {
+                "type": "Timestamp",
+                "value": 1712626620147,
+                "timeUnit": "Millisecond"
+              },
+              "executionDuration": {
+                "type": "Duration",
+                "value": 0,
+                "timeUnit": "Millisecond"
+              }
+            },
+            {
+              "type": "Text",
+              "value": "."
+            }
+          ]
+        }
+      ],
+      "iterations": [],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17499428202029287323
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17499428202029287323
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626620147,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 3,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1712626620147,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 3,
+    "timeUnit": "Millisecond"
+  }
+}
