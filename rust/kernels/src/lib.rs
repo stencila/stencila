@@ -36,7 +36,6 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
     let mut kernels = vec![
         // First so that it gets used for `js` rather than `NodeKernel`
         Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
-        
         Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<JinjaKernel>::default() as Box<dyn Kernel>,
