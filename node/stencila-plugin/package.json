@@ -1,6 +1,6 @@
 {
   "name": "@stencila/plugin",
-  "version": "2.0.0-alpha.25",
+  "version": "2.0.0-alpha.1",
   "description": "Build Stencila Plugins using Node.js",
   "license": "Apache-2.0",
   "author": "Nokome Bentley <nokome@stencila.io>",
@@ -51,6 +51,20 @@
   },
   "engines": {
     "node": ">=16"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
   },
   "tsup": {
     "entry": [
