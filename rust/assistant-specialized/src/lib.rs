@@ -7,7 +7,7 @@
 
 use std::{fs::read_to_string, sync::Arc};
 
-use assistant::AssistantType;
+use assistant::{common::serde::Serializer, AssistantType};
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
 use rust_embed::RustEmbed;
@@ -264,25 +264,46 @@ pub fn deserialize_delegates<'de, D>(deserializer: D) -> Result<Vec<String>, D::
 where
     D: Deserializer<'de>,
 {
+    #[derive(Deserialize)]
+    #[serde(untagged, crate = "assistant::common::serde")]
+    enum Delegates {
+        Bool(bool),
+        List(Option<Vec<String>>),
+    }
+
     let mut defaults: Vec<String> = default_delegates();
 
-    if let Some(mut specified) = Option::<Vec<String>>::deserialize(deserializer)? {
-        if let Some("none") = specified.first().map(|id| id.as_str()) {
-            return Ok(Vec::new());
-        } else if let Some("default") = specified.first().map(|id| id.as_str()) {
-            return Ok(defaults);
-        } else if let Some("only") = specified.last().map(|id| id.as_str()) {
-            specified.pop();
-        } else {
-            defaults.retain(|delegate| !specified.contains(delegate));
-            specified.append(&mut defaults);
+    Ok(match Delegates::deserialize(deserializer)? {
+        Delegates::Bool(value) => match value {
+            true => defaults,
+            false => Vec::new(),
+        },
+        Delegates::List(Some(mut list)) => {
+            if let Some("only") = list.last().map(|id| id.as_str()) {
+                list.pop();
+            } else {
+                defaults.retain(|delegate| !list.contains(delegate));
+                list.append(&mut defaults);
+            }
+            list
         }
-        Ok(specified)
-    } else {
-        Ok(defaults)
-    }
+        Delegates::List(None) => defaults,
+    })
 }
 
+/// Serialize a list of delegates
+pub fn serialize_delegates<S>(vec: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    if vec.is_empty() {
+        // Serialize the vector as `false` if it's empty
+        false.serialize(serializer)
+    } else {
+        // Otherwise, serialize the vector as is
+        vec.serialize(serializer)
+    }
+}
 /// Get the first assistant in the list of delegates capable to performing task
 #[tracing::instrument(skip_all)]
 pub async fn choose_delegate(
