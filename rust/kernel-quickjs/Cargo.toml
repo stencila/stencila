@@ -1,0 +1,12 @@
+[package]
+name = "kernel-quickjs"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+rquickjs = { version = "0.5.1", features = ["classes", "futures", "macro", "parallel"] }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+test-log = { version = "0.2.15", default-features = false, features = ["trace"] }

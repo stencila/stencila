@@ -12,6 +12,7 @@ kernel-bash = { path = "../kernel-bash" }
 kernel-jinja = { path = "../kernel-jinja" }
 kernel-node = { path = "../kernel-node" }
 kernel-python = { path = "../kernel-python" }
+kernel-quickjs = { path = "../kernel-quickjs" }
 kernel-r = { path = "../kernel-r" }
 kernel-rhai = { path = "../kernel-rhai" }
 kernel-style = { path = "../kernel-style" }
