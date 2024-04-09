@@ -1,6 +1,6 @@
 {
   "workspaces": [
-    "node",
+    "node/stencila-node",
     "ts",
     "web"
   ],

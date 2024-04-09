@@ -7,11 +7,11 @@ version = "2.0.0-alpha.25"
 crate-type = ["cdylib"]
 
 [dependencies]
-codecs = { path = "../rust/codecs" }
-common = { path = "../rust/common" }
+codecs = { path = "../../rust/codecs" }
+common = { path = "../../rust/common" }
 napi = { version = "2.16.1", default-features = false, features = ["async", "napi8"] }
 napi-derive = "2.16.1"
-schema = { path = "../rust/schema" }
+schema = { path = "../../rust/schema" }
 
 [build-dependencies]
 napi-build = "2.1.2"
