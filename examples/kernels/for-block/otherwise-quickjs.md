@@ -1,4 +1,4 @@
-::: for item in [] {js}
+::: for item in [] {quickjs}
 
 Content for each item.
 

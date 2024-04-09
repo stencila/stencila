@@ -1,0 +1,78 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "The "
+        },
+        {
+          "type": "CodeInline",
+          "code": "quickjs"
+        },
+        {
+          "type": "Text",
+          "value": " kernel supports outputting most primitive JavaScript types:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "console.log(true, 1, 2.34, \"string\", [1, 2, 3], { a: 1, b: 2 });",
+      "programmingLanguage": "quickjs",
+      "outputs": [
+        true,
+        1,
+        2.34,
+        "string",
+        [
+          1,
+          2,
+          3
+        ],
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12989105177539414841
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12989105177539414841
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626191149,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 4,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1712626191149,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 4,
+    "timeUnit": "Millisecond"
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "// A sleep function which can be called at top level\n// without using await (which is not supported in QuickJS)\nfunction sleep(seconds) {\n    const startTime = new Date().getTime();\n    let currentTime = null;\n    do {\n        currentTime = new Date().getTime();\n    } while (currentTime - startTime < seconds * 1000);\n}\n\nsleep(1)",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 860411442819514009
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 860411442819514009
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626308474,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1005,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "sleep(2)",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17765237458248636103
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17765237458248636103
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626310474,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2000,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "sleep(4)",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 13227037415934127697
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 13227037415934127697
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626314474,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 4000,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "sleep(8)",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 11962107935453406448
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 11962107935453406448
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626322474,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 8000,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1712626322474,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 15006,
+    "timeUnit": "Millisecond"
+  }
+}
