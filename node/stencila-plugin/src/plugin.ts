@@ -26,10 +26,6 @@ import { KernelInstanceName, KernelName, Kernel } from "./kernel.js";
  *
  * Plugin developers can extend this class and override the `protected`
  * methods for their use case.
- *
- * It is intended that this class will live in its own package, or
- * in the `@stencila/node` package. But for now, while we are developing
- * and testing the API, this is the most convenient place for it to live.
  */
 export class Plugin {
   assistants: Record<AssistantName, Assistant> = {};
@@ -79,7 +75,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.stop`
+   * JSON-RPC interface for `Kernel.stop`
    *
    * @param {Object}
    * @property instance The name of the kernel instance to stop
@@ -93,7 +89,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.info`
+   * JSON-RPC interface for `Kernel.info`
    *
    * @param {Object}
    * @property instance The name of the kernel instance to get information for
@@ -107,7 +103,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.packages`
+   * JSON-RPC interface for `Kernel.packages`
    *
    * @param {Object}
    * @property instance The name of the kernel instance to list packages for
@@ -121,7 +117,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.execute`
+   * JSON-RPC interface for `Kernel.execute`
    *
    * @param {Object}
    * @property code The code to execute
@@ -145,7 +141,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.evaluate`
+   * JSON-RPC interface for `Kernel.evaluate`
    *
    * @param {Object}
    * @property code The code to evaluate
@@ -169,7 +165,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.list`
+   * JSON-RPC interface for `Kernel.list`
    *
    * @param {Object}
    * @property instance The name of the kernel instance to list variables for
@@ -183,7 +179,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.get`
+   * JSON-RPC interface for `Kernel.get`
    *
    * @param {Object}
    * @property name The name of the variable
@@ -200,7 +196,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.set`
+   * JSON-RPC interface for `Kernel.set`
    *
    * @param {Object}
    * @property name The name of the variable
@@ -220,7 +216,7 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `KernelInstance.remove`
+   * JSON-RPC interface for `Kernel.remove`
    *
    * @param {Object}
    * @property name The name of the variable
