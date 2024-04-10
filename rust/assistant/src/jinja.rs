@@ -259,7 +259,7 @@ where
         shots.push(example)
     }
 
-    Ok(Value::from_serializable(&shots))
+    Ok(Value::from_serialize(&shots))
 }
 
 /// Generate example shots for the 'insert-code-chunk' assistant
