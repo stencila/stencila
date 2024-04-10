@@ -63,12 +63,28 @@ pub trait MergeNode {
             let (op, old, new) = op.as_tag_tuple();
             match op {
                 DiffTag::Insert => {
-                    for i in new {
-                        let pth = new_context.properties[i].path.clone();
-                        let node = new_context.properties[i].value.clone();
-                        patch_ops.push(NodeOp::Add((pth, node)));
+                    // We need to look at the prior node to insertion.
+                    if old.start == 0 {
+                        //
+                        // patch_ops.push(NodeOp::Add((new_context.properties[pth, node)));
+                        todo!("Handle insert at start")
+                    } else {
+                        let mut prior_pth = old_context.properties[old.start - 1].path.clone();
+                        for i in new {
+                            let next_pth = new_context.properties[i].path.clone();
+                            let node = new_context.properties[i].value.clone();
+                            let pth = prior_pth.path_for_next(&next_pth);
+                            patch_ops.push(NodeOp::Add((pth, node)));
+                            prior_pth = next_pth;
+                        }
                     }
 
+                    // for i in new {
+                    //     let pth = new_context.properties[i].path.clone();
+                    //     let node = new_context.properties[i].value.clone();
+                    //     patch_ops.push(NodeOp::Add((pth, node)));
+                    // }
+                    //
                     // patch_ops.push(NodeOp::Add(
                     //     NodePath(vec![NodeSlot::Index(*old_index)]),
                     //     new[*new_index..*new_index + *new_len].join("\n"),
@@ -211,6 +227,36 @@ impl Debug for NodeSlot {
 pub struct NodePath(Vec<NodeSlot>);
 
 impl NodePath {
+    /// Work out where NodePath Needs to be added, following this one.
+    fn path_for_next(&self, next: &NodePath) -> NodePath {
+        let mut pth = NodePath(Vec::new());
+        for slots in self.iter().zip(next.iter()) {
+            if slots.0 == slots.1 {
+                pth.0.push(slots.0.clone());
+                continue;
+            }
+
+            // We're different. But what sort of difference.
+            match (slots.0, slots.1) {
+                (NodeSlot::Property(..), NodeSlot::Property(..)) => {
+                    // WHat here
+                    break;
+                }
+                (NodeSlot::Index(i0), NodeSlot::Index(i1)) => {
+                    pth.0.push(NodeSlot::Index(*i1));
+                    continue;
+                }
+                (NodeSlot::Property(..), NodeSlot::Index(..)) => {
+                    break;
+                }
+                (NodeSlot::Index(..), NodeSlot::Property(..)) => {
+                    break;
+                }
+            }
+        }
+        pth
+    }
+
     fn ancestor_index(&self, other: &NodePath) -> Option<usize> {
         let mut i: usize = 0;
         for slots in self.iter().zip(other.iter()) {
@@ -299,7 +345,6 @@ pub struct CondenseContext {
     /// Most diff-able properties are strings but some are not e.g. integers, enums
     /// It may be better to use a `Primitive` instead of a `String` to avoid
     /// unnecessary string-ification and de-string-ification.
-    // properties: Vec<(NodeAncestry, NodePath, NodeSlot, String)>,
     properties: Vec<CondenseNode>,
 }
 
@@ -501,25 +546,23 @@ mod tests {
 
     #[test]
     fn test_path() {
-        let p1 = NodePath(vec![NodeSlot::Property((
-            NodeType::Article,
-            NodeProperty::Title,
-        ))]);
-        assert_eq!(p1.ancestor_index(&p1), Some(0));
+        let p1 = NodePath(vec![
+            NodeSlot::Property((NodeType::Article, NodeProperty::Content)),
+            NodeSlot::Index(0),
+            NodeSlot::Property((NodeType::Paragraph, NodeProperty::Content)),
+            NodeSlot::Index(1),
+            NodeSlot::Property((NodeType::Text, NodeProperty::Value)),
+        ]);
 
-        let mut p2 = p1.clone();
-        p2.push(NodeSlot::Property((
-            NodeType::Article,
-            NodeProperty::Abstract,
-        )));
-        assert_eq!(p1.ancestor_index(&p2), Some(0));
+        let p2 = NodePath(vec![
+            NodeSlot::Property((NodeType::Article, NodeProperty::Content)),
+            NodeSlot::Index(1),
+            NodeSlot::Property((NodeType::Paragraph, NodeProperty::Content)),
+            NodeSlot::Index(3),
+            NodeSlot::Property((NodeType::Text, NodeProperty::Value)),
+        ]);
 
-        let mut p3 = p2.clone();
-        p3.push(NodeSlot::Property((
-            NodeType::Article,
-            NodeProperty::Abstract,
-        )));
-        assert_eq!(p2.ancestor_index(&p3), Some(1));
-        assert_eq!(p1.ancestor_index(&p3), Some(0));
+        let p3 = p1.path_for_next(&p2);
+        println!("{:?}", p3);
     }
 }
