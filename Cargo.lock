@@ -3345,6 +3345,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-quickjs"
+version = "0.0.0"
+dependencies = [
+ "common-dev",
+ "kernel",
+ "rquickjs",
+ "test-log",
+]
+
+[[package]]
 name = "kernel-r"
 version = "0.0.0"
 dependencies = [
@@ -3396,6 +3406,7 @@ dependencies = [
  "kernel-jinja",
  "kernel-node",
  "kernel-python",
+ "kernel-quickjs",
  "kernel-r",
  "kernel-rhai",
  "kernel-style",
@@ -5201,6 +5212,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
+name = "relative-path"
+version = "1.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e898588f33fdd5b9420719948f9f2a32c922a246964576f71ba7f24f80610fbc"
+
+[[package]]
 name = "rend"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5450,6 +5467,54 @@ dependencies = [
  "libc",
  "rtoolbox",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "rquickjs"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad7f63201fa6f2ff8173e4758ea552549d687d8f63003361a8b5c50f7c446ded"
+dependencies = [
+ "rquickjs-core",
+ "rquickjs-macro",
+]
+
+[[package]]
+name = "rquickjs-core"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cad00eeddc0f88af54ee202c8385fb214fe0423897c056a7df8369fb482e3695"
+dependencies = [
+ "async-lock 2.8.0",
+ "relative-path",
+ "rquickjs-sys",
+]
+
+[[package]]
+name = "rquickjs-macro"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f27b39e889cc951e3e5f6b74012f943e642fa0fac51a8552948751f19a9b62f8"
+dependencies = [
+ "convert_case 0.6.0",
+ "fnv",
+ "ident_case",
+ "indexmap 2.2.6",
+ "proc-macro-crate",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "rquickjs-core",
+ "syn 2.0.58",
+]
+
+[[package]]
+name = "rquickjs-sys"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "120dbbc3296de9b96de8890091635d46f3506cd38b4e8f21800c386c035d64fa"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
