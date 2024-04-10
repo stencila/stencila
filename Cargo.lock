@@ -5505,7 +5505,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rquickjs-core",
- "syn 2.0.57",
+ "syn 2.0.58",
 ]
 
 [[package]]
