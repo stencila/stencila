@@ -1,19 +1,20 @@
 {
-  "name": "@stencila/node",
-  "version": "2.0.0-alpha.25",
-  "description": "Stencila SDK for Node.js",
+  "name": "@stencila/plugin",
+  "version": "2.0.0-alpha.1",
+  "description": "Build Stencila Plugins using Node.js",
   "license": "Apache-2.0",
   "author": "Nokome Bentley <nokome@stencila.io>",
   "bugs": {
     "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/stencila/tree/main/node#readme",
+  "homepage": "https://github.com/stencila/stencila/tree/main/node/stencila-plugin#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stencila/stencila.git"
   },
   "keywords": [
     "node",
+    "plugin",
     "programmable",
     "executable",
     "reproducible",
@@ -23,9 +24,7 @@
   "type": "module",
   "files": [
     "dist",
-    "install.*",
-    "src/*.ts",
-    "src/*.js"
+    "src/*.ts"
   ],
   "exports": {
     ".": {
@@ -44,23 +43,14 @@
   "scripts": {
     "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
     "lint": "eslint 'src/**/*.ts' && prettier --check .",
-    "build:debug": "napi build --js false --dts src/bindings.d.ts",
-    "build:addon": "napi build --platform --release --js false --dts src/bindings.d.ts && npm run compress",
-    "build:dist": "tsup --external ../stencila.node",
-    "pubcheck": "attw --pack . && publint",
-    "compress": "node compress.cjs",
-    "install": "node install.cjs",
     "test": "jest",
     "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
-    "bench": "tsup --entry.index src/bench.ts --external ../stencila.node --format cjs --out-dir bench --clean && node bench/index.cjs | tee bench/results.txt",
-    "unused": "depcheck --quiet --ignores @types/jest,benchmark,tmp --ignore-patterns '.eslintrc*'"
+    "build": "tsup",
+    "pubcheck": "attw --pack . && publint",
+    "unused": "depcheck --quiet --ignore-patterns '.eslintrc*'"
   },
   "engines": {
     "node": ">=16"
-  },
-  "napi": {
-    "name": "stencila",
-    "triples": {}
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",
@@ -90,7 +80,7 @@
     "clean": true
   },
   "devDependencies": {
-    "@napi-rs/cli": "2.18.1"
+    "@napi-rs/cli": "2.18.0"
   },
   "dependencies": {
     "@stencila/types": "2.0.0-alpha.25"

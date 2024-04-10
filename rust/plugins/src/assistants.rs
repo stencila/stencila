@@ -4,7 +4,7 @@ use assistant::{
     format::Format, Assistant, AssistantAvailability, AssistantIO, AssistantType, GenerateOptions,
     GenerateOutput, GenerateTask,
 };
-use assistant_specialized::{choose_delegate, deserialize_delegates};
+use assistant_specialized::{choose_delegate, deserialize_delegates, serialize_delegates};
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -58,7 +58,10 @@ pub struct PluginAssistant {
     /// The default ordered list of delegates can be prepended
     /// using this options. If the last item is `only` then the
     /// list will be limited to those specified.
-    #[serde(default, deserialize_with = "deserialize_delegates")]
+    #[serde(
+        deserialize_with = "deserialize_delegates",
+        serialize_with = "serialize_delegates"
+    )]
     delegates: Vec<String>,
 
     /// The plugin that provides this assistant

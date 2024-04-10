@@ -28,9 +28,9 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" ts/package.json
 
 # Update the version of `@stencila/types` and `@stencila/node` in the package.json of the latter
-sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\"/" node/package.json
-sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
+sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\"/" node/stencila-node/package.json
+sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/stencila-node/package.json
+sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/stencila-node/Cargo.toml
 
 # Update the version `@stencila/types` and `@stencila/web` in the package.json of the latter
 sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\",/" web/package.json

@@ -118,12 +118,12 @@ impl List {
 #[derive(Debug, Args)]
 #[clap(alias = "exec")]
 struct Execute {
-    /// The id of the assistant to execute the instruction
+    /// The name of the assistant to execute the instruction
     ///
     /// For example, `stencila/insert-code-chunk` or `mistral/mistral-medium`.
     /// For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`.
     /// See `stencila assistants list` for a list of available assistants.
-    id: String,
+    name: String,
 
     /// The instruction to execute
     instruction: String,
@@ -133,7 +133,7 @@ impl Execute {
     async fn run(self) -> Result<()> {
         let mut instruction =
             InstructionBlock::new(vec![InstructionMessage::from(&self.instruction)]);
-        instruction.options.assignee = Some(self.id);
+        instruction.options.assignee = Some(self.name);
 
         let context = Context::default();
         let options = GenerateOptions::default();
