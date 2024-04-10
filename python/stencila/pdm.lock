@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:dbd17acba4ed8de9e543ff9136997d31b543c99933a46da93893b03ee8675404"
+content_hash = "sha256:fe2bc5ebda672827a4a1e8dac518bef2d880019066394358e3035737017c3b16"
 
 [[package]]
 name = "attrs"
@@ -20,13 +20,13 @@ files = [
 
 [[package]]
 name = "beartype"
-version = "0.17.2"
+version = "0.18.2"
 requires_python = ">=3.8.0"
 summary = "Unbearably fast runtime type checking in pure Python."
 groups = ["default"]
 files = [
-    {file = "beartype-0.17.2-py3-none-any.whl", hash = "sha256:c22b21e1f785cfcf5c4d3d13070f532b6243a3ad67e68d2298ff08d539847dce"},
-    {file = "beartype-0.17.2.tar.gz", hash = "sha256:e911e1ae7de4bccd15745f7643609d8732f64de5c2fb844e89cbbed1c5a8d495"},
+    {file = "beartype-0.18.2-py3-none-any.whl", hash = "sha256:561aa7858e92289b952a6fc5faf15ea32f9519c07cdc0f4df7a01b59fc4bbeaf"},
+    {file = "beartype-0.18.2.tar.gz", hash = "sha256:a6fbc0be9269889312388bfec6a9ddf41bf8fe31b68bcf9c8239db35cd38f411"},
 ]
 
 [[package]]
