@@ -11,7 +11,7 @@ pub mod transforms;
 pub mod walk;
 
 pub use node_id::NodeId;
-pub use node_type::NodeType;
+pub use node_type::{NodeProperty, NodeType};
 
 #[cfg(feature = "proptest")]
 mod proptests;

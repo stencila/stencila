@@ -11,7 +11,7 @@ use crate::{prelude::*, Cord};
 
 impl StripNode for Cord {}
 
-impl MergeNode for Cord {
+impl CondenseNode for Cord {
     fn condense(&self, context: &mut CondenseContext) {
         context.collect_value(&self.to_string());
     }

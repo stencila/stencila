@@ -1,6 +1,6 @@
 use crate::{prelude::*, BooleanValidator};
 
-impl MergeNode for BooleanValidator {
+impl CondenseNode for BooleanValidator {
     fn condense(&self, context: &mut CondenseContext) {
         // Because a Boolean validator does not have any properties,
         // unless we add this pseudo-source property it does not

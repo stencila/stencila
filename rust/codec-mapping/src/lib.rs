@@ -113,7 +113,8 @@ impl Mapping {
                     range: Range { start, .. },
                     node_type,
                     node_id,
-                    property,..
+                    property,
+                    ..
                 } = self.entries.remove(first_index);
 
                 // Add a new entry after the second with appropriate offsets
@@ -140,8 +141,8 @@ impl Display for Mapping {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(
             f,
-            "{:>6} {:>6} {:>10}   {:<24} {}",
-            "start", "end", "offsets", "node_id", "node_type+property"
+            "{:>6} {:>6} {:>10}   {:<24} node_type+property",
+            "start", "end", "offsets", "node_id"
         )?;
 
         for MappingEntry {

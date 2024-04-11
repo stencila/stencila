@@ -1,0 +1,10 @@
+[package]
+name = "node-condense"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+node-id = { path = "../node-id" }
+node-condense-derive = { path = "../node-condense-derive" }
+node-type = { path = "../node-type" }

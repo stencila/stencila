@@ -33,4 +33,4 @@ Equal        8..9         6..7
 Remove(Article:content.1.Paragraph:content.0.Text:value)
 Remove(Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value)
 Remove(Article:content.1.Paragraph:content.2.Text:value)
-Add((Article:content.1, "grass grass "))
+Add((Article:content.1, String("grass grass ")))

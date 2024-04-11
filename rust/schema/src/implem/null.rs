@@ -7,7 +7,7 @@ use crate::{prelude::*, Null};
 
 impl StripNode for Null {}
 
-impl MergeNode for Null {}
+impl CondenseNode for Null {}
 
 impl ReadNode for Null {
     fn load_null() -> Result<Self> {

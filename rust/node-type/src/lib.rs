@@ -1,5 +1,5 @@
-mod node_type;
 mod node_property;
+mod node_type;
 
 pub use crate::node_type::NodeType;
 pub use node_property::NodeProperty;

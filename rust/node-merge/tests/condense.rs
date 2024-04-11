@@ -1,10 +1,10 @@
 use codecs::{DecodeOptions, Format};
 use common::{eyre::Result, tokio};
 use common_dev::insta::assert_debug_snapshot;
-use node_merge::{CondenseContext, MergeNode};
+use node_condense::{CondenseContext, CondenseNode};
 
 /// Snapshot tests of the `MergeNode::condense` method
-/// 
+///
 /// Mainly intended to check that properties that should be merged are included
 /// in the condense context.
 #[tokio::test]
@@ -308,7 +308,6 @@ No items.
 "#
         )
     );
-
 
     assert_debug_snapshot!(
         "include_blocks",

@@ -1,13 +1,12 @@
-use codecs::{DecodeOptions, Format};
-use common::syn::Lit::Str;
-use common::{eyre, eyre::Result, eyre::WrapErr, tokio};
-use common_dev::insta::assert_debug_snapshot;
-use glob::glob;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
-use node_merge::{DiffResult, MergeNode};
+use codecs::{DecodeOptions, Format};
+use common::{eyre, eyre::Result, eyre::WrapErr, glob::glob, tokio};
+use common_dev::insta::assert_debug_snapshot;
+
+use node_merge::DiffResult;
 
 type MarkdownDiffs = HashMap<String, (String, String)>;
 
@@ -53,7 +52,7 @@ async fn file_diff() -> Result<()> {
         let old = codecs::from_str(old, options.clone()).await?;
         let new = codecs::from_str(new, options).await?;
 
-        Ok(old.diff(new))
+        Ok(node_merge::diff(old, new))
     }
 
     let files_content = load_markdown("tests/markdown")?;

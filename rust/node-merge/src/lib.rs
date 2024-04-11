@@ -2,475 +2,174 @@
 //!
 //! This crate duplicates some functionality that is already in the sibling
 //! `node-patch` and `node-map` crates. It is anticipated that this crate
-//! will replace those.
+//! will replace at least one of those.
 
 use std::fmt::{self, Debug};
 
-use common::similar::DiffTag;
-use common::{
-    derive_more::{Deref, DerefMut},
-    similar::{
-        algorithms::{diff_slices, Algorithm, Capture, Compact},
-        DiffOp,
-    },
+use common::similar::{
+    algorithms::{diff_slices, Algorithm, Capture, Compact},
+    DiffOp, DiffTag,
 };
-use node_id::NodeId;
 
-pub use node_merge_derive::MergeNode;
-use node_type::{NodeProperty, NodeType};
+use node_condense::{CondenseContext, CondenseNode, NodePath, NodeSlot};
+use schema::Node;
 
-/// A trait for diffing, patching and merging nodes
+/// Diff two nodes
 ///
-/// The node that is being merged in from is usually one that has just been
-/// decoded from a lossy source format such a Markdown. The node that is being merged into
-/// is usually one that has already been executed and thus has derived properties
-/// (e.g `executionStatus` and `outputs`) which we want to preserve.
-pub trait MergeNode {
-    /// Condense a node into a list of properties that can be diffed
-    ///
-    /// This default implementation does nothing. Implementors should
-    /// call the various methods of the context to collect properties.
-    #[allow(unused_variables)]
-    fn condense(&self, context: &mut CondenseContext) {}
+/// Calculates the diff operations necessary to make `old` the
+/// same as the `new` node. Does so by condensing each node from a tree
+/// of properties into a list of diff-able properties. Which properties
+/// are treated as diff-able will be dependent on the format from which
+/// the `new` node was decoded. Presently however, only one format,
+/// Markdown is considered.
+pub fn diff<O, N>(old: O, new: N) -> DiffResult
+where
+    O: CondenseNode,
+    N: CondenseNode,
+{
+    // Condense each node into diffable properties
+    let mut old_context = CondenseContext::new();
+    old.condense(&mut old_context);
 
-    /// Diff the node with another
-    ///
-    /// Calculates the diff operations necessary to make `self` the
-    /// same as the `new` node. Does so by condensing each node from a tree
-    /// of properties into a list of diff-able properties. Which properties
-    /// are treated as diff-able will be dependent on the format from which
-    /// the `new` node was decoded. Presently however, only one format,
-    /// Markdown is considered.
-    fn diff<M>(&self, new: M) -> DiffResult
-    where
-        M: MergeNode,
-    {
-        let mut old_context = CondenseContext::new();
-        self.condense(&mut old_context);
+    let mut new_context = CondenseContext::new();
+    new.condense(&mut new_context);
 
-        let mut new_context = CondenseContext::new();
-        new.condense(&mut new_context);
+    let old_properties = diffable_properties(&old_context);
+    let new_properties = diffable_properties(&new_context);
 
-        let old = old_context.diffable_properties();
-        let new = new_context.diffable_properties();
+    // Calculate diff operations between te two sets of properties
+    let mut diff_hook = Compact::new(Capture::new(), &old_properties, &new_properties);
+    diff_slices(
+        Algorithm::Patience,
+        &mut diff_hook,
+        &old_properties,
+        &new_properties,
+    )
+    .unwrap();
+    let diff_ops = diff_hook.into_inner().into_ops();
 
-        let mut diff_hook = Compact::new(Capture::new(), &old, &new);
-        diff_slices(Algorithm::Patience, &mut diff_hook, &old, &new).unwrap();
-        let diff_ops = diff_hook.into_inner().into_ops();
-
-        let mut patch_ops: Vec<NodeOp> = Vec::new();
-        for op in &diff_ops {
-            let (op, old, new) = op.as_tag_tuple();
-            match op {
-                DiffTag::Insert => {
-                    // We need to look at the prior node to insertion.
-                    if old.start == 0 {
-                        //
-                        // patch_ops.push(NodeOp::Add((new_context.properties[pth, node)));
-                        todo!("Handle insert at start")
-                    } else {
-                        let mut prior_pth = old_context.properties[old.start - 1].path.clone();
-                        for i in new {
-                            let next_pth = new_context.properties[i].path.clone();
-                            let node = new_context.properties[i].value.clone();
-                            let pth = prior_pth.path_for_next(&next_pth);
-                            patch_ops.push(NodeOp::Add((pth, node)));
-                            prior_pth = next_pth;
-                        }
-                    }
-
-                    // for i in new {
-                    //     let pth = new_context.properties[i].path.clone();
-                    //     let node = new_context.properties[i].value.clone();
-                    //     patch_ops.push(NodeOp::Add((pth, node)));
-                    // }
+    let mut patch_ops: Vec<NodeOp> = Vec::new();
+    for op in &diff_ops {
+        let (op, old, new) = op.as_tag_tuple();
+        match op {
+            DiffTag::Insert => {
+                // We need to look at the prior node to insertion.
+                if old.start == 0 {
                     //
-                    // patch_ops.push(NodeOp::Add(
-                    //     NodePath(vec![NodeSlot::Index(*old_index)]),
-                    //     new[*new_index..*new_index + *new_len].join("\n"),
-                    // )
-                }
-                // DiffOp::Delete(..) => {}
-                DiffTag::Delete => {
-                    for i in old {
-                        patch_ops.push(NodeOp::Remove(old_context.properties[i].path.clone()));
+                    // patch_ops.push(NodeOp::Add((new_context.properties[pth, node)));
+                    todo!("Handle insert at start")
+                } else {
+                    let mut prior_pth = old_context.properties[old.start - 1].path.clone();
+                    for i in new {
+                        let next_pth = new_context.properties[i].path.clone();
+                        let node = new_context.properties[i].value.clone();
+                        let pth = path_for_next(&prior_pth, &next_pth);
+                        patch_ops.push(NodeOp::Add((pth, Node::String(node))));
+                        prior_pth = next_pth;
                     }
                 }
-                _ => {}
+
+                // for i in new {
+                //     let pth = new_context.properties[i].path.clone();
+                //     let node = new_context.properties[i].value.clone();
+                //     patch_ops.push(NodeOp::Add((pth, node)));
+                // }
+                //
+                // patch_ops.push(NodeOp::Add(
+                //     NodePath(vec![NodeSlot::Index(*old_index)]),
+                //     new[*new_index..*new_index + *new_len].join("\n"),
+                // )
             }
-        }
-        // let patch_ops = vec![NodeOp::Replace((
-        //     NodePath(vec![NodeSlot::Property((
-        //         NodeType::MathBlock,
-        //         NodeProperty::Code,
-        //     ))]),
-        //     "foo".to_string(),
-        // ))];
-
-        DiffResult {
-            #[cfg(debug_assertions)]
-            old_context,
-            #[cfg(debug_assertions)]
-            new_context,
-            diff_ops,
-            node_ops: patch_ops,
-        }
-    }
-}
-
-// Implementation for simple "atomic" types not in schema
-macro_rules! atom {
-    ($type:ty) => {
-        impl MergeNode for $type {
-            fn condense(&self, context: &mut CondenseContext) {
-                context.collect_value(&self.to_string());
-            }
-        }
-    };
-}
-atom!(bool);
-atom!(i64);
-atom!(u64);
-atom!(f64);
-atom!(String);
-
-// Implementation for boxed properties
-impl<T> MergeNode for Box<T>
-where
-    T: MergeNode,
-{
-    fn condense(&self, context: &mut CondenseContext) {
-        self.as_ref().condense(context)
-    }
-}
-
-// Implementation for optional properties
-impl<T> MergeNode for Option<T>
-where
-    T: MergeNode,
-{
-    fn condense(&self, context: &mut CondenseContext) {
-        if let Some(value) = self {
-            value.condense(context);
-        }
-    }
-}
-
-// Implementation for vector properties
-impl<T> MergeNode for Vec<T>
-where
-    T: MergeNode,
-{
-    fn condense(&self, context: &mut CondenseContext) {
-        for (index, item) in self.iter().enumerate() {
-            context.enter_index(index);
-            item.condense(context);
-            context.exit_index();
-        }
-    }
-}
-
-/// A list of ancestor node ids for a property
-///
-/// This list of ids is stored for each property so that we can combine
-/// adjacent diff operations on properties into an operation to insert,
-/// delete, or move an entire node. This is done by finding the highest
-/// common ancestor for adjacent properties.
-#[derive(Clone, Deref, DerefMut)]
-pub struct NodeAncestry(Vec<NodeId>);
-
-/// Display the ancestry as a dot separated list
-///
-/// Intended only for testing and debugging during development.
-#[cfg(debug_assertions)]
-impl Debug for NodeAncestry {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for (index, id) in self.iter().enumerate() {
-            if index != 0 {
-                f.write_str(".")?;
-            }
-            id.fmt(f)?;
-        }
-
-        Ok(())
-    }
-}
-
-/// A slot in a node path: either a property identifier or the index of a vector.
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum NodeSlot {
-    Property((NodeType, NodeProperty)),
-    Index(usize),
-}
-
-/// Display the slot
-///
-/// Intended only for testing and debugging during development.
-#[cfg(debug_assertions)]
-impl Debug for NodeSlot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            NodeSlot::Property((node_type, node_prop)) => {
-                f.write_fmt(format_args!("{node_type}:{node_prop}"))
-            }
-            NodeSlot::Index(index) => index.fmt(f),
-        }
-    }
-}
-
-/// A path to reach a node from the root: a vector of [`NodeSlot`]s
-///
-/// Used when applying a patch to a node to traverse directly to the
-/// branch of the tree that a patch operation should be applied.
-/// Similar to the `path` of JSON Patch (https://jsonpatch.com/).
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut)]
-pub struct NodePath(Vec<NodeSlot>);
-
-impl NodePath {
-    /// Work out where NodePath Needs to be added, following this one.
-    fn path_for_next(&self, next: &NodePath) -> NodePath {
-        let mut pth = NodePath(Vec::new());
-        for slots in self.iter().zip(next.iter()) {
-            if slots.0 == slots.1 {
-                pth.0.push(slots.0.clone());
-                continue;
-            }
-
-            // We're different. But what sort of difference.
-            match (slots.0, slots.1) {
-                (NodeSlot::Property(..), NodeSlot::Property(..)) => {
-                    // WHat here
-                    break;
-                }
-                (NodeSlot::Index(i0), NodeSlot::Index(i1)) => {
-                    pth.0.push(NodeSlot::Index(*i1));
-                    continue;
-                }
-                (NodeSlot::Property(..), NodeSlot::Index(..)) => {
-                    break;
-                }
-                (NodeSlot::Index(..), NodeSlot::Property(..)) => {
-                    break;
+            // DiffOp::Delete(..) => {}
+            DiffTag::Delete => {
+                for i in old {
+                    patch_ops.push(NodeOp::Remove(old_context.properties[i].path.clone()));
                 }
             }
+            _ => {}
         }
-        pth
     }
 
-    fn ancestor_index(&self, other: &NodePath) -> Option<usize> {
-        let mut i: usize = 0;
-        for slots in self.iter().zip(other.iter()) {
-            if slots.0 != slots.1 {
+    DiffResult {
+        #[cfg(debug_assertions)]
+        old_context,
+        #[cfg(debug_assertions)]
+        new_context,
+        diff_ops,
+        node_ops: patch_ops,
+    }
+}
+
+/// Get the properties as a diff-able tuple of (slot, value)
+///
+/// This excludes the ancestry and path of a property since they should
+/// not be considered in the diffing (although both are used for creating
+/// patches from the diff operations)
+fn diffable_properties(context: &CondenseContext) -> Vec<(&NodeSlot, &String)> {
+    context
+        .properties
+        .iter()
+        .map(|node| (&node.slot, &node.value))
+        .collect()
+}
+
+/// Work out where NodePath Needs to be added, following this one.
+fn path_for_next(current: &NodePath, next: &NodePath) -> NodePath {
+    let mut pth = NodePath::new();
+    for slots in current.iter().zip(next.iter()) {
+        if slots.0 == slots.1 {
+            pth.0.push(slots.0.clone());
+            continue;
+        }
+
+        // We're different. But what sort of difference.
+        match (slots.0, slots.1) {
+            (NodeSlot::Property(..), NodeSlot::Property(..)) => {
+                // WHat here
                 break;
             }
-            i += 1;
-        }
-        if i == 0 {
-            None
-        } else {
-            Some(i - 1)
-        }
-    }
-
-    fn find_ancestor_index(paths: &Vec<NodePath>) -> Option<usize> {
-        let split = paths.split_first();
-        let mut i: usize = 0;
-        if split.is_some() {
-            let (first, others) = split.unwrap();
-            for o in others {
-                let lca = first.ancestor_index(o);
-                lca?;
-                i = i.min(lca.unwrap());
+            (NodeSlot::Index(_i0), NodeSlot::Index(i1)) => {
+                pth.0.push(NodeSlot::Index(*i1));
+                continue;
+            }
+            (NodeSlot::Property(..), NodeSlot::Index(..)) => {
+                break;
+            }
+            (NodeSlot::Index(..), NodeSlot::Property(..)) => {
+                break;
             }
         }
-        Some(i)
     }
+    pth
 }
 
-/// Display the address as a dot separated list
-///
-/// Intended only for testing and debugging during development.
-#[cfg(debug_assertions)]
-impl Debug for NodePath {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for (index, slot) in self.iter().enumerate() {
-            if index != 0 {
-                f.write_str(".")?;
-            }
-            slot.fmt(f)?;
+fn ancestor_index(current: &NodePath, other: &NodePath) -> Option<usize> {
+    let mut i: usize = 0;
+    for slots in current.iter().zip(other.iter()) {
+        if slots.0 != slots.1 {
+            break;
         }
-
-        Ok(())
+        i += 1;
+    }
+    if i == 0 {
+        None
+    } else {
+        Some(i - 1)
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct CondenseNode {
-    pub ancestry: NodeAncestry,
-    pub path: NodePath,
-    pub slot: NodeSlot,
-    pub value: String,
-}
-
-/// A context for the `condense` method of the `MergeNode` trait
-///
-/// This context is passed to the `condense` method as we perform
-/// a depth first traversal of a node. It maintains stacks of node types,
-/// node ids and [`NodeSlot`]s which are used to build up the `ancestries`
-/// and `properties` of which there is one for each property collected
-/// during the walk.
-///
-/// Whether a property is collected or not is determined by whether it
-/// has the `#[merge(format = "xxx")` attribute as declared in the schema YAML files.
-pub struct CondenseContext {
-    /// The stack of node types in the current walk
-    ///
-    /// Required so that the type can be associated with a `NodeSlot::Property`
-    /// variant when we enter a node.
-    types: Vec<NodeType>,
-
-    /// The current ancestry (stack of node ids) in the walk
-    ancestry: NodeAncestry,
-
-    /// The current path (stack of node slots) in the walk
-    path: NodePath,
-
-    /// The slot and value of each property collected in the walk
-    ///
-    /// The `NodeSlot` is included in the property tuple to help disambiguate
-    /// properties which have the same value, but which are for entirely different
-    /// properties on different types.
-    ///
-    /// Currently, a `String` is used to store the value of the property.
-    /// Most diff-able properties are strings but some are not e.g. integers, enums
-    /// It may be better to use a `Primitive` instead of a `String` to avoid
-    /// unnecessary string-ification and de-string-ification.
-    properties: Vec<CondenseNode>,
-}
-
-impl CondenseContext {
-    pub fn new() -> Self {
-        Self {
-            types: Vec::new(),
-            ancestry: NodeAncestry(Vec::new()),
-            path: NodePath(Vec::new()),
-            properties: Vec::new(),
+fn find_ancestor_index(paths: &Vec<NodePath>) -> Option<usize> {
+    let split = paths.split_first();
+    let mut i: usize = 0;
+    if split.is_some() {
+        let (first, others) = split.unwrap();
+        for o in others {
+            let lca = ancestor_index(first, o);
+            lca?;
+            i = i.min(lca.unwrap());
         }
     }
-
-    /// Get the properties as a diff-able tuple of (slot, value)
-    ///
-    /// This excludes the ancestry and path of a property since they should
-    /// not be considered in the diffing (although both are used for creating
-    /// patches from the diff operations)
-    fn diffable_properties(&self) -> Vec<(&NodeSlot, &String)> {
-        self.properties
-            .iter()
-            .map(|node| (&node.slot, &node.value))
-            .collect()
-    }
-}
-
-/// Display the context in tabular format
-///
-/// Intended only for testing and debugging during development.
-#[cfg(debug_assertions)]
-impl Debug for CondenseContext {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.properties.is_empty() {
-            f.write_str("No source properties")?;
-        }
-
-        // Find the maximum widths in each column
-        let (ancestry_width, path_width, slot_width) = self.properties.iter().fold(
-            (0, 0, 0),
-            |(ancestry_width, path_width, slot_width), node| {
-                (
-                    ancestry_width.max(format!("{:?}", node.ancestry).len()),
-                    path_width.max(format!("{:?}", node.path).len()),
-                    slot_width.max(format!("{:?}", node.slot).len()),
-                )
-            },
-        );
-
-        // Now, output using those widths
-        for (i, node) in self.properties.iter().enumerate() {
-            let ancestry = format!("{:?}", node.ancestry);
-            let path = format!("{:?}", node.path);
-            let slot = format!("{:?}", node.slot);
-            let value = node.value.replace('\n', r"\\n");
-            f.write_fmt(format_args!(
-                "{i:<3}  {ancestry:<ancestry_width$}  {path:<path_width$}  {slot:<slot_width$}  \"{value}\"\n",
-            ))?;
-        }
-
-        Ok(())
-    }
-}
-
-impl CondenseContext {
-    /// Enter a node during the walk
-    pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
-        self.types.push(node_type);
-        self.ancestry.push(node_id);
-        self
-    }
-
-    /// Exit a node during the walk
-    pub fn exit_node(&mut self) -> &mut Self {
-        self.types.pop();
-        self.ancestry.pop();
-        self
-    }
-
-    /// Enter a property during the walk
-    pub fn enter_property(&mut self, node_property: NodeProperty) -> &mut Self {
-        let node_type = self
-            .types
-            .last()
-            .expect("only called after entering a node");
-        self.path
-            .push(NodeSlot::Property((*node_type, node_property)));
-        self
-    }
-
-    /// Exit a property during the walk
-    pub fn exit_property(&mut self) -> &mut Self {
-        let popped = self.path.pop();
-        debug_assert!(matches!(popped, Some(NodeSlot::Property(..))));
-        self
-    }
-
-    /// Enter an item in a vector during the walk
-    pub fn enter_index(&mut self, index: usize) -> &mut Self {
-        self.path.push(NodeSlot::Index(index.into()));
-        self
-    }
-
-    /// Exit an item in a vector during the walk
-    pub fn exit_index(&mut self) -> &mut Self {
-        let popped = self.path.pop();
-        debug_assert!(matches!(popped, Some(NodeSlot::Index(..))));
-        self
-    }
-
-    /// Collected a property value during the walk
-    pub fn collect_value(&mut self, value: &str) -> &mut Self {
-        // Clone the last slot in the path to return in `diffable_properties`
-        let slot = self
-            .path
-            .last()
-            .cloned()
-            .unwrap_or_else(|| NodeSlot::Index(0));
-
-        self.properties.push(CondenseNode {
-            ancestry: self.ancestry.clone(),
-            path: self.path.clone(),
-            slot: slot,
-            value: value.to_string(),
-        });
-        self
-    }
+    Some(i)
 }
 
 /// An operation to apply to a node
@@ -484,10 +183,6 @@ enum NodeOp {
     Replace((NodePath, Node)),
     Move((NodePath, NodePath)),
 }
-
-// TODO: This should be an actual schema node but for now can not be
-// because of circular dependency if we depend on schema
-type Node = String;
 
 /// The result from a diff operation
 ///
@@ -542,6 +237,8 @@ impl Debug for DiffResult {
 
 #[cfg(test)]
 mod tests {
+    use schema::{NodeProperty, NodeType};
+
     use super::*;
 
     #[test]
@@ -562,7 +259,7 @@ mod tests {
             NodeSlot::Property((NodeType::Text, NodeProperty::Value)),
         ]);
 
-        let p3 = p1.path_for_next(&p2);
+        let p3 = path_for_next(&p1, &p2);
         println!("{:?}", p3);
     }
 }
