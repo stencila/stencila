@@ -347,7 +347,7 @@ pub enum NodeProperty {{
             .map(|spec| spec.derive)
             .unwrap_or(true)
         {
-            derives.push("CondenseNode");
+            derives.push("PatchNode");
         }
 
         // Codec derives
@@ -1030,7 +1030,7 @@ impl {title} {{
             .map(|spec| spec.derive)
             .unwrap_or(true)
         {
-            derives.push("CondenseNode");
+            derives.push("PatchNode");
         }
 
         // Codec derives

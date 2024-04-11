@@ -30,5 +30,5 @@ Equal        4..5         6..7
 Equal        5..6         7..8
 Equal        6..7         8..9
 
-Add((Article:content.2, String("")))
-Add((Article:content.2, String("python")))
+Set((Article:content.2, Article:content.2.CodeBlock:code))
+Set((Article:content.2, Article:content.2.CodeBlock:programmingLanguage))

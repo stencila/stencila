@@ -1,6 +1,6 @@
 use crate::{prelude::*, ThematicBreak};
 
-impl CondenseNode for ThematicBreak {
+impl PatchNode for ThematicBreak {
     fn condense(&self, context: &mut CondenseContext) {
         // Because a ThematicBreak does not have any properties,
         // unless we add this pseudo-source property it does not

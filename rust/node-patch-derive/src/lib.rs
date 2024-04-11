@@ -1,4 +1,4 @@
-//! Provides the `CondenseNode` derive macro for structs and enums in Stencila Schema
+//! Provides the `PatchNode` derive macro for structs and enums in Stencila Schema
 
 use darling::{self, ast::Data as AstData, util::Ignored, FromDeriveInput, FromField};
 
@@ -25,8 +25,8 @@ struct FieldAttr {
     formats: Vec<String>,
 }
 
-/// Derive the `CondenseNode` trait for a `struct` or an `enum`
-#[proc_macro_derive(CondenseNode, attributes(merge))]
+/// Derive the `PatchNode` trait for a `struct` or an `enum`
+#[proc_macro_derive(PatchNode, attributes(merge))]
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     use proc_macro::TokenStream;
 
@@ -48,7 +48,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     TokenStream::from(tokens)
 }
 
-/// Derive the `CondenseNode` trait for a `struct`
+/// Derive the `PatchNode` trait for a `struct`
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
@@ -93,7 +93,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     });
 
     quote! {
-        impl CondenseNode for #struct_name {
+        impl PatchNode for #struct_name {
             fn condense(&self, context: &mut CondenseContext) {
                 #enter
                 #properties
@@ -103,7 +103,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     }
 }
 
-/// Derive the `CondenseNode` trait for an `enum`
+/// Derive the `PatchNode` trait for an `enum`
 fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
@@ -123,7 +123,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl CondenseNode for #enum_name {
+        impl PatchNode for #enum_name {
             fn condense(&self, context: &mut CondenseContext) {
                 match self {
                     #condense

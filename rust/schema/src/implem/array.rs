@@ -14,7 +14,7 @@ impl std::fmt::Display for Array {
 
 impl StripNode for Array {}
 
-impl CondenseNode for Array {}
+impl PatchNode for Array {}
 
 impl ReadNode for Array {
     fn load_list<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {

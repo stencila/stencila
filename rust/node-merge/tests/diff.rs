@@ -52,7 +52,7 @@ async fn file_diff() -> Result<()> {
         let old = codecs::from_str(old, options.clone()).await?;
         let new = codecs::from_str(new, options).await?;
 
-        Ok(node_merge::diff(old, new))
+        Ok(node_merge::diff(&old, &new))
     }
 
     let files_content = load_markdown("tests/markdown")?;

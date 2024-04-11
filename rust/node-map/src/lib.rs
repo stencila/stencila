@@ -5,8 +5,7 @@ use common::{
     smol_str::SmolStr,
 };
 use schema::{
-    walk::{Visitor, WalkControl, WalkNode},
-    Block, Inline, ListItem, Node, NodeId, TableCell, TableRow,
+    Block, Inline, ListItem, Node, NodeId, TableCell, TableRow, Visitor, WalkControl, WalkNode,
 };
 
 /// Walk over a node to generate a mapping of `NodeId`s to paths within the node

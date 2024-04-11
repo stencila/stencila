@@ -1,6 +1,5 @@
 use schema::{
-    walk::{VisitorMut, WalkControl, WalkNode},
-    Author, AuthorRole, Block, CreativeWorkType, Inline,
+    Author, AuthorRole, Block, CreativeWorkType, Inline, VisitorMut, WalkControl, WalkNode,
 };
 
 /// Walk over a node and add the author roles to the authors properties of the

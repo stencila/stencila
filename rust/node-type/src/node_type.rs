@@ -5,20 +5,7 @@ use common::{
     strum::{Display, EnumIter, EnumString},
 };
 
-#[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-    Serialize,
-    Display,
-    EnumString,
-    EnumIter,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
 #[strum(crate = "common::strum")]
 pub enum NodeType {

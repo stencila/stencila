@@ -10,7 +10,7 @@ use crate::{prelude::*, Object, Primitive};
 
 impl StripNode for Object {}
 
-impl CondenseNode for Object {}
+impl PatchNode for Object {}
 
 impl ReadNode for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {

@@ -3957,24 +3957,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "node-condense"
-version = "0.0.0"
-dependencies = [
- "common",
- "node-condense-derive",
- "node-id",
- "node-type",
-]
-
-[[package]]
-name = "node-condense-derive"
-version = "0.0.0"
-dependencies = [
- "common",
- "darling 0.20.8",
-]
-
-[[package]]
 name = "node-execute"
 version = "0.0.0"
 dependencies = [
@@ -4012,7 +3994,6 @@ dependencies = [
  "codecs",
  "common",
  "common-dev",
- "node-condense",
  "schema",
 ]
 
@@ -4023,6 +4004,14 @@ dependencies = [
  "common",
  "node-store",
  "schema",
+]
+
+[[package]]
+name = "node-patch-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling 0.20.8",
 ]
 
 [[package]]
@@ -5751,8 +5740,8 @@ dependencies = [
  "human_name",
  "interim",
  "monostate",
- "node-condense",
  "node-id",
+ "node-patch-derive",
  "node-store",
  "node-strip",
  "node-type",

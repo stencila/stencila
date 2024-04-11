@@ -1,7 +1,7 @@
 use codecs::{DecodeOptions, Format};
 use common::{eyre::Result, tokio};
 use common_dev::insta::assert_debug_snapshot;
-use node_condense::{CondenseContext, CondenseNode};
+use schema::{CondenseContext, PatchNode};
 
 /// Snapshot tests of the `MergeNode::condense` method
 ///

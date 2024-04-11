@@ -21,8 +21,8 @@ common = { path = "../common" }
 human_name = "2.0.3"
 interim = { version = "0.1.1", features = ["chrono"] }
 monostate = "0.1.11"
-node-condense = { path = "../node-condense" }
 node-id = { path = "../node-id" }
+node-patch-derive = { path = "../node-patch-derive" }
 node-store = { path = "../node-store" }
 node-strip = { path = "../node-strip" }
 node-type = { path = "../node-type" }

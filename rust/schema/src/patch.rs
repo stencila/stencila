@@ -1,26 +1,42 @@
-use std::fmt::{self, Debug};
+use std::{
+    collections::VecDeque,
+    fmt::{self, Debug},
+};
 
 use common::derive_more::{Deref, DerefMut};
 use node_id::NodeId;
 use node_type::{NodeProperty, NodeType};
 
-// Export the `CondenseNode` derive macro
-pub use node_condense_derive::CondenseNode;
+use crate::Node;
 
 /// A trait for condensing a node into a list of diff-able and merge-able properties
-pub trait CondenseNode {
+pub trait PatchNode {
     /// Condense a node into a list of properties that can be diffed
     ///
     /// This default implementation does nothing. Implementors should
-    /// call the various methods of the context to collect properties.
+    /// call the various methods of the `context` to collect properties.
     #[allow(unused_variables)]
     fn condense(&self, context: &mut CondenseContext) {}
+
+    #[allow(unused_variables)]
+    fn get_path(&self, path: &mut NodePath) -> Option<Node> {
+        None
+    }
+
+    #[allow(unused_variables)]
+    fn set_path(&mut self, path: &mut NodePath, node: Node) {}
+
+    #[allow(unused_variables)]
+    fn insert_path(&mut self, path: &mut NodePath, node: Node) {}
+
+    #[allow(unused_variables)]
+    fn remove_path(&mut self, path: &mut NodePath) {}
 }
 
 // Implementation for simple "atomic" types not in schema
 macro_rules! atom {
     ($type:ty) => {
-        impl CondenseNode for $type {
+        impl PatchNode for $type {
             fn condense(&self, context: &mut CondenseContext) {
                 context.collect_value(&self.to_string());
             }
@@ -34,9 +50,9 @@ atom!(f64);
 atom!(String);
 
 // Implementation for boxed properties
-impl<T> CondenseNode for Box<T>
+impl<T> PatchNode for Box<T>
 where
-    T: CondenseNode,
+    T: PatchNode,
 {
     fn condense(&self, context: &mut CondenseContext) {
         self.as_ref().condense(context)
@@ -44,9 +60,9 @@ where
 }
 
 // Implementation for optional properties
-impl<T> CondenseNode for Option<T>
+impl<T> PatchNode for Option<T>
 where
-    T: CondenseNode,
+    T: PatchNode,
 {
     fn condense(&self, context: &mut CondenseContext) {
         if let Some(value) = self {
@@ -56,9 +72,9 @@ where
 }
 
 // Implementation for vector properties
-impl<T> CondenseNode for Vec<T>
+impl<T> PatchNode for Vec<T>
 where
-    T: CondenseNode,
+    T: PatchNode,
 {
     fn condense(&self, context: &mut CondenseContext) {
         for (index, item) in self.iter().enumerate() {
@@ -77,6 +93,18 @@ where
 /// common ancestor for adjacent properties.
 #[derive(Clone, Deref, DerefMut)]
 pub struct NodeAncestry(Vec<NodeId>);
+
+impl Default for NodeAncestry {
+    fn default() -> Self {
+        Self(Vec::new())
+    }
+}
+
+impl NodeAncestry {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
 
 /// Display the ancestry as a dot separated list
 ///
@@ -123,17 +151,23 @@ impl Debug for NodeSlot {
 /// branch of the tree that a patch operation should be applied.
 /// Similar to the `path` of JSON Patch (https://jsonpatch.com/).
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut)]
-pub struct NodePath(pub Vec<NodeSlot>);
+pub struct NodePath(VecDeque<NodeSlot>);
 
 impl Default for NodePath {
     fn default() -> Self {
-        Self::new()
+        Self(VecDeque::new())
     }
 }
 
 impl NodePath {
     pub fn new() -> Self {
-        Self(Vec::new())
+        Self::default()
+    }
+}
+
+impl<const N: usize> From<[NodeSlot; N]> for NodePath {
+    fn from(value: [NodeSlot; N]) -> Self {
+        Self(value.into())
     }
 }
 
@@ -209,8 +243,8 @@ impl CondenseContext {
     pub fn new() -> Self {
         Self {
             types: Vec::new(),
-            ancestry: NodeAncestry(Vec::new()),
-            path: NodePath(Vec::new()),
+            ancestry: NodeAncestry::new(),
+            path: NodePath::new(),
             properties: Vec::new(),
         }
     }
@@ -275,26 +309,26 @@ impl CondenseContext {
             .last()
             .expect("only called after entering a node");
         self.path
-            .push(NodeSlot::Property((*node_type, node_property)));
+            .push_back(NodeSlot::Property((*node_type, node_property)));
         self
     }
 
     /// Exit a property during the walk
     pub fn exit_property(&mut self) -> &mut Self {
-        let popped = self.path.pop();
+        let popped = self.path.pop_back();
         debug_assert!(matches!(popped, Some(NodeSlot::Property(..))));
         self
     }
 
     /// Enter an item in a vector during the walk
     pub fn enter_index(&mut self, index: usize) -> &mut Self {
-        self.path.push(NodeSlot::Index(index));
+        self.path.push_back(NodeSlot::Index(index));
         self
     }
 
     /// Exit an item in a vector during the walk
     pub fn exit_index(&mut self) -> &mut Self {
-        let popped = self.path.pop();
+        let popped = self.path.pop_back();
         debug_assert!(matches!(popped, Some(NodeSlot::Index(..))));
         self
     }
@@ -302,7 +336,7 @@ impl CondenseContext {
     /// Collected a property value during the walk
     pub fn collect_value(&mut self, value: &str) -> &mut Self {
         // Clone the last slot in the path to return in `diffable_properties`
-        let slot = self.path.last().cloned().unwrap_or(NodeSlot::Index(0));
+        let slot = self.path.back().cloned().unwrap_or(NodeSlot::Index(0));
 
         self.properties.push(CondenseProperty {
             ancestry: self.ancestry.clone(),
