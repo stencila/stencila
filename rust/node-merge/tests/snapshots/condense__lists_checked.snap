@@ -2,8 +2,24 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n- [ ] Todo\n- [x] Done\n\"#)"
 ---
-0    art_11111118.lst_11111117.lsi_11111113.pgh_11111112.txt_11111111  Article:content.0.List:items.0.ListItem:content.0.Paragraph:content.0.Text:value  Text:value          "Todo"
-1    art_11111118.lst_11111117.lsi_11111113                            Article:content.0.List:items.0.ListItem:isChecked                                 ListItem:isChecked  "false"
-2    art_11111118.lst_11111117.lsi_11111116.pgh_11111115.txt_11111114  Article:content.0.List:items.1.ListItem:content.0.Paragraph:content.0.Text:value  Text:value          "Done"
-3    art_11111118.lst_11111117.lsi_11111116                            Article:content.0.List:items.1.ListItem:isChecked                                 ListItem:isChecked  "true"
-4    art_11111118.lst_11111117                                         Article:content.0.List:order                                                      List:order          "Unordered"
+0                                                                                                                                                        Article>            
+1    art_11111118                                                      Article:content.0                                                                 List>               
+2    art_11111118.lst_11111117                                         Article:content.0.List:items.0                                                    ListItem>           
+3    art_11111118.lst_11111117.lsi_11111113                            Article:content.0.List:items.0.ListItem:content.0                                 Paragraph>          
+4    art_11111118.lst_11111117.lsi_11111113.pgh_11111112               Article:content.0.List:items.0.ListItem:content.0.Paragraph:content.0             Text>               
+5    art_11111118.lst_11111117.lsi_11111113.pgh_11111112.txt_11111111  Article:content.0.List:items.0.ListItem:content.0.Paragraph:content.0.Text:value  Text:value          "Todo"
+6    art_11111118.lst_11111117.lsi_11111113.pgh_11111112               Article:content.0.List:items.0.ListItem:content.0.Paragraph:content.0             Text<               
+7    art_11111118.lst_11111117.lsi_11111113                            Article:content.0.List:items.0.ListItem:content.0                                 Paragraph<          
+8    art_11111118.lst_11111117.lsi_11111113                            Article:content.0.List:items.0.ListItem:isChecked                                 ListItem:isChecked  "false"
+9    art_11111118.lst_11111117                                         Article:content.0.List:items.0                                                    ListItem<           
+10   art_11111118.lst_11111117                                         Article:content.0.List:items.1                                                    ListItem>           
+11   art_11111118.lst_11111117.lsi_11111116                            Article:content.0.List:items.1.ListItem:content.0                                 Paragraph>          
+12   art_11111118.lst_11111117.lsi_11111116.pgh_11111115               Article:content.0.List:items.1.ListItem:content.0.Paragraph:content.0             Text>               
+13   art_11111118.lst_11111117.lsi_11111116.pgh_11111115.txt_11111114  Article:content.0.List:items.1.ListItem:content.0.Paragraph:content.0.Text:value  Text:value          "Done"
+14   art_11111118.lst_11111117.lsi_11111116.pgh_11111115               Article:content.0.List:items.1.ListItem:content.0.Paragraph:content.0             Text<               
+15   art_11111118.lst_11111117.lsi_11111116                            Article:content.0.List:items.1.ListItem:content.0                                 Paragraph<          
+16   art_11111118.lst_11111117.lsi_11111116                            Article:content.0.List:items.1.ListItem:isChecked                                 ListItem:isChecked  "true"
+17   art_11111118.lst_11111117                                         Article:content.0.List:items.1                                                    ListItem<           
+18   art_11111118.lst_11111117                                         Article:content.0.List:order                                                      List:order          "Unordered"
+19   art_11111118                                                      Article:content.0                                                                 List<               
+20                                                                                                                                                       Article<

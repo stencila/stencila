@@ -2,8 +2,40 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n| A | B |\n|---|---|\n|1  | 2 |\n\"#)"
 ---
-0    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113.pgh_11111112.txt_11111111  Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "A"
-1    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116.pgh_11111115.txt_11111114  Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "B"
-2    art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:rowType                                                     TableRow:rowType  "HeaderRow"
-3    art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A.pgh_11111119.txt_11111118  Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "1"
-4    art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D.pgh_1111111C.txt_1111111B  Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "2"
+0                                                                                                                                                                                       Article>          
+1    art_1111111G                                                                   Article:content.0                                                                                   Table>            
+2    art_1111111G.tbl_1111111F                                                      Article:content.0.Table:rows.0                                                                      TableRow>         
+3    art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:cells.0                                                     TableCell>        
+4    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113                            Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0                                 Paragraph>        
+5    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113.pgh_11111112               Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0.Paragraph:content.0             Text>             
+6    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113.pgh_11111112.txt_11111111  Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "A"
+7    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113.pgh_11111112               Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0.Paragraph:content.0             Text<             
+8    art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111113                            Article:content.0.Table:rows.0.TableRow:cells.0.TableCell:content.0                                 Paragraph<        
+9    art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:cells.0                                                     TableCell<        
+10   art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:cells.1                                                     TableCell>        
+11   art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116                            Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0                                 Paragraph>        
+12   art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116.pgh_11111115               Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0.Paragraph:content.0             Text>             
+13   art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116.pgh_11111115.txt_11111114  Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "B"
+14   art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116.pgh_11111115               Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0.Paragraph:content.0             Text<             
+15   art_1111111G.tbl_1111111F.tbr_11111117.tbc_11111116                            Article:content.0.Table:rows.0.TableRow:cells.1.TableCell:content.0                                 Paragraph<        
+16   art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:cells.1                                                     TableCell<        
+17   art_1111111G.tbl_1111111F.tbr_11111117                                         Article:content.0.Table:rows.0.TableRow:rowType                                                     TableRow:rowType  "HeaderRow"
+18   art_1111111G.tbl_1111111F                                                      Article:content.0.Table:rows.0                                                                      TableRow<         
+19   art_1111111G.tbl_1111111F                                                      Article:content.0.Table:rows.1                                                                      TableRow>         
+20   art_1111111G.tbl_1111111F.tbr_1111111E                                         Article:content.0.Table:rows.1.TableRow:cells.0                                                     TableCell>        
+21   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A                            Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0                                 Paragraph>        
+22   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A.pgh_11111119               Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0.Paragraph:content.0             Text>             
+23   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A.pgh_11111119.txt_11111118  Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "1"
+24   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A.pgh_11111119               Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0.Paragraph:content.0             Text<             
+25   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111A                            Article:content.0.Table:rows.1.TableRow:cells.0.TableCell:content.0                                 Paragraph<        
+26   art_1111111G.tbl_1111111F.tbr_1111111E                                         Article:content.0.Table:rows.1.TableRow:cells.0                                                     TableCell<        
+27   art_1111111G.tbl_1111111F.tbr_1111111E                                         Article:content.0.Table:rows.1.TableRow:cells.1                                                     TableCell>        
+28   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D                            Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0                                 Paragraph>        
+29   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D.pgh_1111111C               Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0.Paragraph:content.0             Text>             
+30   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D.pgh_1111111C.txt_1111111B  Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0.Paragraph:content.0.Text:value  Text:value        "2"
+31   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D.pgh_1111111C               Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0.Paragraph:content.0             Text<             
+32   art_1111111G.tbl_1111111F.tbr_1111111E.tbc_1111111D                            Article:content.0.Table:rows.1.TableRow:cells.1.TableCell:content.0                                 Paragraph<        
+33   art_1111111G.tbl_1111111F.tbr_1111111E                                         Article:content.0.Table:rows.1.TableRow:cells.1                                                     TableCell<        
+34   art_1111111G.tbl_1111111F                                                      Article:content.0.Table:rows.1                                                                      TableRow<         
+35   art_1111111G                                                                   Article:content.0                                                                                   Table<            
+36                                                                                                                                                                                      Article<

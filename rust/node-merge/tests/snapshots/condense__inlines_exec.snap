@@ -2,19 +2,53 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\nOne `1 + 2`{exec}, {{3 + 4}}, &[par1]{bool}.\n\nTwo `5 * 6`{py exec}, &[par2]{min=0 max=5}.\n\"#)"
 ---
-0    art_1111111H.pgh_11111119.txt_11111111               Article:content.0.Paragraph:content.0.Text:value                                    Text:value                          "One "
-1    art_1111111H.pgh_11111119.cde_11111112               Article:content.0.Paragraph:content.1.CodeExpression:code                           CodeExpression:code                 "1 + 2"
-2    art_1111111H.pgh_11111119.txt_11111113               Article:content.0.Paragraph:content.2.Text:value                                    Text:value                          ", "
-3    art_1111111H.pgh_11111119.cde_11111114               Article:content.0.Paragraph:content.3.CodeExpression:code                           CodeExpression:code                 "3 + 4"
-4    art_1111111H.pgh_11111119.txt_11111115               Article:content.0.Paragraph:content.4.Text:value                                    Text:value                          ", "
-5    art_1111111H.pgh_11111119.par_11111117               Article:content.0.Paragraph:content.5.Parameter:name                                Parameter:name                      "par1"
-6    art_1111111H.pgh_11111119.par_11111117.bov_11111116  Article:content.0.Paragraph:content.5.Parameter:validator.BooleanValidator:type     BooleanValidator:type               ""
-7    art_1111111H.pgh_11111119.txt_11111118               Article:content.0.Paragraph:content.6.Text:value                                    Text:value                          "."
-8    art_1111111H.pgh_1111111G.txt_1111111A               Article:content.1.Paragraph:content.0.Text:value                                    Text:value                          "Two "
-9    art_1111111H.pgh_1111111G.cde_1111111B               Article:content.1.Paragraph:content.1.CodeExpression:code                           CodeExpression:code                 "5 * 6"
-10   art_1111111H.pgh_1111111G.cde_1111111B               Article:content.1.Paragraph:content.1.CodeExpression:programmingLanguage            CodeExpression:programmingLanguage  "py"
-11   art_1111111H.pgh_1111111G.txt_1111111C               Article:content.1.Paragraph:content.2.Text:value                                    Text:value                          ", "
-12   art_1111111H.pgh_1111111G.par_1111111E               Article:content.1.Paragraph:content.3.Parameter:name                                Parameter:name                      "par2"
-13   art_1111111H.pgh_1111111G.par_1111111E.inv_1111111D  Article:content.1.Paragraph:content.3.Parameter:validator.IntegerValidator:minimum  IntegerValidator:minimum            "0"
-14   art_1111111H.pgh_1111111G.par_1111111E.inv_1111111D  Article:content.1.Paragraph:content.3.Parameter:validator.IntegerValidator:maximum  IntegerValidator:maximum            "5"
-15   art_1111111H.pgh_1111111G.txt_1111111F               Article:content.1.Paragraph:content.4.Text:value                                    Text:value                          "."
+0                                                                                                                                             Article>                            
+1    art_1111111H                                         Article:content.0                                                                   Paragraph>                          
+2    art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.0                                               Text>                               
+3    art_1111111H.pgh_11111119.txt_11111111               Article:content.0.Paragraph:content.0.Text:value                                    Text:value                          "One "
+4    art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.0                                               Text<                               
+5    art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.1                                               CodeExpression>                     
+6    art_1111111H.pgh_11111119.cde_11111112               Article:content.0.Paragraph:content.1.CodeExpression:code                           CodeExpression:code                 "1 + 2"
+7    art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.1                                               CodeExpression<                     
+8    art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.2                                               Text>                               
+9    art_1111111H.pgh_11111119.txt_11111113               Article:content.0.Paragraph:content.2.Text:value                                    Text:value                          ", "
+10   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.2                                               Text<                               
+11   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.3                                               CodeExpression>                     
+12   art_1111111H.pgh_11111119.cde_11111114               Article:content.0.Paragraph:content.3.CodeExpression:code                           CodeExpression:code                 "3 + 4"
+13   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.3                                               CodeExpression<                     
+14   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.4                                               Text>                               
+15   art_1111111H.pgh_11111119.txt_11111115               Article:content.0.Paragraph:content.4.Text:value                                    Text:value                          ", "
+16   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.4                                               Text<                               
+17   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.5                                               Parameter>                          
+18   art_1111111H.pgh_11111119.par_11111117               Article:content.0.Paragraph:content.5.Parameter:name                                Parameter:name                      "par1"
+19   art_1111111H.pgh_11111119.par_11111117               Article:content.0.Paragraph:content.5.Parameter:validator                           BooleanValidator>                   
+20   art_1111111H.pgh_11111119.par_11111117.bov_11111116  Article:content.0.Paragraph:content.5.Parameter:validator.BooleanValidator:type     BooleanValidator:type               ""
+21   art_1111111H.pgh_11111119.par_11111117               Article:content.0.Paragraph:content.5.Parameter:validator                           BooleanValidator<                   
+22   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.5                                               Parameter<                          
+23   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.6                                               Text>                               
+24   art_1111111H.pgh_11111119.txt_11111118               Article:content.0.Paragraph:content.6.Text:value                                    Text:value                          "."
+25   art_1111111H.pgh_11111119                            Article:content.0.Paragraph:content.6                                               Text<                               
+26   art_1111111H                                         Article:content.0                                                                   Paragraph<                          
+27   art_1111111H                                         Article:content.1                                                                   Paragraph>                          
+28   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.0                                               Text>                               
+29   art_1111111H.pgh_1111111G.txt_1111111A               Article:content.1.Paragraph:content.0.Text:value                                    Text:value                          "Two "
+30   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.0                                               Text<                               
+31   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.1                                               CodeExpression>                     
+32   art_1111111H.pgh_1111111G.cde_1111111B               Article:content.1.Paragraph:content.1.CodeExpression:code                           CodeExpression:code                 "5 * 6"
+33   art_1111111H.pgh_1111111G.cde_1111111B               Article:content.1.Paragraph:content.1.CodeExpression:programmingLanguage            CodeExpression:programmingLanguage  "py"
+34   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.1                                               CodeExpression<                     
+35   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.2                                               Text>                               
+36   art_1111111H.pgh_1111111G.txt_1111111C               Article:content.1.Paragraph:content.2.Text:value                                    Text:value                          ", "
+37   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.2                                               Text<                               
+38   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.3                                               Parameter>                          
+39   art_1111111H.pgh_1111111G.par_1111111E               Article:content.1.Paragraph:content.3.Parameter:name                                Parameter:name                      "par2"
+40   art_1111111H.pgh_1111111G.par_1111111E               Article:content.1.Paragraph:content.3.Parameter:validator                           IntegerValidator>                   
+41   art_1111111H.pgh_1111111G.par_1111111E.inv_1111111D  Article:content.1.Paragraph:content.3.Parameter:validator.IntegerValidator:minimum  IntegerValidator:minimum            "0"
+42   art_1111111H.pgh_1111111G.par_1111111E.inv_1111111D  Article:content.1.Paragraph:content.3.Parameter:validator.IntegerValidator:maximum  IntegerValidator:maximum            "5"
+43   art_1111111H.pgh_1111111G.par_1111111E               Article:content.1.Paragraph:content.3.Parameter:validator                           IntegerValidator<                   
+44   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.3                                               Parameter<                          
+45   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.4                                               Text>                               
+46   art_1111111H.pgh_1111111G.txt_1111111F               Article:content.1.Paragraph:content.4.Text:value                                    Text:value                          "."
+47   art_1111111H.pgh_1111111G                            Article:content.1.Paragraph:content.4                                               Text<                               
+48   art_1111111H                                         Article:content.1                                                                   Paragraph<                          
+49                                                                                                                                            Article<

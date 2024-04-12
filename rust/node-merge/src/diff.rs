@@ -95,7 +95,7 @@ pub fn diff(old: &Node, new: &Node) -> DiffResult {
 /// This excludes the ancestry and path of a property since they should
 /// not be considered in the diffing (although both are used for creating
 /// patches from the diff operations)
-fn diffable_properties(context: &CondenseContext) -> Vec<(&NodeSlot, &String)> {
+fn diffable_properties(context: &CondenseContext) -> Vec<(&NodeSlot, &Option<String>)> {
     context
         .properties
         .iter()
@@ -128,6 +128,7 @@ fn path_for_next(current: &NodePath, next: &NodePath) -> NodePath {
             (NodeSlot::Index(..), NodeSlot::Property(..)) => {
                 break;
             }
+            _ => {}
         }
     }
     pth
@@ -181,7 +182,7 @@ pub struct DiffResult {
 }
 
 impl DiffResult {
-    /// Get the operations from the result
+    /// Get the operations in the result
     pub fn ops(self) -> Vec<NodeOp> {
         self.node_ops
     }

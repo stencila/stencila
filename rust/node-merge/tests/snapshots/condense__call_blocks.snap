@@ -2,12 +2,22 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\n::: call file.md (par1=1, par2=`1+1`, par3=4)\n\"#)"
 ---
-0    art_11111115.clb_11111114               Article:content.0.CallBlock:source                          CallBlock:source    "file.md"
-1    art_11111115.clb_11111114.cla_11111111  Article:content.0.CallBlock:arguments.0.CallArgument:name   CallArgument:name   "par1"
-2    art_11111115.clb_11111114.cla_11111111  Article:content.0.CallBlock:arguments.0.CallArgument:value  CallArgument:value  "1"
-3    art_11111115.clb_11111114.cla_11111111  Article:content.0.CallBlock:arguments.0.CallArgument:code   CallArgument:code   ""
-4    art_11111115.clb_11111114.cla_11111112  Article:content.0.CallBlock:arguments.1.CallArgument:name   CallArgument:name   "par2"
-5    art_11111115.clb_11111114.cla_11111112  Article:content.0.CallBlock:arguments.1.CallArgument:code   CallArgument:code   "1+1"
-6    art_11111115.clb_11111114.cla_11111113  Article:content.0.CallBlock:arguments.2.CallArgument:name   CallArgument:name   "par3"
-7    art_11111115.clb_11111114.cla_11111113  Article:content.0.CallBlock:arguments.2.CallArgument:value  CallArgument:value  "4"
-8    art_11111115.clb_11111114.cla_11111113  Article:content.0.CallBlock:arguments.2.CallArgument:code   CallArgument:code   ""
+0                                                                                                        Article>            
+1    art_11111115                            Article:content.0                                           CallBlock>          
+2    art_11111115.clb_11111114               Article:content.0.CallBlock:source                          CallBlock:source    "file.md"
+3    art_11111115.clb_11111114               Article:content.0.CallBlock:arguments.0                     CallArgument>       
+4    art_11111115.clb_11111114.cla_11111111  Article:content.0.CallBlock:arguments.0.CallArgument:name   CallArgument:name   "par1"
+5    art_11111115.clb_11111114.cla_11111111  Article:content.0.CallBlock:arguments.0.CallArgument:value  CallArgument:value  "1"
+6    art_11111115.clb_11111114.cla_11111111  Article:content.0.CallBlock:arguments.0.CallArgument:code   CallArgument:code   ""
+7    art_11111115.clb_11111114               Article:content.0.CallBlock:arguments.0                     CallArgument<       
+8    art_11111115.clb_11111114               Article:content.0.CallBlock:arguments.1                     CallArgument>       
+9    art_11111115.clb_11111114.cla_11111112  Article:content.0.CallBlock:arguments.1.CallArgument:name   CallArgument:name   "par2"
+10   art_11111115.clb_11111114.cla_11111112  Article:content.0.CallBlock:arguments.1.CallArgument:code   CallArgument:code   "1+1"
+11   art_11111115.clb_11111114               Article:content.0.CallBlock:arguments.1                     CallArgument<       
+12   art_11111115.clb_11111114               Article:content.0.CallBlock:arguments.2                     CallArgument>       
+13   art_11111115.clb_11111114.cla_11111113  Article:content.0.CallBlock:arguments.2.CallArgument:name   CallArgument:name   "par3"
+14   art_11111115.clb_11111114.cla_11111113  Article:content.0.CallBlock:arguments.2.CallArgument:value  CallArgument:value  "4"
+15   art_11111115.clb_11111114.cla_11111113  Article:content.0.CallBlock:arguments.2.CallArgument:code   CallArgument:code   ""
+16   art_11111115.clb_11111114               Article:content.0.CallBlock:arguments.2                     CallArgument<       
+17   art_11111115                            Article:content.0                                           CallBlock<          
+18                                                                                                       Article<

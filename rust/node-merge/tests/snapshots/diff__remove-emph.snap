@@ -2,35 +2,93 @@
 source: rust/node-merge/tests/diff.rs
 expression: "diff(&files_content, name).await?"
 ---
-0    art_1111111E.hea_11111112                            Article:content.0.Heading:level                                      Heading:level  "1"
-1    art_1111111E.hea_11111112.txt_11111111               Article:content.0.Heading:content.0.Text:value                       Text:value     "Forest"
-2    art_1111111E.pgh_11111119.txt_11111113               Article:content.1.Paragraph:content.0.Text:value                     Text:value     "grass "
-3    art_1111111E.pgh_11111119.emp_11111115.txt_11111114  Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value  Text:value     "rabbit"
-4    art_1111111E.pgh_11111119.txt_11111116               Article:content.1.Paragraph:content.2.Text:value                     Text:value     " grass "
-5    art_1111111E.pgh_11111119.emp_11111118.txt_11111117  Article:content.1.Paragraph:content.3.Emphasis:content.0.Text:value  Text:value     "rabbit"
-6    art_1111111E.hea_1111111B                            Article:content.2.Heading:level                                      Heading:level  "2"
-7    art_1111111E.hea_1111111B.txt_1111111A               Article:content.2.Heading:content.0.Text:value                       Text:value     "Maple"
-8    art_1111111E.pgh_1111111D.txt_1111111C               Article:content.3.Paragraph:content.0.Text:value                     Text:value     "leaf"
+0                                                                                                                              Article>       
+1    art_1111111E                                         Article:content.0                                                    Heading>       
+2    art_1111111E.hea_11111112                            Article:content.0.Heading:level                                      Heading:level  "1"
+3    art_1111111E.hea_11111112                            Article:content.0.Heading:content.0                                  Text>          
+4    art_1111111E.hea_11111112.txt_11111111               Article:content.0.Heading:content.0.Text:value                       Text:value     "Forest"
+5    art_1111111E.hea_11111112                            Article:content.0.Heading:content.0                                  Text<          
+6    art_1111111E                                         Article:content.0                                                    Heading<       
+7    art_1111111E                                         Article:content.1                                                    Paragraph>     
+8    art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.0                                Text>          
+9    art_1111111E.pgh_11111119.txt_11111113               Article:content.1.Paragraph:content.0.Text:value                     Text:value     "grass "
+10   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.0                                Text<          
+11   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.1                                Emphasis>      
+12   art_1111111E.pgh_11111119.emp_11111115               Article:content.1.Paragraph:content.1.Emphasis:content.0             Text>          
+13   art_1111111E.pgh_11111119.emp_11111115.txt_11111114  Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value  Text:value     "rabbit"
+14   art_1111111E.pgh_11111119.emp_11111115               Article:content.1.Paragraph:content.1.Emphasis:content.0             Text<          
+15   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.1                                Emphasis<      
+16   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.2                                Text>          
+17   art_1111111E.pgh_11111119.txt_11111116               Article:content.1.Paragraph:content.2.Text:value                     Text:value     " grass "
+18   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.2                                Text<          
+19   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.3                                Emphasis>      
+20   art_1111111E.pgh_11111119.emp_11111118               Article:content.1.Paragraph:content.3.Emphasis:content.0             Text>          
+21   art_1111111E.pgh_11111119.emp_11111118.txt_11111117  Article:content.1.Paragraph:content.3.Emphasis:content.0.Text:value  Text:value     "rabbit"
+22   art_1111111E.pgh_11111119.emp_11111118               Article:content.1.Paragraph:content.3.Emphasis:content.0             Text<          
+23   art_1111111E.pgh_11111119                            Article:content.1.Paragraph:content.3                                Emphasis<      
+24   art_1111111E                                         Article:content.1                                                    Paragraph<     
+25   art_1111111E                                         Article:content.2                                                    Heading>       
+26   art_1111111E.hea_1111111B                            Article:content.2.Heading:level                                      Heading:level  "2"
+27   art_1111111E.hea_1111111B                            Article:content.2.Heading:content.0                                  Text>          
+28   art_1111111E.hea_1111111B.txt_1111111A               Article:content.2.Heading:content.0.Text:value                       Text:value     "Maple"
+29   art_1111111E.hea_1111111B                            Article:content.2.Heading:content.0                                  Text<          
+30   art_1111111E                                         Article:content.2                                                    Heading<       
+31   art_1111111E                                         Article:content.3                                                    Paragraph>     
+32   art_1111111E.pgh_1111111D                            Article:content.3.Paragraph:content.0                                Text>          
+33   art_1111111E.pgh_1111111D.txt_1111111C               Article:content.3.Paragraph:content.0.Text:value                     Text:value     "leaf"
+34   art_1111111E.pgh_1111111D                            Article:content.3.Paragraph:content.0                                Text<          
+35   art_1111111E                                         Article:content.3                                                    Paragraph<     
+36                                                                                                                             Article<       
 
-0    art_1111111B.hea_11111112                            Article:content.0.Heading:level                                      Heading:level  "1"
-1    art_1111111B.hea_11111112.txt_11111111               Article:content.0.Heading:content.0.Text:value                       Text:value     "Forest"
-2    art_1111111B.pgh_11111116.txt_11111113               Article:content.1.Paragraph:content.0.Text:value                     Text:value     "grass grass "
-3    art_1111111B.pgh_11111116.emp_11111115.txt_11111114  Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value  Text:value     "rabbit"
-4    art_1111111B.hea_11111118                            Article:content.2.Heading:level                                      Heading:level  "2"
-5    art_1111111B.hea_11111118.txt_11111117               Article:content.2.Heading:content.0.Text:value                       Text:value     "Maple"
-6    art_1111111B.pgh_1111111A.txt_11111119               Article:content.3.Paragraph:content.0.Text:value                     Text:value     "leaf"
+0                                                                                                                              Article>       
+1    art_1111111B                                         Article:content.0                                                    Heading>       
+2    art_1111111B.hea_11111112                            Article:content.0.Heading:level                                      Heading:level  "1"
+3    art_1111111B.hea_11111112                            Article:content.0.Heading:content.0                                  Text>          
+4    art_1111111B.hea_11111112.txt_11111111               Article:content.0.Heading:content.0.Text:value                       Text:value     "Forest"
+5    art_1111111B.hea_11111112                            Article:content.0.Heading:content.0                                  Text<          
+6    art_1111111B                                         Article:content.0                                                    Heading<       
+7    art_1111111B                                         Article:content.1                                                    Paragraph>     
+8    art_1111111B.pgh_11111116                            Article:content.1.Paragraph:content.0                                Text>          
+9    art_1111111B.pgh_11111116.txt_11111113               Article:content.1.Paragraph:content.0.Text:value                     Text:value     "grass grass "
+10   art_1111111B.pgh_11111116                            Article:content.1.Paragraph:content.0                                Text<          
+11   art_1111111B.pgh_11111116                            Article:content.1.Paragraph:content.1                                Emphasis>      
+12   art_1111111B.pgh_11111116.emp_11111115               Article:content.1.Paragraph:content.1.Emphasis:content.0             Text>          
+13   art_1111111B.pgh_11111116.emp_11111115.txt_11111114  Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value  Text:value     "rabbit"
+14   art_1111111B.pgh_11111116.emp_11111115               Article:content.1.Paragraph:content.1.Emphasis:content.0             Text<          
+15   art_1111111B.pgh_11111116                            Article:content.1.Paragraph:content.1                                Emphasis<      
+16   art_1111111B                                         Article:content.1                                                    Paragraph<     
+17   art_1111111B                                         Article:content.2                                                    Heading>       
+18   art_1111111B.hea_11111118                            Article:content.2.Heading:level                                      Heading:level  "2"
+19   art_1111111B.hea_11111118                            Article:content.2.Heading:content.0                                  Text>          
+20   art_1111111B.hea_11111118.txt_11111117               Article:content.2.Heading:content.0.Text:value                       Text:value     "Maple"
+21   art_1111111B.hea_11111118                            Article:content.2.Heading:content.0                                  Text<          
+22   art_1111111B                                         Article:content.2                                                    Heading<       
+23   art_1111111B                                         Article:content.3                                                    Paragraph>     
+24   art_1111111B.pgh_1111111A                            Article:content.3.Paragraph:content.0                                Text>          
+25   art_1111111B.pgh_1111111A.txt_11111119               Article:content.3.Paragraph:content.0.Text:value                     Text:value     "leaf"
+26   art_1111111B.pgh_1111111A                            Article:content.3.Paragraph:content.0                                Text<          
+27   art_1111111B                                         Article:content.3                                                    Paragraph<     
+28                                                                                                                             Article<       
 
 DiffOp       Old range    New range
-Equal        0..1         0..1
-Equal        1..2         1..2
-Delete       2..5         3..3
-Insert       2..2         2..3
-Equal        5..6         3..4
-Equal        6..7         4..5
-Equal        7..8         5..6
-Equal        8..9         6..7
+Equal        0..2         0..2
+Equal        2..4         2..4
+Equal        4..9         4..9
+Delete       9..18         9..9
+Insert       12..12         9..10
+Equal        18..26         10..18
+Equal        26..28         18..20
+Equal        28..33         20..25
+Equal        33..36         25..28
+Equal        36..37         28..29
 
 Remove(Article:content.1.Paragraph:content.0.Text:value)
+Remove(Article:content.1.Paragraph:content.0)
+Remove(Article:content.1.Paragraph:content.1)
+Remove(Article:content.1.Paragraph:content.1.Emphasis:content.0)
 Remove(Article:content.1.Paragraph:content.1.Emphasis:content.0.Text:value)
+Remove(Article:content.1.Paragraph:content.1.Emphasis:content.0)
+Remove(Article:content.1.Paragraph:content.1)
+Remove(Article:content.1.Paragraph:content.2)
 Remove(Article:content.1.Paragraph:content.2.Text:value)
-Set((Article:content.1, Article:content.1.Paragraph:content.0.Text:value))
+Set((Article:content.1.Paragraph:content.0, Article:content.1.Paragraph:content.0.Text:value))

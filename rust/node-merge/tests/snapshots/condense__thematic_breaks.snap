@@ -2,6 +2,18 @@
 source: rust/node-merge/tests/condense.rs
 expression: "condense!(r#\"\nBefore.\n\n***\n\nAfter.\n\"#)"
 ---
-0    art_11111116.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value          "Before."
-1    art_11111116.thb_11111113               Article:content.1.ThematicBreak:type              ThematicBreak:type  ""
-2    art_11111116.pgh_11111115.txt_11111114  Article:content.2.Paragraph:content.0.Text:value  Text:value          "After."
+0                                                                                              Article>            
+1    art_11111116                            Article:content.0                                 Paragraph>          
+2    art_11111116.pgh_11111112               Article:content.0.Paragraph:content.0             Text>               
+3    art_11111116.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value          "Before."
+4    art_11111116.pgh_11111112               Article:content.0.Paragraph:content.0             Text<               
+5    art_11111116                            Article:content.0                                 Paragraph<          
+6    art_11111116                            Article:content.1                                 ThematicBreak>      
+7    art_11111116.thb_11111113               Article:content.1.ThematicBreak:type              ThematicBreak:type  ""
+8    art_11111116                            Article:content.1                                 ThematicBreak<      
+9    art_11111116                            Article:content.2                                 Paragraph>          
+10   art_11111116.pgh_11111115               Article:content.2.Paragraph:content.0             Text>               
+11   art_11111116.pgh_11111115.txt_11111114  Article:content.2.Paragraph:content.0.Text:value  Text:value          "After."
+12   art_11111116.pgh_11111115               Article:content.2.Paragraph:content.0             Text<               
+13   art_11111116                            Article:content.2                                 Paragraph<          
+14                                                                                             Article<

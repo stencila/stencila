@@ -52,7 +52,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
-    let (enter, exit) = if struct_name.to_string().ends_with("Options") {
+    let (condense_enter, condense_exit) = if struct_name.to_string().ends_with("Options") {
         (TokenStream::new(), TokenStream::new())
     } else {
         (
@@ -65,7 +65,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         )
     };
 
-    let mut properties = TokenStream::new();
+    let mut condense_fields = TokenStream::new();
+    let mut get_fields = TokenStream::new();
     type_attr.data.map_struct_fields(|field_attr| {
         let Some(field_name) = field_attr.ident else {
             return;
@@ -76,7 +77,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         }
 
         if field_name == "options" {
-            properties.extend(quote! {
+            condense_fields.extend(quote! {
                 self.#field_name.condense(context);
             });
         } else if !field_attr.formats.is_empty() {
@@ -84,7 +85,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             // is turned on for the property if there is any format in the list.
             let property = field_name.to_string().to_pascal_case();
             let property = Ident::new(&property, Span::call_site());
-            properties.extend(quote! {
+            condense_fields.extend(quote! {
                 context.enter_property(NodeProperty::#property);
                 self.#field_name.condense(context);
                 context.exit_property();
@@ -95,9 +96,17 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     quote! {
         impl PatchNode for #struct_name {
             fn condense(&self, context: &mut CondenseContext) {
-                #enter
-                #properties
-                #exit
+                #condense_enter
+                #condense_fields
+                #condense_exit
+            }
+
+            fn get_path(&self, path: &mut NodePath) -> Result<Value> {
+                if path.is_empty() {
+                    Ok(serde_json::to_value(self)?)
+                } else {
+                    todo!()
+                }
             }
         }
     }
@@ -107,17 +116,27 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
-    let mut condense = TokenStream::new();
+    let mut condense_variants = TokenStream::new();
+    let mut get_variants = TokenStream::new();
 
     for variant in &data.variants {
         let variant_name = &variant.ident;
 
-        condense.extend(match &variant.fields {
+        condense_variants.extend(match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
                 Self::#variant_name(variant) => { variant.condense(context); },
             },
             Fields::Unit => quote! {
                 Self::#variant_name => { context.collect_value(stringify!(#variant_name)); },
+            },
+        });
+
+        get_variants.extend(match &variant.fields {
+            Fields::Named(..) | Fields::Unnamed(..) => quote! {
+                Self::#variant_name(variant) => variant.get_path(path),
+            },
+            Fields::Unit => quote! {
+                Self::#variant_name => Ok(serde_json::to_value(stringify!(#variant_name))?),
             },
         });
     }
@@ -126,7 +145,13 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
         impl PatchNode for #enum_name {
             fn condense(&self, context: &mut CondenseContext) {
                 match self {
-                    #condense
+                    #condense_variants
+                }
+            }
+
+            fn get_path(&self, path: &mut NodePath) -> Result<Value> {
+                match self {
+                    #get_variants
                 }
             }
         }
