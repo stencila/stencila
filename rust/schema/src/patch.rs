@@ -381,7 +381,7 @@ impl Debug for NodeSlot {
 /// branch of the tree that a patch operation should be applied.
 /// Similar to the `path` of JSON Patch (https://jsonpatch.com/).
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut)]
-pub struct NodePath(VecDeque<NodeSlot>);
+pub struct NodePath(pub VecDeque<NodeSlot>);
 
 impl Default for NodePath {
     fn default() -> Self {
@@ -392,6 +392,16 @@ impl Default for NodePath {
 impl NodePath {
     pub fn new() -> Self {
         Self::default()
+    }
+    
+    pub fn remove_indexes(&self) -> Self {
+        Self(
+            self.0
+                .iter()
+                .filter(|slot| !matches!(slot, NodeSlot::Index(..)))
+                .map(|slot| slot.clone())
+                .collect(),
+        )
     }
 }
 

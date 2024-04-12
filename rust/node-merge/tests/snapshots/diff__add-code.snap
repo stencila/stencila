@@ -2,84 +2,28 @@
 source: rust/node-merge/tests/diff.rs
 expression: "diff(&files_content, name).await?"
 ---
-0                                                                                              Article>       
-1    art_1111111B                            Article:content.0                                 Heading>       
-2    art_1111111B.hea_11111112               Article:content.0.Heading:level                   Heading:level  "1"
-3    art_1111111B.hea_11111112               Article:content.0.Heading:content.0               Text>          
-4    art_1111111B.hea_11111112.txt_11111111  Article:content.0.Heading:content.0.Text:value    Text:value     "title"
-5    art_1111111B.hea_11111112               Article:content.0.Heading:content.0               Text<          
-6    art_1111111B                            Article:content.0                                 Heading<       
-7    art_1111111B                            Article:content.1                                 Paragraph>     
-8    art_1111111B.pgh_11111114               Article:content.1.Paragraph:content.0             Text>          
-9    art_1111111B.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value     "text"
-10   art_1111111B.pgh_11111114               Article:content.1.Paragraph:content.0             Text<          
-11   art_1111111B                            Article:content.1                                 Paragraph<     
-12   art_1111111B                            Article:content.2                                 Paragraph>     
-13   art_1111111B.pgh_11111116               Article:content.2.Paragraph:content.0             Text>          
-14   art_1111111B.pgh_11111116.txt_11111115  Article:content.2.Paragraph:content.0.Text:value  Text:value     "more text"
-15   art_1111111B.pgh_11111116               Article:content.2.Paragraph:content.0             Text<          
-16   art_1111111B                            Article:content.2                                 Paragraph<     
-17   art_1111111B                            Article:content.3                                 Heading>       
-18   art_1111111B.hea_11111118               Article:content.3.Heading:level                   Heading:level  "2"
-19   art_1111111B.hea_11111118               Article:content.3.Heading:content.0               Text>          
-20   art_1111111B.hea_11111118.txt_11111117  Article:content.3.Heading:content.0.Text:value    Text:value     "subtitle"
-21   art_1111111B.hea_11111118               Article:content.3.Heading:content.0               Text<          
-22   art_1111111B                            Article:content.3                                 Heading<       
-23   art_1111111B                            Article:content.4                                 Paragraph>     
-24   art_1111111B.pgh_1111111A               Article:content.4.Paragraph:content.0             Text>          
-25   art_1111111B.pgh_1111111A.txt_11111119  Article:content.4.Paragraph:content.0.Text:value  Text:value     "subtext"
-26   art_1111111B.pgh_1111111A               Article:content.4.Paragraph:content.0             Text<          
-27   art_1111111B                            Article:content.4                                 Paragraph<     
-28                                                                                             Article<       
+0    art_1111111B.hea_11111112               Article:content.0.Heading:level                   Heading:level  "1"
+1    art_1111111B.hea_11111112.txt_11111111  Article:content.0.Heading:content.0.Text:value    Text:value     "title"
+2    art_1111111B.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value     "text"
+3    art_1111111B.pgh_11111116.txt_11111115  Article:content.2.Paragraph:content.0.Text:value  Text:value     "more text"
+4    art_1111111B.hea_11111118               Article:content.3.Heading:level                   Heading:level  "2"
+5    art_1111111B.hea_11111118.txt_11111117  Article:content.3.Heading:content.0.Text:value    Text:value     "subtitle"
+6    art_1111111B.pgh_1111111A.txt_11111119  Article:content.4.Paragraph:content.0.Text:value  Text:value     "subtext"
 
-0                                                                                              Article>                       
-1    art_1111111C                            Article:content.0                                 Heading>                       
-2    art_1111111C.hea_11111112               Article:content.0.Heading:level                   Heading:level                  "1"
-3    art_1111111C.hea_11111112               Article:content.0.Heading:content.0               Text>                          
-4    art_1111111C.hea_11111112.txt_11111111  Article:content.0.Heading:content.0.Text:value    Text:value                     "title"
-5    art_1111111C.hea_11111112               Article:content.0.Heading:content.0               Text<                          
-6    art_1111111C                            Article:content.0                                 Heading<                       
-7    art_1111111C                            Article:content.1                                 Paragraph>                     
-8    art_1111111C.pgh_11111114               Article:content.1.Paragraph:content.0             Text>                          
-9    art_1111111C.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value                     "text"
-10   art_1111111C.pgh_11111114               Article:content.1.Paragraph:content.0             Text<                          
-11   art_1111111C                            Article:content.1                                 Paragraph<                     
-12   art_1111111C                            Article:content.2                                 CodeBlock>                     
-13   art_1111111C.cdb_11111115               Article:content.2.CodeBlock:code                  CodeBlock:code                 ""
-14   art_1111111C.cdb_11111115               Article:content.2.CodeBlock:programmingLanguage   CodeBlock:programmingLanguage  "python"
-15   art_1111111C                            Article:content.2                                 CodeBlock<                     
-16   art_1111111C                            Article:content.3                                 Paragraph>                     
-17   art_1111111C.pgh_11111117               Article:content.3.Paragraph:content.0             Text>                          
-18   art_1111111C.pgh_11111117.txt_11111116  Article:content.3.Paragraph:content.0.Text:value  Text:value                     "more text"
-19   art_1111111C.pgh_11111117               Article:content.3.Paragraph:content.0             Text<                          
-20   art_1111111C                            Article:content.3                                 Paragraph<                     
-21   art_1111111C                            Article:content.4                                 Heading>                       
-22   art_1111111C.hea_11111119               Article:content.4.Heading:level                   Heading:level                  "2"
-23   art_1111111C.hea_11111119               Article:content.4.Heading:content.0               Text>                          
-24   art_1111111C.hea_11111119.txt_11111118  Article:content.4.Heading:content.0.Text:value    Text:value                     "subtitle"
-25   art_1111111C.hea_11111119               Article:content.4.Heading:content.0               Text<                          
-26   art_1111111C                            Article:content.4                                 Heading<                       
-27   art_1111111C                            Article:content.5                                 Paragraph>                     
-28   art_1111111C.pgh_1111111B               Article:content.5.Paragraph:content.0             Text>                          
-29   art_1111111C.pgh_1111111B.txt_1111111A  Article:content.5.Paragraph:content.0.Text:value  Text:value                     "subtext"
-30   art_1111111C.pgh_1111111B               Article:content.5.Paragraph:content.0             Text<                          
-31   art_1111111C                            Article:content.5                                 Paragraph<                     
-32                                                                                             Article<                       
+0    art_1111111C.hea_11111112               Article:content.0.Heading:level                   Heading:level                  "1"
+1    art_1111111C.hea_11111112.txt_11111111  Article:content.0.Heading:content.0.Text:value    Text:value                     "title"
+2    art_1111111C.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value                     "text"
+3    art_1111111C.cdb_11111115               Article:content.2.CodeBlock:code                  CodeBlock:code                 ""
+4    art_1111111C.cdb_11111115               Article:content.2.CodeBlock:programmingLanguage   CodeBlock:programmingLanguage  "python"
+5    art_1111111C.pgh_11111117.txt_11111116  Article:content.3.Paragraph:content.0.Text:value  Text:value                     "more text"
+6    art_1111111C.hea_11111119               Article:content.4.Heading:level                   Heading:level                  "2"
+7    art_1111111C.hea_11111119.txt_11111118  Article:content.4.Heading:content.0.Text:value    Text:value                     "subtitle"
+8    art_1111111C.pgh_1111111B.txt_1111111A  Article:content.5.Paragraph:content.0.Text:value  Text:value                     "subtext"
 
 DiffOp       Old range    New range
-Equal        0..2         0..2
-Equal        2..4         2..4
-Equal        4..9         4..9
-Equal        9..12         9..12
-Insert       12..12         12..16
-Equal        12..14         16..18
-Equal        14..18         18..22
-Equal        18..20         22..24
-Equal        20..25         24..29
-Equal        25..28         29..32
-Equal        28..29         32..33
+Equal        0..3         0..3
+Insert       3..3         3..5
+Equal        3..7         5..9
 
-Set((Article:content.2, Article:content.2))
-Set((Article:content.2, Article:content.2.CodeBlock:code))
-Set((Article:content.2, Article:content.2.CodeBlock:programmingLanguage))
-Set((Article:content.2, Article:content.2))
+Insert((Article:content.1, Article:content.2.CodeBlock:code))
+Insert((Article:content.1, Article:content.2.CodeBlock:programmingLanguage))

@@ -1,11 +1,12 @@
 use std::fmt::{self, Debug};
 
+use common::similar::algorithms::Replace;
 use common::similar::{
-    algorithms::{diff_slices, Algorithm, Capture, Compact},
+    algorithms::{diff_slices, Algorithm, Capture},
     DiffOp, DiffTag,
 };
 
-use schema::{CondenseContext, Node, NodePath, NodeSlot, PatchNode};
+use schema::{CondenseContext, CondenseProperty, Node, NodePath, NodeSlot, PatchNode};
 
 use crate::patch::NodeOp;
 
@@ -25,11 +26,18 @@ pub fn diff(old: &Node, new: &Node) -> DiffResult {
     let mut new_context = CondenseContext::new();
     new.condense(&mut new_context);
 
+    old_context
+        .properties
+        .retain(|prop| matches!(prop.slot, NodeSlot::Property(..)));
+    new_context
+        .properties
+        .retain(|prop| matches!(prop.slot, NodeSlot::Property(..)));
+
     let old_properties = diffable_properties(&old_context);
     let new_properties = diffable_properties(&new_context);
 
     // Calculate diff operations between te two sets of properties
-    let mut diff_hook = Compact::new(Capture::new(), &old_properties, &new_properties);
+    let mut diff_hook = Replace::new(Capture::new()); //, &old_properties, &new_properties);
     diff_slices(
         Algorithm::Patience,
         &mut diff_hook,
@@ -37,48 +45,9 @@ pub fn diff(old: &Node, new: &Node) -> DiffResult {
         &new_properties,
     )
     .unwrap();
+
     let diff_ops = diff_hook.into_inner().into_ops();
-
-    let mut patch_ops: Vec<NodeOp> = Vec::new();
-    for op in &diff_ops {
-        let (op, old, new) = op.as_tag_tuple();
-        match op {
-            DiffTag::Insert => {
-                // We need to look at the prior node to insertion.
-                if old.start == 0 {
-                    //
-                    // patch_ops.push(NodeOp::Add((new_context.properties[pth, node)));
-                    todo!("Handle insert at start")
-                } else {
-                    let mut prior_pth = old_context.properties[old.start - 1].path.clone();
-                    for i in new {
-                        let next_pth = new_context.properties[i].path.clone();
-                        let pth = path_for_next(&prior_pth, &next_pth);
-                        patch_ops.push(NodeOp::Set((pth, next_pth.clone())));
-                        prior_pth = next_pth;
-                    }
-                }
-
-                // for i in new {
-                //     let pth = new_context.properties[i].path.clone();
-                //     let node = new_context.properties[i].value.clone();
-                //     patch_ops.push(NodeOp::Add((pth, node)));
-                // }
-                //
-                // patch_ops.push(NodeOp::Add(
-                //     NodePath(vec![NodeSlot::Index(*old_index)]),
-                //     new[*new_index..*new_index + *new_len].join("\n"),
-                // )
-            }
-            // DiffOp::Delete(..) => {}
-            DiffTag::Delete => {
-                for i in old {
-                    patch_ops.push(NodeOp::Remove(old_context.properties[i].path.clone()));
-                }
-            }
-            _ => {}
-        }
-    }
+    let patch_ops = build_patches(&old_context, &new_context, &diff_ops);
 
     DiffResult {
         #[cfg(debug_assertions)]
@@ -90,77 +59,70 @@ pub fn diff(old: &Node, new: &Node) -> DiffResult {
     }
 }
 
+fn build_patches(
+    old_context: &CondenseContext,
+    new_context: &CondenseContext,
+    diff_ops: &Vec<DiffOp>,
+) -> Vec<NodeOp> {
+    let mut patch_ops: Vec<NodeOp> = Vec::new();
+
+    for (i, op) in diff_ops.iter().enumerate() {
+        let (op, old, new) = op.as_tag_tuple();
+        if op == DiffTag::Insert {
+            let prop_slice = &new_context.properties[new.start..new.end];
+
+            // Find an insertion point.
+            let insertion = old.start;
+            if insertion > 0 {
+                let prior = &old_context.properties[insertion - 1];
+                let next = &prop_slice[0];
+                // Walk until we find common ancestor
+                let mut insert_path = NodePath::new();
+                for (old, new) in prior.path.iter().zip(next.path.iter()) {
+                    insert_path.push_back(old.clone());
+                    if old != new {
+                        break;
+                    }
+                }
+                for prop in prop_slice {
+                    if let NodeSlot::Property(..) = prop.slot {
+                        patch_ops.push(NodeOp::Insert((insert_path.clone(), prop.path.clone())));
+                    }
+                }
+            }
+
+            //     for prop in prop_slice {
+            //         if let NodeSlot::Property(..) = prop.slot {
+            //             patch_ops.push(NodeOp::Insert((insertion.path.clone(), prop.path.clone())));
+            //         }
+            //     }
+            // }
+        }
+    }
+    patch_ops
+}
+
+// fn count_enter_exit(slice: &[CondenseProperty]) -> (usize, usize) {
+//     slice
+//         .iter()
+//         .fold((0, 0), |(count_a, count_b), prop| match prop.slot {
+//             NodeSlot::Enter(..) => (count_a + 1, count_b),
+//             NodeSlot::Exit(..) => (count_a, count_b + 1),
+//             _ => (count_a, count_b),
+//         })
+// }
+
 /// Get the properties as a diff-able tuple of (slot, value)
 ///
 /// This excludes the ancestry and path of a property since they should
 /// not be considered in the diffing (although both are used for creating
 /// patches from the diff operations)
-fn diffable_properties(context: &CondenseContext) -> Vec<(&NodeSlot, &Option<String>)> {
+fn diffable_properties(context: &CondenseContext) -> Vec<(NodePath, &Option<String>)> {
     context
         .properties
         .iter()
-        .map(|node| (&node.slot, &node.value))
+        .map(|node| (node.path.remove_indexes(), &node.value))
         .collect()
-}
-
-/// Work out where NodePath Needs to be added, following this one.
-fn path_for_next(current: &NodePath, next: &NodePath) -> NodePath {
-    let mut pth = NodePath::new();
-    for slots in current.iter().zip(next.iter()) {
-        if slots.0 == slots.1 {
-            pth.push_back(slots.0.clone());
-            continue;
-        }
-
-        // We're different. But what sort of difference.
-        match (slots.0, slots.1) {
-            (NodeSlot::Property(..), NodeSlot::Property(..)) => {
-                // WHat here
-                break;
-            }
-            (NodeSlot::Index(_i0), NodeSlot::Index(i1)) => {
-                pth.push_back(NodeSlot::Index(*i1));
-                continue;
-            }
-            (NodeSlot::Property(..), NodeSlot::Index(..)) => {
-                break;
-            }
-            (NodeSlot::Index(..), NodeSlot::Property(..)) => {
-                break;
-            }
-            _ => {}
-        }
-    }
-    pth
-}
-
-fn ancestor_index(current: &NodePath, other: &NodePath) -> Option<usize> {
-    let mut i: usize = 0;
-    for slots in current.iter().zip(other.iter()) {
-        if slots.0 != slots.1 {
-            break;
-        }
-        i += 1;
-    }
-    if i == 0 {
-        None
-    } else {
-        Some(i - 1)
-    }
-}
-
-fn find_ancestor_index(paths: &Vec<NodePath>) -> Option<usize> {
-    let split = paths.split_first();
-    let mut i: usize = 0;
-    if split.is_some() {
-        let (first, others) = split.unwrap();
-        for o in others {
-            let lca = ancestor_index(first, o);
-            lca?;
-            i = i.min(lca.unwrap());
-        }
-    }
-    Some(i)
 }
 
 /// The result from a diff operation
@@ -219,34 +181,5 @@ impl Debug for DiffResult {
         }
 
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use schema::{NodeProperty, NodeType};
-
-    use super::*;
-
-    #[test]
-    fn test_path() {
-        let p1 = NodePath::from([
-            NodeSlot::Property((NodeType::Article, NodeProperty::Content)),
-            NodeSlot::Index(0),
-            NodeSlot::Property((NodeType::Paragraph, NodeProperty::Content)),
-            NodeSlot::Index(1),
-            NodeSlot::Property((NodeType::Text, NodeProperty::Value)),
-        ]);
-
-        let p2 = NodePath::from([
-            NodeSlot::Property((NodeType::Article, NodeProperty::Content)),
-            NodeSlot::Index(1),
-            NodeSlot::Property((NodeType::Paragraph, NodeProperty::Content)),
-            NodeSlot::Index(3),
-            NodeSlot::Property((NodeType::Text, NodeProperty::Value)),
-        ]);
-
-        let p3 = path_for_next(&p1, &p2);
-        println!("{:?}", p3);
     }
 }

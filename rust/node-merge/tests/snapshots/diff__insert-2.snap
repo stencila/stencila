@@ -1,0 +1,13 @@
+---
+source: rust/node-merge/tests/diff.rs
+expression: "diff(&files_content, name).await?"
+---
+0    art_11111115.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value  "text1"
+1    art_11111115.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value  "text2"
+
+0    art_11111115.pgh_11111112.txt_11111111  Article:content.0.Paragraph:content.0.Text:value  Text:value  "text12"
+1    art_11111115.pgh_11111114.txt_11111113  Article:content.1.Paragraph:content.0.Text:value  Text:value  "text2"
+
+DiffOp       Old range    New range
+Replace      0..1         0..1
+Equal        1..2         1..2
