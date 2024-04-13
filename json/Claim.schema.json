@@ -536,7 +536,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -572,7 +572,7 @@
         "claim-type",
         "claim_type"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -585,7 +585,7 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the claim.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

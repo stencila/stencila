@@ -51,7 +51,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -90,7 +90,7 @@
     "replacement": {
       "@id": "stencila:replacement",
       "description": "The new replacement block content.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

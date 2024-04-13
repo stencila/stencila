@@ -22,7 +22,7 @@ properties:
     '@id': stencila:claimType
     description: The type of the claim.
     $ref: ClaimType
-    merge:
+    patch:
       formats: [md]
     jats:
       attr: content-type
@@ -30,7 +30,7 @@ properties:
     '@id': stencila:label
     description: A short label for the claim.
     type: string
-    merge:
+    patch:
       formats: [md]
     jats:
       elem: label

@@ -50,7 +50,7 @@
     "content": {
       "@id": "stencila:content",
       "description": "The textual content of the link.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -85,7 +85,7 @@
       "@id": "schema:target",
       "description": "The target of the link.",
       "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window).\n",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -103,7 +103,7 @@
       "@id": "schema:headline",
       "description": "A title for the link.",
       "$comment": "This property is analogous to the HTML `title` global attribute which\nrepresents [\"advisory information related to the element\"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)\n",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -119,7 +119,7 @@
     "rel": {
       "@id": "schema:linkRelationship",
       "description": "The relation between the target and the current thing.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

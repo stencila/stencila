@@ -22,7 +22,7 @@ properties:
     type: array
     items:
       $ref: Inline
-    merge:
+    patch:
       formats: [md]
     html:
       attr: alt

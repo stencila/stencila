@@ -526,7 +526,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

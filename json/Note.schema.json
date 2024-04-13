@@ -53,7 +53,7 @@
         "note-type",
         "note_type"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

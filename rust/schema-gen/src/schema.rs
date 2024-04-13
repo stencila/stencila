@@ -127,11 +127,11 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip: Vec<StripScopes>,
 
+    /// Options for patching the type or property
+    pub patch: Option<PatchOptions>,
+
     /// Whether a property should be visited when the node is walked over
     pub walk: Option<bool>,
-
-    /// Options for merging the type or property
-    pub merge: Option<MergeOptions>,
 
     /// Options for serializing the type or property using Serde
     pub serde: Option<SerdeOptions>,
@@ -548,13 +548,13 @@ pub enum ProptestLevel {
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
 #[serde(default, deny_unknown_fields, crate = "common::serde")]
-pub struct MergeOptions {
-    /// Whether the `MergeNode` trait should be derived for the type
+pub struct PatchOptions {
+    /// Whether the `PatchNode` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
     #[default = true]
     pub derive: bool,
 
-    /// The formats from which the property should be merged in for
+    /// The formats from which the property should be patched for
     ///
     /// Only formats that support the property should be included.
     /// If this list is present (i.e. not `None`) but empty, it is

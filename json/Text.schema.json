@@ -52,7 +52,7 @@
     "value": {
       "@id": "schema:value",
       "description": "The value of the text content",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

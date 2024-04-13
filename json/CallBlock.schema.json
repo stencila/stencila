@@ -56,7 +56,7 @@
       "strip": [
         "execution"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -284,7 +284,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -338,7 +338,7 @@
       "strip": [
         "output"
       ],
-      "merge": {
+      "patch": {
         "formats": []
       },
       "dom": {
@@ -358,7 +358,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

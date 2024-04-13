@@ -29,7 +29,7 @@ properties:
     default: 0
     minimum: 0
     maximum: 6
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:

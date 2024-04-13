@@ -16,5 +16,5 @@ properties:
     '@id': schema:value
     description: The value that the node must have.
     $ref: Node
-    merge:
+    patch:
       formats: [md]

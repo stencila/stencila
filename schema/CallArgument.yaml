@@ -21,7 +21,7 @@ properties:
     description: The code to be evaluated for the parameter.
     $ref: Cord
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -42,12 +42,12 @@ properties:
     '@id': schema:value
     description: The current value of the argument.
     $ref: Node
-    merge:
+    patch:
       formats: [md]
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
     strip: [code]
-    merge:
+    patch:
       formats: [md]

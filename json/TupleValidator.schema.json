@@ -44,7 +44,7 @@
       "aliases": [
         "item"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

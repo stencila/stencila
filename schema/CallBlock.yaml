@@ -18,7 +18,7 @@ properties:
     items:
       $ref: CallArgument
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: div

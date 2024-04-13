@@ -14,7 +14,7 @@ properties:
       - auto
     $ref: AutomaticExecution
     strip: [execution]
-    merge:
+    patch:
       formats: [md]
   compilationDigest:
     '@id': stencila:compilationDigest

@@ -19,7 +19,7 @@ properties:
     description: The code of the equation in the `mathLanguage`.
     $ref: Cord
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -43,7 +43,7 @@ properties:
     $comment: Where necessary, the language is assumed to be TeX.
     type: string
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:

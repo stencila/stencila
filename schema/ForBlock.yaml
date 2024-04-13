@@ -20,7 +20,7 @@ properties:
     description: The name to give to the variable representing each item in the iterated array
     type: string
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -46,7 +46,7 @@ properties:
       $ref: Block
     strip: [code]
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: div
@@ -68,7 +68,7 @@ properties:
       $ref: Block
     strip: [code]
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: div

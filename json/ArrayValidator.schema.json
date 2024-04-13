@@ -50,7 +50,7 @@
         "items-nullable",
         "items_nullable"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -64,7 +64,7 @@
         "items-validator",
         "items_validator"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -74,7 +74,7 @@
     "contains": {
       "@id": "stencila:contains",
       "description": "An array node is valid if at least one of its items is valid against the `contains` schema.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -88,7 +88,7 @@
         "min-items",
         "min_items"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -103,7 +103,7 @@
         "max-items",
         "max_items"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -118,7 +118,7 @@
         "unique-items",
         "unique_items"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

@@ -53,7 +53,7 @@
     "level": {
       "@id": "stencila:level",
       "description": "The level of the heading.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

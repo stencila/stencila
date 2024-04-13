@@ -54,7 +54,7 @@
         "admonition-type",
         "admonition_type"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -77,7 +77,7 @@
     "title": {
       "@id": "schema:headline",
       "description": "The title of the admonition.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -115,7 +115,7 @@
         "is-folded",
         "is_folded"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

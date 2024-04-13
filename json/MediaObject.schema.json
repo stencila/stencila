@@ -532,7 +532,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -583,7 +583,7 @@
         "content-url",
         "content_url"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

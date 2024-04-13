@@ -24,7 +24,7 @@ properties:
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
-    merge:
+    patch:
       formats: [md]
     jats:
       attr: name
@@ -48,7 +48,7 @@ properties:
     '@id': stencila:label
     description: A short label for the parameter.
     type: string
-    merge:
+    patch:
       formats: [md]
   value:
     '@id': schema:value
@@ -58,7 +58,7 @@ properties:
     '@id': schema:defaultValue
     description: The default value of the parameter.
     $ref: Node
-    merge:
+    patch:
       formats: [md]
   validator:
     '@id': stencila:validator
@@ -67,7 +67,7 @@ properties:
       This property is large (in terms of bytes) so is best kept as a non-core
       property, so as not to inflate the size of the `Inline` enum in Rust.
     $ref: Validator
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: span

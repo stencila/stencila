@@ -40,7 +40,7 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -78,7 +78,7 @@
         "programming-language",
         "programming_language"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

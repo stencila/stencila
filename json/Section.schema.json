@@ -82,7 +82,7 @@
         "section-type",
         "section_type"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

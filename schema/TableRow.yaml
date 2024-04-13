@@ -19,7 +19,7 @@ properties:
     items:
       $ref: TableCell
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: tr
@@ -40,5 +40,5 @@ properties:
     '@id': stencila:rowType
     description: The type of row.
     $ref: TableRowType
-    merge:
+    patch:
       formats: [md]

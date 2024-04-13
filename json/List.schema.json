@@ -56,12 +56,12 @@
       "aliases": [
         "item"
       ],
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "jats": {
         "content": true
       },
@@ -91,7 +91,7 @@
     "order": {
       "@id": "schema:itemListOrder",
       "description": "The ordering of the list.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

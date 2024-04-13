@@ -51,7 +51,7 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code of the equation in the `styleLanguage`.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -86,7 +86,7 @@
         "style-language",
         "style_language"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -174,7 +174,7 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the span.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

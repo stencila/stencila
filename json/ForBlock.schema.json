@@ -57,7 +57,7 @@
       "strip": [
         "execution"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -285,7 +285,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -323,7 +323,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -377,7 +377,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -408,12 +408,12 @@
       "strip": [
         "code"
       ],
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "div"
       },
@@ -442,12 +442,12 @@
       "strip": [
         "code"
       ],
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "div"
       },

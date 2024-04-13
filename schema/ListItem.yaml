@@ -58,7 +58,7 @@ properties:
     "@id": stencila:isChecked
     description: A flag to indicate if this list item is checked.
     type: boolean
-    merge:
+    patch:
       formats: [md]
   position:
     "@id": schema:position

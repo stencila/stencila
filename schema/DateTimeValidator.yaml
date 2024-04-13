@@ -16,7 +16,7 @@ properties:
     description: The inclusive lower limit for a date-time.
     $comment: |
       A date-time is valid if it is greater than, or exactly equal to, `minimum`.
-    merge:
+    patch:
       formats: [md]
   maximum:
     '@id': stencila:maximum
@@ -24,5 +24,5 @@ properties:
     description: The inclusive upper limit for a date-time.
     $comment: |
       A date-time is valid if it is less than, or exactly equal to, `maximum`.
-    merge:
+    patch:
       formats: [md]

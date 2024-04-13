@@ -174,7 +174,7 @@
         "is-checked",
         "is_checked"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

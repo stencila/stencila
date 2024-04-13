@@ -17,7 +17,7 @@ properties:
     description: The code.
     $ref: Cord
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     jats:
       content: true
@@ -42,7 +42,7 @@ properties:
     description: The programming language of the code.
     type: string
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     jats:
       attr: language

@@ -342,7 +342,7 @@ pub enum NodeProperty {{
         }
 
         if schema
-            .merge
+            .patch
             .as_ref()
             .map(|spec| spec.derive)
             .unwrap_or(true)
@@ -580,7 +580,7 @@ pub enum NodeProperty {{
 
             // If merge is not specified, defaults to all formats for `content` property
             if let Some(formats) = property
-                .merge
+                .patch
                 .as_ref()
                 .and_then(|options| options.formats.clone())
                 .or_else(|| (name == "content").then(|| vec!["all".to_string()]))
@@ -1025,7 +1025,7 @@ impl {title} {{
         }
 
         if schema
-            .merge
+            .patch
             .as_ref()
             .map(|spec| spec.derive)
             .unwrap_or(true)

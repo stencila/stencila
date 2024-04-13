@@ -47,7 +47,7 @@
       "@id": "stencila:minimum",
       "description": "The inclusive lower limit for a numeric node.",
       "$comment": "A number is valid if it is greater than, or exactly equal to, `minimum`.\n",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -62,7 +62,7 @@
         "exclusive-minimum",
         "exclusive_minimum"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -73,7 +73,7 @@
       "@id": "stencila:maximum",
       "description": "The inclusive upper limit for a numeric node.",
       "$comment": "A number is valid if it is less than, or exactly equal to, `maximum`.\n",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -88,7 +88,7 @@
         "exclusive-maximum",
         "exclusive_maximum"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -103,7 +103,7 @@
         "multiple-of",
         "multiple_of"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

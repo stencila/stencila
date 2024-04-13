@@ -17,7 +17,7 @@ properties:
     '@id': stencila:code
     description: The code.
     $ref: Cord
-    merge:
+    patch:
       formats: [md]
     jats:
       content: true
@@ -43,7 +43,7 @@ properties:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
-    merge:
+    patch:
       formats: [md]
     jats:
       attr: language

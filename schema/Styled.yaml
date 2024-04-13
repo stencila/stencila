@@ -19,7 +19,7 @@ properties:
     '@id': stencila:code
     description: The code of the equation in the `styleLanguage`.
     $ref: Cord
-    merge:
+    patch:
       formats: [md]
     jats:
       attr: style
@@ -41,7 +41,7 @@ properties:
     '@id': stencila:styleLanguage
     description: The language used for the style specification e.g. css, tw
     type: string
-    merge:
+    patch:
       formats: [md]
     jats:
       attr: style-detail

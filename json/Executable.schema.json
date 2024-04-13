@@ -46,7 +46,7 @@
       "strip": [
         "execution"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

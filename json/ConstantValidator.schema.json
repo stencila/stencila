@@ -42,7 +42,7 @@
     "value": {
       "@id": "schema:value",
       "description": "The value that the node must have.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

@@ -43,7 +43,7 @@ properties:
     type: string
     html:
       attr: src
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:

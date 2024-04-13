@@ -22,7 +22,7 @@ properties:
     description: The minimum length for a string node.
     $comment: |
       A string is valid if its length is greater than, or exactly equal to, `minLength`.
-    merge:
+    patch:
       formats: [md]
   maxLength:
     '@id': stencila:maxLength
@@ -31,7 +31,7 @@ properties:
     description: The maximum length for a string node.
     $comment: |
       A string is valid if its length is less than, or exactly equal to, `maxLength`.
-    merge:
+    patch:
       formats: [md]
   pattern:
     '@id': stencila:pattern
@@ -39,5 +39,5 @@ properties:
     description: A regular expression that a string node must match.
     $comment: |
       A string is valid if it is matched by the regular expression.
-    merge:
+    patch:
       formats: [md]

@@ -552,7 +552,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -592,7 +592,7 @@
       "strip": [
         "execution"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

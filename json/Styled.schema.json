@@ -41,7 +41,7 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code of the equation in the `styleLanguage`.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -76,7 +76,7 @@
         "style-language",
         "style_language"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

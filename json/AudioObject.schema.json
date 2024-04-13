@@ -541,7 +541,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -592,7 +592,7 @@
         "content-url",
         "content_url"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -644,7 +644,7 @@
     "caption": {
       "@id": "schema:caption",
       "description": "The caption for this audio recording.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

@@ -25,7 +25,7 @@ properties:
       Without this property it is not possible to know if the chunk should be in the
       series of figures, or in the series of tables.
     $ref: LabelType
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -38,7 +38,7 @@ properties:
     "@id": stencila:label
     description: A short label for the chunk.
     type: string
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -57,7 +57,7 @@ properties:
     items:
       $ref: Block
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: div

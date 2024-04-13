@@ -57,7 +57,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -93,7 +93,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]

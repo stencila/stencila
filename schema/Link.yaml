@@ -23,7 +23,7 @@ properties:
     type: array
     items:
       $ref: Inline
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: span
@@ -52,7 +52,7 @@ properties:
     # for the difference between `uri` and `uri-reference`. The latter is more permissive, and is
     # used here because it allows for intra-doc links using a #fragment only.
     format: uri-reference
-    merge:
+    patch:
       formats: [md]
     html:
       attr: href
@@ -65,7 +65,7 @@ properties:
       This property is analogous to the HTML `title` global attribute which
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
     type: string
-    merge:
+    patch:
       formats: [md]
     html:
       attr: title
@@ -76,7 +76,7 @@ properties:
     description:
       The relation between the target and the current thing.
       # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
-    merge:
+    patch:
       formats: [md]
     type: string
     html:

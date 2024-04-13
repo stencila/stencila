@@ -537,7 +537,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -569,7 +569,7 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the table.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -579,12 +579,12 @@
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the table.",
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "caption"
       },
@@ -613,12 +613,12 @@
       "aliases": [
         "row"
       ],
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "table"
       },
@@ -651,12 +651,12 @@
       "aliases": [
         "note"
       ],
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "aside"
       },

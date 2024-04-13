@@ -538,7 +538,7 @@
       "strip": [
         "metadata"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -595,7 +595,7 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the figure.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -619,12 +619,12 @@
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the figure.",
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "figcaption"
       },

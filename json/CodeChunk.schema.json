@@ -62,7 +62,7 @@
       "strip": [
         "execution"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -290,7 +290,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -328,7 +328,7 @@
       "strip": [
         "code"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -384,7 +384,7 @@
         "label-type",
         "label_type"
       ],
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -404,7 +404,7 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the chunk.",
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
@@ -428,12 +428,12 @@
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the chunk.",
-      "walk": true,
-      "merge": {
+      "patch": {
         "formats": [
           "md"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "div"
       },

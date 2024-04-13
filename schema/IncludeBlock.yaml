@@ -19,7 +19,7 @@ properties:
     description: The external source of the content, a file path or URL.
     type: string
     strip: [code]
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -63,7 +63,7 @@ properties:
     items:
       $ref: Block
     strip: [output]
-    merge:
+    patch:
       # Do not merge content since that is derived from `source`
       formats: []
     dom:

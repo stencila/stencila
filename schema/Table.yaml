@@ -20,7 +20,7 @@ properties:
     '@id': stencila:label
     description: A short label for the table.
     type: string
-    merge:
+    patch:
       formats: [md]
   caption:
     '@id': schema:caption
@@ -29,7 +29,7 @@ properties:
     items:
       $ref: Block
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: caption
@@ -51,7 +51,7 @@ properties:
     items:
       $ref: TableRow
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: table
@@ -75,7 +75,7 @@ properties:
     items:
       $ref: Block
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: aside

@@ -38,7 +38,7 @@ properties:
     '@id': stencila:label
     description: A short label for the figure.
     type: string
-    merge:
+    patch:
       formats: [md]
     proptest:
       min:
@@ -57,7 +57,7 @@ properties:
     items:
       $ref: Block
     walk: true
-    merge:
+    patch:
       formats: [md]
     dom:
       elem: figcaption
