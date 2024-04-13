@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
+use std::{collections::HashMap, fs::read_to_string};
 
 use codecs::{DecodeOptions, Format};
 use common::{eyre, eyre::Result, eyre::WrapErr, glob::glob, tokio};
@@ -8,33 +6,30 @@ use common_dev::insta::assert_debug_snapshot;
 
 use node_merge::DiffResult;
 
-type MarkdownDiffs = HashMap<String, (String, String)>;
+/// A map of fixture names to tuple of (old, new)
+type Fixtures = HashMap<String, (String, String)>;
 
-fn load_markdown(folder_path: &str) -> Result<MarkdownDiffs> {
-    let pattern = format!("{}/*.md", folder_path);
+/// Loads all test fixtures
+fn load_fixtures() -> Result<Fixtures> {
     let mut files_content = HashMap::new();
 
-    for entry in glob(&pattern).wrap_err("Failed to read glob pattern")? {
+    for entry in glob("tests/fixtures/*.md").wrap_err("Failed to read glob pattern")? {
         let path = entry.wrap_err("Failed to process file entry")?;
         let file_stem = path
             .file_stem()
             .and_then(|name| name.to_str())
-            .ok_or_else(|| eyre::eyre!("Invalid file stem for {:?}", path))
-            .wrap_err("Failed to extract file stem")?;
+            .ok_or_else(|| eyre::eyre!("Invalid file stem for {:?}", path))?
+            .to_string();
 
-        let mut file =
-            File::open(&path).wrap_err_with(|| format!("Failed to open file {:?}", path))?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)
-            .wrap_err_with(|| format!("Failed to read contents of file {:?}", path))?;
+        let contents = read_to_string(path)?;
 
         let mut parts = contents.splitn(2, "===\n").map(String::from);
-        let (first, second) = (
+        let (old, new) = (
             parts.next().unwrap_or_default(),
             parts.next().unwrap_or_default(),
         );
 
-        files_content.insert(file_stem.to_string(), (first, second));
+        files_content.insert(file_stem, (old, new));
     }
 
     Ok(files_content)
@@ -43,21 +38,20 @@ fn load_markdown(folder_path: &str) -> Result<MarkdownDiffs> {
 /// Snapshot tests of the `MergeNode::diff` method
 #[tokio::test]
 async fn file_diff() -> Result<()> {
-    async fn diff(files: &MarkdownDiffs, name: &str) -> Result<DiffResult> {
+    async fn diff(old: &str, new: &str) -> Result<DiffResult> {
         let options = Some(DecodeOptions {
             format: Some(Format::Markdown),
             ..Default::default()
         });
-        let (old, new) = files.get(name).ok_or(eyre::eyre!("{} not found", name))?;
+
         let old = codecs::from_str(old, options.clone()).await?;
         let new = codecs::from_str(new, options).await?;
 
         Ok(node_merge::diff(&old, &new))
     }
 
-    let files_content = load_markdown("tests/markdown")?;
-    for name in files_content.keys() {
-        assert_debug_snapshot!(name.to_string(), diff(&files_content, name).await?);
+    for (name, (old, new)) in load_fixtures()? {
+        assert_debug_snapshot!(name, diff(&old, &new).await?);
     }
 
     Ok(())
