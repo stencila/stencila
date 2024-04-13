@@ -1,0 +1,492 @@
+# TextMate grammar for Stencila Markdown
+#
+# Much of this is based on the VSCode builtin Markdown grammar at
+#  https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml
+#
+# The scope `name` given to captures determines how they are highlighted by different themes.
+# The best place to look when choosing the right scope seems to be in a VSCode theme definition
+# file e.g.
+#   https://github.com/microsoft/vscode/blob/main/extensions/theme-monokai/themes/monokai-color-theme.json
+
+scopeName: source.smd
+patterns:
+  - include: "#frontMatter"
+  - include: "#block"
+repository:
+  block:
+    patterns:
+      # Order is important for matching!
+      - include: "#math-block"
+      - include: "#code-chunk"
+      - include: "#code-block"
+      - include: "#include-block"
+      - include: "#call-block"
+      - include: "#instruction-block"
+      - include: "#insert-block"
+      - include: "#delete-block"
+      - include: "#replace-block"
+      - include: "#with-block"
+      - include: "#for-block"
+      - include: "#if-block"
+      - include: "#else-block"
+      - include: "#end-block"
+      - include: "#figure-block"
+      - include: "#table-block"
+      - include: "#paragraph"
+  inline:
+    patterns:
+      # Order is important for matching!
+      - include: "#parameter"
+      - include: "#math-inline"
+      - include: "#instruction-inline"
+      - include: "#insert-inline"
+      - include: "#delete-inline"
+      - include: "#replace-inline"
+
+  ########## Parameter ##########
+
+  parameter:
+    name: meta.stencila.parameter
+    match: (\&)\[([\w-]+)\] # Currently ignores parameter options in curly braces
+    captures:
+      "1": { name: markup.heading } # &
+      "2": { name: variable.name } # name
+
+  ########## Math Block & Inline ##########
+
+  math-block:
+    name: meta.stencila.math-block
+    begin: ^(\$\$)$
+    beginCaptures:
+      "1": { name: markup.heading } # $$
+    end: ^(\$\$)$
+    endCaptures:
+      "1": { name: markup.heading } # $$
+    patterns:
+      - contentName: meta.embedded.language.tex
+        include: text.tex
+
+  math-inline:
+    name: meta.stencila.math-inline
+    match: (\$)(.*?)(\$)
+    captures:
+      "1": { name: markup.heading } # $
+      "2": # math
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.tex
+            include: text.tex
+      "3": { name: markup.heading } # $
+
+  ########## CodeBlock ##########
+
+  code-block:
+    patterns:
+      - include: "#code-block.unknown-lang"
+
+  code-block.template:
+    name: meta.stencila.code-block.LANG_NAME
+    begin: >
+      (?x)
+      ^
+        (`{3,})
+        \s*
+        (LANG_ALIASES)
+        \s*
+      $
+    beginCaptures:
+      "1": { name: markup.heading } # backticks
+      "2": { name: variable.other } # language
+    end: ^(`{3,})\s*$
+    endCaptures:
+      "1": { name: markup.heading } # backticks
+    patterns:
+      - include: LANG_INCLUDE
+
+  code-block.unknown-lang:
+    name: meta.stencila.code-block.unknown-lang
+    begin: >
+      (?x)
+      ^
+        (`{3,})
+        \s*
+        (.*)
+      $
+    beginCaptures:
+      "1": { name: markup.heading } # backticks
+      "2": { name: variable.other } # language
+    end: ^(`{3,})\s*$
+    endCaptures:
+      "1": { name: markup.heading } # backticks
+
+  ########## CodeChunk ##########
+
+  code-chunk:
+    patterns:
+      - include: "#code-chunk.unknown-lang"
+      - include: "#code-chunk.no-lang"
+
+  code-chunk.template:
+    name: meta.stencila.code-chunk.LANG_NAME
+    begin: >
+      (?x)
+      ^
+        (`{3,})
+        \s*
+        (LANG_ALIASES)
+        \s+
+        (exec)
+        \s*
+      $
+    beginCaptures:
+      "1": { name: markup.heading } # backticks
+      "2": { name: variable.other } # language
+      "3": { name: keyword.control } # exec
+    end: ^(`{3,})\s*$
+    endCaptures:
+      "1": { name: markup.heading } # backticks
+    patterns:
+      - include: LANG_INCLUDE
+
+  code-chunk.unknown-lang:
+    name: meta.stencila.code-chunk.unknown-lang
+    begin: >
+      (?x)
+      ^
+        (`{3,})
+        \s*
+        (\w+)
+        \s+
+        (exec)
+        \s*
+      $
+    beginCaptures:
+      "1": { name: markup.heading } # backticks
+      "2": { name: variable.other } # language
+      "3": { name: keyword.control } # exec
+    end: ^(`{3,})\s*$
+    endCaptures:
+      "1": { name: markup.heading } # backticks
+
+  code-chunk.no-lang:
+    name: meta.stencila.code-chunk.no-lang
+    begin: >
+      (?x)
+      ^
+        (`{3,})
+        \s*
+        (exec)
+        \s*
+      $
+    beginCaptures:
+      "1": { name: markup.heading } # backticks
+      "2": { name: keyword.control } # exec
+    end: ^(`{3,})\s*$
+    endCaptures:
+      "1": { name: markup.heading } # backticks
+
+  ########## InstructionBlock & InstructionInline ##########
+
+  instruction-block:
+    name: meta.stencila.instruction-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (do)
+        \s+
+        (?:
+          (@)
+          ([\w-]*)
+          \s*
+        )?
+        (.*)
+      $
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # do
+      "3": { name: punctuation.definition } # @
+      "4": { name: variable.name } # assignee
+      "5": { name: comment.line } # message
+
+  with-block:
+    name: meta.stencila.with-block
+    match: ^(:{3,})\s*(with)\s*$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # with
+
+  instruction-inline:
+    name: meta.stencila.instruction-inline
+    match: >
+      (?x)
+      \[\[
+        \s*
+        (do)
+        \s+
+        (?:
+          (@)
+          ([\w-]*)
+          \s*
+        )?
+        (.*?)
+        (?:
+          (>>)
+          (.*?)
+        )?
+      \]\]
+    captures:
+      "1": { name: keyword.control } # do
+      "2": { name: punctuation.definition } # @
+      "3": { name: variable.name } # assignee
+      "4": { name: comment.line } # message
+      "5": { name: keyword.control } # >>
+
+  ########## Suggestions: Block & Inline ##########
+
+  insert-block:
+    name: meta.stencila.insert-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (insert)
+        \s+
+        (?:
+          (accept)|
+          (reject)|
+          .*
+        )?
+        \s*
+      $
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # insert
+      "3": { name: token.info-token } # accept
+      "4": { name: token.error-token } # reject
+
+  insert-inline:
+    name: meta.stencila.insert-inline
+    match: >
+      (?x)
+      \[\[
+        \s*
+        (insert)
+        \s
+        (.*?)
+      \]\]
+    captures:
+      "1": { name: keyword.control } # insert
+
+  delete-block:
+    name: meta.stencila.delete-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (delete)
+        \s+
+        (?:
+          (accept)|
+          (reject)|
+          .*
+        )?
+        \s*
+      $
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # delete
+      "3": { name: token.info-token } # accept
+      "4": { name: token.error-token } # reject
+
+  delete-inline:
+    name: meta.stencila.delete-inline
+    match: >
+      (?x)
+      \[\[
+        \s*
+        (delete)
+        \s
+        (.*?)
+      \]\]
+    captures:
+      "1": { name: keyword.control } # delete
+
+  replace-block:
+    name: meta.stencila.replace-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (replace)
+        \s+
+        (?:
+          (accept)|
+          (reject)|
+          .*
+        )?
+        \s*
+      $
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # replace
+      "3": { name: token.info-token } # accept
+      "4": { name: token.error-token } # reject
+
+  replace-inline:
+    name: meta.stencila.replace-inline
+    match: >
+      (?x)
+      \[\[
+        \s*
+        (replace)
+        \s
+        (.*?)
+        (>>)
+        (.*?)
+      \]\]
+    captures:
+      "1": { name: keyword.control } # replace
+      "3": { name: keyword.control } # >>
+
+  ########## IncludeBlock ##########
+
+  include-block:
+    name: meta.stencila.include-block
+    match: ^(:{3,})\s*(include)\s+(.*)$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # include
+      "3": { name: variable.name } # source
+
+  ########## CallBlock ##########
+
+  call-block:
+    name: meta.stencila.call-block
+    match: ^(:{3,})\s*(call)\s+(.*)$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # call
+      "3": { name: variable.name } # source
+
+  ########## IfBlock ##########
+
+  if-block:
+    name: meta.stencila.if-block
+    match: ^(:{3,})\s*(if|elif)\s+(.*)$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # if
+      "3": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.javascript
+            include: source.js
+
+  else-block:
+    name: meta.stencila.else-block
+    match: ^(:{3,})\s*(else)\s*$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # else
+
+  end-block:
+    name: meta.stencila.end-block
+    match: ^(:{3,})\s*$
+    captures:
+      "1": { name: markup.heading } # semicolons
+
+  ########## ForBlock ##########
+
+  for-block:
+    patterns:
+      - include: "#for-block.sql"
+      - include: "#for-block.no-lang"
+
+  for-block.sql:
+    name: meta.stencila.for-block.sql
+    match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+(select\s*.*)$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # for
+      "3": { name: variable.name } # variable
+      "4": { name: keyword.control } # in
+      "5": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.sql
+            include: source.sql
+
+  for-block.no-lang:
+    name: meta.stencila.for-block.no-lang
+    match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+(.*)$
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # for
+      "3": { name: variable.name } # variable
+      "4": { name: keyword.control } # in
+      "5": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.javascript
+            include: source.js
+
+  ########## Figure & Table ##########
+
+  figure-block:
+    name: meta.stencila.figure-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (figure)
+        \s+
+        (.*)
+      $
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # figure
+      "3": { name: variable.name } # label
+
+  table-block:
+    name: meta.stencila.table-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (table)
+        \s+
+        (.*)
+      $
+    captures:
+      "1": { name: markup.heading } # semicolons
+      "2": { name: keyword.control } # table
+      "3": { name: variable.name } # label
+
+  # The following grammar rules are taken from the VSCode builtin Markdown grammar at
+  #   https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml
+  # usually with little modification, particularly to regular expressions.
+
+  paragraph:
+    name: meta.stencila.paragraph
+    begin: (^|\G)[ ]{0,3}(?=[^ \t\n])
+    while: (^|\G)((?=\s*[-=]{3,}\s*$)|[ ]{4,}(?=[^ \t\n]))
+    patterns:
+      - include: "#inline"
+
+  frontMatter:
+    begin: \A-{3}\s*$
+    end: (^|\G)-{3}|\.{3}\s*$
+    contentName: meta.embedded.block.frontmatter
+    patterns:
+      - { include: source.yaml }
