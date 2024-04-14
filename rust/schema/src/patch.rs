@@ -286,7 +286,7 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
     }
 
     /// Calculate the similarity between this node and another of the same type
-    /// 
+    ///
     /// The similarity value should have a minimum of zero and a maximum of one.
     /// It should be non-zero for the same types and zero for different variants
     /// of an enum.
@@ -479,10 +479,27 @@ where
             return Ok(());
         }
 
-        // Calculate the pairwise similarity
-        let mut similarities = Vec::new();
+        #[derive(Debug)]
+        struct Pair {
+            self_pos: usize,
+            new_pos: usize,
+            other_pos: usize,
+            similarity: f32,
+        }
+
+        // Calculate pairwise similarities
+        let mut candidate_pairs = Vec::new();
         let mut other_matches = Vec::new();
         for (self_pos, self_item) in self.iter().enumerate() {
+            // Calculate the pairwise similarity with positions in `other`.
+            // Note that this `break`s when a perfect match is found and skips
+            // positions in other for which there is already a perfect match.
+
+            // TODO: because of the aforementioned early break, this loop could be
+            // optimized by not starting at the beginning of other but rather
+            // by "radiating out" from self_pos, or maybe better, from the
+            // last perfect match+1. That is, we should still search over all other_pos
+            // stopping when we find a perfect match but we should do it in a smarter order.
             for (other_pos, other_item) in other.iter().enumerate() {
                 // If the other pos is already perfectly matched then
                 // skip calculating similarities
@@ -491,7 +508,12 @@ where
                 }
 
                 let similarity = self_item.similarity(other_item, context)?;
-                similarities.push((self_pos, other_pos, similarity));
+                candidate_pairs.push(Pair {
+                    self_pos,
+                    new_pos: self_pos,
+                    other_pos,
+                    similarity,
+                });
 
                 if similarity == 1.0 {
                     other_matches.push(other_pos);
@@ -500,30 +522,20 @@ where
             }
         }
 
-        // Sort the pairs by descending order of similarity
-        similarities.sort_by(|a, b| a.2.total_cmp(&b.2).reverse());
-
         // Find the pairs with highest similarity
-        #[derive(Debug)]
-        struct Pair {
-            self_pos: usize,
-            new_pos: usize,
-            other_pos: usize,
-            similarity: f32,
-        }
         let mut pairs: Vec<Pair> = Vec::with_capacity(self.len().min(other.len()));
-        for (self_pos, other_pos, similarity) in similarities {
+        for candidate in candidate_pairs
+            .into_iter()
+            .sorted_by(|a, b| a.similarity.total_cmp(&b.similarity).reverse())
+        {
             if pairs
                 .iter()
-                .find(|pair| pair.self_pos == self_pos || pair.other_pos == other_pos)
+                .find(|pair| {
+                    pair.self_pos == candidate.self_pos || pair.other_pos == candidate.other_pos
+                })
                 .is_none()
             {
-                pairs.push(Pair {
-                    self_pos,
-                    new_pos: self_pos,
-                    other_pos,
-                    similarity,
-                });
+                pairs.push(candidate);
             }
         }
         debug_assert!(pairs.len() == self.len().min(other.len()));
@@ -691,6 +703,11 @@ where
             PatchOp::Replace(values) => {
                 for (index, value) in values {
                     self[index] = T::from_value(value)?;
+                }
+            }
+            PatchOp::Move(indices) => {
+                for (from, to) in indices {
+                    todo!()
                 }
             }
             PatchOp::Remove(indices) => {
