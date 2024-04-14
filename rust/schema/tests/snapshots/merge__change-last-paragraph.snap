@@ -1,6 +1,5 @@
 ---
 source: rust/schema/tests/merge.rs
-assertion_line: 58
 expression: "Fixture { old, new, ops }"
 ---
 old:
@@ -10,13 +9,14 @@ old:
       content:
         - type: Text
           value: para1
-    - type: CodeChunk
-      code: 1 + 2
-      programmingLanguage: python
     - type: Paragraph
       content:
         - type: Text
           value: para2
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3
 new:
   type: Article
   content:
@@ -28,7 +28,14 @@ new:
       content:
         - type: Text
           value: para2
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3delta
 ops:
   - - - content
-    - Remove:
-        - 1
+      - 2
+      - content
+      - 0
+      - value
+    - Set: para3delta

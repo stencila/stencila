@@ -1,6 +1,5 @@
 ---
 source: rust/schema/tests/merge.rs
-assertion_line: 58
 expression: "Fixture { old, new, ops }"
 ---
 old:
@@ -14,6 +13,14 @@ old:
       content:
         - type: Text
           value: para2
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para4
 new:
   type: Article
   content:
@@ -24,16 +31,25 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: para3
+          value: para2two
     - type: Paragraph
       content:
         - type: Text
-          value: para2
+          value: para3three
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para4
 ops:
   - - - content
-    - Insert:
-        - - 1
-          - type: Paragraph
-            content:
-              - type: Text
-                value: para3
+      - 1
+      - content
+      - 0
+      - value
+    - Set: para2two
+  - - - content
+      - 2
+      - content
+      - 0
+      - value
+    - Set: para3three

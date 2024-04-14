@@ -1,6 +1,5 @@
 ---
 source: rust/schema/tests/merge.rs
-assertion_line: 58
 expression: "Fixture { old, new, ops }"
 ---
 old:

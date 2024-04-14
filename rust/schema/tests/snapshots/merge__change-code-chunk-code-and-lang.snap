@@ -1,6 +1,5 @@
 ---
 source: rust/schema/tests/merge.rs
-assertion_line: 58
 expression: "Fixture { old, new, ops }"
 ---
 old:
@@ -14,9 +13,13 @@ new:
   content:
     - type: CodeChunk
       code: 1 + 3
-      programmingLanguage: python
+      programmingLanguage: r
 ops:
   - - - content
       - 0
       - code
     - Set: 1 + 3
+  - - - content
+      - 0
+      - programmingLanguage
+    - Set: r
