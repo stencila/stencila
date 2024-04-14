@@ -1,0 +1,75 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Heading
+      level: 1
+      content:
+        - type: Text
+          value: heading1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para2
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value: heading2
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3
+new:
+  type: Article
+  content:
+    - type: Heading
+      level: 1
+      content:
+        - type: Text
+          value: heading1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para1
+    - type: CodeBlock
+      code: ""
+      programmingLanguage: python
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para2
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value: heading3
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value: heading2
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3
+ops:
+  - - - content
+    - Insert:
+        - - 2
+          - type: CodeBlock
+            code: ""
+            programmingLanguage: python
+        - - 4
+          - type: Heading
+            level: 2
+            content:
+              - type: Text
+                value: heading3
