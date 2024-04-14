@@ -1,0 +1,47 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: Caption.
+    - type: Paragraph
+      content:
+        - type: ImageObject
+          contentUrl: "https://example.org/cat.jpg"
+new:
+  type: Article
+  content:
+    - type: Figure
+      content:
+        - type: Paragraph
+          content:
+            - type: ImageObject
+              contentUrl: "https://example.org/cat.jpg"
+      caption:
+        - type: Paragraph
+          content:
+            - type: Text
+              value: Caption.
+ops:
+  - - - content
+    - Remove:
+        - 1
+  - - - content
+    - Replace:
+        - - 0
+          - type: Figure
+            content:
+              - type: Paragraph
+                content:
+                  - type: ImageObject
+                    contentUrl: "https://example.org/cat.jpg"
+            caption:
+              - type: Paragraph
+                content:
+                  - type: Text
+                    value: Caption.

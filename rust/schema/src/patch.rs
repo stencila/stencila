@@ -277,7 +277,10 @@ macro_rules! atom {
 
             #[allow(unused_variables)]
             fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
-                Ok(if other == self { 1.0 } else { 0.0 })
+                // Note non-zero similarity if unequal because types are
+                // the same. At present it does not seem to be necessary to do
+                // anything more sophisticated (e.g. proportional difference for numbers)
+                Ok(if other == self { 1.0 } else { 0.00001 })
             }
 
             fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
@@ -385,17 +388,19 @@ where
         // Calculate the pairwise similarity
         let mut similarities = Vec::new();
         let mut other_matches = Vec::new();
-        for (self_index, self_item) in self.iter().enumerate() {
-            for (other_index, other_item) in other.iter().enumerate() {
-                if other_matches.contains(&other_index) {
+        for (self_pos, self_item) in self.iter().enumerate() {
+            for (other_pos, other_item) in other.iter().enumerate() {
+                // If the other pos is already perfectly matched then
+                // skip calculating similarities
+                if other_matches.contains(&other_pos) {
                     continue;
                 }
 
                 let similarity = self_item.similarity(other_item, context)?;
-                similarities.push((self_index, other_index, similarity));
+                similarities.push((self_pos, other_pos, similarity));
 
                 if similarity == 1.0 {
-                    other_matches.push(other_index);
+                    other_matches.push(other_pos);
                     break;
                 }
             }
@@ -407,22 +412,22 @@ where
         // Find the pairs with highest similarity
         #[derive(Debug)]
         struct Pair {
-            self_index: usize,
-            new_index: usize,
-            other_index: usize,
+            self_pos: usize,
+            new_pos: usize,
+            other_pos: usize,
             similarity: f32,
         }
         let mut pairs: Vec<Pair> = Vec::with_capacity(self.len().min(other.len()));
-        for (self_index, other_index, similarity) in similarities {
+        for (self_pos, other_pos, similarity) in similarities {
             if pairs
                 .iter()
-                .find(|pair| pair.self_index == self_index || pair.other_index == other_index)
+                .find(|pair| pair.self_pos == self_pos || pair.other_pos == other_pos)
                 .is_none()
             {
                 pairs.push(Pair {
-                    self_index,
-                    new_index: self_index,
-                    other_index,
+                    self_pos,
+                    new_pos: self_pos,
+                    other_pos,
                     similarity,
                 });
             }
@@ -437,7 +442,7 @@ where
                 if insert.len() < insert_num {
                     if pairs
                         .iter()
-                        .find(|pair| pair.other_index == other_index)
+                        .find(|pair| pair.other_pos == other_index)
                         .is_none()
                     {
                         insert.push(other_index);
@@ -469,8 +474,8 @@ where
                 // Adjust new_index of pairs for the inserts
                 for pair in pairs.iter_mut() {
                     for &index in &insert {
-                        if index <= pair.new_index {
-                            pair.new_index += 1;
+                        if index <= pair.new_pos {
+                            pair.new_pos += 1;
                         }
                     }
                 }
@@ -488,8 +493,8 @@ where
             let mut keep = Vec::new();
             for pair in pairs.iter() {
                 if keep.len() < other.len() {
-                    if !keep.contains(&pair.self_index) {
-                        keep.push(pair.self_index.clone());
+                    if !keep.contains(&pair.self_pos) {
+                        keep.push(pair.self_pos.clone());
                     }
                 }
             }
@@ -503,14 +508,14 @@ where
             // Adjust new_index of pairs for the removals
             for pair in pairs.iter_mut() {
                 for &index in &remove {
-                    if index <= pair.self_index {
-                        pair.new_index -= 1;
+                    if index <= pair.self_pos {
+                        pair.new_pos -= 1;
                     }
                 }
             }
 
             // Remove pairs not in `keep` to avoid unnecessary diffing
-            pairs.retain(|pair| keep.contains(&pair.self_index));
+            pairs.retain(|pair| keep.contains(&pair.self_pos));
 
             // Generate remove op
             context.op_remove(remove);
@@ -518,26 +523,37 @@ where
 
         println!("PAIRS {pairs:#?}");
 
+        // TODO: perform moves
+
         // Iterate over pairs and diff
+        let mut replace = Vec::new();
         for Pair {
-            self_index,
-            new_index,
-            other_index,
+            self_pos,
+            new_pos,
+            other_pos,
             similarity,
             ..
         } in pairs
         {
-            if new_index == other_index && similarity == 1.0 {
+            // If positions and items are equal then nothing to do
+            if new_pos == other_pos && similarity == 1.0 {
                 continue;
             }
 
-            // TODO: if similarity == 1 but new_index != other_index
-            // then do a move
-
-            // Note use of new_index here
-            context.enter_index(new_index);
-            self[self_index].diff(&other[new_index], context)?;
-            context.exit_index();
+            if similarity == 0.0 {
+                // If the similarity is zero (i.e. different types)
+                // then do a replacement.
+                replace.push((new_pos, other[other_pos].to_value()?));
+            } else {
+                // Otherwise diff the two items
+                // Note uses of new_pos (not other_pos) here are important!
+                context.enter_index(new_pos);
+                self[self_pos].diff(&other[new_pos], context)?;
+                context.exit_index();
+            }
+        }
+        if !replace.is_empty() {
+            context.op_replace(replace);
         }
 
         Ok(())

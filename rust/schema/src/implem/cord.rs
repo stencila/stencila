@@ -30,7 +30,10 @@ impl PatchNode for Cord {
             .timeout(Duration::from_secs(1))
             .diff_chars(self.as_str(), other.as_str());
 
-        Ok(diff.ratio())
+        // Note minimum similarity because same types
+        // This is important because it means a paragraph will have non-zero
+        // similarity with itself, even if all characters change
+        Ok(diff.ratio().max(0.00001))
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
