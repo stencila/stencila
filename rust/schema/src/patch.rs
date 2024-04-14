@@ -39,9 +39,16 @@ pub fn patch<T: PatchNode>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Resul
     Ok(())
 }
 
+/// A context passed down to child nodes when walking across a node tree
+/// during a call to `similarity`, `diff`, or `patch`
+///
+/// Currently, this context is only used in calls to `diff` but may be used in
+/// other methods in the future.
 pub struct PatchContext {
+    /// The current path on the depth first walk across nodes during a call to `diff`
     path: PatchPath,
 
+    /// The target paths and operations collected during a call to `diff`.
     ops: Vec<(PatchPath, PatchOp)>,
 }
 
@@ -137,20 +144,44 @@ impl PatchContext {
     }
 }
 
+/// A patch operation
+///
+/// These are generated during a call to `diff` and applied in a
+/// call to `patch`.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(crate = "common::serde")]
 pub enum PatchOp {
+    /// Set the value of a leaf node (e.g. a `bool`, `String` or `Cord`)
     Set(PatchValue),
 
+    /// Insert items into a vector
     Insert(Vec<(usize, PatchValue)>),
+
+    /// Push an item onto the end of a vector
     Push(PatchValue),
+
+    /// Append items onto the end of a vector
     Append(Vec<PatchValue>),
+
+    /// Replace items in a vector
     Replace(Vec<(usize, PatchValue)>),
+
+    /// Move items within a vector (from, to)
     Move(Vec<(usize, usize)>),
+
+    /// Remove items from a vector
     Remove(Vec<usize>),
+
+    /// Clear a vector
     Clear,
 }
 
+/// A value in a patch operation
+///
+/// This enum allows use to store values in a patch operation so that
+/// they can be used when applying that operation. It has variants for
+/// the main union types in the Stencila Schema with a fallback
+/// variant of a [`serde_json::Value`].
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged, crate = "common::serde")]
 pub enum PatchValue {
@@ -190,9 +221,8 @@ impl Serialize for PatchSlot {
 
 /// A path to reach a node from the root: a vector of [`PatchSlot`]s
 ///
-/// Used when applying a patch to a node to traverse directly to the
-/// branch of the tree that a patch operation should be applied.
-/// Similar to the `path` of JSON Patch (https://jsonpatch.com/).
+/// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in
+/// a call to `patch` the front of the path can be popped off.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct PatchPath(VecDeque<PatchSlot>);
@@ -229,26 +259,49 @@ impl Debug for PatchPath {
 }
 
 /// A trait for diffing and patching nodes
-pub trait PatchNode: Sized {
+pub trait PatchNode: Sized + Serialize + DeserializeOwned {
+    /// TODO: There should be no default implementations here
+    /// to make sure that meaningful implementations exist for each type
+
+    /// Convert the node to a [`PatchValue`]
+    ///
+    /// This default implementation uses the fallback of marshalling to
+    /// a [`serde_json::Value`]. This is avoided by overriding this
+    /// method for types (such as [`Block`]) for which there is a corresponding
+    /// variant in [`PatchValue`].
     fn to_value(&self) -> Result<PatchValue> {
-        bail!("No implemented")
+        Ok(PatchValue::Json(serde_json::to_value(self)?))
     }
 
-    #[allow(unused_variables)]
+    /// Create a node of type `Self` from a [`PatchValue`]
+    ///
+    /// This default implementation assumes the [`PatchValue::Json`] variant.
+    /// As for `to_value` this should be overridden for types that have a
+    /// corresponding variant in [`PatchValue`].
     fn from_value(value: PatchValue) -> Result<Self> {
-        bail!("No implemented")
+        match value {
+            PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+            _ => bail!("Invalid value for `{}`", type_name::<Self>()),
+        }
     }
 
+    /// Calculate the similarity between this node and another of the same type
+    /// 
+    /// The similarity value should have a minimum of zero and a maximum of one.
+    /// It should be non-zero for the same types and zero for different variants
+    /// of an enum.
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
-        Ok(0.0)
+        Ok(0.0001)
     }
 
+    /// Generate the [`PatchOp`]s needed to transform this node into the other
     #[allow(unused_variables)]
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         Ok(())
     }
 
+    /// Apply a [`PatchOp`] to a node at a path
     #[allow(unused_variables)]
     fn patch(
         &mut self,
@@ -320,13 +373,49 @@ atom!(f64);
 atom!(String);
 
 // Implementation for boxed properties
-impl<T> PatchNode for Box<T> where T: PatchNode {}
+impl<T> PatchNode for Box<T>
+where
+    T: PatchNode,
+{
+    fn to_value(&self) -> Result<PatchValue> {
+        self.as_ref().to_value()
+    }
+
+    fn from_value(value: PatchValue) -> Result<Self> {
+        Ok(Self::new(T::from_value(value)?))
+    }
+
+    fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        self.as_ref().similarity(other, context)
+    }
+
+    fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        self.as_ref().diff(other, context)
+    }
+
+    fn patch(
+        &mut self,
+        path: &mut PatchPath,
+        op: PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<()> {
+        self.as_mut().patch(path, op, context)
+    }
+}
 
 // Implementation for optional properties
 impl<T> PatchNode for Option<T>
 where
     T: PatchNode + Serialize + DeserializeOwned,
 {
+    fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        match (self, other) {
+            (Some(me), Some(other)) => me.similarity(other, context),
+            (None, None) => Ok(1.0),
+            _ => Ok(0.0),
+        }
+    }
+
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         match (self, other) {
             (Some(me), Some(other)) => me.diff(other, context),
@@ -356,6 +445,11 @@ where
 {
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        // TODO: this sub-optimal for things like paragraphs because it only
+        // considers the similarity up to the minimum of the lengths. For example,
+        // think about a paragraph that has had a `Strong` node inserted into it,
+        // thereby going from length 1 to length 3. Maybe write a custom similarity
+        // method for Vec<Inline> that deals with that.
         PatchContext::mean_similarity(
             self.iter()
                 .zip(other.iter())
