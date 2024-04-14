@@ -170,10 +170,16 @@ fn vecs() -> Result<()> {
     let ops = diff(&old, &new)?;
     assert_eq!(
         ops,
-        vec![(
-            PatchPath::new(),
-            PatchOp::Replace(vec![(0, 3.to_value()?), (1, 4.to_value()?),])
-        )]
+        vec![
+            (
+                PatchPath::from([PatchSlot::Index(0)]),
+                PatchOp::Set(3.to_value()?)
+            ),
+            (
+                PatchPath::from([PatchSlot::Index(1)]),
+                PatchOp::Set(4.to_value()?)
+            )
+        ]
     );
     patch(&mut old, ops)?;
     assert_eq!(old, new);
