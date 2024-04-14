@@ -6,413 +6,216 @@ use std::{
 
 use common::{
     derive_more::{Deref, DerefMut},
-    eyre::{bail, Result},
+    eyre::{bail, Report, Result},
+    itertools::Itertools,
     serde::{de::DeserializeOwned, Serialize},
-    serde_json::{from_value, to_value, Value},
+    serde_json::{self, Value as JsonValue},
 };
-use node_id::NodeId;
-use node_type::{NodeProperty, NodeType};
+use node_type::NodeProperty;
 
-/// A trait for condensing a node into a list of diff-able and merge-able properties
-pub trait PatchNode {
-    /// Condense a node into a list of properties that can be diffed
-    ///
-    /// This default implementation does nothing. Implementors should
-    /// call the various methods of the `context` to collect properties.
-    #[allow(unused_variables)]
-    fn condense(&self, context: &mut CondenseContext) {}
+use crate::{Block, Inline, Node};
 
-    /// Get the child node at a path
-    ///
-    /// This default implementation errors. Implementations should
-    /// error if the path is invalid for the node.
-    #[allow(unused_variables)]
-    fn get_path(&self, path: &mut NodePath) -> Result<Value> {
-        bail!(
-            "Unexpected call to `get_path` for type `{}`",
-            type_name::<Self>()
-        )
-    }
-
-    /// Set the child node at a path
-    ///
-    /// This default implementation errors. Implementations should
-    /// error if the path is invalid for the node.
-    #[allow(unused_variables)]
-    fn set_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        bail!(
-            "Unexpected call to `set_path` for type `{}`",
-            type_name::<Self>()
-        )
-    }
-
-    /// Insert the child node at a path
-    ///
-    /// This default implementation errors. Implementations should
-    /// error if the path is invalid for the node.
-    #[allow(unused_variables)]
-    fn insert_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        bail!(
-            "Unexpected call to `insert_path` for type `{}`",
-            type_name::<Self>()
-        )
-    }
-
-    /// Remove the child node at a path
-    ///
-    /// This default implementation errors. Implementations should
-    /// error if the path is invalid for the node.
-    #[allow(unused_variables)]
-    fn remove_path(&mut self, path: &mut NodePath) -> Result<()> {
-        bail!(
-            "Unexpected call to `remove_path` for type `{}`",
-            type_name::<Self>()
-        )
-    }
-}
-
-// Implementation for simple "atomic" types not in schema
-macro_rules! atom {
-    ($type:ty) => {
-        impl PatchNode for $type {
-            fn condense(&self, context: &mut CondenseContext) {
-                context.collect_value(&self.to_string());
-            }
-
-            fn get_path(&self, path: &mut NodePath) -> Result<Value> {
-                if path.is_empty() {
-                    Ok(to_value(self)?)
-                } else {
-                    bail!("Attempting to get `{path:?}` for `{}`", type_name::<Self>())
-                }
-            }
-        }
-    };
-}
-atom!(bool);
-atom!(i64);
-atom!(u64);
-atom!(f64);
-atom!(String);
-
-// Implementation for boxed properties
-impl<T> PatchNode for Box<T>
-where
-    T: PatchNode,
-{
-    fn condense(&self, context: &mut CondenseContext) {
-        self.as_ref().condense(context)
-    }
-
-    fn get_path(&self, path: &mut NodePath) -> Result<Value> {
-        self.as_ref().get_path(path)
-    }
-
-    fn set_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        self.as_mut().set_path(path, value)
-    }
-
-    fn insert_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        self.as_mut().insert_path(path, value)
-    }
-
-    fn remove_path(&mut self, path: &mut NodePath) -> Result<()> {
-        self.as_mut().remove_path(path)
-    }
-}
-
-// Implementation for optional properties
-impl<T> PatchNode for Option<T>
-where
-    T: PatchNode + Serialize + DeserializeOwned,
-{
-    fn condense(&self, context: &mut CondenseContext) {
-        if let Some(value) = self {
-            value.condense(context);
-        }
-    }
-
-    fn get_path(&self, path: &mut NodePath) -> Result<Value> {
-        if let Some(child) = self {
-            child.get_path(path)
-        } else {
-            bail!(
-                "Attempting to get `{path:?}` of `{}` which is None",
-                type_name::<Self>()
-            )
-        }
-    }
-
-    fn set_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        if path.is_empty() {
-            *self = Some(from_value(value)?);
-            Ok(())
-        } else if let Some(child) = self {
-            child.set_path(path, value)
-        } else {
-            bail!(
-                "Attempting to set `{path:?}` of `{}` which is None",
-                type_name::<Self>()
-            )
-        }
-    }
-
-    fn insert_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        if let Some(child) = self {
-            child.insert_path(path, value)
-        } else {
-            bail!(
-                "Attempting to insert `{path:?}` of `{}` which is None",
-                type_name::<Self>()
-            )
-        }
-    }
-
-    fn remove_path(&mut self, path: &mut NodePath) -> Result<()> {
-        if path.is_empty() {
-            *self = None;
-            Ok(())
-        } else if let Some(child) = self {
-            child.remove_path(path)
-        } else {
-            bail!(
-                "Attempting to remove `{path:?}` of `{}` which is None",
-                type_name::<Self>()
-            )
-        }
-    }
-}
-
-// Implementation for vector properties
-impl<T> PatchNode for Vec<T>
-where
-    T: PatchNode + Serialize + DeserializeOwned,
-{
-    fn condense(&self, context: &mut CondenseContext) {
-        for (index, item) in self.iter().enumerate() {
-            context.enter_index(index);
-            item.condense(context);
-            context.exit_index();
-        }
-    }
-
-    fn get_path(&self, path: &mut NodePath) -> Result<Value> {
-        if let Some(slot) = path.pop_front() {
-            let NodeSlot::Index(index) = slot else {
-                bail!(
-                    "Attempting to get property slot `{slot:?}` of `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            let Some(child) = self.get(index) else {
-                bail!(
-                    "Attempting to get empty index `{index}` of `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            child.get_path(path)
-        } else {
-            Ok(to_value(self)?)
-        }
-    }
-
-    fn set_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        if let Some(slot) = path.pop_front() {
-            let NodeSlot::Index(index) = slot else {
-                bail!(
-                    "Attempting to set property slot `{slot:?}` of `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            let Some(child) = self.get_mut(index) else {
-                bail!(
-                    "Attempting to set empty index `{index}` of `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            child.set_path(path, value)
-        } else {
-            *self = from_value(value)?;
-            Ok(())
-        }
-    }
-
-    fn insert_path(&mut self, path: &mut NodePath, value: Value) -> Result<()> {
-        if path.len() == 1 {
-            let NodeSlot::Index(index) = path[0] else {
-                bail!(
-                    "Attempting to insert property slot for `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            self.insert(index, from_value(value)?);
-
-            Ok(())
-        } else if let Some(slot) = path.pop_front() {
-            let NodeSlot::Index(index) = slot else {
-                bail!(
-                    "Attempting to insert property slot `{slot:?}` for `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            let Some(child) = self.get_mut(index) else {
-                bail!(
-                    "Attempting to insert empty index `{index}` of `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            child.insert_path(path, value)
-        } else {
-            bail!(
-                "Attempting to insert into `{}` with empty path",
-                type_name::<Self>()
-            )
-        }
-    }
-
-    fn remove_path(&mut self, path: &mut NodePath) -> Result<()> {
-        if path.len() == 1 {
-            let NodeSlot::Index(index) = path[0] else {
-                bail!(
-                    "Attempting to remove property slot for `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            self.remove(index);
-
-            Ok(())
-        } else if let Some(slot) = path.pop_front() {
-            let NodeSlot::Index(index) = slot else {
-                bail!(
-                    "Attempting to remove property slot `{slot:?}` for `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            let Some(child) = self.get_mut(index) else {
-                bail!(
-                    "Attempting to remove from empty index `{index}` of `{}`",
-                    type_name::<Self>()
-                )
-            };
-
-            child.remove_path(path)
-        } else {
-            bail!(
-                "Attempting to remove from `{}` with empty path",
-                type_name::<Self>()
-            )
-        }
-    }
-}
-
-/// A list of ancestor node ids for a property
+/// Merge `new` node into `old` node
 ///
-/// This list of ids is stored for each property so that we can combine
-/// adjacent diff operations on properties into an operation to insert,
-/// delete, or move an entire node. This is done by finding the highest
-/// common ancestor for adjacent properties.
-#[derive(Clone, Deref, DerefMut)]
-pub struct NodeAncestry(Vec<NodeId>);
-
-impl Default for NodeAncestry {
-    fn default() -> Self {
-        Self(Vec::new())
-    }
+/// This function simply combines calls to [`diff`] and [`patch`].
+pub fn merge<T: PatchNode>(old: &mut T, new: &T) -> Result<()> {
+    let ops = diff(old, new)?;
+    patch(old, ops)
 }
 
-impl NodeAncestry {
+/// Generate the operations needed to patch `old` node into `new` node
+pub fn diff<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
+    let mut context = PatchContext::new();
+    old.diff(new, &mut context)?;
+    Ok(context.ops)
+}
+
+/// Apply operations to a node
+pub fn patch<T: PatchNode>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Result<()> {
+    let mut context = PatchContext::new();
+    for (mut path, op) in ops {
+        old.patch(&mut path, op, &mut context)?
+    }
+    Ok(())
+}
+
+pub struct PatchContext {
+    path: PatchPath,
+
+    ops: Vec<(PatchPath, PatchOp)>,
+}
+
+impl PatchContext {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            path: PatchPath::new(),
+            ops: Vec::new(),
+        }
+    }
+
+    /// Calculate the mean similarity
+    ///
+    /// A convenience function used in derive macros.
+    pub fn mean_similarity(values: Vec<f32>) -> Result<f32> {
+        let n = values.len() as f32;
+        let sum = values.into_iter().fold(0., |sum, v| sum + v);
+        Ok(sum / n)
+    }
+
+    /// Enter a property during the walk
+    pub fn enter_property(&mut self, node_property: NodeProperty) -> &mut Self {
+        self.path.push_back(PatchSlot::Property(node_property));
+        self
+    }
+
+    /// Exit a property during the walk
+    pub fn exit_property(&mut self) -> &mut Self {
+        let popped = self.path.pop_back();
+        debug_assert!(matches!(popped, Some(PatchSlot::Property(..))));
+        self
+    }
+
+    /// Enter an item in a vector during the walk
+    pub fn enter_index(&mut self, index: usize) -> &mut Self {
+        self.path.push_back(PatchSlot::Index(index));
+        self
+    }
+
+    /// Exit an item in a vector during the walk
+    pub fn exit_index(&mut self) -> &mut Self {
+        let popped = self.path.pop_back();
+        debug_assert!(matches!(popped, Some(PatchSlot::Index(..))));
+        self
+    }
+
+    /// Create a [`PatchOp::Set`] operation at the current patch
+    pub fn op_set(&mut self, value: PatchValue) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Set(value)));
+        self
+    }
+
+    /// Create a [`PatchOp::Insert`] operation for the current path
+    pub fn op_insert(&mut self, values: Vec<(usize, PatchValue)>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Insert(values)));
+        self
+    }
+
+    /// Create a [`PatchOp::Push`] operation for the current path
+    pub fn op_push(&mut self, value: PatchValue) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Push(value)));
+        self
+    }
+
+    /// Create a [`PatchOp::Append`] operation for the current path
+    pub fn op_append(&mut self, values: Vec<PatchValue>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Append(values)));
+        self
+    }
+
+    /// Create a [`PatchOp::Replace`] operation for the current path
+    pub fn op_replace(&mut self, values: Vec<(usize, PatchValue)>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Replace(values)));
+        self
+    }
+
+    /// Create a [`PatchOp::Move`] operation for the current path
+    pub fn op_move(&mut self, indices: Vec<(usize, usize)>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Move(indices)));
+        self
+    }
+
+    /// Create a [`PatchOp::Remove`] operation for the current path
+    pub fn op_remove(&mut self, indices: Vec<usize>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Remove(indices)));
+        self
+    }
+
+    /// Create a [`PatchOp::Clear`] operation for the current path
+    pub fn op_clear(&mut self) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Clear));
+        self
     }
 }
 
-/// Display the ancestry as a dot separated list
-///
-/// Intended only for testing and debugging during development.
-#[cfg(debug_assertions)]
-impl Debug for NodeAncestry {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for (index, id) in self.iter().enumerate() {
-            if index != 0 {
-                f.write_str(".")?;
-            }
-            Debug::fmt(id, f)?;
-        }
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(crate = "common::serde")]
+pub enum PatchOp {
+    Set(PatchValue),
 
-        Ok(())
-    }
+    Insert(Vec<(usize, PatchValue)>),
+    Push(PatchValue),
+    Append(Vec<PatchValue>),
+    Replace(Vec<(usize, PatchValue)>),
+    Move(Vec<(usize, usize)>),
+    Remove(Vec<usize>),
+    Clear,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(untagged, crate = "common::serde")]
+pub enum PatchValue {
+    Inline(Inline),
+    Block(Block),
+    Node(Node),
+    Json(JsonValue),
 }
 
 /// A slot in a node path: either a property identifier or the index of a vector.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum NodeSlot {
-    Enter(NodeType),
-    Property((NodeType, NodeProperty)),
+pub enum PatchSlot {
+    Property(NodeProperty),
     Index(usize),
-    Exit(NodeType),
 }
 
-/// Display the slot
-impl Debug for NodeSlot {
+impl Debug for PatchSlot {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            NodeSlot::Enter(node_type) => f.write_fmt(format_args!("{node_type}>")),
-            NodeSlot::Property((node_type, node_prop)) => {
-                f.write_fmt(format_args!("{node_type}:{node_prop}"))
-            }
-            NodeSlot::Index(index) => Debug::fmt(index, f),
-            NodeSlot::Exit(node_type) => f.write_fmt(format_args!("{node_type}<")),
+            PatchSlot::Property(prop) => Debug::fmt(prop, f),
+            PatchSlot::Index(index) => Debug::fmt(index, f),
         }
     }
 }
 
-/// A path to reach a node from the root: a vector of [`NodeSlot`]s
+impl Serialize for PatchSlot {
+    fn serialize<S>(&self, serializer: S) -> std::prelude::v1::Result<S::Ok, S::Error>
+    where
+        S: common::serde::Serializer,
+    {
+        match self {
+            PatchSlot::Property(prop) => prop.to_string().serialize(serializer),
+            PatchSlot::Index(index) => index.serialize(serializer),
+        }
+    }
+}
+
+/// A path to reach a node from the root: a vector of [`PatchSlot`]s
 ///
 /// Used when applying a patch to a node to traverse directly to the
 /// branch of the tree that a patch operation should be applied.
 /// Similar to the `path` of JSON Patch (https://jsonpatch.com/).
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut)]
-pub struct NodePath(pub VecDeque<NodeSlot>);
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct PatchPath(VecDeque<PatchSlot>);
 
-impl Default for NodePath {
+impl Default for PatchPath {
     fn default() -> Self {
         Self(VecDeque::new())
     }
 }
 
-impl NodePath {
+impl PatchPath {
     pub fn new() -> Self {
         Self::default()
     }
-    
-    pub fn remove_indexes(&self) -> Self {
-        Self(
-            self.0
-                .iter()
-                .filter(|slot| !matches!(slot, NodeSlot::Index(..)))
-                .map(|slot| slot.clone())
-                .collect(),
-        )
-    }
 }
 
-impl<const N: usize> From<[NodeSlot; N]> for NodePath {
-    fn from(value: [NodeSlot; N]) -> Self {
+impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
+    fn from(value: [PatchSlot; N]) -> Self {
         Self(value.into())
     }
 }
 
-/// Display the address as a dot separated list
-impl Debug for NodePath {
+impl Debug for PatchPath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (index, slot) in self.iter().enumerate() {
             if index != 0 {
@@ -425,181 +228,375 @@ impl Debug for NodePath {
     }
 }
 
-/// A property collected when condensing a node
-#[derive(Debug, Clone)]
-pub struct CondenseProperty {
-    pub ancestry: NodeAncestry,
-    pub path: NodePath,
-    pub slot: NodeSlot,
-    pub value: Option<String>,
-}
+/// A trait for diffing and patching nodes
+pub trait PatchNode: Sized {
+    fn to_value(&self) -> Result<PatchValue> {
+        bail!("No implemented")
+    }
 
-/// A context for the `condense` method of the `MergeNode` trait
-///
-/// This context is passed to the `condense` method as we perform
-/// a depth first traversal of a node. It maintains stacks of node types,
-/// node ids and [`NodeSlot`]s which are used to build up the `ancestries`
-/// and `properties` of which there is one for each property collected
-/// during the walk.
-///
-/// Whether a property is collected or not is determined by whether it
-/// has the `#[merge(format = "xxx")` attribute as declared in the schema YAML files.
-pub struct CondenseContext {
-    /// The stack of node types in the current walk
-    ///
-    /// Required so that the type can be associated with a `NodeSlot::Property`
-    /// variant when we enter a node.
-    types: Vec<NodeType>,
+    #[allow(unused_variables)]
+    fn from_value(value: PatchValue) -> Result<Self> {
+        bail!("No implemented")
+    }
 
-    /// The current ancestry (stack of node ids) in the walk
-    ancestry: NodeAncestry,
+    #[allow(unused_variables)]
+    fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        Ok(0.0)
+    }
 
-    /// The current path (stack of node slots) in the walk
-    path: NodePath,
+    #[allow(unused_variables)]
+    fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        Ok(())
+    }
 
-    /// The slot and value of each property collected in the walk
-    ///
-    /// The `NodeSlot` is included in the property tuple to help disambiguate
-    /// properties which have the same value, but which are for entirely different
-    /// properties on different types.
-    ///
-    /// Currently, a `String` is used to store the value of the property.
-    /// Most diff-able properties are strings but some are not e.g. integers, enums
-    /// It may be better to use a `Primitive` instead of a `String` to avoid
-    /// unnecessary string-ification and de-string-ification.
-    pub properties: Vec<CondenseProperty>,
-}
-
-impl Default for CondenseContext {
-    fn default() -> Self {
-        Self::new()
+    #[allow(unused_variables)]
+    fn patch(
+        &mut self,
+        path: &mut PatchPath,
+        op: PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<()> {
+        Ok(())
     }
 }
 
-impl CondenseContext {
-    pub fn new() -> Self {
-        Self {
-            types: Vec::new(),
-            ancestry: NodeAncestry::new(),
-            path: NodePath::new(),
-            properties: Vec::new(),
+// Implementation for simple "atomic" types not in schema
+macro_rules! atom {
+    ($type:ty) => {
+        impl PatchNode for $type {
+            fn to_value(&self) -> Result<PatchValue> {
+                Ok(PatchValue::Json(serde_json::to_value(self)?))
+            }
+
+            fn from_value(value: PatchValue) -> Result<Self> {
+                match value {
+                    PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+                    _ => bail!("Invalid value for `{}`", type_name::<Self>()),
+                }
+            }
+
+            #[allow(unused_variables)]
+            fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+                Ok(if other == self { 1.0 } else { 0.0 })
+            }
+
+            fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+                if other != self {
+                    context.op_set(other.to_value()?);
+                }
+                Ok(())
+            }
+
+            #[allow(unused_variables)]
+            fn patch(
+                &mut self,
+                path: &mut PatchPath,
+                op: PatchOp,
+                context: &mut PatchContext,
+            ) -> Result<()> {
+                let PatchOp::Set(value) = op else {
+                    bail!("Invalid op for `{}`", type_name::<Self>());
+                };
+
+                if !path.is_empty() {
+                    bail!("Invalid path `{path:?}` for atom");
+                }
+
+                *self = Self::from_value(value)?;
+
+                Ok(())
+            }
+        }
+    };
+}
+atom!(bool);
+atom!(i32);
+atom!(i64);
+atom!(u64);
+atom!(f64);
+atom!(String);
+
+// Implementation for boxed properties
+impl<T> PatchNode for Box<T> where T: PatchNode {}
+
+// Implementation for optional properties
+impl<T> PatchNode for Option<T>
+where
+    T: PatchNode + Serialize + DeserializeOwned,
+{
+    fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        match (self, other) {
+            (Some(me), Some(other)) => me.diff(other, context),
+            _ => Ok(()),
         }
     }
-}
 
-/// Display the context in tabular format
-///
-/// Intended only for testing and debugging during development.
-#[cfg(debug_assertions)]
-impl Debug for CondenseContext {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.properties.is_empty() {
-            f.write_str("No source properties")?;
-        }
-
-        // Find the maximum widths in each column
-        let (ancestry_width, path_width, slot_width) = self.properties.iter().fold(
-            (0, 0, 0),
-            |(ancestry_width, path_width, slot_width), node| {
-                (
-                    ancestry_width.max(format!("{:?}", node.ancestry).len()),
-                    path_width.max(format!("{:?}", node.path).len()),
-                    slot_width.max(format!("{:?}", node.slot).len()),
-                )
-            },
-        );
-
-        // Now, output using those widths
-        for (i, property) in self.properties.iter().enumerate() {
-            let ancestry = format!("{:?}", property.ancestry);
-            let path = format!("{:?}", property.path);
-            let slot = format!("{:?}", property.slot);
-            let value = property.value.as_ref().map_or_else(|| String::new(), |value|["\"", &value.replace('\n', r"\\n"),"\""].concat());
-            f.write_fmt(format_args!(
-                "{i:<3}  {ancestry:<ancestry_width$}  {path:<path_width$}  {slot:<slot_width$}  {value}\n",
-                
-            ))?;
-        }
+    fn patch(
+        &mut self,
+        path: &mut PatchPath,
+        op: PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<()> {
+        let Some(value) = self else {
+            bail!("Invalid op for None");
+        };
+        value.patch(path, op, context)?;
 
         Ok(())
     }
 }
 
-impl CondenseContext {
-    /// Enter a node during the walk
-    pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
-        self.properties.push(CondenseProperty {
-            ancestry: self.ancestry.clone(),
-            path: self.path.clone(),
-            slot: NodeSlot::Enter(node_type),
-            value: None,
-        });
-
-        self.types.push(node_type);
-        self.ancestry.push(node_id);
-
-        self
+// Implementation for vector properties
+impl<T> PatchNode for Vec<T>
+where
+    T: PatchNode,
+{
+    #[allow(unused_variables)]
+    fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        PatchContext::mean_similarity(
+            self.iter()
+                .zip(other.iter())
+                .map(|(me, other)| me.similarity(other, context))
+                .try_collect()?,
+        )
     }
 
-    /// Exit a node during the walk
-    pub fn exit_node(&mut self) -> &mut Self {
-        let node_type = self.types.pop();
-        self.ancestry.pop();
-
-        if let Some(node_type) = node_type {
-            self.properties.push(CondenseProperty {
-                ancestry: self.ancestry.clone(),
-                path: self.path.clone(),
-                slot: NodeSlot::Exit(node_type),
-                value: None,
-            });
+    fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        // Shortcuts if this vector is empty
+        if self.is_empty() {
+            if other.is_empty() {
+                // No difference
+            } else if other.len() == 1 {
+                // Push new value
+                context.op_push(other[0].to_value()?);
+            } else {
+                // Append new values
+                context.op_append(other.iter().map(|item| item.to_value()).try_collect()?);
+            }
+            return Ok(());
         }
 
-        self
+        // Shortcut if this other vector is empty
+        if other.is_empty() {
+            context.op_clear();
+            return Ok(());
+        }
+
+        // Calculate the pairwise similarity
+        let mut similarities = Vec::new();
+        let mut other_matches = Vec::new();
+        for (self_index, self_item) in self.iter().enumerate() {
+            for (other_index, other_item) in other.iter().enumerate() {
+                if other_matches.contains(&other_index) {
+                    continue;
+                }
+
+                let similarity = self_item.similarity(other_item, context)?;
+                similarities.push((self_index, other_index, similarity));
+
+                if similarity == 1.0 {
+                    other_matches.push(other_index);
+                    break;
+                }
+            }
+        }
+
+        // Sort the pairs by descending order of similarity
+        similarities.sort_by(|a, b| a.2.total_cmp(&b.2).reverse());
+
+        // Find the pairs with highest similarity
+        #[derive(Debug)]
+        struct Pair {
+            self_index: usize,
+            new_index: usize,
+            other_index: usize,
+            similarity: f32,
+        }
+        let mut pairs: Vec<Pair> = Vec::with_capacity(self.len().min(other.len()));
+        for (self_index, other_index, similarity) in similarities {
+            if pairs
+                .iter()
+                .find(|pair| pair.self_index == self_index || pair.other_index == other_index)
+                .is_none()
+            {
+                pairs.push(Pair {
+                    self_index,
+                    new_index: self_index,
+                    other_index,
+                    similarity,
+                });
+            }
+        }
+        debug_assert!(pairs.len() == self.len().min(other.len()));
+
+        if other.len() > self.len() {
+            // If other is longer then insert or append those items that do not have a pair
+            let insert_num = other.len() - self.len();
+            let mut insert = Vec::with_capacity(insert_num);
+            for other_index in 0..other.len() {
+                if insert.len() < insert_num {
+                    if pairs
+                        .iter()
+                        .find(|pair| pair.other_index == other_index)
+                        .is_none()
+                    {
+                        insert.push(other_index);
+                    }
+                }
+
+                if insert.len() == insert_num {
+                    break;
+                }
+            }
+            insert.sort();
+
+            let first = insert.first().cloned().unwrap_or_default();
+            debug_assert!(first <= self.len());
+            if first == self.len() {
+                // If the first position to insert corresponds to the end of self then
+                // generate either an append or a push op
+                if insert.len() == 1 {
+                    context.op_push(other[first].to_value()?);
+                } else {
+                    context.op_append(
+                        insert
+                            .into_iter()
+                            .map(|index| other[index].to_value())
+                            .try_collect()?,
+                    );
+                }
+            } else {
+                // Adjust new_index of pairs for the inserts
+                for pair in pairs.iter_mut() {
+                    for &index in &insert {
+                        if index <= pair.new_index {
+                            pair.new_index += 1;
+                        }
+                    }
+                }
+
+                // Generate insert op
+                context.op_insert(
+                    insert
+                        .into_iter()
+                        .map(|index| Ok::<_, Report>((index, other[index].to_value()?)))
+                        .try_collect()?,
+                );
+            }
+        } else if other.len() < self.len() {
+            // If other is shorter then keep those with the highest similarity and remove the rest.
+            let mut keep = Vec::new();
+            for pair in pairs.iter() {
+                if keep.len() < other.len() {
+                    if !keep.contains(&pair.self_index) {
+                        keep.push(pair.self_index.clone());
+                    }
+                }
+            }
+
+            // Remove indices not in `keep`
+            let remove = (0..self.len())
+                .into_iter()
+                .filter(|index| !keep.contains(index))
+                .collect_vec();
+
+            // Adjust new_index of pairs for the removals
+            for pair in pairs.iter_mut() {
+                for &index in &remove {
+                    if index <= pair.self_index {
+                        pair.new_index -= 1;
+                    }
+                }
+            }
+
+            // Remove pairs not in `keep` to avoid unnecessary diffing
+            pairs.retain(|pair| keep.contains(&pair.self_index));
+
+            // Generate remove op
+            context.op_remove(remove);
+        }
+
+        println!("PAIRS {pairs:#?}");
+
+        // Iterate over pairs and diff
+        for Pair {
+            self_index,
+            new_index,
+            other_index,
+            similarity,
+            ..
+        } in pairs
+        {
+            if new_index == other_index && similarity == 1.0 {
+                continue;
+            }
+
+            // TODO: if similarity == 1 but new_index != other_index
+            // then do a move
+
+            // Note use of new_index here
+            context.enter_index(new_index);
+            self[self_index].diff(&other[new_index], context)?;
+            context.exit_index();
+        }
+
+        Ok(())
     }
 
-    /// Enter a property during the walk
-    pub fn enter_property(&mut self, node_property: NodeProperty) -> &mut Self {
-        let node_type = self
-            .types
-            .last()
-            .expect("only called after entering a node");
-        self.path
-            .push_back(NodeSlot::Property((*node_type, node_property)));
-        self
-    }
+    fn patch(
+        &mut self,
+        path: &mut PatchPath,
+        op: PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<()> {
+        if let Some(slot) = path.pop_front() {
+            let PatchSlot::Index(index) = slot else {
+                bail!("Invalid slot for Vec: {slot:?}")
+            };
 
-    /// Exit a property during the walk
-    pub fn exit_property(&mut self) -> &mut Self {
-        let popped = self.path.pop_back();
-        debug_assert!(matches!(popped, Some(NodeSlot::Property(..))));
-        self
-    }
+            let Some(child) = self.get_mut(index) else {
+                bail!("Invalid index for Vec: {index}")
+            };
 
-    /// Enter an item in a vector during the walk
-    pub fn enter_index(&mut self, index: usize) -> &mut Self {
-        self.path.push_back(NodeSlot::Index(index));
-        self
-    }
+            return child.patch(path, op, context);
+        }
 
-    /// Exit an item in a vector during the walk
-    pub fn exit_index(&mut self) -> &mut Self {
-        let popped = self.path.pop_back();
-        debug_assert!(matches!(popped, Some(NodeSlot::Index(..))));
-        self
-    }
+        match op {
+            PatchOp::Insert(values) => {
+                for (index, value) in values {
+                    self.insert(index, T::from_value(value)?);
+                }
+            }
+            PatchOp::Push(value) => {
+                self.push(T::from_value(value)?);
+            }
+            PatchOp::Append(values) => {
+                self.append(
+                    &mut values
+                        .into_iter()
+                        .map(|value| T::from_value(value))
+                        .try_collect()?,
+                );
+            }
+            PatchOp::Replace(values) => {
+                for (index, value) in values {
+                    self[index] = T::from_value(value)?;
+                }
+            }
+            PatchOp::Remove(indices) => {
+                let mut index = 0usize;
+                self.retain(|_| {
+                    let retain = !indices.contains(&index);
+                    index += 1;
+                    retain
+                });
+            }
+            PatchOp::Clear => {
+                self.clear();
+            }
+            _ => bail!("Invalid op for Vec: {op:?}"),
+        }
 
-    /// Collected a property value during the walk
-    pub fn collect_value(&mut self, value: &str) -> &mut Self {
-        // Clone the last slot in the path to return in `diffable_properties`
-        let slot = self.path.back().cloned().unwrap_or(NodeSlot::Index(0));
-
-        self.properties.push(CondenseProperty {
-            ancestry: self.ancestry.clone(),
-            path: self.path.clone(),
-            slot,
-            value: Some(value.to_string()),
-        });
-        self
+        Ok(())
     }
 }

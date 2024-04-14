@@ -34,10 +34,6 @@ impl WriteNode for Array {
     fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         self.0.put_prop(store, obj_id, prop)
     }
-
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        self.0.similarity(store, obj_id, prop)
-    }
 }
 
 impl DomCodec for Array {

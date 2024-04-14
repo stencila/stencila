@@ -24,13 +24,12 @@ use schema::{
         blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes, transform_block,
         transform_inline,
     },
-    walk::{VisitorMut, WalkNode},
     Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
     InsertInline, InstructionBlock, InstructionInline, InstructionMessage, Link, MessagePart, Node,
     NodeType, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
-    SuggestionStatus, Timestamp, VideoObject,
+    SuggestionStatus, Timestamp, VideoObject, VisitorMut, WalkNode,
 };
 
 // Export crates for the convenience of dependant crates

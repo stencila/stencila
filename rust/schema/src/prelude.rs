@@ -8,7 +8,7 @@ pub use common::{
     eyre::{bail, ErrReport, Result},
     itertools::Itertools,
     serde::{self, Deserialize, Serialize},
-    serde_json::{self, Value},
+    serde_json,
     smart_default::SmartDefault,
     smol_str::{self, SmolStr},
     strum,
@@ -28,7 +28,7 @@ pub use node_type::{NodeProperty, NodeType};
 pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
-pub use crate::patch::{CondenseContext, NodePath, PatchNode};
+pub use crate::patch::{PatchContext, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue};
 pub use crate::walk::{Visitor, VisitorAsync, VisitorMut, WalkNode};
 
 #[cfg(feature = "proptest")]

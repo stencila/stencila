@@ -19,9 +19,9 @@ use node_patch::{
 };
 use node_store::{ReadNode, WriteStore};
 use schema::{
-    walk::{VisitorAsync, WalkControl, WalkNode},
     AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
-    Node, NodeId, SuggestionBlockType, SuggestionInlineType, SuggestionStatus,
+    Node, NodeId, SuggestionBlockType, SuggestionInlineType, SuggestionStatus, VisitorAsync,
+    WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;

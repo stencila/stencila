@@ -77,13 +77,6 @@ impl WriteNode for Object {
             Ok(())
         }
     }
-
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        if let Some((Value::Object(ObjType::Map), _prop_obj_id)) = store.get(obj_id, prop)? {
-            // TODO
-        }
-        Ok(0)
-    }
 }
 
 impl DomCodec for Object {

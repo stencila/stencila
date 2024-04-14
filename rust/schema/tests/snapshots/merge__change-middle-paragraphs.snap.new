@@ -1,0 +1,56 @@
+---
+source: rust/schema/tests/merge.rs
+assertion_line: 58
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para2
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para4
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para2two
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3three
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para4
+ops:
+  - - - content
+      - 1
+      - content
+      - 0
+      - value
+    - Set: para2two
+  - - - content
+      - 2
+      - content
+      - 0
+      - value
+    - Set: para3three

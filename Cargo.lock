@@ -3988,16 +3988,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "node-merge"
-version = "0.0.0"
-dependencies = [
- "codecs",
- "common",
- "common-dev",
- "schema",
-]
-
-[[package]]
 name = "node-patch"
 version = "0.0.0"
 dependencies = [
@@ -5729,14 +5719,17 @@ dependencies = [
 name = "schema"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "codec-dom-trait",
  "codec-html-trait",
  "codec-jats-trait",
  "codec-json5-trait",
  "codec-losses",
+ "codec-markdown",
  "codec-markdown-trait",
  "codec-text-trait",
  "common",
+ "common-dev",
  "human_name",
  "interim",
  "monostate",

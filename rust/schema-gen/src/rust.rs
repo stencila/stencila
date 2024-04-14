@@ -405,7 +405,8 @@ pub enum NodeProperty {{
         }
 
         // Clone attrs for options before adding display & codec related attrs
-        let options_attrs = attrs.clone();
+        let mut options_attrs = attrs.clone();
+        options_attrs.retain(|attr| attr != "PatchNode");
 
         // Add attributes for displaying name
         attrs.push("#[derive(derive_more::Display)]".to_string());
