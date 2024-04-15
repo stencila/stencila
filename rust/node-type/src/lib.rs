@@ -1,4 +1,6 @@
+#[rustfmt::skip]
 mod node_property;
+#[rustfmt::skip]
 mod node_type;
 
 pub use crate::node_type::NodeType;
