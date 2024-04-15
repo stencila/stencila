@@ -1,0 +1,32 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: This is something.
+    - type: Paragraph
+      content:
+        - type: Text
+          value: And something else.
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: This is something.
+    - type: ThematicBreak
+    - type: Paragraph
+      content:
+        - type: Text
+          value: And something else.
+ops:
+  - - - content
+    - Insert:
+        - - 1
+          - type: ThematicBreak

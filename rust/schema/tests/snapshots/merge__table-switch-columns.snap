@@ -1,0 +1,245 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Name
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Occupation
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Age
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Alice
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Developer
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "30"
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Bob
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Designer
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "25"
+new:
+  type: Article
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Age
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Name
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Occupation
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "30"
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Alice
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Developer
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "25"
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Bob
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Designer
+ops:
+  - - - content
+      - 0
+      - rows
+      - 0
+      - cells
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Age
+  - - - content
+      - 0
+      - rows
+      - 0
+      - cells
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Name
+  - - - content
+      - 0
+      - rows
+      - 0
+      - cells
+      - 2
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Occupation
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "25"
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Bob
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 2
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Designer
+  - - - content
+      - 0
+      - rows
+      - 1
+      - cells
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "30"
+  - - - content
+      - 0
+      - rows
+      - 1
+      - cells
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Alice
+  - - - content
+      - 0
+      - rows
+      - 1
+      - cells
+      - 2
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Developer
