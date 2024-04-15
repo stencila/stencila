@@ -4,7 +4,7 @@ use common::eyre::Result;
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
     diff, patch,
-    shortcuts::{art, p, t},
+    shortcuts::{art, p, sec, t},
     Article, Block, Figure, Inline, Node, NodeProperty, Paragraph, PatchNode, PatchOp, PatchPath,
     PatchSlot, PatchValue, Primitive, Strong, Text, TimeUnit,
 };
@@ -181,6 +181,19 @@ fn vecs() -> Result<()> {
             )
         ]
     );
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_sec() -> Result<()> {
+    // This is a regression test for a bug found during testing
+    let mut old = art([sec([p([t("para1")])])]);
+    let new = art([sec([p([t("para1")]), p([t("para2")])])]);
+    let ops = diff(&old, &new)?;
+    assert!(matches!(ops[0].1, PatchOp::Push(..)));
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 

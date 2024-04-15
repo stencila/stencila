@@ -445,17 +445,21 @@ where
 {
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
-        // TODO: this sub-optimal for things like paragraphs because it only
-        // considers the similarity up to the minimum of the lengths. For example,
+        // TODO: this sub-optimal for things like paragraphs For example,
         // think about a paragraph that has had a `Strong` node inserted into it,
         // thereby going from length 1 to length 3. Maybe write a custom similarity
         // method for Vec<Inline> that deals with that.
-        PatchContext::mean_similarity(
-            self.iter()
-                .zip(other.iter())
-                .map(|(me, other)| me.similarity(other, context))
-                .try_collect()?,
-        )
+
+        let num = self.len().max(other.len());
+        let mut sum = 0.0;
+        for index in 0..num {
+            match (self.get(index), other.get(index)) {
+                (Some(me), Some(other)) => sum += me.similarity(other, context)?,
+                _ => {}
+            }
+        }
+
+        Ok((sum / (num as f32)).max(0.0001))
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
