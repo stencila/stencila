@@ -1,0 +1,60 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "The area of a cube is: "
+        - type: InstructionInline
+          messages:
+            - type: InstructionMessage
+              parts:
+                - type: Text
+                  value: equation for surface area of cube
+          assignee: insert-inline-math
+        - type: Text
+          value: ".\nFollowed by "
+        - type: Emphasis
+          content:
+            - type: Text
+              value: text.
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "The area of a cube is: "
+        - type: InstructionInline
+          messages:
+            - type: InstructionMessage
+              parts:
+                - type: Text
+                  value: insert equation for surface area of cube
+        - type: Text
+          value: ".\nFollowed by "
+        - type: Emphasis
+          content:
+            - type: Text
+              value: text.
+ops:
+  - - - content
+      - 0
+      - content
+      - 1
+      - messages
+      - 0
+      - parts
+      - 0
+      - value
+    - Set: insert equation for surface area of cube
+  - - - content
+      - 0
+      - content
+      - 1
+      - assignee
+    - Clear

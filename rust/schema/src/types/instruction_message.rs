@@ -27,6 +27,7 @@ pub struct InstructionMessage {
     /// Parts of the message.
     #[serde(alias = "part")]
     #[serde(deserialize_with = "one_or_many")]
+    #[merge(format = "md")]
     #[dom(elem = "div")]
     pub parts: Vec<MessagePart>,
 

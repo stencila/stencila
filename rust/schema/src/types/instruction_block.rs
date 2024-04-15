@@ -49,9 +49,18 @@ pub struct InstructionBlock {
     /// Messages involved in the instruction.
     #[serde(alias = "message")]
     #[serde(deserialize_with = "one_or_many")]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub messages: Vec<InstructionMessage>,
+
+    /// An identifier for the agent assigned to perform the instruction
+    #[merge(format = "md")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    pub assignee: Option<String>,
 
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -182,13 +191,6 @@ pub struct InstructionBlockOptions {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec(r"[a-zA-Z][a-zA-Z\-_/.@]", size_range(1..5)))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec(String::arbitrary(), size_range(1..10)))"#))]
     pub candidates: Option<Vec<String>>,
-
-    /// An identifier for the agent assigned to perform the instruction
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
-    pub assignee: Option<String>,
 
     /// The authors of the instruction.
     #[serde(alias = "author")]

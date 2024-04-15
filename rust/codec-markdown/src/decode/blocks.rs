@@ -13,10 +13,10 @@ use codec::{
     schema::{
         Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
         CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionBlockOptions,
-        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock,
-        Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlockType,
-        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, LabelType, List,
+        ListItem, ListOrder, MathBlock, ModifyBlock, Paragraph, QuoteBlock, ReplaceBlock, Section,
+        StyledBlock, SuggestionBlockType, SuggestionStatus, Table, TableCell, TableRow,
+        TableRowType, Text, ThematicBreak,
     },
 };
 
@@ -560,10 +560,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             Block::InstructionBlock(InstructionBlock {
                 messages: vec![InstructionMessage::from(text.trim())],
                 content: if content { Some(Vec::new()) } else { None },
-                options: Box::new(InstructionBlockOptions {
-                    assignee: assignee.map(String::from),
-                    ..Default::default()
-                }),
+                assignee: assignee.map(String::from),
                 ..Default::default()
             })
         },

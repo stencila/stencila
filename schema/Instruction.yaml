@@ -6,6 +6,8 @@ category: edits
 description: Abstract base type for a document editing instruction.
 required:
   - messages
+core:
+  - assignee
 properties:
   messages:
     '@id': stencila:messages
@@ -17,6 +19,8 @@ properties:
     type: array
     items:
       $ref: InstructionMessage
+    patch:
+      formats: [md]
     dom:
       elem: div
   candidates:
@@ -44,6 +48,9 @@ properties:
     $comment: |
       This property is a string because on creation of the instruction the identifier has not yet been
       resolved into a person, organization, or software application.
+        patch:
+    patch:
+      formats: [md]
     proptest:
       min:
         description: No assignee

@@ -15,11 +15,11 @@ use codec::{
     schema::{
         AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
-        ImageObject, Inline, InsertInline, InstructionInline, InstructionInlineOptions,
-        InstructionMessage, IntegerValidator, Link, MathInline, ModifyInline, Node, NodeType, Note,
-        NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, ReplaceInline,
-        Strikeout, StringValidator, Strong, StyledInline, Subscript, SuggestionInlineType,
-        Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+        ImageObject, Inline, InsertInline, InstructionInline, InstructionMessage, IntegerValidator,
+        Link, MathInline, ModifyInline, Node, NodeType, Note, NoteType, NumberValidator, Parameter,
+        ParameterOptions, QuoteInline, ReplaceInline, Strikeout, StringValidator, Strong,
+        StyledInline, Subscript, SuggestionInlineType, Superscript, Text, TimeValidator,
+        TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
@@ -802,10 +802,7 @@ fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
         Inline::InstructionInline(InstructionInline {
             messages: vec![InstructionMessage::from(text.trim())],
             content: (term == EDIT_WITH).then_some(Vec::new()),
-            options: Box::new(InstructionInlineOptions {
-                assignee: assignee.map(|handle| handle.to_string()),
-                ..Default::default()
-            }),
+            assignee: assignee.map(|handle| handle.to_string()),
             ..Default::default()
         })
     })

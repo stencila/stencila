@@ -15,7 +15,8 @@
   ],
   "core": [
     "id",
-    "autoExec"
+    "autoExec",
+    "assignee"
   ],
   "properties": {
     "type": {
@@ -276,6 +277,11 @@
       "aliases": [
         "message"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "div"
       },
@@ -313,7 +319,12 @@
     "assignee": {
       "@id": "stencila:assignee",
       "description": "An identifier for the agent assigned to perform the instruction",
-      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n",
+      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n  patch:\n",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "No assignee",

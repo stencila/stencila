@@ -57,12 +57,12 @@ content:
     parts:
     - type: Text
       value: please improve this paragraph
+  assignee: anne
   content:
   - type: Paragraph
     content:
     - type: Text
       value: Another paragraph to be improved.
-  assignee: anne
 - type: Paragraph
   content:
   - type: Text

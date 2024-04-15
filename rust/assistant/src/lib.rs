@@ -130,8 +130,8 @@ impl Instruction {
     /// Get the assignee of the instruction (if any)
     pub fn assignee(&self) -> Option<&str> {
         match self {
-            Instruction::Block(block) => block.options.assignee.as_deref(),
-            Instruction::Inline(inline) => inline.options.assignee.as_deref(),
+            Instruction::Block(block) => block.assignee.as_deref(),
+            Instruction::Inline(inline) => inline.assignee.as_deref(),
         }
     }
 

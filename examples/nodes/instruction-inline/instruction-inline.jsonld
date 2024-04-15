@@ -123,13 +123,13 @@
               ]
             }
           ],
+          "stencila:assignee": "joe",
           "stencila:content": [
             {
               "@type": "Text",
               "value": "existing content"
             }
-          ],
-          "stencila:assignee": "joe"
+          ]
         },
         {
           "@type": "Text",

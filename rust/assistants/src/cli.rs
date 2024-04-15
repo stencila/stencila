@@ -133,7 +133,7 @@ impl Execute {
     async fn run(self) -> Result<()> {
         let mut instruction =
             InstructionBlock::new(vec![InstructionMessage::from(&self.instruction)]);
-        instruction.options.assignee = Some(self.id);
+        instruction.assignee = Some(self.id);
 
         let context = Context::default();
         let options = GenerateOptions::default();

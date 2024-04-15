@@ -55,10 +55,10 @@ content:
       parts:
       - type: Text
         value: please improve this
+    assignee: joe
     content:
     - type: Text
       value: existing content
-    assignee: joe
   - type: Text
     value: .
 - type: Paragraph

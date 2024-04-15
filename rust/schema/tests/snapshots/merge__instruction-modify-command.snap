@@ -1,0 +1,41 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "An insert instruction with an assignee:"
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value: "top five highest mountains, with height in metres"
+      assignee: insert-table
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "An insert instruction with an assignee:"
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value: "top five highest mountains, with height in feet"
+      assignee: insert-table
+ops:
+  - - - content
+      - 1
+      - messages
+      - 0
+      - parts
+      - 0
+      - value
+    - Set: "top five highest mountains, with height in feet"

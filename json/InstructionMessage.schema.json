@@ -43,6 +43,11 @@
       "aliases": [
         "part"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "div"
       },
