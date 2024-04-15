@@ -1,0 +1,140 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: List
+      items:
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with an image "
+                - type: ImageObject
+                  contentUrl: image.png
+                - type: Text
+                  value: ", see!"
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with "
+                - type: Emphasis
+                  content:
+                    - type: Text
+                      value: emphasis
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with HTML "
+                - type: Underline
+                  content:
+                    - type: Text
+                      value: underlined
+      order: Unordered
+new:
+  type: Article
+  content:
+    - type: List
+      items:
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with "
+                - type: Emphasis
+                  content:
+                    - type: Text
+                      value: emphasis
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with an image "
+                - type: ImageObject
+                  contentUrl: image.png
+                - type: Text
+                  value: ", see!"
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with HTML "
+                - type: Underline
+                  content:
+                    - type: Text
+                      value: underlined
+      order: Unordered
+ops:
+  - - - content
+      - 0
+      - items
+      - 0
+      - content
+      - 0
+      - content
+    - Remove:
+        - 2
+  - - - content
+      - 0
+      - items
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "an item with "
+  - - - content
+      - 0
+      - items
+      - 0
+      - content
+      - 0
+      - content
+    - Replace:
+        - - 1
+          - type: Emphasis
+            content:
+              - type: Text
+                value: emphasis
+  - - - content
+      - 0
+      - items
+      - 1
+      - content
+      - 0
+      - content
+    - Push:
+        type: Text
+        value: ", see!"
+  - - - content
+      - 0
+      - items
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "an item with an image "
+  - - - content
+      - 0
+      - items
+      - 1
+      - content
+      - 0
+      - content
+    - Replace:
+        - - 1
+          - type: ImageObject
+            contentUrl: image.png

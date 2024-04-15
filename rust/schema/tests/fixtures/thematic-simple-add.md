@@ -10,6 +10,3 @@ This is something.
 ***
 
 And something else.
-
-
-

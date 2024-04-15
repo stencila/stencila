@@ -1,0 +1,77 @@
+---
+source: rust/schema/tests/merge.rs
+expression: "Fixture { old, new, ops }"
+---
+old:
+  type: Article
+  content:
+    - type: Section
+      content:
+        - type: Heading
+          level: 1
+          content:
+            - type: Text
+              value: Header 1
+        - type: Paragraph
+          content:
+            - type: Text
+              value: Text.
+        - type: Section
+          content:
+            - type: Heading
+              level: 2
+              content:
+                - type: Text
+                  value: Sub section
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: This is in the sub section.
+new:
+  type: Article
+  content:
+    - type: Section
+      content:
+        - type: Heading
+          level: 1
+          content:
+            - type: Text
+              value: Header 1
+        - type: Paragraph
+          content:
+            - type: Text
+              value: Text.
+        - type: Paragraph
+          content:
+            - type: Text
+              value: More text.
+        - type: Section
+          content:
+            - type: Heading
+              level: 2
+              content:
+                - type: Text
+                  value: Sub section
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: This is in the sub section.
+        - type: Paragraph
+          content:
+            - type: Text
+              value: End text.
+ops:
+  - - - content
+      - 0
+      - content
+    - Insert:
+        - - 2
+          - type: Paragraph
+            content:
+              - type: Text
+                value: More text.
+        - - 4
+          - type: Paragraph
+            content:
+              - type: Text
+                value: End text.
