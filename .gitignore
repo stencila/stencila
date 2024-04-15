@@ -1,2 +1,6 @@
+.vscode-test
 node_modules
 out
+
+# Ignore JSON file for grammer that is generated from YAML
+syntaxes/smd/tmGrammar.json

@@ -62,7 +62,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile-syntaxes": "js-yaml syntaxes/smd.tmGrammar.yaml > syntaxes/smd.tmGrammar.json",
+    "compile-syntaxes": "node syntaxes/smd/compile.js",
     "compile-ts": "tsc -p ./",
     "compile": "npm run compile-syntaxes && npm run compile-ts",
     "watch": "tsc -watch -p ./",

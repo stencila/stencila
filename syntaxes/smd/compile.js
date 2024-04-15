@@ -1,5 +1,5 @@
 /**
- * Builds a `tmGrammar.json` file for Stencila Markdown by converting
+ * Compiles a `tmGrammar.json` file for Stencila Markdown by converting
  * `tmGrammar.yaml` to JSON, expanding certain rules for languages, and
  * saving to JSON.
  */
