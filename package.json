@@ -12,30 +12,74 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "categories": [
+      "Programming Languages",
+      "Snippets",
+      "Data Science",
+      "Visualization",
+      "Notebooks"
+    ],
     "commands": [
       {
         "command": "stencila.helloWorld",
         "title": "Hello World"
       }
+    ],
+    "languages": [
+      {
+        "id": "smd",
+        "aliases": [
+          "Stencila Markdown"
+        ],
+        "extensions": [
+          ".smd"
+        ],
+        "configuration": "./syntaxes/smd/configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "smd",
+        "scopeName": "source.smd",
+        "path": "./syntaxes/smd/tmGrammar.json",
+        "embeddedLanguages": {
+          "source.js": "javascript",
+          "meta.embedded.language.javascript": "javascript",
+          "meta.embedded.language.python": "python",
+          "meta.embedded.language.r": "r",
+          "meta.embedded.language.sql": "sql",
+          "meta.embedded.language.tex": "latex",
+          "meta.embedded.block.frontmatter": "yaml"
+        }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "smd",
+        "path": "./syntaxes/smd/snippets.json"
+      }
     ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile-syntaxes": "node syntaxes/smd/compile.js",
+    "compile-ts": "tsc -p ./",
+    "compile": "npm run compile-syntaxes && npm run compile-ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.88.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.88.0",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
-    "eslint": "^8.57.0",
-    "typescript": "^5.3.3",
     "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "^2.3.9"
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.57.0",
+    "js-yaml": "^4.1.0",
+    "typescript": "^5.3.3"
   }
 }

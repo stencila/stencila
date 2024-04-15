@@ -1,0 +1,304 @@
+---
+# YAML front matter
+key: value
+---
+
+# Parameter
+
+A &[param1]{}.
+
+# MathBlock
+
+## Using dollars syntax
+
+$$
+2 \pi r^2
+$$
+
+## Using fenced code block
+
+```asciimath
+2 pi r^2
+```
+
+```latex
+2 \pi r^2
+```
+
+# MathInline
+
+The area of a circle is $2 \pi r^2$.
+
+# CodeBlock
+
+## With known languages
+
+```js
+// Javascript code
+function foo(){}
+```
+
+```py
+# Python code
+def foo: pass
+```
+
+```r
+# R code
+foo <- function(){}
+```
+
+```sql
+-- SQL code
+select * from foo;
+```
+
+## With unknown language
+
+```foo
+// Foo lang
+```
+
+## With no language
+
+```
+No language specified
+```
+
+# CodeChunk
+
+## With kown languages
+
+```js exec
+// Javascript code
+function foo(){}
+```
+
+```py exec
+# Python code
+def foo: pass
+```
+
+```r exec
+# R code
+foo <- function(){}
+```
+
+```sql exec
+-- SQL code
+select * from foo;
+```
+
+## With unknown language
+
+```foo exec
+// Foo lang
+```
+
+## With no language
+
+```exec
+No language specified
+```
+
+# IncludeBlock
+
+::: include ./some-file.md
+
+
+# CallBlock
+
+::: call ./some-file.md
+
+::: call ./some-file.md (a=1, b=2)
+
+
+# InstructionBlock
+
+## Simple
+
+::: do something
+
+## With assignee
+
+::: do @insert-code-chunk to analyze data
+
+### With content to edit
+
+::: do improve wording
+::: with
+
+Content to edit
+
+:::
+
+# InstructionInline
+
+## Simple
+
+[[do something]]
+
+## With assignee
+
+[[do @insert-code-expr mean volume for year ]]
+
+
+### With content to edit
+
+[[do improve wording >> of this ]]
+
+
+# InsertBlock
+
+::: insert
+
+Proposed
+
+:::
+
+::: insert accept
+
+Accepted
+
+:::
+
+::: insert reject
+
+Rejected
+
+:::
+
+
+# InsertInline
+
+[[insert some content]]
+
+
+# DeleteBlock
+
+::: delete
+
+Proposed
+
+:::
+
+::: delete accept
+
+Accepted
+
+:::
+
+::: delete reject
+
+Rejected
+
+:::
+
+
+# DeleteInline
+
+[[delete some content]]
+
+
+
+# ReplaceBlock
+
+::: replace
+
+Old content.
+
+::: with
+
+New content.
+
+:::
+
+
+# ReplaceInline
+
+[[replace old content>>new content]]
+
+
+
+# IfBlock
+
+## Simple
+
+::: if true
+
+Content to show
+
+:::
+
+## With `elif`
+
+::: if a < 1
+
+a is less than 1
+
+::: elif a < 2
+
+a is less than 2
+
+:::
+
+
+# ForBlock
+
+## Simple
+
+::: for item in [1,2,3]
+
+Repeated content
+
+:::
+
+## With `else`
+
+::: for item in []
+
+Repeated content
+
+::: else
+
+Content shown if no items
+
+:::
+
+
+## Nested
+
+::: for outer in [1,2,3]
+
+::::: for inner in select * from table
+
+Repeated content
+
+::::
+
+:::
+
+# Figure
+
+::: figure 1
+
+The caption.
+
+```r exec
+plot(1:10)
+```
+
+:::
+
+
+# Table
+
+::: table 1
+
+The caption.
+
+| A   | B   |
+| --- | --- |
+| 1   | 2   |
+
+:::
