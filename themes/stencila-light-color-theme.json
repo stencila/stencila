@@ -1,0 +1,18 @@
+{
+  "name": "Stencila Light",
+  "colors": {
+    "activityBar.activeBorder": "#2568EF",
+    "activityBar.background": "#F5F5F5",
+    "activityBar.dropBorder": "#2568EF",
+    "activityBar.foreground": "#2568EF",
+    "activityBar.inactiveForeground": "#666666",
+    "activityBarBadge.background": "#2568EF",
+    "activityBarBadge.foreground": "#ffffff",
+    "statusBar.background": "#2568EF",
+    "statusBar.border": "#2568EF",
+    "statusBar.foreground": "#FFFFFF",
+    "statusBarItem.hoverBackground": "#215DD7",
+    "statusBar.debuggingBackground": "#2568EF",
+    "statusBar.noFolderBackground": "#2568EF"
+  }
+}
