@@ -9,11 +9,17 @@ on:
     branches: ["main"]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
 
 jobs:
   main:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -30,4 +36,9 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: npm run test
+        run: npm test
+        if: runner.os != 'Linux'
+
+      - name: Test with xvfb
+        run: xvfb-run -a npm test
+        if: runner.os == 'Linux'
