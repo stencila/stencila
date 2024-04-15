@@ -44,6 +44,7 @@ pub fn patch<T: PatchNode>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Resul
 ///
 /// Currently, this context is only used in calls to `diff` but may be used in
 /// other methods in the future.
+#[derive(Default)]
 pub struct PatchContext {
     /// The current path on the depth first walk across nodes during a call to `diff`
     path: PatchPath,
@@ -54,10 +55,7 @@ pub struct PatchContext {
 
 impl PatchContext {
     pub fn new() -> Self {
-        Self {
-            path: PatchPath::new(),
-            ops: Vec::new(),
-        }
+        Self::default()
     }
 
     /// Calculate the mean similarity
@@ -151,7 +149,7 @@ impl PatchContext {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(crate = "common::serde")]
 pub enum PatchOp {
-    /// Set the value of a leaf node (e.g. a `bool`, `String` or `Cord`)
+    /// Set the value of a leaf node (e.g. a `String`) or `Option`
     Set(PatchValue),
 
     /// Insert items into a vector
@@ -172,7 +170,7 @@ pub enum PatchOp {
     /// Remove items from a vector
     Remove(Vec<usize>),
 
-    /// Clear a vector
+    /// Clear a vector or `Option` (set to `None`)
     Clear,
 }
 
@@ -225,13 +223,8 @@ impl Serialize for PatchSlot {
 /// a call to `patch` the front of the path can be popped off.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut, Serialize)]
 #[serde(crate = "common::serde")]
+#[derive(Default)]
 pub struct PatchPath(VecDeque<PatchSlot>);
-
-impl Default for PatchPath {
-    fn default() -> Self {
-        Self(VecDeque::new())
-    }
-}
 
 impl PatchPath {
     pub fn new() -> Self {
@@ -418,9 +411,19 @@ where
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         match (self, other) {
-            (Some(me), Some(other)) => me.diff(other, context),
-            _ => Ok(()),
-        }
+            (Some(me), Some(other)) => {
+                me.diff(other, context)?;
+            }
+            (None, Some(other)) => {
+                context.op_set(other.to_value()?);
+            }
+            (Some(..), None) => {
+                context.op_clear();
+            }
+            _ => {}
+        };
+
+        Ok(())
     }
 
     fn patch(
@@ -429,10 +432,25 @@ where
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
-        let Some(value) = self else {
-            bail!("Invalid op for None");
-        };
-        value.patch(path, op, context)?;
+        if path.is_empty() {
+            match op {
+                PatchOp::Set(value) => {
+                    *self = Some(T::from_value(value)?);
+                    return Ok(());
+                }
+                PatchOp::Clear => {
+                    *self = None;
+                    return Ok(());
+                }
+                _ => {}
+            }
+        }
+
+        if let Some(value) = self {
+            value.patch(path, op, context)?;
+        } else {
+            bail!("Invalid op for option: {op:?}");
+        }
 
         Ok(())
     }
@@ -549,14 +567,10 @@ where
             let insert_num = other.len() - self.len();
             let mut insert = Vec::with_capacity(insert_num);
             for other_index in 0..other.len() {
-                if insert.len() < insert_num {
-                    if pairs
-                        .iter()
-                        .find(|pair| pair.other_pos == other_index)
-                        .is_none()
-                    {
-                        insert.push(other_index);
-                    }
+                if insert.len() < insert_num
+                    && !pairs.iter().any(|pair| pair.other_pos == other_index)
+                {
+                    insert.push(other_index);
                 }
 
                 if insert.len() == insert_num {
@@ -602,16 +616,13 @@ where
             // If other is shorter then keep those with the highest similarity and remove the rest.
             let mut keep = Vec::new();
             for pair in pairs.iter() {
-                if keep.len() < other.len() {
-                    if !keep.contains(&pair.self_pos) {
-                        keep.push(pair.self_pos.clone());
-                    }
+                if keep.len() < other.len() && !keep.contains(&pair.self_pos) {
+                    keep.push(pair.self_pos);
                 }
             }
 
             // Remove indices not in `keep`
             let remove = (0..self.len())
-                .into_iter()
                 .filter(|index| !keep.contains(index))
                 .collect_vec();
 
@@ -710,7 +721,7 @@ where
                 }
             }
             PatchOp::Move(indices) => {
-                for (from, to) in indices {
+                for (_from, _to) in indices {
                     todo!()
                 }
             }
