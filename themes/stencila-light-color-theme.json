@@ -53,7 +53,7 @@
     }
   }, {
     "scope": [
-      "meta.stencila.error-token",
+      "error.stencila",
       "meta.stencila.instruction-inline",
       "meta.stencila.parameter"
     ],
@@ -67,9 +67,9 @@
       "entity.name.type.js",
       "keyword.other",
       "meta.brace",
-      "meta.stencila.accept-token",
-      "meta.stencila.decorator.keyword",
-      "meta.stencila.variable.name",
+      "accept.stencila",
+      "decorator.stencila.keyword",
+      "variable.name.stencila",
       "punctuation.separator.key-value.mapping.yaml",
       "storage.type",
       "storage",
@@ -101,7 +101,7 @@
       "keyword.control.from",
       "keyword.control.import",
       "keyword.control.preamble.latex",
-      "meta.stencila.keyword.control",
+      "keyword.control.stencila",
     ],
     "settings": {
       "foreground": "#7957D5"
