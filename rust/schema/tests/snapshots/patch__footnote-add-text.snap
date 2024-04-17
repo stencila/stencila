@@ -1,0 +1,96 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: A note.
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: A footnote
+    - type: Paragraph
+      content:
+        - type: Text
+          value: More notes.
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: A footnote with...
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "some text:"
+            - type: QuoteBlock
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: and a quote
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: A note.
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: A footnote
+    - type: Paragraph
+      content:
+        - type: Text
+          value: More notes.
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: A footnote with...
+            - type: QuoteBlock
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: added quote.
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "some text:"
+            - type: QuoteBlock
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: and a quote
+ops:
+  - - - content
+      - 1
+      - content
+      - 1
+      - content
+    - Insert:
+        - - 1
+          - type: QuoteBlock
+            content:
+              - type: Paragraph
+                content:
+                  - type: Text
+                    value: added quote.
+authors_before: 7
+authors_after: 7

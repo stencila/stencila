@@ -1,0 +1,36 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "grass "
+        - type: Emphasis
+          content:
+            - type: Text
+              value: rabbit
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: grass rabbit
+ops:
+  - - - content
+      - 0
+      - content
+    - Remove:
+        - 1
+  - - - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: grass rabbit
+authors_before: 1
+authors_after: 1

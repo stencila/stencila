@@ -1,0 +1,45 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Claim
+      claimType: Theorem
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value: Relatively interesting.
+        - type: MathBlock
+          code: e = m*c^2
+          mathLanguage: latex
+new:
+  type: Article
+  content:
+    - type: Claim
+      claimType: Theorem
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value: Relatively interesting.
+        - type: MathBlock
+          code: e = m*c^2
+          mathLanguage: latex
+        - type: Paragraph
+          content:
+            - type: Text
+              value: May be true.
+ops:
+  - - - content
+      - 0
+      - content
+    - Push:
+        type: Paragraph
+        content:
+          - type: Text
+            value: May be true.
+authors_before: 3
+authors_after: 3

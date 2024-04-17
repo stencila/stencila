@@ -1,0 +1,183 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Country
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Capital
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Population (millions)
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: USA
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: DC
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "328"
+new:
+  type: Article
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Country
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Capital
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Population (millions)
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: USA
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: DC
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "328"
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Canada
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Ottawa
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "38"
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Mexico
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Mexico City
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "129"
+ops:
+  - - - content
+      - 0
+      - rows
+    - Append:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Canada
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Ottawa
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "38"
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Mexico
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Mexico City
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "129"
+authors_before: 7
+authors_after: 7

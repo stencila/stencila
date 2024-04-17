@@ -1,0 +1,63 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "The area of a cube is: "
+        - type: InstructionInline
+          messages:
+            - type: InstructionMessage
+              parts:
+                - type: Text
+                  value: equation for surface area of cube
+          assignee: insert-inline-math
+        - type: Text
+          value: "."
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: according to AI.
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "The area of a cube is: "
+        - type: InstructionInline
+          messages:
+            - type: InstructionMessage
+              parts:
+                - type: Text
+                  value: equation for surface area of cube
+          assignee: insert-inline-math
+        - type: Text
+          value: "."
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: according to OpenAI.
+ops:
+  - - - content
+      - 0
+      - content
+      - 3
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: according to OpenAI.
+authors_before: 3
+authors_after: 3

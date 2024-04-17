@@ -1,0 +1,81 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Heading
+      level: 1
+      content:
+        - type: Text
+          value: heading1
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value: heading2
+    - type: Heading
+      level: 3
+      content:
+        - type: Text
+          value: heading3
+    - type: Heading
+      level: 4
+      content:
+        - type: Text
+          value: heading4
+new:
+  type: Article
+  content:
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value: heading1
+    - type: Heading
+      level: 1
+      content:
+        - type: Text
+          value: heading2
+    - type: Heading
+      level: 4
+      content:
+        - type: Text
+          value: heading4delta
+    - type: Heading
+      level: 1
+      content:
+        - type: Text
+          value: heading3
+ops:
+  - - - content
+      - 0
+      - level
+    - Set: 2
+  - - - content
+      - 1
+      - level
+    - Set: 1
+  - - - content
+      - 3
+      - level
+    - Set: 1
+  - - - content
+      - 3
+      - content
+      - 0
+      - value
+    - Set: heading3
+  - - - content
+      - 2
+      - level
+    - Set: 4
+  - - - content
+      - 2
+      - content
+      - 0
+      - value
+    - Set: heading4delta
+authors_before: 4
+authors_after: 4

@@ -1,0 +1,45 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Figure
+      content:
+        - type: Paragraph
+          content:
+            - type: ImageObject
+              contentUrl: "https://example.org/cat.jpg"
+      caption:
+        - type: Paragraph
+          content:
+            - type: Text
+              value: Caption.
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: Caption.
+    - type: Paragraph
+      content:
+        - type: ImageObject
+          contentUrl: "https://example.org/cat.jpg"
+ops:
+  - - - content
+    - Push:
+        type: Paragraph
+        content:
+          - type: ImageObject
+            contentUrl: "https://example.org/cat.jpg"
+  - - - content
+    - Replace:
+        - - 0
+          - type: Paragraph
+            content:
+              - type: Text
+                value: Caption.
+authors_before: 4
+authors_after: 0

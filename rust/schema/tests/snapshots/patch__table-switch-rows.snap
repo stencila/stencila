@@ -1,0 +1,211 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Country
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Capital
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Population (millions)
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: USA
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: DC
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "328"
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Canada
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Ottawa
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "38"
+new:
+  type: Article
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Country
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Capital
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Population (millions)
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Canada
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: Ottawa
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "38"
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: USA
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: DC
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value: "328"
+ops:
+  - - - content
+      - 0
+      - rows
+      - 1
+      - cells
+      - 2
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "38"
+  - - - content
+      - 0
+      - rows
+      - 1
+      - cells
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Ottawa
+  - - - content
+      - 0
+      - rows
+      - 1
+      - cells
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Canada
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 2
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "328"
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: USA
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: DC
+authors_before: 10
+authors_after: 10

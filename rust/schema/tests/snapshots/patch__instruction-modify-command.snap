@@ -1,0 +1,43 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "An insert instruction with an assignee:"
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value: "top five highest mountains, with height in metres"
+      assignee: insert-table
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: "An insert instruction with an assignee:"
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value: "top five highest mountains, with height in feet"
+      assignee: insert-table
+ops:
+  - - - content
+      - 1
+      - messages
+      - 0
+      - parts
+      - 0
+      - value
+    - Set: "top five highest mountains, with height in feet"
+authors_before: 2
+authors_after: 2
