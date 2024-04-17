@@ -510,36 +510,72 @@ where
         }
 
         // Calculate pairwise similarities
+        // This code attempts to reduce the number of pairwise similarities that are calculated.
+        // It does that by (a) breaking the inner loop if a perfect match is found, and
+        // (b) by starting the next inner loop just after the previous perfect match and
+        // alternating steps up and down the other array (rather that starting at the
+        // beginning each time).
         let mut candidate_pairs = Vec::new();
-        let mut other_matches = Vec::new();
+        let mut perfect_matches = Vec::new();
+        let mut last_perfect_match = 0;
         for (self_pos, self_item) in self.iter().enumerate() {
-            // Calculate the pairwise similarity with positions in `other`.
-            // Note that this `break`s when a perfect match is found and skips
-            // positions in other for which there is already a perfect match.
-
-            // TODO: because of the aforementioned early break, this loop could be
-            // optimized by not starting at the beginning of other but rather
-            // by "radiating out" from self_pos, or maybe better, from the
-            // last perfect match+1. That is, we should still search over all other_pos
-            // stopping when we find a perfect match but we should do it in a smarter order.
-            for (other_pos, other_item) in other.iter().enumerate() {
+            let mut other_pos = if self_pos == 0 {
+                0
+            } else {
+                (last_perfect_match + 1).min(other.len() - 1)
+            };
+            let mut direction = 1;
+            let mut up_pos = other_pos;
+            let mut down_pos = other_pos;
+            let mut hit_top = false;
+            let mut hit_bottom = false;
+            loop {
                 // If the other pos is already perfectly matched then
                 // skip calculating similarities
-                if other_matches.contains(&other_pos) {
-                    continue;
+                if !perfect_matches.contains(&other_pos) {
+                    let other_item = &other[other_pos];
+
+                    let similarity = self_item.similarity(other_item, context)?;
+                    candidate_pairs.push(Pair {
+                        self_pos,
+                        new_pos: self_pos,
+                        other_pos,
+                        similarity,
+                    });
+
+                    // Record and break on perfect matches
+                    if similarity == 1.0 {
+                        perfect_matches.push(other_pos);
+                        last_perfect_match = other_pos;
+                        break;
+                    }
                 }
 
-                let similarity = self_item.similarity(other_item, context)?;
-                candidate_pairs.push(Pair {
-                    self_pos,
-                    new_pos: self_pos,
-                    other_pos,
-                    similarity,
-                });
-
-                if similarity == 1.0 {
-                    other_matches.push(other_pos);
+                // Check if reached ends of the other vector
+                if other_pos <= 0 {
+                    hit_top = true;
+                }
+                if other_pos >= other.len() - 1 {
+                    hit_bottom = true;
+                }
+                if hit_top && hit_bottom {
                     break;
+                }
+
+                // Swap direction if not yet hit either end
+                if direction == 1 && !hit_top {
+                    direction = -1;
+                } else if direction == -1 && !hit_bottom {
+                    direction = 1;
+                }
+
+                // Move in the new direction
+                if direction == 1 {
+                    down_pos = down_pos.saturating_add(1);
+                    other_pos = down_pos;
+                } else {
+                    up_pos = up_pos.saturating_sub(1);
+                    other_pos = up_pos;
                 }
             }
         }
