@@ -18,7 +18,6 @@ repository:
       # Order is important for matching!
       - include: "#separator"
       - include: "#heading"
-      - include: "#heading-setext"
       - include: "#blockquote"
       - include: "#lists"
       - include: "#math-block"
@@ -38,13 +37,15 @@ repository:
       - include: "#figure-block"
       - include: "#table-block"
       - include: "#raw_block"
-      - include: "#html"
       - include: "#link-def"
       - include: "#table"
       - include: "#paragraph"
   inline:
     patterns:
       # Order is important for matching!
+      - include: "#html"
+      - include: "#heading-setext"
+      - include: "#list_paragraph"
       - include: "#parameter"
       - include: "#math-inline"
       - include: "#instruction-inline"
@@ -659,28 +660,27 @@ repository:
     - { include: '#inline' }
     - { include: text.html.derivative }
     - { include: '#heading-setext' }
-    while: (^|\G)(?!\s*$|#|[ ]{0,3}([-*_>][ ]{2,}){3,}[ \t]*$\n?|[ ]{0,3}[*+->]|[
-      ]{0,3}[0-9]+\.)
+    while: (^|\G)(?!\s*$|#|[ ]{0,3}([-*_>][ ]{2,}){3,}[ \t]*$\n?|[ ]{0,3}[*+->]|[ ]{0,3}[0-9]+\.)
 
   lists:
-  patterns:
-  - begin: (^|\G)([ ]{0,3})([*+-])([ \t])
-    beginCaptures:
-      '3': { name: punctuation.definition.list.begin.markdown }
-    comment: Currently does not support un-indented second lines.
-    name: markup.list.unnumbered.markdown
     patterns:
-    - { include: '#block'}
-    - { include: '#list_paragraph'}
-    while: ((^|\G)([ ]{2,4}|\t))|(^[ \t]*$)
-  - begin: (^|\G)([ ]{0,3})([0-9]+[\.\)])([ \t])
-    beginCaptures:
-      '3': { name: punctuation.definition.list.begin.markdown }
-    name: markup.list.numbered.markdown
-    patterns:
-    - { include: '#block'}
-    - { include: '#list_paragraph'}
-    while: ((^|\G)([ ]{2,4}|\t))|(^[ \t]*$)   
+    - begin: (^|\G)([ ]{0,3})([*+-])([ \t])
+      beginCaptures:
+        '3': { name: punctuation.definition.list.begin.markdown }
+      comment: Currently does not support un-indented second lines.
+      name: markup.list.unnumbered.markdown
+      patterns:
+      - { include: '#block' }
+      - { include: '#list_paragraph' }
+      while: ((^|\G)([ ]{2,4}|\t))|(^[ \t]*$)
+    - begin: (^|\G)([ ]{0,3})([0-9]+[\.\)])([ \t])
+      beginCaptures:
+        '3': { name: punctuation.definition.list.begin.markdown }
+      name: markup.list.numbered.markdown
+      patterns:
+      - { include: '#block' }
+      - { include: '#list_paragraph' }
+      while: ((^|\G)([ ]{2,4}|\t))|(^[ \t]*$)
 
   raw_block: {begin: '(^|\G)([ ]{4}|\t)', name: markup.raw.block.markdown, while: '(^|\G)([
       ]{4}|\t)'}
@@ -777,11 +777,14 @@ repository:
     - { include: '#link-ref' }
     - { include: '#link-ref-shortcut' }
     - { include: '#strikethrough' }
+  
   bracket:
     comment: "Markdown will convert this for us. We match it so that the HTML grammar will not mark it up as invalid."
     match: '<(?![a-zA-Z/?\$!])'
     name: meta.other.valid-bracket.markdown
+  
   escape: { match: '\\[-`*_#+.!(){}\[\]\\>]', name: constant.character.escape.markdown }
+
   image-inline:
     captures:
       '1': { name: punctuation.definition.link.description.begin.markdown }
