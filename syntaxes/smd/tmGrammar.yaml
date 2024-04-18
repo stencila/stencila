@@ -45,7 +45,6 @@ repository:
       # Order is important for matching!
       - include: "#html"
       - include: "#heading-setext"
-      - include: "#list_paragraph"
       - include: "#parameter"
       - include: "#math-inline"
       - include: "#instruction-inline"
