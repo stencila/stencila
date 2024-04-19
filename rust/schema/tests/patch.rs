@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, fs::read_to_string};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs::read_to_string,
+};
 
 use codec::{format::Format, Codec, DecodeOptions};
 use codec_markdown::MarkdownCodec;
@@ -269,6 +272,31 @@ fn vecs() -> Result<()> {
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
+    // Change: same size, all different
+    let mut old = vec![1, 2];
+    let new = vec![3, 4];
+    let ops = diff(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![
+            (
+                PatchPath::from([PatchSlot::Index(0)]),
+                PatchOp::Set(3.to_value()?)
+            ),
+            (
+                PatchPath::from([PatchSlot::Index(1)]),
+                PatchOp::Set(4.to_value()?)
+            )
+        ]
+    );
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_push() -> Result<()> {
     // Push: Old empty, new only has one
     let mut old = vec![];
     let new = vec![1];
@@ -277,6 +305,19 @@ fn vecs() -> Result<()> {
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
+    // Push: adding one
+    let mut old = vec![1];
+    let new = vec![1, 2];
+    let ops = diff(&old, &new)?;
+    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(2.to_value()?))]);
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_append() -> Result<()> {
     // Append: Old empty, new has more than one
     let mut old = vec![];
     let new = vec![1, 2, 3];
@@ -291,6 +332,49 @@ fn vecs() -> Result<()> {
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
+    // Append: adding more than one
+    let mut old = vec![1];
+    let new = vec![1, 2, 3];
+    let ops = diff(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            PatchPath::new(),
+            PatchOp::Append(vec![2.to_value()?, 3.to_value()?])
+        )]
+    );
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_insert() -> Result<()> {
+    // Insert
+    let mut old = vec![1, 3];
+    let new = vec![0, 1, 2, 3, 4, 5];
+    let ops = diff(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            PatchPath::new(),
+            PatchOp::Insert(vec![
+                (0, 0.to_value()?),
+                (2, 2.to_value()?),
+                (4, 4.to_value()?),
+                (5, 5.to_value()?)
+            ])
+        )]
+    );
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vecs_remove() -> Result<()> {
     // Clear: New empty
     let mut old = vec![1, 2, 3];
     let new = vec![];
@@ -321,68 +405,58 @@ fn vecs() -> Result<()> {
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
-    // Push: adding one
-    let mut old = vec![1];
-    let new = vec![1, 2];
-    let ops = diff(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(2.to_value()?))]);
-    patch(&mut old, ops)?;
-    assert_eq!(old, new);
+    Ok(())
+}
 
-    // Append: adding more than one
-    let mut old = vec![1];
-    let new = vec![1, 1, 2, 3];
+#[test]
+fn vec_copy() -> Result<()> {
+    // Copy forward
+    let mut old = vec![1, 2, 3];
+    let new = vec![1, 1, 2, 1, 3];
     let ops = diff(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
             PatchPath::new(),
-            PatchOp::Append(vec![1.to_value()?, 2.to_value()?, 3.to_value()?])
+            PatchOp::Copy(HashMap::from([(0, vec![1, 3])]))
         )]
     );
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
-    // Insert
-    let mut old = vec![1, 3];
-    let new = vec![0, 1, 2, 3, 4, 5];
+    // Copy back
+    let mut old = vec![1, 2, 3];
+    let new = vec![1, 3, 2, 3, 3];
     let ops = diff(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
             PatchPath::new(),
-            PatchOp::Insert(vec![
-                (0, 0.to_value()?),
-                (2, 2.to_value()?),
-                (4, 4.to_value()?),
-                (5, 5.to_value()?)
-            ])
+            PatchOp::Copy(HashMap::from([(2, vec![1, 4])]))
         )]
     );
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
-    // Change: same size, all different
-    let mut old = vec![1, 2];
-    let new = vec![3, 4];
+    // Copy forward and back
+    let mut old = vec![1, 2, 3, 4];
+    let new = vec![1, 4, 2, 3, 4, 1];
     let ops = diff(&old, &new)?;
     assert_eq!(
         ops,
-        vec![
-            (
-                PatchPath::from([PatchSlot::Index(0)]),
-                PatchOp::Set(3.to_value()?)
-            ),
-            (
-                PatchPath::from([PatchSlot::Index(1)]),
-                PatchOp::Set(4.to_value()?)
-            )
-        ]
+        vec![(
+            PatchPath::new(),
+            PatchOp::Copy(HashMap::from([(0, vec![5]), (3, vec![1])]))
+        )]
     );
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
-    // Move
+    Ok(())
+}
+
+#[test]
+fn vec_move() -> Result<()> {
     let mut old = vec![1, 2, 3];
     let new = vec![3, 2, 1];
     let ops = diff(&old, &new)?;
@@ -397,7 +471,7 @@ fn vecs() -> Result<()> {
 }
 
 #[test]
-fn vec_sec() -> Result<()> {
+fn vec_section() -> Result<()> {
     // This is a regression test for a bug found during testing
     let mut old = art([sec([p([t("para1")])])]);
     let new = art([sec([p([t("para1")]), p([t("para2")])])]);

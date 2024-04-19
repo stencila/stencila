@@ -25,6 +25,8 @@ ops_count:
   instruction-wrap: 1
   list-swap-items: 1
   move-middle-paragraphs: 1
+  paragraph-copy-and-move: 2
+  paragraph-copy-one: 1
   prepend-one-paragraph: 1
   section-add-paras: 1
   split-code-chunk: 2
@@ -38,7 +40,7 @@ ops_count:
   unwrap-figure: 2
   wrap-emphasis: 2
   wrap-figure: 2
-ops_total: 54
+ops_total: 57
 author_diffs:
   admonition-add-para: 0
   append-one-paragraph: 0
@@ -62,6 +64,8 @@ author_diffs:
   instruction-wrap: -1
   list-swap-items: 0
   move-middle-paragraphs: 0
+  paragraph-copy-and-move: 1
+  paragraph-copy-one: 1
   prepend-one-paragraph: 0
   section-add-paras: 0
   split-code-chunk: 0
@@ -75,4 +79,4 @@ author_diffs:
   unwrap-figure: -4
   wrap-emphasis: 0
   wrap-figure: -3
-author_diffs_sum: -12
+author_diffs_sum: -10

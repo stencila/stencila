@@ -1,6 +1,6 @@
 use std::{
     any::type_name,
-    collections::VecDeque,
+    collections::{HashMap, VecDeque},
     fmt::{self, Debug},
 };
 
@@ -129,6 +129,12 @@ impl PatchContext {
         self
     }
 
+    /// Create a [`PatchOp::Copy`] operation for the current path
+    pub fn op_copy(&mut self, indices: HashMap<usize, Vec<usize>>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Copy(indices)));
+        self
+    }
+
     /// Create a [`PatchOp::Remove`] operation for the current path
     pub fn op_remove(&mut self, indices: Vec<usize>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Remove(indices)));
@@ -166,6 +172,9 @@ pub enum PatchOp {
 
     /// Move items within a vector (from, to)
     Move(Vec<(usize, usize)>),
+
+    /// Copy items within a vector (from, to)
+    Copy(HashMap<usize, Vec<usize>>),
 
     /// Remove items from a vector
     Remove(Vec<usize>),
@@ -459,7 +468,7 @@ where
 // Implementation for vector properties
 impl<T> PatchNode for Vec<T>
 where
-    T: PatchNode,
+    T: PatchNode + Clone,
 {
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
@@ -500,7 +509,7 @@ where
             return Ok(());
         }
 
-        #[derive(Debug)]
+        #[derive(Clone)]
         struct Pair {
             self_pos: usize,
             new_pos: usize,
@@ -580,40 +589,59 @@ where
         }
 
         // Find the pairs with highest similarity
-        let mut pairs: Vec<Pair> = Vec::with_capacity(self.len().min(other.len()));
+        let mut best_pairs: Vec<Pair> = Vec::with_capacity(self.len().min(other.len()));
         for candidate in candidate_pairs
-            .into_iter()
+            .iter()
             .sorted_by(|a, b| a.similarity.total_cmp(&b.similarity).reverse())
         {
-            if !pairs.iter().any(|pair| {
+            if !best_pairs.iter().any(|pair| {
                 pair.self_pos == candidate.self_pos || pair.other_pos == candidate.other_pos
             }) {
-                pairs.push(candidate);
+                best_pairs.push(candidate.clone());
             }
         }
-        debug_assert!(pairs.len() == self.len().min(other.len()));
+        debug_assert!(best_pairs.len() == self.len().min(other.len()));
 
         #[allow(clippy::comparison_chain)]
         if other.len() > self.len() {
             // If other is longer then insert or append those items that do not have a pair
-            let insert_num = other.len() - self.len();
-            let mut insert = Vec::with_capacity(insert_num);
-            for other_index in 0..other.len() {
-                if insert.len() < insert_num
-                    && !pairs.iter().any(|pair| pair.other_pos == other_index)
-                {
-                    insert.push(other_index);
+            let length_difference = other.len() - self.len();
+            let mut insert = Vec::new();
+            let mut copy: HashMap<usize, Vec<usize>> = HashMap::new();
+            for other_pos in 0..other.len() {
+                if insert.len() + copy.len() == length_difference {
+                    break;
                 }
 
-                if insert.len() == insert_num {
-                    break;
+                if !best_pairs.iter().any(|pair| pair.other_pos == other_pos) {
+                    let mut is_copied = false;
+                    const COPY_SIMILARITY: f32 = 1.0;
+
+                    // Attempt to find a close match in self
+                    for self_pos in 0..self.len() {
+                        if self[self_pos].similarity(&other[other_pos], context)? >= COPY_SIMILARITY
+                        {
+                            copy.entry(self_pos)
+                                .and_modify(|to| to.push(other_pos))
+                                .or_insert_with(|| vec![other_pos]);
+                            is_copied = true;
+                            break;
+                        }
+                    }
+
+                    // If not copied, then insert
+                    if !is_copied {
+                        insert.push(other_pos);
+                    }
                 }
             }
             insert.sort();
 
+            //println!("INSERT {insert:?}");
+            //println!("COPY {copy:?}");
+
             let first = insert.first().cloned().unwrap_or_default();
-            debug_assert!(first <= self.len());
-            if first == self.len() {
+            if copy.is_empty() && first == self.len() {
                 // If the first position to insert corresponds to the end of self then
                 // generate either an append or a push op
                 if insert.len() == 1 {
@@ -627,27 +655,39 @@ where
                     );
                 }
             } else {
-                // Adjust new_index of pairs for the inserts
-                for pair in pairs.iter_mut() {
-                    for &index in &insert {
-                        if index <= pair.new_pos {
+                // Adjust new_index of best pairs for the inserts and copies
+                for pair in best_pairs.iter_mut() {
+                    for &pos in &insert {
+                        if pos <= pair.new_pos {
+                            pair.new_pos += 1;
+                        }
+                    }
+                    for &pos in copy.values().flatten() {
+                        if pos <= pair.new_pos {
                             pair.new_pos += 1;
                         }
                     }
                 }
 
                 // Generate insert op
-                context.op_insert(
-                    insert
-                        .into_iter()
-                        .map(|index| Ok::<_, Report>((index, other[index].to_value()?)))
-                        .try_collect()?,
-                );
+                if !insert.is_empty() {
+                    context.op_insert(
+                        insert
+                            .into_iter()
+                            .map(|index| Ok::<_, Report>((index, other[index].to_value()?)))
+                            .try_collect()?,
+                    );
+                }
+
+                // Generate copy op
+                if !copy.is_empty() {
+                    context.op_copy(copy);
+                }
             }
         } else if other.len() < self.len() {
             // If other is shorter then keep those with the highest similarity and remove the rest.
             let mut keep = Vec::new();
-            for pair in pairs.iter() {
+            for pair in best_pairs.iter() {
                 if keep.len() < other.len() && !keep.contains(&pair.self_pos) {
                     keep.push(pair.self_pos);
                 }
@@ -658,17 +698,17 @@ where
                 .filter(|index| !keep.contains(index))
                 .collect_vec();
 
-            // Adjust new_index of pairs for the removals
-            for pair in pairs.iter_mut() {
-                for &index in &remove {
-                    if index <= pair.self_pos {
+            // Adjust new_index of best pairs for the removals
+            for pair in best_pairs.iter_mut() {
+                for &pos in &remove {
+                    if pos <= pair.self_pos {
                         pair.new_pos -= 1;
                     }
                 }
             }
 
             // Remove pairs not in `keep` to avoid unnecessary diffing
-            pairs.retain(|pair| keep.contains(&pair.self_pos));
+            best_pairs.retain(|pair| keep.contains(&pair.self_pos));
 
             // Generate remove op
             context.op_remove(remove);
@@ -676,10 +716,10 @@ where
 
         // Create a move operation that moves items from current new_pos to other_pos.
         let mut moves: Vec<(usize, usize)> = Vec::new();
-        for index in 0..pairs.len() {
+        for index in 0..best_pairs.len() {
             let Pair {
                 new_pos, other_pos, ..
-            } = pairs[index];
+            } = best_pairs[index];
 
             // Skip is new pos id the same as other pos
             if new_pos == other_pos {
@@ -691,9 +731,9 @@ where
 
             // Update new pos for this pair and for every pair where the new_pos will be
             // affected by this move operation
-            pairs[index].new_pos = other_pos;
-            if index < pairs.len() - 1 {
-                for pair in &mut pairs[(index + 1)..] {
+            best_pairs[index].new_pos = other_pos;
+            if index < best_pairs.len() - 1 {
+                for pair in &mut best_pairs[(index + 1)..] {
                     if new_pos < pair.new_pos && other_pos >= pair.new_pos {
                         pair.new_pos -= 1;
                     } else if new_pos > pair.new_pos && other_pos <= pair.new_pos {
@@ -714,7 +754,7 @@ where
             other_pos,
             similarity,
             ..
-        } in pairs
+        } in best_pairs
         {
             // If positions and items are equal then nothing to do
             if new_pos == other_pos && similarity == 1.0 {
@@ -783,6 +823,18 @@ where
                 for (from, to) in indices {
                     let item = self.remove(from);
                     self.insert(to, item);
+                }
+            }
+            PatchOp::Copy(indices) => {
+                for (from, tos) in indices {
+                    let item = self[from].clone();
+                    for to in tos {
+                        if to < self.len() {
+                            self.insert(to, item.clone());
+                        } else {
+                            self.push(item.clone());
+                        }
+                    }
                 }
             }
             PatchOp::Remove(indices) => {
