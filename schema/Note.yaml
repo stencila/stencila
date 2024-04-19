@@ -27,6 +27,8 @@ properties:
     '@id': stencila:noteType
     description: Determines where the note content is displayed within the document.
     $ref: NoteType
+    patch:
+      formats: [md]
     jats:
       attr: custom-type
     proptest:

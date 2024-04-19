@@ -1,0 +1,85 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: List
+      items:
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with an image "
+                - type: ImageObject
+                  contentUrl: image.png
+                - type: Text
+                  value: ", see!"
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with "
+                - type: Emphasis
+                  content:
+                    - type: Text
+                      value: emphasis
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with HTML "
+                - type: Underline
+                  content:
+                    - type: Text
+                      value: underlined
+      order: Unordered
+new:
+  type: Article
+  content:
+    - type: List
+      items:
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with "
+                - type: Emphasis
+                  content:
+                    - type: Text
+                      value: emphasis
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with an image "
+                - type: ImageObject
+                  contentUrl: image.png
+                - type: Text
+                  value: ", see!"
+        - type: ListItem
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value: "an item with HTML "
+                - type: Underline
+                  content:
+                    - type: Text
+                      value: underlined
+      order: Unordered
+ops:
+  - - - content
+      - 0
+      - items
+    - Move:
+        - - 0
+          - 1
+authors_before: 5
+authors_after: 5

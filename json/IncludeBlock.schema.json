@@ -9,10 +9,10 @@
   "category": "flow",
   "description": "Include block content from an external source (e.g. file, URL).",
   "status": "under-development",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "source"
@@ -54,6 +54,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -277,6 +282,11 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed path.",
@@ -326,6 +336,9 @@
       "strip": [
         "output"
       ],
+      "patch": {
+        "formats": []
+      },
       "dom": {
         "elem": "div"
       },

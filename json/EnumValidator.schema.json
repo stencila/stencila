@@ -45,6 +45,11 @@
       "aliases": [
         "value"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "serde": {
         "deserializeWith": "none"
       },

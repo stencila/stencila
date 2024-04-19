@@ -10,7 +10,7 @@ impl MarkdownCodec for InstructionInline {
             .merge_losses(lost_exec_options!(self))
             .push_str("[[do ");
 
-        if let Some(assignee) = &self.options.assignee {
+        if let Some(assignee) = &self.assignee {
             context.push_str("@").push_str(assignee).push_str(" ");
         }
 

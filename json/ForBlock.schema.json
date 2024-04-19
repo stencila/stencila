@@ -10,10 +10,10 @@
   "category": "flow",
   "description": "Repeat a block content for each item in an array.",
   "status": "under-development",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "code",
@@ -57,6 +57,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -280,6 +285,14 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -298,9 +311,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "jats": {
-        "content": true
-      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -313,6 +323,14 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "language"
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string.",
@@ -330,9 +348,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "language"
       },
       "type": "string"
     },
@@ -362,6 +377,11 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed variable name.",
@@ -388,7 +408,15 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "walk": true,
+      "dom": {
+        "elem": "div"
+      },
       "proptest": {
         "min": {
           "description": "A single simple paragraph.",
@@ -403,9 +431,6 @@
           "strategy": "vec_blocks_non_recursive(8)"
         }
       },
-      "dom": {
-        "elem": "div"
-      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -417,7 +442,15 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "walk": true,
+      "dom": {
+        "elem": "div"
+      },
       "proptest": {
         "min": {
           "description": "No otherwise clause.",
@@ -431,9 +464,6 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",
           "strategy": "option::of(vec_blocks_non_recursive(4))"
         }
-      },
-      "dom": {
-        "elem": "div"
       },
       "type": "array",
       "items": {

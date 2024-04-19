@@ -9,11 +9,11 @@
   ],
   "category": "data",
   "description": "A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.",
-  "proptest": {},
   "jats": {
     "elem": "date-time",
     "special": true
   },
+  "proptest": {},
   "required": [
     "type",
     "value"

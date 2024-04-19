@@ -10,7 +10,7 @@ use super::string::String;
 /// A heading.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -30,6 +30,7 @@ pub struct Heading {
 
     /// The level of the heading.
     #[default = 0]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"1"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"1..=6i64"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"0..=6i64"#))]
@@ -39,6 +40,7 @@ pub struct Heading {
     /// Content of the heading.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
+    #[merge(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_inlines(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]
@@ -59,7 +61,7 @@ pub struct Heading {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct HeadingOptions {

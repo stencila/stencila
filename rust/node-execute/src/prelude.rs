@@ -5,9 +5,8 @@ pub use common::{eyre::Report, tracing};
 pub use node_patch::{Property, Value};
 pub use parsers::ParseInfo;
 pub use schema::{
-    walk::{WalkControl, WalkNode},
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
-    Null, Primitive, Timestamp,
+    Null, Primitive, Timestamp, WalkControl, WalkNode,
 };
 
 pub(crate) use crate::{Executable, Executor};

@@ -36,9 +36,6 @@ mod vec;
 mod utilities;
 pub use utilities::*;
 
-/// The maximum similarity index between to nodes
-pub const SIMILARITY_MAX: usize = 1000;
-
 /// Bail from a function with the type of node included in the message
 #[macro_export]
 macro_rules! bail_type {
@@ -254,13 +251,6 @@ pub trait WriteNode {
     /// Put a node into an existing property of an Automerge store
     fn put_prop(&self, _store: &mut WriteStore, _obj_id: &ObjId, _prop: Prop) -> Result<()> {
         bail_type!("method `Write::put_prop` not implemented for type `{type}`")
-    }
-
-    /// Calculate the similarity index between the current node and a property in an Automerge store
-    ///
-    /// The similarity index is used as part of the diffing algorithm.
-    fn similarity<S: ReadStore>(&self, _store: &S, _obj_id: &ObjId, _prop: Prop) -> Result<usize> {
-        bail_type!("method `Write::similarity` not implemented for type `{type}`")
     }
 }
 

@@ -7,6 +7,8 @@ description: A validator specifying a constant value that a node must have.
 $comment: |
   A node will be valid against this validator if it is equal to the
   `value` property. Analogous to the JSON Schema [`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3) keyword.
+markdown:
+  derive: false
 required:
   - value
 properties:
@@ -14,5 +16,5 @@ properties:
     '@id': schema:value
     description: The value that the node must have.
     $ref: Node
-markdown:
-  derive: false
+    patch:
+      formats: [md]

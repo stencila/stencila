@@ -10,6 +10,8 @@ use crate::{prelude::*, Object, Primitive};
 
 impl StripNode for Object {}
 
+impl PatchNode for Object {}
+
 impl ReadNode for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
@@ -74,13 +76,6 @@ impl WriteNode for Object {
 
             Ok(())
         }
-    }
-
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        if let Some((Value::Object(ObjType::Map), _prop_obj_id)) = store.get(obj_id, prop)? {
-            // TODO
-        }
-        Ok(0)
     }
 }
 

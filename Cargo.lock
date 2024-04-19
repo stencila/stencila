@@ -4008,6 +4008,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-patch-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling 0.20.8",
+]
+
+[[package]]
 name = "node-store"
 version = "0.0.0"
 dependencies = [
@@ -5776,18 +5784,23 @@ dependencies = [
 name = "schema"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "codec-dom-trait",
  "codec-html-trait",
  "codec-jats-trait",
  "codec-json5-trait",
  "codec-losses",
+ "codec-markdown",
  "codec-markdown-trait",
  "codec-text-trait",
  "common",
+ "common-dev",
  "human_name",
  "interim",
  "monostate",
+ "node-authorship",
  "node-id",
+ "node-patch-derive",
  "node-store",
  "node-strip",
  "node-type",

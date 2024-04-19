@@ -9,11 +9,11 @@
   ],
   "category": "data",
   "description": "A calendar date encoded as a ISO 8601 string.",
-  "proptest": {},
   "jats": {
     "elem": "date",
     "special": true
   },
+  "proptest": {},
   "required": [
     "type",
     "value"

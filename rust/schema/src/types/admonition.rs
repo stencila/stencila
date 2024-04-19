@@ -12,7 +12,7 @@ use super::string::String;
 /// A admonition within a document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -32,6 +32,7 @@ pub struct Admonition {
 
     /// The type of admonition.
     #[serde(alias = "admonition-type", alias = "admonition_type")]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"AdmonitionType::Info"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"AdmonitionType::arbitrary()"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"AdmonitionType::arbitrary()"#))]
@@ -41,6 +42,7 @@ pub struct Admonition {
 
     /// The title of the admonition.
     #[serde(default, deserialize_with = "option_one_or_many")]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_inlines_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_inlines_non_recursive(4))"#))]
@@ -51,6 +53,7 @@ pub struct Admonition {
 
     /// Whether the admonition is folded.
     #[serde(alias = "is-folded", alias = "is_folded")]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(bool::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(bool::arbitrary())"#))]
@@ -61,6 +64,7 @@ pub struct Admonition {
     /// The content within the section.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
+    #[merge(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("Admonition content")])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
@@ -82,7 +86,7 @@ pub struct Admonition {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct AdmonitionOptions {

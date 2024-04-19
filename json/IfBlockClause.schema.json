@@ -10,10 +10,10 @@
   "category": "flow",
   "description": "A clause within an `IfBlock` node.",
   "status": "under-development",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "code",
@@ -55,6 +55,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -278,6 +283,14 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -296,9 +309,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "jats": {
-        "content": true
-      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -311,6 +321,14 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "language"
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string.",
@@ -328,9 +346,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "language"
       },
       "type": "string"
     },
@@ -369,6 +384,12 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content to render if the result is truthy",
+      "dom": {
+        "elem": "div"
+      },
+      "html": {
+        "slot": "div"
+      },
       "proptest": {
         "min": {
           "description": "A single, simple paragraph.",
@@ -382,12 +403,6 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",
           "strategy": "vec_blocks_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "div"
-      },
-      "html": {
-        "slot": "div"
       },
       "type": "array",
       "items": {

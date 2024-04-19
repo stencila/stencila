@@ -119,13 +119,13 @@
               ]
             }
           ],
+          assignee: "joe",
           content: [
             {
               type: "Text",
               value: "existing content"
             }
-          ],
-          assignee: "joe"
+          ]
         },
         {
           type: "Text",

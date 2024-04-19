@@ -9,7 +9,6 @@
   "category": "prose",
   "description": "Additional content which is not part of the main content of a document.",
   "$comment": "A note is usually associated with a word or paragraph using a number or other symbol. \nIt can be displayed as a footnote, endnote, or side note, or in interactive elements.\nFor analogues, see \n- [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)\n- [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)\n- [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)\n",
-  "proptest": {},
   "jats": {
     "elem": "fn",
     "attrs": {
@@ -19,6 +18,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "noteType",
@@ -53,6 +53,14 @@
         "note-type",
         "note_type"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "custom-type"
+      },
       "proptest": {
         "min": {
           "description": "Fixed footnote type.",
@@ -63,23 +71,20 @@
           "strategy": "NoteType::arbitrary()"
         }
       },
-      "jats": {
-        "attr": "custom-type"
-      },
       "$ref": "NoteType.schema.json"
     },
     "content": {
       "@id": "stencila:content",
       "description": "Content of the note, usually a paragraph.",
       "$comment": "Most notes will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "dom": {
+        "elem": "aside"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single paragraph (with no `Note` to avoid recursion).",
           "value": "vec![p([t(\"Note paragraph\")])]"
         }
-      },
-      "dom": {
-        "elem": "aside"
       },
       "type": "array",
       "items": {

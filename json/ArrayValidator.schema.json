@@ -50,6 +50,11 @@
         "items-nullable",
         "items_nullable"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "boolean"
     },
     "itemsValidator": {
@@ -59,11 +64,21 @@
         "items-validator",
         "items_validator"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "Validator.schema.json"
     },
     "contains": {
       "@id": "stencila:contains",
       "description": "An array node is valid if at least one of its items is valid against the `contains` schema.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "Validator.schema.json"
     },
     "minItems": {
@@ -73,6 +88,11 @@
         "min-items",
         "min_items"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "integer",
       "minimum": 0.0
     },
@@ -83,6 +103,11 @@
         "max-items",
         "max_items"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "integer",
       "minimum": 0.0
     },
@@ -93,6 +118,11 @@
         "unique-items",
         "unique_items"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "boolean"
     }
   }

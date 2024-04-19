@@ -12,10 +12,7 @@ use codec::{
         eyre::{bail, eyre, Result},
         serde_json, serde_yaml, tracing,
     },
-    schema::{
-        walk::{VisitorMut, WalkControl},
-        Article, Block, Inline, Node, NodeId, NodeType,
-    },
+    schema::{Article, Block, Inline, Node, NodeId, NodeType, VisitorMut, WalkControl},
     DecodeOptions, Losses, Mapping,
 };
 

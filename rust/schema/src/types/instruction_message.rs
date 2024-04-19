@@ -11,7 +11,7 @@ use super::string::String;
 /// A message within an `Instruction`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "InstructionMessage")]
@@ -27,12 +27,14 @@ pub struct InstructionMessage {
     /// Parts of the message.
     #[serde(alias = "part")]
     #[serde(deserialize_with = "one_or_many")]
+    #[merge(format = "md")]
     #[dom(elem = "div")]
     pub parts: Vec<MessagePart>,
 
     /// Content of the message.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
+    #[merge(format = "all")]
     #[dom(elem = "div")]
     pub content: Option<Vec<Block>>,
 
@@ -56,7 +58,7 @@ pub struct InstructionMessage {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct InstructionMessageOptions {
     /// The severity level of the message.

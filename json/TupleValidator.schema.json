@@ -44,6 +44,11 @@
       "aliases": [
         "item"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "array",
       "items": {
         "$ref": "Validator.schema.json"

@@ -43,6 +43,8 @@ properties:
     type: string
     html:
       attr: src
+    patch:
+      formats: [md]
     proptest:
       min:
         description: Generate a fixed URL.

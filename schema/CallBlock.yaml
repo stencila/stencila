@@ -14,10 +14,12 @@ properties:
   arguments:
     '@id': stencila:arguments
     description: The value of the source document's parameters to call it with
-    strip: [code]
     type: array
     items:
       $ref: CallArgument
+    strip: [code]
+    patch:
+      formats: [md]
     dom:
       elem: div
     proptest:

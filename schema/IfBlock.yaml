@@ -18,6 +18,8 @@ properties:
       $ref: IfBlockClause
     strip: [code]
     walk: true
+    patch:
+      formats: [md]
     dom:
       elem: div
     html:

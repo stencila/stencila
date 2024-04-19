@@ -10,7 +10,6 @@
   "category": "prose",
   "description": "Content that is marked as struck out.",
   "$comment": "Analogues of `Strikeout` in other schema include:\n  - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)\n  - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)\n  - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)\n  - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)\nSupersedes the `Delete` inline content type (the name \"Strikeout\" is less ambiguous than \"Delete\").\n",
-  "proptest": {},
   "html": {
     "elem": "s"
   },
@@ -21,6 +20,7 @@
     "template": "~~{{content}}~~",
     "escape": "~"
   },
+  "proptest": {},
   "required": [
     "type",
     "content"
@@ -50,6 +50,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content that is marked.",
+      "dom": {
+        "elem": "none"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
@@ -67,9 +70,6 @@
           "description": "Generate up to four arbitrary, non-recursive, inline nodes",
           "strategy": "vec_inlines_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "none"
       },
       "type": "array",
       "items": {

@@ -15,3 +15,5 @@ properties:
     type: array
     items:
       $ref: Validator
+    patch:
+      formats: [md]

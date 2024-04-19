@@ -19,5 +19,7 @@ properties:
     type: array
     items:
       $ref: Block
+    patch:
+      formats: [md]
     dom:
       elem: div

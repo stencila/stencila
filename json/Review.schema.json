@@ -526,6 +526,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },

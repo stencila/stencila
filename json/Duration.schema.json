@@ -8,11 +8,11 @@
   ],
   "category": "data",
   "description": "A value that represents the difference between two timestamps.",
-  "proptest": {},
   "jats": {
     "elem": "duration",
     "special": true
   },
+  "proptest": {},
   "required": [
     "type",
     "value",

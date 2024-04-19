@@ -45,6 +45,9 @@
           "@id": "schema:Timestamp"
         },
         {
+          "@id": "stencila:CallArgument"
+        },
+        {
           "@id": "stencila:ConstantValidator"
         },
         {

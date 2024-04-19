@@ -4,12 +4,66 @@ use codec_html_trait::encode::text;
 use common::similar::{Algorithm, DiffTag, TextDiffConfig};
 use node_store::{
     automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
-    ReadNode, ReadStore, WriteNode, WriteStore, SIMILARITY_MAX,
+    ReadNode, ReadStore, WriteNode, WriteStore,
 };
 
 use crate::{prelude::*, Cord};
 
 impl StripNode for Cord {}
+
+impl PatchNode for Cord {
+    fn to_value(&self) -> Result<PatchValue> {
+        Ok(PatchValue::Json(serde_json::to_value(self)?))
+    }
+
+    fn from_value(value: PatchValue) -> Result<Self> {
+        match value {
+            PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+            _ => bail!("Invalid value for Cord"),
+        }
+    }
+
+    #[allow(unused_variables)]
+    fn similarity(&self, other: &Cord, context: &mut PatchContext) -> Result<f32> {
+        let diff = TextDiffConfig::default()
+            .algorithm(Algorithm::Myers)
+            .timeout(Duration::from_secs(1))
+            .diff_chars(self.as_str(), other.as_str());
+
+        // Note minimum similarity because same types
+        // This is important because it means a paragraph will have non-zero
+        // similarity with itself, even if all characters change
+        Ok(diff.ratio().max(0.00001))
+    }
+
+    fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        if other != self {
+            context.op_set(other.to_value()?);
+        }
+
+        Ok(())
+    }
+
+    #[allow(unused_variables)]
+    fn patch(
+        &mut self,
+        path: &mut PatchPath,
+        op: PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<()> {
+        let PatchOp::Set(value) = op else {
+            bail!("Invalid op for Cord");
+        };
+
+        if !path.is_empty() {
+            bail!("Invalid path `{path:?}` for Cord");
+        }
+
+        *self = Cord::new(String::from_value(value)?);
+
+        Ok(())
+    }
+}
 
 impl ReadNode for Cord {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
@@ -76,21 +130,6 @@ impl WriteNode for Cord {
         }
 
         Ok(())
-    }
-
-    fn similarity<S: ReadStore>(&self, store: &S, obj: &ObjId, prop: Prop) -> Result<usize> {
-        if let Some((Value::Object(ObjType::Text), prop_obj)) = store.get(obj, prop)? {
-            let value = store.text(prop_obj)?;
-
-            let diff = TextDiffConfig::default()
-                .algorithm(Algorithm::Patience)
-                .timeout(Duration::from_secs(15))
-                .diff_graphemes(&value, self);
-
-            return Ok((diff.ratio() * SIMILARITY_MAX as f32) as usize);
-        }
-
-        Ok(0)
     }
 }
 

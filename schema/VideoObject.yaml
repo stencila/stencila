@@ -23,11 +23,13 @@ properties:
   caption:
     '@id': schema:caption
     description: The caption for this video recording.
-    html:
-      attr: alt
     type: array
     items:
       $ref: Inline
+    patch:
+      formats: [md]
+    html:
+      attr: alt
   thumbnail:
     '@id': schema:thumbnail
     description: Thumbnail image of this video recording.

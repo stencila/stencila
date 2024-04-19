@@ -48,6 +48,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {

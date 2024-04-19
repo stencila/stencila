@@ -10,7 +10,6 @@
   "category": "prose",
   "description": "A single item in a list.",
   "$comment": "This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).\nIt extends schema.ord `ListItem` by adding `content` and `isChecked` properties.\n\nAnalogues of `ListItem` in other schema include:\n  - JATS XML `<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)\n  - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)\n  - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)\n  - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)\n",
-  "proptest": {},
   "html": {
     "elem": "li"
   },
@@ -20,6 +19,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "content"
@@ -135,6 +135,9 @@
       "@id": "stencila:content",
       "description": "The content of the list item.",
       "$comment": "Use either `content` or `item`, not both.",
+      "dom": {
+        "elem": "li"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, paragraph",
@@ -152,9 +155,6 @@
           "description": "Generate up to four, arbitrary, non-list blocks",
           "strategy": "vec_blocks_list_item(4)"
         }
-      },
-      "dom": {
-        "elem": "li"
       },
       "type": "array",
       "items": {
@@ -174,6 +174,11 @@
         "is-checked",
         "is_checked"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "boolean"
     },
     "position": {

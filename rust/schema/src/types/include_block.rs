@@ -20,7 +20,7 @@ use super::timestamp::Timestamp;
 /// Include block content from an external source (e.g. file, URL).
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -39,11 +39,13 @@ pub struct IncludeBlock {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The external source of the content, a file path or URL.
     #[strip(code)]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("path/to/source.file")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[a-zA-Z0-9/\-.]{1,30}"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[^\p{C}]{1,100}"#))]
@@ -65,6 +67,7 @@ pub struct IncludeBlock {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
     #[walk]
+    #[merge()]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub content: Option<Vec<Block>>,
@@ -83,7 +86,7 @@ pub struct IncludeBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct IncludeBlockOptions {

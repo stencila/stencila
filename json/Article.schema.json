@@ -10,7 +10,6 @@
   "category": "works",
   "description": "An article, including news and scholarly articles.",
   "$comment": "This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).\nIt extends schema.org `Article` by adding a `content` property which must be\nan array of [`Block`](./Block), as well as the properties added by\n[`CreativeWork`](./CreativeWork) which it extends.\n",
-  "proptest": {},
   "html": {
     "elem": "article"
   },
@@ -21,6 +20,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "type",
@@ -552,6 +552,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -587,6 +592,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -810,6 +820,9 @@
       "strip": [
         "content"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single arbitrary block node",
@@ -827,9 +840,6 @@
           "description": "Generate up to eight arbitrary block nodes",
           "strategy": "vec_blocks(8)"
         }
-      },
-      "dom": {
-        "elem": "section"
       },
       "type": "array",
       "items": {

@@ -9,10 +9,10 @@
   ],
   "category": "works",
   "description": "A row within a Table.",
-  "proptest": {},
   "html": {
     "elem": "tr"
   },
+  "proptest": {},
   "required": [
     "type",
     "cells"
@@ -46,7 +46,15 @@
       "aliases": [
         "cell"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "walk": true,
+      "dom": {
+        "elem": "tr"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, table cell.",
@@ -65,9 +73,6 @@
           "strategy": "vec(TableCell::arbitrary(), size_range(1..=8))"
         }
       },
-      "dom": {
-        "elem": "tr"
-      },
       "type": "array",
       "items": {
         "$ref": "TableCell.schema.json"
@@ -80,6 +85,11 @@
         "row-type",
         "row_type"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "TableRowType.schema.json"
     }
   }

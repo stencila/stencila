@@ -9,11 +9,11 @@
   ],
   "category": "data",
   "description": "A point in time recurring on multiple days.",
-  "proptest": {},
   "jats": {
     "elem": "time",
     "special": true
   },
+  "proptest": {},
   "required": [
     "type",
     "value"

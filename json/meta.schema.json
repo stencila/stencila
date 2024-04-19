@@ -86,7 +86,7 @@
       "type": "string"
     },
     "dom": {
-      "description": "Options for serializing the type or property to the browser DOM",
+      "description": "Options for encoding the type or property to HTML for the browser DOM",
       "allOf": [
         {
           "$ref": "#/definitions/DomOptions"
@@ -129,7 +129,7 @@
       "type": "string"
     },
     "html": {
-      "description": "Options for converting the type or property to/from HTML",
+      "description": "Options for encoding the type or property to/from HTML",
       "allOf": [
         {
           "$ref": "#/definitions/HtmlOptions"
@@ -145,7 +145,7 @@
       ]
     },
     "jats": {
-      "description": "Options for converting the type or property to/from JATS XML",
+      "description": "Options for encoding the type or property to/from JATS XML",
       "allOf": [
         {
           "$ref": "#/definitions/JatsOptions"
@@ -153,7 +153,7 @@
       ]
     },
     "markdown": {
-      "description": "Options for converting the type or property to Markdown",
+      "description": "Options for encoding the type or property to Markdown",
       "allOf": [
         {
           "$ref": "#/definitions/MarkdownOptions"
@@ -186,6 +186,14 @@
       "description": "The short identifier for this type\n\nUsed to prefix `NodeId`s to add type information to them. Defaults to the lowercase first three letters of the `title`.",
       "type": "string"
     },
+    "patch": {
+      "description": "Options for patching the type or property",
+      "allOf": [
+        {
+          "$ref": "#/definitions/PatchOptions"
+        }
+      ]
+    },
     "pattern": {
       "description": "The expected format of the value\n\nThe value of this keyword MUST be a string. This string SHOULD be a valid regular expression, according to the ECMA-262 regular expression dialect. A string instance is considered valid if the regular expression matches the instance successfully. Recall: regular expressions are not implicitly anchored.",
       "type": "string"
@@ -212,7 +220,7 @@
       }
     },
     "serde": {
-      "description": "The function to use to deserialize the property",
+      "description": "Options for serializing the type or property using Serde",
       "allOf": [
         {
           "$ref": "#/definitions/SerdeOptions"
@@ -329,7 +337,7 @@
           "type": "string"
         },
         "derive": {
-          "description": "Whether the `DomCodec` should be derived for the type",
+          "description": "Whether the `DomCodec` trait should be derived for the type",
           "type": "boolean"
         },
         "elem": {
@@ -471,7 +479,7 @@
       "type": "object",
       "properties": {
         "derive": {
-          "description": "Whether the `MarkdownCodec` should be derived for the type",
+          "description": "Whether the `MarkdownCodec` trait should be derived for the type",
           "type": "boolean"
         },
         "escape": {
@@ -481,6 +489,24 @@
         "template": {
           "description": "The Rust formatting string to use as a template to encode to Markdown",
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PatchOptions": {
+      "description": "Options used when merging nodes",
+      "type": "object",
+      "properties": {
+        "derive": {
+          "description": "Whether the `PatchNode` trait should be derived for the type",
+          "type": "boolean"
+        },
+        "formats": {
+          "description": "The formats from which the property should be patched for\n\nOnly formats that support the property should be included. If this list is present (i.e. not `None`) but empty, it is assumed that the property is supported by all formats.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false
@@ -608,7 +634,7 @@
           "type": "string"
         },
         "dom": {
-          "description": "Options for serializing the type or property to the browser DOM",
+          "description": "Options for encoding the type or property to HTML for the browser DOM",
           "allOf": [
             {
               "$ref": "#/definitions/DomOptions"
@@ -651,7 +677,7 @@
           "type": "string"
         },
         "html": {
-          "description": "Options for converting the type or property to/from HTML",
+          "description": "Options for encoding the type or property to/from HTML",
           "allOf": [
             {
               "$ref": "#/definitions/HtmlOptions"
@@ -667,7 +693,7 @@
           ]
         },
         "jats": {
-          "description": "Options for converting the type or property to/from JATS XML",
+          "description": "Options for encoding the type or property to/from JATS XML",
           "allOf": [
             {
               "$ref": "#/definitions/JatsOptions"
@@ -675,7 +701,7 @@
           ]
         },
         "markdown": {
-          "description": "Options for converting the type or property to Markdown",
+          "description": "Options for encoding the type or property to Markdown",
           "allOf": [
             {
               "$ref": "#/definitions/MarkdownOptions"
@@ -708,6 +734,14 @@
           "description": "The short identifier for this type\n\nUsed to prefix `NodeId`s to add type information to them. Defaults to the lowercase first three letters of the `title`.",
           "type": "string"
         },
+        "patch": {
+          "description": "Options for patching the type or property",
+          "allOf": [
+            {
+              "$ref": "#/definitions/PatchOptions"
+            }
+          ]
+        },
         "pattern": {
           "description": "The expected format of the value\n\nThe value of this keyword MUST be a string. This string SHOULD be a valid regular expression, according to the ECMA-262 regular expression dialect. A string instance is considered valid if the regular expression matches the instance successfully. Recall: regular expressions are not implicitly anchored.",
           "type": "string"
@@ -734,7 +768,7 @@
           }
         },
         "serde": {
-          "description": "The function to use to deserialize the property",
+          "description": "Options for serializing the type or property using Serde",
           "allOf": [
             {
               "$ref": "#/definitions/SerdeOptions"

@@ -8,7 +8,6 @@
   ],
   "category": "works",
   "description": "An audio file.",
-  "proptest": {},
   "html": {
     "elem": "audio",
     "special": true
@@ -20,6 +19,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "contentUrl"
@@ -541,6 +541,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -587,6 +592,14 @@
         "content-url",
         "content_url"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "html": {
+        "attr": "src"
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed URL.",
@@ -604,9 +617,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary()"
         }
-      },
-      "html": {
-        "attr": "src"
       },
       "type": "string"
     },
@@ -634,6 +644,11 @@
     "caption": {
       "@id": "schema:caption",
       "description": "The caption for this audio recording.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "html": {
         "attr": "alt"
       },

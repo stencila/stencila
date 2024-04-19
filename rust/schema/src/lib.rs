@@ -6,12 +6,17 @@ mod prelude;
 mod types;
 pub use types::*;
 
+mod patch;
+pub use patch::*;
+
+mod walk;
+pub use walk::*;
+
 pub mod shortcuts;
 pub mod transforms;
-pub mod walk;
 
 pub use node_id::NodeId;
-pub use node_type::NodeType;
+pub use node_type::{NodeProperty, NodeType};
 
 #[cfg(feature = "proptest")]
 mod proptests;

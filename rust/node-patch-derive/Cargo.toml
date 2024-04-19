@@ -1,0 +1,11 @@
+[package]
+name = "node-patch-derive"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+proc_macro = true
+
+[dependencies]
+common = { path = "../common" }
+darling = "0.20.8"

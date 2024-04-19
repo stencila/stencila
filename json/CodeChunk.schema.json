@@ -9,7 +9,6 @@
   ],
   "category": "code",
   "description": "A executable chunk of code.",
-  "proptest": {},
   "jats": {
     "elem": "code",
     "attrs": {
@@ -19,6 +18,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "code"
@@ -62,6 +62,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -285,6 +290,14 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "content": true
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -303,9 +316,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "jats": {
-        "content": true
-      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -318,6 +328,14 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "language"
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string.",
@@ -335,9 +353,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "language"
       },
       "type": "string"
     },
@@ -369,6 +384,11 @@
         "label-type",
         "label_type"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "No label type",
@@ -384,6 +404,11 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the chunk.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "No label",
@@ -403,7 +428,15 @@
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the chunk.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "walk": true,
+      "dom": {
+        "elem": "div"
+      },
       "proptest": {
         "min": {
           "description": "No caption",
@@ -413,9 +446,6 @@
           "description": "Generate up to two arbitrary paragraphs.",
           "strategy": "option::of(vec_paragraphs(2))"
         }
-      },
-      "dom": {
-        "elem": "div"
       },
       "type": "array",
       "items": {

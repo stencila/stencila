@@ -9,7 +9,6 @@
   "category": "prose",
   "description": "A heading.",
   "$comment": "Analogues of `Heading` in other schemas include:\n  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)\n  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)\n  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)\n",
-  "proptest": {},
   "dom": {
     "derive": false
   },
@@ -23,6 +22,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "level",
@@ -53,6 +53,11 @@
     "level": {
       "@id": "stencila:level",
       "description": "The level of the heading.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "Fixed value of 1",

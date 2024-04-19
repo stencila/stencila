@@ -9,7 +9,7 @@ use super::suggestion_status::SuggestionStatus;
 /// A suggestion to replace some inline content with new inline content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -29,12 +29,14 @@ pub struct ReplaceInline {
     /// The status of the suggestion including whether it is proposed, accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub suggestion_status: Option<SuggestionStatus>,
 
     /// The content that is suggested to be inserted, modified, replaced, or deleted.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
+    #[merge(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![t("text")]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines_non_recursive(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
@@ -44,6 +46,7 @@ pub struct ReplaceInline {
 
     /// The new replacement inline content.
     #[serde(deserialize_with = "one_or_many")]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "span")]
     pub replacement: Vec<Inline>,

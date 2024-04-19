@@ -23,6 +23,8 @@ properties:
     type: array
     items:
       $ref: Inline
+    patch:
+      formats: [md]
     dom:
       elem: span
     proptest:
@@ -45,31 +47,37 @@ properties:
       Note that this is equivalent to the `href` attribute on a HTML `<a>` element,
       not the `target` attribute (which is used to defined where to display the linked content,
       e.g. in a new browser window).
-    html:
-      attr: href
-    jats:
-      attr: xlink:href
     type: string
     # See http://json-schema.org/draft-06/json-schema-release-notes.html#formats-uri-vs-uri-reference
     # for the difference between `uri` and `uri-reference`. The latter is more permissive, and is
     # used here because it allows for intra-doc links using a #fragment only.
     format: uri-reference
+    patch:
+      formats: [md]
+    html:
+      attr: href
+    jats:
+      attr: xlink:href
   title:
     '@id': schema:headline
     description: A title for the link.
     $comment: |
       This property is analogous to the HTML `title` global attribute which
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
+    type: string
+    patch:
+      formats: [md]
     html:
       attr: title
     jats:
       attr: xlink:title
-    type: string
   rel:
     '@id': schema:linkRelationship
     description:
       The relation between the target and the current thing.
       # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
+    patch:
+      formats: [md]
+    type: string
     html:
       attr: rel
-    type: string

@@ -132,6 +132,7 @@
           ]
         }
       ],
+      "stencila:assignee": "anne",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -142,8 +143,7 @@
             }
           ]
         }
-      ],
-      "stencila:assignee": "anne"
+      ]
     },
     {
       "@type": "stencila:Paragraph",

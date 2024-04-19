@@ -45,6 +45,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "SuggestionStatus.schema.json"
     }
   }

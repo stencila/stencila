@@ -267,6 +267,8 @@ properties:
     items:
       $ref: Inline
     strip: [metadata]
+    patch:
+      formats: [md]
     dom:
       elem: h1
   version:

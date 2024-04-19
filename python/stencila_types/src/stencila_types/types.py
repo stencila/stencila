@@ -1041,6 +1041,9 @@ class CallArgument(Parameter):
 
     type: Literal["CallArgument"] = "CallArgument"
 
+    value: Node | None = None
+    """The current value of the argument."""
+
     code: Cord
     """The code to be evaluated for the parameter."""
 

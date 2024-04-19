@@ -67,12 +67,4 @@ where
 
         Ok(())
     }
-
-    fn similarity<S: ReadStore>(&self, store: &S, obj: &ObjId, prop: Prop) -> Result<usize> {
-        if let Some((Value::Object(ObjType::List), _prop_obj_id)) = store.get(obj, prop)? {
-            // TODO
-        }
-
-        Ok(0)
-    }
 }

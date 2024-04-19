@@ -9,7 +9,6 @@
   ],
   "category": "prose",
   "description": "A section quoted from somewhere else.",
-  "proptest": {},
   "html": {
     "elem": "blockquote"
   },
@@ -19,6 +18,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "content"
@@ -61,6 +61,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content of the quote.",
+      "dom": {
+        "elem": "blockquote"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single arbitrary paragraph.",
@@ -78,9 +81,6 @@
           "description": "Generate up to eight arbitrary, non-recursive, block nodes.",
           "strategy": "vec_blocks_non_recursive(8)"
         }
-      },
-      "dom": {
-        "elem": "blockquote"
       },
       "type": "array",
       "items": {

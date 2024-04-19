@@ -8,7 +8,6 @@
   ],
   "category": "works",
   "description": "Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.",
-  "proptest": {},
   "html": {
     "elem": "figure"
   },
@@ -18,6 +17,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "content"
@@ -538,6 +538,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -565,6 +570,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content of the figure.",
+      "dom": {
+        "elem": "figure"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single arbitrary paragraph.",
@@ -579,9 +587,6 @@
           "strategy": "vec_blocks_non_recursive(4)"
         }
       },
-      "dom": {
-        "elem": "figure"
-      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -590,6 +595,11 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the figure.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "No label",
@@ -609,7 +619,15 @@
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the figure.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "walk": true,
+      "dom": {
+        "elem": "figcaption"
+      },
       "proptest": {
         "min": {
           "description": "No caption",
@@ -623,9 +641,6 @@
           "description": "Generate up to three arbitrary, non-recursive, block nodes.",
           "strategy": "option::of(vec_blocks_non_recursive(3))"
         }
-      },
-      "dom": {
-        "elem": "figcaption"
       },
       "type": "array",
       "items": {

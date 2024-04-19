@@ -9,7 +9,7 @@ use super::string::String;
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -28,6 +28,7 @@ pub struct Note {
 
     /// Determines where the note content is displayed within the document.
     #[serde(alias = "note-type", alias = "note_type")]
+    #[merge(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"NoteType::Footnote"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"NoteType::Footnote"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"NoteType::arbitrary()"#))]
@@ -38,6 +39,7 @@ pub struct Note {
     /// Content of the note, usually a paragraph.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
+    #[merge(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]

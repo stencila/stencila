@@ -19,6 +19,8 @@ properties:
     description: The code of the equation in the `mathLanguage`.
     $ref: Cord
     strip: [code]
+    patch:
+      formats: [md]
     proptest:
       min:
         description: Generate a simple fixed string of math.
@@ -41,6 +43,8 @@ properties:
     $comment: Where necessary, the language is assumed to be TeX.
     type: string
     strip: [code]
+    patch:
+      formats: [md]
     proptest:
       min:
         description: No language.

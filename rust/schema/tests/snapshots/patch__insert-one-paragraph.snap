@@ -1,0 +1,40 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para2
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para1
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para3
+    - type: Paragraph
+      content:
+        - type: Text
+          value: para2
+ops:
+  - - - content
+    - Insert:
+        - - 1
+          - type: Paragraph
+            content:
+              - type: Text
+                value: para3
+authors_before: 2
+authors_after: 2

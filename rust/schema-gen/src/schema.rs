@@ -127,26 +127,29 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip: Vec<StripScopes>,
 
+    /// Options for patching the type or property
+    pub patch: Option<PatchOptions>,
+
     /// Whether a property should be visited when the node is walked over
     pub walk: Option<bool>,
 
-    /// Options for property testing
-    pub proptest: Option<BTreeMap<ProptestLevel, ProptestOptions>>,
-
-    /// The function to use to deserialize the property
+    /// Options for serializing the type or property using Serde
     pub serde: Option<SerdeOptions>,
 
-    /// Options for serializing the type or property to the browser DOM
+    /// Options for encoding the type or property to HTML for the browser DOM
     pub dom: Option<DomOptions>,
 
-    /// Options for converting the type or property to/from HTML
+    /// Options for encoding the type or property to/from HTML
     pub html: Option<HtmlOptions>,
 
-    /// Options for converting the type or property to/from JATS XML
+    /// Options for encoding the type or property to/from JATS XML
     pub jats: Option<JatsOptions>,
 
-    /// Options for converting the type or property to Markdown
+    /// Options for encoding the type or property to Markdown
     pub markdown: Option<MarkdownOptions>,
+
+    /// Options for property testing
+    pub proptest: Option<BTreeMap<ProptestLevel, ProptestOptions>>,
 
     /// A reference to another schema in Stencila Schema
     ///
@@ -541,6 +544,24 @@ pub enum ProptestLevel {
     Max,
 }
 
+/// Options used when merging nodes
+#[skip_serializing_none]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[serde(default, deny_unknown_fields, crate = "common::serde")]
+pub struct PatchOptions {
+    /// Whether the `PatchNode` trait should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
+    /// The formats from which the property should be patched for
+    ///
+    /// Only formats that support the property should be included.
+    /// If this list is present (i.e. not `None`) but empty, it is
+    /// assumed that the property is supported by all formats.
+    pub formats: Option<Vec<String>>,
+}
+
 /// Options for `serde` serialization/deserialization
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
@@ -567,7 +588,7 @@ pub struct SerdeOptions {
     crate = "common::serde"
 )]
 pub struct DomOptions {
-    /// Whether the `DomCodec` should be derived for the type
+    /// Whether the `DomCodec` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
     #[default = true]
     pub derive: bool,
@@ -673,7 +694,7 @@ pub struct JatsOptions {
     crate = "common::serde"
 )]
 pub struct MarkdownOptions {
-    /// Whether the `MarkdownCodec` should be derived for the type
+    /// Whether the `MarkdownCodec` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
     #[default = true]
     pub derive: bool,

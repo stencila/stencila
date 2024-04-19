@@ -9,7 +9,6 @@
   ],
   "category": "works",
   "description": "An image file.",
-  "proptest": {},
   "dom": {
     "derive": false
   },
@@ -24,6 +23,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "contentUrl"
@@ -545,6 +545,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -591,6 +596,14 @@
         "content-url",
         "content_url"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "html": {
+        "attr": "src"
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed URL.",
@@ -608,9 +621,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary()"
         }
-      },
-      "html": {
-        "attr": "src"
       },
       "type": "string"
     },
@@ -638,6 +648,11 @@
     "caption": {
       "@id": "schema:caption",
       "description": "The caption for this image.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "span"
       },

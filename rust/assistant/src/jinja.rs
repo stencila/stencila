@@ -208,7 +208,7 @@ where
     let mut shots: Vec<(String, String)> = instructions
         .into_iter()
         .filter_map(|instruction| {
-            if instruction.options.assignee.as_deref() != Some(assignee) {
+            if instruction.assignee.as_deref() != Some(assignee) {
                 return None;
             }
 

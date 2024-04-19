@@ -29,6 +29,8 @@ properties:
     default: 0
     minimum: 0
     maximum: 6
+    patch:
+      formats: [md]
     proptest:
       min:
         description: Fixed value of 1

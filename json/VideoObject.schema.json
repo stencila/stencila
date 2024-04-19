@@ -9,7 +9,6 @@
   "category": "works",
   "description": "A video file.",
   "$comment": "The `VideoObject` type allows you to provide details such as caption and transcript,\nand the details which are included in [`MediaObject`](./MediaObject)\nwhich `VideoObject` extends.\n",
-  "proptest": {},
   "html": {
     "elem": "video",
     "special": true
@@ -21,6 +20,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "contentUrl"
@@ -542,6 +542,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "h1"
       },
@@ -588,6 +593,14 @@
         "content-url",
         "content_url"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "html": {
+        "attr": "src"
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed URL.",
@@ -605,9 +618,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary()"
         }
-      },
-      "html": {
-        "attr": "src"
       },
       "type": "string"
     },
@@ -635,6 +645,11 @@
     "caption": {
       "@id": "schema:caption",
       "description": "The caption for this video recording.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "html": {
         "attr": "alt"
       },

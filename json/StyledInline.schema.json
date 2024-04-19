@@ -10,7 +10,6 @@
   "category": "style",
   "description": "Styled inline content.",
   "status": "under-development",
-  "proptest": {},
   "html": {
     "elem": "span"
   },
@@ -20,6 +19,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "code",
@@ -51,6 +51,14 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code of the equation in the `styleLanguage`.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "style"
+      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
@@ -69,9 +77,6 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
-      "jats": {
-        "attr": "style"
-      },
       "$ref": "Cord.schema.json"
     },
     "styleLanguage": {
@@ -81,6 +86,14 @@
         "style-language",
         "style_language"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "style-detail"
+      },
       "proptest": {
         "min": {
           "description": "Do not generate a style language.",
@@ -98,9 +111,6 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
-      },
-      "jats": {
-        "attr": "style-detail"
       },
       "type": "string"
     },
@@ -164,6 +174,14 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the span.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "span"
+      },
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
@@ -177,9 +195,6 @@
           "description": "Generate up to four arbitrary, non-recursive, inline nodes",
           "strategy": "vec_inlines_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "span"
       },
       "type": "array",
       "items": {

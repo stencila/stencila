@@ -8,7 +8,6 @@
   ],
   "category": "prose",
   "description": "A admonition within a document.",
-  "proptest": {},
   "html": {
     "elem": "aside"
   },
@@ -18,6 +17,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "admonitionType",
@@ -54,6 +54,14 @@
         "admonition-type",
         "admonition_type"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "content-type"
+      },
       "proptest": {
         "min": {
           "description": "Fixed admonition type.",
@@ -64,14 +72,22 @@
           "strategy": "AdmonitionType::arbitrary()"
         }
       },
-      "jats": {
-        "attr": "content-type"
-      },
       "$ref": "AdmonitionType.schema.json"
     },
     "title": {
       "@id": "schema:headline",
       "description": "The title of the admonition.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "dom": {
+        "elem": "p"
+      },
+      "jats": {
+        "elem": "caption"
+      },
       "proptest": {
         "min": {
           "description": "No title.",
@@ -86,12 +102,6 @@
           "strategy": "option::of(vec_inlines_non_recursive(4))"
         }
       },
-      "dom": {
-        "elem": "p"
-      },
-      "jats": {
-        "elem": "caption"
-      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"
@@ -105,6 +115,14 @@
         "is-folded",
         "is_folded"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "is-folded"
+      },
       "proptest": {
         "min": {
           "description": "Not foldable.",
@@ -115,14 +133,14 @@
           "strategy": "option::of(bool::arbitrary())"
         }
       },
-      "jats": {
-        "attr": "is-folded"
-      },
       "type": "boolean"
     },
     "content": {
       "@id": "stencila:content",
       "description": "The content within the section.",
+      "dom": {
+        "elem": "aside"
+      },
       "proptest": {
         "min": {
           "description": "A single, simple paragraph.",
@@ -136,9 +154,6 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",
           "strategy": "vec_blocks_non_recursive(4)"
         }
-      },
-      "dom": {
-        "elem": "aside"
       },
       "type": "array",
       "items": {

@@ -1,0 +1,58 @@
+---
+source: rust/schema/tests/patch.rs
+expression: "Fixture { old, new, ops, authors_before, authors_after }"
+---
+old:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: Some okay text.
+    - type: Paragraph
+      content:
+        - type: Text
+          value: A rather long winded paragraph.
+    - type: Paragraph
+      content:
+        - type: Text
+          value: A great conclusion.
+new:
+  type: Article
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value: Some okay text.
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value: more succinct
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value: A rather long winded paragraph.
+    - type: Paragraph
+      content:
+        - type: Text
+          value: A great conclusion.
+ops:
+  - - - content
+    - Replace:
+        - - 1
+          - type: InstructionBlock
+            messages:
+              - type: InstructionMessage
+                parts:
+                  - type: Text
+                    value: more succinct
+            content:
+              - type: Paragraph
+                content:
+                  - type: Text
+                    value: A rather long winded paragraph.
+authors_before: 3
+authors_after: 2

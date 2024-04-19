@@ -8,7 +8,7 @@ use super::string::String;
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "EnumValidator")]
@@ -24,6 +24,7 @@ pub struct EnumValidator {
     /// A node is valid if it is equal to any of these values.
     #[serde(alias = "value")]
     #[serde(default)]
+    #[merge(format = "md")]
     pub values: Vec<Node>,
 
     /// A unique identifier for a node within a document

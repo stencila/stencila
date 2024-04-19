@@ -1,6 +1,10 @@
+#[rustfmt::skip]
+mod node_property;
+#[rustfmt::skip]
 mod node_type;
 
 pub use crate::node_type::NodeType;
+pub use node_property::NodeProperty;
 
 impl NodeType {
     /// Can the node type be executed?

@@ -9,10 +9,10 @@
   ],
   "category": "edits",
   "description": "An instruction to edit some inline content.",
-  "proptest": {},
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "messages"
@@ -20,6 +20,7 @@
   "core": [
     "id",
     "autoExec",
+    "assignee",
     "content"
   ],
   "properties": {
@@ -52,6 +53,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -276,6 +282,11 @@
       "aliases": [
         "message"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "div"
       },
@@ -313,7 +324,12 @@
     "assignee": {
       "@id": "stencila:assignee",
       "description": "An identifier for the agent assigned to perform the instruction",
-      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n",
+      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n  patch:\n",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "proptest": {
         "min": {
           "description": "No assignee",
@@ -351,6 +367,9 @@
       "@id": "stencila:content",
       "description": "The content to which the instruction applies.",
       "walk": true,
+      "dom": {
+        "elem": "span"
+      },
       "proptest": {
         "min": {
           "description": "No content",
@@ -368,9 +387,6 @@
           "description": "Generate up to four arbitrary, non-recursive, inline nodes",
           "strategy": "option::of(vec_inlines_non_recursive(4))"
         }
-      },
-      "dom": {
-        "elem": "span"
       },
       "type": "array",
       "items": {

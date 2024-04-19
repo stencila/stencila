@@ -28,6 +28,8 @@ properties:
     '@id': 'schema:value'
     description: The value of the text content
     $ref: Cord
+    patch:
+      formats: [md]
     dom:
       elem: none
     html:

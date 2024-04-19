@@ -9,7 +9,6 @@
   "category": "flow",
   "description": "A parameter of a document.",
   "status": "under-development",
-  "proptest": {},
   "html": {
     "special": true
   },
@@ -19,6 +18,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "name"
@@ -58,6 +58,11 @@
       "strip": [
         "execution"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
@@ -279,6 +284,14 @@
       "@id": "schema:name",
       "description": "The name of the parameter.",
       "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "jats": {
+        "attr": "name"
+      },
       "proptest": {
         "min": {
           "description": "Generate a fixed name.",
@@ -297,15 +310,17 @@
           "strategy": "String::arbitrary()"
         }
       },
-      "jats": {
-        "attr": "name"
-      },
       "type": "string",
       "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
     },
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the parameter.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "type": "string"
     },
     "value": {
@@ -316,12 +331,22 @@
     "default": {
       "@id": "schema:defaultValue",
       "description": "The default value of the parameter.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "$ref": "Node.schema.json"
     },
     "validator": {
       "@id": "stencila:validator",
       "description": "The validator that the value is validated against.",
       "$comment": "This property is large (in terms of bytes) so is best kept as a non-core\nproperty, so as not to inflate the size of the `Inline` enum in Rust.\n",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "dom": {
         "elem": "span"
       },
