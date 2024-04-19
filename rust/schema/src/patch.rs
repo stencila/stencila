@@ -471,9 +471,8 @@ where
         let num = self.len().max(other.len());
         let mut sum = 0.0;
         for index in 0..num {
-            match (self.get(index), other.get(index)) {
-                (Some(me), Some(other)) => sum += me.similarity(other, context)?,
-                _ => {}
+            if let (Some(me), Some(other)) = (self.get(index), other.get(index)) {
+                sum += me.similarity(other, context)?;
             }
         }
 
@@ -552,7 +551,7 @@ where
                 }
 
                 // Check if reached ends of the other vector
-                if other_pos <= 0 {
+                if other_pos == 0 {
                     hit_top = true;
                 }
                 if other_pos >= other.len() - 1 {
@@ -586,18 +585,15 @@ where
             .into_iter()
             .sorted_by(|a, b| a.similarity.total_cmp(&b.similarity).reverse())
         {
-            if pairs
-                .iter()
-                .find(|pair| {
-                    pair.self_pos == candidate.self_pos || pair.other_pos == candidate.other_pos
-                })
-                .is_none()
-            {
+            if !pairs.iter().any(|pair| {
+                pair.self_pos == candidate.self_pos || pair.other_pos == candidate.other_pos
+            }) {
                 pairs.push(candidate);
             }
         }
         debug_assert!(pairs.len() == self.len().min(other.len()));
 
+        #[allow(clippy::comparison_chain)]
         if other.len() > self.len() {
             // If other is longer then insert or append those items that do not have a pair
             let insert_num = other.len() - self.len();
