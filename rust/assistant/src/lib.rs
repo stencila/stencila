@@ -231,6 +231,7 @@ impl IsAssistantMessage for InstructionMessage {
 /// We store both the text and the vectors so that we can easily
 /// retrieve them in tests.
 #[derive(Debug, Clone, Default, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Embeddings {
     texts: Option<Vec<String>>,
     vectors: Option<Vec<Vec<f32>>>,

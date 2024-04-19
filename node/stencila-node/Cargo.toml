@@ -9,9 +9,9 @@ crate-type = ["cdylib"]
 [dependencies]
 codecs = { path = "../../rust/codecs" }
 common = { path = "../../rust/common" }
-napi = { version = "2.16.2", default-features = false, features = ["async", "napi8"] }
-napi-derive = "2.16.1"
+napi = { version = "2.16.4", default-features = false, features = ["async", "napi8"] }
+napi-derive = "2.16.3"
 schema = { path = "../../rust/schema" }
 
 [build-dependencies]
-napi-build = "2.1.2"
+napi-build = "2.1.3"
