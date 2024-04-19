@@ -1,14 +1,14 @@
  start    end    offsets   node_id                  node_type+property
-    12     44      12/44   img_11111113N            ImageObject
-    12     44        0/0   pgh_11111113P            Paragraph
-     0     49      -12/5   fig_11111113L            Figure
-    65     71      65/22   pgh_11111113S            Paragraph
-    73    105       8/34   img_11111113U            ImageObject
-    73    105        0/0   pgh_11111113V            Paragraph
-    51    110      -22/5   fig_11111113Q            Figure
-   139    176      88/66   pgh_11111113Z            Paragraph
-   178    212      39/36   img_11111113b            ImageObject
-   178    212        0/0   pgh_11111113c            Paragraph
-   125    219      -53/7   fig_11111113X            Figure
-   112    224      -13/5   sec_11111113W            Section
-     0    224     -112/0   art_11111113d            Article
+    12     44      12/44   img_1111116j             ImageObject
+    12     44        0/0   pgh_1111116k             Paragraph
+     0     49      -12/5   fig_1111116h             Figure
+    65     71      65/22   pgh_1111116o             Paragraph
+    73    105       8/34   img_1111116q             ImageObject
+    73    105        0/0   pgh_1111116r             Paragraph
+    51    110      -22/5   fig_1111116m             Figure
+   139    176      88/66   pgh_1111116v             Paragraph
+   178    212      39/36   img_1111116x             ImageObject
+   178    212        0/0   pgh_1111116y             Paragraph
+   125    219      -53/7   fig_1111116t             Figure
+   112    224      -13/5   sec_1111116s             Section
+     0    224     -112/0   art_1111116z             Article

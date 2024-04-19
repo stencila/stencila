@@ -23,8 +23,9 @@ use common::{
 /// This type exists as a `newtype` of `Vec<u8>` so that we can:
 ///
 /// - define a `Default` implementation which creates a random UUID, and
-/// - define a `PartialEq` implementation which ignores the
-#[derive(Clone, Deref)]
+/// - define a `PartialEq` implementation which always returns true so that
+///   a node's `uid` is ignored in equality testing.
+#[derive(Deref)]
 pub struct NodeUid(Vec<u8>);
 
 /// An atomic counter for deterministic auto-incremented ids
@@ -36,8 +37,8 @@ pub struct NodeUid(Vec<u8>);
 static NODE_UID: Lazy<AtomicU64> = Lazy::new(AtomicU64::default);
 
 impl NodeUid {
-    // Reset the `NodeUid` counter
-    pub fn reset() {
+    // Reset the `NodeUid` counter during tests
+    pub fn testing_only_reset() {
         #[cfg(debug_assertions)]
         NODE_UID.store(0, Ordering::SeqCst)
     }
@@ -68,6 +69,14 @@ impl fmt::Debug for NodeUid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let id = bs58::encode(&self.0).into_string();
         f.write_str(&id)
+    }
+}
+
+impl Clone for NodeUid {
+    fn clone(&self) -> Self {
+        // To maintain uniqueness never clone id.
+        // Instead generate a new one.
+        Self::default()
     }
 }
 

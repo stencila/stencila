@@ -1,10 +1,10 @@
  start    end    offsets   node_id                  node_type+property
-     0     16       0/16   txt_11111111             Text
-    19     64      19/48   txt_11111112             Text
-    19     64        0/0   qti_11111113             QuoteInline.content
-    16     68       -3/4   qti_11111113             QuoteInline
-    68     69       52/1   txt_11111114             Text
-     0     69      -68/0   pgh_11111115             Paragraph.content
-     0     70        0/1   pgh_11111115             Paragraph
-     0     71        0/1   art_11111116             Article.content
-     0     70       0/-1   art_11111116             Article
+     0     16       0/16   txt_111111139            Text
+    19     64      19/48   txt_11111113A            Text
+    19     64        0/0   qti_11111113B            QuoteInline.content
+    16     68       -3/4   qti_11111113B            QuoteInline
+    68     69       52/1   txt_11111113C            Text
+     0     69      -68/0   pgh_11111113D            Paragraph.content
+     0     70        0/1   pgh_11111113D            Paragraph
+     0     71        0/1   art_11111113E            Article.content
+     0     70       0/-1   art_11111113E            Article

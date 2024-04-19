@@ -108,7 +108,7 @@ pub async fn from_str_with_info(
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
-    NodeUid::reset();
+    NodeUid::testing_only_reset();
 
     codec
         .from_str(
@@ -180,7 +180,7 @@ pub async fn from_path_with_info(
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
-    NodeUid::reset();
+    NodeUid::testing_only_reset();
 
     codec
         .from_path(

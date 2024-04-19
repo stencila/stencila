@@ -174,9 +174,10 @@ impl Document {
 
 #[cfg(test)]
 mod tests {
+    use json_patch::{AddOperation, RemoveOperation};
+
     use common::{eyre::bail, tokio::sync::mpsc::channel};
     use common_dev::pretty_assertions::assert_eq;
-    use json_patch::{AddOperation, RemoveOperation};
     use schema::shortcuts::{art, p, t};
 
     use crate::DocumentType;
@@ -208,8 +209,7 @@ mod tests {
             .await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
-        // 2 map additions before
-        if let PatchOperation::Add(AddOperation { path, .. }) = &patch.ops[2] {
+        if let Some(PatchOperation::Add(AddOperation { path, .. })) = &patch.ops.last() {
             assert_eq!(path, "/node/content/0");
         } else {
             bail!("unexpected patch operation {patch:?}")
@@ -219,7 +219,7 @@ mod tests {
         document.update_sender.send(art([p([t("Hello!")])])).await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
-        if let PatchOperation::Replace(ReplaceOperation { path, .. }) = &patch.ops[0] {
+        if let Some(PatchOperation::Replace(ReplaceOperation { path, .. })) = &patch.ops.last() {
             assert_eq!(path, "/node/content/0/content/0/value");
         } else {
             bail!("unexpected patch operation {patch:?}")
@@ -229,8 +229,7 @@ mod tests {
         document.update_sender.send(art([p([])])).await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
-        // 1 map removal before
-        if let PatchOperation::Remove(RemoveOperation { path, .. }) = &patch.ops[1] {
+        if let Some(PatchOperation::Remove(RemoveOperation { path, .. })) = &patch.ops.last() {
             assert_eq!(path, "/node/content/0/content/0");
         } else {
             bail!("unexpected patch operation {patch:?}")
