@@ -382,6 +382,17 @@ fn vecs() -> Result<()> {
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 
+    // Move
+    let mut old = vec![1, 2, 3];
+    let new = vec![3, 2, 1];
+    let ops = diff(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(PatchPath::new(), PatchOp::Move(vec![(0, 2), (0, 1)]))]
+    );
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
     Ok(())
 }
 
