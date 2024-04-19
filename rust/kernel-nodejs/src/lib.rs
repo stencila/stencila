@@ -7,14 +7,14 @@ use kernel_micro::{
 
 /// A kernel for executing JavaScript code in Node.js
 #[derive(Default)]
-pub struct NodeKernel {
+pub struct NodeJsKernel {
     /// A counter of instances of this microkernel
     instances: AtomicU64,
 }
 
-impl Kernel for NodeKernel {
+impl Kernel for NodeJsKernel {
     fn name(&self) -> String {
-        "node".to_string()
+        "nodejs".to_string()
     }
 
     fn availability(&self) -> KernelAvailability {
@@ -48,7 +48,7 @@ impl Kernel for NodeKernel {
     }
 }
 
-impl Microkernel for NodeKernel {
+impl Microkernel for NodeJsKernel {
     fn executable_name(&self) -> String {
         "node".to_string()
     }
@@ -81,7 +81,7 @@ mod tests {
     /// Standard kernel test for execution of code
     #[test_log::test(tokio::test)]
     async fn execution() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -155,7 +155,7 @@ console.log(a, b, c, d)",
     /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -195,7 +195,7 @@ console.log(a, b, c, d)",
     /// Standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
     async fn printing() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -212,7 +212,7 @@ console.log(a, b, c, d)",
     /// Custom test for execution messages
     #[tokio::test]
     async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
+        let Some(mut kernel) = start_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -274,7 +274,7 @@ console.error("Error message");
     /// Standard kernel test for getting runtime information
     #[test_log::test(tokio::test)]
     async fn info() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -289,7 +289,7 @@ console.error("Error message");
     /// Standard kernel test for listing installed packages
     #[test_log::test(tokio::test)]
     async fn packages() -> Result<()> {
-        let Some(instance) = start_instance::<NodeKernel>().await? else {
+        let Some(instance) = start_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -302,7 +302,7 @@ console.error("Error message");
     /// Standard kernel test for variable listing
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -392,7 +392,7 @@ var para = {type: "Paragraph", content:[]}
     /// Standard kernel test for variable management
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -402,7 +402,7 @@ var para = {type: "Paragraph", content:[]}
     /// Standard kernel test for forking
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -413,7 +413,7 @@ var para = {type: "Paragraph", content:[]}
     /// available in the forked instance
     #[test_log::test(tokio::test)]
     async fn forking_imports() -> Result<()> {
-        let Some(mut instance) = start_instance::<NodeKernel>().await? else {
+        let Some(mut instance) = start_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -462,7 +462,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -502,7 +502,7 @@ sleep(100);",
     /// Standard kernel test for stopping
     #[test_log::test(tokio::test)]
     async fn stop() -> Result<()> {
-        let Some(instance) = create_instance::<NodeKernel>().await? else {
+        let Some(instance) = create_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 
@@ -515,7 +515,7 @@ sleep(100);",
     /// that use these to declare variables can be re-executed without error.
     #[tokio::test]
     async fn redeclarations() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
+        let Some(mut kernel) = start_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
 

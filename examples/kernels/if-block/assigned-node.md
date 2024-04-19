@@ -1,4 +1,4 @@
-```node exec
+```nodejs exec
 const x = 3
 ```
 

@@ -1,4 +1,4 @@
-```node exec
+```nodejs exec
 var items = [1, 2, 3]
 ```
 

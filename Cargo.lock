@@ -3313,7 +3313,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kernel-node"
+name = "kernel-nodejs"
 version = "0.0.0"
 dependencies = [
  "common-dev",
@@ -3390,7 +3390,7 @@ dependencies = [
  "kernel-asciimath",
  "kernel-bash",
  "kernel-jinja",
- "kernel-node",
+ "kernel-nodejs",
  "kernel-python",
  "kernel-quickjs",
  "kernel-r",

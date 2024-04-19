@@ -10,7 +10,7 @@ kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
 kernel-jinja = { path = "../kernel-jinja" }
-kernel-node = { path = "../kernel-node" }
+kernel-nodejs = { path = "../kernel-nodejs" }
 kernel-python = { path = "../kernel-python" }
 kernel-quickjs = { path = "../kernel-quickjs" }
 kernel-r = { path = "../kernel-r" }

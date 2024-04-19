@@ -1,3 +1,3 @@
-```node exec
+```nodejs exec
 console.log("Hello world!")
 ```

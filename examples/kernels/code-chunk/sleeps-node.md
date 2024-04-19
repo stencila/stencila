@@ -1,4 +1,4 @@
-```node exec
+```nodejs exec
 // A sleep function which can be called at top level
 // without using await (which is not supported in
 // Node.js's `vm` module)
@@ -13,14 +13,14 @@ function sleep(seconds) {
 sleep(1)
 ```
 
-```node exec
+```nodejs exec
 sleep(2)
 ```
 
-```node exec
+```nodejs exec
 sleep(4)
 ```
 
-```node exec
+```nodejs exec
 sleep(8)
 ```
