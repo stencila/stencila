@@ -42,16 +42,8 @@ new:
           value: para4
 ops:
   - - - content
-      - 1
-      - content
-      - 0
-      - value
-    - Set: para3
-  - - - content
-      - 2
-      - content
-      - 0
-      - value
-    - Set: para2
+    - Move:
+        - - 1
+          - 2
 authors_before: 4
 authors_after: 4

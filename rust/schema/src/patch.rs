@@ -678,9 +678,37 @@ where
             context.op_remove(remove);
         }
 
-        println!("PAIRS {pairs:#?}");
+        // Create a move operation that moves items from current new_pos to other_pos.
+        let mut moves: Vec<(usize, usize)> = Vec::new();
+        for index in 0..pairs.len() {
+            let Pair {
+                new_pos, other_pos, ..
+            } = pairs[index];
 
-        // TODO: perform moves
+            // Skip is new pos id the same as other pos
+            if new_pos == other_pos {
+                continue;
+            }
+
+            // Add a move for this
+            moves.push((new_pos, other_pos));
+
+            // Update new pos for this pair and for every pair where the new_pos will be
+            // affected by this move operation
+            pairs[index].new_pos = other_pos;
+            if index < pairs.len() - 1 {
+                for pair in &mut pairs[(index + 1)..] {
+                    if new_pos < pair.new_pos && other_pos >= pair.new_pos {
+                        pair.new_pos -= 1;
+                    } else if new_pos > pair.new_pos && other_pos <= pair.new_pos {
+                        pair.new_pos += 1;
+                    }
+                }
+            }
+        }
+        if !moves.is_empty() {
+            context.op_move(moves);
+        }
 
         // Iterate over pairs and diff
         let mut replace = Vec::new();
@@ -703,9 +731,8 @@ where
                 replace.push((new_pos, other[other_pos].to_value()?));
             } else {
                 // Otherwise diff the two items
-                // Note uses of new_pos (not other_pos) here are important!
-                context.enter_index(new_pos);
-                self[self_pos].diff(&other[new_pos], context)?;
+                context.enter_index(other_pos);
+                self[self_pos].diff(&other[other_pos], context)?;
                 context.exit_index();
             }
         }
@@ -757,8 +784,9 @@ where
                 }
             }
             PatchOp::Move(indices) => {
-                for (_from, _to) in indices {
-                    todo!()
+                for (from, to) in indices {
+                    let item = self.remove(from);
+                    self.insert(to, item);
                 }
             }
             PatchOp::Remove(indices) => {

@@ -138,67 +138,33 @@ ops:
   - - - content
       - 0
       - rows
-      - 0
-      - cells
-      - 0
-      - content
-      - 0
-      - content
-      - 0
-      - value
-    - Set: Age
+    - Move:
+        - - 2
+          - 1
   - - - content
       - 0
       - rows
       - 0
       - cells
+    - Move:
+        - - 0
+          - 1
+        - - 0
+          - 2
+        - - 1
+          - 0
+  - - - content
+      - 0
+      - rows
       - 1
-      - content
-      - 0
-      - content
-      - 0
-      - value
-    - Set: Name
+      - cells
+    - Move:
+        - - 1
+          - 2
   - - - content
       - 0
       - rows
-      - 0
-      - cells
-      - 2
-      - content
-      - 0
-      - content
-      - 0
-      - value
-    - Set: Occupation
-  - - - content
-      - 0
-      - rows
-      - 2
-      - cells
-      - 0
-      - content
-      - 0
-      - content
-      - 0
-      - value
-    - Set: "25"
-  - - - content
-      - 0
-      - rows
-      - 2
-      - cells
       - 1
-      - content
-      - 0
-      - content
-      - 0
-      - value
-    - Set: Bob
-  - - - content
-      - 0
-      - rows
-      - 2
       - cells
       - 2
       - content
@@ -206,7 +172,7 @@ ops:
       - content
       - 0
       - value
-    - Set: Designer
+    - Set: Developer
   - - - content
       - 0
       - rows
@@ -234,7 +200,15 @@ ops:
   - - - content
       - 0
       - rows
-      - 1
+      - 2
+      - cells
+    - Move:
+        - - 1
+          - 2
+  - - - content
+      - 0
+      - rows
+      - 2
       - cells
       - 2
       - content
@@ -242,6 +216,30 @@ ops:
       - content
       - 0
       - value
-    - Set: Developer
+    - Set: Designer
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: "25"
+  - - - content
+      - 0
+      - rows
+      - 2
+      - cells
+      - 1
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Set: Bob
 authors_before: 10
 authors_after: 10

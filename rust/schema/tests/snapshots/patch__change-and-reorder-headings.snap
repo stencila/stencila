@@ -32,12 +32,12 @@ new:
       level: 2
       content:
         - type: Text
-          value: heading1
+          value: heading2
     - type: Heading
       level: 1
       content:
         - type: Text
-          value: heading2
+          value: heading1
     - type: Heading
       level: 4
       content:
@@ -50,32 +50,20 @@ new:
           value: heading3
 ops:
   - - - content
-      - 0
-      - level
-    - Set: 2
-  - - - content
-      - 1
-      - level
-    - Set: 1
-  - - - content
-      - 3
-      - level
-    - Set: 1
-  - - - content
-      - 3
-      - content
-      - 0
-      - value
-    - Set: heading3
-  - - - content
-      - 2
-      - level
-    - Set: 4
+    - Move:
+        - - 0
+          - 1
+        - - 3
+          - 2
   - - - content
       - 2
       - content
       - 0
       - value
     - Set: heading4delta
+  - - - content
+      - 3
+      - level
+    - Set: 1
 authors_before: 4
 authors_after: 4

@@ -6,7 +6,7 @@ ops_count:
   admonition-add-para: 1
   append-one-paragraph: 1
   append-paragraph-to-section: 1
-  change-and-reorder-headings: 6
+  change-and-reorder-headings: 3
   change-code-chunk-code: 1
   change-code-chunk-code-and-lang: 2
   change-first-paragraph: 1
@@ -23,22 +23,22 @@ ops_count:
   instruction-modify-text: 1
   instruction-with-footnode: 1
   instruction-wrap: 1
-  list-swap-items: 6
-  move-middle-paragraphs: 2
+  list-swap-items: 1
+  move-middle-paragraphs: 1
   prepend-one-paragraph: 1
   section-add-paras: 1
   split-code-chunk: 2
   table-add-rows: 1
   table-change-content: 1
-  table-switch-columns: 9
-  table-switch-rows: 6
+  table-switch-columns: 10
+  table-switch-rows: 1
   thematic-simple-add: 1
   theorem-add-text: 1
   unwrap-emphasis: 2
   unwrap-figure: 2
   wrap-emphasis: 2
   wrap-figure: 2
-ops_total: 67
+ops_total: 54
 author_diffs:
   admonition-add-para: 0
   append-one-paragraph: 0
@@ -60,7 +60,7 @@ author_diffs:
   instruction-modify-text: 0
   instruction-with-footnode: 0
   instruction-wrap: -1
-  list-swap-items: -1
+  list-swap-items: 0
   move-middle-paragraphs: 0
   prepend-one-paragraph: 0
   section-add-paras: 0
@@ -75,4 +75,4 @@ author_diffs:
   unwrap-figure: -4
   wrap-emphasis: 0
   wrap-figure: -3
-author_diffs_sum: -13
+author_diffs_sum: -12
