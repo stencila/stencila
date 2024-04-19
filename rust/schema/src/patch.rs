@@ -607,7 +607,7 @@ where
             // If other is longer then insert or append those items that do not have a pair
             let length_difference = other.len() - self.len();
             let mut insert = Vec::new();
-            let mut copy: HashMap<usize, Vec<usize>> = HashMap::new();
+            let mut copy: HashMap<usize, Vec<(usize, f32)>> = HashMap::new();
             for other_pos in 0..other.len() {
                 if insert.len() + copy.len() == length_difference {
                     break;
@@ -615,16 +615,19 @@ where
 
                 if !best_pairs.iter().any(|pair| pair.other_pos == other_pos) {
                     let mut is_copied = false;
-                    const COPY_SIMILARITY: f32 = 1.0;
+                    const COPY_SIMILARITY: f32 = 0.95;
 
                     // Attempt to find a close match in self
                     for self_pos in 0..self.len() {
-                        if self[self_pos].similarity(&other[other_pos], context)? >= COPY_SIMILARITY
-                        {
+                        let similarity = self[self_pos].similarity(&other[other_pos], context)?;
+                        if similarity >= COPY_SIMILARITY {
+                            // Generate a copy operation
+                            let entry = (other_pos, similarity);
                             copy.entry(self_pos)
-                                .and_modify(|to| to.push(other_pos))
-                                .or_insert_with(|| vec![other_pos]);
+                                .and_modify(|to| to.push(entry))
+                                .or_insert_with(|| vec![entry]);
                             is_copied = true;
+
                             break;
                         }
                     }
@@ -636,9 +639,6 @@ where
                 }
             }
             insert.sort();
-
-            //println!("INSERT {insert:?}");
-            //println!("COPY {copy:?}");
 
             let first = insert.first().cloned().unwrap_or_default();
             if copy.is_empty() && first == self.len() {
@@ -662,9 +662,30 @@ where
                             pair.new_pos += 1;
                         }
                     }
-                    for &pos in copy.values().flatten() {
+                    for &(pos, ..) in copy.values().flatten() {
                         if pos <= pair.new_pos {
                             pair.new_pos += 1;
+                        }
+                    }
+                }
+
+                if !copy.is_empty() {
+                    // Generate copy ops
+                    let indices = copy
+                        .clone()
+                        .into_iter()
+                        .map(|(from, tos)| (from, tos.into_iter().map(|(to, ..)| to).collect_vec()))
+                        .collect();
+                    context.op_copy(indices);
+
+                    // Generate other ops for copy destinations that are not exactly the same
+                    for (from, tos) in copy {
+                        for (to, similarity) in tos {
+                            if similarity < 1.0 {
+                                context.enter_index(to);
+                                self[from].diff(&other[to], context)?;
+                                context.exit_index();
+                            }
                         }
                     }
                 }
@@ -677,11 +698,6 @@ where
                             .map(|index| Ok::<_, Report>((index, other[index].to_value()?)))
                             .try_collect()?,
                     );
-                }
-
-                // Generate copy op
-                if !copy.is_empty() {
-                    context.op_copy(copy);
                 }
             }
         } else if other.len() < self.len() {
