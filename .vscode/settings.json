@@ -97,6 +97,7 @@
         "Pydantic",
         "pyfunction",
         "pyproject",
+        "quickjs",
         "rdfs",
         "regexes",
         "requireds",

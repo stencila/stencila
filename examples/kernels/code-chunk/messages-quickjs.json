@@ -1,0 +1,136 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "console.debug('a debug message')\nconsole.info('an info message')\nconsole.warn('a warning message')\nconsole.error('an error message')",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12388780411211314469
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12388780411211314469
+      },
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Errors",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626190752,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Debug",
+          "message": "a debug message"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Info",
+          "message": "an info message"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Warning",
+          "message": "a warning message"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Error",
+          "message": "an error message"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "if // This is a syntax error",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1187390132784655538
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1187390132784655538
+      },
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626190752,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 0,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "expecting '('",
+          "stackTrace": "    at eval_script:1:28\n"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "foo // This is a runtime error",
+      "programmingLanguage": "quickjs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 3445042760591135896
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 3445042760591135896
+      },
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1712626190752,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 0,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "'foo' is not defined",
+          "stackTrace": "    at <eval> (eval_script:1:1)\n"
+        }
+      ]
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1712626190752,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 2,
+    "timeUnit": "Millisecond"
+  }
+}

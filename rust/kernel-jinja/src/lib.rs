@@ -258,7 +258,7 @@ impl StructObject for JinjaKernelContext {
                 None
             }
             Ok(Ok(node)) => match node {
-                Some(node) => Some(Value::from_serializable(&node)),
+                Some(node) => Some(Value::from_serialize(&node)),
                 None => Some(Value::UNDEFINED),
             },
         }

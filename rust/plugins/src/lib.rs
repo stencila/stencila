@@ -388,7 +388,7 @@ impl Plugin {
         Ok(plugin)
     }
 
-    /// Read the plugin from the manifest in ints directory
+    /// Read the plugin from the manifest in its directory
     pub fn read_manifest(name: &str) -> Result<Self> {
         let dir = Plugin::plugin_dir(name, false)?;
 

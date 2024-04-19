@@ -3,13 +3,11 @@ SHELL := /bin/bash
 
 .PHONY: test
 test:
-	export STENCILA_ASSISTANTS_DIR=./assistants
-	cargo run -p cli test examples
+	STENCILA_ASSISTANTS_DIR=./assistants cargo run -p cli test examples
 
 .PHONY: list
 list:
-	export STENCILA_ASSISTANTS_DIR=./assistants
-	cargo run -p cli assistants
+	STENCILA_ASSISTANTS_DIR=./assistants cargo run -p cli assistants
 
 .PHONY: clean
 clean:

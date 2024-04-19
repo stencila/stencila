@@ -23,6 +23,7 @@ use kernel_bash::BashKernel;
 use kernel_jinja::JinjaKernel;
 use kernel_node::NodeKernel;
 use kernel_python::PythonKernel;
+use kernel_quickjs::QuickJsKernel;
 use kernel_r::RKernel;
 use kernel_rhai::RhaiKernel;
 use kernel_style::StyleKernel;
@@ -33,6 +34,8 @@ pub mod cli;
 /// Get a list of available kernels
 pub async fn list() -> Vec<Box<dyn Kernel>> {
     let mut kernels = vec![
+        // First so that it gets used for `js` rather than `NodeKernel`
+        Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
         Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<JinjaKernel>::default() as Box<dyn Kernel>,
@@ -52,7 +55,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
 
 /// Get the default kernel (used when no language is specified)
 pub fn default() -> Box<dyn Kernel> {
-    Box::<RhaiKernel>::default() as Box<dyn Kernel>
+    Box::<QuickJsKernel>::default() as Box<dyn Kernel>
 }
 
 /// An entry for a kernel instance

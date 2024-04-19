@@ -1,0 +1,98 @@
+{
+  "name": "@stencila/node",
+  "version": "2.0.0-alpha.25",
+  "description": "Stencila SDK for Node.js",
+  "license": "Apache-2.0",
+  "author": "Nokome Bentley <nokome@stencila.io>",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila/tree/main/node/stencila-node#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/stencila.git"
+  },
+  "keywords": [
+    "node",
+    "programmable",
+    "executable",
+    "reproducible",
+    "interactive",
+    "documents"
+  ],
+  "type": "module",
+  "files": [
+    "dist",
+    "install.*",
+    "src/*.ts",
+    "src/*.js"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
+    "lint": "eslint 'src/**/*.ts' && prettier --check .",
+    "build:debug": "napi build --js false --dts src/bindings.d.ts",
+    "build:addon": "napi build --platform --release --js false --dts src/bindings.d.ts && npm run compress",
+    "build:dist": "tsup --external ../stencila.node",
+    "pubcheck": "attw --pack . && publint",
+    "compress": "node compress.cjs",
+    "install": "node install.cjs",
+    "test": "jest",
+    "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
+    "bench": "tsup --entry.index src/bench.ts --external ../stencila.node --format cjs --out-dir bench --clean && node bench/index.cjs | tee bench/results.txt",
+    "unused": "depcheck --quiet --ignores @types/jest,benchmark,tmp --ignore-patterns '.eslintrc*'"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "napi": {
+    "name": "stencila",
+    "triples": {}
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "splitting": false,
+    "dts": true,
+    "sourcemap": true,
+    "clean": true
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "2.18.1"
+  },
+  "dependencies": {
+    "@stencila/types": "2.0.0-alpha.25"
+  }
+}
