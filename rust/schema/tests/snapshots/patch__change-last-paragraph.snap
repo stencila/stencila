@@ -38,6 +38,9 @@ ops:
       - content
       - 0
       - value
-    - Set: para3delta
+    - Apply:
+        - Insert:
+            - 5
+            - delta
 authors_before: 3
 authors_after: 3

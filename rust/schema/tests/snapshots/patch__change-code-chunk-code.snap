@@ -18,6 +18,10 @@ ops:
   - - - content
       - 0
       - code
-    - Set: 1 + 3
+    - Apply:
+        - Replace:
+            - start: 4
+              end: 5
+            - "3"
 authors_before: 1
 authors_after: 1

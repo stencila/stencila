@@ -11,9 +11,9 @@ use node_authorship::author_roles;
 use schema::{
     diff, patch,
     shortcuts::{art, p, sec, t},
-    Article, Author, AuthorRole, Block, Figure, Inline, Node, NodeProperty, Paragraph, PatchNode,
-    PatchOp, PatchPath, PatchSlot, PatchValue, Primitive, Strong, Text, TimeUnit, Visitor,
-    WalkControl,
+    Article, Author, AuthorRole, Block, Cord, CordOp, Figure, Inline, Node, NodeProperty,
+    Paragraph, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Primitive, Strong, Text,
+    TimeUnit, Visitor, WalkControl,
 };
 
 /// An individual fixture
@@ -256,6 +256,46 @@ fn atoms() -> Result<()> {
     let new = String::from("bcd");
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn cord() -> Result<()> {
+    assert_eq!(diff(&Cord::from("abc"), &Cord::from("abc"))?, vec![]);
+
+    let mut old = Cord::from("abc");
+    let new = Cord::from("bcad");
+    let ops = diff(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            PatchPath::new(),
+            PatchOp::Apply(vec![
+                CordOp::Delete(0..1),
+                CordOp::Insert(2, "ad".to_string())
+            ])
+        )]
+    );
+    patch(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    let mut old = Cord::from("height in feet");
+    let new = Cord::from("height in metres");
+    let ops = diff(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            PatchPath::new(),
+            PatchOp::Apply(vec![
+                CordOp::Replace(10..11, "m".to_string()),
+                CordOp::Insert(12, "tr".to_string()),
+                CordOp::Replace(15..16, "s".to_string())
+            ])
+        )]
+    );
     patch(&mut old, ops)?;
     assert_eq!(old, new);
 

@@ -18,7 +18,11 @@ ops:
   - - - content
       - 0
       - code
-    - Set: 1 + 3
+    - Apply:
+        - Replace:
+            - start: 4
+              end: 5
+            - "3"
   - - - content
       - 0
       - programmingLanguage

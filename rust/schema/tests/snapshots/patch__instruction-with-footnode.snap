@@ -58,6 +58,9 @@ ops:
       - content
       - 0
       - value
-    - Set: according to OpenAI.
+    - Apply:
+        - Insert:
+            - 13
+            - Open
 authors_before: 3
 authors_after: 3

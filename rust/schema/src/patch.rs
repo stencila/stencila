@@ -2,6 +2,7 @@ use std::{
     any::type_name,
     collections::{HashMap, VecDeque},
     fmt::{self, Debug},
+    ops::Range,
 };
 
 use common::{
@@ -99,6 +100,12 @@ impl PatchContext {
         self
     }
 
+    /// Create a [`PatchOp::Apply`] operation at the current patch
+    pub fn op_apply(&mut self, cord_ops: Vec<CordOp>) -> &mut Self {
+        self.ops.push((self.path.clone(), PatchOp::Apply(cord_ops)));
+        self
+    }
+
     /// Create a [`PatchOp::Insert`] operation for the current path
     pub fn op_insert(&mut self, values: Vec<(usize, PatchValue)>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Insert(values)));
@@ -158,6 +165,9 @@ pub enum PatchOp {
     /// Set the value of a leaf node (e.g. a `String`) or `Option`
     Set(PatchValue),
 
+    /// Apply `CordOp`s to a `Cord`
+    Apply(Vec<CordOp>),
+
     /// Insert items into a vector
     Insert(Vec<(usize, PatchValue)>),
 
@@ -197,6 +207,15 @@ pub enum PatchValue {
     Node(Node),
     String(String),
     Json(JsonValue),
+}
+
+// An operation on a `Cord`
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(crate = "common::serde")]
+pub enum CordOp {
+    Insert(usize, String),
+    Delete(Range<usize>),
+    Replace(Range<usize>, String),
 }
 
 /// A slot in a node path: either a property identifier or the index of a vector.

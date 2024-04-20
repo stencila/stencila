@@ -46,12 +46,18 @@ ops:
       - content
       - 0
       - value
-    - Set: para2two
+    - Apply:
+        - Insert:
+            - 5
+            - two
   - - - content
       - 2
       - content
       - 0
       - value
-    - Set: para3three
+    - Apply:
+        - Insert:
+            - 5
+            - three
 authors_before: 4
 authors_after: 4

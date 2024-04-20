@@ -34,6 +34,9 @@ ops:
       - content
       - 0
       - value
-    - Set: "grass "
+    - Apply:
+        - Delete:
+            start: 6
+            end: 12
 authors_before: 1
 authors_after: 1

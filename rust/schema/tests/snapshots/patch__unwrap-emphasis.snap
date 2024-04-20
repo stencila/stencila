@@ -31,6 +31,9 @@ ops:
       - content
       - 0
       - value
-    - Set: grass rabbit
+    - Apply:
+        - Insert:
+            - 6
+            - rabbit
 authors_before: 1
 authors_after: 1

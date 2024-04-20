@@ -1,13 +1,13 @@
 use std::time::Duration;
 
 use codec_html_trait::encode::text;
-use common::similar::{Algorithm, DiffTag, TextDiffConfig};
+use common::similar::{capture_diff_deadline, Algorithm, DiffTag, TextDiffConfig};
 use node_store::{
     automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
     ReadNode, ReadStore, WriteNode, WriteStore,
 };
 
-use crate::{prelude::*, Cord};
+use crate::{prelude::*, Cord, CordOp};
 
 impl StripNode for Cord {}
 
@@ -25,20 +25,56 @@ impl PatchNode for Cord {
 
     #[allow(unused_variables)]
     fn similarity(&self, other: &Cord, context: &mut PatchContext) -> Result<f32> {
+        // Calculate a difference ratio based on Unicode graphemes rather
+        // that chars or bytes since that is more semantically meaningful for user
+        // changes
         let diff = TextDiffConfig::default()
-            .algorithm(Algorithm::Myers)
+            .algorithm(Algorithm::Patience)
             .timeout(Duration::from_secs(1))
-            .diff_chars(self.as_str(), other.as_str());
+            .diff_graphemes(self.as_str(), other.as_str());
 
         // Note minimum similarity because same types
-        // This is important because it means a paragraph will have non-zero
+        // This is important because it means a `Cord` will have non-zero
         // similarity with itself, even if all characters change
         Ok(diff.ratio().max(0.00001))
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         if other != self {
-            context.op_set(other.to_value()?);
+            // Calculate diff operations using bytes since those
+            let diff_ops = capture_diff_deadline(
+                Algorithm::Patience,
+                self.as_bytes(),
+                0..self.len(),
+                other.as_bytes(),
+                0..other.len(),
+                None,
+            );
+
+            // Convert them to `CordOp`s
+            let mut cord_ops = Vec::new();
+            let mut pos = 0usize;
+            for op in diff_ops {
+                match op.tag() {
+                    DiffTag::Insert => {
+                        let value = other[op.new_range()].to_string();
+                        cord_ops.push(CordOp::Insert(pos, value));
+                    }
+                    DiffTag::Delete => {
+                        let end = pos + op.old_range().len();
+                        cord_ops.push(CordOp::Delete(pos..end));
+                    }
+                    DiffTag::Replace => {
+                        let end = pos + op.old_range().len();
+                        let value = other[op.new_range()].to_string();
+                        cord_ops.push(CordOp::Replace(pos..end, value));
+                    }
+                    DiffTag::Equal => {}
+                }
+                pos += op.new_range().len();
+            }
+
+            context.op_apply(cord_ops);
         }
 
         Ok(())
@@ -51,15 +87,27 @@ impl PatchNode for Cord {
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
-        let PatchOp::Set(value) = op else {
-            bail!("Invalid op for Cord");
-        };
-
         if !path.is_empty() {
             bail!("Invalid path `{path:?}` for Cord");
         }
 
-        *self = Cord::new(String::from_value(value)?);
+        let PatchOp::Apply(ops) = op else {
+            bail!("Invalid op for Cord");
+        };
+
+        for op in ops {
+            match op {
+                CordOp::Insert(pos, value) => {
+                    self.insert_str(pos, &value);
+                }
+                CordOp::Delete(range) => {
+                    self.replace_range(range, "");
+                }
+                CordOp::Replace(range, value) => {
+                    self.replace_range(range, &value);
+                }
+            }
+        }
 
         Ok(())
     }
@@ -97,7 +145,7 @@ impl WriteNode for Cord {
             let diff = TextDiffConfig::default()
                 .algorithm(Algorithm::Patience)
                 .timeout(Duration::from_secs(15))
-                .diff_graphemes(&value, self);
+                .diff_chars(&value, self);
 
             let mut pos = 0usize;
             for op in diff.ops() {

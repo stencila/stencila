@@ -51,7 +51,10 @@ ops:
       - parts
       - 0
       - value
-    - Set: insert equation for surface area of cube
+    - Apply:
+        - Insert:
+            - 0
+            - "insert "
   - - - content
       - 0
       - content

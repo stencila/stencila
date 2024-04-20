@@ -38,6 +38,9 @@ ops:
       - content
       - 0
       - value
-    - Set: A rather long winded paragraph that goes on and on.
+    - Apply:
+        - Insert:
+            - 30
+            - " that goes on and on"
 authors_before: 2
 authors_after: 2

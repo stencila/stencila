@@ -32,7 +32,7 @@ serde = { version = "1.0.198", features = ["derive", "rc"] }
 serde_json = { version = "1.0.116", features = ["preserve_order"] }
 serde_with = "3.7.0"
 serde_yaml = "0.9.34"
-similar = { version = "2.5.0", features = ["unicode"] }
+similar = { version = "2.5.0", features = ["serde", "unicode"] }
 slug = "0.1.5"
 smart-default = "0.7.1"
 smol_str = "0.2.1"

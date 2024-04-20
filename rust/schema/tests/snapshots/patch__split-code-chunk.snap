@@ -34,6 +34,9 @@ ops:
   - - - content
       - 0
       - code
-    - Set: "1\n2\n3"
+    - Apply:
+        - Delete:
+            start: 5
+            end: 7
 authors_before: 1
 authors_after: 1

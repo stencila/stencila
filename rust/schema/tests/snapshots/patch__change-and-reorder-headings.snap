@@ -60,7 +60,10 @@ ops:
       - content
       - 0
       - value
-    - Set: heading4delta
+    - Apply:
+        - Insert:
+            - 8
+            - delta
   - - - content
       - 3
       - level
