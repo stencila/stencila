@@ -13,12 +13,12 @@ impl StripNode for Cord {}
 
 impl PatchNode for Cord {
     fn to_value(&self) -> Result<PatchValue> {
-        Ok(PatchValue::Json(serde_json::to_value(self)?))
+        Ok(PatchValue::String(self.to_string()))
     }
 
     fn from_value(value: PatchValue) -> Result<Self> {
         match value {
-            PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+            PatchValue::String(value) => Ok(value.into()),
             _ => bail!("Invalid value for Cord"),
         }
     }

@@ -195,6 +195,7 @@ pub enum PatchValue {
     Inline(Inline),
     Block(Block),
     Node(Node),
+    String(String),
     Json(JsonValue),
 }
 
@@ -372,7 +373,52 @@ atom!(i32);
 atom!(i64);
 atom!(u64);
 atom!(f64);
-atom!(String);
+
+// Implementation for `String` properties (note difference to `Cord`)
+impl PatchNode for String {
+    fn to_value(&self) -> Result<PatchValue> {
+        Ok(PatchValue::String(self.clone()))
+    }
+
+    fn from_value(value: PatchValue) -> Result<Self> {
+        match value {
+            PatchValue::String(value) => Ok(value),
+            _ => bail!("Invalid value `{value:?}` for `{}`", type_name::<Self>()),
+        }
+    }
+
+    #[allow(unused_variables)]
+    fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        Ok(if other == self { 1.0 } else { 0.00001 })
+    }
+
+    fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        if other != self {
+            context.op_set(other.to_value()?);
+        }
+        Ok(())
+    }
+
+    #[allow(unused_variables)]
+    fn patch(
+        &mut self,
+        path: &mut PatchPath,
+        op: PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<()> {
+        let PatchOp::Set(value) = op else {
+            bail!("Invalid op for `String`");
+        };
+
+        if !path.is_empty() {
+            bail!("Invalid path `{path:?}` for String");
+        }
+
+        *self = Self::from_value(value)?;
+
+        Ok(())
+    }
+}
 
 // Implementation for boxed properties
 impl<T> PatchNode for Box<T>
