@@ -11,7 +11,7 @@ use crate::{prelude::*, Cord, CordOp};
 
 impl Cord {
     /// Apply an insert operation
-    pub fn apply_insert(&mut self, position: usize, value: &str, author_id: &Option<u16>) {
+    pub fn apply_insert(&mut self, position: usize, value: &str, author_id: u16) {
         // Check for out of bounds pos
         if position > self.len() {
             return;
@@ -22,9 +22,6 @@ impl Cord {
         self.insert_str(position, value);
 
         // Early return if authorship does not need updating
-        let &Some(author_id) = author_id else {
-            return;
-        };
         if value.is_empty() {
             return;
         };
@@ -162,13 +159,13 @@ impl Cord {
     }
 
     // Replace a range in the string with new content and update authorship
-    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author_id: &Option<u16>) {
+    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author_id: u16) {
         self.apply_delete(range.clone());
         self.apply_insert(range.start, value, author_id);
     }
 
     // Apply operations
-    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: &Option<u16>) {
+    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: u16) {
         for op in ops {
             match op {
                 CordOp::Insert(pos, value) => self.apply_insert(pos, &value, author_id),
@@ -377,7 +374,7 @@ mod tests {
             string: "world!".to_string(),
             authorship: vec![(2, 6)],
         };
-        cord.apply_insert(0, "Hello, ", &Some(1));
+        cord.apply_insert(0, "Hello, ", 1);
         assert_eq!(cord.string, "Hello, world!");
         assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
     }
@@ -388,7 +385,7 @@ mod tests {
             string: "Hello".to_string(),
             authorship: vec![(1, 5)],
         };
-        cord.apply_insert(5, ", world!", &Some(1));
+        cord.apply_insert(5, ", world!", 1);
         assert_eq!(cord.string, "Hello, world!");
         assert_eq!(cord.authorship, vec![(1, 13)]);
     }
@@ -399,7 +396,7 @@ mod tests {
             string: "Hello world!".to_string(),
             authorship: vec![(1, 5), (2, 7)],
         };
-        cord.apply_insert(5, ", beautiful", &Some(3));
+        cord.apply_insert(5, ", beautiful", 3);
         assert_eq!(cord.string, "Hello, beautiful world!");
         assert_eq!(cord.authorship, vec![(1, 5), (3, 11), (2, 7)]);
     }
@@ -410,7 +407,7 @@ mod tests {
             string: "Hello".to_string(),
             authorship: vec![(1, 5)],
         };
-        cord.apply_insert(3, "", &Some(1)); // Empty string insertion
+        cord.apply_insert(3, "", 1); // Empty string insertion
         assert_eq!(cord.string, "Hello");
         assert_eq!(cord.authorship, vec![(1, 5)]);
     }
@@ -421,20 +418,9 @@ mod tests {
             string: "Hello".to_string(),
             authorship: vec![(1, 5)],
         };
-        cord.apply_insert(10, " world", &Some(1)); // Beyond the length of the string
+        cord.apply_insert(10, " world", 1); // Beyond the length of the string
         assert_eq!(cord.string, "Hello");
         assert_eq!(cord.authorship, vec![(1, 5)]); // No change
-    }
-
-    #[test]
-    fn insert_without_author() {
-        let mut cord = Cord {
-            string: "Hello".to_string(),
-            authorship: vec![(1, 5)],
-        };
-        cord.apply_insert(5, ", world", &None);
-        assert_eq!(cord.string, "Hello, world");
-        assert_eq!(cord.authorship, vec![(1, 5)]); // No update to authorship
     }
 
     #[test]
