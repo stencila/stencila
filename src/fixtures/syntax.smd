@@ -156,7 +156,11 @@ Proposed
 
 :::
 
-::: insert accept
+::: elif expression
+
+
+
+:::
 
 Accepted
 
@@ -302,3 +306,140 @@ The caption.
 | 1   | 2   |
 
 :::
+
+# Basic Markdown Syntax
+
+# Headings
+
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
+
+# Headings Setext
+
+Setext Level One
+======
+
+Setext Level Two
+------
+
+# Emphasis 
+
+*This text is italic.*
+
+_This text is also italic._
+
+**This text is bold.**
+
+__This text is also bold.__
+
+**This text is bold and _italic._**
+
+__This text is also bold and *italic.*__
+
+~~This text is striked through.~~
+
+# Lists
+
+1. This is a
+2. numbered 
+--* also known as ordered
+3. list!
+
+* This is an 
+- unordered 
++ list!
+
+# Links
+
+You can quickly turn URLs/email addresses into links using angle brackets.
+
+<http://www.example.com> 
+
+URLs will automatically get turned into links.
+
+http://www.example.com
+
+[This is an inline link.](https://www.google.com)
+
+[This is an inline link with a title.](https://www.google.com "Google's Homepage")
+
+[This is a reference-style link][reference]
+
+[reference]: https://www.google.com
+
+[This is also a reference-style link][1]
+
+[1]: https://www.google.com
+
+Or you can write some text and [link] it like this.
+
+[link]: https://www.google.com
+
+# Images 
+
+Inline-style images: 
+![alt text](image.jpg "Image Title #1")
+
+Reference-style images: 
+![alt text][image]
+
+[image]: image.jpg "Image Title #2"
+
+# Tables
+
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
+
+Colons can be used to align columns.
+
+| Syntax      | Centered     |
+| ----------- | :----------: |
+| Header      | Title        |
+| Paragraph   | Text         |
+
+| Syntax      | Left Aligned |
+| ----------- | :----------- |
+| Header      | Title        |
+| Paragraph   | Text         |
+
+| Syntax      | Right Aligned |
+| ----------- | ------------: |
+| Header      | Title         |
+| Paragraph   | Text          |
+
+# Blockquotes 
+
+> This is a blockquote!
+
+# Inline HTML
+
+<html>
+    <title>Here is some HTML.</title>
+    <body>
+      <h>This is a heading!</h>
+        <p>This is a paragraph!</p>
+    </body>
+</html>
+
+# Separators (also known as Horizontal Rules)
+
+To create separators use three (or more) asterisks, dashes/hyphens, or underscores. 
+Note: put blank lines before and after separators.
+
+---
+
+Dashes/hyphens
+
+***
+
+Asterisks
+
+___
+
+Underscores
