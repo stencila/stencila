@@ -35,7 +35,7 @@ pub struct TableCell {
     /// Contents of the table cell.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_paragraphs(1)"#))]

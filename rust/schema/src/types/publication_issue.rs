@@ -27,6 +27,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "PublicationIssue")]
+#[patch(authors = "options")]
 pub struct PublicationIssue {
     /// The type of this item.
     pub r#type: MustBe!("PublicationIssue"),
@@ -228,7 +229,7 @@ pub struct PublicationIssueOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 

@@ -27,6 +27,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "MediaObject")]
+#[patch(authors = "options")]
 #[jats(elem = "inline-media", special)]
 pub struct MediaObject {
     /// The type of this item.
@@ -39,7 +40,7 @@ pub struct MediaObject {
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[serde(alias = "content-url", alias = "content_url")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[html(attr = "src")]
     pub content_url: String,
 
@@ -235,7 +236,7 @@ pub struct MediaObjectOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 

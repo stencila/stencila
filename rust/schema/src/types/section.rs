@@ -30,7 +30,7 @@ pub struct Section {
     /// The content within the section.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Vec::new()"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_heading_paragraph()"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
@@ -40,7 +40,7 @@ pub struct Section {
 
     /// The type of section.
     #[serde(alias = "section-type", alias = "section_type")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]

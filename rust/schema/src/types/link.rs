@@ -29,7 +29,7 @@ pub struct Link {
     /// The textual content of the link.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![t("text")]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines_non_recursive(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
@@ -38,21 +38,21 @@ pub struct Link {
     pub content: Vec<Inline>,
 
     /// The target of the link.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[html(attr = "href")]
     #[jats(attr = "xlink:href")]
     pub target: String,
 
     /// A title for the link.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "title")]
     #[jats(attr = "xlink:title")]
     pub title: Option<String>,
 
     /// The relation between the target and the current thing.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,

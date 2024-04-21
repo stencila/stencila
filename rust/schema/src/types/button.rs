@@ -26,6 +26,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Button")]
+#[patch(authors = "options")]
 #[html(elem = "button")]
 pub struct Button {
     /// The type of this item.
@@ -39,19 +40,19 @@ pub struct Button {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The code.
     #[strip(code)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
     #[serde(alias = "programming-language", alias = "programming_language")]
     #[strip(code)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
 

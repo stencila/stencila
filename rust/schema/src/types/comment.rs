@@ -25,6 +25,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Comment")]
+#[patch(authors = "self")]
 pub struct Comment {
     /// The type of this item.
     pub r#type: MustBe!("Comment"),
@@ -50,7 +51,7 @@ pub struct Comment {
     /// Content of the comment, usually one or more paragraphs.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[dom(elem = "aside")]
     pub content: Vec<Block>,
 
@@ -229,7 +230,7 @@ pub struct CommentOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 

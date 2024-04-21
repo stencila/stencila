@@ -28,6 +28,7 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "AudioObject")]
+#[patch(authors = "options")]
 #[html(elem = "audio", special)]
 #[jats(elem = "inline-media", special)]
 pub struct AudioObject {
@@ -45,14 +46,14 @@ pub struct AudioObject {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[serde(alias = "content-url", alias = "content_url")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("https://example.org/image.png")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"https://\w+\.\w+/\w+\.png"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,100}"#))]
@@ -67,7 +68,7 @@ pub struct AudioObject {
 
     /// The caption for this audio recording.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "alt")]
     pub caption: Option<Vec<Inline>>,

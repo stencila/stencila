@@ -35,7 +35,7 @@ pub struct ListItem {
     /// The content of the list item.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_list_item(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_list_item(2)"#))]
@@ -49,7 +49,7 @@ pub struct ListItem {
 
     /// A flag to indicate if this list item is checked.
     #[serde(alias = "is-checked", alias = "is_checked")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_checked: Option<Boolean>,
 

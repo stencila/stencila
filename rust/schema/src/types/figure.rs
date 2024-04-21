@@ -27,6 +27,7 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Figure")]
+#[patch(authors = "options")]
 #[html(elem = "figure")]
 #[jats(elem = "figure")]
 pub struct Figure {
@@ -43,7 +44,7 @@ pub struct Figure {
     /// The content of the figure.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
@@ -52,7 +53,7 @@ pub struct Figure {
     pub content: Vec<Block>,
 
     /// A short label for the figure.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
@@ -62,7 +63,7 @@ pub struct Figure {
     /// A caption for the figure.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
@@ -287,7 +288,7 @@ pub struct FigureOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,

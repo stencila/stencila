@@ -40,6 +40,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Article")]
+#[patch(authors = "self")]
 #[html(elem = "article")]
 #[jats(elem = "article", special)]
 pub struct Article {
@@ -122,7 +123,7 @@ pub struct Article {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
@@ -130,7 +131,7 @@ pub struct Article {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
@@ -138,7 +139,7 @@ pub struct Article {
     #[serde(deserialize_with = "one_or_many")]
     #[strip(content)]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_blocks(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks(4)"#))]

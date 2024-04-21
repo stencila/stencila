@@ -28,6 +28,7 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Table")]
+#[patch(authors = "options")]
 #[html(special)]
 pub struct Table {
     /// The type of this item.
@@ -41,14 +42,14 @@ pub struct Table {
     pub id: Option<String>,
 
     /// A short label for the table.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label: Option<String>,
 
     /// A caption for the table.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
@@ -60,7 +61,7 @@ pub struct Table {
     #[serde(alias = "row")]
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"table_rows_with_header(2,2)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"table_rows_with_header(3,3)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=4))"#))]
@@ -72,7 +73,7 @@ pub struct Table {
     #[serde(alias = "note")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(1))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(1))"#))]
@@ -297,7 +298,7 @@ pub struct TableOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,

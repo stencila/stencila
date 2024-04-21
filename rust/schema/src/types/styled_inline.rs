@@ -17,6 +17,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "StyledInline")]
+#[patch(authors = "options")]
 #[html(elem = "span")]
 #[jats(elem = "styled-content")]
 pub struct StyledInline {
@@ -31,7 +32,7 @@ pub struct StyledInline {
     pub id: Option<String>,
 
     /// The code of the equation in the `styleLanguage`.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
@@ -41,7 +42,7 @@ pub struct StyledInline {
 
     /// The language used for the style specification e.g. css, tw
     #[serde(alias = "style-language", alias = "style_language")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(css)|(tw)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
@@ -52,7 +53,7 @@ pub struct StyledInline {
     /// The content within the span.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![t("text")]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![t("text")]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]

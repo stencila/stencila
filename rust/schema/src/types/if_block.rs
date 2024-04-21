@@ -26,6 +26,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "IfBlock")]
+#[patch(authors = "options")]
 pub struct IfBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -40,7 +41,7 @@ pub struct IfBlock {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
@@ -49,7 +50,7 @@ pub struct IfBlock {
     #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![ibc("true", None::<String>, [p([t("If clause")])])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(IfBlockClause::arbitrary(), size_range(1..=3))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(IfBlockClause::arbitrary(), size_range(1..=10))"#))]

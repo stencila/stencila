@@ -16,7 +16,7 @@ use common::{
 };
 
 use crate::{
-    schema::{Items, ProptestLevel, Schema, Type, Value},
+    schema::{Items, ItemsRef, ProptestLevel, Schema, Type, Value},
     schemas::Schemas,
 };
 
@@ -341,12 +341,12 @@ pub enum NodeProperty {{
             derives.push("ReadNode");
         }
 
-        if schema
+        let derive_patch = schema
             .patch
             .as_ref()
             .map(|spec| spec.derive)
-            .unwrap_or(true)
-        {
+            .unwrap_or(true);
+        if derive_patch {
             derives.push("PatchNode");
         }
 
@@ -411,6 +411,23 @@ pub enum NodeProperty {{
         // Add attributes for displaying name
         attrs.push("#[derive(derive_more::Display)]".to_string());
         attrs.push(format!("#[display(fmt = \"{title}\")]"));
+
+        // Add a #[patch(authors = "..")] attribute for main struct if it has authors
+        // that is a Vec<Author>
+        if derive_patch {
+            if let Some(authors) = schema.properties.get("authors") {
+                if let Some(Items::Ref(ItemsRef { r#ref })) = &authors.items {
+                    if r#ref == "Author" {
+                        let authors = if authors.is_required || authors.is_core {
+                            "self"
+                        } else {
+                            "options"
+                        };
+                        attrs.push(format!("#[patch(authors = \"{authors}\")]"));
+                    }
+                }
+            }
+        }
 
         // Add #[html] attribute for main struct if necessary
         if let Some(html) = &schema.html {
@@ -579,7 +596,7 @@ pub enum NodeProperty {{
                 attrs.push(String::from("#[walk]"));
             }
 
-            // If merge is not specified, defaults to all formats for `content` property
+            // If patch is not specified, defaults to all formats for `content` property
             if let Some(formats) = property
                 .patch
                 .as_ref()
@@ -590,7 +607,7 @@ pub enum NodeProperty {{
                     .iter()
                     .map(|format| format!("format = \"{format}\""))
                     .join(", ");
-                attrs.push(format!("#[merge({formats})]"));
+                attrs.push(format!("#[patch({formats})]"));
             }
 
             // Add proptest related attributes

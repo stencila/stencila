@@ -22,7 +22,7 @@ pub struct ConstantValidator {
     pub id: Option<String>,
 
     /// The value that the node must have.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub value: Box<Node>,
 
     /// A unique identifier for a node within a document

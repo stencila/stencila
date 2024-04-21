@@ -28,6 +28,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "IfBlockClause")]
+#[patch(authors = "options")]
 pub struct IfBlockClause {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -42,13 +43,13 @@ pub struct IfBlockClause {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The code.
     #[strip(code)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
@@ -59,7 +60,7 @@ pub struct IfBlockClause {
     /// The programming language of the code.
     #[serde(alias = "programming-language", alias = "programming_language")]
     #[strip(code)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Some(String::from("lang"))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(cpp)|(js)|(py)|(r)|(ts)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
@@ -76,7 +77,7 @@ pub struct IfBlockClause {
     /// The content to render if the result is truthy
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("If clause content")])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]

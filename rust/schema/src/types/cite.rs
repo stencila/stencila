@@ -56,7 +56,7 @@ pub struct CiteOptions {
     /// Optional structured content/text of this citation.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[dom(elem = "span")]
     pub content: Option<Vec<Inline>>,
 

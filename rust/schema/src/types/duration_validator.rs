@@ -25,15 +25,15 @@ pub struct DurationValidator {
     /// The time units that the duration can have.
     #[serde(alias = "time-units", alias = "time_units", alias = "timeUnit", alias = "time-unit", alias = "time_unit")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub time_units: Option<Vec<TimeUnit>>,
 
     /// The inclusive lower limit for a duration.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub minimum: Option<Duration>,
 
     /// The inclusive upper limit for a duration.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub maximum: Option<Duration>,
 
     /// A unique identifier for a node within a document

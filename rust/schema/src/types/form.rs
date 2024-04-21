@@ -38,13 +38,13 @@ pub struct Form {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The content within the form, usually containing at least one `Parameter`.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,
 

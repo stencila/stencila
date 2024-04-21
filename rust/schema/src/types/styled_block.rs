@@ -17,6 +17,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "StyledBlock")]
+#[patch(authors = "options")]
 #[html(elem = "div")]
 pub struct StyledBlock {
     /// The type of this item.
@@ -30,7 +31,7 @@ pub struct StyledBlock {
     pub id: Option<String>,
 
     /// The code of the equation in the `styleLanguage`.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
@@ -40,7 +41,7 @@ pub struct StyledBlock {
 
     /// The language used for the style specification e.g. css, tw
     #[serde(alias = "style-language", alias = "style_language")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(css)|(tw)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
@@ -51,7 +52,7 @@ pub struct StyledBlock {
     /// The content within the styled block
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub content: Vec<Block>,

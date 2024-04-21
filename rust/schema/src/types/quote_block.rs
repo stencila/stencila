@@ -15,6 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "QuoteBlock")]
+#[patch(authors = "options")]
 #[html(elem = "blockquote")]
 #[jats(elem = "disp-quote")]
 pub struct QuoteBlock {
@@ -35,7 +36,7 @@ pub struct QuoteBlock {
     /// The content of the quote.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]

@@ -28,6 +28,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "InstructionBlock")]
+#[patch(authors = "options")]
 pub struct InstructionBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -42,20 +43,20 @@ pub struct InstructionBlock {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
     /// Messages involved in the instruction.
     #[serde(alias = "message")]
     #[serde(deserialize_with = "one_or_many")]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub messages: Vec<InstructionMessage>,
 
     /// An identifier for the agent assigned to perform the instruction
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
@@ -65,7 +66,7 @@ pub struct InstructionBlock {
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_blocks_non_recursive(1))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]

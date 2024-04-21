@@ -14,6 +14,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Paragraph")]
+#[patch(authors = "options")]
 #[html(elem = "p")]
 #[jats(elem = "p")]
 #[markdown(template = "{{content}}\n\n")]
@@ -31,7 +32,7 @@ pub struct Paragraph {
     /// The contents of the paragraph.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_inlines(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]

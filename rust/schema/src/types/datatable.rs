@@ -27,6 +27,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Datatable")]
+#[patch(authors = "options")]
 pub struct Datatable {
     /// The type of this item.
     pub r#type: MustBe!("Datatable"),
@@ -217,7 +218,7 @@ pub struct DatatableOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     pub title: Option<Vec<Inline>>,
 
     /// The version of the creative work.

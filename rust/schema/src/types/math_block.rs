@@ -16,6 +16,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "MathBlock")]
+#[patch(authors = "options")]
 #[html(elem = "math")]
 #[jats(elem = "disp-formula", special)]
 pub struct MathBlock {
@@ -31,7 +32,7 @@ pub struct MathBlock {
 
     /// The code of the equation in the `mathLanguage`.
     #[strip(code)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("math")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
@@ -41,7 +42,7 @@ pub struct MathBlock {
     /// The language used for the equation e.g tex, mathml, asciimath.
     #[serde(alias = "math-language", alias = "math_language")]
     #[strip(code)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"Some(String::from("tex"))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]

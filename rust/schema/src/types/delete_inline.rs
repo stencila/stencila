@@ -30,14 +30,14 @@ pub struct DeleteInline {
     /// The status of the suggestion including whether it is proposed, accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub suggestion_status: Option<SuggestionStatus>,
 
     /// The content that is suggested to be inserted, modified, replaced, or deleted.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[merge(format = "all")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![t("text")]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines_non_recursive(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]

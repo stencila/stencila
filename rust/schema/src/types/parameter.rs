@@ -42,12 +42,12 @@ pub struct Parameter {
     /// Under which circumstances the code should be automatically executed.
     #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
     #[strip(execution)]
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The name of the parameter.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("name")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[a-zA-Z_][a-zA-Z0-9]{0,9}"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[^\p{C}]{1,100}"#))]
@@ -170,17 +170,17 @@ pub struct ParameterOptions {
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// A short label for the parameter.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label: Option<String>,
 
     /// The default value of the parameter.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub default: Option<Box<Node>>,
 
     /// The validator that the value is validated against.
-    #[merge(format = "md")]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     #[html(content)]
