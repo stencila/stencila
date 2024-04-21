@@ -2,7 +2,6 @@ use std::{
     any::type_name,
     collections::{HashMap, VecDeque},
     fmt::{self, Debug},
-    ops::Range,
 };
 
 use common::{
@@ -14,7 +13,7 @@ use common::{
 };
 use node_type::NodeProperty;
 
-use crate::{Block, Inline, Node};
+use crate::{Author, Block, CordOp, Inline, Node};
 
 /// Merge `new` node into `old` node
 ///
@@ -24,6 +23,14 @@ pub fn merge<T: PatchNode>(old: &mut T, new: &T) -> Result<()> {
     patch(old, ops)
 }
 
+/// Merge `new` node into `old` node and assign authorship of changes
+///
+/// This function simply combines calls to [`diff`] and [`patch`].
+pub fn merge_with_authors<T: PatchNode>(old: &mut T, new: &T, authors: Vec<Author>) -> Result<()> {
+    let ops = diff(old, new)?;
+    patch_with_authors(old, ops, authors)
+}
+
 /// Generate the operations needed to patch `old` node into `new` node
 pub fn diff<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
     let mut context = PatchContext::new();
@@ -31,9 +38,25 @@ pub fn diff<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>>
     Ok(context.ops)
 }
 
-/// Apply operations to a node
+/// Apply patch operations to a node
 pub fn patch<T: PatchNode>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Result<()> {
     let mut context = PatchContext::new();
+    for (mut path, op) in ops {
+        old.patch(&mut path, op, &mut context)?
+    }
+    Ok(())
+}
+
+/// Apply patch operations to a node and assign authorship of those operations
+pub fn patch_with_authors<T: PatchNode>(
+    old: &mut T,
+    ops: Vec<(PatchPath, PatchOp)>,
+    authors: Vec<Author>,
+) -> Result<()> {
+    let mut context = PatchContext {
+        authors: Some(authors),
+        ..Default::default()
+    };
     for (mut path, op) in ops {
         old.patch(&mut path, op, &mut context)?
     }
@@ -52,6 +75,16 @@ pub struct PatchContext {
 
     /// The target paths and operations collected during a call to `diff`.
     ops: Vec<(PatchPath, PatchOp)>,
+
+    /// The author which should be added to the authors list of nodes that have one
+    authors: Option<Vec<Author>>,
+
+    /// The id of the node that has "taken" the authors in the current application of
+    /// operation.
+    authors_taken: bool,
+
+    /// The author id (1-based index) which should be added to the authorship of `Cord` nodes
+    author_id: Option<u16>,
 }
 
 impl PatchContext {
@@ -74,84 +107,151 @@ impl PatchContext {
         self
     }
 
-    /// Exit a property during the walk
+    /// Exit a property during the diff walk
     pub fn exit_property(&mut self) -> &mut Self {
         let popped = self.path.pop_back();
         debug_assert!(matches!(popped, Some(PatchSlot::Property(..))));
         self
     }
 
-    /// Enter an item in a vector during the walk
+    /// Enter an item in a vector during the diff walk
     pub fn enter_index(&mut self, index: usize) -> &mut Self {
         self.path.push_back(PatchSlot::Index(index));
         self
     }
 
-    /// Exit an item in a vector during the walk
+    /// Exit an item in a vector during the diff walk
     pub fn exit_index(&mut self) -> &mut Self {
         let popped = self.path.pop_back();
         debug_assert!(matches!(popped, Some(PatchSlot::Index(..))));
         self
     }
 
-    /// Create a [`PatchOp::Set`] operation at the current patch
+    /// Create a [`PatchOp::Set`] operation at the current path during the diff walk
     pub fn op_set(&mut self, value: PatchValue) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Set(value)));
         self
     }
 
-    /// Create a [`PatchOp::Apply`] operation at the current patch
+    /// Create a [`PatchOp::Apply`] operation at the current path during the diff walk
     pub fn op_apply(&mut self, cord_ops: Vec<CordOp>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Apply(cord_ops)));
         self
     }
 
-    /// Create a [`PatchOp::Insert`] operation for the current path
+    /// Create a [`PatchOp::Insert`] operation for the current path during the diff walk
     pub fn op_insert(&mut self, values: Vec<(usize, PatchValue)>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Insert(values)));
         self
     }
 
-    /// Create a [`PatchOp::Push`] operation for the current path
+    /// Create a [`PatchOp::Push`] operation for the current path during the diff walk
     pub fn op_push(&mut self, value: PatchValue) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Push(value)));
         self
     }
 
-    /// Create a [`PatchOp::Append`] operation for the current path
+    /// Create a [`PatchOp::Append`] operation for the current path during the diff walk
     pub fn op_append(&mut self, values: Vec<PatchValue>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Append(values)));
         self
     }
 
-    /// Create a [`PatchOp::Replace`] operation for the current path
+    /// Create a [`PatchOp::Replace`] operation for the current path during the diff walk
     pub fn op_replace(&mut self, values: Vec<(usize, PatchValue)>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Replace(values)));
         self
     }
 
-    /// Create a [`PatchOp::Move`] operation for the current path
+    /// Create a [`PatchOp::Move`] operation for the current path during the diff walk
     pub fn op_move(&mut self, indices: Vec<(usize, usize)>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Move(indices)));
         self
     }
 
-    /// Create a [`PatchOp::Copy`] operation for the current path
+    /// Create a [`PatchOp::Copy`] operation for the current path during the diff walk
     pub fn op_copy(&mut self, indices: HashMap<usize, Vec<usize>>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Copy(indices)));
         self
     }
 
-    /// Create a [`PatchOp::Remove`] operation for the current path
+    /// Create a [`PatchOp::Remove`] operation for the current path during the diff walk
     pub fn op_remove(&mut self, indices: Vec<usize>) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Remove(indices)));
         self
     }
 
-    /// Create a [`PatchOp::Clear`] operation for the current path
+    /// Create a [`PatchOp::Clear`] operation for the current path during the diff walk
     pub fn op_clear(&mut self) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Clear));
         self
+    }
+
+    /// Update the authors of a node
+    ///
+    /// Called during in a call to `patch` for nodes that have an `authors` property
+    pub fn update_authors(&mut self, authors: &mut Option<Vec<Author>>) -> bool {
+        // Return early if context authors already taken or none.
+        if self.authors_taken || self.authors.is_none() {
+            return false;
+        }
+
+        if let Some(existing_authors) = authors {
+            // The node has existing authors so remove existing entries for the
+            // same authors, and add new entries. This ensures that order is
+            // always most recent last and that `author_id` will refer to last one
+            let mut author_id = 0;
+            for new_author in self.authors.iter().flatten() {
+                let mut present = false;
+
+                for (existing_index, mut existing_author) in existing_authors.iter_mut().enumerate()
+                {
+                    if let (
+                        Author::AuthorRole(existing_author_role),
+                        Author::AuthorRole(new_author_role),
+                    ) = (&mut existing_author, new_author)
+                    {
+                        if existing_author_role.author == new_author_role.author
+                            && existing_author_role.role_name == new_author_role.role_name
+                        {
+                            existing_author_role.last_modified =
+                                new_author_role.last_modified.clone();
+                            present = true;
+                            author_id = existing_index + 1;
+                            break;
+                        }
+                    } else if existing_author == new_author {
+                        present = true;
+                        author_id = existing_index + 1;
+                        break;
+                    }
+                }
+
+                if !present {
+                    existing_authors.push(new_author.clone());
+                    author_id = existing_authors.len();
+                }
+            }
+            self.author_id = Some(author_id as u16);
+        } else {
+            // The node has no existing authors so set to the context's authors
+            *authors = self.authors.clone();
+            // Set the author id to the last of the authors and mark authors as "taken"
+            self.author_id = self.authors.as_ref().map(|authors| authors.len() as u16);
+        }
+
+        self.authors_taken = true;
+
+        self.authors_taken
+    }
+
+    /// Release the hold on authors taken by this node in a previous call to `update_authors`
+    pub fn release_authors(&mut self) {
+        self.authors_taken = false;
+    }
+
+    pub fn author_id(&self) -> &Option<u16> {
+        &self.author_id
     }
 }
 
@@ -207,15 +307,6 @@ pub enum PatchValue {
     Node(Node),
     String(String),
     Json(JsonValue),
-}
-
-// An operation on a `Cord`
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(crate = "common::serde")]
-pub enum CordOp {
-    Insert(usize, String),
-    Delete(Range<usize>),
-    Replace(Range<usize>, String),
 }
 
 /// A slot in a node path: either a property identifier or the index of a vector.
@@ -282,9 +373,6 @@ impl Debug for PatchPath {
 
 /// A trait for diffing and patching nodes
 pub trait PatchNode: Sized + Serialize + DeserializeOwned {
-    /// TODO: There should be no default implementations here
-    /// to make sure that meaningful implementations exist for each type
-
     /// Convert the node to a [`PatchValue`]
     ///
     /// This default implementation uses the fallback of marshalling to
@@ -673,7 +761,7 @@ where
             let length_difference = other.len() - self.len();
             let mut insert = Vec::new();
             let mut copy: HashMap<usize, Vec<(usize, f32)>> = HashMap::new();
-            for other_pos in 0..other.len() {
+            for (other_pos, other_item) in other.iter().enumerate() {
                 if insert.len() + copy.len() == length_difference {
                     break;
                 }
@@ -683,8 +771,8 @@ where
                     const COPY_SIMILARITY: f32 = 0.95;
 
                     // Attempt to find a close match in self
-                    for self_pos in 0..self.len() {
-                        let similarity = self[self_pos].similarity(&other[other_pos], context)?;
+                    for (self_pos, self_item) in self.iter().enumerate() {
+                        let similarity = self_item.similarity(&other_item, context)?;
                         if similarity >= COPY_SIMILARITY {
                             // Generate a copy operation
                             let entry = (other_pos, similarity);

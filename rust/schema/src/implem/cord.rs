@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{ops::Range, time::Duration};
 
 use codec_html_trait::encode::text;
 use common::similar::{capture_diff_deadline, Algorithm, DiffTag, TextDiffConfig};
@@ -8,6 +8,176 @@ use node_store::{
 };
 
 use crate::{prelude::*, Cord, CordOp};
+
+impl Cord {
+    /// Apply an insert operation
+    pub fn apply_insert(&mut self, position: usize, value: &str, author_id: &Option<u16>) {
+        // Check for out of bounds pos
+        if position > self.len() {
+            return;
+        }
+
+        // Update the string
+        let current_length = self.len();
+        self.insert_str(position, value);
+
+        // Early return if authorship does not need updating
+        let &Some(author_id) = author_id else {
+            return;
+        };
+        if value.is_empty() {
+            return;
+        };
+
+        // If authorship is empty then fill it a single "anon" run
+        if self.authorship.is_empty() && !self.is_empty() {
+            self.authorship = vec![(0, current_length)];
+        }
+
+        // Find the run at the insertion position and update authorship
+        let mut run_start = 0;
+        let mut inserted = false;
+        for run in 0..self.authorship.len() {
+            let (run_author, run_length) = self.authorship[run];
+            let run_end = run_start + run_length;
+
+            if run_end < position {
+                // Position is after run so continue
+            } else if run_start >= position {
+                // Position is before run
+                if run_author == author_id {
+                    // Same author: extend the existing run
+                    self.authorship[run].1 += value.len();
+                } else {
+                    // Different author: insert before
+                    self.authorship.insert(run, (author_id, value.len()));
+                }
+
+                inserted = true;
+                break;
+            } else if run_start <= position && run_end >= position {
+                // Position is within run
+                if run_author == author_id {
+                    // Same author: extend the existing run
+                    self.authorship[run].1 += value.len();
+                } else {
+                    // Split the run and insert after
+                    self.authorship[run].1 = position - run_start;
+                    let remaining = run_length - (position - run_start);
+                    if remaining > 0 {
+                        self.authorship.insert(run + 1, (run_author, remaining));
+                    }
+                    self.authorship.insert(run + 1, (author_id, value.len()));
+                }
+
+                inserted = true;
+                break;
+            }
+
+            run_start += run_length;
+        }
+
+        if !inserted {
+            let run = (author_id, value.len());
+            if position == 0 {
+                let is_first = self
+                    .authorship
+                    .first()
+                    .map(|&(author, ..)| author == author_id)
+                    .unwrap_or_default();
+                if is_first {
+                    self.authorship[0].1 += value.len();
+                } else {
+                    self.authorship.insert(0, run)
+                }
+            } else {
+                let is_last = self
+                    .authorship
+                    .last()
+                    .map(|&(author, ..)| author == author_id)
+                    .unwrap_or_default();
+                if is_last {
+                    let last = self.authorship.len();
+                    self.authorship[last].1 += value.len();
+                } else {
+                    self.authorship.push(run);
+                }
+            }
+        }
+    }
+
+    /// Apply a delete operation
+    pub fn apply_delete(&mut self, range: Range<usize>) {
+        // Check for out of bounds range
+        if range.start >= self.len() {
+            return;
+        }
+
+        // Update the string
+        self.replace_range(range.clone(), "");
+
+        // Update authorship
+        let mut run = 0;
+        let mut run_start = 0;
+        while run < self.authorship.len() {
+            let (.., run_length) = self.authorship[run];
+            let run_end = run_start + run_length;
+
+            if run_end < range.start {
+                // Run is before delete range so continue
+                run += 1;
+            } else if run_start >= range.end {
+                // Run is after delete range so finish
+                break;
+            } else if run_start == range.start && run_end == range.end {
+                // Delete of entire run
+                self.authorship.remove(run);
+                break;
+            } else if run_start <= range.start && run_end >= range.end {
+                // Delete within a single run
+                self.authorship[run].1 = run_length - range.len();
+                break;
+            } else if run_start == range.start {
+                // Delete spans multiple runs and starts at start of this one
+                self.authorship.remove(run);
+            } else if run_start < range.start {
+                // Delete spans multiple runs and starts midway through this one
+                self.authorship[run].1 = range.start - run_start;
+                run += 1;
+            } else if run_start > range.start && run_end <= range.end {
+                // Delete spans multiple runs and spans this one completely
+                self.authorship.remove(run);
+            } else if run_end == range.end {
+                // Delete spans multiple runs and ends at the end of this one
+                self.authorship.remove(run);
+                break;
+            } else if run_end > range.end {
+                // Delete spans multiple run and ends midway through this one
+                self.authorship[run].1 = run_end - range.end;
+                break;
+            }
+
+            run_start += run_length;
+        }
+    }
+
+    // Replace a range in the string with new content and update authorship
+    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author_id: &Option<u16>) {
+        self.apply_delete(range.clone());
+        self.apply_insert(range.start, value, author_id);
+    }
+
+    // Apply operations
+    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: &Option<u16>) {
+        for op in ops {
+            match op {
+                CordOp::Insert(pos, value) => self.apply_insert(pos, &value, author_id),
+                CordOp::Delete(range) => self.apply_delete(range),
+                CordOp::Replace(range, value) => self.apply_replace(range, &value, author_id),
+            }
+        }
+    }
+}
 
 impl StripNode for Cord {}
 
@@ -95,19 +265,7 @@ impl PatchNode for Cord {
             bail!("Invalid op for Cord");
         };
 
-        for op in ops {
-            match op {
-                CordOp::Insert(pos, value) => {
-                    self.insert_str(pos, &value);
-                }
-                CordOp::Delete(range) => {
-                    self.replace_range(range, "");
-                }
-                CordOp::Replace(range, value) => {
-                    self.replace_range(range, &value);
-                }
-            }
-        }
+        self.apply_ops(ops, context.author_id());
 
         Ok(())
     }
@@ -115,7 +273,7 @@ impl PatchNode for Cord {
 
 impl ReadNode for Cord {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        Ok(Self::new(store.text(obj_id)?))
+        Ok(Self::from(store.text(obj_id)?))
     }
 }
 
@@ -204,5 +362,183 @@ impl MarkdownCodec for Cord {
 impl TextCodec for Cord {
     fn to_text(&self) -> (String, Losses) {
         (self.to_string(), Losses::none())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common_dev::pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn insert_at_start() {
+        let mut cord = Cord {
+            string: "world!".to_string(),
+            authorship: vec![(2, 6)],
+        };
+        cord.apply_insert(0, "Hello, ", &Some(1));
+        assert_eq!(cord.string, "Hello, world!");
+        assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
+    }
+
+    #[test]
+    fn insert_at_end() {
+        let mut cord = Cord {
+            string: "Hello".to_string(),
+            authorship: vec![(1, 5)],
+        };
+        cord.apply_insert(5, ", world!", &Some(1));
+        assert_eq!(cord.string, "Hello, world!");
+        assert_eq!(cord.authorship, vec![(1, 13)]);
+    }
+
+    #[test]
+    fn insert_at_middle() {
+        let mut cord = Cord {
+            string: "Hello world!".to_string(),
+            authorship: vec![(1, 5), (2, 7)],
+        };
+        cord.apply_insert(5, ", beautiful", &Some(3));
+        assert_eq!(cord.string, "Hello, beautiful world!");
+        assert_eq!(cord.authorship, vec![(1, 5), (3, 11), (2, 7)]);
+    }
+
+    #[test]
+    fn insert_nothing() {
+        let mut cord = Cord {
+            string: "Hello".to_string(),
+            authorship: vec![(1, 5)],
+        };
+        cord.apply_insert(3, "", &Some(1)); // Empty string insertion
+        assert_eq!(cord.string, "Hello");
+        assert_eq!(cord.authorship, vec![(1, 5)]);
+    }
+
+    #[test]
+    fn insert_out_of_bounds() {
+        let mut cord = Cord {
+            string: "Hello".to_string(),
+            authorship: vec![(1, 5)],
+        };
+        cord.apply_insert(10, " world", &Some(1)); // Beyond the length of the string
+        assert_eq!(cord.string, "Hello");
+        assert_eq!(cord.authorship, vec![(1, 5)]); // No change
+    }
+
+    #[test]
+    fn insert_without_author() {
+        let mut cord = Cord {
+            string: "Hello".to_string(),
+            authorship: vec![(1, 5)],
+        };
+        cord.apply_insert(5, ", world", &None);
+        assert_eq!(cord.string, "Hello, world");
+        assert_eq!(cord.authorship, vec![(1, 5)]); // No update to authorship
+    }
+
+    #[test]
+    fn delete_entire_run() {
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 7), (2, 6)],
+        };
+        cord.apply_delete(0..7);
+        assert_eq!(cord.string, "world!");
+        assert_eq!(cord.authorship, vec![(2, 6)]);
+    }
+
+    #[test]
+    fn delete_within_run() {
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 13)],
+        };
+        cord.apply_delete(0..6);
+        assert_eq!(cord.string, " world!");
+        assert_eq!(cord.authorship, vec![(1, 7)]);
+
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 13)],
+        };
+        cord.apply_delete(5..13);
+        assert_eq!(cord.string, "Hello");
+        assert_eq!(cord.authorship, vec![(1, 5)]);
+
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 13)],
+        };
+        cord.apply_delete(1..12);
+        assert_eq!(cord.string, "H!");
+        assert_eq!(cord.authorship, vec![(1, 2)]);
+    }
+
+    #[test]
+    fn delete_across_runs() {
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 6), (2, 7)],
+        };
+        cord.apply_delete(5..12);
+        assert_eq!(cord.string, "Hello!");
+        assert_eq!(cord.authorship, vec![(1, 5), (2, 1)]);
+
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 3), (2, 2), (3, 8)],
+        };
+        cord.apply_delete(1..12);
+        assert_eq!(cord.string, "H!");
+        assert_eq!(cord.authorship, vec![(1, 1), (3, 1)]);
+    }
+
+    #[test]
+    fn delete_at_edges() {
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 7), (2, 6)],
+        };
+        cord.apply_delete(0..5); // Beginning edge
+        assert_eq!(cord.string, ", world!");
+        assert_eq!(cord.authorship, vec![(1, 2), (2, 6)]);
+
+        cord.apply_delete(5..8); // End edge
+        assert_eq!(cord.string, ", wor");
+        assert_eq!(cord.authorship, vec![(1, 2), (2, 3)]);
+    }
+
+    #[test]
+    fn delete_no_effect() {
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 7), (2, 6)],
+        };
+        cord.apply_delete(14..20); // Beyond string length
+        assert_eq!(cord.string, "Hello, world!");
+        assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
+    }
+
+    #[test]
+    fn delete_empty_range() {
+        let mut cord = Cord {
+            string: "Hello, world!".to_string(),
+            authorship: vec![(1, 7), (2, 6)],
+        };
+        cord.apply_delete(5..5); // Empty range should do nothing
+        assert_eq!(cord.string, "Hello, world!");
+        assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
+    }
+
+    #[test]
+    fn delete_from_empty() {
+        let mut cord = Cord {
+            string: "".to_string(),
+            authorship: Vec::new(),
+        };
+        cord.apply_delete(0..1); // Deleting from an empty string
+        assert_eq!(cord.string, "");
+        assert_eq!(cord.authorship, Vec::new());
     }
 }

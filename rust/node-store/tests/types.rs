@@ -129,10 +129,10 @@ fn text() -> Result<()> {
     // Make modifications, merge changes back into
     // store and check both stores for consistency
 
-    root.get_mut("insert").unwrap().value = Cord::new("a_bcd");
-    root.get_mut("delete").unwrap().value = Cord::new("acd");
-    root.get_mut("replace").unwrap().value = Cord::new("a_cd");
-    root.get_mut("varied").unwrap().value = Cord::new("_ace");
+    root.get_mut("insert").unwrap().value = Cord::from("a_bcd");
+    root.get_mut("delete").unwrap().value = Cord::from("acd");
+    root.get_mut("replace").unwrap().value = Cord::from("a_cd");
+    root.get_mut("varied").unwrap().value = Cord::from("_ace");
 
     root.dump(&mut fork)?;
     assert_eq!(Root::load(&fork)?, root);
@@ -142,11 +142,11 @@ fn text() -> Result<()> {
 
     // Make concurrent changes to and checked merged values are as expected
 
-    root.get_mut("varied").unwrap().value = Cord::new("Space");
+    root.get_mut("varied").unwrap().value = Cord::from("Space");
     let mut fork1 = base.fork();
     root.dump(&mut fork1)?;
 
-    root.get_mut("varied").unwrap().value = Cord::new("ace invaders");
+    root.get_mut("varied").unwrap().value = Cord::from("ace invaders");
     let mut fork2 = base.fork();
     root.dump(&mut fork2)?;
 

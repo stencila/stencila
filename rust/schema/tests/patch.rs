@@ -9,11 +9,11 @@ use common::{eyre::Result, glob::glob, serde::Serialize, tokio};
 use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
 use node_authorship::author_roles;
 use schema::{
-    diff, patch,
+    diff, merge_with_authors, patch,
     shortcuts::{art, p, sec, t},
-    Article, Author, AuthorRole, Block, Cord, CordOp, Figure, Inline, Node, NodeProperty,
-    Paragraph, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Primitive, Strong, Text,
-    TimeUnit, Visitor, WalkControl,
+    Article, Author, AuthorRole, Block, CodeChunk, Cord, CordOp, Figure, Inline, Node,
+    NodeProperty, Paragraph, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person,
+    Primitive, Strong, Text, TimeUnit, Visitor, WalkControl,
 };
 
 /// An individual fixture
@@ -126,7 +126,7 @@ impl Visitor for Authors {
 }
 
 // Count the authors in a node
-fn authors(node: &Node) -> usize {
+fn count_authors(node: &Node) -> usize {
     let mut authors = Authors(0);
     authors.visit(node);
     authors.0
@@ -167,7 +167,7 @@ async fn fixtures() -> Result<()> {
         // apply the default author role recursively to the old node
         let mut enriched = old.clone();
         author_roles(&mut enriched, vec![AuthorRole::default()]);
-        let authors_before = authors(&enriched);
+        let authors_before = count_authors(&enriched);
 
         // Calculate the ops
         let ops = diff(&old, &new)?;
@@ -181,7 +181,7 @@ async fn fixtures() -> Result<()> {
 
         // Apply the ops to enriched node and count authors after
         patch(&mut enriched, ops.clone())?;
-        let authors_after = authors(&enriched);
+        let authors_after = count_authors(&enriched);
         let author_diff = authors_after as isize - authors_before as isize;
         author_diffs.insert(name.clone(), author_diff);
         author_diffs_sum += author_diff;
@@ -590,6 +590,104 @@ fn enums() -> Result<()> {
             PatchPath::from([Property(NodeProperty::Content)]),
             PatchOp::Push(PatchValue::Block(p([t("para1")])))
         )]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn authors() -> Result<()> {
+    let alice = Author::Person(Person {
+        given_names: Some(vec!["Alice".to_string()]),
+        ..Default::default()
+    });
+    let bob = Author::Person(Person {
+        given_names: Some(vec!["Bob".to_string()]),
+        ..Default::default()
+    });
+    let carol = Author::Person(Person {
+        given_names: Some(vec!["Carol".to_string()]),
+        ..Default::default()
+    });
+
+    // Authorship is not updated for bae `Cord` because it does not have an
+    // ancestor node with the `authors` property
+    let mut cord = Cord::from("a");
+    merge_with_authors(&mut cord, &Cord::from("ab"), vec![alice.clone()])?;
+    assert_eq!(cord.to_string(), "ab");
+    assert_eq!(cord.authorship, vec![]);
+
+    let mut chunk = CodeChunk::new("a".into());
+
+    // Add authorship for alice, leaving "anon" (zero) for rest
+    merge_with_authors(
+        &mut chunk,
+        &CodeChunk::new("ab".into()),
+        vec![alice.clone()],
+    )?;
+    assert_eq!(chunk.code, "ab".into());
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 1)]);
+    assert_eq!(chunk.options.authors, Some(vec![alice.clone()]));
+
+    // Extend authorship run for alice
+    merge_with_authors(
+        &mut chunk,
+        &CodeChunk::new("abc".into()),
+        vec![alice.clone()],
+    )?;
+    assert_eq!(chunk.code, "abc".into());
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 2)]);
+    assert_eq!(chunk.options.authors, Some(vec![alice.clone()]));
+
+    // Append by bob
+    merge_with_authors(
+        &mut chunk,
+        &CodeChunk::new("abcd".into()),
+        vec![bob.clone()],
+    )?;
+    assert_eq!(chunk.code, "abcd".into());
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 2), (2, 1)]);
+    assert_eq!(
+        chunk.options.authors,
+        Some(vec![alice.clone(), bob.clone()])
+    );
+
+    // Insert by bob
+    merge_with_authors(
+        &mut chunk,
+        &CodeChunk::new("abxcd".into()),
+        vec![bob.clone()],
+    )?;
+    assert_eq!(chunk.code, "abxcd".into());
+    assert_eq!(
+        chunk.code.authorship,
+        vec![(0, 1), (1, 1), (2, 1), (1, 1), (2, 1)]
+    );
+    assert_eq!(
+        chunk.options.authors,
+        Some(vec![alice.clone(), bob.clone()])
+    );
+
+    // Delete by carol
+    merge_with_authors(
+        &mut chunk,
+        &CodeChunk::new("ad".into()),
+        vec![carol.clone()],
+    )?;
+    assert_eq!(chunk.code, "ad".into());
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (2, 1)]);
+    assert_eq!(
+        chunk.options.authors,
+        Some(vec![alice.clone(), bob.clone(), carol.clone()])
+    );
+
+    // Insert by bob
+    merge_with_authors(&mut chunk, &CodeChunk::new("and".into()), vec![bob.clone()])?;
+    assert_eq!(chunk.code, "and".into());
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (2, 1), (2, 1)]);
+    assert_eq!(
+        chunk.options.authors,
+        Some(vec![alice.clone(), bob.clone(), carol.clone()])
     );
 
     Ok(())

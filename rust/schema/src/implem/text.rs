@@ -17,7 +17,7 @@ where
     S: AsRef<str>,
 {
     fn from(value: S) -> Self {
-        Self::new(Cord::new(value))
+        Self::new(Cord::from(value))
     }
 }
 
