@@ -4,6 +4,7 @@ mod admonition;
 mod array;
 mod article;
 mod author;
+mod author_role;
 mod automatic_execution;
 mod block;
 mod call_argument;

@@ -7,24 +7,26 @@ required:
   - author
   - roleName
 core:
+  - format
   - lastModified
 properties:
   author:
     '@id': schema:author
-    description: The author.
-    anyOf:
-      - $ref: Person
-      - $ref: Organization
-      - $ref: SoftwareApplication
+    description: The entity acting as an author.
+    $ref: AuthorRoleAuthor
     dom:
       elem: none
   roleName:
     '@id': schema:roleName
-    description: A role played by the author.
+    description: The role played by the author.
     $ref: AuthorRoleName
+  format:
+    '@id': stencila:format
+    description: The format that the author used to perform the role. e.g. Markdown, Python
+    type: string
   lastModified:
     '@id': stencila:lastModified
-    description: Timestamp of most recent modification by the author in the role.
+    description: Timestamp of most recent modification, by the author, in the role.
     $ref: Timestamp
     dom:
       with: Timestamp::to_dom_attr

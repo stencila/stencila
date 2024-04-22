@@ -24,9 +24,9 @@ use schema::{
         blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes, transform_block,
         transform_inline,
     },
-    Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
-    InsertInline, InstructionBlock, InstructionInline, InstructionMessage, Link, MessagePart, Node,
-    NodeType, Organization, OrganizationOptions, PersonOrOrganization,
+    Article, AudioObject, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, ImageObject, Inline,
+    InsertBlock, InsertInline, InstructionBlock, InstructionInline, InstructionMessage, Link,
+    MessagePart, Node, NodeType, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
     SuggestionStatus, Timestamp, VideoObject, VisitorMut, WalkNode,
@@ -1224,9 +1224,7 @@ pub trait Assistant: Sync + Send {
     /// Create an `AuthorRole` node for this assistant
     fn to_author_role(&self, role_name: AuthorRoleName) -> AuthorRole {
         let mut role = AuthorRole::new(
-            PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
-                self.to_software_application(),
-            ),
+            AuthorRoleAuthor::SoftwareApplication(self.to_software_application()),
             role_name,
         );
         role.last_modified = Some(Timestamp::now());

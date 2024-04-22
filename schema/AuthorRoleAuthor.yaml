@@ -1,0 +1,15 @@
+title: AuthorRoleAuthor
+'@id': stencila:AuthorRoleAuthor
+category: works
+description: Union type for things that can be an author in `AuthorRole`.
+$comment: |
+  This type merely exists to avoid the excessively long type name
+  (`PersonOrOrganizationOrSoftwareApplicationOrThing`) that is otherwise generated.
+  The `Thing` variant is intended only for anonymous authors which is not known to
+  be one the other variants and which should be given the name "anon".
+default: Person
+anyOf:
+  - $ref: Person
+  - $ref: Organization
+  - $ref: SoftwareApplication
+  - $ref: Thing
