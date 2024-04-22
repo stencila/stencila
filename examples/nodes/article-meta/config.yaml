@@ -3,5 +3,5 @@ md:
 
 compact.jats.xml:
   decode:
-    # TODO: Enable metadata encoding/decoding
-    strip-scopes: [metadata]
+    # TODO: Enable authors and other metadata encoding/decoding
+    strip-scopes: [authors, metadata]

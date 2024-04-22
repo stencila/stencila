@@ -22,6 +22,9 @@ struct FieldAttr {
     ty: Type,
 
     #[darling(default)]
+    authors: bool,
+
+    #[darling(default)]
     metadata: bool,
 
     #[darling(default)]
@@ -83,7 +86,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return;
         };
 
-        // The tokens needed to strip the field
+        // The tokens used to strip the field
         let strip = if field_type == "Option" {
             quote! { = None }
         } else if field_type == "String"
@@ -97,11 +100,19 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             TokenStream::new()
         };
 
-        // Strip the field if it is in targeted scopes
         if !strip.is_empty() {
+            // Strip the field if it is in targeted scopes
+            if field.authors {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&StripScope::Authors) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
             if field.metadata {
                 fields.extend(quote! {
-                    if targets.scopes.contains(&node_strip::StripScope::Metadata) {
+                    if targets.scopes.contains(&StripScope::Metadata) {
                         self.#field_name #strip;
                     }
                 })
@@ -109,7 +120,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             if field.content {
                 fields.extend(quote! {
-                    if targets.scopes.contains(&node_strip::StripScope::Content) {
+                    if targets.scopes.contains(&StripScope::Content) {
                         self.#field_name #strip;
                     }
                 })
@@ -117,7 +128,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             if field.code {
                 fields.extend(quote! {
-                    if targets.scopes.contains(&node_strip::StripScope::Code) {
+                    if targets.scopes.contains(&StripScope::Code) {
                         self.#field_name #strip;
                     }
                 })
@@ -125,7 +136,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             if field.execution {
                 fields.extend(quote! {
-                    if targets.scopes.contains(&node_strip::StripScope::Execution) {
+                    if targets.scopes.contains(&StripScope::Execution) {
                         self.#field_name #strip;
                     }
                 })
@@ -133,7 +144,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             if field.output {
                 fields.extend(quote! {
-                    if targets.scopes.contains(&node_strip::StripScope::Output) {
+                    if targets.scopes.contains(&StripScope::Output) {
                         self.#field_name #strip;
                     }
                 })
@@ -157,8 +168,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     });
 
     quote! {
-        impl node_strip::StripNode for #struct_name {
-            fn strip(&mut self, targets: &node_strip::StripTargets) -> &mut Self {
+        impl StripNode for #struct_name {
+            fn strip(&mut self, targets: &StripTargets) -> &mut Self {
                 #fields
                 self
             }
@@ -184,12 +195,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     if variants.is_empty() {
         quote! {
-            impl node_strip::StripNode for #enum_name {}
+            impl StripNode for #enum_name {}
         }
     } else {
         quote! {
-            impl node_strip::StripNode for #enum_name {
-                fn strip(&mut self, targets: &node_strip::StripTargets) -> &mut Self {
+            impl StripNode for #enum_name {
+                fn strip(&mut self, targets: &StripTargets) -> &mut Self {
                     match self {
                         #variants
                     }

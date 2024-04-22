@@ -23,7 +23,7 @@ pub use codec_text_trait::TextCodec;
 pub use node_id::{NodeId, NodeUid};
 pub use node_patch_derive::PatchNode;
 pub use node_store::{ReadNode, WriteNode};
-pub use node_strip::StripNode;
+pub use node_strip::{StripNode, StripScope, StripTargets};
 pub use node_type::{NodeProperty, NodeType};
 pub use node_walk_derive::WalkNode;
 

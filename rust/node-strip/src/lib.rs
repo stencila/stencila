@@ -10,10 +10,21 @@ use common::{
 
 pub use node_strip_derive::StripNode;
 
+/// Strip properties from a node and its children
+pub fn strip<T>(node: &mut T, targets: StripTargets)
+where
+    T: StripNode,
+{
+    node.strip(&targets);
+}
+
 /// Predefined scopes for properties to be stripped across node types
 #[derive(Debug, Clone, Copy, ValueEnum, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum StripScope {
+    /// Strip authorship properties of nodes
+    Authors,
+
     /// Strip metadata properties of nodes
     Metadata,
 
@@ -70,6 +81,22 @@ impl StripTargets {
             scopes,
             types,
             properties,
+        }
+    }
+
+    /// Strip a single scope
+    pub fn scope(scope: StripScope) -> Self {
+        Self {
+            scopes: vec![scope],
+            ..Default::default()
+        }
+    }
+
+    /// Strip several scopes
+    pub fn scopes(scopes: Vec<StripScope>) -> Self {
+        Self {
+            scopes,
+            ..Default::default()
         }
     }
 }
