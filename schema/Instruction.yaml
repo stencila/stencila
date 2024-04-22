@@ -67,6 +67,6 @@ properties:
     type: array
     items:
       $ref: Author
-    strip: [metadata]
+    strip: [authors]
     dom:
       elem: div

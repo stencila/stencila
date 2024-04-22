@@ -9,6 +9,7 @@ export * from "./Article.js";
 export * from "./AudioObject.js";
 export * from "./Author.js";
 export * from "./AuthorRole.js";
+export * from "./AuthorRoleAuthor.js";
 export * from "./AuthorRoleName.js";
 export * from "./AutomaticExecution.js";
 export * from "./Block.js";

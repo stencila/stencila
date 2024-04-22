@@ -13,48 +13,43 @@ use common::{
 };
 use node_type::NodeProperty;
 
-use crate::{Author, Block, CordOp, Inline, Node};
+use crate::{Author, AuthorRole, Block, CordOp, Inline, Node};
 
-/// Merge `new` node into `old` node
+/// Assign authorship to a node
 ///
-/// This function simply combines calls to [`diff`] and [`patch`].
-pub fn merge<T: PatchNode>(old: &mut T, new: &T) -> Result<()> {
-    let ops = diff(old, new)?;
-    patch(old, ops)
+/// Intended to be used only to initialize authorship information
+/// on an node that has none. Will overwrite and existing authorship.
+pub fn authorship<T: PatchNode>(node: &mut T, author_roles: Vec<AuthorRole>) -> Result<()> {
+    let mut context = PatchContext {
+        author_roles,
+        ..Default::default()
+    };
+    node.authorship(&mut context)
 }
 
-/// Merge `new` node into `old` node and assign authorship of changes
+/// Merge `new` node into `old` node and record authorship of changes
 ///
 /// This function simply combines calls to [`diff`] and [`patch`].
-pub fn merge_with_authors<T: PatchNode>(old: &mut T, new: &T, authors: Vec<Author>) -> Result<()> {
+pub fn merge<T: PatchNode>(old: &mut T, new: &T, author_roles: Vec<AuthorRole>) -> Result<()> {
     let ops = diff(old, new)?;
-    patch_with_authors(old, ops, authors)
+    patch(old, ops, author_roles)
 }
 
 /// Generate the operations needed to patch `old` node into `new` node
 pub fn diff<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
-    let mut context = PatchContext::new();
+    let mut context = PatchContext::default();
     old.diff(new, &mut context)?;
     Ok(context.ops)
 }
 
-/// Apply patch operations to a node
-pub fn patch<T: PatchNode>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Result<()> {
-    let mut context = PatchContext::new();
-    for (mut path, op) in ops {
-        old.patch(&mut path, op, &mut context)?
-    }
-    Ok(())
-}
-
-/// Apply patch operations to a node and assign authorship of those operations
-pub fn patch_with_authors<T: PatchNode>(
+/// Apply patch operations to a node and record authorship of changes
+pub fn patch<T: PatchNode>(
     old: &mut T,
     ops: Vec<(PatchPath, PatchOp)>,
-    authors: Vec<Author>,
+    author_roles: Vec<AuthorRole>,
 ) -> Result<()> {
     let mut context = PatchContext {
-        authors: Some(authors),
+        author_roles,
         ..Default::default()
     };
     for (mut path, op) in ops {
@@ -65,9 +60,6 @@ pub fn patch_with_authors<T: PatchNode>(
 
 /// A context passed down to child nodes when walking across a node tree
 /// during a call to `similarity`, `diff`, or `patch`
-///
-/// Currently, this context is only used in calls to `diff` but may be used in
-/// other methods in the future.
 #[derive(Default)]
 pub struct PatchContext {
     /// The current path on the depth first walk across nodes during a call to `diff`
@@ -76,22 +68,19 @@ pub struct PatchContext {
     /// The target paths and operations collected during a call to `diff`.
     ops: Vec<(PatchPath, PatchOp)>,
 
-    /// The author which should be added to the authors list of nodes that have one
-    authors: Option<Vec<Author>>,
+    /// The authors to which authorship of changes will be assigned during a call to `patch`.
+    author_roles: Vec<AuthorRole>,
 
-    /// The id of the node that has "taken" the authors in the current application of
-    /// operation.
+    /// Whether authorship has been "taken" already in the current application of an operation
+    /// during a call to `patch`.
     authors_taken: bool,
 
-    /// The author id (1-based index) which should be added to the authorship of `Cord` nodes
-    author_id: Option<u16>,
+    /// The author id (1-based index) which should be using when making changes to the
+    /// authorship of `Cord` nodes during a call to `patch`.
+    author_id: u16,
 }
 
 impl PatchContext {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     /// Calculate the mean similarity
     ///
     /// A convenience function used in derive macros.
@@ -189,58 +178,73 @@ impl PatchContext {
 
     /// Update the authors of a node
     ///
-    /// Called during in a call to `patch` for nodes that have an `authors` property
-    pub fn update_authors(&mut self, authors: &mut Option<Vec<Author>>) -> bool {
-        // Return early if context authors already taken or none.
-        if self.authors_taken || self.authors.is_none() {
+    /// Called during calls to `authorship` and `patch` for nodes that have an `authors` property.
+    pub fn update_authors(
+        &mut self,
+        authors: &mut Option<Vec<Author>>,
+        take: bool,
+        overwrite: bool,
+    ) -> bool {
+        // Return early if context authors already taken.
+        if self.authors_taken {
             return false;
         }
 
-        if let Some(existing_authors) = authors {
-            // The node has existing authors so remove existing entries for the
-            // same authors, and add new entries. This ensures that order is
-            // always most recent last and that `author_id` will refer to last one
-            let mut author_id = 0;
-            for new_author in self.authors.iter().flatten() {
+        if overwrite || authors.is_none() {
+            // Setting authorship or the node has no existing authors so set to the context's authors
+            *authors = Some(
+                self.author_roles
+                    .clone()
+                    .into_iter()
+                    .map(Author::AuthorRole)
+                    .collect(),
+            );
+
+            // Set the author id to the first author and mark authors as "taken"
+            self.author_id = 0u16;
+        } else if let Some(existing_authors) = authors {
+            // The node has existing authors: if an author role is already present
+            // update `last_modified`, otherwise add the author role.
+            let mut author_id = None;
+            for new_author_role in self.author_roles.iter() {
                 let mut present = false;
 
                 for (existing_index, mut existing_author) in existing_authors.iter_mut().enumerate()
                 {
-                    if let (
-                        Author::AuthorRole(existing_author_role),
-                        Author::AuthorRole(new_author_role),
-                    ) = (&mut existing_author, new_author)
-                    {
+                    if let Author::AuthorRole(existing_author_role) = &mut existing_author {
                         if existing_author_role.author == new_author_role.author
                             && existing_author_role.role_name == new_author_role.role_name
+                            && existing_author_role.format == new_author_role.format
                         {
                             existing_author_role.last_modified =
                                 new_author_role.last_modified.clone();
+
                             present = true;
-                            author_id = existing_index + 1;
+
+                            if author_id.is_none() {
+                                author_id = Some(existing_index);
+                            };
+
                             break;
                         }
-                    } else if existing_author == new_author {
-                        present = true;
-                        author_id = existing_index + 1;
-                        break;
                     }
                 }
 
                 if !present {
-                    existing_authors.push(new_author.clone());
-                    author_id = existing_authors.len();
+                    if author_id.is_none() {
+                        author_id = Some(existing_authors.len());
+                    };
+                    existing_authors.push(Author::AuthorRole(new_author_role.clone()));
                 }
             }
-            self.author_id = Some(author_id as u16);
-        } else {
-            // The node has no existing authors so set to the context's authors
-            *authors = self.authors.clone();
-            // Set the author id to the last of the authors and mark authors as "taken"
-            self.author_id = self.authors.as_ref().map(|authors| authors.len() as u16);
+
+            // Set the author id to the index of the first in self.authors
+            self.author_id = author_id.unwrap_or(0) as u16;
         }
 
-        self.authors_taken = true;
+        if take {
+            self.authors_taken = true;
+        }
 
         self.authors_taken
     }
@@ -250,8 +254,9 @@ impl PatchContext {
         self.authors_taken = false;
     }
 
-    pub fn author_id(&self) -> &Option<u16> {
-        &self.author_id
+    /// Get the current author id for the context
+    pub fn author_id(&self) -> u16 {
+        self.author_id
     }
 }
 
@@ -373,6 +378,15 @@ impl Debug for PatchPath {
 
 /// A trait for diffing and patching nodes
 pub trait PatchNode: Sized + Serialize + DeserializeOwned {
+    /// Assign authorship to the node
+    ///
+    /// This default implementation does nothing. Nodes with
+    /// an `authors` or `authorship` property should override this.
+    #[allow(unused_variables)]
+    fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+        Ok(())
+    }
+
     /// Convert the node to a [`PatchValue`]
     ///
     /// This default implementation uses the fallback of marshalling to
@@ -532,6 +546,10 @@ impl<T> PatchNode for Box<T>
 where
     T: PatchNode,
 {
+    fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+        self.as_mut().authorship(context)
+    }
+
     fn to_value(&self) -> Result<PatchValue> {
         self.as_ref().to_value()
     }
@@ -563,6 +581,13 @@ impl<T> PatchNode for Option<T>
 where
     T: PatchNode + Serialize + DeserializeOwned,
 {
+    fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+        match self {
+            Some(value) => value.authorship(context),
+            None => Ok(()),
+        }
+    }
+
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
         match (self, other) {
             (Some(me), Some(other)) => me.similarity(other, context),
@@ -623,6 +648,14 @@ impl<T> PatchNode for Vec<T>
 where
     T: PatchNode + Clone,
 {
+    fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+        for item in self.iter_mut() {
+            item.authorship(context)?;
+        }
+
+        Ok(())
+    }
+
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
         // TODO: this sub-optimal for things like paragraphs For example,
@@ -772,7 +805,7 @@ where
 
                     // Attempt to find a close match in self
                     for (self_pos, self_item) in self.iter().enumerate() {
-                        let similarity = self_item.similarity(&other_item, context)?;
+                        let similarity = self_item.similarity(other_item, context)?;
                         if similarity >= COPY_SIMILARITY {
                             // Generate a copy operation
                             let entry = (other_pos, similarity);
@@ -966,26 +999,27 @@ where
             return child.patch(path, op, context);
         }
 
+        let mut from_value = |value: PatchValue| -> Result<T> {
+            let mut node = T::from_value(value)?;
+            node.authorship(context)?;
+            Ok(node)
+        };
+
         match op {
             PatchOp::Insert(values) => {
                 for (index, value) in values {
-                    self.insert(index, T::from_value(value)?);
+                    self.insert(index, from_value(value)?);
                 }
             }
             PatchOp::Push(value) => {
-                self.push(T::from_value(value)?);
+                self.push(from_value(value)?);
             }
             PatchOp::Append(values) => {
-                self.append(
-                    &mut values
-                        .into_iter()
-                        .map(|value| T::from_value(value))
-                        .try_collect()?,
-                );
+                self.append(&mut values.into_iter().map(from_value).try_collect()?);
             }
             PatchOp::Replace(values) => {
                 for (index, value) in values {
-                    self[index] = T::from_value(value)?;
+                    self[index] = from_value(value)?;
                 }
             }
             PatchOp::Move(indices) => {

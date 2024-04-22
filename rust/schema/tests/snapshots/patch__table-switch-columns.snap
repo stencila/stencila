@@ -1,9 +1,16 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Table
       rows:
@@ -14,19 +21,31 @@ old:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Name
+                      value:
+                        string: Name
+                        authorship:
+                          - - 0
+                            - 4
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Occupation
+                      value:
+                        string: Occupation
+                        authorship:
+                          - - 0
+                            - 10
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Age
+                      value:
+                        string: Age
+                        authorship:
+                          - - 0
+                            - 3
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -35,19 +54,31 @@ old:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Alice
+                      value:
+                        string: Alice
+                        authorship:
+                          - - 0
+                            - 5
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Developer
+                      value:
+                        string: Developer
+                        authorship:
+                          - - 0
+                            - 9
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "30"
+                      value:
+                        string: "30"
+                        authorship:
+                          - - 0
+                            - 2
         - type: TableRow
           cells:
             - type: TableCell
@@ -55,19 +86,38 @@ old:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Bob
+                      value:
+                        string: Bob
+                        authorship:
+                          - - 0
+                            - 3
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Designer
+                      value:
+                        string: Designer
+                        authorship:
+                          - - 0
+                            - 8
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "25"
+                      value:
+                        string: "25"
+                        authorship:
+                          - - 0
+                            - 2
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -134,6 +184,150 @@ new:
                   content:
                     - type: Text
                       value: Designer
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Age
+                        authorship:
+                          - - 0
+                            - 3
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Name
+                        authorship:
+                          - - 0
+                            - 4
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Occupation
+                        authorship:
+                          - - 0
+                            - 10
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "30"
+                        authorship:
+                          - - 1
+                            - 2
+                          - - 65535
+                            - 0
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Alice
+                        authorship:
+                          - - 1
+                            - 5
+                          - - 65535
+                            - 0
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Developer
+                        authorship:
+                          - - 0
+                            - 2
+                          - - 1
+                            - 5
+                          - - 0
+                            - 2
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "25"
+                        authorship:
+                          - - 1
+                            - 2
+                          - - 65535
+                            - 0
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Bob
+                        authorship:
+                          - - 1
+                            - 3
+                          - - 65535
+                            - 0
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Designer
+                        authorship:
+                          - - 0
+                            - 2
+                          - - 1
+                            - 4
+                          - - 0
+                            - 2
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -265,5 +459,3 @@ ops:
             - start: 0
               end: 2
             - Bob
-authors_before: 10
-authors_after: 10

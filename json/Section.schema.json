@@ -101,6 +101,23 @@
         }
       },
       "$ref": "SectionType.schema.json"
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the section.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "authors"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
     }
   }
 }

@@ -15,6 +15,7 @@
   ],
   "core": [
     "id",
+    "format",
     "lastModified"
   ],
   "properties": {
@@ -38,34 +39,29 @@
     },
     "author": {
       "@id": "schema:author",
-      "description": "The author.",
+      "description": "The entity acting as an author.",
       "dom": {
         "elem": "none"
       },
-      "anyOf": [
-        {
-          "$ref": "Person.schema.json"
-        },
-        {
-          "$ref": "Organization.schema.json"
-        },
-        {
-          "$ref": "SoftwareApplication.schema.json"
-        }
-      ]
+      "$ref": "AuthorRoleAuthor.schema.json"
     },
     "roleName": {
       "@id": "schema:roleName",
-      "description": "A role played by the author.",
+      "description": "The role played by the author.",
       "aliases": [
         "role-name",
         "role_name"
       ],
       "$ref": "AuthorRoleName.schema.json"
     },
+    "format": {
+      "@id": "stencila:format",
+      "description": "The format that the author used to perform the role. e.g. Markdown, Python",
+      "type": "string"
+    },
     "lastModified": {
       "@id": "stencila:lastModified",
-      "description": "Timestamp of most recent modification by the author in the role.",
+      "description": "Timestamp of most recent modification, by the author, in the role.",
       "aliases": [
         "last-modified",
         "last_modified"

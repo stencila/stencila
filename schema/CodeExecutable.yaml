@@ -1,5 +1,5 @@
 title: CodeExecutable
-'@id': stencila:CodeExecutable
+"@id": stencila:CodeExecutable
 extends: Executable
 category: code
 abstract: true
@@ -13,7 +13,7 @@ core:
   - programmingLanguage
 properties:
   code:
-    '@id': stencila:code
+    "@id": stencila:code
     description: The code.
     $ref: Cord
     strip: [code]
@@ -38,7 +38,7 @@ properties:
         description: Generate an arbitrary string.
         strategy: String::arbitrary().prop_map(Cord::new)
   programmingLanguage:
-    '@id': schema:programmingLanguage
+    "@id": schema:programmingLanguage
     description: The programming language of the code.
     type: string
     strip: [code]
@@ -60,12 +60,12 @@ properties:
         description: Generate an arbitrary string.
         strategy: option::of(String::arbitrary())
   authors:
-    '@id': schema:author
+    "@id": schema:author
     description: The authors of the executable code.
     type: array
     items:
       $ref: Author
-    strip: [metadata]
+    strip: [authors]
     serde:
       deserializeWith: option_one_or_many_string_or_object
     dom:

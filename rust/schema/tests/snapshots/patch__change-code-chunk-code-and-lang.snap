@@ -1,19 +1,75 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: CodeChunk
-      code: 1 + 2
+      code:
+        string: 1 + 2
+        authorship:
+          - - 0
+            - 5
       programmingLanguage: python
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
     - type: CodeChunk
       code: 1 + 3
       programmingLanguage: r
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: CodeChunk
+      code:
+        string: 1 + 3
+        authorship:
+          - - 0
+            - 4
+          - - 1
+            - 1
+      programmingLanguage: r
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -27,5 +83,3 @@ ops:
       - 0
       - programmingLanguage
     - Set: r
-authors_before: 1
-authors_after: 1

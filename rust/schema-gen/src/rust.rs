@@ -412,18 +412,28 @@ pub enum NodeProperty {{
         attrs.push("#[derive(derive_more::Display)]".to_string());
         attrs.push(format!("#[display(fmt = \"{title}\")]"));
 
-        // Add a #[patch(authors = "..")] attribute for main struct if it has authors
-        // that is a Vec<Author>
+        // Add a #[patch(...)] attribute for main struct if it has authors that is a Vec<Author>
         if derive_patch {
             if let Some(authors) = schema.properties.get("authors") {
                 if let Some(Items::Ref(ItemsRef { r#ref })) = &authors.items {
                     if r#ref == "Author" {
-                        let authors = if authors.is_required || authors.is_core {
-                            "self"
+                        let authors_on = if authors.is_required || authors.is_core {
+                            "authors_on = \"self\""
                         } else {
-                            "options"
+                            "authors_on = \"options\""
                         };
-                        attrs.push(format!("#[patch(authors = \"{authors}\")]"));
+
+                        let authors_take = schema
+                            .patch
+                            .as_ref()
+                            .and_then(|options| {
+                                options
+                                    .take_authors
+                                    .then(|| ", authors_take = true".to_string())
+                            })
+                            .unwrap_or_default();
+
+                        attrs.push(format!("#[patch({authors_on}{authors_take})]"));
                     }
                 }
             }
@@ -597,16 +607,19 @@ pub enum NodeProperty {{
             }
 
             // If patch is not specified, defaults to all formats for `content` property
-            if let Some(formats) = property
-                .patch
-                .as_ref()
-                .and_then(|options| options.formats.clone())
-                .or_else(|| (name == "content").then(|| vec!["all".to_string()]))
-            {
-                let formats = formats
-                    .iter()
-                    .map(|format| format!("format = \"{format}\""))
-                    .join(", ");
+            if property.patch.is_some() || name == "content" {
+                let formats = if let Some(patch) = &property.patch {
+                    patch
+                        .formats
+                        .clone()
+                        .unwrap_or_default()
+                        .iter()
+                        .map(|format| format!("format = \"{format}\""))
+                        .join(", ")
+                } else {
+                    "format = \"all\"".to_string()
+                };
+
                 attrs.push(format!("#[patch({formats})]"));
             }
 

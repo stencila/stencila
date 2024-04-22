@@ -1,0 +1,24 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/AuthorRoleAuthor.schema.json",
+  "@id": "stencila:AuthorRoleAuthor",
+  "title": "AuthorRoleAuthor",
+  "category": "works",
+  "description": "Union type for things that can be an author in `AuthorRole`.",
+  "$comment": "This type merely exists to avoid the excessively long type name\n(`PersonOrOrganizationOrSoftwareApplicationOrThing`) that is otherwise generated.\nThe `Thing` variant is intended only for anonymous authors which is not known to\nbe one the other variants and which should be given the name \"anon\".\n",
+  "anyOf": [
+    {
+      "$ref": "Person.schema.json"
+    },
+    {
+      "$ref": "Organization.schema.json"
+    },
+    {
+      "$ref": "SoftwareApplication.schema.json"
+    },
+    {
+      "$ref": "Thing.schema.json"
+    }
+  ],
+  "default": "Person"
+}

@@ -1,21 +1,50 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: InstructionBlock
       messages:
         - type: InstructionMessage
           parts:
             - type: Text
-              value: more succinct
+              value:
+                string: more succinct
+                authorship:
+                  - - 0
+                    - 13
       content:
         - type: Paragraph
           content:
             - type: Text
-              value: A rather long winded paragraph.
+              value:
+                string: A rather long winded paragraph.
+                authorship:
+                  - - 0
+                    - 31
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -30,6 +59,71 @@ new:
           content:
             - type: Text
               value: A rather long winded paragraph that goes on and on.
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value:
+                string: more succinct
+                authorship:
+                  - - 0
+                    - 13
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: A rather long winded paragraph that goes on and on.
+                authorship:
+                  - - 0
+                    - 30
+                  - - 1
+                    - 20
+                  - - 0
+                    - 1
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -42,5 +136,3 @@ ops:
         - Insert:
             - 30
             - " that goes on and on"
-authors_before: 2
-authors_after: 2

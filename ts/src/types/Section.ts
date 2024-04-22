@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
 import { SectionType } from "./SectionType.js";
@@ -20,6 +21,11 @@ export class Section extends Entity {
    * The type of section.
    */
   sectionType?: SectionType;
+
+  /**
+   * The authors of the section.
+   */
+  authors?: Author[];
 
   constructor(content: Block[], options?: Partial<Section>) {
     super();

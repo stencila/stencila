@@ -17,9 +17,9 @@ pub struct Cord {
 
     /// The authorship of the current value of the cord
     ///
-    /// Run length encoding of which authors created which UTF-8 bytes
-    /// in the value. A value of 0 indicates an anonymous author. A value
-    /// of >0 corresponds to the author in the closest ancestor node
+    /// Run length encoding of which authors created which UTF-8 bytes in the value.
+    /// A value of u16::MAX indicates an unknown author.
+    /// Any other value corresponds to the index of author in the closest ancestor node
     /// with an `authors` property.
     pub authorship: Vec<(u16, usize)>,
 }

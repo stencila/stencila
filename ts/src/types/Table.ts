@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { TableRow } from "./TableRow.js";
@@ -10,6 +11,11 @@ import { TableRow } from "./TableRow.js";
 export class Table extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "Table";
+
+  /**
+   * The authors of the table.
+   */
+  authors?: Author[];
 
   /**
    * A short label for the table.

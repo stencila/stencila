@@ -52,4 +52,12 @@ properties:
       low:
         description: Generate an arbitrary section type.
         strategy: option::of(SectionType::arbitrary())
-
+  authors:
+    '@id': schema:author
+    description: The authors of the section.
+    type: array
+    items:
+      $ref: Author
+    strip: [authors]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object

@@ -348,7 +348,7 @@
         "author"
       ],
       "strip": [
-        "metadata"
+        "authors"
       ],
       "dom": {
         "elem": "div"

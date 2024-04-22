@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::section_type::SectionType;
 use super::string::String;
@@ -14,6 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Section")]
+#[patch(authors_on = "options")]
 #[html(elem = "section", special)]
 #[jats(elem = "sec")]
 pub struct Section {
@@ -48,10 +50,30 @@ pub struct Section {
     #[jats(attr = "content-type")]
     pub section_type: Option<SectionType>,
 
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<SectionOptions>,
+
     /// A unique identifier for a node within a document
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
     pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct SectionOptions {
+    /// The authors of the section.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<Author>>,
 }
 
 impl Section {

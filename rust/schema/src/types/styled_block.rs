@@ -17,7 +17,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "StyledBlock")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 #[html(elem = "div")]
 pub struct StyledBlock {
     /// The type of this item.
@@ -78,7 +78,7 @@ pub struct StyledBlockOptions {
     /// The authors of the styling code.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub authors: Option<Vec<Author>>,
 

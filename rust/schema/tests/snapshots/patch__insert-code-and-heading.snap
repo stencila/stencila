@@ -1,32 +1,94 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Heading
       level: 1
       content:
         - type: Text
-          value: heading1
+          value:
+            string: heading1
+            authorship:
+              - - 0
+                - 8
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: Paragraph
       content:
         - type: Text
-          value: para1
+          value:
+            string: para1
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: Paragraph
       content:
         - type: Text
-          value: para2
+          value:
+            string: para2
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: Heading
       level: 2
       content:
         - type: Text
-          value: heading2
+          value:
+            string: heading2
+            authorship:
+              - - 0
+                - 8
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: Paragraph
       content:
         - type: Text
-          value: para3
+          value:
+            string: para3
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -60,6 +122,129 @@ new:
       content:
         - type: Text
           value: para3
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Heading
+      level: 1
+      content:
+        - type: Text
+          value:
+            string: heading1
+            authorship:
+              - - 0
+                - 8
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para1
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: CodeBlock
+      code:
+        string: ""
+        authorship:
+          - - 0
+            - 0
+      programmingLanguage: python
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para2
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value:
+            string: heading3
+            authorship:
+              - - 0
+                - 8
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+    - type: Heading
+      level: 2
+      content:
+        - type: Text
+          value:
+            string: heading2
+            authorship:
+              - - 0
+                - 8
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para3
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 ops:
   - - - content
     - Insert:
@@ -73,5 +258,3 @@ ops:
             content:
               - type: Text
                 value: heading3
-authors_before: 5
-authors_after: 5

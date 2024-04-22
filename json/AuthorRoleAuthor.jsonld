@@ -1,0 +1,18 @@
+{
+  "@id": "https://stencila.org/AuthorRoleAuthor",
+  "name": "AuthorRoleAuthor",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:AuthorRoleAuthor",
+      "@type": "rdfs:Class",
+      "rdfs:label": "AuthorRoleAuthor",
+      "rdfs:comment": "Union type for things that can be an author in `AuthorRole`."
+    }
+  ]
+}

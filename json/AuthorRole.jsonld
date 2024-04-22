@@ -21,27 +21,19 @@
       "@id": "schema:author",
       "@type": "rdfs:Property",
       "rdfs:label": "author",
-      "rdfs:comment": "The author.",
+      "rdfs:comment": "The entity acting as an author.",
       "schema:domainIncludes": {
         "@id": "stencila:AuthorRole"
       },
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:Person"
-        },
-        {
-          "@id": "schema:Organization"
-        },
-        {
-          "@id": "schema:SoftwareApplication"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "stencila:AuthorRoleAuthor"
+      }
     },
     {
       "@id": "schema:roleName",
       "@type": "rdfs:Property",
       "rdfs:label": "roleName",
-      "rdfs:comment": "A role played by the author.",
+      "rdfs:comment": "The role played by the author.",
       "schema:domainIncludes": {
         "@id": "stencila:AuthorRole"
       },
@@ -50,10 +42,22 @@
       }
     },
     {
+      "@id": "stencila:format",
+      "@type": "rdfs:Property",
+      "rdfs:label": "format",
+      "rdfs:comment": "The format that the author used to perform the role. e.g. Markdown, Python",
+      "schema:domainIncludes": {
+        "@id": "stencila:AuthorRole"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:lastModified",
       "@type": "rdfs:Property",
       "rdfs:label": "lastModified",
-      "rdfs:comment": "Timestamp of most recent modification by the author in the role.",
+      "rdfs:comment": "Timestamp of most recent modification, by the author, in the role.",
       "schema:domainIncludes": {
         "@id": "stencila:AuthorRole"
       },

@@ -5781,7 +5781,6 @@ dependencies = [
  "human_name",
  "interim",
  "monostate",
- "node-authorship",
  "node-id",
  "node-patch-derive",
  "node-store",

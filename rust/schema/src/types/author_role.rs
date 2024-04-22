@@ -2,8 +2,8 @@
 
 use crate::prelude::*;
 
+use super::author_role_author::AuthorRoleAuthor;
 use super::author_role_name::AuthorRoleName;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -23,15 +23,18 @@ pub struct AuthorRole {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The author.
+    /// The entity acting as an author.
     #[dom(elem = "none")]
-    pub author: PersonOrOrganizationOrSoftwareApplication,
+    pub author: AuthorRoleAuthor,
 
-    /// A role played by the author.
+    /// The role played by the author.
     #[serde(alias = "role-name", alias = "role_name")]
     pub role_name: AuthorRoleName,
 
-    /// Timestamp of most recent modification by the author in the role.
+    /// The format that the author used to perform the role. e.g. Markdown, Python
+    pub format: Option<String>,
+
+    /// Timestamp of most recent modification, by the author, in the role.
     #[serde(alias = "last-modified", alias = "last_modified")]
     #[dom(with = "Timestamp::to_dom_attr")]
     pub last_modified: Option<Timestamp>,
@@ -53,7 +56,7 @@ impl AuthorRole {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(author: PersonOrOrganizationOrSoftwareApplication, role_name: AuthorRoleName) -> Self {
+    pub fn new(author: AuthorRoleAuthor, role_name: AuthorRoleName) -> Self {
         Self {
             author,
             role_name,

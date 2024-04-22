@@ -507,6 +507,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "takeAuthors": {
+          "description": "Whether the `authors` of the context should be \"taken\" (i.e made not available to child nodes).",
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -835,6 +839,7 @@
       "description": "Targets for stripping properties",
       "type": "string",
       "enum": [
+        "authors",
         "metadata",
         "content",
         "code",

@@ -26,7 +26,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Button")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 #[html(elem = "button")]
 pub struct Button {
     /// The type of this item.
@@ -161,7 +161,7 @@ pub struct ButtonOptions {
     /// The authors of the executable code.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,
 

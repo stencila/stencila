@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Summary { ops_count, ops_total, author_diffs, author_diffs_sum }"
+expression: "Summary { ops_count, ops_total }"
 ---
 ops_count:
   admonition-add-para: 1
@@ -42,43 +42,3 @@ ops_count:
   wrap-emphasis: 2
   wrap-figure: 2
 ops_total: 60
-author_diffs:
-  admonition-add-para: 0
-  append-one-paragraph: 0
-  append-paragraph-to-section: 0
-  change-and-reorder-headings: 0
-  change-code-chunk-code: 0
-  change-code-chunk-code-and-lang: 0
-  change-first-paragraph: 0
-  change-last-paragraph: 0
-  change-middle-paragraphs: 0
-  delete-code-chunk: -1
-  delete-one-paragraph: -1
-  delete-two-paragraphs: -2
-  footnote-add-text: 0
-  insert-code-and-heading: 0
-  insert-one-paragraph: 0
-  instruction-modify-command: 0
-  instruction-modify-inline: 0
-  instruction-modify-text: 0
-  instruction-with-footnode: 0
-  instruction-wrap: -1
-  list-swap-items: 0
-  move-middle-paragraphs: 0
-  paragraph-copy-0.95: 1
-  paragraph-copy-and-move: 1
-  paragraph-copy-one: 1
-  prepend-one-paragraph: 0
-  section-add-paras: 0
-  split-code-chunk: 0
-  table-add-rows: 0
-  table-change-content: 0
-  table-switch-columns: 0
-  table-switch-rows: 0
-  thematic-simple-add: 0
-  theorem-add-text: 0
-  unwrap-emphasis: 0
-  unwrap-figure: -4
-  wrap-emphasis: 0
-  wrap-figure: -3
-author_diffs_sum: -9

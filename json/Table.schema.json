@@ -9,6 +9,9 @@
   ],
   "category": "works",
   "description": "A table.",
+  "patch": {
+    "takeAuthors": true
+  },
   "html": {
     "special": true
   },
@@ -155,18 +158,18 @@
     },
     "authors": {
       "@id": "schema:author",
-      "description": "The authors of the `CreativeWork`.",
+      "description": "The authors of the table.",
       "aliases": [
         "author"
       ],
       "strip": [
-        "metadata"
+        "authors"
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
-        "elem": "section"
+        "elem": "div"
       },
       "type": "array",
       "items": {

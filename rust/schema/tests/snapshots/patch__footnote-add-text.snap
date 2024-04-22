@@ -1,42 +1,122 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Paragraph
       content:
         - type: Text
-          value: A note.
+          value:
+            string: A note.
+            authorship:
+              - - 0
+                - 7
         - type: Note
           noteType: Footnote
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: A footnote
+                  value:
+                    string: A footnote
+                    authorship:
+                      - - 0
+                        - 10
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: Paragraph
       content:
         - type: Text
-          value: More notes.
+          value:
+            string: More notes.
+            authorship:
+              - - 0
+                - 11
         - type: Note
           noteType: Footnote
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: A footnote with...
+                  value:
+                    string: A footnote with...
+                    authorship:
+                      - - 0
+                        - 18
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
             - type: Paragraph
               content:
                 - type: Text
-                  value: "some text:"
+                  value:
+                    string: "some text:"
+                    authorship:
+                      - - 0
+                        - 10
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
             - type: QuoteBlock
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: and a quote
+                      value:
+                        string: and a quote
+                        authorship:
+                          - - 0
+                            - 11
+                  authors:
+                    - type: AuthorRole
+                      author:
+                        type: Person
+                        givenNames:
+                          - Alice
+                      roleName: Importer
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -78,6 +158,157 @@ new:
                   content:
                     - type: Text
                       value: and a quote
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: A note.
+            authorship:
+              - - 0
+                - 7
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value:
+                    string: A footnote
+                    authorship:
+                      - - 0
+                        - 10
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: More notes.
+            authorship:
+              - - 0
+                - 11
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value:
+                    string: A footnote with...
+                    authorship:
+                      - - 0
+                        - 18
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+            - type: QuoteBlock
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: added quote.
+                        authorship:
+                          - - 0
+                            - 12
+                  authors:
+                    - type: AuthorRole
+                      author:
+                        type: Person
+                        givenNames:
+                          - Bob
+                      roleName: Writer
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Bob
+                  roleName: Writer
+            - type: Paragraph
+              content:
+                - type: Text
+                  value:
+                    string: "some text:"
+                    authorship:
+                      - - 0
+                        - 10
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+            - type: QuoteBlock
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: and a quote
+                        authorship:
+                          - - 0
+                            - 11
+                  authors:
+                    - type: AuthorRole
+                      author:
+                        type: Person
+                        givenNames:
+                          - Alice
+                      roleName: Importer
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 1
@@ -92,5 +323,3 @@ ops:
                 content:
                   - type: Text
                     value: added quote.
-authors_before: 7
-authors_after: 7

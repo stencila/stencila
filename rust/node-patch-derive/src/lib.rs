@@ -15,7 +15,10 @@ struct TypeAttr {
     ident: Ident,
     data: AstData<Ignored, FieldAttr>,
 
-    authors: Option<String>,
+    authors_on: Option<String>,
+
+    #[darling(default)]
+    authors_take: bool,
 }
 
 #[derive(FromField)]
@@ -54,6 +57,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
+    let mut authorship_fields = TokenStream::new();
     let mut similarity_fields = TokenStream::new();
     let mut diff_fields = TokenStream::new();
     let mut patch_fields = TokenStream::new();
@@ -71,6 +75,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             let property = Ident::new(&field_name.to_string().to_pascal_case(), Span::call_site());
 
+            authorship_fields.extend(quote! {
+                self.#field_name.authorship(context)?;
+            });
             similarity_fields.extend(quote! {
                 self.#field_name.similarity(&other.#field_name, context)?,
             });
@@ -86,6 +93,46 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             });
         }
     });
+
+    let update_release_authors = |overwrite: bool| {
+        if let Some(authors_on) = &type_attr.authors_on {
+            let authors = if authors_on == "options" {
+                quote! { self.options.authors }
+            } else {
+                quote! { self.authors }
+            };
+
+            let take = type_attr.authors_take;
+
+            (
+                quote! {
+                    let authors_taken = context.update_authors(&mut #authors, #take, #overwrite);
+                },
+                quote! {
+                    if authors_taken { context.release_authors() };
+                },
+            )
+        } else {
+            (TokenStream::new(), TokenStream::new())
+        }
+    };
+
+    let authorship = if !authorship_fields.is_empty() {
+        let (update_authors, release_authors) = update_release_authors(true);
+        quote! {
+            fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+                #update_authors
+
+                #authorship_fields
+
+                #release_authors
+
+                Ok(())
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
 
     let similarity = if !similarity_fields.is_empty() {
         quote! {
@@ -111,25 +158,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let patch = if !patch_fields.is_empty() {
-        let (update_authors, release_authors) = if let Some(authors) = type_attr.authors {
-            let authors = if authors == "options" {
-                quote!(self.options.authors)
-            } else {
-                quote!(self.authors)
-            };
-
-            (
-                quote! {
-                    let authors_taken = context.update_authors(&mut #authors);
-                },
-                quote! {
-                    if authors_taken { context.release_authors() };
-                },
-            )
-        } else {
-            (TokenStream::new(), TokenStream::new())
-        };
-
+        let (update_authors, release_authors) = update_release_authors(false);
         quote! {
             fn patch(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
                 let Some(PatchSlot::Property(property)) = path.pop_front() else {
@@ -154,6 +183,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     quote! {
         impl PatchNode for #struct_name {
+            #authorship
+
             #similarity
 
             #diff
@@ -192,32 +223,39 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
         ),
     };
 
-    let mut similarity = TokenStream::new();
-    let mut diff = TokenStream::new();
-    let mut patch = TokenStream::new();
+    let mut authorship_variants = TokenStream::new();
+    let mut similarity_variants = TokenStream::new();
+    let mut diff_variants = TokenStream::new();
+    let mut patch_variants = TokenStream::new();
     for variant in &data.variants {
         let variant_name = &variant.ident;
 
         match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => {
-                similarity.extend(quote! {
+                authorship_variants.extend(quote! {
+                    Self::#variant_name(me) => me.authorship(context),
+                });
+                similarity_variants.extend(quote! {
                     (Self::#variant_name(me), Self::#variant_name(other)) => me.similarity(other, context),
                 });
-                diff.extend(quote! {
+                diff_variants.extend(quote! {
                     (Self::#variant_name(me), Self::#variant_name(other)) => me.diff(other, context),
                 });
-                patch.extend(quote! {
+                patch_variants.extend(quote! {
                     Self::#variant_name(me) => me.patch(path, op, context),
                 });
             }
             Fields::Unit => {
-                similarity.extend(quote! {
+                authorship_variants.extend(quote! {
+                    Self::#variant_name => Ok(()),
+                });
+                similarity_variants.extend(quote! {
                     (Self::#variant_name, Self::#variant_name) => Ok(1.0),
                 });
-                diff.extend(quote! {
+                diff_variants.extend(quote! {
                     (Self::#variant_name, Self::#variant_name) => Ok(()),
                 });
-                patch.extend(quote! {
+                patch_variants.extend(quote! {
                     Self::#variant_name => Ok(()),
                 });
             }
@@ -226,6 +264,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     quote! {
         impl PatchNode for #enum_name {
+            fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+                match self {
+                    #authorship_variants
+                }
+            }
+
             fn to_value(&self) -> Result<PatchValue> {
                 #to_value
             }
@@ -237,7 +281,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
                 match (self, other) {
                     // Same variants
-                    #similarity
+                    #similarity_variants
                     // Different variants: zero similarity
                     _ => Ok(0.0)
                 }
@@ -246,7 +290,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
                 match (self, other) {
                     // Same variants
-                    #diff
+                    #diff_variants
                     // Different variants: set with other
                     _ => {
                         context.op_set(other.to_value()?);
@@ -257,7 +301,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
             fn patch(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
                 match self {
-                    #patch
+                    #patch_variants
                 }
             }
         }

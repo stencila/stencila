@@ -1,9 +1,16 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Table
       rows:
@@ -14,19 +21,31 @@ old:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Country
+                      value:
+                        string: Country
+                        authorship:
+                          - - 0
+                            - 7
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Capital
+                      value:
+                        string: Capital
+                        authorship:
+                          - - 0
+                            - 7
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Population (millions)
+                      value:
+                        string: Population (millions)
+                        authorship:
+                          - - 0
+                            - 21
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -35,19 +54,31 @@ old:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: USA
+                      value:
+                        string: USA
+                        authorship:
+                          - - 0
+                            - 3
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: DC
+                      value:
+                        string: DC
+                        authorship:
+                          - - 0
+                            - 2
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "328"
+                      value:
+                        string: "328"
+                        authorship:
+                          - - 0
+                            - 3
         - type: TableRow
           cells:
             - type: TableCell
@@ -55,19 +86,38 @@ old:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Canada
+                      value:
+                        string: Canada
+                        authorship:
+                          - - 0
+                            - 6
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Ottawa
+                      value:
+                        string: Ottawa
+                        authorship:
+                          - - 0
+                            - 6
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "38"
+                      value:
+                        string: "38"
+                        authorship:
+                          - - 0
+                            - 2
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -134,6 +184,136 @@ new:
                   content:
                     - type: Text
                       value: "38"
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Table
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Country
+                        authorship:
+                          - - 0
+                            - 7
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Capital
+                        authorship:
+                          - - 0
+                            - 7
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Population (millions)
+                        authorship:
+                          - - 0
+                            - 21
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: USA
+                        authorship:
+                          - - 0
+                            - 3
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: DC
+                        authorship:
+                          - - 0
+                            - 2
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "329"
+                        authorship:
+                          - - 0
+                            - 2
+                          - - 1
+                            - 1
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Canada
+                        authorship:
+                          - - 0
+                            - 6
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Ottawa
+                        authorship:
+                          - - 0
+                            - 6
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "38"
+                        authorship:
+                          - - 0
+                            - 2
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -151,5 +331,3 @@ ops:
             - start: 2
               end: 3
             - "9"
-authors_before: 10
-authors_after: 10

@@ -14,7 +14,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Paragraph")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 #[html(elem = "p")]
 #[jats(elem = "p")]
 #[markdown(template = "{{content}}\n\n")]
@@ -61,7 +61,7 @@ pub struct ParagraphOptions {
     /// The authors of the paragraph.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,

@@ -28,7 +28,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "SoftwareSourceCode")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 pub struct SoftwareSourceCode {
     /// The type of this item.
     pub r#type: MustBe!("SoftwareSourceCode"),
@@ -112,7 +112,7 @@ pub struct SoftwareSourceCodeOptions {
     /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[dom(elem = "section")]
     pub authors: Option<Vec<Author>>,
 

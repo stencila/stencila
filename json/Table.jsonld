@@ -151,13 +151,16 @@
       "@id": "schema:author",
       "@type": "rdfs:Property",
       "rdfs:label": "authors",
-      "rdfs:comment": "The authors of the `CreativeWork`.",
+      "rdfs:comment": "The authors of the table.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
         },
         {
           "@id": "schema:ItemList"
+        },
+        {
+          "@id": "schema:Table"
         },
         {
           "@id": "stencila:Admonition"
@@ -188,6 +191,9 @@
         },
         {
           "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
         },
         {
           "@id": "stencila:Styled"

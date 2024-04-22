@@ -463,6 +463,7 @@ pub struct ItemsAnyOf {
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum StripScopes {
+    Authors,
     Metadata,
     Content,
     Code,
@@ -553,6 +554,12 @@ pub struct PatchOptions {
     #[serde(skip_serializing_if = "is_true")]
     #[default = true]
     pub derive: bool,
+
+    /// Whether the `authors` of the context should be "taken" (i.e made not
+    /// available to child nodes).
+    #[serde(rename = "takeAuthors", skip_serializing_if = "is_false")]
+    #[default = false]
+    pub take_authors: bool,
 
     /// The formats from which the property should be patched for
     ///

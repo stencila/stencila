@@ -1,9 +1,16 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Section
       content:
@@ -11,22 +18,80 @@ old:
           level: 1
           content:
             - type: Text
-              value: Header 1
+              value:
+                string: Header 1
+                authorship:
+                  - - 0
+                    - 8
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
         - type: Paragraph
           content:
             - type: Text
-              value: Text.
+              value:
+                string: Text.
+                authorship:
+                  - - 0
+                    - 5
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
         - type: Section
           content:
             - type: Heading
               level: 2
               content:
                 - type: Text
-                  value: Sub section
+                  value:
+                    string: Sub section
+                    authorship:
+                      - - 0
+                        - 11
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
             - type: Paragraph
               content:
                 - type: Text
-                  value: This is in the sub section.
+                  value:
+                    string: This is in the sub section.
+                    authorship:
+                      - - 0
+                        - 27
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -60,6 +125,138 @@ new:
           content:
             - type: Text
               value: End text.
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Section
+      content:
+        - type: Heading
+          level: 1
+          content:
+            - type: Text
+              value:
+                string: Header 1
+                authorship:
+                  - - 0
+                    - 8
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: Text.
+                authorship:
+                  - - 0
+                    - 5
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: More text.
+                authorship:
+                  - - 0
+                    - 10
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+        - type: Section
+          content:
+            - type: Heading
+              level: 2
+              content:
+                - type: Text
+                  value:
+                    string: Sub section
+                    authorship:
+                      - - 0
+                        - 11
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+            - type: Paragraph
+              content:
+                - type: Text
+                  value:
+                    string: This is in the sub section.
+                    authorship:
+                      - - 0
+                        - 27
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: End text.
+                authorship:
+                  - - 0
+                    - 9
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -75,5 +272,3 @@ ops:
             content:
               - type: Text
                 value: End text.
-authors_before: 4
-authors_after: 4

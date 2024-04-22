@@ -1,27 +1,64 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Paragraph
       content:
         - type: Text
-          value: "The area of a cube is: "
+          value:
+            string: "The area of a cube is: "
+            authorship:
+              - - 0
+                - 23
         - type: InstructionInline
           messages:
             - type: InstructionMessage
               parts:
                 - type: Text
-                  value: equation for surface area of cube
+                  value:
+                    string: equation for surface area of cube
+                    authorship:
+                      - - 0
+                        - 33
           assignee: insert-inline-math
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
         - type: Text
-          value: ".\nFollowed by "
+          value:
+            string: ".\nFollowed by "
+            authorship:
+              - - 0
+                - 14
         - type: Emphasis
           content:
             - type: Text
-              value: text.
+              value:
+                string: text.
+                authorship:
+                  - - 0
+                    - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -41,6 +78,82 @@ new:
           content:
             - type: Text
               value: text.
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: "The area of a cube is: "
+            authorship:
+              - - 0
+                - 23
+        - type: InstructionInline
+          messages:
+            - type: InstructionMessage
+              parts:
+                - type: Text
+                  value:
+                    string: insert equation for surface area of cube
+                    authorship:
+                      - - 1
+                        - 7
+                      - - 0
+                        - 33
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+        - type: Text
+          value:
+            string: ".\nFollowed by "
+            authorship:
+              - - 0
+                - 14
+        - type: Emphasis
+          content:
+            - type: Text
+              value:
+                string: text.
+                authorship:
+                  - - 0
+                    - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -61,5 +174,3 @@ ops:
       - 1
       - assignee
     - Clear
-authors_before: 2
-authors_after: 2

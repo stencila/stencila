@@ -96,6 +96,7 @@ pub enum NodeProperty {
     ExecutionStatus,
     ExecutionTags,
     FamilyNames,
+    Format,
     FundedBy,
     FundedItems,
     Funders,

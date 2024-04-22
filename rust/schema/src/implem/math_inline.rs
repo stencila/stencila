@@ -46,10 +46,6 @@ impl DomCodec for MathInline {
             });
         }
 
-        if let Some(authors) = &self.options.authors {
-            context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
-        }
-
         if let Some(mathml) = &self.options.mathml {
             context.push_slot_fn("span", "mathml", |context| {
                 context.push_html(mathml);

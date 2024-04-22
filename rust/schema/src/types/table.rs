@@ -28,7 +28,7 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Table")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options", authors_take = true)]
 #[html(special)]
 pub struct Table {
     /// The type of this item.
@@ -148,12 +148,12 @@ pub struct TableOptions {
     #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
 
-    /// The authors of the `CreativeWork`.
+    /// The authors of the table.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
+    #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,
 
     /// A secondary contributor to the `CreativeWork`.

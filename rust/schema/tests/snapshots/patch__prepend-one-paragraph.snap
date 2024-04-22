@@ -1,18 +1,47 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Paragraph
       content:
         - type: Text
-          value: para1
+          value:
+            string: para1
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: Paragraph
       content:
         - type: Text
-          value: para2
+          value:
+            string: para2
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -28,6 +57,67 @@ new:
       content:
         - type: Text
           value: para2
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para3
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para1
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para2
+            authorship:
+              - - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 ops:
   - - - content
     - Insert:
@@ -36,5 +126,3 @@ ops:
             content:
               - type: Text
                 value: para3
-authors_before: 2
-authors_after: 2

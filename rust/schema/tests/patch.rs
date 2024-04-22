@@ -7,13 +7,13 @@ use codec::{format::Format, Codec, DecodeOptions};
 use codec_markdown::MarkdownCodec;
 use common::{eyre::Result, glob::glob, serde::Serialize, tokio};
 use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
-use node_authorship::author_roles;
+use node_strip::{strip, StripScope, StripTargets};
 use schema::{
-    diff, merge_with_authors, patch,
+    authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
-    Article, Author, AuthorRole, Block, CodeChunk, Cord, CordOp, Figure, Inline, Node,
-    NodeProperty, Paragraph, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person,
-    Primitive, Strong, Text, TimeUnit, Visitor, WalkControl,
+    Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordOp, Figure, Inline,
+    Node, NodeProperty, Paragraph, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person,
+    Primitive, Strong, Text, TimeUnit,
 };
 
 /// An individual fixture
@@ -26,14 +26,11 @@ struct Fixture {
     /// The new node read from the fixture file
     new: Node,
 
-    /// The operations required to go from old to new
+    /// The result of merging `new` into `old`
+    merged: Node,
+
+    /// The operations required to go from `old` to `merged`
     ops: Vec<(PatchPath, PatchOp)>,
-
-    /// The number of author roles before applying ops
-    authors_before: usize,
-
-    /// The number of author roles after applying ops
-    authors_after: usize,
 }
 
 /// A summary of all the fixtures in this test
@@ -46,90 +43,6 @@ struct Summary {
 
     /// The total number of operations across all fixtures
     ops_total: usize,
-
-    /// The number of operations for each fixture to go from old to new
-    author_diffs: BTreeMap<String, isize>,
-
-    /// The total number of operations across all fixtures
-    author_diffs_sum: isize,
-}
-
-/// A visitor to count the author roles in a node
-struct Authors(usize);
-
-impl Authors {
-    fn count(&mut self, authors: &Option<Vec<Author>>) {
-        self.0 += authors.as_ref().map(|vec| vec.len()).unwrap_or_default()
-    }
-}
-
-impl Visitor for Authors {
-    fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
-        macro_rules! apply {
-            ($($variant:ident),*) => {
-                use Inline::*;
-                match inline {
-                    $($variant(node) => self.count(&node.options.authors),)*
-                    _ => {}
-                }
-            };
-        }
-
-        // Should be applied to all inlines with the `authors` property
-        apply!(
-            AudioObject,
-            CodeExpression,
-            CodeInline,
-            ImageObject,
-            InstructionInline,
-            MathInline,
-            MediaObject,
-            StyledInline,
-            VideoObject
-        );
-
-        WalkControl::Continue
-    }
-
-    fn visit_block(&mut self, block: &Block) -> WalkControl {
-        macro_rules! apply {
-            ($($variant:ident),*) => {
-                use Block::*;
-                match block {
-                    $($variant(node) => self.count(&node.options.authors),)*
-                    _ => {}
-                }
-            };
-        }
-
-        // Should be applied to all blocks with the `authors` property
-        apply!(
-            Admonition,
-            Claim,
-            CodeBlock,
-            CodeChunk,
-            Figure,
-            ForBlock,
-            Heading,
-            IfBlock,
-            InstructionBlock,
-            List,
-            MathBlock,
-            Paragraph,
-            QuoteBlock,
-            StyledBlock,
-            Table
-        );
-
-        WalkControl::Continue
-    }
-}
-
-// Count the authors in a node
-fn count_authors(node: &Node) -> usize {
-    let mut authors = Authors(0);
-    authors.visit(node);
-    authors.0
 }
 
 /// Snapshot tests of the `MergeNode::diff` method
@@ -137,9 +50,9 @@ fn count_authors(node: &Node) -> usize {
 async fn fixtures() -> Result<()> {
     let mut ops_count = BTreeMap::new();
     let mut ops_total = 0;
-    let mut author_diffs = BTreeMap::new();
-    let mut author_diffs_sum = 0;
     for path in glob("tests/fixtures/*.md")?.flatten() {
+        eprintln!("{}", path.display());
+
         let name = path
             .file_stem()
             .and_then(|name| name.to_str())
@@ -160,31 +73,41 @@ async fn fixtures() -> Result<()> {
             ..Default::default()
         });
         let codec = MarkdownCodec {};
-        let (old, ..) = codec.from_str(&old, options.clone()).await?;
+        let (mut old, ..) = codec.from_str(&old, options.clone()).await?;
         let (new, ..) = codec.from_str(&new, options).await?;
 
-        // To test the retention of properties not represented in source Markdown
-        // apply the default author role recursively to the old node
-        let mut enriched = old.clone();
-        author_roles(&mut enriched, vec![AuthorRole::default()]);
-        let authors_before = count_authors(&enriched);
+        // Apply authorship to old
+        let alice = AuthorRole::person(
+            Person {
+                given_names: Some(vec!["Alice".to_string()]),
+                ..Default::default()
+            },
+            AuthorRoleName::Importer,
+        );
+        authorship(&mut old, vec![alice])?;
 
         // Calculate the ops
         let ops = diff(&old, &new)?;
         ops_count.insert(name.clone(), ops.len());
         ops_total += ops.len();
 
-        // Apply ops and assert that get new node
+        // Apply ops with new author
+        let bob = AuthorRole::person(
+            Person {
+                given_names: Some(vec!["Bob".to_string()]),
+                ..Default::default()
+            },
+            AuthorRoleName::Writer,
+        );
         let mut merged = old.clone();
-        patch(&mut merged, ops.clone())?;
-        assert_eq!(merged, new, "{name}\n{ops:#?}");
+        patch(&mut merged, ops.clone(), vec![bob])?;
 
-        // Apply the ops to enriched node and count authors after
-        patch(&mut enriched, ops.clone())?;
-        let authors_after = count_authors(&enriched);
-        let author_diff = authors_after as isize - authors_before as isize;
-        author_diffs.insert(name.clone(), author_diff);
-        author_diffs_sum += author_diff;
+        // Assert that, when authors are stripped from both, `merged` is the same as `new`
+        let mut merged_strip = merged.clone();
+        strip(&mut merged_strip, StripTargets::scope(StripScope::Authors));
+        let mut new_strip = new.clone();
+        strip(&mut new_strip, StripTargets::scope(StripScope::Authors));
+        assert_eq!(merged_strip, new_strip, "{name}\n{ops:#?}");
 
         // Snapshot the fixture
         assert_yaml_snapshot!(
@@ -193,8 +116,7 @@ async fn fixtures() -> Result<()> {
                 old,
                 new,
                 ops,
-                authors_before,
-                authors_after
+                merged
             }
         );
     }
@@ -204,13 +126,20 @@ async fn fixtures() -> Result<()> {
         "summary",
         Summary {
             ops_count,
-            ops_total,
-            author_diffs,
-            author_diffs_sum
+            ops_total
         }
     );
 
     Ok(())
+}
+
+/// Patch a node with an anonymous author role
+fn patch_anon<T>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Result<()>
+where
+    T: PatchNode,
+{
+    let anon = AuthorRole::anon(AuthorRoleName::Writer);
+    patch(old, ops, vec![anon])
 }
 
 #[test]
@@ -223,7 +152,7 @@ fn atoms() -> Result<()> {
     let new = false;
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Integer
@@ -234,7 +163,7 @@ fn atoms() -> Result<()> {
     let new = 2_i64;
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Number
@@ -245,7 +174,7 @@ fn atoms() -> Result<()> {
     let new = 2_f64;
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // String
@@ -256,7 +185,7 @@ fn atoms() -> Result<()> {
     let new = String::from("bcd");
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -279,7 +208,7 @@ fn cord() -> Result<()> {
             ])
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     let mut old = Cord::from("height in feet");
@@ -296,7 +225,7 @@ fn cord() -> Result<()> {
             ])
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -309,7 +238,7 @@ fn vecs() -> Result<()> {
     let new = vec![];
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Change: same size, all different
@@ -329,7 +258,7 @@ fn vecs() -> Result<()> {
             )
         ]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -342,7 +271,7 @@ fn vec_push() -> Result<()> {
     let new = vec![1];
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(1.to_value()?))]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Push: adding one
@@ -350,7 +279,7 @@ fn vec_push() -> Result<()> {
     let new = vec![1, 2];
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(2.to_value()?))]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -369,7 +298,7 @@ fn vec_append() -> Result<()> {
             PatchOp::Append(vec![1.to_value()?, 2.to_value()?, 3.to_value()?])
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Append: adding more than one
@@ -383,7 +312,7 @@ fn vec_append() -> Result<()> {
             PatchOp::Append(vec![2.to_value()?, 3.to_value()?])
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -407,7 +336,7 @@ fn vec_insert() -> Result<()> {
             ])
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -420,7 +349,7 @@ fn vecs_remove() -> Result<()> {
     let new = vec![];
     let ops = diff(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Clear)]);
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Remove: all different
@@ -431,7 +360,7 @@ fn vecs_remove() -> Result<()> {
         ops,
         vec![(PatchPath::new(), PatchOp::Remove(vec![1, 3, 4, 5]))]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Remove: some same
@@ -442,7 +371,7 @@ fn vecs_remove() -> Result<()> {
         ops,
         vec![(PatchPath::new(), PatchOp::Remove(vec![1, 3, 4, 9]))]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -461,7 +390,7 @@ fn vec_copy() -> Result<()> {
             PatchOp::Copy(HashMap::from([(0, vec![1, 3])]))
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Copy back
@@ -475,7 +404,7 @@ fn vec_copy() -> Result<()> {
             PatchOp::Copy(HashMap::from([(2, vec![1, 4])]))
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Copy forward and back
@@ -489,7 +418,7 @@ fn vec_copy() -> Result<()> {
             PatchOp::Copy(HashMap::from([(0, vec![5]), (3, vec![1])]))
         )]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -504,7 +433,7 @@ fn vec_move() -> Result<()> {
         ops,
         vec![(PatchPath::new(), PatchOp::Move(vec![(0, 2), (0, 1)]))]
     );
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     Ok(())
@@ -517,7 +446,8 @@ fn vec_section() -> Result<()> {
     let new = art([sec([p([t("para1")]), p([t("para2")])])]);
     let ops = diff(&old, &new)?;
     assert!(matches!(ops[0].1, PatchOp::Push(..)));
-    patch(&mut old, ops)?;
+    patch_anon(&mut old, ops)?;
+    strip(&mut old, StripTargets::scope(StripScope::Authors));
     assert_eq!(old, new);
 
     Ok(())
@@ -597,97 +527,117 @@ fn enums() -> Result<()> {
 
 #[test]
 fn authors() -> Result<()> {
-    let alice = Author::Person(Person {
-        given_names: Some(vec!["Alice".to_string()]),
-        ..Default::default()
-    });
-    let bob = Author::Person(Person {
-        given_names: Some(vec!["Bob".to_string()]),
-        ..Default::default()
-    });
-    let carol = Author::Person(Person {
-        given_names: Some(vec!["Carol".to_string()]),
-        ..Default::default()
-    });
+    let alice = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Alice".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
+    let bob = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Bob".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
+    let carol = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Carol".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
 
-    // Authorship is not updated for bae `Cord` because it does not have an
-    // ancestor node with the `authors` property
+    // If authorship has not yet been recorded, then u16::MAX is used to indicate
+    // unknown authorship.
     let mut cord = Cord::from("a");
-    merge_with_authors(&mut cord, &Cord::from("ab"), vec![alice.clone()])?;
+    merge(&mut cord, &Cord::from("ab"), vec![alice.clone()])?;
     assert_eq!(cord.to_string(), "ab");
-    assert_eq!(cord.authorship, vec![]);
+    assert_eq!(cord.authorship, vec![(u16::MAX, 1), (0, 1)]);
 
+    // For code chunk, and any thing else with authors, authorship is recorded
+    // at that level.
     let mut chunk = CodeChunk::new("a".into());
-
-    // Add authorship for alice, leaving "anon" (zero) for rest
-    merge_with_authors(
-        &mut chunk,
-        &CodeChunk::new("ab".into()),
-        vec![alice.clone()],
-    )?;
-    assert_eq!(chunk.code, "ab".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 1)]);
-    assert_eq!(chunk.options.authors, Some(vec![alice.clone()]));
+    authorship(&mut chunk, vec![alice.clone()])?;
 
     // Extend authorship run for alice
-    merge_with_authors(
+    merge(
         &mut chunk,
         &CodeChunk::new("abc".into()),
         vec![alice.clone()],
     )?;
     assert_eq!(chunk.code, "abc".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 2)]);
-    assert_eq!(chunk.options.authors, Some(vec![alice.clone()]));
+    assert_eq!(chunk.code.authorship, vec![(0, 3)]);
+    assert_eq!(
+        chunk.options.authors,
+        Some(vec![Author::AuthorRole(alice.clone())])
+    );
 
     // Append by bob
-    merge_with_authors(
+    merge(
         &mut chunk,
         &CodeChunk::new("abcd".into()),
         vec![bob.clone()],
     )?;
     assert_eq!(chunk.code, "abcd".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 2), (2, 1)]);
+    assert_eq!(chunk.code.authorship, vec![(0, 3), (1, 1)]);
     assert_eq!(
         chunk.options.authors,
-        Some(vec![alice.clone(), bob.clone()])
+        Some(vec![
+            Author::AuthorRole(alice.clone()),
+            Author::AuthorRole(bob.clone())
+        ])
     );
 
     // Insert by bob
-    merge_with_authors(
+    merge(
         &mut chunk,
         &CodeChunk::new("abxcd".into()),
         vec![bob.clone()],
     )?;
     assert_eq!(chunk.code, "abxcd".into());
-    assert_eq!(
-        chunk.code.authorship,
-        vec![(0, 1), (1, 1), (2, 1), (1, 1), (2, 1)]
-    );
+    assert_eq!(chunk.code.authorship, vec![(0, 2), (1, 1), (0, 1), (1, 1)]);
     assert_eq!(
         chunk.options.authors,
-        Some(vec![alice.clone(), bob.clone()])
+        Some(vec![
+            Author::AuthorRole(alice.clone()),
+            Author::AuthorRole(bob.clone())
+        ])
     );
 
     // Delete by carol
-    merge_with_authors(
+    merge(
         &mut chunk,
         &CodeChunk::new("ad".into()),
         vec![carol.clone()],
     )?;
     assert_eq!(chunk.code, "ad".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (2, 1)]);
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 1)]);
     assert_eq!(
         chunk.options.authors,
-        Some(vec![alice.clone(), bob.clone(), carol.clone()])
+        Some(vec![
+            Author::AuthorRole(alice.clone()),
+            Author::AuthorRole(bob.clone()),
+            Author::AuthorRole(carol.clone())
+        ])
     );
 
-    // Insert by bob
-    merge_with_authors(&mut chunk, &CodeChunk::new("and".into()), vec![bob.clone()])?;
+    // Insert by carol
+    merge(
+        &mut chunk,
+        &CodeChunk::new("and".into()),
+        vec![carol.clone()],
+    )?;
     assert_eq!(chunk.code, "and".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (2, 1), (2, 1)]);
+    assert_eq!(chunk.code.authorship, vec![(0, 1), (2, 1), (1, 1)]);
     assert_eq!(
         chunk.options.authors,
-        Some(vec![alice.clone(), bob.clone(), carol.clone()])
+        Some(vec![
+            Author::AuthorRole(alice.clone()),
+            Author::AuthorRole(bob.clone()),
+            Author::AuthorRole(carol.clone())
+        ])
     );
 
     Ok(())

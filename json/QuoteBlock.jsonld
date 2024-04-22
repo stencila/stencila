@@ -141,6 +141,9 @@
           "@id": "schema:ItemList"
         },
         {
+          "@id": "schema:Table"
+        },
+        {
           "@id": "stencila:Admonition"
         },
         {
@@ -169,6 +172,9 @@
         },
         {
           "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
         },
         {
           "@id": "stencila:Styled"

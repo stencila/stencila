@@ -15,7 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "QuoteBlock")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 #[html(elem = "blockquote")]
 #[jats(elem = "disp-quote")]
 pub struct QuoteBlock {
@@ -65,7 +65,7 @@ pub struct QuoteBlockOptions {
     /// The authors of the quote.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,

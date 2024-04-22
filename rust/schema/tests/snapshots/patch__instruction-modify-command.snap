@@ -1,21 +1,50 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Paragraph
       content:
         - type: Text
-          value: "An insert instruction with an assignee:"
+          value:
+            string: "An insert instruction with an assignee:"
+            authorship:
+              - - 0
+                - 39
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
     - type: InstructionBlock
       messages:
         - type: InstructionMessage
           parts:
             - type: Text
-              value: "top five highest mountains, with height in metres"
+              value:
+                string: "top five highest mountains, with height in metres"
+                authorship:
+                  - - 0
+                    - 49
       assignee: insert-table
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -30,6 +59,65 @@ new:
             - type: Text
               value: "top five highest mountains, with height in feet"
       assignee: insert-table
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: "An insert instruction with an assignee:"
+            authorship:
+              - - 0
+                - 39
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: InstructionBlock
+      messages:
+        - type: InstructionMessage
+          parts:
+            - type: Text
+              value:
+                string: "top five highest mountains, with height in feet"
+                authorship:
+                  - - 0
+                    - 43
+                  - - 1
+                    - 2
+                  - - 0
+                    - 2
+      assignee: insert-table
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 1
@@ -46,5 +134,3 @@ ops:
         - Delete:
             start: 47
             end: 50
-authors_before: 2
-authors_after: 2

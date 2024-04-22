@@ -1,7 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { AuthorRoleAuthor } from "./AuthorRoleAuthor.js";
 import { AuthorRoleName } from "./AuthorRoleName.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 import { Role } from "./Role.js";
 import { Timestamp } from "./Timestamp.js";
 
@@ -13,21 +13,26 @@ export class AuthorRole extends Role {
   type: "AuthorRole";
 
   /**
-   * The author.
+   * The entity acting as an author.
    */
-  author: PersonOrOrganizationOrSoftwareApplication;
+  author: AuthorRoleAuthor;
 
   /**
-   * A role played by the author.
+   * The role played by the author.
    */
   roleName: AuthorRoleName;
 
   /**
-   * Timestamp of most recent modification by the author in the role.
+   * The format that the author used to perform the role. e.g. Markdown, Python
+   */
+  format?: string;
+
+  /**
+   * Timestamp of most recent modification, by the author, in the role.
    */
   lastModified?: Timestamp;
 
-  constructor(author: PersonOrOrganizationOrSoftwareApplication, roleName: AuthorRoleName, options?: Partial<AuthorRole>) {
+  constructor(author: AuthorRoleAuthor, roleName: AuthorRoleName, options?: Partial<AuthorRole>) {
     super();
     this.type = "AuthorRole";
     if (options) Object.assign(this, options);
@@ -39,6 +44,6 @@ export class AuthorRole extends Role {
 /**
 * Create a new `AuthorRole`
 */
-export function authorRole(author: PersonOrOrganizationOrSoftwareApplication, roleName: AuthorRoleName, options?: Partial<AuthorRole>): AuthorRole {
+export function authorRole(author: AuthorRoleAuthor, roleName: AuthorRoleName, options?: Partial<AuthorRole>): AuthorRole {
   return new AuthorRole(author, roleName, options);
 }

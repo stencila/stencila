@@ -7,6 +7,8 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum AuthorRoleName {
+    Importer,
+
     #[default]
     Writer,
 

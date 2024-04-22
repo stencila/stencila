@@ -118,8 +118,13 @@
   },
   "anyOf": [
     {
+      "@id": "stencila:Importer",
+      "description": "The author, usually a `Person`, imported content from an external format into a new document.",
+      "const": "Importer"
+    },
+    {
       "@id": "stencila:Writer",
-      "description": "The author, usually a `Person`, directly wrote content such as prose or code.",
+      "description": "The author, usually a `Person`, wrote content including inserting, deleting and replacing prose and code.",
       "const": "Writer"
     },
     {

@@ -72,6 +72,7 @@ class AuthorRoleName(StrEnum):
     A `roleName` for an `AuthorRole`.
     """
 
+    Importer = "Importer"
     Writer = "Writer"
     Verifier = "Verifier"
     Instructor = "Instructor"
@@ -981,14 +982,17 @@ class AuthorRole(Role):
 
     type: Literal["AuthorRole"] = "AuthorRole"
 
-    author: Person | Organization | SoftwareApplication
-    """The author."""
+    author: AuthorRoleAuthor
+    """The entity acting as an author."""
 
     role_name: AuthorRoleName
-    """A role played by the author."""
+    """The role played by the author."""
+
+    format: str | None = None
+    """The format that the author used to perform the role. e.g. Markdown, Python"""
 
     last_modified: Timestamp | None = None
-    """Timestamp of most recent modification by the author in the role."""
+    """Timestamp of most recent modification, by the author, in the role."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2304,6 +2308,9 @@ class Section(Entity):
     section_type: SectionType | None = None
     """The type of section."""
 
+    authors: list[Author] | None = None
+    """The authors of the section."""
+
 
 @dataclass(kw_only=True, repr=False)
 class SoftwareApplication(CreativeWork):
@@ -2477,6 +2484,9 @@ class Table(CreativeWork):
     """
 
     type: Literal["Table"] = "Table"
+
+    authors: list[Author] | None = None
+    """The authors of the table."""
 
     label: str | None = None
     """A short label for the table."""
@@ -2696,6 +2706,17 @@ Author = Union[
 ]
 """
 Union type for things that can be an author of a `CreativeWork` or other type.
+"""
+
+
+AuthorRoleAuthor = Union[
+    Person,
+    Organization,
+    SoftwareApplication,
+    Thing,
+]
+"""
+Union type for things that can be an author in `AuthorRole`.
 """
 
 

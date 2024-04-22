@@ -1,30 +1,74 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, authors_before, authors_after }"
+expression: "Fixture { old, new, ops, merged }"
 ---
 old:
   type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
   content:
     - type: Paragraph
       content:
         - type: Text
-          value: "The area of a cube is: "
+          value:
+            string: "The area of a cube is: "
+            authorship:
+              - - 0
+                - 23
         - type: InstructionInline
           messages:
             - type: InstructionMessage
               parts:
                 - type: Text
-                  value: equation for surface area of cube
+                  value:
+                    string: equation for surface area of cube
+                    authorship:
+                      - - 0
+                        - 33
           assignee: insert-inline-math
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
         - type: Text
-          value: "."
+          value:
+            string: "."
+            authorship:
+              - - 0
+                - 1
         - type: Note
           noteType: Footnote
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: according to AI.
+                  value:
+                    string: according to AI.
+                    authorship:
+                      - - 0
+                        - 16
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
 new:
   type: Article
   content:
@@ -48,6 +92,95 @@ new:
               content:
                 - type: Text
                   value: according to OpenAI.
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  content:
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: "The area of a cube is: "
+            authorship:
+              - - 0
+                - 23
+        - type: InstructionInline
+          messages:
+            - type: InstructionMessage
+              parts:
+                - type: Text
+                  value:
+                    string: equation for surface area of cube
+                    authorship:
+                      - - 0
+                        - 33
+          assignee: insert-inline-math
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+        - type: Text
+          value:
+            string: "."
+            authorship:
+              - - 0
+                - 1
+        - type: Note
+          noteType: Footnote
+          content:
+            - type: Paragraph
+              content:
+                - type: Text
+                  value:
+                    string: according to OpenAI.
+                    authorship:
+                      - - 0
+                        - 13
+                      - - 1
+                        - 4
+                      - - 0
+                        - 3
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Bob
+                  roleName: Writer
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
 ops:
   - - - content
       - 0
@@ -62,5 +195,3 @@ ops:
         - Insert:
             - 13
             - Open
-authors_before: 3
-authors_after: 3

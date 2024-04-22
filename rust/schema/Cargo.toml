@@ -35,4 +35,3 @@ serde_with = "3.7.0"
 codec = { path = "../codec" }
 codec-markdown = { path = "../codec-markdown" }
 common-dev = { path = "../common-dev" }
-node-authorship = { path = "../node-authorship" }

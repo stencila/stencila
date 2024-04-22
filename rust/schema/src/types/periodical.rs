@@ -26,7 +26,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Periodical")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 pub struct Periodical {
     /// The type of this item.
     pub r#type: MustBe!("Periodical"),
@@ -97,7 +97,7 @@ pub struct PeriodicalOptions {
     /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[dom(elem = "section")]
     pub authors: Option<Vec<Author>>,
 

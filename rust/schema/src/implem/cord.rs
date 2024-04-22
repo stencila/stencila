@@ -28,7 +28,7 @@ impl Cord {
 
         // If authorship is empty then fill it a single "anon" run
         if self.authorship.is_empty() && !self.is_empty() {
-            self.authorship = vec![(0, current_length)];
+            self.authorship = vec![(u16::MAX, current_length)];
         }
 
         // Find the run at the insertion position and update authorship
@@ -179,6 +179,12 @@ impl Cord {
 impl StripNode for Cord {}
 
 impl PatchNode for Cord {
+    fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+        self.authorship = vec![(context.author_id(), self.len())];
+
+        Ok(())
+    }
+
     fn to_value(&self) -> Result<PatchValue> {
         Ok(PatchValue::String(self.to_string()))
     }

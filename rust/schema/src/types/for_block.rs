@@ -28,7 +28,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ForBlock")]
-#[patch(authors = "options")]
+#[patch(authors_on = "options")]
 pub struct ForBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -223,7 +223,7 @@ pub struct ForBlockOptions {
     /// The authors of the executable code.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
+    #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,

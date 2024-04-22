@@ -3,6 +3,7 @@
  * A `roleName` for an `AuthorRole`.
  */
 export type AuthorRoleName =
+  'Importer' |
   'Writer' |
   'Verifier' |
   'Instructor' |
