@@ -221,7 +221,6 @@ dependencies = [
  "fastembed",
  "format",
  "merge",
- "node-authorship",
  "schema",
  "secrets",
 ]
@@ -3943,13 +3942,6 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
- "schema",
-]
-
-[[package]]
-name = "node-authorship"
-version = "0.0.0"
-dependencies = [
  "schema",
 ]
 

@@ -18,7 +18,6 @@ use common::{
     tracing,
 };
 use format::Format;
-use node_authorship::author_roles;
 use schema::{
     transforms::{
         blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes, transform_block,
@@ -38,7 +37,6 @@ pub use common;
 pub use context;
 pub use format;
 pub use merge;
-pub use node_authorship;
 pub use schema;
 pub use secrets;
 
@@ -869,7 +867,7 @@ impl GenerateOutput {
         };
 
         // Take a certain number of nodes is specified
-        let mut nodes = if let Some(take) = options.take_nodes {
+        let nodes = if let Some(take) = options.take_nodes {
             match nodes {
                 Nodes::Blocks(nodes) => Nodes::Blocks(nodes.into_iter().take(take).collect()),
                 Nodes::Inlines(nodes) => Nodes::Inlines(nodes.into_iter().take(take).collect()),
@@ -891,12 +889,6 @@ impl GenerateOutput {
             }
         }
 
-        // Add the assistant as an author
-        author_roles(
-            &mut nodes,
-            vec![assistant.to_author_role(AuthorRoleName::Generator)],
-        );
-
         Ok(Self {
             prompter: None,
             generator: assistant.to_software_application(),
@@ -917,7 +909,7 @@ impl GenerateOutput {
 
         let media_type = Some(media_type.to_string());
 
-        let mut node = if format.is_audio() {
+        let node = if format.is_audio() {
             Inline::AudioObject(AudioObject {
                 content_url: url.clone(),
                 media_type,
@@ -942,11 +934,6 @@ impl GenerateOutput {
             })
         };
 
-        author_roles(
-            &mut node,
-            vec![assistant.to_author_role(AuthorRoleName::Generator)],
-        );
-
         let nodes = Nodes::Inlines(vec![node]);
 
         Ok(Self {
@@ -961,17 +948,13 @@ impl GenerateOutput {
 
     /// Update an assistant after it has been deserialized from a plugin based assistant
     pub async fn from_plugin(
-        mut other: Self,
+        other: Self,
         assistant: &dyn Assistant,
         format: &Format,
         instruction: &Instruction,
         options: &GenerateOptions,
     ) -> Result<Self> {
         let mut output = if !other.nodes.is_empty() {
-            author_roles(
-                &mut other.nodes,
-                vec![assistant.to_author_role(AuthorRoleName::Generator)],
-            );
             other
         } else {
             match other.kind {
@@ -993,13 +976,6 @@ impl GenerateOutput {
     pub fn assign_prompter(&mut self, prompter: &dyn Assistant) {
         // Set `prompter` property for use in `to_message`
         self.prompter = Some(prompter.to_software_application());
-
-        // Add as an author for generating the prompt used by the delegate
-        let roles = vec![prompter.to_author_role(AuthorRoleName::Prompter)];
-        match &mut self.nodes {
-            Nodes::Blocks(blocks) => author_roles(blocks, roles),
-            Nodes::Inlines(inlines) => author_roles(inlines, roles),
-        }
     }
 
     /// Create a `Message` from the output that can be added to the `messages` property

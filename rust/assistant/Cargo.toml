@@ -12,6 +12,5 @@ common = { path = "../common" }
 fastembed = { version = "3.5.0", optional = true }
 format = { path = "../format" }
 merge = "0.1.0"
-node-authorship = { path = "../node-authorship" }
 schema = { path = "../schema" }
 secrets = { path = "../secrets" }
