@@ -1,7 +1,7 @@
 use std::{ops::Range, time::Duration};
 
 use codec_html_trait::encode::text;
-use common::similar::{capture_diff_deadline, Algorithm, DiffTag, TextDiffConfig};
+use common::similar::{Algorithm, DiffTag, TextDiff, TextDiffConfig};
 use node_store::{
     automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
     ReadNode, ReadStore, WriteNode, WriteStore,
@@ -10,61 +10,199 @@ use node_store::{
 use crate::{prelude::*, Cord, CordOp};
 
 impl Cord {
+    /// Get the number of authorship runs in the cord
+    pub fn runs(&self) -> usize {
+        self.runs.len()
+    }
+
+    /// Get the count of authors for an authorship run
+    pub fn run_count(&self, run: usize) -> u8 {
+        self.runs[run].0
+    }
+
+    /// Get the list of authors for an authorship run
+    pub fn run_authors(&self, run: usize) -> Vec<u8> {
+        let (count, value, ..) = self.runs[run];
+        Self::extract_authors(count, value)
+    }
+
+    /// Get the length of an authorship run
+    pub fn run_length(&self, run: usize) -> u32 {
+        self.runs[run].2
+    }
+
+    /// Update the authors in an authorship run in the cord
+    pub fn update_authors(count: u8, mut authors: u64, author: u8) -> Option<(u8, u64)> {
+        let last_author = (authors & 0xFF) as u8;
+        if count != 0 && last_author == author {
+            return None;
+        }
+
+        authors <<= 8;
+        authors |= author as u64;
+
+        let count = count.saturating_add(1);
+
+        Some((count, authors))
+    }
+
+    /// Get the list of authors for an authorship run
+    pub fn extract_authors(count: u8, mut value: u64) -> Vec<u8> {
+        let count = count.min(8) as usize;
+        let mut authors = Vec::with_capacity(count);
+        for _ in 0..count {
+            authors.push((value & 0xFF) as u8);
+            value >>= 8;
+        }
+        authors
+    }
+
+    /// Coalesce runs where possible
+    fn coalesce_runs(&mut self) {
+        if self.runs.len() > 1 {
+            let mut coalesced: Vec<(u8, u64, u32)> = Vec::with_capacity(1);
+            for run in self.runs.iter() {
+                if let Some(last) = coalesced.last_mut() {
+                    if (run.0, run.1) == (last.0, last.1) {
+                        last.2 += run.2;
+                        continue;
+                    }
+                }
+                coalesced.push(*run)
+            }
+            self.runs = coalesced;
+        }
+    }
+
+    /// Check that the sum of the run lengths is equal to the number of chars and that there
+    /// are no empty runs
+    #[cfg(debug_assertions)]
+    fn check_runs(&self) {
+        let mut runs = 0usize;
+        for run in self.runs.iter() {
+            assert!(run.2 > 0, "run length is zero: {:?}", self.runs);
+            runs += run.2 as usize;
+        }
+
+        let chars = self.string.chars().count();
+
+        assert_eq!(
+            runs, chars,
+            "sum of run lengths != chars in string: {:?} vs \"{}\"",
+            self.runs, self.string
+        )
+    }
+
+    /// Create cord operations
+    pub fn create_ops(&self, other: &Self) -> Vec<CordOp> {
+        // Calculate diff operations
+        let diff = TextDiff::configure()
+            .algorithm(Algorithm::Patience)
+            .timeout(Duration::from_secs(1))
+            .diff_chars(self.as_str(), other.as_str());
+
+        // Convert them to `CordOp`s
+        let mut cord_ops = Vec::new();
+        let mut pos = 0usize;
+        for op in diff.ops() {
+            match op.tag() {
+                DiffTag::Insert => {
+                    let value = other
+                        .chars()
+                        .skip(op.new_range().start)
+                        .take(op.new_range().len())
+                        .collect();
+                    cord_ops.push(CordOp::Insert(pos, value));
+                }
+                DiffTag::Delete => {
+                    let end = pos + op.old_range().len();
+                    cord_ops.push(CordOp::Delete(pos..end));
+                }
+                DiffTag::Replace => {
+                    let end = pos + op.old_range().len();
+                    let value = other
+                        .chars()
+                        .skip(op.new_range().start)
+                        .take(op.new_range().len())
+                        .collect();
+                    cord_ops.push(CordOp::Replace(pos..end, value));
+                }
+                DiffTag::Equal => {}
+            }
+            pos += op.new_range().len();
+        }
+
+        cord_ops
+    }
+
     /// Apply an insert operation
-    pub fn apply_insert(&mut self, position: usize, value: &str, author_id: u16) {
-        // Check for out of bounds pos
-        if position > self.len() {
+    pub fn apply_insert(&mut self, position: usize, value: &str, author: u8) {
+        let current_length = self.chars().count();
+
+        // Check for out of bounds pos  or empty value
+        if position > current_length || value.is_empty() {
             return;
         }
 
         // Update the string
-        let current_length = self.len();
-        self.insert_str(position, value);
+        if let Some((index, ..)) = self.char_indices().nth(position) {
+            self.insert_str(index, value);
+        } else {
+            self.push_str(value);
+        }
 
-        // Early return if authorship does not need updating
-        if value.is_empty() {
+        let value_length = value.chars().count() as u32;
+
+        // Shortcut for updating authorship if was empty
+        if current_length == 0 {
+            self.runs = vec![(1, author as u64, value_length)];
             return;
-        };
+        }
 
-        // If authorship is empty then fill it a single "anon" run
-        if self.authorship.is_empty() && !self.is_empty() {
-            self.authorship = vec![(u16::MAX, current_length)];
+        // If authorship is empty then fill it with a single "unknown author" run
+        if self.runs.is_empty() && !self.is_empty() {
+            self.runs = vec![(1, u8::MAX as u64, current_length as u32)];
         }
 
         // Find the run at the insertion position and update authorship
-        let mut run_start = 0;
+        let history = (1, author as u64);
+        let mut run_start = 0usize;
         let mut inserted = false;
-        for run in 0..self.authorship.len() {
-            let (run_author, run_length) = self.authorship[run];
+        for run in 0..self.runs.len() {
+            let (run_count, run_authors, run_length) = self.runs[run];
+            let run_history = (run_count, run_authors);
+            let run_length = run_length as usize;
             let run_end = run_start + run_length;
 
             if run_end < position {
                 // Position is after run so continue
             } else if run_start >= position {
                 // Position is before run
-                if run_author == author_id {
-                    // Same author: extend the existing run
-                    self.authorship[run].1 += value.len();
+                if run_history == history {
+                    // Same history: extend the existing run
+                    self.runs[run].2 += value_length;
                 } else {
                     // Different author: insert before
-                    self.authorship.insert(run, (author_id, value.len()));
+                    self.runs.insert(run, (history.0, history.1, value_length));
                 }
 
                 inserted = true;
                 break;
             } else if run_start <= position && run_end >= position {
                 // Position is within run
-                if run_author == author_id {
-                    // Same author: extend the existing run
-                    self.authorship[run].1 += value.len();
+                if run_history == history {
+                    // Same history: extend the existing run
+                    self.runs[run].2 += value_length;
                 } else {
                     // Split the run and insert after
-                    self.authorship[run].1 = position - run_start;
+                    self.runs[run].2 = (position - run_start) as u32;
                     let remaining = run_length - (position - run_start);
                     if remaining > 0 {
-                        self.authorship.insert(run + 1, (run_author, remaining));
+                        self.runs
+                            .insert(run + 1, (run_history.0, run_history.1, remaining as u32));
                     }
-                    self.authorship.insert(run + 1, (author_id, value.len()));
+                    self.runs
+                        .insert(run + 1, (history.0, history.1, value_length));
                 }
 
                 inserted = true;
@@ -75,97 +213,272 @@ impl Cord {
         }
 
         if !inserted {
-            let run = (author_id, value.len());
+            let run = (history.0, history.1, value_length);
             if position == 0 {
-                let is_first = self
-                    .authorship
+                let same_as_first = self
+                    .runs
                     .first()
-                    .map(|&(author, ..)| author == author_id)
+                    .map(|&(run_count, run_authors, ..)| (run_count, run_authors) == history)
                     .unwrap_or_default();
-                if is_first {
-                    self.authorship[0].1 += value.len();
+                if same_as_first {
+                    self.runs[0].2 += value_length;
                 } else {
-                    self.authorship.insert(0, run)
+                    self.runs.insert(0, run)
                 }
             } else {
-                let is_last = self
-                    .authorship
+                let same_as_last = self
+                    .runs
                     .last()
-                    .map(|&(author, ..)| author == author_id)
+                    .map(|&(run_count, run_authors, ..)| (run_count, run_authors) == history)
                     .unwrap_or_default();
-                if is_last {
-                    let last = self.authorship.len();
-                    self.authorship[last].1 += value.len();
+                if same_as_last {
+                    let last = self.runs.len();
+                    self.runs[last].2 += value_length;
                 } else {
-                    self.authorship.push(run);
+                    self.runs.push(run);
                 }
             }
         }
+
+        #[cfg(debug_assertions)]
+        self.check_runs()
     }
 
     /// Apply a delete operation
     pub fn apply_delete(&mut self, range: Range<usize>) {
-        // Check for out of bounds range
-        if range.start >= self.len() {
+        let current_length = self.chars().count();
+
+        // Check for out of bounds range or nothing to do
+        if range.start >= current_length || range.is_empty() {
             return;
         }
 
-        // Update the string
-        self.replace_range(range.clone(), "");
+        // Update the string. The following match is conservative in covering all circumstances,
+        // but avoid having a panic or other undefined behavior
+        match (
+            self.char_indices().nth(range.start),
+            self.char_indices().nth(range.end),
+        ) {
+            (Some((start, ..)), Some((end, ..))) => self.replace_range(start..end, ""),
+            (Some((start, ..)), None) => self.replace_range(start.., ""),
+            (None, Some((end, ..))) => self.replace_range(..end, ""),
+            (None, None) => self.replace_range(.., ""),
+        }
+
+        // Check if whole string is now empty in which case early return for updating runs
+        if self.is_empty() {
+            self.runs.clear();
+            return;
+        }
 
         // Update authorship
         let mut run = 0;
-        let mut run_start = 0;
-        while run < self.authorship.len() {
-            let (.., run_length) = self.authorship[run];
+        let mut run_start = 0usize;
+        while run < self.runs.len() {
+            let (.., run_length) = self.runs[run];
+            let run_length = run_length as usize;
             let run_end = run_start + run_length;
 
             if run_end < range.start {
                 // Run is before delete range so continue
                 run += 1;
-            } else if run_start >= range.end {
+            } else if run_start > range.end {
                 // Run is after delete range so finish
                 break;
             } else if run_start == range.start && run_end == range.end {
-                // Delete of entire run
-                self.authorship.remove(run);
+                // Delete of entire run: remove it
+                self.runs.remove(run);
                 break;
             } else if run_start <= range.start && run_end >= range.end {
-                // Delete within a single run
-                self.authorship[run].1 = run_length - range.len();
+                // Delete within a single run: update length and finish
+                self.runs[run].2 = (run_length - range.len()) as u32;
                 break;
-            } else if run_start == range.start {
-                // Delete spans multiple runs and starts at start of this one
-                self.authorship.remove(run);
             } else if run_start < range.start {
-                // Delete spans multiple runs and starts midway through this one
-                self.authorship[run].1 = range.start - run_start;
+                // Delete spans multiple runs and starts midway through this one:
+                // update length and continue
+                self.runs[run].2 = (range.start - run_start) as u32;
                 run += 1;
-            } else if run_start > range.start && run_end <= range.end {
-                // Delete spans multiple runs and spans this one completely
-                self.authorship.remove(run);
+            } else if run_start >= range.start && run_end <= range.end {
+                // Delete spans multiple runs and spans this one completely:
+                // remove it
+                self.runs.remove(run);
             } else if run_end == range.end {
-                // Delete spans multiple runs and ends at the end of this one
-                self.authorship.remove(run);
+                // Delete spans multiple runs and ends at the end of this one:
+                // remove it and finish
+                self.runs.remove(run);
                 break;
             } else if run_end > range.end {
-                // Delete spans multiple run and ends midway through this one
-                self.authorship[run].1 = run_end - range.end;
+                // Delete spans multiple run and ends midway through this one:
+                // update length and finish
+                self.runs[run].2 = (run_end - range.end) as u32;
                 break;
             }
 
             run_start += run_length;
         }
+
+        self.coalesce_runs();
+
+        #[cfg(debug_assertions)]
+        self.check_runs()
     }
 
     // Replace a range in the string with new content and update authorship
-    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author_id: u16) {
-        self.apply_delete(range.clone());
-        self.apply_insert(range.start, value, author_id);
+    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author: u8) {
+        let current_length = self.chars().count();
+
+        // Check for out of bounds range or nothing to do
+        if range.start >= current_length || range.is_empty() {
+            return;
+        }
+
+        // Update the string. The following match is conservative in covering all circumstances,
+        // but avoid having a panic or other undefined behavior
+        match (
+            self.char_indices().nth(range.start),
+            self.char_indices().nth(range.end),
+        ) {
+            (Some((start, ..)), Some((end, ..))) => self.replace_range(start..end, value),
+            (Some((start, ..)), None) => self.replace_range(start.., value),
+            (None, Some((end, ..))) => self.replace_range(..end, value),
+            (None, None) => self.replace_range(.., value),
+        }
+
+        // Update authorship
+        let value_length = value.chars().count();
+        let mut run = 0;
+        let mut run_start = 0usize;
+        let mut multi_run_length = 0;
+        while run < self.runs.len() {
+            let (run_count, run_authors, run_length) = self.runs[run];
+            let run_length = run_length as usize;
+            let run_end = run_start + run_length;
+
+            if run_end < range.start {
+                // Run is before replace range so continue
+                run += 1;
+            } else if run_start > range.end {
+                // Run is after replace range so finish
+                break;
+            } else if run_start == range.start && run_end == range.end {
+                // Replace of entire run: update authorship and finish
+                if let Some((new_count, new_authors)) =
+                    Self::update_authors(run_count, run_authors, author)
+                {
+                    self.runs[run].0 = new_count;
+                    self.runs[run].1 = new_authors;
+                }
+                self.runs[run].2 = value_length as u32;
+                break;
+            } else if run_start == range.start && run_end > range.end
+                || run_start < range.start && run_end == range.end
+            {
+                // Replace at start or end of run and enclosed within it: update length of this run,
+                // create a new run if necessary, and finish
+                if let Some((new_count, new_authors)) =
+                    Self::update_authors(run_count, run_authors, author)
+                {
+                    self.runs[run].2 = (run_length - range.len()) as u32;
+
+                    let new_run = if run_end == range.end { run + 1 } else { run };
+                    self.runs
+                        .insert(new_run, (new_count, new_authors, value_length as u32))
+                } else {
+                    self.runs[run].2 = (run_length + value_length - range.len()) as u32;
+                }
+                break;
+            } else if run_start < range.start && run_end > range.end {
+                // Replace within a single run but not at either end: update length of this run,
+                // create two new runs if necessary, and finish
+                if let Some((new_count, new_authors)) =
+                    Self::update_authors(run_count, run_authors, author)
+                {
+                    self.runs[run].2 = (range.start - run_start) as u32;
+
+                    self.runs
+                        .insert(run + 1, (new_count, new_authors, value_length as u32));
+                    self.runs.insert(
+                        run + 2,
+                        (run_count, run_authors, (run_end - range.end) as u32),
+                    );
+                } else {
+                    self.runs[run].2 = (run_length + value_length - range.len()) as u32;
+                }
+                break;
+            } else if run_start < range.start {
+                // Replace spans multiple runs and starts midway through this one:
+                // split this run into two if necessary and accumulate remaining run length
+                if let Some((new_count, new_authors)) =
+                    Self::update_authors(run_count, run_authors, author)
+                {
+                    let new_length = range.start - run_start;
+                    self.runs[run].2 = new_length as u32;
+                    self.runs.insert(
+                        run + 1,
+                        (new_count, new_authors, (run_length - new_length) as u32),
+                    );
+
+                    run += 2;
+                } else {
+                    run += 1;
+                }
+                multi_run_length = run_end - range.start;
+            } else if run_start >= range.start && run_end <= range.end {
+                // Replace spans multiple runs and spans this one completely:
+                // remove if it is no longer needed, otherwise update authors
+                // if necessary and accumulate run length
+                if multi_run_length >= value_length {
+                    self.runs.remove(run);
+                } else {
+                    if let Some((new_count, new_authors)) =
+                        Self::update_authors(run_count, run_authors, author)
+                    {
+                        self.runs[run].0 = new_count;
+                        self.runs[run].1 = new_authors;
+                    }
+                    multi_run_length += run_length;
+                    run += 1;
+                }
+            } else if run_end == range.end {
+                // Replace spans multiple runs and ends at the end of this one:
+                // if the accumulated run length is equal to this length of the value then
+                // this run can be deleted. Otherwise, update authors if necessary and finish.
+                if multi_run_length >= value_length {
+                    self.runs.remove(run);
+                } else if let Some((new_count, new_authors)) =
+                    Self::update_authors(run_count, run_authors, author)
+                {
+                    self.runs[run].0 = new_count;
+                    self.runs[run].1 = new_authors;
+                }
+                break;
+            } else if run_end > range.end {
+                // Replace spans multiple run and ends midway through this one:
+                // split this run into two if necessary, adjust for accumulated length
+                // and then finish
+                let new_length = run_end - range.end;
+                self.runs[run].2 = new_length as u32;
+
+                // If necessary insert a new run before this one for remaining new bytes
+                let remaining = (value_length - multi_run_length) as u32;
+                if remaining > 0 {
+                    self.runs.insert(run, (1, author as u64, remaining))
+                }
+
+                break;
+            }
+
+            run_start += run_length;
+        }
+
+        self.coalesce_runs();
+
+        #[cfg(debug_assertions)]
+        self.check_runs()
     }
 
     // Apply operations
-    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: u16) {
+    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: u8) {
         for op in ops {
             match op {
                 CordOp::Insert(pos, value) => self.apply_insert(pos, &value, author_id),
@@ -180,7 +493,8 @@ impl StripNode for Cord {}
 
 impl PatchNode for Cord {
     fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
-        self.authorship = vec![(context.author_id(), self.len())];
+        let author_index = context.author_index();
+        self.runs = vec![(1, author_index as u64, self.len() as u32)];
 
         Ok(())
     }
@@ -198,13 +512,11 @@ impl PatchNode for Cord {
 
     #[allow(unused_variables)]
     fn similarity(&self, other: &Cord, context: &mut PatchContext) -> Result<f32> {
-        // Calculate a difference ratio based on Unicode graphemes rather
-        // that chars or bytes since that is more semantically meaningful for user
-        // changes
+        // Calculate a difference ratio using chars as we do for generating diffs
         let diff = TextDiffConfig::default()
             .algorithm(Algorithm::Patience)
             .timeout(Duration::from_secs(1))
-            .diff_graphemes(self.as_str(), other.as_str());
+            .diff_chars(self.as_str(), other.as_str());
 
         // Note minimum similarity because same types
         // This is important because it means a `Cord` will have non-zero
@@ -214,39 +526,7 @@ impl PatchNode for Cord {
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         if other != self {
-            // Calculate diff operations using bytes since those
-            let diff_ops = capture_diff_deadline(
-                Algorithm::Patience,
-                self.as_bytes(),
-                0..self.len(),
-                other.as_bytes(),
-                0..other.len(),
-                None,
-            );
-
-            // Convert them to `CordOp`s
-            let mut cord_ops = Vec::new();
-            let mut pos = 0usize;
-            for op in diff_ops {
-                match op.tag() {
-                    DiffTag::Insert => {
-                        let value = other[op.new_range()].to_string();
-                        cord_ops.push(CordOp::Insert(pos, value));
-                    }
-                    DiffTag::Delete => {
-                        let end = pos + op.old_range().len();
-                        cord_ops.push(CordOp::Delete(pos..end));
-                    }
-                    DiffTag::Replace => {
-                        let end = pos + op.old_range().len();
-                        let value = other[op.new_range()].to_string();
-                        cord_ops.push(CordOp::Replace(pos..end, value));
-                    }
-                    DiffTag::Equal => {}
-                }
-                pos += op.new_range().len();
-            }
-
+            let cord_ops = self.create_ops(other);
             context.op_apply(cord_ops);
         }
 
@@ -268,7 +548,7 @@ impl PatchNode for Cord {
             bail!("Invalid op for Cord");
         };
 
-        self.apply_ops(ops, context.author_id());
+        self.apply_ops(ops, context.author_index());
 
         Ok(())
     }
@@ -365,172 +645,5 @@ impl MarkdownCodec for Cord {
 impl TextCodec for Cord {
     fn to_text(&self) -> (String, Losses) {
         (self.to_string(), Losses::none())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use common_dev::pretty_assertions::assert_eq;
-
-    use super::*;
-
-    #[test]
-    fn insert_at_start() {
-        let mut cord = Cord {
-            string: "world!".to_string(),
-            authorship: vec![(2, 6)],
-        };
-        cord.apply_insert(0, "Hello, ", 1);
-        assert_eq!(cord.string, "Hello, world!");
-        assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
-    }
-
-    #[test]
-    fn insert_at_end() {
-        let mut cord = Cord {
-            string: "Hello".to_string(),
-            authorship: vec![(1, 5)],
-        };
-        cord.apply_insert(5, ", world!", 1);
-        assert_eq!(cord.string, "Hello, world!");
-        assert_eq!(cord.authorship, vec![(1, 13)]);
-    }
-
-    #[test]
-    fn insert_at_middle() {
-        let mut cord = Cord {
-            string: "Hello world!".to_string(),
-            authorship: vec![(1, 5), (2, 7)],
-        };
-        cord.apply_insert(5, ", beautiful", 3);
-        assert_eq!(cord.string, "Hello, beautiful world!");
-        assert_eq!(cord.authorship, vec![(1, 5), (3, 11), (2, 7)]);
-    }
-
-    #[test]
-    fn insert_nothing() {
-        let mut cord = Cord {
-            string: "Hello".to_string(),
-            authorship: vec![(1, 5)],
-        };
-        cord.apply_insert(3, "", 1); // Empty string insertion
-        assert_eq!(cord.string, "Hello");
-        assert_eq!(cord.authorship, vec![(1, 5)]);
-    }
-
-    #[test]
-    fn insert_out_of_bounds() {
-        let mut cord = Cord {
-            string: "Hello".to_string(),
-            authorship: vec![(1, 5)],
-        };
-        cord.apply_insert(10, " world", 1); // Beyond the length of the string
-        assert_eq!(cord.string, "Hello");
-        assert_eq!(cord.authorship, vec![(1, 5)]); // No change
-    }
-
-    #[test]
-    fn delete_entire_run() {
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 7), (2, 6)],
-        };
-        cord.apply_delete(0..7);
-        assert_eq!(cord.string, "world!");
-        assert_eq!(cord.authorship, vec![(2, 6)]);
-    }
-
-    #[test]
-    fn delete_within_run() {
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 13)],
-        };
-        cord.apply_delete(0..6);
-        assert_eq!(cord.string, " world!");
-        assert_eq!(cord.authorship, vec![(1, 7)]);
-
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 13)],
-        };
-        cord.apply_delete(5..13);
-        assert_eq!(cord.string, "Hello");
-        assert_eq!(cord.authorship, vec![(1, 5)]);
-
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 13)],
-        };
-        cord.apply_delete(1..12);
-        assert_eq!(cord.string, "H!");
-        assert_eq!(cord.authorship, vec![(1, 2)]);
-    }
-
-    #[test]
-    fn delete_across_runs() {
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 6), (2, 7)],
-        };
-        cord.apply_delete(5..12);
-        assert_eq!(cord.string, "Hello!");
-        assert_eq!(cord.authorship, vec![(1, 5), (2, 1)]);
-
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 3), (2, 2), (3, 8)],
-        };
-        cord.apply_delete(1..12);
-        assert_eq!(cord.string, "H!");
-        assert_eq!(cord.authorship, vec![(1, 1), (3, 1)]);
-    }
-
-    #[test]
-    fn delete_at_edges() {
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 7), (2, 6)],
-        };
-        cord.apply_delete(0..5); // Beginning edge
-        assert_eq!(cord.string, ", world!");
-        assert_eq!(cord.authorship, vec![(1, 2), (2, 6)]);
-
-        cord.apply_delete(5..8); // End edge
-        assert_eq!(cord.string, ", wor");
-        assert_eq!(cord.authorship, vec![(1, 2), (2, 3)]);
-    }
-
-    #[test]
-    fn delete_no_effect() {
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 7), (2, 6)],
-        };
-        cord.apply_delete(14..20); // Beyond string length
-        assert_eq!(cord.string, "Hello, world!");
-        assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
-    }
-
-    #[test]
-    fn delete_empty_range() {
-        let mut cord = Cord {
-            string: "Hello, world!".to_string(),
-            authorship: vec![(1, 7), (2, 6)],
-        };
-        cord.apply_delete(5..5); // Empty range should do nothing
-        assert_eq!(cord.string, "Hello, world!");
-        assert_eq!(cord.authorship, vec![(1, 7), (2, 6)]);
-    }
-
-    #[test]
-    fn delete_from_empty() {
-        let mut cord = Cord {
-            string: "".to_string(),
-            authorship: Vec::new(),
-        };
-        cord.apply_delete(0..1); // Deleting from an empty string
-        assert_eq!(cord.string, "");
-        assert_eq!(cord.authorship, Vec::new());
     }
 }

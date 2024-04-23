@@ -549,12 +549,12 @@ fn authors() -> Result<()> {
         AuthorRoleName::Writer,
     );
 
-    // If authorship has not yet been recorded, then u16::MAX is used to indicate
+    // If authorship has not yet been recorded, then u8::MAX is used to indicate
     // unknown authorship.
     let mut cord = Cord::from("a");
     merge(&mut cord, &Cord::from("ab"), vec![alice.clone()])?;
     assert_eq!(cord.to_string(), "ab");
-    assert_eq!(cord.authorship, vec![(u16::MAX, 1), (0, 1)]);
+    assert_eq!(cord.runs, vec![(1, u8::MAX as u64, 1), (1, 0, 1)]);
 
     // For code chunk, and any thing else with authors, authorship is recorded
     // at that level.
@@ -568,7 +568,7 @@ fn authors() -> Result<()> {
         vec![alice.clone()],
     )?;
     assert_eq!(chunk.code, "abc".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 3)]);
+    assert_eq!(chunk.code.runs, vec![(1, 0, 3)]);
     assert_eq!(
         chunk.options.authors,
         Some(vec![Author::AuthorRole(alice.clone())])
@@ -581,7 +581,7 @@ fn authors() -> Result<()> {
         vec![bob.clone()],
     )?;
     assert_eq!(chunk.code, "abcd".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 3), (1, 1)]);
+    assert_eq!(chunk.code.runs, vec![(1, 0, 3), (1, 1, 1)]);
     assert_eq!(
         chunk.options.authors,
         Some(vec![
@@ -597,7 +597,10 @@ fn authors() -> Result<()> {
         vec![bob.clone()],
     )?;
     assert_eq!(chunk.code, "abxcd".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 2), (1, 1), (0, 1), (1, 1)]);
+    assert_eq!(
+        chunk.code.runs,
+        vec![(1, 0, 2), (1, 1, 1), (1, 0, 1), (1, 1, 1)]
+    );
     assert_eq!(
         chunk.options.authors,
         Some(vec![
@@ -613,7 +616,7 @@ fn authors() -> Result<()> {
         vec![carol.clone()],
     )?;
     assert_eq!(chunk.code, "ad".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (1, 1)]);
+    assert_eq!(chunk.code.runs, vec![(1, 0, 1), (1, 1, 1)]);
     assert_eq!(
         chunk.options.authors,
         Some(vec![
@@ -630,7 +633,7 @@ fn authors() -> Result<()> {
         vec![carol.clone()],
     )?;
     assert_eq!(chunk.code, "and".into());
-    assert_eq!(chunk.code.authorship, vec![(0, 1), (2, 1), (1, 1)]);
+    assert_eq!(chunk.code.runs, vec![(1, 0, 1), (1, 2, 1), (1, 1, 1)]);
     assert_eq!(
         chunk.options.authors,
         Some(vec![

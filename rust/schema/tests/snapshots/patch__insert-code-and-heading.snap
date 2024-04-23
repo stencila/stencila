@@ -19,7 +19,8 @@ old:
           value:
             string: heading1
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -34,7 +35,8 @@ old:
           value:
             string: para1
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -49,7 +51,8 @@ old:
           value:
             string: para2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -65,7 +68,8 @@ old:
           value:
             string: heading2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -80,7 +84,8 @@ old:
           value:
             string: para3
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -145,7 +150,8 @@ merged:
           value:
             string: heading1
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -160,7 +166,8 @@ merged:
           value:
             string: para1
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -173,7 +180,8 @@ merged:
       code:
         string: ""
         authorship:
-          - - 0
+          - - 1
+            - 0
             - 0
       programmingLanguage: python
       authors:
@@ -189,7 +197,8 @@ merged:
           value:
             string: para2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -205,7 +214,8 @@ merged:
           value:
             string: heading3
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -221,7 +231,8 @@ merged:
           value:
             string: heading2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -236,7 +247,8 @@ merged:
           value:
             string: para3
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole

@@ -18,7 +18,8 @@ old:
           value:
             string: para1
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -33,7 +34,8 @@ old:
           value:
             string: para2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -48,7 +50,8 @@ old:
           value:
             string: para3
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -63,7 +66,8 @@ old:
           value:
             string: para4
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -105,7 +109,8 @@ merged:
           value:
             string: para1
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -120,7 +125,8 @@ merged:
           value:
             string: para4
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole

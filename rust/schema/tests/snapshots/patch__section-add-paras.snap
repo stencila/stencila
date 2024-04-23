@@ -21,7 +21,8 @@ old:
               value:
                 string: Header 1
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 8
           authors:
             - type: AuthorRole
@@ -36,7 +37,8 @@ old:
               value:
                 string: Text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 5
           authors:
             - type: AuthorRole
@@ -54,7 +56,8 @@ old:
                   value:
                     string: Sub section
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 11
               authors:
                 - type: AuthorRole
@@ -69,7 +72,8 @@ old:
                   value:
                     string: This is in the sub section.
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 27
               authors:
                 - type: AuthorRole
@@ -150,7 +154,8 @@ merged:
               value:
                 string: Header 1
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 8
           authors:
             - type: AuthorRole
@@ -165,7 +170,8 @@ merged:
               value:
                 string: Text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 5
           authors:
             - type: AuthorRole
@@ -180,7 +186,8 @@ merged:
               value:
                 string: More text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 10
           authors:
             - type: AuthorRole
@@ -198,7 +205,8 @@ merged:
                   value:
                     string: Sub section
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 11
               authors:
                 - type: AuthorRole
@@ -213,7 +221,8 @@ merged:
                   value:
                     string: This is in the sub section.
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 27
               authors:
                 - type: AuthorRole
@@ -235,7 +244,8 @@ merged:
               value:
                 string: End text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 9
           authors:
             - type: AuthorRole

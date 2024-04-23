@@ -18,7 +18,8 @@ old:
           value:
             string: "The area of a cube is: "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -28,7 +29,8 @@ old:
                   value:
                     string: equation for surface area of cube
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 33
           assignee: insert-inline-math
           authors:
@@ -42,7 +44,8 @@ old:
           value:
             string: "."
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 1
         - type: Note
           noteType: Footnote
@@ -53,7 +56,8 @@ old:
                   value:
                     string: according to AI.
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 16
               authors:
                 - type: AuthorRole
@@ -114,7 +118,8 @@ merged:
           value:
             string: "The area of a cube is: "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -124,7 +129,8 @@ merged:
                   value:
                     string: equation for surface area of cube
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 33
           assignee: insert-inline-math
           authors:
@@ -138,7 +144,8 @@ merged:
           value:
             string: "."
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 1
         - type: Note
           noteType: Footnote
@@ -149,11 +156,14 @@ merged:
                   value:
                     string: according to OpenAI.
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 13
                       - - 1
+                        - 1
                         - 4
-                      - - 0
+                      - - 1
+                        - 0
                         - 3
               authors:
                 - type: AuthorRole

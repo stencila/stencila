@@ -75,9 +75,9 @@ pub struct PatchContext {
     /// during a call to `patch`.
     authors_taken: bool,
 
-    /// The author id (1-based index) which should be using when making changes to the
+    /// The author (0-based index) which should be using when making changes to the
     /// authorship of `Cord` nodes during a call to `patch`.
-    author_id: u16,
+    author_index: u8,
 }
 
 impl PatchContext {
@@ -201,7 +201,7 @@ impl PatchContext {
             );
 
             // Set the author id to the first author and mark authors as "taken"
-            self.author_id = 0u16;
+            self.author_index = 0u8;
         } else if let Some(existing_authors) = authors {
             // The node has existing authors: if an author role is already present
             // update `last_modified`, otherwise add the author role.
@@ -239,7 +239,7 @@ impl PatchContext {
             }
 
             // Set the author id to the index of the first in self.authors
-            self.author_id = author_id.unwrap_or(0) as u16;
+            self.author_index = author_id.unwrap_or(0) as u8;
         }
 
         if take {
@@ -254,9 +254,14 @@ impl PatchContext {
         self.authors_taken = false;
     }
 
-    /// Get the current author id for the context
-    pub fn author_id(&self) -> u16 {
-        self.author_id
+    /// Get the current author index for the context
+    pub fn author_index(&self) -> u8 {
+        self.author_index
+    }
+
+    /// Take the operations from the context
+    pub fn ops(self) -> Vec<(PatchPath, PatchOp)> {
+        self.ops
     }
 }
 

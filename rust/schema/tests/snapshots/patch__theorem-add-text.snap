@@ -21,7 +21,8 @@ old:
               value:
                 string: Relatively interesting.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 23
           authors:
             - type: AuthorRole
@@ -34,7 +35,8 @@ old:
           code:
             string: e = m*c^2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 9
           mathLanguage: latex
           authors:
@@ -93,7 +95,8 @@ merged:
               value:
                 string: Relatively interesting.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 23
           authors:
             - type: AuthorRole
@@ -106,7 +109,8 @@ merged:
           code:
             string: e = m*c^2
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 9
           mathLanguage: latex
           authors:
@@ -122,7 +126,8 @@ merged:
               value:
                 string: May be true.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 12
           authors:
             - type: AuthorRole

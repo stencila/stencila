@@ -16,7 +16,8 @@ old:
       code:
         string: "1\n2\n3\n4"
         authorship:
-          - - 0
+          - - 1
+            - 0
             - 7
       programmingLanguage: python
       authors:
@@ -59,7 +60,8 @@ merged:
       code:
         string: "1\n2\n3"
         authorship:
-          - - 0
+          - - 1
+            - 0
             - 5
       programmingLanguage: python
       authors:
@@ -81,7 +83,8 @@ merged:
           value:
             string: para
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 4
       authors:
         - type: AuthorRole
@@ -94,7 +97,8 @@ merged:
       code:
         string: "4"
         authorship:
-          - - 0
+          - - 1
+            - 0
             - 1
       programmingLanguage: python
       authors:

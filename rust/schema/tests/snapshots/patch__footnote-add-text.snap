@@ -18,7 +18,8 @@ old:
           value:
             string: A note.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 7
         - type: Note
           noteType: Footnote
@@ -29,7 +30,8 @@ old:
                   value:
                     string: A footnote
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 10
               authors:
                 - type: AuthorRole
@@ -51,7 +53,8 @@ old:
           value:
             string: More notes.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 11
         - type: Note
           noteType: Footnote
@@ -62,7 +65,8 @@ old:
                   value:
                     string: A footnote with...
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 18
               authors:
                 - type: AuthorRole
@@ -77,7 +81,8 @@ old:
                   value:
                     string: "some text:"
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 10
               authors:
                 - type: AuthorRole
@@ -94,7 +99,8 @@ old:
                       value:
                         string: and a quote
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 11
                   authors:
                     - type: AuthorRole
@@ -180,7 +186,8 @@ merged:
           value:
             string: A note.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 7
         - type: Note
           noteType: Footnote
@@ -191,7 +198,8 @@ merged:
                   value:
                     string: A footnote
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 10
               authors:
                 - type: AuthorRole
@@ -213,7 +221,8 @@ merged:
           value:
             string: More notes.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 11
         - type: Note
           noteType: Footnote
@@ -224,7 +233,8 @@ merged:
                   value:
                     string: A footnote with...
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 18
               authors:
                 - type: AuthorRole
@@ -241,7 +251,8 @@ merged:
                       value:
                         string: added quote.
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 12
                   authors:
                     - type: AuthorRole
@@ -263,7 +274,8 @@ merged:
                   value:
                     string: "some text:"
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 10
               authors:
                 - type: AuthorRole
@@ -280,7 +292,8 @@ merged:
                       value:
                         string: and a quote
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 11
                   authors:
                     - type: AuthorRole

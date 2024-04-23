@@ -22,7 +22,8 @@ old:
                   value:
                     string: "an item with an image "
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 22
                 - type: ImageObject
                   contentUrl: image.png
@@ -37,7 +38,8 @@ old:
                   value:
                     string: ", see!"
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 6
               authors:
                 - type: AuthorRole
@@ -54,7 +56,8 @@ old:
                   value:
                     string: "an item with "
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 13
                 - type: Emphasis
                   content:
@@ -62,7 +65,8 @@ old:
                       value:
                         string: emphasis
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 8
               authors:
                 - type: AuthorRole
@@ -79,7 +83,8 @@ old:
                   value:
                     string: "an item with HTML "
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 18
                 - type: Underline
                   content:
@@ -87,7 +92,8 @@ old:
                       value:
                         string: underlined
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 10
               authors:
                 - type: AuthorRole
@@ -166,7 +172,8 @@ merged:
                   value:
                     string: "an item with "
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 13
                 - type: Emphasis
                   content:
@@ -174,7 +181,8 @@ merged:
                       value:
                         string: emphasis
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 8
               authors:
                 - type: AuthorRole
@@ -191,7 +199,8 @@ merged:
                   value:
                     string: "an item with an image "
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 22
                 - type: ImageObject
                   contentUrl: image.png
@@ -206,7 +215,8 @@ merged:
                   value:
                     string: ", see!"
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 6
               authors:
                 - type: AuthorRole
@@ -223,7 +233,8 @@ merged:
                   value:
                     string: "an item with HTML "
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 18
                 - type: Underline
                   content:
@@ -231,7 +242,8 @@ merged:
                       value:
                         string: underlined
                         authorship:
-                          - - 0
+                          - - 1
+                            - 0
                             - 10
               authors:
                 - type: AuthorRole

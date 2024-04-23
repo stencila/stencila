@@ -18,7 +18,8 @@ old:
           value:
             string: Caption.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -102,7 +103,8 @@ merged:
               value:
                 string: Caption.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 8
           authors:
             - type: AuthorRole

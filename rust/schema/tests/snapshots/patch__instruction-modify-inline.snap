@@ -18,7 +18,8 @@ old:
           value:
             string: "The area of a cube is: "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -28,7 +29,8 @@ old:
                   value:
                     string: equation for surface area of cube
                     authorship:
-                      - - 0
+                      - - 1
+                        - 0
                         - 33
           assignee: insert-inline-math
           authors:
@@ -42,7 +44,8 @@ old:
           value:
             string: ".\nFollowed by "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 14
         - type: Emphasis
           content:
@@ -50,7 +53,8 @@ old:
               value:
                 string: text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 5
       authors:
         - type: AuthorRole
@@ -100,7 +104,8 @@ merged:
           value:
             string: "The area of a cube is: "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -111,8 +116,10 @@ merged:
                     string: insert equation for surface area of cube
                     authorship:
                       - - 1
+                        - 1
                         - 7
-                      - - 0
+                      - - 1
+                        - 0
                         - 33
           authors:
             - type: AuthorRole
@@ -131,7 +138,8 @@ merged:
           value:
             string: ".\nFollowed by "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 14
         - type: Emphasis
           content:
@@ -139,7 +147,8 @@ merged:
               value:
                 string: text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 5
       authors:
         - type: AuthorRole

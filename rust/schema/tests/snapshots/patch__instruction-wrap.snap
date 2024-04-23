@@ -18,7 +18,8 @@ old:
           value:
             string: Some okay text.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 15
       authors:
         - type: AuthorRole
@@ -33,7 +34,8 @@ old:
           value:
             string: A rather long winded paragraph.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 31
       authors:
         - type: AuthorRole
@@ -48,7 +50,8 @@ old:
           value:
             string: A great conclusion.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 19
       authors:
         - type: AuthorRole
@@ -101,7 +104,8 @@ merged:
           value:
             string: Some okay text.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 15
       authors:
         - type: AuthorRole
@@ -118,7 +122,8 @@ merged:
               value:
                 string: more succinct
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 13
       content:
         - type: Paragraph
@@ -127,7 +132,8 @@ merged:
               value:
                 string: A rather long winded paragraph.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 31
           authors:
             - type: AuthorRole
@@ -149,7 +155,8 @@ merged:
           value:
             string: A great conclusion.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 19
       authors:
         - type: AuthorRole

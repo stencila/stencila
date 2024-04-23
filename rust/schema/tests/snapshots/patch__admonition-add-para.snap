@@ -19,7 +19,8 @@ old:
           value:
             string: This is a tip.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 14
       content:
         - type: Paragraph
@@ -28,7 +29,8 @@ old:
               value:
                 string: Some interesting text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 22
           authors:
             - type: AuthorRole
@@ -84,7 +86,8 @@ merged:
           value:
             string: This is a tip.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 14
       content:
         - type: Paragraph
@@ -93,7 +96,8 @@ merged:
               value:
                 string: Some interesting text.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 22
           authors:
             - type: AuthorRole
@@ -108,7 +112,8 @@ merged:
               value:
                 string: And more.
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 9
           authors:
             - type: AuthorRole

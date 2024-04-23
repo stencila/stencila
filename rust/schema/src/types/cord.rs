@@ -13,15 +13,37 @@ pub struct Cord {
     /// The string value of the cord
     #[deref]
     #[deref_mut]
-    pub(crate) string: String,
+    pub string: String,
 
-    /// The authorship of the current value of the cord
+    /// The authorship of the cord
     ///
-    /// Run length encoding of which authors created which UTF-8 bytes in the value.
-    /// A value of u16::MAX indicates an unknown author.
-    /// Any other value corresponds to the index of author in the closest ancestor node
-    /// with an `authors` property.
-    pub authorship: Vec<(u16, usize)>,
+    /// This vector of triples is a run length encoding of which authors created
+    /// which UTF-8 bytes in the value.
+    ///
+    /// Each triple is made up of:
+    ///
+    /// 0. A `u8` representing the total number of authors
+    ///
+    /// 1. The last eight authors, each as a `u8`, encoded within a `u64` with the most
+    ///    recent author at the least significant digit.
+    ///    The `u8` for each author is the index of the author in the closest ancestor node
+    ///    that has an `authors` property. A value of u8::MAX indicates an unknown author.
+    ///
+    /// 2. The number of characters (Unicode code points) in the run
+    pub runs: Vec<(u8, u64, u32)>,
+}
+
+impl Cord {
+    /// Create a new `Cord` with authorship assigned to a user
+    pub fn with_author<S>(value: S, author: u8) -> Self
+    where
+        S: AsRef<str>,
+    {
+        Self {
+            string: value.as_ref().to_string(),
+            runs: vec![(1, author as u64, value.as_ref().chars().count() as u32)],
+        }
+    }
 }
 
 impl PartialEq for Cord {
@@ -38,7 +60,7 @@ where
     fn from(value: S) -> Self {
         Self {
             string: value.as_ref().to_string(),
-            authorship: Vec::new(),
+            runs: Vec::new(),
         }
     }
 }
@@ -54,14 +76,14 @@ impl Serialize for Cord {
     where
         S: Serializer,
     {
-        if self.authorship.is_empty() {
+        if self.runs.is_empty() {
             // Serialize just the string if authorship is empty
             serializer.serialize_str(&self.string)
         } else {
             // Otherwise, serialize as an object with both fields
             let mut state = serializer.serialize_struct("Cord", 2)?;
             state.serialize_field("string", &self.string)?;
-            state.serialize_field("authorship", &self.authorship)?;
+            state.serialize_field("authorship", &self.runs)?;
             state.end()
         }
     }
@@ -80,7 +102,7 @@ impl<'de> SerdeVisitor<'de> for CordVisitor {
     fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
         Ok(Cord {
             string: value.to_owned(),
-            authorship: Vec::new(),
+            runs: Vec::new(),
         })
     }
 
@@ -110,7 +132,10 @@ impl<'de> SerdeVisitor<'de> for CordVisitor {
         let string = string.ok_or_else(|| de::Error::missing_field("string"))?;
         let authorship = authorship.unwrap_or_default();
 
-        Ok(Cord { string, authorship })
+        Ok(Cord {
+            string,
+            runs: authorship,
+        })
     }
 }
 

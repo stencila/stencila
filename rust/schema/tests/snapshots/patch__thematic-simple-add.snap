@@ -18,7 +18,8 @@ old:
           value:
             string: This is something.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 18
       authors:
         - type: AuthorRole
@@ -33,7 +34,8 @@ old:
           value:
             string: And something else.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 19
       authors:
         - type: AuthorRole
@@ -76,7 +78,8 @@ merged:
           value:
             string: This is something.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 18
       authors:
         - type: AuthorRole
@@ -92,7 +95,8 @@ merged:
           value:
             string: And something else.
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 19
       authors:
         - type: AuthorRole

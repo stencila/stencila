@@ -18,7 +18,8 @@ old:
           value:
             string: grass rabbit
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 12
       authors:
         - type: AuthorRole
@@ -60,7 +61,8 @@ merged:
           value:
             string: "grass "
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 6
         - type: Emphasis
           content:
@@ -69,6 +71,7 @@ merged:
                 string: rabbit
                 authorship:
                   - - 1
+                    - 1
                     - 6
       authors:
         - type: AuthorRole

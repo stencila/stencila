@@ -18,7 +18,8 @@ old:
           value:
             string: "An insert instruction with an assignee:"
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 39
       authors:
         - type: AuthorRole
@@ -35,7 +36,8 @@ old:
               value:
                 string: "top five highest mountains, with height in metres"
                 authorship:
-                  - - 0
+                  - - 1
+                    - 0
                     - 49
       assignee: insert-table
       authors:
@@ -81,7 +83,8 @@ merged:
           value:
             string: "An insert instruction with an assignee:"
             authorship:
-              - - 0
+              - - 1
+                - 0
                 - 39
       authors:
         - type: AuthorRole
@@ -98,11 +101,14 @@ merged:
               value:
                 string: "top five highest mountains, with height in feet"
                 authorship:
-                  - - 0
-                    - 43
                   - - 1
+                    - 0
+                    - 43
+                  - - 2
+                    - 1
                     - 2
-                  - - 0
+                  - - 1
+                    - 0
                     - 2
       assignee: insert-table
       authors:
