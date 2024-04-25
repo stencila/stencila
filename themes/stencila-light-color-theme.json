@@ -116,7 +116,7 @@
     }
   }, {
     "scope": [
-      "meta.stencila.heading",
+      "markup.heading.markdown",
     ],
     "settings": {
       "fontStyle": "underline"

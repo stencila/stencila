@@ -44,7 +44,6 @@ repository:
     patterns:
       # Order is important for matching!
       - include: "#html"
-      - include: "#heading-setext"
       - include: "#parameter"
       - include: "#math-inline"
       - include: "#instruction-inline"
@@ -500,11 +499,6 @@ repository:
   # The following grammar rules are taken from the VSCode builtin Markdown grammar at
   #   https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml
   # usually with little modification, particularly to regular expressions.
-  heading:
-    name: meta.stencila.heading
-    match: (?:^|\G)[ ]{0,3}(#{1,6}\s+(.*?)(\s+#{1,6})?\s*)$
-    patterns:
-      - { include: punctuation.definition.heading.markdown }
 
   paragraph:
     name: meta.stencila.paragraph
@@ -512,6 +506,8 @@ repository:
     while: (^|\G)((?=\s*[-=]{3,}\s*$)|[ ]{4,}(?=[^ \t\n]))
     patterns:
       - include: "#inline"
+      - include: text.html.derivative
+      - include: '#heading-setext'
 
   frontMatter:
     begin: \A-{3}\s*$
