@@ -104,7 +104,8 @@
       "keyword.control.stencila",
     ],
     "settings": {
-      "foreground": "#7957D5"
+      "foreground": "#7957D5",
+      "fontStyle": "bold"
     }
   }, {
     "scope": [
@@ -119,7 +120,16 @@
       "markup.heading.markdown",
     ],
     "settings": {
-      "fontStyle": "underline"
+      "foreground": "#1b4db1",
+      "fontStyle": "bold"
+    }
+  }, {
+    "scope": [
+      "markup.heading",
+    ],
+    "settings": {
+      "foreground": "#102c64",
+      "fontStyle": "bold"
     }
   }]
 }

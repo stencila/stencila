@@ -163,9 +163,9 @@ repository:
         \s*
       $
     beginCaptures:
-      "1": { name: markup.heading } # backticks
+      "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
-      "3": { name: keyword.control } # exec
+      "3": { name: keyword.control.stencila } # exec
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -185,9 +185,9 @@ repository:
         \s*
       $
     beginCaptures:
-      "1": { name: markup.heading } # backticks
+      "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
-      "3": { name: keyword.control } # exec
+      "3": { name: keyword.control.stencila } # exec
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -203,11 +203,11 @@ repository:
         \s*
       $
     beginCaptures:
-      "1": { name: markup.heading } # backticks
-      "2": { name: keyword.control } # exec
+      "1": { name: markup.heading.stencila } # backticks
+      "2": { name: keyword.control.stencila } # exec
     end: ^(`{3,})\s*$
     endCaptures:
-      "1": { name: markup.heading } # backticks
+      "1": { name: markup.heading.stencila } # backticks
 
   ########## InstructionBlock & InstructionInline ##########
 
@@ -228,7 +228,7 @@ repository:
         (.*)
       $
     captures:
-      "1": { name: markup.heading } # semicolons
+      "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # do
       "3": { name: decorator.keyword.stencila } # @
       "4": { name: decorator.keyword.stencila } # assignee
@@ -238,8 +238,8 @@ repository:
     name: meta.stencila.with-block
     match: ^(:{3,})\s*(with)\s*$
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # with
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # with
 
   instruction-inline:
     name: meta.stencila.instruction-inline
@@ -265,7 +265,7 @@ repository:
       "2": { name: decorator.keyword.stencila } # @
       "3": { name: decorator.keyword.stencila } # assignee
       "4": { name: comment.line } # message
-      "5": { name: keyword.control } # >>
+      "5": { name: keyword.control.stencila } # >>
 
   ########## Suggestions: Block & Inline ##########
 
@@ -286,7 +286,7 @@ repository:
         \s*
       $
     captures:
-      "1": { name: markup.heading } # semicolons
+      "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # insert
       "3": { name: accept.stencila } # accept
       "4": { name: error.stencila } # reject
@@ -321,8 +321,8 @@ repository:
         \s*
       $
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # delete
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # delete
       "3": { name: accept.stencila } # accept
       "4": { name: error.stencila } # reject
 
@@ -337,7 +337,7 @@ repository:
         (.*?)
       \]\]
     captures:
-      "1": { name: keyword.control } # delete
+      "1": { name: keyword.control.stencila } # delete
 
   replace-block:
     name: meta.stencila.replace-block
@@ -356,8 +356,8 @@ repository:
         \s*
       $
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # replace
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # replace
       "3": { name: accept.stencila } # accept
       "4": { name: error.stencila } # reject
 
@@ -374,8 +374,8 @@ repository:
         (.*?)
       \]\]
     captures:
-      "1": { name: keyword.control } # replace
-      "3": { name: keyword.control } # >>
+      "1": { name: keyword.control.stencila } # replace
+      "3": { name: keyword.control.stencila } # >>
 
   ########## IncludeBlock ##########
 
@@ -383,7 +383,7 @@ repository:
     name: meta.stencila.include-block
     match: ^(:{3,})\s*(include)\s+(.*)$
     captures:
-      "1": { name: markup.heading } # semicolons
+      "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # include
       "3": { name: variable.name.stencila } # source
 
@@ -393,7 +393,7 @@ repository:
     name: meta.stencila.call-block
     match: ^(:{3,})\s*(call)\s+(.*)$
     captures:
-      "1": { name: markup.heading } # semicolons
+      "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # include
       "3": { name: variable.name.stencila } # source
 
@@ -403,8 +403,8 @@ repository:
     name: meta.stencila.if-block
     match: ^(:{3,})\s*(if|elif)\s+(.*)$
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # if
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # if
       "3": # code
         patterns:
           - begin: .*
@@ -416,14 +416,14 @@ repository:
     name: meta.stencila.else-block
     match: ^(:{3,})\s*(else)\s*$
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # else
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # else
 
   end-block:
     name: meta.stencila.end-block
     match: ^(:{3,})\s*$
     captures:
-      "1": { name: markup.heading } # semicolons
+      "1": { name: markup.heading.stencila } # semicolons
 
   ########## ForBlock ##########
 
@@ -436,10 +436,10 @@ repository:
     name: meta.stencila.for-block.sql
     match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+(select\s*.*)$
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # for
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # for
       "3": { name: variable.name } # variable
-      "4": { name: keyword.control } # in
+      "4": { name: keyword.control.stencila } # in
       "5": # code
         patterns:
           - begin: .*
@@ -451,10 +451,10 @@ repository:
     name: meta.stencila.for-block.no-lang
     match: ^(:{3,})\s*(for)\s+([\w]+)\s+(in)\s+(.*)$
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # for
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # for
       "3": { name: variable.name } # variable
-      "4": { name: keyword.control } # in
+      "4": { name: keyword.control.stencila } # in
       "5": # code
         patterns:
           - begin: .*
@@ -476,8 +476,8 @@ repository:
         (.*)
       $
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # figure
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # figure
       "3": { name: variable.name } # label
 
   table-block:
@@ -492,8 +492,8 @@ repository:
         (.*)
       $
     captures:
-      "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # table
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # table
       "3": { name: variable.name } # label
 
   # The following grammar rules are taken from the VSCode builtin Markdown grammar at
