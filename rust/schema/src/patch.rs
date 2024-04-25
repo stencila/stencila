@@ -421,7 +421,17 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
     /// of an enum.
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
-        Ok(0.0001)
+        Ok(self.minimum_similarity())
+    }
+
+    /// The minimum similarity for nodes of the same type
+    fn minimum_similarity(&self) -> f32 {
+        0.00001
+    }
+
+    /// The maximum similarity
+    fn maximum_similarity(&self) -> f32 {
+        1.0
     }
 
     /// Generate the [`PatchOp`]s needed to transform this node into the other
@@ -462,7 +472,11 @@ macro_rules! atom {
                 // Note non-zero similarity if unequal because types are
                 // the same. At present it does not seem to be necessary to do
                 // anything more sophisticated (e.g. proportional difference for numbers)
-                Ok(if other == self { 1.0 } else { 0.00001 })
+                Ok(if other == self {
+                    self.maximum_similarity()
+                } else {
+                    self.minimum_similarity()
+                })
             }
 
             fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
@@ -515,7 +529,11 @@ impl PatchNode for String {
 
     #[allow(unused_variables)]
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
-        Ok(if other == self { 1.0 } else { 0.00001 })
+        Ok(if other == self {
+            self.maximum_similarity()
+        } else {
+            self.minimum_similarity()
+        })
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
@@ -676,7 +694,7 @@ where
             }
         }
 
-        Ok((sum / (num as f32)).max(0.0001))
+        Ok((sum / (num as f32)).max(self.minimum_similarity()))
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
