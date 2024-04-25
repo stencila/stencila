@@ -6,7 +6,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 use codec_dom_trait::{DomCodec as _, DomEncodeContext};
 
@@ -38,7 +38,7 @@ impl Codec for DomCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions {
             compact,
             standalone,
@@ -69,7 +69,7 @@ impl Codec for DomCodec {
             Some(false) => indent(&html)?,
         };
 
-        Ok((html, Losses::none(), Mapping::none()))
+        Ok((html, EncodeInfo::none()))
     }
 }
 

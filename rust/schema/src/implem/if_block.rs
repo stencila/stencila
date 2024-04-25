@@ -1,4 +1,4 @@
-use codec_losses::lost_exec_options;
+use codec_info::lost_exec_options;
 
 use crate::{prelude::*, IfBlock, IfBlockClause};
 

@@ -10,8 +10,7 @@ proptest-high = ["schema/proptest-high"]
 proptest-max = ["schema/proptest-max"]
 
 [dependencies]
-codec-losses = { path = "../codec-losses" }
-codec-mapping = { path = "../codec-mapping" }
+codec-info = { path = "../codec-info" }
 node-strip = { path = "../node-strip" }
 common = { path = "../common" }
 format = { path = "../format" }

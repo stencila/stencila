@@ -1,5 +1,5 @@
 use codec_html_trait::encode::{attr, elem};
-use codec_losses::{lost_options, lost_work_options};
+use codec_info::{lost_options, lost_work_options};
 
 use crate::{prelude::*, Table};
 

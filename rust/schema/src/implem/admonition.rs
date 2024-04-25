@@ -1,4 +1,4 @@
-use codec_losses::lost_options;
+use codec_info::lost_options;
 
 use crate::{prelude::*, Admonition};
 

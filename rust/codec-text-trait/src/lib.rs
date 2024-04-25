@@ -1,6 +1,6 @@
 //! Trait for encoding to plain text
 
-use codec_losses::Losses;
+use codec_info::Losses;
 
 pub use codec_text_derive::TextCodec;
 

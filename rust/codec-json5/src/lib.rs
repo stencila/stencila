@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 use codec_json5_trait::Json5Codec as _;
@@ -39,10 +39,10 @@ impl Codec for Json5Codec {
         &self,
         str: &str,
         _options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         let node = Node::from_json5(str)?;
 
-        Ok((node, Losses::none(), Mapping::none()))
+        Ok((node, DecodeInfo::none()))
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
@@ -60,7 +60,7 @@ impl Codec for Json5Codec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let json5 = match compact {
@@ -68,6 +68,6 @@ impl Codec for Json5Codec {
             Some(false) | None => node.to_json5_pretty(),
         }?;
 
-        Ok((json5, Losses::none(), Mapping::none()))
+        Ok((json5, EncodeInfo::none()))
     }
 }

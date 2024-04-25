@@ -1,6 +1,6 @@
 use codec_html_trait::encode::{attr, elem};
 
-use codec_losses::{lost_exec_options, lost_options};
+use codec_info::{lost_exec_options, lost_options};
 use common::inflector::Inflector;
 
 use crate::{prelude::*, Parameter, Validator};

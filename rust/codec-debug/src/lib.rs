@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 
 /// A codec for the Rust debug format
@@ -46,7 +46,7 @@ impl Codec for DebugCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let debug = match compact {
@@ -54,6 +54,6 @@ impl Codec for DebugCodec {
             Some(false) | None => format!("{node:#?}"),
         };
 
-        Ok((debug, Losses::none(), Mapping::none()))
+        Ok((debug, EncodeInfo::none()))
     }
 }

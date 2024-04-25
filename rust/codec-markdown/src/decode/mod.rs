@@ -13,7 +13,7 @@ use codec::{
         serde_json, serde_yaml, tracing,
     },
     schema::{Article, Block, Inline, Node, NodeId, NodeType, VisitorMut, WalkControl},
-    DecodeOptions, Losses, Mapping,
+    DecodeInfo, DecodeOptions, Losses, Mapping,
 };
 
 use self::{blocks::mds_to_blocks, inlines::mds_to_inlines};
@@ -23,7 +23,7 @@ mod inlines;
 mod shared;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
-pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses, Mapping)> {
+pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     let mdast = to_mdast(md, &parse_options()).map_err(|error| eyre!(error))?;
 
     let mut context = Context::default();
@@ -45,7 +45,7 @@ pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node,
         context.visit(&mut node);
     }
 
-    Ok((node, context.losses, context.mapping))
+    Ok((node, context.info()))
 }
 
 /// Decode a string to blocks
@@ -235,6 +235,14 @@ impl Context {
         }
 
         Some(node)
+    }
+
+    /// Take the decoding info for the context
+    pub fn info(self) -> DecodeInfo {
+        DecodeInfo {
+            losses: self.losses,
+            mapping: self.mapping,
+        }
     }
 }
 

@@ -7,7 +7,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 pub mod r#trait;
@@ -41,10 +41,10 @@ impl Codec for JsonCodec {
         &self,
         str: &str,
         _options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         let node = Node::from_json(str)?;
 
-        Ok((node, Losses::none(), Mapping::none()))
+        Ok((node, DecodeInfo::none()))
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
@@ -62,7 +62,7 @@ impl Codec for JsonCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions {
             standalone,
             compact,
@@ -75,8 +75,7 @@ impl Codec for JsonCodec {
                     Some(true) => node.to_json(),
                     Some(false) | None => node.to_json_pretty(),
                 }?,
-                Losses::none(),
-                Mapping::none(),
+                EncodeInfo::none(),
             ));
         }
 
@@ -116,8 +115,7 @@ impl Codec for JsonCodec {
                 Some(true) => value.to_json(),
                 Some(false) | None => value.to_json_pretty(),
             }?,
-            Losses::none(),
-            Mapping::none(),
+            EncodeInfo::none(),
         ))
     }
 }

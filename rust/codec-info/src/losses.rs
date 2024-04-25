@@ -223,7 +223,7 @@ macro_rules! lost_options {
 #[macro_export]
 macro_rules! lost_exec_options {
     ($object:expr) => {
-        codec_losses::lost_options!(
+        codec_info::lost_options!(
             $object.options,
             compilation_digest,
             compilation_messages,
@@ -246,6 +246,6 @@ macro_rules! lost_exec_options {
 #[macro_export]
 macro_rules! lost_work_options {
     ($object:expr) => {
-        codec_losses::lost_options!($object.options, authors)
+        codec_info::lost_options!($object.options, authors)
     };
 }

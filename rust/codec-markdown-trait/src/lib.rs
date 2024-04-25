@@ -1,7 +1,6 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
-use codec_losses::Losses;
-use codec_mapping::{Mapping, NodeId, NodeType};
+use codec_info::{Losses, Mapping, NodeId, NodeType};
 
 pub use codec_markdown_derive::MarkdownCodec;
 use common::smol_str::SmolStr;

@@ -1,5 +1,5 @@
+use codec_info::lost_options;
 use codec_json5_trait::Json5Codec;
-use codec_losses::lost_options;
 
 use crate::{
     prelude::*, ArrayValidator, BooleanValidator, ConstantValidator, DateTimeValidator,

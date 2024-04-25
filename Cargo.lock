@@ -13,15 +13,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "actor"
-version = "0.0.0"
-dependencies = [
- "common",
- "graph",
- "schema",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1158,8 +1149,7 @@ dependencies = [
 name = "codec"
 version = "0.0.0"
 dependencies = [
- "codec-losses",
- "codec-mapping",
+ "codec-info",
  "common",
  "format",
  "node-strip",
@@ -1247,6 +1237,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-info"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "format",
+ "node-id",
+ "node-type",
+]
+
+[[package]]
 name = "codec-jats"
 version = "0.0.0"
 dependencies = [
@@ -1269,8 +1269,8 @@ dependencies = [
 name = "codec-jats-trait"
 version = "0.0.0"
 dependencies = [
+ "codec-info",
  "codec-jats-derive",
- "codec-losses",
  "common",
  "quick-xml",
 ]
@@ -1308,23 +1308,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "codec-losses"
-version = "0.0.0"
-dependencies = [
- "common",
- "format",
-]
-
-[[package]]
-name = "codec-mapping"
-version = "0.0.0"
-dependencies = [
- "common",
- "node-id",
- "node-type",
-]
-
-[[package]]
 name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
@@ -1349,8 +1332,7 @@ dependencies = [
 name = "codec-markdown-trait"
 version = "0.0.0"
 dependencies = [
- "codec-losses",
- "codec-mapping",
+ "codec-info",
  "codec-markdown-derive",
  "common",
 ]
@@ -1374,7 +1356,7 @@ dependencies = [
 name = "codec-text-trait"
 version = "0.0.0"
 dependencies = [
- "codec-losses",
+ "codec-info",
  "codec-text-derive",
  "common",
 ]
@@ -5762,9 +5744,9 @@ dependencies = [
  "codec",
  "codec-dom-trait",
  "codec-html-trait",
+ "codec-info",
  "codec-jats-trait",
  "codec-json5-trait",
- "codec-losses",
  "codec-markdown",
  "codec-markdown-trait",
  "codec-text-trait",

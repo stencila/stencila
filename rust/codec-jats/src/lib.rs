@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 mod decode;
@@ -97,16 +97,22 @@ impl Codec for JatsCodec {
         &self,
         str: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         let (node, losses) = decode::decode(str, options)?;
-        Ok((node, losses, Mapping::none()))
+        Ok((
+            node,
+            DecodeInfo {
+                losses,
+                ..Default::default()
+            },
+        ))
     }
 
     async fn to_string(
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         encode::encode(node, options)
     }
 }

@@ -9,7 +9,7 @@ use std::{
 
 use json_patch::{PatchOperation as MappingOperation, ReplaceOperation};
 
-use codecs::{DecodeOptions, EncodeOptions, Mapping};
+use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Mapping};
 use common::{
     eyre::Result,
     serde::{Deserialize, Serialize},
@@ -206,8 +206,13 @@ impl Document {
 
         // Create initial encoding of the root node
         let node = self.load().await?;
-        let (initial_content, .., initial_mapping) =
-            codecs::to_string_with_info(&node, encode_options.clone()).await?;
+        let (
+            initial_content,
+            EncodeInfo {
+                mapping: initial_mapping,
+                ..
+            },
+        ) = codecs::to_string_with_info(&node, encode_options.clone()).await?;
 
         // Create the mutex for the current content and mapping and initialize the version
         let current = Arc::new(Mutex::new((
@@ -373,14 +378,19 @@ impl Document {
                     let node = node_receiver.borrow_and_update().clone();
 
                     // Encode the node to a string in the format
-                    let (new_content, .., new_mapping) =
-                        match codecs::to_string_with_info(&node, encode_options.clone()).await {
-                            Ok(string) => string,
-                            Err(error) => {
-                                tracing::error!("While encoding node to string: {error}");
-                                continue;
-                            }
-                        };
+                    let (
+                        new_content,
+                        EncodeInfo {
+                            mapping: new_mapping,
+                            ..
+                        },
+                    ) = match codecs::to_string_with_info(&node, encode_options.clone()).await {
+                        Ok(string) => string,
+                        Err(error) => {
+                            tracing::error!("While encoding node to string: {error}");
+                            continue;
+                        }
+                    };
 
                     let mut current = current.lock().await;
                     let (current_content, current_mapping) = current.deref_mut();

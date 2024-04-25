@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
@@ -95,7 +95,7 @@ impl Codec for MarkdownCodec {
         &self,
         str: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         decode::decode(str, options)
     }
 
@@ -103,12 +103,18 @@ impl Codec for MarkdownCodec {
         &self,
         node: &Node,
         _options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let mut context = MarkdownEncodeContext::default();
         node.to_markdown(&mut context);
 
         let markdown = context.content.trim().to_string();
 
-        Ok((markdown, context.losses, context.mapping))
+        Ok((
+            markdown,
+            EncodeInfo {
+                losses: context.losses,
+                mapping: context.mapping,
+            },
+        ))
     }
 }

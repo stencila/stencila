@@ -7,7 +7,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 pub mod r#trait;
@@ -44,10 +44,10 @@ impl Codec for YamlCodec {
         &self,
         str: &str,
         _options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         let node = Node::from_yaml(str)?;
 
-        Ok((node, Losses::none(), Mapping::none()))
+        Ok((node, DecodeInfo::none()))
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
@@ -65,11 +65,11 @@ impl Codec for YamlCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions { standalone, .. } = options.unwrap_or_default();
 
         if !standalone.unwrap_or_default() {
-            return Ok((node.to_yaml()?, Losses::none(), Mapping::none()));
+            return Ok((node.to_yaml()?, EncodeInfo::none()));
         }
 
         let value = node.to_yaml_value()?;
@@ -100,6 +100,6 @@ impl Codec for YamlCodec {
             value
         };
 
-        Ok((value.to_yaml()?, Losses::none(), Mapping::none()))
+        Ok((value.to_yaml()?, EncodeInfo::none()))
     }
 }

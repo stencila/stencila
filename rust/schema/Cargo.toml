@@ -12,9 +12,9 @@ proptest-max = ["proptest", "proptest-derive"]
 [dependencies]
 codec-dom-trait = { path = "../codec-dom-trait" }
 codec-html-trait = { path = "../codec-html-trait" }
+codec-info = { path = "../codec-info" }
 codec-jats-trait = { path = "../codec-jats-trait" }
 codec-json5-trait = { path = "../codec-json5-trait" }
-codec-losses = { path = "../codec-losses" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 common = { path = "../common" }

@@ -1,5 +1,5 @@
+use codec_info::{lost_exec_options, lost_options};
 use codec_json5_trait::Json5Codec;
-use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CallArgument};
 

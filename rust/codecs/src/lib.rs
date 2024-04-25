@@ -9,8 +9,8 @@ use codec::{
     schema::Node,
 };
 pub use codec::{
-    format::Format, Codec, CodecDirection, CodecSupport, DecodeOptions, EncodeOptions, Losses,
-    LossesResponse, Mapping, MappingEntry,
+    format::Format, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
+    EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry,
 };
 use node_id::NodeUid;
 use node_strip::{StripNode, StripTargets};
@@ -77,7 +77,7 @@ pub fn get(
 /// Decode a Stencila Schema node from a string
 #[tracing::instrument]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
-    let (node, losses, ..) = from_str_with_info(str, options.clone()).await?;
+    let (node, DecodeInfo { losses, .. }) = from_str_with_info(str, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         let format = options
@@ -98,7 +98,7 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
 pub async fn from_str_with_info(
     str: &str,
     options: Option<DecodeOptions>,
-) -> Result<(Node, Losses, Mapping)> {
+) -> Result<(Node, DecodeInfo)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = options
@@ -124,7 +124,7 @@ pub async fn from_str_with_info(
 /// Decode a Stencila Schema node from a file system path
 #[tracing::instrument]
 pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
-    let (node, losses, ..) = from_path_with_info(path, options.clone()).await?;
+    let (node, DecodeInfo { losses, .. }) = from_path_with_info(path, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         losses.respond(
@@ -170,7 +170,7 @@ pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node>
 pub async fn from_path_with_info(
     path: &Path,
     options: Option<DecodeOptions>,
-) -> Result<(Node, Losses, Mapping)> {
+) -> Result<(Node, DecodeInfo)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {
@@ -211,7 +211,7 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
 /// Encode a Stencila Schema node to a string
 #[tracing::instrument(skip(node))]
 pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let (content, losses, ..) = to_string_with_info(node, options.clone()).await?;
+    let (content, EncodeInfo { losses, .. }) = to_string_with_info(node, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         let format = options
@@ -229,7 +229,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
 pub async fn to_string_with_info(
     node: &Node,
     options: Option<EncodeOptions>,
-) -> Result<(String, Losses, Mapping)> {
+) -> Result<(String, EncodeInfo)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = options
@@ -264,7 +264,7 @@ pub async fn to_string_with_info(
 /// Encode a Stencila Schema node to a file system path
 #[tracing::instrument(skip(node))]
 pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
-    let (losses, ..) = to_path_with_losses(node, path, options.clone()).await?;
+    let EncodeInfo { losses, .. } = to_path_with_info(node, path, options.clone()).await?;
     if !losses.is_empty() {
         losses.respond(
             format!("While encoding to `{path}`", path = path.display()),
@@ -277,11 +277,11 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
 
 /// Encode a Stencila Schema node to a file system path with losses
 #[tracing::instrument(skip(node))]
-pub async fn to_path_with_losses(
+pub async fn to_path_with_info(
     node: &Node,
     path: &Path,
     options: Option<EncodeOptions>,
-) -> Result<(Losses, Mapping)> {
+) -> Result<EncodeInfo> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {

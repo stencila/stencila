@@ -1,4 +1,4 @@
-use codec_losses::{lost_options, lost_work_options};
+use codec_info::{lost_options, lost_work_options};
 
 use crate::{prelude::*, Figure};
 

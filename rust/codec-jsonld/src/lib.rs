@@ -10,7 +10,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 /// A codec for JSON-LD
@@ -80,7 +80,7 @@ impl Codec for JsonLdCodec {
         &self,
         str: &str,
         _options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         let mut value: Value = serde_json::from_str(str)?;
 
         value.as_object_mut().map(|obj| obj.remove("@context"));
@@ -91,14 +91,14 @@ impl Codec for JsonLdCodec {
             serde_json::from_value(value)?
         };
 
-        Ok((node, Losses::none(), Mapping::none()))
+        Ok((node, DecodeInfo::none()))
     }
 
     async fn to_string(
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let value = serde_json::to_value(node)?;
@@ -106,7 +106,7 @@ impl Codec for JsonLdCodec {
         let Some(object) = value.as_object() else {
             // In the rare case the node does not encode to a JSON object, just return the JSON
             let json = serde_json::to_string_pretty(&value)?;
-            return Ok((json, Losses::none(), Mapping::none()));
+            return Ok((json, EncodeInfo::none()));
         };
 
         let mut encoded = json!({
@@ -131,7 +131,7 @@ impl Codec for JsonLdCodec {
             Some(false) | None => serde_json::to_string_pretty(&encoded),
         }?;
 
-        Ok((json, Losses::none(), Mapping::none()))
+        Ok((json, EncodeInfo::none()))
     }
 }
 

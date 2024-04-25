@@ -1,4 +1,4 @@
-use codec_losses::lost_work_options;
+use codec_info::lost_work_options;
 
 use crate::{prelude::*, Claim};
 

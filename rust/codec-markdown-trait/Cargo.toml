@@ -4,7 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec-losses = { path = "../codec-losses" }
-codec-mapping = { path = "../codec-mapping" }
+codec-info = { path = "../codec-info" }
 codec-markdown-derive = { path = "../codec-markdown-derive" }
 common = { path = "../common" }

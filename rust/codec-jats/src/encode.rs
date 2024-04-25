@@ -1,11 +1,8 @@
-use codec::{common::eyre::Result, schema::Node, EncodeOptions, Losses, Mapping};
+use codec::{common::eyre::Result, schema::Node, EncodeInfo, EncodeOptions, Losses};
 use codec_jats_trait::JatsCodec as _;
 
 /// Encode a [`Node`] as JATS XML
-pub(super) fn encode(
-    node: &Node,
-    options: Option<EncodeOptions>,
-) -> Result<(String, Losses, Mapping)> {
+pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let EncodeOptions {
         compact,
         standalone,
@@ -15,8 +12,10 @@ pub(super) fn encode(
     if !matches!(node, Node::Article(..)) {
         return Ok((
             String::new(),
-            Losses::one(node.to_string()),
-            Mapping::none(),
+            EncodeInfo {
+                losses: Losses::one(node.to_string()),
+                ..Default::default()
+            },
         ));
     }
 
@@ -31,7 +30,13 @@ pub(super) fn encode(
         jats = indent(&jats);
     }
 
-    Ok((jats, losses, Mapping::none()))
+    Ok((
+        jats,
+        EncodeInfo {
+            losses,
+            ..Default::default()
+        },
+    ))
 }
 
 /// Indent JATS

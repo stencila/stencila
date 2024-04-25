@@ -18,7 +18,7 @@ use codec::{
     },
     format::Format,
     schema::NodeType,
-    DecodeOptions, EncodeOptions,
+    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
 use json_value_merge::Merge;
@@ -375,7 +375,7 @@ async fn examples() -> Result<()> {
 
                 if codec.supports_to_string() {
                     // Encode to string
-                    let (actual, losses, mapping) =
+                    let (actual, EncodeInfo { losses, mapping }) =
                         codec.to_string(&original, encode_options).await?;
 
                     if file.exists() {
@@ -448,11 +448,10 @@ async fn examples() -> Result<()> {
                 });
 
                 // Decode from file
-                let (mut decoded, losses, mapping) =
-                    codec
-                        .from_path(&file, decode_options)
-                        .await
-                        .wrap_err_with(|| format!("while decoding {}", file.display()))?;
+                let (mut decoded, DecodeInfo { losses, mapping }) = codec
+                    .from_path(&file, decode_options)
+                    .await
+                    .wrap_err_with(|| format!("while decoding {}", file.display()))?;
 
                 // Write any losses to file
                 let mut losses_file = path.clone();

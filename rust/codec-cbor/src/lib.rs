@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 pub mod r#trait;
@@ -66,7 +66,7 @@ impl Codec for CborCodec {
         &self,
         bytes: &[u8],
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, Losses, Mapping)> {
+    ) -> Result<(Node, DecodeInfo)> {
         let bytes = if let Some(Format::CborZst) = options.and_then(|options| options.format) {
             zstd::decode_all(bytes)?
         } else {
@@ -75,14 +75,14 @@ impl Codec for CborCodec {
 
         let node = Node::from_cbor(&bytes)?;
 
-        Ok((node, Losses::none(), Mapping::none()))
+        Ok((node, DecodeInfo::none()))
     }
 
     async fn to_bytes(
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(Vec<u8>, Losses, Mapping)> {
+    ) -> Result<(Vec<u8>, EncodeInfo)> {
         let bytes = node.to_cbor()?;
 
         let bytes = if let Some(Format::CborZst) = options.and_then(|options| options.format) {
@@ -91,6 +91,6 @@ impl Codec for CborCodec {
             bytes
         };
 
-        Ok((bytes, Losses::none(), Mapping::none()))
+        Ok((bytes, EncodeInfo::none()))
     }
 }

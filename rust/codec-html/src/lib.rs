@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses, Mapping,
+    Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
@@ -48,7 +48,7 @@ impl Codec for HtmlCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses, Mapping)> {
+    ) -> Result<(String, EncodeInfo)> {
         let EncodeOptions {
             compact,
             standalone,
@@ -83,7 +83,7 @@ impl Codec for HtmlCodec {
             Some(false) => indent(&html),
         };
 
-        Ok((html, Losses::none(), Mapping::none()))
+        Ok((html, EncodeInfo::none()))
     }
 }
 

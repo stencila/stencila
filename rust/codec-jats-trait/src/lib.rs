@@ -1,7 +1,7 @@
 //! Provides the `JatsCodec` trait for generating JATS XML for Stencila Schema nodes
 
+use codec_info::Losses;
 pub use codec_jats_derive::JatsCodec;
-use codec_losses::Losses;
 
 pub mod encode;
 use encode::escape;

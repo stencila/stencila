@@ -1,9 +1,10 @@
 [package]
-name = "codec-mapping"
+name = "codec-info"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
+format = { path = "../format" }
 node-id = { path = "../node-id" }
 node-type = { path = "../node-type" }
