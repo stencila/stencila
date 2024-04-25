@@ -23,7 +23,7 @@ impl MarkdownCodec for CallArgument {
         } else {
             context
                 .push_str("`")
-                .push_prop_str(NodeProperty::Code, &self.code)
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
                 .push_str("`");
         };
 

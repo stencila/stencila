@@ -57,6 +57,13 @@ impl Cord {
         authors
     }
 
+    /// Set the run of the cord to indicate unknown authorship
+    ///
+    /// Should normally only be used when `runs` is empty but `string` is not.
+    fn unknown_author(&mut self, run_length: u32) {
+        self.runs = vec![(1, u8::MAX as u64, run_length)];
+    }
+
     /// Coalesce runs where possible
     fn coalesce_runs(&mut self) {
         if self.runs.len() > 1 {
@@ -137,10 +144,10 @@ impl Cord {
 
     /// Apply an insert operation
     pub fn apply_insert(&mut self, position: usize, value: &str, author: u8) {
-        let current_length = self.chars().count();
+        let old_length = self.chars().count();
 
         // Check for out of bounds pos  or empty value
-        if position > current_length || value.is_empty() {
+        if position > old_length || value.is_empty() {
             return;
         }
 
@@ -154,14 +161,14 @@ impl Cord {
         let value_length = value.chars().count() as u32;
 
         // Shortcut for updating authorship if was empty
-        if current_length == 0 {
+        if old_length == 0 {
             self.runs = vec![(1, author as u64, value_length)];
             return;
         }
 
-        // If authorship is empty then fill it with a single "unknown author" run
+        // If runs is empty then add a single "unknown author" run for the old_length
         if self.runs.is_empty() && !self.is_empty() {
-            self.runs = vec![(1, u8::MAX as u64, current_length as u32)];
+            self.unknown_author(old_length as u32);
         }
 
         // Find the run at the insertion position and update authorship
@@ -188,7 +195,7 @@ impl Cord {
 
                 inserted = true;
                 break;
-            } else if run_start <= position && run_end >= position {
+            } else if run_start <= position && run_end > position {
                 // Position is within run
                 if run_history == history {
                     // Same history: extend the existing run
@@ -196,11 +203,14 @@ impl Cord {
                 } else {
                     // Split the run and insert after
                     self.runs[run].2 = (position - run_start) as u32;
-                    let remaining = run_length - (position - run_start);
-                    if remaining > 0 {
-                        self.runs
-                            .insert(run + 1, (run_history.0, run_history.1, remaining as u32));
-                    }
+                    self.runs.insert(
+                        run + 1,
+                        (
+                            run_history.0,
+                            run_history.1,
+                            (run_length - (position - run_start)) as u32,
+                        ),
+                    );
                     self.runs
                         .insert(run + 1, (history.0, history.1, value_length));
                 }
@@ -213,30 +223,16 @@ impl Cord {
         }
 
         if !inserted {
-            let run = (history.0, history.1, value_length);
-            if position == 0 {
-                let same_as_first = self
-                    .runs
-                    .first()
-                    .map(|&(run_count, run_authors, ..)| (run_count, run_authors) == history)
-                    .unwrap_or_default();
-                if same_as_first {
-                    self.runs[0].2 += value_length;
-                } else {
-                    self.runs.insert(0, run)
-                }
+            let same_as_last = self
+                .runs
+                .last()
+                .map(|&(run_count, run_authors, ..)| (run_count, run_authors) == history)
+                .unwrap_or_default();
+            if same_as_last {
+                let last = self.runs.len() - 1;
+                self.runs[last].2 += value_length;
             } else {
-                let same_as_last = self
-                    .runs
-                    .last()
-                    .map(|&(run_count, run_authors, ..)| (run_count, run_authors) == history)
-                    .unwrap_or_default();
-                if same_as_last {
-                    let last = self.runs.len();
-                    self.runs[last].2 += value_length;
-                } else {
-                    self.runs.push(run);
-                }
+                self.runs.push((history.0, history.1, value_length));
             }
         }
 
@@ -246,10 +242,10 @@ impl Cord {
 
     /// Apply a delete operation
     pub fn apply_delete(&mut self, range: Range<usize>) {
-        let current_length = self.chars().count();
+        let old_length = self.chars().count();
 
         // Check for out of bounds range or nothing to do
-        if range.start >= current_length || range.is_empty() {
+        if range.start >= old_length || range.is_empty() {
             return;
         }
 
@@ -269,6 +265,11 @@ impl Cord {
         if self.is_empty() {
             self.runs.clear();
             return;
+        }
+
+        // If runs is empty then add a single "unknown author" run for the old_length
+        if self.runs.is_empty() && !self.is_empty() {
+            self.unknown_author(old_length as u32);
         }
 
         // Update authorship
@@ -325,10 +326,10 @@ impl Cord {
 
     // Replace a range in the string with new content and update authorship
     pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author: u8) {
-        let current_length = self.chars().count();
+        let old_length = self.chars().count();
 
         // Check for out of bounds range or nothing to do
-        if range.start >= current_length || range.is_empty() {
+        if range.start >= old_length || range.is_empty() {
             return;
         }
 
@@ -342,6 +343,11 @@ impl Cord {
             (Some((start, ..)), None) => self.replace_range(start.., value),
             (None, Some((end, ..))) => self.replace_range(..end, value),
             (None, None) => self.replace_range(.., value),
+        }
+
+        // If runs is empty then add a single "unknown author" run for the old_length
+        if self.runs.is_empty() && !self.is_empty() {
+            self.unknown_author(old_length as u32);
         }
 
         // Update authorship
@@ -521,7 +527,7 @@ impl PatchNode for Cord {
         // Note minimum similarity because same types
         // This is important because it means a `Cord` will have non-zero
         // similarity with itself, even if all characters change
-        Ok(diff.ratio().max(0.00001))
+        Ok(diff.ratio().max(self.minimum_similarity()))
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
@@ -638,7 +644,11 @@ impl HtmlCodec for Cord {
 
 impl MarkdownCodec for Cord {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        context.push_str(&self.to_string());
+        if self.runs.is_empty() {
+            context.push_str(self.as_str());
+        } else {
+            context.push_authored_str(&self.runs, self.as_str());
+        }
     }
 }
 

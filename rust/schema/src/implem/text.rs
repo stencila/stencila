@@ -25,18 +25,18 @@ impl DomCodec for Text {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .push_text(&self.to_value_string())
+            .push_text(self.value.as_str())
             .exit_elem();
     }
 }
 
 impl MarkdownCodec for Text {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        // To avoid unnecessary, redundant entries for `Text.value` in `Mapping`
-        // this custom implementation just pushes the string.
         context
             .enter_node(self.node_type(), self.node_id())
-            .push_str(&self.value)
+            .push_prop_fn(NodeProperty::Value, |context| {
+                self.value.to_markdown(context)
+            })
             .exit_node();
     }
 }

@@ -136,6 +136,7 @@ impl Context {
                 node_type,
                 node_id,
                 None,
+                None,
             );
         }
     }
@@ -144,7 +145,7 @@ impl Context {
     fn map_span(&mut self, span: Range<usize>, node_type: NodeType, node_id: Option<NodeId>) {
         if let Some(node_id) = node_id {
             self.mapping
-                .add(span.start, span.end, node_type, node_id, None);
+                .add(span.start, span.end, node_type, node_id, None, None);
         }
     }
 
@@ -156,7 +157,7 @@ impl Context {
     /// Map the position of a node in the source using the previously stored start
     fn map_end(&mut self, end: usize) {
         if let Some((start, node_type, node_id)) = self.map_stack.pop() {
-            self.mapping.add(start, end, node_type, node_id, None);
+            self.mapping.add(start, end, node_type, node_id, None, None);
         }
     }
 

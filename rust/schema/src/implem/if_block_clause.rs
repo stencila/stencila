@@ -7,7 +7,7 @@ impl MarkdownCodec for IfBlockClause {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self))
-            .push_prop_str(NodeProperty::Code, &self.code);
+            .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {

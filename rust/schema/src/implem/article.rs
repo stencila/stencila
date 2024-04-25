@@ -62,6 +62,6 @@ impl MarkdownCodec for Article {
 
         context.append_footnotes();
 
-        context.exit_node();
+        context.exit_node_final();
     }
 }

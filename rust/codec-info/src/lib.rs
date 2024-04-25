@@ -1,8 +1,10 @@
 mod losses;
 mod mapping;
+mod positions;
 
 pub use losses::*;
 pub use mapping::*;
+pub use positions::*;
 
 /// Information which may be returned when decoding content to a node
 #[derive(Default)]

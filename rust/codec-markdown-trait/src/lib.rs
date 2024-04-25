@@ -53,7 +53,7 @@ pub struct MarkdownEncodeContext {
 
 impl MarkdownEncodeContext {
     /// Get the current insertion position (i.e. the number of characters in the content)
-    fn position(&self) -> usize {
+    fn char_index(&self) -> usize {
         self.content.chars().count()
     }
 
@@ -61,7 +61,8 @@ impl MarkdownEncodeContext {
     ///
     /// Pushes the node id and start position onto the stack.
     pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
-        self.node_stack.push((node_type, node_id, self.position()));
+        self.node_stack
+            .push((node_type, node_id, self.char_index()));
         self
     }
 
@@ -71,13 +72,25 @@ impl MarkdownEncodeContext {
     /// new mapping entry with those and the current position as end position.
     pub fn exit_node(&mut self) -> &mut Self {
         if let Some((node_type, node_id, start)) = self.node_stack.pop() {
-            let mut end = self.position();
+            let mut end = self.char_index();
             // Do not include any blank line after the node in the range
             // for the node
             if self.content.ends_with("\n\n") {
                 end -= 1;
             }
-            self.mapping.add(start, end, node_type, node_id, None)
+            self.mapping.add(start, end, node_type, node_id, None, None)
+        }
+        self
+    }
+
+    /// Exit the final node
+    ///
+    /// Should only be used by the top level `Article`. Does not exclude any double newline
+    /// at the end from the range.
+    pub fn exit_node_final(&mut self) -> &mut Self {
+        if let Some((node_type, node_id, start)) = self.node_stack.pop() {
+            let end = self.char_index();
+            self.mapping.add(start, end, node_type, node_id, None, None)
         }
         self
     }
@@ -163,18 +176,41 @@ impl MarkdownEncodeContext {
         self
     }
 
-    /// Push a property represented as a string onto the Markdown content
-    ///
-    /// Creates a new mapping entry for the property.
-    pub fn push_prop_str(&mut self, prop: NodeProperty, value: &str) -> &mut Self {
-        let start = self.position();
+    /// Push a string with authorship info onto the Markdown content
+    pub fn push_authored_str(&mut self, runs: &[(u8, u64, u32)], value: &str) -> &mut Self {
+        let mut start = self.char_index();
 
         self.push_str(value);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
-            let end = self.position();
+            for &(count, authors, length) in runs {
+                self.mapping.add(
+                    start,
+                    start + (length as usize),
+                    *node_type,
+                    node_id.clone(),
+                    None,
+                    Some((count, authors)),
+                );
+                start += length as usize
+            }
+        }
+
+        self
+    }
+
+    /// Push a property represented as a string onto the Markdown content
+    ///
+    /// Creates a new mapping entry for the property.
+    pub fn push_prop_str(&mut self, prop: NodeProperty, value: &str) -> &mut Self {
+        let start = self.char_index();
+
+        self.push_str(value);
+
+        if let Some((node_type, node_id, ..)) = self.node_stack.last() {
+            let end = self.char_index();
             self.mapping
-                .add(start, end, *node_type, node_id.clone(), Some(prop));
+                .add(start, end, *node_type, node_id.clone(), Some(prop), None);
         }
         self
     }
@@ -186,14 +222,14 @@ impl MarkdownEncodeContext {
     where
         F: Fn(&mut Self),
     {
-        let start = self.position();
+        let start = self.char_index();
 
         func(self);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
-            let end = self.position();
+            let end = self.char_index();
             self.mapping
-                .add(start, end, *node_type, node_id.clone(), Some(prop));
+                .add(start, end, *node_type, node_id.clone(), Some(prop), None);
         }
         self
     }
@@ -235,6 +271,7 @@ impl MarkdownEncodeContext {
                     entry.node_type,
                     entry.node_id.clone(),
                     entry.property,
+                    None,
                 );
             }
             self.content.push_str(&footnote.content);

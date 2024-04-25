@@ -16,7 +16,7 @@ impl MarkdownCodec for CodeBlock {
 
         context
             .newline()
-            .push_prop_str(NodeProperty::Code, &self.code);
+            .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
         if !self.code.ends_with('\n') {
             context.newline();

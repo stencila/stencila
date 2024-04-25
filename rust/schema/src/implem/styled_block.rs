@@ -16,7 +16,7 @@ impl MarkdownCodec for StyledBlock {
             ))
             .push_semis()
             .push_str(" {")
-            .push_prop_str(NodeProperty::Code, &self.code)
+            .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
             .push_str("}\n\n")
             .increase_depth()
             .push_prop_fn(NodeProperty::Content, |context| {

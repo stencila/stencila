@@ -11,7 +11,7 @@ impl MarkdownCodec for ForBlock {
             .push_str(" for ")
             .push_prop_str(NodeProperty::Variable, &self.variable)
             .push_str(" in ")
-            .push_prop_str(NodeProperty::Code, &self.code);
+            .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {

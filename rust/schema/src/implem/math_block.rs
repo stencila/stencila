@@ -88,7 +88,7 @@ impl MarkdownCodec for MathBlock {
         if lang == "tex" || lang == "latex" || lang == "math" {
             context
                 .push_str("$$\n")
-                .push_prop_str(NodeProperty::Code, &self.code)
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
                 .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
                 .push_str("$$");
         } else {
@@ -96,7 +96,7 @@ impl MarkdownCodec for MathBlock {
                 .push_str("```")
                 .push_prop_str(NodeProperty::MathLanguage, &lang)
                 .newline()
-                .push_prop_str(NodeProperty::Code, &self.code)
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
                 .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
                 .push_str("```");
         }
