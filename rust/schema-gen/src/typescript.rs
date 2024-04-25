@@ -342,7 +342,11 @@ export const {name}TypeList = [
                 continue;
             }
 
-            let mut prop = name.clone();
+            let mut prop = if property.is_override {
+                format!("declare {name}")
+            } else {
+                name.clone()
+            };
 
             // Determine Typescript type of the property
             let (mut prop_type, is_array, ..) = Self::typescript_type(dest, property).await?;

@@ -14,7 +14,7 @@ export class CallArgument extends Parameter {
   /**
    * The current value of the argument.
    */
-  value?: Node;
+  declare value?: Node;
 
   /**
    * The code to be evaluated for the parameter.

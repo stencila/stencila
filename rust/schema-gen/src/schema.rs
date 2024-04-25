@@ -331,6 +331,11 @@ pub struct Schema {
     #[serde(skip)]
     pub is_inherited: bool,
 
+    /// Whether this is a property schema and overrides the same property in another
+    /// schema that the _parent_ schema extends.
+    #[serde(skip)]
+    pub is_override: bool,
+
     /// Whether this is a property schema and is required (is in the `required` keyword
     /// of the _parent_ schema).
     #[serde(skip)]
@@ -789,8 +794,8 @@ impl Schema {
         let mut extended = self.clone();
 
         let mut properties: IndexMap<String, Schema> = parents
-            .iter_mut()
-            .flat_map(|parent| std::mem::take(&mut parent.properties).into_iter())
+            .iter()
+            .flat_map(|parent| parent.properties.clone().into_iter())
             .chain(extended.properties.clone())
             .collect();
         let cores: Vec<String> = parents
@@ -806,7 +811,14 @@ impl Schema {
 
         for (property_name, property) in properties.iter_mut() {
             if extended.properties.contains_key(property_name) {
-                property.defined_on = name.to_string()
+                property.defined_on = name.to_string();
+                if parents
+                    .iter()
+                    .flat_map(|parent| parent.properties.keys())
+                    .contains(property_name)
+                {
+                    property.is_override = true;
+                }
             } else {
                 property.is_inherited = true;
             }

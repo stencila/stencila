@@ -15,7 +15,7 @@ export class Table extends CreativeWork {
   /**
    * The authors of the table.
    */
-  authors?: Author[];
+  declare authors?: Author[];
 
   /**
    * A short label for the table.
