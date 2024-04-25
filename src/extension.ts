@@ -19,6 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World from Stencila!');
 	});
 
+	// Define the default theme for this extension.
+	// Inside your extension's activation code
+	vscode.workspace.getConfiguration('workbench')
+		.update('colorTheme', 'Stencila Light', vscode.ConfigurationTarget.Global);
+
 	context.subscriptions.push(disposable);
 }
 

@@ -36,11 +36,73 @@ The area of a circle is $2 \pi r^2$.
 ```js
 // Javascript code
 function foo(){}
+
+import { VIEWS } from '../views/views'
+
+import './main.css'
+
+import './shoelace'
+
+/**
+ * Application Wrapper
+ *
+ * Wraps the application in the `app-chrome`. Contains the main header and
+ * footer.
+ */
+@customElement('stencila-main-app')
+@withTwind()
+export class App extends LitElement {
+  /**
+   * The currently open documents
+   *
+   * This property is initialized (as an HTML attribute) with one document id,
+   * by the server, based on the URL path (including paths that resolved to main.*,
+   * index.*, or README.* in the home directory of the server (the directory it was started in)).
+   *
+   * While the app is running [document id, file name] pairs are added or removed
+   * from this list (e.g. by clicking on the directory tree, closing a tab).
+   *
+   * A list is used here (rather than say an object with `DocumentId` as the key)
+   * to allow for reordering of tabs by the user.
+   */
+  @property({ type: Array })
+  docs: (File & { docId: DocumentId })[] = []
+
+  /**
+   * The id of the document, in `docs`, that is currently active
+   */
+  @state()
+  activeDoc: DocumentId | null
+
+  /**
+   * The current view of the current document
+   *
+   * If there is no `view` attribute then this will be dynamically
+   * determined based on the maximum access level that the user has for
+   * the document.
+   */
+  @property()
+  view?: DocumentView = 'live'
+}
 ```
 
 ```py
 # Python code
 def foo: pass
+from stencila import _stencila
+
+async def from_string(string: str, format: str | None = "json") -> Node:
+    """
+    Decode a Stencila Schema node from a string.
+
+    Args:
+        string (str): The string to decode to a node.
+        format (Optional[str]): The format to decode from. Defaults to "json".
+
+    Returns:
+        Node: A Stencila Schema node.
+    """
+    return from_json(await _stencila.convert.from_string(string, {"format": format}))
 ```
 
 ```r

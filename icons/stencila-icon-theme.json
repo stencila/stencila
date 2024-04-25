@@ -1,0 +1,12 @@
+{
+  "iconDefinitions": {
+    "_stencila_light": {
+      "iconPath": "./images/stencila-icon-32x32.svg"
+    }
+  },
+  "light": {
+    "fileExtensions": {
+      "smd": "_stencila_light"
+    }
+  }
+}
