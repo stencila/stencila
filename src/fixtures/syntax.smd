@@ -218,11 +218,7 @@ Proposed
 
 :::
 
-::: elif expression
-
-
-
-:::
+::: insert accept
 
 Accepted
 
@@ -305,6 +301,19 @@ a is less than 1
 ::: elif a < 2
 
 a is less than 2
+
+:::
+
+
+## With `else`
+
+::: if a > 1
+
+a is greater than 1
+
+::: else
+
+b is less than 1
 
 :::
 
