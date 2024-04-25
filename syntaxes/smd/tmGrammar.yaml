@@ -16,6 +16,7 @@ repository:
   block:
     patterns:
       # Order is important for matching!
+      - include: "#heading"
       - include: "#math-block"
       - include: "#code-chunk"
       - include: "#code-block"
@@ -206,9 +207,9 @@ repository:
       $
     captures:
       "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # do
-      "3": { name: punctuation.definition } # @
-      "4": { name: variable.name } # assignee
+      "2": { name: keyword.control.stencila } # do
+      "3": { name: decorator.keyword.stencila } # @
+      "4": { name: decorator.keyword.stencila } # assignee
       "5": { name: comment.line } # message
 
   with-block:
@@ -238,9 +239,9 @@ repository:
         )?
       \]\]
     captures:
-      "1": { name: keyword.control } # do
-      "2": { name: punctuation.definition } # @
-      "3": { name: variable.name } # assignee
+      "1": { name: keyword.control.stencila } # do
+      "2": { name: decorator.keyword.stencila } # @
+      "3": { name: decorator.keyword.stencila } # assignee
       "4": { name: comment.line } # message
       "5": { name: keyword.control } # >>
 
@@ -264,9 +265,9 @@ repository:
       $
     captures:
       "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # insert
-      "3": { name: token.info-token } # accept
-      "4": { name: token.error-token } # reject
+      "2": { name: keyword.control.stencila } # insert
+      "3": { name: accept.stencila } # accept
+      "4": { name: error.stencila } # reject
 
   insert-inline:
     name: meta.stencila.insert-inline
@@ -279,7 +280,7 @@ repository:
         (.*?)
       \]\]
     captures:
-      "1": { name: keyword.control } # insert
+      "1": { name: keyword.control.stencila } # insert
 
   delete-block:
     name: meta.stencila.delete-block
@@ -300,8 +301,8 @@ repository:
     captures:
       "1": { name: markup.heading } # semicolons
       "2": { name: keyword.control } # delete
-      "3": { name: token.info-token } # accept
-      "4": { name: token.error-token } # reject
+      "3": { name: accept.stencila } # accept
+      "4": { name: error.stencila } # reject
 
   delete-inline:
     name: meta.stencila.delete-inline
@@ -335,8 +336,8 @@ repository:
     captures:
       "1": { name: markup.heading } # semicolons
       "2": { name: keyword.control } # replace
-      "3": { name: token.info-token } # accept
-      "4": { name: token.error-token } # reject
+      "3": { name: accept.stencila } # accept
+      "4": { name: error.stencila } # reject
 
   replace-inline:
     name: meta.stencila.replace-inline
@@ -361,8 +362,8 @@ repository:
     match: ^(:{3,})\s*(include)\s+(.*)$
     captures:
       "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # include
-      "3": { name: variable.name } # source
+      "2": { name: keyword.control.stencila } # include
+      "3": { name: variable.name.stencila } # source
 
   ########## CallBlock ##########
 
@@ -371,8 +372,8 @@ repository:
     match: ^(:{3,})\s*(call)\s+(.*)$
     captures:
       "1": { name: markup.heading } # semicolons
-      "2": { name: keyword.control } # call
-      "3": { name: variable.name } # source
+      "2": { name: keyword.control.stencila } # include
+      "3": { name: variable.name.stencila } # source
 
   ########## IfBlock ##########
 
@@ -476,6 +477,11 @@ repository:
   # The following grammar rules are taken from the VSCode builtin Markdown grammar at
   #   https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml
   # usually with little modification, particularly to regular expressions.
+  heading:
+    name: meta.stencila.heading
+    match: (?:^|\G)[ ]{0,3}(#{1,6}\s+(.*?)(\s+#{1,6})?\s*)$
+    patterns:
+      - { include: punctuation.definition.heading.markdown }
 
   paragraph:
     name: meta.stencila.paragraph

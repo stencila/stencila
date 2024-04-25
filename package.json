@@ -58,6 +58,21 @@
         "language": "smd",
         "path": "./syntaxes/smd/snippets.json"
       }
+    ],
+    "themes": [
+      {
+        "id": "Stencila Light",
+        "label": "Stencila light",
+        "uiTheme": "vs",
+        "path": "./themes/stencila-light-color-theme.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "stencila",
+        "label": "Stencila Icons",
+        "path": "./icons/stencila-icon-theme.json"
+      }
     ]
   },
   "scripts": {
