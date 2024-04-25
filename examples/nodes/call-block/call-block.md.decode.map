@@ -1,10 +1,10 @@
- start    end    offsets   node_id                  node_type+property
-     0     26       0/26   pgh_1111118j             Paragraph
-    28     65      28/39   clb_1111118k             CallBlock
-    67     97      39/32   pgh_1111118n             Paragraph
-    99    144      32/47   clb_1111118p             CallBlock
-   146    186      47/42   pgh_1111118r             Paragraph
-   188    241      42/55   clb_1111118t             CallBlock
-   243    300      55/59   pgh_1111118v             Paragraph
-   302    418     59/118   clb_11111192             CallBlock
-     0    418     -302/0   art_11111193             Article
+start     end        offsets   node_type+property                   authorship
+     0     26        (0, 26)   Paragraph
+    28     65       (28, 39)   CallBlock
+    67     97       (39, 32)   Paragraph
+    99    144       (32, 47)   CallBlock
+   146    186       (47, 42)   Paragraph
+   188    241       (42, 55)   CallBlock
+   243    300       (55, 59)   Paragraph
+   302    418      (59, 118)   CallBlock
+     0    418      (-302, 0)   Article

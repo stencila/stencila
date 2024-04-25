@@ -1,6 +1,6 @@
- start    end    offsets   node_id                  node_type+property
-    63     74      63/74   cdi_11111114p            CodeInline
-    76     98      13/24   cdi_11111114r            CodeInline
-    54    100      -22/2   mdi_11111114o            ModifyInline
-     0    101      -54/1   pgh_11111114u            Paragraph
-     0    101        0/0   art_11111114v            Article
+start     end        offsets   node_type+property                   authorship
+    63     74       (63, 74)   CodeInline
+    76     98       (13, 24)   CodeInline
+    54    100       (-22, 2)   ModifyInline
+     0    101       (-54, 1)   Paragraph
+     0    101         (0, 0)   Article

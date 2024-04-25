@@ -1,9 +1,9 @@
- start    end    offsets   node_id                  node_type+property
-     2     31       2/31   sti_1111118Y             StyledInline
-    66     87      64/56   sti_1111118b             StyledInline
-     0     87      -66/0   pgh_1111118c             Paragraph
-   112    158     112/71   sti_1111118i             StyledInline
-    89    158      -23/0   pgh_1111118j             Paragraph
-   195    254     106/96   sti_1111118n             StyledInline
-   160    254      -35/0   pgh_1111118o             Paragraph
-     0    254     -160/0   art_1111118p             Article
+start     end        offsets   node_type+property                   authorship
+     2     31        (2, 31)   StyledInline
+    66     87       (64, 56)   StyledInline
+     0     87       (-66, 0)   Paragraph
+   112    158      (112, 71)   StyledInline
+    89    158       (-23, 0)   Paragraph
+   195    254      (106, 96)   StyledInline
+   160    254       (-35, 0)   Paragraph
+     0    254      (-160, 0)   Article

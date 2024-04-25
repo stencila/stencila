@@ -1,9 +1,9 @@
- start    end    offsets   node_id                  node_type+property
-     5     25       5/25   ini_1111117S             InsertInline
-     0     30       -5/5   pgh_1111117W             Paragraph
-    65     88      65/58   str_1111117a             Strong
-    93    108      28/20   sup_1111117d             Superscript
-   113    126      20/18   cde_1111117f             CodeExpression
-    56    128      -57/2   ini_1111117Y             InsertInline
-    32    129      -24/1   pgh_1111117i             Paragraph
-     0    129      -32/0   art_1111117j             Article
+start     end        offsets   node_type+property                   authorship
+     5     25        (5, 25)   InsertInline
+     0     30        (-5, 5)   Paragraph
+    65     88       (65, 58)   Strong
+    93    108       (28, 20)   Superscript
+   113    126       (20, 18)   CodeExpression
+    56    128       (-57, 2)   InsertInline
+    32    129       (-24, 1)   Paragraph
+     0    129       (-32, 0)   Article

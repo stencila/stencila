@@ -1,10 +1,10 @@
- start    end    offsets   node_id                  node_type+property
-     9     41       9/41   img_1111117j             ImageObject
-    58     95      49/54   img_1111117n             ImageObject
-   122    169      64/74   img_1111117r             ImageObject
-     0    169     -122/0   pgh_1111117s             Paragraph
-   182    214     182/45   aud_1111117v             AudioObject
-   171    214      -11/0   pgh_1111117w             Paragraph
-   224    256      53/42   vid_1111117z             VideoObject
-   216    256       -8/0   pgh_11111181             Paragraph
-     0    256     -216/0   art_11111182             Article
+start     end        offsets   node_type+property                   authorship
+     9     41        (9, 41)   ImageObject
+    58     95       (49, 54)   ImageObject
+   122    169       (64, 74)   ImageObject
+     0    169      (-122, 0)   Paragraph
+   182    214      (182, 45)   AudioObject
+   171    214       (-11, 0)   Paragraph
+   224    256       (53, 42)   VideoObject
+   216    256        (-8, 0)   Paragraph
+     0    256      (-216, 0)   Article

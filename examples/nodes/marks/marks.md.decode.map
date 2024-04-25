@@ -1,13 +1,13 @@
- start    end    offsets   node_id                  node_type+property
-     8     20       8/20   emp_111111DJ             Emphasis
-    34     57      26/37   str_111111DM             Strong
-    71     88      37/31   und_111111DQ             Underline
-     0     89      -71/1   pgh_111111DS             Paragraph
-    99    112      99/23   sub_111111DV             Subscript
-   126    141      27/29   sup_111111DY             Superscript
-   155    169      29/28   stk_111111Db             Strikeout
-    91    170      -64/1   pgh_111111Dd             Paragraph
-   216    237     125/67   emp_111111Dg             Emphasis
-   243    264      27/27   str_111111Dj             Strong
-   172    265      -71/1   pgh_111111Dm             Paragraph
-     0    265     -172/0   art_111111Dn             Article
+start     end        offsets   node_type+property                   authorship
+     8     20        (8, 20)   Emphasis
+    34     57       (26, 37)   Strong
+    71     88       (37, 31)   Underline
+     0     89       (-71, 1)   Paragraph
+    99    112       (99, 23)   Subscript
+   126    141       (27, 29)   Superscript
+   155    169       (29, 28)   Strikeout
+    91    170       (-64, 1)   Paragraph
+   216    237      (125, 67)   Emphasis
+   243    264       (27, 27)   Strong
+   172    265       (-71, 1)   Paragraph
+     0    265      (-172, 0)   Article

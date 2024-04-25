@@ -1,6 +1,6 @@
- start    end    offsets   node_id                  node_type+property
-    13     22      13/22   pgh_11111113g            Paragraph
-     0     27      -13/5   cla_11111113e            Claim
-    60     86      60/59   pgh_11111113j            Paragraph
-    29     91      -31/5   cla_11111113h            Claim
-     0     91      -29/0   art_11111113k            Article
+start     end        offsets   node_type+property                   authorship
+    13     22       (13, 22)   Paragraph
+     0     27       (-13, 5)   Claim
+    60     86       (60, 59)   Paragraph
+    29     91       (-31, 5)   Claim
+     0     91       (-29, 0)   Article

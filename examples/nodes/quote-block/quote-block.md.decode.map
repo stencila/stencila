@@ -1,13 +1,13 @@
- start    end    offsets   node_id                  node_type+property
-     2     23       2/23   pgh_11111188             Paragraph
-     0     23       -2/0   qtb_11111189             QuoteBlock
-    27     46      27/23   pgh_1111118B             Paragraph
-    52     70      25/24   pgh_1111118D             Paragraph
-    25     70      -27/0   qtb_1111118E             QuoteBlock
-    74     93      49/23   pgh_1111118G             Paragraph
-   101    123      27/30   pgh_1111118J             Paragraph
-   135    159      34/36   pgh_1111118L             Paragraph
-   133    159       -2/0   qtb_1111118M             QuoteBlock
-    99    159      -34/0   qtb_1111118N             QuoteBlock
-    72    159      -27/0   qtb_1111118P             QuoteBlock
-     0    159      -72/0   art_1111118Q             Article
+start     end        offsets   node_type+property                   authorship
+     2     23        (2, 23)   Paragraph
+     0     23        (-2, 0)   QuoteBlock
+    27     46       (27, 23)   Paragraph
+    52     70       (25, 24)   Paragraph
+    25     70       (-27, 0)   QuoteBlock
+    74     93       (49, 23)   Paragraph
+   101    123       (27, 30)   Paragraph
+   135    159       (34, 36)   Paragraph
+   133    159        (-2, 0)   QuoteBlock
+    99    159       (-34, 0)   QuoteBlock
+    72    159       (-27, 0)   QuoteBlock
+     0    159       (-72, 0)   Article
