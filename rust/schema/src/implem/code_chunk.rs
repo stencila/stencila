@@ -24,7 +24,7 @@ impl MarkdownCodec for CodeChunk {
 
             if let Some(label) = &self.label {
                 context.push_str(" ");
-                context.push_prop_str("label", label);
+                context.push_prop_str(NodeProperty::Label, label);
             }
 
             context.push_str("\n\n");
@@ -37,7 +37,9 @@ impl MarkdownCodec for CodeChunk {
         if let Some(caption) = &self.caption {
             context
                 .increase_depth()
-                .push_prop_fn("caption", |context| caption.to_markdown(context))
+                .push_prop_fn(NodeProperty::Caption, |context| {
+                    caption.to_markdown(context)
+                })
                 .decrease_depth();
         }
 
@@ -45,7 +47,7 @@ impl MarkdownCodec for CodeChunk {
 
         if let Some(lang) = &self.programming_language {
             context
-                .push_prop_str("programming_language", lang)
+                .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
                 .push_str(" ");
         }
 
@@ -54,10 +56,12 @@ impl MarkdownCodec for CodeChunk {
         if let Some(auto) = &self.auto_exec {
             context
                 .push_str(" auto=")
-                .push_prop_str("auto_exec", &auto.to_string().to_lowercase());
+                .push_prop_str(NodeProperty::AutoExec, &auto.to_string().to_lowercase());
         }
 
-        context.newline().push_prop_str("code", &self.code);
+        context
+            .newline()
+            .push_prop_str(NodeProperty::Code, &self.code);
 
         if !self.code.ends_with('\n') {
             context.newline();

@@ -10,13 +10,13 @@ impl MarkdownCodec for CodeInline {
 
         context
             .push_str("`")
-            .push_prop_str("code", &self.code)
+            .push_prop_str(NodeProperty::Code, &self.code)
             .push_str("`");
 
         if let Some(lang) = &self.programming_language {
             context
                 .push_str("{")
-                .push_prop_str("programming_language", &lang.replace('}', r"\}"))
+                .push_prop_str(NodeProperty::ProgrammingLanguage, &lang.replace('}', r"\}"))
                 .push_str("}");
         }
 

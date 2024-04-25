@@ -88,15 +88,15 @@ impl MarkdownCodec for MathBlock {
         if lang == "tex" || lang == "latex" || lang == "math" {
             context
                 .push_str("$$\n")
-                .push_prop_str("code", &self.code)
+                .push_prop_str(NodeProperty::Code, &self.code)
                 .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
                 .push_str("$$");
         } else {
             context
                 .push_str("```")
-                .push_prop_str("math_language", &lang)
+                .push_prop_str(NodeProperty::MathLanguage, &lang)
                 .newline()
-                .push_prop_str("code", &self.code)
+                .push_prop_str(NodeProperty::Code, &self.code)
                 .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
                 .push_str("```");
         }

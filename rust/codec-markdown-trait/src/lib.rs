@@ -1,9 +1,8 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
-use codec_info::{Losses, Mapping, NodeId, NodeType};
+use codec_info::{Losses, Mapping, NodeId, NodeProperty, NodeType};
 
 pub use codec_markdown_derive::MarkdownCodec;
-use common::smol_str::SmolStr;
 
 pub trait MarkdownCodec {
     /// Encode a Stencila Schema node to Markdown
@@ -167,20 +166,15 @@ impl MarkdownEncodeContext {
     /// Push a property represented as a string onto the Markdown content
     ///
     /// Creates a new mapping entry for the property.
-    pub fn push_prop_str(&mut self, prop: &str, value: &str) -> &mut Self {
+    pub fn push_prop_str(&mut self, prop: NodeProperty, value: &str) -> &mut Self {
         let start = self.position();
 
         self.push_str(value);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
             let end = self.position();
-            self.mapping.add(
-                start,
-                end,
-                *node_type,
-                node_id.clone(),
-                Some(SmolStr::from(prop)),
-            );
+            self.mapping
+                .add(start, end, *node_type, node_id.clone(), Some(prop));
         }
         self
     }
@@ -188,7 +182,7 @@ impl MarkdownEncodeContext {
     /// Push a property by calling a function to push content onto the Markdown
     ///
     /// Creates a new mapping entry for the property.
-    pub fn push_prop_fn<F>(&mut self, prop: &str, func: F) -> &mut Self
+    pub fn push_prop_fn<F>(&mut self, prop: NodeProperty, func: F) -> &mut Self
     where
         F: Fn(&mut Self),
     {
@@ -198,13 +192,8 @@ impl MarkdownEncodeContext {
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
             let end = self.position();
-            self.mapping.add(
-                start,
-                end,
-                *node_type,
-                node_id.clone(),
-                Some(SmolStr::from(prop)),
-            );
+            self.mapping
+                .add(start, end, *node_type, node_id.clone(), Some(prop));
         }
         self
     }
@@ -245,7 +234,7 @@ impl MarkdownEncodeContext {
                     offset + entry.range.end,
                     entry.node_type,
                     entry.node_id.clone(),
-                    entry.property.clone(),
+                    entry.property,
                 );
             }
             self.content.push_str(&footnote.content);

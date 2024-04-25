@@ -2,7 +2,7 @@
      0     12       0/12   txt_1111115c             Text
      0     12        0/0   pgh_1111115d             Paragraph.content
      0     13        0/1   pgh_1111115d             Paragraph
-    17     23      17/10   cdb_1111115e             CodeBlock.programming_language
+    17     23      17/10   cdb_1111115e             CodeBlock.programmingLanguage
     24     48       7/25   cdb_1111115e             CodeBlock.code
     14     53      -10/5   cdb_1111115e             CodeBlock
     54     83      40/30   txt_1111115f             Text

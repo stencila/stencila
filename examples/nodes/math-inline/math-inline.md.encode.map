@@ -7,14 +7,14 @@
      0     28        0/1   pgh_1111115j             Paragraph
     29     51      29/23   txt_1111115k             Text
     52     60       23/9   mti_1111115m             MathInline.code
-    62     71      10/11   mti_1111115m             MathInline.math_language
+    62     71      10/11   mti_1111115m             MathInline.mathLanguage
     51     72      -11/1   mti_1111115m             MathInline
     72     73       21/1   txt_1111115n             Text
     29     73      -43/0   pgh_1111115o             Paragraph.content
     29     74        0/1   pgh_1111115o             Paragraph
     75     93      46/19   txt_1111115p             Text
     94    173      19/80   mti_1111115q             MathInline.code
-   175    181       81/8   mti_1111115q             MathInline.math_language
+   175    181       81/8   mti_1111115q             MathInline.mathLanguage
     93    182      -82/1   mti_1111115q             MathInline
    182    183       89/1   txt_1111115r             Text
     75    183     -107/0   pgh_1111115s             Paragraph.content

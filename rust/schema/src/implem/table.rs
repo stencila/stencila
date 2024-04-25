@@ -46,7 +46,7 @@ impl MarkdownCodec for Table {
 
             if let Some(label) = &self.label {
                 context.push_str(" ");
-                context.push_prop_str("label", label);
+                context.push_prop_str(NodeProperty::Label, label);
             }
 
             context.push_str("\n\n");
@@ -59,7 +59,9 @@ impl MarkdownCodec for Table {
         if let Some(caption) = &self.caption {
             context
                 .increase_depth()
-                .push_prop_fn("caption", |context| caption.to_markdown(context))
+                .push_prop_fn(NodeProperty::Caption, |context| {
+                    caption.to_markdown(context)
+                })
                 .decrease_depth();
         }
 
@@ -146,7 +148,7 @@ impl MarkdownCodec for Table {
             context
                 .newline()
                 .increase_depth()
-                .push_prop_fn("notes", |context| notes.to_markdown(context))
+                .push_prop_fn(NodeProperty::Notes, |context| notes.to_markdown(context))
                 .decrease_depth();
         }
 

@@ -116,7 +116,7 @@
    248    338        0/0   pgh_111111eM             Paragraph.content
    248    339        0/1   pgh_111111eM             Paragraph
    342    364      94/25   txt_111111eN             Text
-   368    377      26/13   img_111111eP             ImageObject.content_url
+   368    377      26/13   img_111111eP             ImageObject.contentUrl
    364    378       -4/1   img_111111eP             ImageObject
    378    384       14/6   txt_111111eQ             Text
    342    384      -36/0   pgh_111111eR             Paragraph.content

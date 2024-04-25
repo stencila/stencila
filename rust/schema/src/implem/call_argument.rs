@@ -9,7 +9,7 @@ impl MarkdownCodec for CallArgument {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, programming_language))
             .merge_losses(lost_exec_options!(self))
-            .push_prop_str("name", &self.name)
+            .push_prop_str(NodeProperty::Name, &self.name)
             .push_str("=");
 
         if self.code.is_empty() && self.value.is_some() {
@@ -19,11 +19,11 @@ impl MarkdownCodec for CallArgument {
                 .expect("should be some")
                 .to_json5()
                 .unwrap_or_default();
-            context.push_prop_str("value", &json5);
+            context.push_prop_str(NodeProperty::Value, &json5);
         } else {
             context
                 .push_str("`")
-                .push_prop_str("code", &self.code)
+                .push_prop_str(NodeProperty::Code, &self.code)
                 .push_str("`");
         };
 

@@ -19,19 +19,23 @@ impl MarkdownCodec for InstructionInline {
             .first()
             .and_then(|message| message.parts.first())
         {
-            context.push_prop_fn("message", |context| part.to_markdown(context));
+            context.push_prop_fn(NodeProperty::Message, |context| part.to_markdown(context));
         }
 
         if let Some(content) = &self.content {
             context
                 .push_str(">>")
-                .push_prop_fn("content", |context| content.to_markdown(context));
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
         };
 
         context.push_str("]]");
 
         if let Some(suggestion) = &self.options.suggestion {
-            context.push_prop_fn("suggestion", |context| suggestion.to_markdown(context));
+            context.push_prop_fn(NodeProperty::Suggestion, |context| {
+                suggestion.to_markdown(context)
+            });
         }
 
         context.exit_node();

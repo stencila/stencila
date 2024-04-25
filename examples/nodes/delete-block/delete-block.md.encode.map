@@ -4,13 +4,13 @@
     12     39        0/1   pgh_11111114S            Paragraph
     12     40        0/1   deb_11111114T            DeleteBlock.content
      0     44      -12/4   deb_11111114T            DeleteBlock
-    56     64      56/20   deb_11111114W            DeleteBlock.suggestion_status
+    56     64      56/20   deb_11111114W            DeleteBlock.suggestionStatus
     66     92      10/28   txt_11111114U            Text
     66     92        0/0   pgh_11111114V            Paragraph.content
     66     93        0/1   pgh_11111114V            Paragraph
     66     94        0/1   deb_11111114W            DeleteBlock.content
     45     98      -21/4   deb_11111114W            DeleteBlock
-   110    118      65/20   deb_11111114Z            DeleteBlock.suggestion_status
+   110    118      65/20   deb_11111114Z            DeleteBlock.suggestionStatus
    120    146      10/28   txt_11111114X            Text
    120    146        0/0   pgh_11111114Y            Paragraph.content
    120    147        0/1   pgh_11111114Y            Paragraph

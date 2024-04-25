@@ -13,17 +13,21 @@ impl MarkdownCodec for Figure {
 
         if let Some(label) = &self.label {
             context.push_str(" ");
-            context.push_prop_str("label", label);
+            context.push_prop_str(NodeProperty::Label, label);
         }
 
         context.push_str("\n\n").increase_depth();
 
         if let Some(caption) = &self.caption {
-            context.push_prop_fn("caption", |context| caption.to_markdown(context));
+            context.push_prop_fn(NodeProperty::Caption, |context| {
+                caption.to_markdown(context)
+            });
         }
 
         context
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .decrease_depth()
             .push_semis()
             .newline()

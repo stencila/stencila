@@ -1,11 +1,8 @@
 use std::{fmt::Display, ops::Range};
 
-use common::{
-    itertools::Itertools, serde::Serialize, serde_with::skip_serializing_none, smol_str::SmolStr,
-};
-
+use common::{itertools::Itertools, serde::Serialize, serde_with::skip_serializing_none};
 pub use node_id::NodeId;
-pub use node_type::NodeType;
+pub use node_type::{NodeProperty, NodeType};
 
 /// A mapping between UTF-8 character positions and nodes and their properties
 #[derive(Default, Clone, PartialEq, Serialize)]
@@ -43,8 +40,8 @@ pub struct MappingEntry {
     /// The id of the node
     pub node_id: NodeId,
 
-    /// The name of the node property, if applicable
-    pub property: Option<SmolStr>,
+    /// The node property, if applicable
+    pub property: Option<NodeProperty>,
 }
 
 impl Mapping {
@@ -63,7 +60,7 @@ impl Mapping {
         end: usize,
         node_type: NodeType,
         node_id: NodeId,
-        property: Option<SmolStr>,
+        property: Option<NodeProperty>,
     ) {
         let last = match self.entries.last() {
             Some(entry) => &entry.range,

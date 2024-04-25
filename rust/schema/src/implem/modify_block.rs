@@ -13,9 +13,10 @@ impl MarkdownCodec for ModifyBlock {
         if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
             &self.suggestion_status
         {
-            context
-                .push_str(" ")
-                .push_prop_str("suggestion_status", &status.to_string().to_lowercase());
+            context.push_str(" ").push_prop_str(
+                NodeProperty::SuggestionStatus,
+                &status.to_string().to_lowercase(),
+            );
         }
 
         if self.content.is_empty() {
@@ -23,7 +24,9 @@ impl MarkdownCodec for ModifyBlock {
         } else {
             context
                 .push_str("\n\n")
-                .push_prop_fn("content", |context| self.content.to_markdown(context));
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                });
         }
 
         context.push_semis().push_str(" with\n\n");
@@ -31,7 +34,9 @@ impl MarkdownCodec for ModifyBlock {
         let modified =
             ModifyOperation::apply_many(&self.operations, &self.content).unwrap_or_default();
         context
-            .push_prop_fn("operations", |context| modified.to_markdown(context))
+            .push_prop_fn(NodeProperty::Operations, |context| {
+                modified.to_markdown(context)
+            })
             .push_semis()
             .newline()
             .exit_node()

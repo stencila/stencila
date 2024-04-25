@@ -27,10 +27,10 @@ impl MarkdownCodec for Section {
             .merge_losses(lost_options!(self, id));
 
         if let Some(section) = &self.section_type {
-            context
-                .push_semis()
-                .push_str(" ")
-                .push_prop_str("section_type", &section.to_string().to_lowercase());
+            context.push_semis().push_str(" ").push_prop_str(
+                NodeProperty::SectionType,
+                &section.to_string().to_lowercase(),
+            );
         } else {
             context.push_semis().push_str(" section");
         }
@@ -38,7 +38,9 @@ impl MarkdownCodec for Section {
         context
             .push_str("\n\n")
             .increase_depth()
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .decrease_depth()
             .push_semis()
             .newline()

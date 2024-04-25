@@ -1,28 +1,28 @@
  start    end    offsets   node_id                  node_type+property
      0      9        0/9   txt_11111177             Text
-    13     40      13/31   img_11111178             ImageObject.content_url
+    13     40      13/31   img_11111178             ImageObject.contentUrl
      9     41       -4/1   img_11111178             ImageObject
     41     58      32/17   txt_11111179             Text
     60     65       19/7   txt_1111117A             Text
     60     65        0/0   img_1111117B             ImageObject.caption
-    67     94       7/29   img_1111117B             ImageObject.content_url
+    67     94       7/29   img_1111117B             ImageObject.contentUrl
     58     95       -9/1   img_1111117B             ImageObject
     95    122      37/27   txt_1111117C             Text
    124    129       29/7   txt_1111117E             Text
    124    129        0/0   img_1111117F             ImageObject.caption
-   131    158       7/29   img_1111117F             ImageObject.content_url
+   131    158       7/29   img_1111117F             ImageObject.contentUrl
    160    167       29/9   txt_1111117D             Text
    160    167        0/0   img_1111117F             ImageObject.title
    122    169      -38/2   img_1111117F             ImageObject
      0    169     -122/0   pgh_1111117G             Paragraph.content
      0    170        0/1   pgh_1111117G             Paragraph
    171    182     171/12   txt_1111117H             Text
-   186    213      15/31   aud_1111117J             AudioObject.content_url
+   186    213      15/31   aud_1111117J             AudioObject.contentUrl
    182    214       -4/1   aud_1111117J             AudioObject
    171    214      -11/0   pgh_1111117K             Paragraph.content
    171    215        0/1   pgh_1111117K             Paragraph
    216    224       45/9   txt_1111117L             Text
-   228    255      12/31   vid_1111117M             VideoObject.content_url
+   228    255      12/31   vid_1111117M             VideoObject.contentUrl
    224    256       -4/1   vid_1111117M             VideoObject
    216    256       -8/0   pgh_1111117N             Paragraph.content
    216    257        0/1   pgh_1111117N             Paragraph

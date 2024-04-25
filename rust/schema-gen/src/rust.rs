@@ -211,16 +211,24 @@ pub enum NodeType {{
             .collect::<HashSet<String>>()
             .iter()
             .sorted()
-            .map(|name| format!("    {}", name.to_pascal_case()))
+            .map(|name| {
+                let mut name = name.to_pascal_case();
+                if name.ends_with("ID") {
+                    name.pop();
+                    name.push('d');
+                }
+                format!("    {name}")
+            })
             .join(",\n");
         write(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-type/src/node_property.rs"),
             format!(
                 r#"{GENERATED_COMMENT}
 
-use common::strum::Display;
+use common::{{serde::Serialize, strum::Display}};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, Serialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 #[strum(serialize_all = "camelCase", crate = "common::strum")]
 pub enum NodeProperty {{
 {node_properties},

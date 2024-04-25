@@ -10,7 +10,7 @@ impl MarkdownCodec for IncludeBlock {
             .merge_losses(lost_exec_options!(self))
             .push_semis()
             .push_str(" include ")
-            .push_prop_str("source", &self.source);
+            .push_prop_str(NodeProperty::Source, &self.source);
 
         if self.auto_exec.is_some() || self.media_type.is_some() || self.select.is_some() {
             context.push_str(" {");
@@ -19,7 +19,7 @@ impl MarkdownCodec for IncludeBlock {
             if let Some(auto) = &self.auto_exec {
                 context
                     .push_str("auto=")
-                    .push_prop_str("auto_exec", &auto.to_string().to_lowercase());
+                    .push_prop_str(NodeProperty::AutoExec, &auto.to_string().to_lowercase());
                 prefix = " ";
             }
 
@@ -27,7 +27,7 @@ impl MarkdownCodec for IncludeBlock {
                 context
                     .push_str(prefix)
                     .push_str("format=")
-                    .push_prop_str("media_type", media_type);
+                    .push_prop_str(NodeProperty::MediaType, media_type);
                 prefix = " ";
             }
 
@@ -35,7 +35,7 @@ impl MarkdownCodec for IncludeBlock {
                 context
                     .push_str(prefix)
                     .push_str("select=")
-                    .push_prop_str("select", select);
+                    .push_prop_str(NodeProperty::Select, select);
             }
 
             context.push_str("}");

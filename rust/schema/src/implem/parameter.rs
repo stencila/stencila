@@ -37,7 +37,7 @@ impl MarkdownCodec for Parameter {
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self))
             .push_str("&[")
-            .push_prop_str("name", &self.name)
+            .push_prop_str(NodeProperty::Name, &self.name)
             .push_str("]");
 
         // Return early if no attributes to add
@@ -68,17 +68,19 @@ impl MarkdownCodec for Parameter {
                 TimeValidator(..) => "time",
                 TupleValidator(..) => "tuple",
             };
-            context.push_prop_str("validator", name);
+            context.push_prop_str(NodeProperty::Validator, name);
         }
 
         if let Some(val) = &self.options.default {
             context
                 .push_str(" def=")
-                .push_prop_str("default", &node_to_md(val));
+                .push_prop_str(NodeProperty::Default, &node_to_md(val));
         }
 
         if let Some(validator) = &self.options.validator {
-            context.push_prop_fn("validator", |context| validator.to_markdown(context));
+            context.push_prop_fn(NodeProperty::Validator, |context| {
+                validator.to_markdown(context)
+            });
         }
 
         context.push_str("}").exit_node();

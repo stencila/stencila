@@ -55,9 +55,14 @@ impl MarkdownCodec for Heading {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_options!(self.options, authors))
-            .push_prop_str("level", &"#".repeat(self.level.max(1).min(6) as usize))
+            .push_prop_str(
+                NodeProperty::Level,
+                &"#".repeat(self.level.max(1).min(6) as usize),
+            )
             .push_str(" ")
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .newline()
             .exit_node()
             .newline();

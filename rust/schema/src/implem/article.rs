@@ -56,7 +56,9 @@ impl MarkdownCodec for Article {
             }
         }
 
-        context.push_prop_fn("content", |context| self.content.to_markdown(context));
+        context.push_prop_fn(NodeProperty::Content, |context| {
+            self.content.to_markdown(context)
+        });
 
         context.append_footnotes();
 

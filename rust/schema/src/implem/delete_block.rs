@@ -13,14 +13,17 @@ impl MarkdownCodec for DeleteBlock {
         if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
             &self.suggestion_status
         {
-            context
-                .push_str(" ")
-                .push_prop_str("suggestion_status", &status.to_string().to_lowercase());
+            context.push_str(" ").push_prop_str(
+                NodeProperty::SuggestionStatus,
+                &status.to_string().to_lowercase(),
+            );
         }
 
         context
             .push_str("\n\n")
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .push_semis()
             .newline()
             .exit_node()

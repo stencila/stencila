@@ -13,9 +13,10 @@ impl MarkdownCodec for ReplaceBlock {
         if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
             &self.suggestion_status
         {
-            context
-                .push_str(" ")
-                .push_prop_str("suggestion_status", &status.to_string().to_lowercase());
+            context.push_str(" ").push_prop_str(
+                NodeProperty::SuggestionStatus,
+                &status.to_string().to_lowercase(),
+            );
         }
 
         if self.content.is_empty() {
@@ -23,13 +24,15 @@ impl MarkdownCodec for ReplaceBlock {
         } else {
             context
                 .push_str("\n\n")
-                .push_prop_fn("content", |context| self.content.to_markdown(context));
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                });
         }
 
         context
             .push_semis()
             .push_str(" with\n\n")
-            .push_prop_fn("replacement", |context| {
+            .push_prop_fn(NodeProperty::Replacement, |context| {
                 self.replacement.to_markdown(context)
             })
             .push_semis()

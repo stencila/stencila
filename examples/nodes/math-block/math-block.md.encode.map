@@ -7,13 +7,13 @@
     79     98      17/20   txt_11111114b            Text
     79     98        0/0   pgh_11111114c            Paragraph.content
     79     99        0/1   pgh_11111114c            Paragraph
-   103    112      24/13   mtb_11111114d            MathBlock.math_language
+   103    112      24/13   mtb_11111114d            MathBlock.mathLanguage
    113    121       10/9   mtb_11111114d            MathBlock.code
    100    126      -13/5   mtb_11111114d            MathBlock
    127    142      27/16   txt_11111114e            Text
    127    142        0/0   pgh_11111114f            Paragraph.content
    127    143        0/1   pgh_11111114f            Paragraph
-   147    153      20/10   mtb_11111114g            MathBlock.math_language
+   147    153      20/10   mtb_11111114g            MathBlock.mathLanguage
    154    249       7/96   mtb_11111114g            MathBlock.code
    144    254      -10/5   mtb_11111114g            MathBlock
      0    255     -144/1   art_11111114h            Article.content

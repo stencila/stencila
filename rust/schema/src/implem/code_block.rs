@@ -11,10 +11,12 @@ impl MarkdownCodec for CodeBlock {
         context.push_str("```");
 
         if let Some(lang) = &self.programming_language {
-            context.push_prop_str("programming_language", lang);
+            context.push_prop_str(NodeProperty::ProgrammingLanguage, lang);
         }
 
-        context.newline().push_prop_str("code", &self.code);
+        context
+            .newline()
+            .push_prop_str(NodeProperty::Code, &self.code);
 
         if !self.code.ends_with('\n') {
             context.newline();

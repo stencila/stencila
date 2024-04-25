@@ -70,13 +70,13 @@ impl MarkdownCodec for DateTimeValidator {
         if let Some(minimum) = &self.minimum {
             context
                 .push_str(" min=")
-                .push_prop_str("minimum", &string_to_md(&minimum.value));
+                .push_prop_str(NodeProperty::Minimum, &string_to_md(&minimum.value));
         }
 
         if let Some(maximum) = &self.maximum {
             context
                 .push_str(" max=")
-                .push_prop_str("maximum", &string_to_md(&maximum.value));
+                .push_prop_str(NodeProperty::Maximum, &string_to_md(&maximum.value));
         }
 
         context.exit_node();
@@ -92,13 +92,13 @@ impl MarkdownCodec for DateValidator {
         if let Some(minimum) = &self.minimum {
             context
                 .push_str(" min=")
-                .push_prop_str("minimum", &string_to_md(&minimum.value));
+                .push_prop_str(NodeProperty::Minimum, &string_to_md(&minimum.value));
         }
 
         if let Some(maximum) = &self.maximum {
             context
                 .push_str(" max=")
-                .push_prop_str("maximum", &string_to_md(&maximum.value));
+                .push_prop_str(NodeProperty::Maximum, &string_to_md(&maximum.value));
         }
 
         context.exit_node();
@@ -120,7 +120,10 @@ impl MarkdownCodec for EnumValidator {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .push_str(" vals=")
-            .push_prop_str("values", &self.values.to_json5().unwrap_or_default())
+            .push_prop_str(
+                NodeProperty::Values,
+                &self.values.to_json5().unwrap_or_default(),
+            )
             .exit_node();
     }
 }
@@ -134,31 +137,31 @@ impl MarkdownCodec for IntegerValidator {
         if let Some(min) = &self.minimum {
             context
                 .push_str(" min=")
-                .push_prop_str("minimum", &min.to_string());
+                .push_prop_str(NodeProperty::Minimum, &min.to_string());
         }
 
         if let Some(emin) = &self.exclusive_minimum {
             context
                 .push_str(" emin=")
-                .push_prop_str("exclusive_minimum", &emin.to_string());
+                .push_prop_str(NodeProperty::ExclusiveMinimum, &emin.to_string());
         }
 
         if let Some(max) = &self.maximum {
             context
                 .push_str(" max=")
-                .push_prop_str("maximum", &max.to_string());
+                .push_prop_str(NodeProperty::Maximum, &max.to_string());
         }
 
         if let Some(emax) = &self.exclusive_maximum {
             context
                 .push_str(" emax=")
-                .push_prop_str("exclusive_maximum", &emax.to_string());
+                .push_prop_str(NodeProperty::ExclusiveMaximum, &emax.to_string());
         }
 
         if let Some(mult) = &self.multiple_of {
             context
                 .push_str(" mult=")
-                .push_prop_str("multiple_of", &mult.to_string());
+                .push_prop_str(NodeProperty::MultipleOf, &mult.to_string());
         }
 
         context.exit_node();
@@ -174,31 +177,31 @@ impl MarkdownCodec for NumberValidator {
         if let Some(min) = &self.minimum {
             context
                 .push_str(" min=")
-                .push_prop_str("minimum", &min.to_string());
+                .push_prop_str(NodeProperty::Minimum, &min.to_string());
         }
 
         if let Some(emin) = &self.exclusive_minimum {
             context
                 .push_str(" emin=")
-                .push_prop_str("exclusive_minimum", &emin.to_string());
+                .push_prop_str(NodeProperty::ExclusiveMinimum, &emin.to_string());
         }
 
         if let Some(max) = &self.maximum {
             context
                 .push_str(" max=")
-                .push_prop_str("maximum", &max.to_string());
+                .push_prop_str(NodeProperty::Maximum, &max.to_string());
         }
 
         if let Some(emax) = &self.exclusive_maximum {
             context
                 .push_str(" emax=")
-                .push_prop_str("exclusive_maximum", &emax.to_string());
+                .push_prop_str(NodeProperty::ExclusiveMaximum, &emax.to_string());
         }
 
         if let Some(mult) = &self.multiple_of {
             context
                 .push_str(" mult=")
-                .push_prop_str("multiple_of", &mult.to_string());
+                .push_prop_str(NodeProperty::MultipleOf, &mult.to_string());
         }
 
         context.exit_node();
@@ -214,19 +217,19 @@ impl MarkdownCodec for StringValidator {
         if let Some(min) = &self.min_length {
             context
                 .push_str(" minlen=")
-                .push_prop_str("min_length", &min.to_string());
+                .push_prop_str(NodeProperty::MinLength, &min.to_string());
         }
 
         if let Some(max) = &self.max_length {
             context
                 .push_str(" maxlen=")
-                .push_prop_str("max_length", &max.to_string());
+                .push_prop_str(NodeProperty::MaxLength, &max.to_string());
         }
 
         if let Some(pattern) = &self.pattern {
             context
                 .push_str(" pattern=")
-                .push_prop_str("pattern", &string_to_md(pattern));
+                .push_prop_str(NodeProperty::Pattern, &string_to_md(pattern));
         }
 
         context.exit_node();
@@ -242,13 +245,13 @@ impl MarkdownCodec for TimeValidator {
         if let Some(minimum) = &self.minimum {
             context
                 .push_str(" min=")
-                .push_prop_str("minimum", &string_to_md(&minimum.value));
+                .push_prop_str(NodeProperty::Minimum, &string_to_md(&minimum.value));
         }
 
         if let Some(maximum) = &self.maximum {
             context
                 .push_str(" max=")
-                .push_prop_str("maximum", &string_to_md(&maximum.value));
+                .push_prop_str(NodeProperty::Maximum, &string_to_md(&maximum.value));
         }
 
         context.exit_node();

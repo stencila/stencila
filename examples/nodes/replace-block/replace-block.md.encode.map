@@ -16,7 +16,7 @@
    106    128        0/1   pgh_1111118M             Paragraph
     61    129      -45/1   rpb_1111118N             ReplaceBlock.replacement
      0    133      -61/4   rpb_1111118N             ReplaceBlock
-   146    154     146/21   rpb_1111118T             ReplaceBlock.suggestion_status
+   146    154     146/21   rpb_1111118T             ReplaceBlock.suggestionStatus
    156    169      10/15   txt_1111118P             Text
    156    169        0/0   pgh_1111118Q             Paragraph.content
    156    170        0/1   pgh_1111118Q             Paragraph
@@ -26,7 +26,7 @@
    181    204        0/1   pgh_1111118S             Paragraph
    181    205        0/1   rpb_1111118T             ReplaceBlock.replacement
    134    209      -47/4   rpb_1111118T             ReplaceBlock
-   222    230      88/21   rpb_1111118Y             ReplaceBlock.suggestion_status
+   222    230      88/21   rpb_1111118Y             ReplaceBlock.suggestionStatus
    232    245      10/15   txt_1111118U             Text
    232    245        0/0   pgh_1111118V             Paragraph.content
    232    246        0/1   pgh_1111118V             Paragraph

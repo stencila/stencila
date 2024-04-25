@@ -1,11 +1,11 @@
  start    end    offsets   node_id                  node_type+property
-     4      8        4/8   adm_1111119h             Admonition.admonition_type
+     4      8        4/8   adm_1111119h             Admonition.admonitionType
     12     18       8/10   txt_1111119f             Text
     12     18        0/0   pgh_1111119g             Paragraph.content
     10     22       -2/4   pgh_1111119g             Paragraph
     10     22        0/0   adm_1111119h             Admonition.content
      0     19     -10/-3   adm_1111119h             Admonition
-    24     31      24/12   adm_1111119m             Admonition.admonition_type
+    24     31      24/12   adm_1111119m             Admonition.admonitionType
     33     45       9/14   txt_1111119i             Text
     33     45        0/0   adm_1111119m             Admonition.title
     48     57      15/12   txt_1111119j             Text
@@ -13,15 +13,15 @@
     46     61       -2/4   pgh_1111119k             Paragraph
     46     61        0/0   adm_1111119m             Admonition.content
     20     58     -26/-3   adm_1111119m             Admonition
-    63     70      43/12   adm_1111119p             Admonition.admonition_type
-    71     72        8/2   adm_1111119p             Admonition.is_folded
+    63     70      43/12   adm_1111119p             Admonition.admonitionType
+    71     72        8/2   adm_1111119p             Admonition.isFolded
     75     97       4/25   txt_1111119n             Text
     75     97        0/0   pgh_1111119o             Paragraph.content
     73    101       -2/4   pgh_1111119o             Paragraph
     73    101        0/0   adm_1111119p             Admonition.content
     59     98     -14/-3   adm_1111119p             Admonition
-   103    109      44/11   adm_1111119t             Admonition.admonition_type
-   110    111        7/2   adm_1111119t             Admonition.is_folded
+   103    109      44/11   adm_1111119t             Admonition.admonitionType
+   110    111        7/2   adm_1111119t             Admonition.isFolded
    112    131       2/20   txt_1111119q             Text
    112    131        0/0   adm_1111119t             Admonition.title
    134    142      22/11   txt_1111119r             Text
@@ -29,17 +29,17 @@
    132    146       -2/4   pgh_1111119s             Paragraph
    132    146        0/0   adm_1111119t             Admonition.content
     99    143     -33/-3   adm_1111119t             Admonition
-   148    151       49/8   adm_111111A3             Admonition.admonition_type
+   148    151       49/8   adm_111111A3             Admonition.admonitionType
    153    171       5/20   txt_1111119u             Text
    153    171        0/0   adm_111111A3             Admonition.title
-   178    182      25/11   adm_111111A2             Admonition.admonition_type
-   192    199      14/17   adm_1111119x             Admonition.admonition_type
+   178    182      25/11   adm_111111A2             Admonition.admonitionType
+   192    199      14/17   adm_1111119x             Admonition.admonitionType
    207    247      15/48   txt_1111119v             Text
    207    247        0/0   pgh_1111119w             Paragraph.content
    201    255       -6/8   pgh_1111119w             Paragraph
    201    255        0/0   adm_1111119x             Admonition.content
    184    253     -17/-2   adm_1111119x             Admonition
-   261    266      77/13   adm_111111A1             Admonition.admonition_type
+   261    266      77/13   adm_111111A1             Admonition.admonitionType
    274    315      13/49   txt_1111119y             Text
    274    315        0/0   pgh_1111119z             Paragraph.content
    268    323       -6/8   pgh_1111119z             Paragraph

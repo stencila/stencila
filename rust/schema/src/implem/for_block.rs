@@ -9,15 +9,15 @@ impl MarkdownCodec for ForBlock {
             .merge_losses(lost_exec_options!(self))
             .push_semis()
             .push_str(" for ")
-            .push_prop_str("variable", &self.variable)
+            .push_prop_str(NodeProperty::Variable, &self.variable)
             .push_str(" in ")
-            .push_prop_str("code", &self.code);
+            .push_prop_str(NodeProperty::Code, &self.code);
 
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {
                 context
                     .push_str(" {")
-                    .push_prop_str("programming_language", lang)
+                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
                     .push_str("}");
             }
         }
@@ -25,7 +25,9 @@ impl MarkdownCodec for ForBlock {
         context
             .push_str("\n\n")
             .increase_depth()
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .decrease_depth();
 
         if let Some(otherwise) = &self.otherwise {
@@ -33,7 +35,9 @@ impl MarkdownCodec for ForBlock {
                 .push_semis()
                 .push_str(" else\n\n")
                 .increase_depth()
-                .push_prop_fn("otherwise", |context| otherwise.to_markdown(context))
+                .push_prop_fn(NodeProperty::Otherwise, |context| {
+                    otherwise.to_markdown(context)
+                })
                 .decrease_depth();
         }
 

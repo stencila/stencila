@@ -77,14 +77,14 @@ impl MarkdownCodec for MathInline {
         if lang == "tex" || lang == "latex" || lang == "math" {
             context
                 .push_str("$")
-                .push_prop_str("code", &self.code.replace('$', r"\$"))
+                .push_prop_str(NodeProperty::Code, &self.code.replace('$', r"\$"))
                 .push_str("$");
         } else {
             context
                 .push_str("`")
-                .push_prop_str("code", &self.code.replace('`', r"\`"))
+                .push_prop_str(NodeProperty::Code, &self.code.replace('`', r"\`"))
                 .push_str("`{")
-                .push_prop_str("math_language", &lang)
+                .push_prop_str(NodeProperty::MathLanguage, &lang)
                 .push_str("}");
         }
 

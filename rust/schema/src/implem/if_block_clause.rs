@@ -7,20 +7,22 @@ impl MarkdownCodec for IfBlockClause {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self))
-            .push_prop_str("code", &self.code);
+            .push_prop_str(NodeProperty::Code, &self.code);
 
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {
                 context
                     .push_str(" {")
-                    .push_prop_str("programming_language", lang)
+                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
                     .push_str("}");
             }
         }
 
         context
             .push_str("\n\n")
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .exit_node();
     }
 }

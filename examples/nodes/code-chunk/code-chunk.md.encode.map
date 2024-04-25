@@ -7,14 +7,14 @@
     44     58      25/15   txt_1111119B             Text
     44     58        0/0   pgh_1111119C             Paragraph.content
     44     59        0/1   pgh_1111119C             Paragraph
-    63     69      19/10   cdc_1111119D             CodeChunk.programming_language
+    63     69      19/10   cdc_1111119D             CodeChunk.programmingLanguage
     75     99      12/30   cdc_1111119D             CodeChunk.code
     60    104      -15/5   cdc_1111119D             CodeChunk
    105    132      45/28   txt_1111119E             Text
    105    132        0/0   pgh_1111119F             Paragraph.content
    105    133        0/1   pgh_1111119F             Paragraph
-   137    139       32/6   cdc_1111119G             CodeChunk.programming_language
-   150    156      13/17   cdc_1111119G             CodeChunk.auto_exec
+   137    139       32/6   cdc_1111119G             CodeChunk.programmingLanguage
+   150    156      13/17   cdc_1111119G             CodeChunk.autoExec
    157    170       7/14   cdc_1111119G             CodeChunk.code
    134    175      -23/5   cdc_1111119G             CodeChunk
    176    187      42/12   txt_1111119H             Text
@@ -31,7 +31,7 @@
    273    285        0/0   pgh_1111119P             Paragraph.content
    273    286        0/1   pgh_1111119P             Paragraph
    273    287        0/1   cdc_1111119Q             CodeChunk.caption
-   290    291       17/4   cdc_1111119Q             CodeChunk.programming_language
+   290    291       17/4   cdc_1111119Q             CodeChunk.programmingLanguage
    297    306       7/15   cdc_1111119Q             CodeChunk.code
    259    316     -38/10   cdc_1111119Q             CodeChunk
    317    341      58/25   txt_1111119R             Text
@@ -42,7 +42,7 @@
    356    366        0/0   pgh_1111119U             Paragraph.content
    356    367        0/1   pgh_1111119U             Paragraph
    356    368        0/1   cdc_1111119V             CodeChunk.caption
-   371    372       15/4   cdc_1111119V             CodeChunk.programming_language
+   371    372       15/4   cdc_1111119V             CodeChunk.programmingLanguage
    378    390       7/18   cdc_1111119V             CodeChunk.code
    343    400     -35/10   cdc_1111119V             CodeChunk
      0    401     -343/1   art_1111119W             Article.content

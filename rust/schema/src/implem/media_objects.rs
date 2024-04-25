@@ -62,17 +62,19 @@ macro_rules! to_markdown {
             .push_str("![");
 
         if let Some(caption) = &$object.caption {
-            $context.push_prop_fn("caption", |context| caption.to_markdown(context));
+            $context.push_prop_fn(NodeProperty::Caption, |context| {
+                caption.to_markdown(context)
+            });
         }
 
         $context
             .push_str("](")
-            .push_prop_str("content_url", &$object.content_url);
+            .push_prop_str(NodeProperty::ContentUrl, &$object.content_url);
 
         if let Some(title) = &$object.title {
             $context
                 .push_str(" \"")
-                .push_prop_fn("title", |context| title.to_markdown(context))
+                .push_prop_fn(NodeProperty::Title, |context| title.to_markdown(context))
                 .push_str("\"");
         }
 

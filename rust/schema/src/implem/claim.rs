@@ -9,16 +9,23 @@ impl MarkdownCodec for Claim {
             .merge_losses(lost_work_options!(self))
             .push_semis()
             .push_str(" ")
-            .push_prop_str("claim_type", &self.claim_type.to_string().to_lowercase());
+            .push_prop_str(
+                NodeProperty::ClaimType,
+                &self.claim_type.to_string().to_lowercase(),
+            );
 
         if let Some(label) = &self.label {
-            context.push_str(" ").push_prop_str("label", label);
+            context
+                .push_str(" ")
+                .push_prop_str(NodeProperty::Label, label);
         }
 
         context
             .push_str("\n\n")
             .increase_depth()
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .decrease_depth()
             .push_semis()
             .newline()

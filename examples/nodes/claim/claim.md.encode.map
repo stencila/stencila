@@ -1,11 +1,11 @@
  start    end    offsets   node_id                  node_type+property
-     4     11       4/11   cla_11111113S            Claim.claim_type
+     4     11       4/11   cla_11111113S            Claim.claimType
     13     22       9/11   txt_11111113Q            Text
     13     22        0/0   pgh_11111113R            Paragraph.content
     13     23        0/1   pgh_11111113R            Paragraph
     13     24        0/1   cla_11111113S            Claim.content
      0     28      -13/4   cla_11111113S            Claim
-    33     44      33/16   cla_11111113V            Claim.claim_type
+    33     44      33/16   cla_11111113V            Claim.claimType
     45     58      12/14   cla_11111113V            Claim.label
     60     86      15/28   txt_11111113T            Text
     60     86        0/0   pgh_11111113U            Paragraph.content

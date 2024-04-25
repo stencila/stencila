@@ -15,9 +15,11 @@ impl MarkdownCodec for StyledInline {
                 class_list
             ))
             .push_str("[")
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .push_str("]{")
-            .push_prop_str("code", &self.code)
+            .push_prop_str(NodeProperty::Code, &self.code)
             .push_str("}");
 
         context.exit_node();

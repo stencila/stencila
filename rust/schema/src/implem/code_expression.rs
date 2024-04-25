@@ -11,13 +11,13 @@ impl MarkdownCodec for CodeExpression {
 
         context
             .push_str("`")
-            .push_prop_str("code", &self.code)
+            .push_prop_str(NodeProperty::Code, &self.code)
             .push_str("`{");
 
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {
                 context
-                    .push_prop_str("programming_language", lang)
+                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
                     .push_str(" ");
             }
         }
@@ -27,7 +27,7 @@ impl MarkdownCodec for CodeExpression {
         if let Some(auto) = &self.auto_exec {
             context
                 .push_str(" auto=")
-                .push_prop_str("auto_exec", &auto.to_string().to_lowercase());
+                .push_prop_str(NodeProperty::AutoExec, &auto.to_string().to_lowercase());
         }
 
         context.push_str("}").exit_node();

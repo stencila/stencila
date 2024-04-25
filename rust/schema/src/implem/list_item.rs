@@ -16,7 +16,9 @@ impl MarkdownCodec for ListItem {
         }
 
         context
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .exit_node();
     }
 }

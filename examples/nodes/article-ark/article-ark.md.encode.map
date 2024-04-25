@@ -5,7 +5,7 @@
    135    160     135/26   txt_111111hP             Text
    162    167       27/7   txt_111111hQ             Text
    162    167        0/0   aud_111111hR             AudioObject.caption
-   169    196       7/29   aud_111111hR             AudioObject.content_url
+   169    196       7/29   aud_111111hR             AudioObject.contentUrl
    160    197       -9/1   aud_111111hR             AudioObject
    197    199       37/2   txt_111111hS             Text
    200    215       3/16   cde_111111hT             CodeExpression.code
@@ -23,7 +23,7 @@
    268    270       10/2   txt_111111hb             Text
    272    277        4/7   txt_111111hc             Text
    272    277        0/0   img_111111hd             ImageObject.caption
-   279    306       7/29   img_111111hd             ImageObject.content_url
+   279    306       7/29   img_111111hd             ImageObject.contentUrl
    270    307       -9/1   img_111111hd             ImageObject
    316    324      46/17   txt_111111he             Text
    316    324        0/0   ini_111111hf             InsertInline.content
@@ -77,14 +77,14 @@
    549    551       16/2   txt_111111iH             Text
    553    558        4/7   txt_111111iJ             Text
    553    558        0/0   vid_111111iK             VideoObject.caption
-   560    587       7/29   vid_111111iK             VideoObject.content_url
+   560    587       7/29   vid_111111iK             VideoObject.contentUrl
    551    588       -9/1   vid_111111iK             VideoObject
    588    589       37/1   txt_111111iL             Text
    135    589     -453/0   pgh_111111iM             Paragraph.content
    135    590        0/1   pgh_111111iM             Paragraph
    600    614     465/24   clb_111111iN             CallBlock.source
    591    618       -9/4   clb_111111iN             CallBlock
-   623    632      32/14   cla_111111iR             Claim.claim_type
+   623    632      32/14   cla_111111iR             Claim.claimType
    634    649      11/17   txt_111111iP             Text
    634    649        0/0   pgh_111111iQ             Paragraph.content
    634    650        0/1   pgh_111111iQ             Paragraph
@@ -116,7 +116,7 @@
    854    874        0/1   pgh_111111ig             Paragraph
    854    875        0/1   ibc_111111ih             IfBlockClause.content
    847    874      -7/-1   ibc_111111ih             IfBlockClause
-   847    875        0/1   ifb_111111ii             IfBlock.clause
+   847    875        0/1   ifb_111111ii             IfBlock.clauses
    840    879       -7/4   ifb_111111ii             IfBlock
    892    910      52/31   inc_111111ij             IncludeBlock.source
    880    911      -12/1   inc_111111ij             IncludeBlock

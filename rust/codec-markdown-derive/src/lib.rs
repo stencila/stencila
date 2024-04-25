@@ -3,6 +3,7 @@
 use darling::{self, FromDeriveInput, FromField};
 
 use common::{
+    inflector::Inflector,
     proc_macro2::{Span, TokenStream},
     quote::quote,
     syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
@@ -65,18 +66,20 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             .flat_map(|segment| segment.split("{{"))
         {
             if let Some(field_name) = segment.strip_suffix("}}") {
+                let property =
+                    Ident::new(&field_name.to_string().to_pascal_case(), Span::call_site());
                 let field_ident = Ident::new(field_name, Span::call_site());
                 let tokens = if let Some(escape) = &type_attr.escape {
                     quote! {
                         context
                             .set_escape(#escape)
-                            .push_prop_fn(#field_name, |context| self.#field_ident.to_markdown(context))
+                            .push_prop_fn(NodeProperty::#property, |context| self.#field_ident.to_markdown(context))
                             .clear_escape()
                         ;
                     }
                 } else {
                     quote! {
-                        context.push_prop_fn(#field_name, |context| self.#field_ident.to_markdown(context));
+                        context.push_prop_fn(NodeProperty::#property, |context| self.#field_ident.to_markdown(context));
                     }
                 };
                 fields.extend(tokens);
@@ -159,12 +162,17 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return
             };
 
-            if field_name == "r#type" || field_name == "uid" {
+            if field_name == "r#type" || field_name == "uid" || field_name == "options" {
                 return;
             }
 
+            let property = if field_name == "r#abstract" {
+                Ident::new("Abstract", Span::call_site())
+            } else {
+                Ident::new(&field_name.to_string().to_pascal_case(), Span::call_site())
+            };
             let field_tokens = quote! {
-                context.push_prop_fn(stringify!(#field_name), |context| self.#field_name.to_markdown(context));
+                context.push_prop_fn(NodeProperty::#property, |context| self.#field_name.to_markdown(context));
             };
             fields.extend(field_tokens)
         });

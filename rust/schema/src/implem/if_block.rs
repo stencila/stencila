@@ -19,7 +19,7 @@ impl MarkdownCodec for IfBlock {
                     " elif "
                 })
                 .increase_depth()
-                .push_prop_fn("clause", |context| clause.to_markdown(context))
+                .push_prop_fn(NodeProperty::Clauses, |context| clause.to_markdown(context))
                 .decrease_depth();
         }
 

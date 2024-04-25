@@ -21,7 +21,7 @@ impl MarkdownCodec for InstructionBlock {
             .and_then(|message| message.parts.first())
         {
             context
-                .push_prop_fn("messages", |context| part.to_markdown(context))
+                .push_prop_fn(NodeProperty::Messages, |context| part.to_markdown(context))
                 .newline();
         }
 
@@ -29,7 +29,9 @@ impl MarkdownCodec for InstructionBlock {
             context
                 .push_semis()
                 .push_str(" with\n\n")
-                .push_prop_fn("content", |context| content.to_markdown(context))
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                })
                 .push_semis()
                 .newline();
         };
@@ -37,7 +39,9 @@ impl MarkdownCodec for InstructionBlock {
         context.newline();
 
         if let Some(suggestion) = &self.options.suggestion {
-            context.push_prop_fn("suggestion", |context| suggestion.to_markdown(context));
+            context.push_prop_fn(NodeProperty::Suggestion, |context| {
+                suggestion.to_markdown(context)
+            });
         }
 
         context.exit_node();

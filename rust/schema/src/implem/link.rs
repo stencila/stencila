@@ -8,14 +8,16 @@ impl MarkdownCodec for Link {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, rel))
             .push_str("[")
-            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
             .push_str("](")
-            .push_prop_str("target", &self.target);
+            .push_prop_str(NodeProperty::Target, &self.target);
 
         if let Some(title) = &self.title {
             context
                 .push_str(" \"")
-                .push_prop_fn("title", |context| title.to_markdown(context))
+                .push_prop_fn(NodeProperty::Title, |context| title.to_markdown(context))
                 .push_str("\"");
         }
 

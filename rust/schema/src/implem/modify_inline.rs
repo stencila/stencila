@@ -10,13 +10,17 @@ impl MarkdownCodec for ModifyInline {
 
         context
             .push_str("[[modify ")
-            .push_prop_fn("content", |context| self.content.to_markdown(context));
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            });
 
         let modified =
             ModifyOperation::apply_many(&self.operations, &self.content).unwrap_or_default();
         context
             .push_str(">>")
-            .push_prop_fn("operations", |context| modified.to_markdown(context));
+            .push_prop_fn(NodeProperty::Operations, |context| {
+                modified.to_markdown(context)
+            });
 
         context.push_str("]]").exit_node();
     }
