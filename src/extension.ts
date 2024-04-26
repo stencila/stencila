@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Define the default theme for this extension.
 	// Inside your extension's activation code
 	vscode.workspace.getConfiguration('workbench')
-		.update('colorTheme', 'Stencila Light', vscode.ConfigurationTarget.Global);
+		.update('colorTheme', 'StencilaLight', vscode.ConfigurationTarget.Global);
 
 	context.subscriptions.push(disposable);
 }
