@@ -15,11 +15,11 @@ use common::{
 };
 use format::Format;
 use node_strip::StripScope;
-use schema::{Node, NodeType};
+use schema::Node;
 use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
-pub use codec_info::{DecodeInfo, EncodeInfo, Losses, LossesResponse, Mapping, MappingEntry};
+pub use codec_info::*;
 pub use common;
 pub use format;
 pub use schema;

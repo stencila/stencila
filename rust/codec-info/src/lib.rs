@@ -1,11 +1,13 @@
 mod losses;
 mod mapping;
 mod positions;
+mod poshmap;
 mod shifter;
 
 pub use losses::*;
 pub use mapping::*;
 pub use positions::*;
+pub use poshmap::*;
 pub use shifter::*;
 
 /// Information which may be returned when decoding content to a node

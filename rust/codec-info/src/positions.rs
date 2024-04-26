@@ -16,6 +16,22 @@ impl Position8 {
     }
 }
 
+/// A UTF8-based range of positions
+#[derive(Debug, PartialEq)]
+pub struct Range8 {
+    /// The start of the range
+    pub start: Position8,
+
+    /// The end of the range (exclusive)
+    pub end: Position8,
+}
+
+impl Range8 {
+    pub fn new(start: Position8, end: Position8) -> Self {
+        Self { start, end }
+    }
+}
+
 /// A UTF16-based line/column position in a string
 ///
 /// This is the default representation used by the Language Server Protocol and it is
@@ -33,6 +49,22 @@ pub struct Position16 {
 impl Position16 {
     pub fn new(line: usize, column: usize) -> Self {
         Self { line, column }
+    }
+}
+
+/// A UTF16-based range of positions
+#[derive(Debug, PartialEq)]
+pub struct Range16 {
+    /// The start of the range
+    pub start: Position16,
+
+    /// The end of the range (exclusive)
+    pub end: Position16,
+}
+
+impl Range16 {
+    pub fn new(start: Position16, end: Position16) -> Self {
+        Self { start, end }
     }
 }
 
@@ -65,7 +97,8 @@ impl<'content> Positions<'content> {
             let lines: Vec<usize> = std::iter::once(0)
                 .chain(
                     self.content
-                        .char_indices()
+                        .chars()
+                        .enumerate()
                         .filter_map(|(index, char)| (char == '\n').then_some(index + 1)),
                 )
                 .collect();
@@ -119,10 +152,10 @@ impl<'content> Positions<'content> {
         let mut utf16_column = 0;
         for _ in 0..(utf8_column.saturating_sub(utf8_line_start)) {
             if let Some(char) = chars.next() {
-                if char == '\n' {
-                    return None;
-                }
                 utf16_column += if char as u32 <= 0xFFF { 1 } else { 2 };
+                if char == '\n' {
+                    return Some(utf16_column);
+                }
             } else {
                 return None;
             }
@@ -142,15 +175,15 @@ impl<'content> Positions<'content> {
         let mut utf16_count = 0;
         let mut utf8_column = 0;
         for char in chars {
-            if char == '\n' {
-                return None;
-            }
-
             let char_utf16_len = if char as u32 <= 0xFFFF { 1 } else { 2 };
 
             // Check if adding this character's UTF-16 length would exceed the specified position
             if utf16_count + char_utf16_len > utf16_column {
                 return Some(utf8_column);
+            }
+
+            if char == '\n' {
+                return None;
             }
 
             utf16_count += char_utf16_len;
@@ -188,9 +221,7 @@ impl<'content> Positions<'content> {
     /// Returns `None` if the line index is out of bounds or the column index is beyond
     /// the end of the line.
     pub fn index_at_position8(&self, Position8 { line, column }: Position8) -> Option<usize> {
-        let Some(line_start) = self.get_line(line) else {
-            return None;
-        };
+        let line_start = self.get_line(line)?;
 
         let index = line_start.saturating_add(column);
 
@@ -206,12 +237,15 @@ impl<'content> Positions<'content> {
     /// Returns `None` if the line index is out of bounds or the column index is beyond
     /// the end of the line.
     pub fn index_at_position16(&self, Position16 { line, column }: Position16) -> Option<usize> {
-        self.get_line(line)
-            .and_then(|line_start| {
-                self.utf16_to_utf8_column(line_start, column)
-                    .map(|utf8_column| (line_start, utf8_column))
-            })
-            .map(|(line_start, column)| line_start.saturating_add(column))
+        let line_start = self.get_line(line)?;
+
+        let index = line_start + self.utf16_to_utf8_column(line_start, column)?;
+
+        if let Some(next_line_start) = self.get_line(line + 1) {
+            (index < next_line_start).then_some(index)
+        } else {
+            (index < self.content.chars().count()).then_some(index)
+        }
     }
 }
 
@@ -343,7 +377,12 @@ mod tests {
                 .unwrap(),
             4
         );
-        assert_eq!(positions.index_at_position16(Position16::new(0, 5)), None);
+        assert_eq!(
+            positions
+                .index_at_position16(Position16::new(0, 5))
+                .unwrap(),
+            5
+        );
         assert_eq!(
             positions
                 .index_at_position16(Position16::new(1, 0))
@@ -377,5 +416,28 @@ mod tests {
             15
         );
         assert_eq!(positions.index_at_position16(Position16::new(3, 13)), None);
+    }
+
+    #[test]
+    fn line_after_emoji() {
+        let content = "😊\nab";
+        let positions = Positions::new(content);
+
+        assert_eq!(
+            positions.index_at_position8(Position8::new(0, 0)).unwrap(),
+            0
+        );
+        assert_eq!(
+            positions.index_at_position8(Position8::new(0, 1)).unwrap(),
+            1
+        );
+        assert_eq!(
+            positions.index_at_position8(Position8::new(1, 0)).unwrap(),
+            2
+        );
+        assert_eq!(
+            positions.index_at_position8(Position8::new(1, 1)).unwrap(),
+            3
+        );
     }
 }

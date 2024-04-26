@@ -89,6 +89,7 @@
         "ollama",
         "openai",
         "pandoc",
+        "poshmap",
         "proptest",
         "proptests",
         "prosemirror",

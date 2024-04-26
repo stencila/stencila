@@ -107,10 +107,12 @@ impl Codec for MarkdownCodec {
         let mut context = MarkdownEncodeContext::default();
         node.to_markdown(&mut context);
 
-        let markdown = context.content.trim().to_string();
+        if context.content.ends_with("\n\n") {
+            context.content.pop();
+        }
 
         Ok((
-            markdown,
+            context.content,
             EncodeInfo {
                 losses: context.losses,
                 mapping: context.mapping,
