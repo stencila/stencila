@@ -35,4 +35,4 @@ start     end        offsets   node_type+property                   authorship
    239    280       (-28, 0)   Table
    282    293       (43, 13)   Paragraph
    212    298       (-70, 5)   Table
-     0    298      (-212, 0)   Article
+     0    299      (-212, 1)   Article

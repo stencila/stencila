@@ -11,4 +11,4 @@ start     end        offsets   node_type+property                   authorship
    178    212         (0, 0)   Paragraph
    125    219       (-53, 7)   Figure
    112    224       (-13, 5)   Section
-     0    224      (-112, 0)   Article
+     0    225      (-112, 1)   Article

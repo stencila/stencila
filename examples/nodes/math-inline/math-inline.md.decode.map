@@ -5,4 +5,4 @@ start     end        offsets   node_type+property                   authorship
     29     73       (-22, 1)   Paragraph
     93    183      (64, 110)   MathInline
     75    184       (-18, 1)   Paragraph
-     0    184       (-75, 0)   Article
+     0    185       (-75, 1)   Article

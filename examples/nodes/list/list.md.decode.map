@@ -79,4 +79,4 @@ start     end        offsets   node_type+property                   authorship
    651    669       (15, 21)   Paragraph
    649    669        (-2, 0)   ListItem
    617    669       (-32, 0)   List
-     0    669      (-617, 0)   Article
+     0    670      (-617, 1)   Article

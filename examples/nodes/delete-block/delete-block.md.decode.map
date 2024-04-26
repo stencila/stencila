@@ -5,4 +5,4 @@ start     end        offsets   node_type+property                   authorship
     45     97       (-21, 5)   DeleteBlock
    120    146       (75, 49)   Paragraph
     99    151       (-21, 5)   DeleteBlock
-     0    151       (-99, 0)   Article
+     0    152       (-99, 1)   Article

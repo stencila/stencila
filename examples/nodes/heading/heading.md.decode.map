@@ -6,4 +6,4 @@ start     end        offsets   node_type+property                   authorship
     50     63       (14, 15)   Heading
     65     79       (15, 16)   Heading
     81     95       (16, 16)   Heading
-     0     95       (-81, 0)   Article
+     0     96       (-81, 1)   Article

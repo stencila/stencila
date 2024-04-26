@@ -57,4 +57,4 @@ start     end        offsets   node_type+property                   authorship
   1192   1215       (-16, 0)   Table
   1217   1220        (25, 5)   ThematicBreak
   1228   1238       (11, 18)   Paragraph
-     0   1238     (-1228, 0)   Article
+     0   1239     (-1228, 1)   Article

@@ -10,4 +10,4 @@ start     end        offsets   node_type+property                   authorship
    216    237      (125, 67)   Emphasis
    243    264       (27, 27)   Strong
    172    265       (-71, 1)   Paragraph
-     0    265      (-172, 0)   Article
+     0    266      (-172, 1)   Article

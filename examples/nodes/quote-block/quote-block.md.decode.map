@@ -10,4 +10,4 @@ start     end        offsets   node_type+property                   authorship
    133    159        (-2, 0)   QuoteBlock
     99    159       (-34, 0)   QuoteBlock
     72    159       (-27, 0)   QuoteBlock
-     0    159       (-72, 0)   Article
+     0    160       (-72, 1)   Article

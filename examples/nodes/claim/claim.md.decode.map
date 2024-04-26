@@ -3,4 +3,4 @@ start     end        offsets   node_type+property                   authorship
      0     27       (-13, 5)   Claim
     60     86       (60, 59)   Paragraph
     29     91       (-31, 5)   Claim
-     0     91       (-29, 0)   Article
+     0     92       (-29, 1)   Article

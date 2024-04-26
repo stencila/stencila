@@ -20,4 +20,4 @@ start     end        offsets   node_type+property                   authorship
    435    478       (-16, 5)   Section
    492    510       (57, 32)   Paragraph
    480    515       (-12, 5)   Section
-     0    515      (-480, 0)   Article
+     0    516      (-480, 1)   Article
