@@ -19,6 +19,7 @@
     "statusBarItem.hoverBackground": "#215DD7",
     "statusBar.debuggingBackground": "#2568EF",
     "statusBar.noFolderBackground": "#2568EF",
+    "tab.activeBorderTop": "#2568EF"
   },
   "tokenColors": [{
     "scope": [

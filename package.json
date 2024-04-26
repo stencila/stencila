@@ -1,5 +1,7 @@
 {
   "name": "stencila",
+  "id": "stencila.extension.editor",
+  "publisher": "stencila",
   "displayName": "Stencila",
   "description": "Programmable, reproducible, interactive documents",
   "version": "0.0.1",
@@ -61,7 +63,7 @@
     ],
     "themes": [
       {
-        "id": "Stencila Light",
+        "id": "StencilaLight",
         "label": "Stencila light",
         "uiTheme": "vs",
         "path": "./themes/stencila-light-color-theme.json"
