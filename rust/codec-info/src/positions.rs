@@ -36,11 +36,11 @@ impl Position16 {
     }
 }
 
-/// A caching lookup structure for finding positions from UTF8 character indices and vice verse.
+/// A caching lookup structure for finding line/column positions from UTF8 character indices and vice verse.
 ///
 /// Based on https://github.com/TheBerkin/line-col-rs/blob/master/src/lib.rs but with zero-based
-/// line and character numbers and support for UTF16-based positions and without support for
-/// Unicode grapheme clusters.
+/// line and character numbers and support for UTF16-based positions (and without support for
+/// Unicode grapheme clusters).
 pub struct Positions<'content> {
     /// The string content with the position
     content: &'content str,
@@ -59,7 +59,7 @@ impl<'content> Positions<'content> {
         }
     }
 
-    /// Get the lines for the content
+    /// Get the lines (the UTF8 character indices at the start of each line) for the content
     fn lines(&self) -> Ref<'_, Option<Vec<usize>>> {
         if self.lines.borrow().is_none() {
             let lines: Vec<usize> = std::iter::once(0)
