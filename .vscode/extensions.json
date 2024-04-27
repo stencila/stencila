@@ -9,15 +9,16 @@
 		"katjanakosic.vscode-json5",
 		"ms-python.black-formatter",
 		"ms-python.python",
+		"ms-vscode.extension-test-runner",
 		"ms-vscode.makefile-tools",
 		"redhat.vscode-yaml",
 		"rhaiscript.vscode-rhai",
+		"runem.lit-plugin",
 		"rust-lang.rust-analyzer",
 		"streetsidesoftware.code-spell-checker",
 		"tamasfe.even-better-toml",
 		"tree-sitter.tree-sitter-graph",
 		"usernamehw.errorlens",
-		"runem.lit-plugin"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [

@@ -15,7 +15,8 @@
         "editor.tabSize": 4,
     },
     "yaml.schemas": {
-        "json/meta.schema.json": "schema/*.yaml"
+        "json/meta.schema.json": "schema/*.yaml",
+        "https://json.schemastore.org/tmlanguage.json": "vscode/syntaxes/smd.tmGrammar.yaml"
     },
     "files.associations": {
         "assistants/builtin/*.md": "jinja-md"

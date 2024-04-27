@@ -47,6 +47,8 @@ jobs:
             ts:
               - 'ts/**'
               - 'package.json'
+            vscode:
+              - 'vscode/**'
             web:
               - 'web/**'
               - 'package.json'
@@ -169,7 +171,42 @@ jobs:
 
       - name: Run tests
         run: make -C ts test
-      
+
+  vscode:
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+
+    needs: changes
+    if: needs.changes.outputs.vscode == 'true'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+        if: runner.os != 'Linux'
+
+      - name: Test with xvfb
+        run: xvfb-run -a npm test
+        if: runner.os == 'Linux'      
+
   web:
     runs-on: ubuntu-latest
 
