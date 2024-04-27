@@ -17,10 +17,10 @@ on:
     branches: ["main"]
 
 env:
-  RUST_VERSION: '1.76.0'
+  RUST_VERSION: "1.76.0"
   CARGO_TERM_COLOR: always
-  NODE_VERSION: '20'
-  PYTHON_VERSION: '3.11'
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
 
 jobs:
   # Detect which folders have changes
@@ -65,10 +65,10 @@ jobs:
         # Skip because on `ubuntu-latest-m` seems to be detrimental
         if: false
         with:
-          root-reserve-mb: '4096'
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
+          root-reserve-mb: "4096"
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -107,10 +107,10 @@ jobs:
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
       - run: which chrome
-      
+
       - name: Show disk usage
         run: df -h && du -hd1
-        
+
       - name: Install dependencies
         run: make install
 
@@ -205,7 +205,7 @@ jobs:
 
       - name: Test with xvfb
         run: xvfb-run -a npm test
-        if: runner.os == 'Linux'      
+        if: runner.os == 'Linux'
 
   web:
     runs-on: ubuntu-latest
