@@ -3610,7 +3610,7 @@ dependencies = [
  "async-lsp",
  "codecs",
  "common",
- "schema",
+ "document",
  "tokio-util",
  "tower",
  "tracing-subscriber",

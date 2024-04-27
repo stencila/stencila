@@ -1,4 +1,4 @@
-use std::ops::ControlFlow;
+use std::collections::HashMap;
 
 use async_lsp::lsp_types::{notification, request};
 use async_lsp::{
@@ -10,18 +10,26 @@ use tower::ServiceBuilder;
 
 use common::tracing;
 
-use crate::{initialize::initialize, ServerState};
+use crate::text_document;
+use crate::{lifecycle, ServerState};
 
 /// Run the language server
 pub async fn run() {
     let (server, _) = MainLoop::new_server(|client| {
         let mut router = Router::new(ServerState {
             client: client.clone(),
+            documents: HashMap::new(),
         });
 
         router
-            .request::<request::Initialize, _>(|_, params| initialize(params))
-            .notification::<notification::Initialized>(|_, _| ControlFlow::Continue(()));
+            .request::<request::Initialize, _>(|_, params| lifecycle::initialize(params))
+            .notification::<notification::Initialized>(lifecycle::initialized);
+
+        router
+            .notification::<notification::DidOpenTextDocument>(text_document::did_open)
+            .notification::<notification::DidChangeTextDocument>(text_document::did_change)
+            .notification::<notification::DidSaveTextDocument>(text_document::did_save)
+            .notification::<notification::DidCloseTextDocument>(text_document::did_close);
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())
