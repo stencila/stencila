@@ -1,4 +1,6 @@
-use async_lsp::lsp_types::request;
+use std::ops::ControlFlow;
+
+use async_lsp::lsp_types::{notification, request};
 use async_lsp::{
     client_monitor::ClientProcessMonitorLayer, concurrency::ConcurrencyLayer,
     panic::CatchUnwindLayer, router::Router, server::LifecycleLayer, tracing::TracingLayer,
@@ -17,7 +19,9 @@ pub async fn run() {
             client: client.clone(),
         });
 
-        router.request::<request::Initialize, _>(|_, params| initialize(params));
+        router
+            .request::<request::Initialize, _>(|_, params| initialize(params))
+            .notification::<notification::Initialized>(|_, _| ControlFlow::Continue(()));
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())
@@ -30,7 +34,7 @@ pub async fn run() {
 
     // Setup printing of tracing logs
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::INFO)
         .with_ansi(false)
         .with_writer(std::io::stderr)
         .init();
