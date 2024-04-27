@@ -1,31 +1,54 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as path from "path";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+import * as vscode from "vscode";
+import {
+  LanguageClient,
+  LanguageClientOptions,
+  ServerOptions,
+  TransportKind,
+} from "vscode-languageclient/node";
+
+let client: LanguageClient;
+
+/**
+ * Activate the extension
+ */
 export function activate(context: vscode.ExtensionContext) {
+  // Start the language server client
+  const serverOptions: ServerOptions = {
+    command: "cargo",
+    args: ["run", "--package=lsp", "--quiet"],
+    options: {
+      cwd: path.join(__dirname, "..", ".."),
+    },
+  };
+  const clientOptions: LanguageClientOptions = {
+    documentSelector: [{ scheme: "file", language: "smd" }],
+    markdown: {
+      isTrusted: true,
+      supportHtml: true,
+    },
+  };
+  client = new LanguageClient(
+    "stencila",
+    "Stencila",
+    serverOptions,
+    clientOptions
+  );
+  client.start();
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "stencila" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('stencila.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Stencila!');
-	});
-
-	// Define the default theme for this extension.
-	// Inside your extension's activation code
-	vscode.workspace.getConfiguration('workbench')
-		.update('colorTheme', 'StencilaLight', vscode.ConfigurationTarget.Global);
-
-	context.subscriptions.push(disposable);
+  // Define the default theme for this extension.
+  vscode.workspace
+    .getConfiguration("workbench")
+    .update("colorTheme", "StencilaLight", vscode.ConfigurationTarget.Global);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+/**
+ * Deactivate the extension
+ */
+export function deactivate() {
+  if (!client) {
+    return undefined;
+  }
+  return client.stop();
+}
