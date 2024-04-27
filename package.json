@@ -71,7 +71,7 @@
     ],
     "iconThemes": [
       {
-        "id": "stencila",
+        "id": "StencilaIcons",
         "label": "Stencila Icons",
         "path": "./icons/stencila-icon-theme.json"
       }
