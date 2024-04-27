@@ -1,0 +1,516 @@
+---
+# YAML front matter
+key: value
+---
+
+# Parameter
+
+A &[param1]{}.
+
+# MathBlock
+
+## Using dollars syntax
+
+$$
+2 \pi r^2
+$$
+
+## Using fenced code block
+
+```asciimath
+2 pi r^2
+```
+
+```latex
+2 \pi r^2
+```
+
+# MathInline
+
+The area of a circle is $2 \pi r^2$.
+
+# CodeBlock
+
+## With known languages
+
+```js
+// Javascript code
+function foo(){}
+
+import { VIEWS } from '../views/views'
+
+import './main.css'
+
+import './shoelace'
+
+/**
+ * Application Wrapper
+ *
+ * Wraps the application in the `app-chrome`. Contains the main header and
+ * footer.
+ */
+@customElement('stencila-main-app')
+@withTwind()
+export class App extends LitElement {
+  /**
+   * The currently open documents
+   *
+   * This property is initialized (as an HTML attribute) with one document id,
+   * by the server, based on the URL path (including paths that resolved to main.*,
+   * index.*, or README.* in the home directory of the server (the directory it was started in)).
+   *
+   * While the app is running [document id, file name] pairs are added or removed
+   * from this list (e.g. by clicking on the directory tree, closing a tab).
+   *
+   * A list is used here (rather than say an object with `DocumentId` as the key)
+   * to allow for reordering of tabs by the user.
+   */
+  @property({ type: Array })
+  docs: (File & { docId: DocumentId })[] = []
+
+  /**
+   * The id of the document, in `docs`, that is currently active
+   */
+  @state()
+  activeDoc: DocumentId | null
+
+  /**
+   * The current view of the current document
+   *
+   * If there is no `view` attribute then this will be dynamically
+   * determined based on the maximum access level that the user has for
+   * the document.
+   */
+  @property()
+  view?: DocumentView = 'live'
+}
+```
+
+```py
+# Python code
+def foo: pass
+from stencila import _stencila
+
+async def from_string(string: str, format: str | None = "json") -> Node:
+    """
+    Decode a Stencila Schema node from a string.
+
+    Args:
+        string (str): The string to decode to a node.
+        format (Optional[str]): The format to decode from. Defaults to "json".
+
+    Returns:
+        Node: A Stencila Schema node.
+    """
+    return from_json(await _stencila.convert.from_string(string, {"format": format}))
+```
+
+```r
+# R code
+foo <- function(){}
+```
+
+```sql
+-- SQL code
+select * from foo;
+```
+
+## With unknown language
+
+```foo
+// Foo lang
+```
+
+## With no language
+
+```
+No language specified
+```
+
+# CodeChunk
+
+## With kown languages
+
+```js exec
+// Javascript code
+function foo(){}
+```
+
+```py exec
+# Python code
+def foo: pass
+```
+
+```r exec
+# R code
+foo <- function(){}
+```
+
+```sql exec
+-- SQL code
+select * from foo;
+```
+
+## With unknown language
+
+```foo exec
+// Foo lang
+```
+
+## With no language
+
+```exec
+No language specified
+```
+
+# IncludeBlock
+
+::: include ./some-file.md
+
+
+# CallBlock
+
+::: call ./some-file.md
+
+::: call ./some-file.md (a=1, b=2)
+
+
+# InstructionBlock
+
+## Simple
+
+::: do something
+
+## With assignee
+
+::: do @insert-code-chunk to analyze data
+
+### With content to edit
+
+::: do improve wording
+::: with
+
+Content to edit
+
+:::
+
+# InstructionInline
+
+## Simple
+
+[[do something]]
+
+## With assignee
+
+[[do @insert-code-expr mean volume for year ]]
+
+
+### With content to edit
+
+[[do improve wording >> of this ]]
+
+
+# InsertBlock
+
+::: insert
+
+Proposed
+
+:::
+
+::: insert accept
+
+Accepted
+
+:::
+
+::: insert reject
+
+Rejected
+
+:::
+
+
+# InsertInline
+
+[[insert some content]]
+
+
+# DeleteBlock
+
+::: delete
+
+Proposed
+
+:::
+
+::: delete accept
+
+Accepted
+
+:::
+
+::: delete reject
+
+Rejected
+
+:::
+
+
+# DeleteInline
+
+[[delete some content]]
+
+
+
+# ReplaceBlock
+
+::: replace
+
+Old content.
+
+::: with
+
+New content.
+
+:::
+
+
+# ReplaceInline
+
+[[replace old content>>new content]]
+
+
+
+# IfBlock
+
+## Simple
+
+::: if true
+
+Content to show
+
+:::
+
+## With `elif`
+
+::: if a < 1
+
+a is less than 1
+
+::: elif a < 2
+
+a is less than 2
+
+:::
+
+
+## With `else`
+
+::: if a > 1
+
+a is greater than 1
+
+::: else
+
+b is less than 1
+
+:::
+
+
+# ForBlock
+
+## Simple
+
+::: for item in [1,2,3]
+
+Repeated content
+
+:::
+
+## With `else`
+
+::: for item in []
+
+Repeated content
+
+::: else
+
+Content shown if no items
+
+:::
+
+
+## Nested
+
+::: for outer in [1,2,3]
+
+::::: for inner in select * from table
+
+Repeated content
+
+::::
+
+:::
+
+# Figure
+
+::: figure 1
+
+The caption.
+
+```r exec
+plot(1:10)
+```
+
+:::
+
+
+# Table
+
+::: table 1
+
+The caption.
+
+| A   | B   |
+| --- | --- |
+| 1   | 2   |
+
+:::
+
+# Basic Markdown Syntax
+
+# Headings
+
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
+
+# Headings Setext
+
+Setext Level One
+======
+
+Setext Level Two
+------
+
+# Emphasis 
+
+*This text is italic.*
+
+_This text is also italic._
+
+**This text is bold.**
+
+__This text is also bold.__
+
+**This text is bold and _italic._**
+
+__This text is also bold and *italic.*__
+
+~~This text is striked through.~~
+
+# Lists
+
+1. This is a
+2. numbered 
+--* also known as ordered
+3. list!
+
+* This is an 
+- unordered 
++ list!
+
+# Links
+
+You can quickly turn URLs/email addresses into links using angle brackets.
+
+<http://www.example.com> 
+
+URLs will automatically get turned into links.
+
+http://www.example.com
+
+[This is an inline link.](https://www.google.com)
+
+[This is an inline link with a title.](https://www.google.com "Google's Homepage")
+
+[This is a reference-style link][reference]
+
+[reference]: https://www.google.com
+
+[This is also a reference-style link][1]
+
+[1]: https://www.google.com
+
+Or you can write some text and [link] it like this.
+
+[link]: https://www.google.com
+
+# Images 
+
+Inline-style images: 
+![alt text](image.jpg "Image Title #1")
+
+Reference-style images: 
+![alt text][image]
+
+[image]: image.jpg "Image Title #2"
+
+# Tables
+
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
+
+Colons can be used to align columns.
+
+| Syntax      | Centered     |
+| ----------- | :----------: |
+| Header      | Title        |
+| Paragraph   | Text         |
+
+| Syntax      | Left Aligned |
+| ----------- | :----------- |
+| Header      | Title        |
+| Paragraph   | Text         |
+
+| Syntax      | Right Aligned |
+| ----------- | ------------: |
+| Header      | Title         |
+| Paragraph   | Text          |
+
+# Blockquotes 
+
+> This is a blockquote!
+
+# Inline HTML
+
+<html>
+    <title>Here is some HTML.</title>
+    <body>
+      <h>This is a heading!</h>
+        <p>This is a paragraph!</p>
+    </body>
+</html>
+
+# Separators (also known as Horizontal Rules)
+
+To create separators use three (or more) asterisks, dashes/hyphens, or underscores. 
+Note: put blank lines before and after separators.
+
+---
+
+Dashes/hyphens
+
+***
+
+Asterisks
+
+___
+
+Underscores

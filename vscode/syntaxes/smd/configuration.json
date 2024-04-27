@@ -1,0 +1,38 @@
+{
+  "$comment": "Based mostly on https://github.com/microsoft/vscode/blob/main/extensions/markdown-basics/language-configuration.json",
+  "brackets": [
+    ["{", "}"],
+    ["[[", "]]"],
+    ["[", "]"],
+    ["(", ")"]
+  ],
+  "autoClosingPairs": [
+    { "open": "{", "close": "}" },
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "'", "close": "'", "notIn": ["string"] },
+    { "open": "\"", "close": "\"", "notIn": ["string"] },
+    { "open": "```", "close": "```"}
+  ],
+  "surroundingPairs": [
+    { "open": "{", "close": "}" },
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "'", "close": "'" },
+    { "open": "\"", "close": "\"" },
+    { "open": "`", "close": "`" },
+    { "open": "_", "close": "_" },
+    { "open": "*", "close": "*" }
+  ],
+  "folding": {
+    "$comment": "Basic folding. More advanced folding to be provided by language server.",
+    "markers": {
+      "start": "^:{3,}\\s*(if|for|with|insert|delete|table|figure)",
+      "end": "^:{3,}\\s*$"
+    }
+  },
+  "wordPattern": {
+    "pattern": "(\\p{Alphabetic}|\\p{Number}|\\p{Nonspacing_Mark})(((\\p{Alphabetic}|\\p{Number}|\\p{Nonspacing_Mark})|[_])?(\\p{Alphabetic}|\\p{Number}|\\p{Nonspacing_Mark}))*",
+    "flags": "ug"
+  }
+}
