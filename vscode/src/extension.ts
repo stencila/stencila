@@ -47,25 +47,37 @@ export async function activate(context: vscode.ExtensionContext) {
 
 /**
  * Register commands provided by the extension
- * 
+ *
  * At the time of writing, all of these commands delegate to the
  * language server after getting arguments from the editor.
  */
 function registerCommands(context: vscode.ExtensionContext) {
-  context.subscriptions.push(
-    vscode.commands.registerCommand("stencila.invoke.run-document", () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showErrorMessage("No active editor");
-        return;
-      }
+  for (const command of [
+    "run-curr",
+    "run-all-doc",
+    "run-code-doc",
+    "run-assist-doc",
+    "run-all-below",
+    "run-all-above",
+    "cancel-curr",
+    "cancel-all-doc",
+  ]) {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(`stencila.invoke.${command}`, () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
 
-      vscode.commands.executeCommand(
-        "stencila.run-document",
-        editor.document.uri.path
-      );
-    })
-  );
+        vscode.commands.executeCommand(
+          `stencila.${command}`,
+          editor.document.uri.path,
+          editor.selection.active
+        );
+      })
+    );
+  }
 }
 
 /**

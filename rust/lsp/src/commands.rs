@@ -1,4 +1,5 @@
 use std::{
+    ops::ControlFlow,
     path::PathBuf,
     sync::atomic::{AtomicI32, Ordering},
     time::Duration,
@@ -7,23 +8,42 @@ use std::{
 use async_lsp::{
     lsp_types::{
         ExecuteCommandParams, NumberOrString, ProgressParams, ProgressParamsValue,
-        WorkDoneProgress, WorkDoneProgressBegin, WorkDoneProgressCreateParams, WorkDoneProgressEnd,
-        WorkDoneProgressReport,
+        WorkDoneProgress, WorkDoneProgressBegin, WorkDoneProgressCancelParams,
+        WorkDoneProgressCreateParams, WorkDoneProgressEnd, WorkDoneProgressReport,
     },
-    ClientSocket, ErrorCode, LanguageClient, ResponseError,
+    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
 use common::{
     once_cell::sync::Lazy,
     serde_json::Value,
     tokio::{self, sync::mpsc},
+    tracing,
 };
 
-const RUN_DOCUMENT: &str = "stencila.run-document";
+use crate::ServerState;
+
+const RUN_CURR: &str = "stencila.run-curr";
+const RUN_ALL_DOC: &str = "stencila.run-all-doc";
+const RUN_CODE_DOC: &str = "stencila.run-code-doc";
+const RUN_ASSIST_DOC: &str = "stencila.run-assist-doc";
+const RUN_ALL_ABOVE: &str = "stencila.run-all-above";
+const RUN_ALL_BELOW: &str = "stencila.run-all-below";
+const CANCEL_CURR: &str = "stencila.cancel-curr";
+const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
-    vec![RUN_DOCUMENT.to_string()]
+    vec![
+        RUN_CURR.to_string(),
+        RUN_ALL_DOC.to_string(),
+        RUN_CODE_DOC.to_string(),
+        RUN_ASSIST_DOC.to_string(),
+        RUN_ALL_ABOVE.to_string(),
+        RUN_ALL_BELOW.to_string(),
+        CANCEL_CURR.to_string(),
+        CANCEL_ALL_DOC.to_string(),
+    ]
 }
 
 /// Execute a command
@@ -32,7 +52,7 @@ pub(super) async fn execute_command(
     params: ExecuteCommandParams,
 ) -> Result<Option<Value>, ResponseError> {
     match params.command.as_str() {
-        RUN_DOCUMENT => run_document(client, params.arguments).await,
+        RUN_ALL_DOC => run_all_doc(client, params.arguments).await,
         command => Err(ResponseError::new(
             ErrorCode::INVALID_REQUEST,
             format!("Unknown command `{command}`"),
@@ -40,8 +60,8 @@ pub(super) async fn execute_command(
     }
 }
 
-/// Run a document
-async fn run_document(
+/// Run all nodes in a document
+async fn run_all_doc(
     client: ClientSocket,
     args: Vec<Value>,
 ) -> Result<Option<Value>, ResponseError> {
@@ -134,4 +154,17 @@ async fn create_progress(
     });
 
     sender
+}
+
+/// Handle a notification from the client to cancel a task previously associated
+/// with `WorkDoneProgressBegin`
+pub(crate) fn cancel_progress(
+    _state: &mut ServerState,
+    params: WorkDoneProgressCancelParams,
+) -> ControlFlow<Result<(), Error>> {
+    tracing::info!("cancel_progress: {:?}", params.token);
+
+    // TODO: Cancel the task associated with the token
+
+    ControlFlow::Continue(())
 }

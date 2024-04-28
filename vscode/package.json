@@ -23,14 +23,113 @@
     ],
     "commands": [
       {
-        "command": "stencila.invoke.run-document",
-        "title": "Stencila: Run document"
+        "command": "stencila.invoke.run-curr",
+        "title": "Stencila: Run the current node",
+        "shortTitle": "Run current",
+        "icon": "$(run)"
+      },
+      {
+        "command": "stencila.invoke.run-all-doc",
+        "title": "Stencila: Run all nodes in document",
+        "shortTitle": "Run all",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "stencila.invoke.run-code-doc",
+        "title": "Stencila: Run all executable code nodes in document",
+        "shortTitle": "Run all code",
+        "icon": "$(zap)"
+      },
+      {
+        "command": "stencila.invoke.run-assist-doc",
+        "title": "Stencila: Run all assistant nodes in document",
+        "shortTitle": "Run all assist",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "stencila.invoke.run-all-above",
+        "title": "Stencila: Run all nodes above the cursor",
+        "shortTitle": "Run all above",
+        "icon": "$(run-above)"
+      },
+      {
+        "command": "stencila.invoke.run-all-below",
+        "title": "Stencila: Run all nodes below the cursor",
+        "shortTitle": "Run all below",
+        "icon": "$(run-below)"
+      },
+      {
+        "command": "stencila.invoke.cancel-curr",
+        "title": "Stencila: Cancel current",
+        "icon": "$(stop)"
+      },
+      {
+        "command": "stencila.invoke.cancel-all-doc",
+        "title": "Stencila: Cancel all running nodes in the document",
+        "shortTitle": "Cancel all",
+        "icon": "$(stop)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "stencila.invoke.run-curr",
+        "key": "Crtl+Enter"
+      },
+      {
+        "command": "stencila.invoke.run-all-doc",
+        "key": "Crtl+Shift+Enter"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "stencila.invoke.run-document",
+          "command": "stencila.invoke.run-curr",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-all-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-code-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-assist-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-all-above",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-all-below",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.cancel-all-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.cancel-curr",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.cancel-all-doc",
+          "when": "editorLangId == smd"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "stencila.invoke.run-all-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-code-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-assist-doc",
           "when": "editorLangId == smd"
         }
       ]

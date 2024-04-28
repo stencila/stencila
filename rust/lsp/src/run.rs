@@ -30,10 +30,12 @@ pub async fn run() {
             .notification::<notification::DidSaveTextDocument>(text_document::did_save)
             .notification::<notification::DidCloseTextDocument>(text_document::did_close);
 
-        router.request::<request::ExecuteCommand, _>(|state, params| {
-            let client = state.client.clone();
-            async move { commands::execute_command(client, params).await }
-        });
+        router
+            .request::<request::ExecuteCommand, _>(|state, params| {
+                let client = state.client.clone();
+                async move { commands::execute_command(client, params).await }
+            })
+            .notification::<notification::WorkDoneProgressCancel>(commands::cancel_progress);
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())
