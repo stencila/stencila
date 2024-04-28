@@ -23,27 +23,44 @@ use common::{
 
 use crate::ServerState;
 
-const RUN_CURR: &str = "stencila.run-curr";
-const RUN_ALL_DOC: &str = "stencila.run-all-doc";
-const RUN_CODE_DOC: &str = "stencila.run-code-doc";
-const RUN_ASSIST_DOC: &str = "stencila.run-assist-doc";
-const RUN_ALL_ABOVE: &str = "stencila.run-all-above";
-const RUN_ALL_BELOW: &str = "stencila.run-all-below";
-const CANCEL_CURR: &str = "stencila.cancel-curr";
-const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
+pub(super) const RUN_NODE: &str = "stencila.run-node";
+pub(super) const RUN_CURR: &str = "stencila.run-curr";
+pub(super) const RUN_ALL_DOC: &str = "stencila.run-all-doc";
+pub(super) const RUN_CODE_DOC: &str = "stencila.run-code-doc";
+pub(super) const RUN_ASSIST_DOC: &str = "stencila.run-assist-doc";
+pub(super) const RUN_ALL_ABOVE: &str = "stencila.run-all-above";
+pub(super) const RUN_ALL_BELOW: &str = "stencila.run-all-below";
+
+pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
+pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
+pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
+
+pub(super) const ACCEPT_NODE: &str = "stencila.accept_node";
+pub(super) const REJECT_NODE: &str = "stencila.reject_node";
+
+// This command is implemented on the client but included here
+// for us in the construction of code lenses
+pub(super) const INSPECT_NODE: &str = "stencila.inspect_node";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
-    vec![
-        RUN_CURR.to_string(),
-        RUN_ALL_DOC.to_string(),
-        RUN_CODE_DOC.to_string(),
-        RUN_ASSIST_DOC.to_string(),
-        RUN_ALL_ABOVE.to_string(),
-        RUN_ALL_BELOW.to_string(),
-        CANCEL_CURR.to_string(),
-        CANCEL_ALL_DOC.to_string(),
+    [
+        RUN_NODE,
+        RUN_CURR,
+        RUN_ALL_DOC,
+        RUN_CODE_DOC,
+        RUN_ASSIST_DOC,
+        RUN_ALL_ABOVE,
+        RUN_ALL_BELOW,
+        CANCEL_NODE,
+        CANCEL_CURR,
+        CANCEL_ALL_DOC,
+        ACCEPT_NODE,
+        REJECT_NODE,
     ]
+    .into_iter()
+    .map(String::from)
+    .collect()
 }
 
 /// Execute a command

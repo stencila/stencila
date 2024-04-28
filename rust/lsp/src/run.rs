@@ -10,7 +10,7 @@ use tower::ServiceBuilder;
 
 use common::tracing;
 
-use crate::{commands, lifecycle, text_document, ServerState};
+use crate::{code_lens, commands, lifecycle, text_document, ServerState};
 
 /// Run the language server
 pub async fn run() {
@@ -36,6 +36,21 @@ pub async fn run() {
                 async move { commands::execute_command(client, params).await }
             })
             .notification::<notification::WorkDoneProgressCancel>(commands::cancel_progress);
+
+        router
+            .request::<request::CodeLensRequest, _>(|state, params| {
+                let nodes = state
+                    .documents
+                    .get(&params.text_document.uri.to_string())
+                    .map(|doc| doc.nodes.clone());
+                async move {
+                    match nodes {
+                        Some(nodes) => code_lens::request(nodes.read().await.as_ref()).await,
+                        None => Ok(None),
+                    }
+                }
+            })
+            .request::<request::CodeLensResolve, _>(|_, code_lens| code_lens::resolve(code_lens));
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())

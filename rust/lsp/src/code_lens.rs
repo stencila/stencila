@@ -1,0 +1,114 @@
+//! Handling of code lens related messages
+//!
+//! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeLens
+
+use async_lsp::{
+    lsp_types::{CodeLens, Command, Range},
+    ErrorCode, ResponseError,
+};
+use common::{itertools::Itertools, serde_json::json};
+use schema::{NodeId, NodeType};
+
+use crate::commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE};
+
+/// Handle a request for code lenses for a document
+///
+/// Note that, as recommended for performance reasons, this function returns
+/// code lenses without a `command` but with `data` which is used to "resolve"
+/// the command in the `resolve` handler below
+pub(crate) async fn request(
+    nodes: &Vec<(Range, NodeType, NodeId)>,
+) -> Result<Option<Vec<CodeLens>>, ResponseError> {
+    let code_lenses = nodes
+        .iter()
+        .flat_map(|(range, node_type, node_id)| {
+            let lens = |command: &str| CodeLens {
+                range: range.clone(),
+                command: None,
+                data: Some(json!([command, node_type, node_id])),
+            };
+
+            match node_type {
+                // Executable block nodes
+                NodeType::CallBlock
+                | NodeType::CodeChunk
+                | NodeType::ForBlock
+                | NodeType::IfBlock
+                | NodeType::IncludeBlock
+                | NodeType::InstructionBlock => {
+                    vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(INSPECT_NODE)]
+                }
+                // Block suggestions
+                NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
+                    vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(INSPECT_NODE)]
+                }
+                _ => vec![],
+            }
+        })
+        .collect();
+
+    Ok(Some(code_lenses))
+}
+
+/// Handle a request to resolve the command for a code lens
+pub(crate) async fn resolve(
+    CodeLens { range, data, .. }: CodeLens,
+) -> Result<CodeLens, ResponseError> {
+    let Some(data) = data
+        .as_ref()
+        .and_then(|value| value.as_array())
+        .map(|array| array.iter().filter_map(|value| value.as_str()))
+    else {
+        return Err(ResponseError::new(
+            ErrorCode::INVALID_REQUEST,
+            "No, or invalid, code lens data",
+        ));
+    };
+
+    let Some((command, node_type, node_id)) = data.collect_tuple() else {
+        return Err(ResponseError::new(
+            ErrorCode::INVALID_REQUEST,
+            "Expected three items in code lens data",
+        ));
+    };
+
+    let command = match command {
+        RUN_NODE => Command::new(
+            "$(run) Run".to_string(),
+            "stencila.run-node".to_string(),
+            Some(vec![json!(node_id)]),
+        ),
+        CANCEL_NODE => Command::new(
+            "$(stop-circle) Cancel".to_string(),
+            "stencila.cancel-node".to_string(),
+            Some(vec![json!(node_id)]),
+        ),
+        ACCEPT_NODE => Command::new(
+            "$(thumbsup) Accept".to_string(),
+            "stencila.accept-node".to_string(),
+            Some(vec![json!(node_id)]),
+        ),
+        REJECT_NODE => Command::new(
+            "$(thumbsdown) Reject".to_string(),
+            "stencila.reject-node".to_string(),
+            Some(vec![json!(node_id)]),
+        ),
+        INSPECT_NODE => Command::new(
+            "$(search) Inspect".to_string(),
+            "stencila.inspect-node".to_string(),
+            Some(vec![json!(node_type), json!(node_id)]),
+        ),
+        _ => {
+            return Err(ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Unknown command for code lens",
+            ));
+        }
+    };
+
+    Ok(CodeLens {
+        range,
+        command: Some(command),
+        data: None,
+    })
+}

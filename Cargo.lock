@@ -3611,6 +3611,7 @@ dependencies = [
  "codecs",
  "common",
  "document",
+ "schema",
  "tokio-util",
  "tower",
  "tracing-subscriber",
