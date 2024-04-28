@@ -23,10 +23,18 @@
     ],
     "commands": [
       {
-        "command": "stencila.helloWorld",
-        "title": "Hello World"
+        "command": "stencila.invoke.run-document",
+        "title": "Stencila: Run document"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "stencila.invoke.run-document",
+          "when": "editorLangId == smd"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "smd",

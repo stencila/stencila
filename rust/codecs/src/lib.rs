@@ -10,7 +10,7 @@ use codec::{
 };
 pub use codec::{
     format::Format, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
-    EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry,
+    EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, PoshMap, Position16, Position8,
 };
 use node_id::NodeUid;
 use node_strip::{StripNode, StripTargets};

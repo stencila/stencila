@@ -10,8 +10,7 @@ use tower::ServiceBuilder;
 
 use common::tracing;
 
-use crate::text_document;
-use crate::{lifecycle, ServerState};
+use crate::{commands, lifecycle, text_document, ServerState};
 
 /// Run the language server
 pub async fn run() {
@@ -31,6 +30,11 @@ pub async fn run() {
             .notification::<notification::DidSaveTextDocument>(text_document::did_save)
             .notification::<notification::DidCloseTextDocument>(text_document::did_close);
 
+        router.request::<request::ExecuteCommand, _>(|state, params| {
+            let client = state.client.clone();
+            async move { commands::execute_command(client, params).await }
+        });
+
         ServiceBuilder::new()
             .layer(TracingLayer::default())
             .layer(LifecycleLayer::default())
@@ -42,7 +46,7 @@ pub async fn run() {
 
     // Setup printing of tracing logs
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
+        .with_max_level(tracing::Level::TRACE)
         .with_ansi(false)
         .with_writer(std::io::stderr)
         .init();

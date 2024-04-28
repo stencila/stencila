@@ -4,6 +4,7 @@ use async_lsp::ClientSocket;
 
 use document::Document;
 
+mod commands;
 mod lifecycle;
 mod run;
 mod text_document;
@@ -11,7 +12,6 @@ mod text_document;
 pub use run::run;
 
 /// The state of the language server
-#[derive(Debug)]
 pub(crate) struct ServerState {
     /// The client of the language server
     ///
