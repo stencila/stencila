@@ -16,6 +16,7 @@ use common::tracing;
 
 use crate::ServerState;
 
+/// Handle a notification from the client that a text document was opened
 pub(crate) fn did_open(
     _state: &mut ServerState,
     params: DidOpenTextDocumentParams,
@@ -31,6 +32,7 @@ pub(crate) fn did_open(
     ControlFlow::Continue(())
 }
 
+/// Handle a notification from the client that a text document was changes
 pub(super) fn did_change(
     _state: &mut ServerState,
     params: DidChangeTextDocumentParams,
@@ -42,6 +44,7 @@ pub(super) fn did_change(
     ControlFlow::Continue(())
 }
 
+/// Handle a notification from the client that a text document was save
 pub(super) fn did_save(
     _state: &mut ServerState,
     params: DidSaveTextDocumentParams,
@@ -51,6 +54,7 @@ pub(super) fn did_save(
     ControlFlow::Continue(())
 }
 
+/// Handle a notification from the client that a text document was closed
 pub(super) fn did_close(
     _state: &mut ServerState,
     params: DidCloseTextDocumentParams,
