@@ -45,6 +45,7 @@
         "contenteditable",
         "CRDT",
         "CRDTs",
+        "curr",
         "dataclass",
         "datatable",
         "datetime",
