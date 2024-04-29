@@ -104,6 +104,14 @@ impl NodeId {
         }
     }
 
+    /// Create a new null id
+    pub fn null() -> Self {
+        Self {
+            nick: [0, 0, 0],
+            uid: Vec::new(),
+        }
+    }
+
     /// Get the node type nickname of the node id
     pub fn nick(&self) -> &str {
         str::from_utf8(&self.nick).expect("node type nicknames should always be utf8")
