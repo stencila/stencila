@@ -1,6 +1,8 @@
 use std::future::Future;
 
 use common::{async_recursion::async_recursion, eyre::Result};
+use node_id::NodeId;
+use node_type::{NodeProperty, NodeType};
 
 use crate::{
     Array, Block, Boolean, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem, Node, Null,
@@ -85,8 +87,14 @@ pub trait Visitor: Sized {
         WalkControl::Continue
     }
 
+    /// Enter a struct
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
+
+    /// Exit a struct
+    fn exit_struct(&mut self) {}
+
     /// Enter a property
-    fn enter_property(&mut self, name: &str) {}
+    fn enter_property(&mut self, property: NodeProperty) {}
 
     /// Exit a property
     fn exit_property(&mut self) {}
@@ -149,8 +157,14 @@ pub trait VisitorMut: Sized {
         WalkControl::Continue
     }
 
+    /// Enter a struct
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
+
+    /// Exit a struct
+    fn exit_struct(&mut self) {}
+
     /// Enter a property
-    fn enter_property(&mut self, name: &str) {}
+    fn enter_property(&mut self, property: NodeProperty) {}
 
     /// Exit a property
     fn exit_property(&mut self) {}
@@ -228,8 +242,14 @@ pub trait VisitorAsync: Send + Sync {
         async { Ok(WalkControl::Continue) }
     }
 
+    /// Enter a struct
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
+
+    /// Exit a struct
+    fn exit_struct(&mut self) {}
+
     /// Enter a property
-    fn enter_property(&mut self, name: &str) {}
+    fn enter_property(&mut self, property: NodeProperty) {}
 
     /// Exit a property
     fn exit_property(&mut self) {}

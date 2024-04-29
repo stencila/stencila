@@ -2,10 +2,10 @@ use common::{
     derive_more::{Deref, DerefMut},
     indexmap::IndexMap,
     serde::Serialize,
-    smol_str::SmolStr,
+    smol_str::{SmolStr, ToSmolStr},
 };
 use schema::{
-    Block, Inline, ListItem, Node, NodeId, TableCell, TableRow, Visitor, WalkControl, WalkNode,
+    Block, Inline, ListItem, Node, NodeId, NodeProperty, TableCell, TableRow, Visitor, WalkControl, WalkNode
 };
 
 /// Walk over a node to generate a mapping of `NodeId`s to paths within the node
@@ -82,8 +82,8 @@ impl Visitor for Mapper {
     }
 
     /// Enter a property
-    fn enter_property(&mut self, name: &str) {
-        self.path.push(NodePathSegment::Property(name.into()));
+    fn enter_property(&mut self, property: NodeProperty) {
+        self.path.push(NodePathSegment::Property(property.to_smolstr()));
     }
 
     /// Exit a property

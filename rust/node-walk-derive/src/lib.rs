@@ -3,7 +3,8 @@
 use darling::{self, FromDeriveInput, FromField};
 
 use common::{
-    proc_macro2::TokenStream,
+    inflector::Inflector,
+    proc_macro2::{Span, TokenStream},
     quote::quote,
     syn::{parse_macro_input, Attribute, Data, DataEnum, DeriveInput, Fields, Ident},
 };
@@ -48,6 +49,19 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
+    let (enter, exit) = if !struct_name.to_string().ends_with("Options") {
+        (
+            quote! {
+                visitor.enter_struct(self.node_type(), self.node_id());
+            },
+            quote! {
+                visitor.exit_struct();
+            },
+        )
+    } else {
+        (TokenStream::new(), TokenStream::new())
+    };
+
     let (visit, visit_mut, visit_async) = match struct_name.to_string().as_str() {
         name @ ("IfBlockClause" | "ListItem" | "TableRow" | "TableCell") => {
             let method = match name {
@@ -84,19 +98,23 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let mut fields_async = TokenStream::new();
     type_attr.data.map_struct_fields(|field| {
         if !field.attrs.is_empty() {
-            let field_name = field.ident;
+            let Some(field_name) = field.ident else {
+                return;
+            };
+            let property = Ident::new(&field_name.to_string().to_pascal_case(), Span::call_site());
+
             fields.extend(quote! {
-                visitor.enter_property(stringify!(#field_name));
+                visitor.enter_property(NodeProperty::#property);
                 self.#field_name.walk(visitor);
                 visitor.exit_property();
             });
             fields_mut.extend(quote! {
-                visitor.enter_property(stringify!(#field_name));
+                visitor.enter_property(NodeProperty::#property);
                 self.#field_name.walk_mut(visitor);
                 visitor.exit_property();
             });
             fields_async.extend(quote! {
-                visitor.enter_property(stringify!(#field_name));
+                visitor.enter_property(NodeProperty::#property);
                 self.#field_name.walk_async(visitor).await?;
                 visitor.exit_property();
             })
@@ -111,19 +129,25 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         quote! {
             impl WalkNode for #struct_name {
                 fn walk<V: Visitor>(&self, visitor: &mut V) {
+                    #enter
                     #visit
                     #fields
+                    #exit
                 }
 
                 fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
+                    #enter
                     #visit_mut
                     #fields_mut
+                    #exit
                 }
 
                 #[async_recursion]
                 async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+                    #enter
                     #visit_async
                     #fields_async
+                    #exit
                     Ok(())
                 }
             }
