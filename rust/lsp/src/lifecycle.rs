@@ -6,9 +6,9 @@ use std::ops::ControlFlow;
 
 use async_lsp::{
     lsp_types::{
-        CodeLensOptions, ExecuteCommandOptions, InitializeParams, InitializeResult,
-        InitializedParams, ServerCapabilities, ServerInfo, TextDocumentSyncCapability,
-        TextDocumentSyncKind,
+        CodeLensOptions, DocumentSymbolOptions, ExecuteCommandOptions, InitializeParams,
+        InitializeResult, InitializedParams, OneOf, ServerCapabilities, ServerInfo,
+        TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     Error, ResponseError,
 };
@@ -28,12 +28,18 @@ pub(super) async fn initialize(
         }),
         capabilities: ServerCapabilities {
             text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
+            document_symbol_provider: Some(OneOf::Right(DocumentSymbolOptions {
+                label: Some("Nodes".to_string()),
+                work_done_progress_options: WorkDoneProgressOptions {
+                    work_done_progress: None,
+                },
+            })),
+            code_lens_provider: Some(CodeLensOptions {
+                resolve_provider: Some(true),
+            }),
             execute_command_provider: Some(ExecuteCommandOptions {
                 commands: commands::commands(),
                 ..Default::default()
-            }),
-            code_lens_provider: Some(CodeLensOptions {
-                resolve_provider: Some(true)
             }),
             ..ServerCapabilities::default()
         },

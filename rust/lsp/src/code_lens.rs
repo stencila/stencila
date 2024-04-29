@@ -3,48 +3,57 @@
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeLens
 
 use async_lsp::{
-    lsp_types::{CodeLens, Command, Range},
+    lsp_types::{CodeLens, Command},
     ErrorCode, ResponseError,
 };
 use common::{itertools::Itertools, serde_json::json};
-use schema::{NodeId, NodeType};
+use schema::NodeType;
 
-use crate::commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE};
+use crate::{
+    commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE},
+    text_document::TextNode,
+};
 
 /// Handle a request for code lenses for a document
 ///
 /// Note that, as recommended for performance reasons, this function returns
 /// code lenses without a `command` but with `data` which is used to "resolve"
 /// the command in the `resolve` handler below
-pub(crate) async fn request(
-    nodes: &Vec<(Range, NodeType, NodeId)>,
-) -> Result<Option<Vec<CodeLens>>, ResponseError> {
-    let code_lenses = nodes
-        .iter()
-        .flat_map(|(range, node_type, node_id)| {
-            let lens = |command: &str| CodeLens {
-                range: range.clone(),
-                command: None,
-                data: Some(json!([command, node_type, node_id])),
-            };
+pub(crate) async fn request(root: &TextNode) -> Result<Option<Vec<CodeLens>>, ResponseError> {
+    let code_lenses = root
+        .flatten()
+        .into_iter()
+        .flat_map(
+            |TextNode {
+                 range,
+                 node_type,
+                 node_id,
+                 ..
+             }| {
+                let lens = |command: &str| CodeLens {
+                    range: range.clone(),
+                    command: None,
+                    data: Some(json!([command, node_type, node_id])),
+                };
 
-            match node_type {
-                // Executable block nodes
-                NodeType::CallBlock
-                | NodeType::CodeChunk
-                | NodeType::ForBlock
-                | NodeType::IfBlock
-                | NodeType::IncludeBlock
-                | NodeType::InstructionBlock => {
-                    vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(INSPECT_NODE)]
+                match node_type {
+                    // Executable block nodes
+                    NodeType::CallBlock
+                    | NodeType::CodeChunk
+                    | NodeType::ForBlock
+                    | NodeType::IfBlock
+                    | NodeType::IncludeBlock
+                    | NodeType::InstructionBlock => {
+                        vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(INSPECT_NODE)]
+                    }
+                    // Block suggestions
+                    NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
+                        vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(INSPECT_NODE)]
+                    }
+                    _ => vec![],
                 }
-                // Block suggestions
-                NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
-                    vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(INSPECT_NODE)]
-                }
-                _ => vec![],
-            }
-        })
+            },
+        )
         .collect();
 
     Ok(Some(code_lenses))

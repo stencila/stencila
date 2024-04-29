@@ -24,6 +24,70 @@ use schema::{NodeId, NodeType, Visitor};
 
 use crate::{inspect::Inspector, ServerState};
 
+/// A Stencila `Node` within a `TextDocument`
+/// 
+/// This mirrors the structure of a document but only recording the attributes needed for
+/// deriving code lenses, document symbols etc.
+#[derive(Clone)]
+pub(super) struct TextNode {
+    /// The range in the document that the node occurs
+    pub range: Range,
+
+    /// The type of the node
+    pub node_type: NodeType,
+
+    /// The id of the node
+    pub node_id: NodeId,
+
+    /// The children of the node
+    pub children: Vec<TextNode>,
+}
+
+impl Default for TextNode {
+    fn default() -> Self {
+        Self {
+            range: Range::default(),
+            node_type: NodeType::Article,
+            node_id: NodeId::null(),
+            children: Vec::new(),
+        }
+    }
+}
+
+/// An iterator over text nodes
+pub(super) struct TextNodeIterator<'a> {
+    items: Vec<&'a TextNode>,
+}
+
+impl<'a> TextNodeIterator<'a> {
+    pub fn new(root: &'a TextNode) -> Self {
+        TextNodeIterator { items: vec![root] }
+    }
+}
+
+impl<'a> Iterator for TextNodeIterator<'a> {
+    type Item = &'a TextNode;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(node) = self.items.pop() {
+            // Push children to the stack in reverse order to ensure they are processed in the correct order
+            for child in node.children.iter().rev() {
+                self.items.push(child);
+            }
+            Some(node)
+        } else {
+            None
+        }
+    }
+}
+
+impl TextNode {
+    /// Get the node and it descendants as a list
+    pub fn flatten(&self) -> TextNodeIterator {
+        TextNodeIterator::new(self)
+    }
+}
+
 /// A text document that has been opened by the language server
 pub(super) struct TextDocument {
     /// A sender to the `update_task`
@@ -35,25 +99,25 @@ pub(super) struct TextDocument {
     /// The nodes in the text document
     ///
     /// This is updated in the `update_task`
-    pub nodes: Arc<RwLock<Vec<(Range, NodeType, NodeId)>>>,
+    pub root: Arc<RwLock<TextNode>>,
 }
 
 impl TextDocument {
     /// Create a new text document with an initial source
     fn new(source: String) -> Self {
         let (sender, receiver) = mpsc::unbounded_channel();
-        let nodes = Arc::new(RwLock::default());
+        let root = Arc::new(RwLock::new(TextNode::default()));
 
-        let nodes_clone = nodes.clone();
+        let root_clone = root.clone();
         tokio::spawn(async {
-            Self::update_task(receiver, nodes_clone).await;
+            Self::update_task(receiver, root_clone).await;
         });
 
         if let Err(error) = sender.send(source) {
             tracing::error!("While sending initial source: {error}");
         }
 
-        Self { sender, nodes }
+        Self { sender, root }
     }
 
     /// Update the text document with new text content
@@ -67,12 +131,12 @@ impl TextDocument {
     /// enumerate nodes, diagnostics etc
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<String>,
-        nodes: Arc<RwLock<Vec<(Range, NodeType, NodeId)>>>,
+        root: Arc<RwLock<TextNode>>,
     ) {
         while let Some(source) = receiver.recv().await {
-            // Take a write lock on nodes so that readers can not read
+            // Take a write lock on the root node so that readers can not read
             // until the update is finished
-            let mut nodes = nodes.write().await;
+            let mut root = root.write().await;
 
             // Decode the document
             let node = codecs::from_str(
@@ -101,7 +165,9 @@ impl TextDocument {
             inspector.visit(&node);
 
             // Update the document's nodes etc
-            *nodes = inspector.nodes;
+            if let Some(node) = inspector.root() {
+                *root = node;
+            }
         }
     }
 }
