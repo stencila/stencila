@@ -1,6 +1,6 @@
 A call of sibling document
 
-::: call ../parameter/parameter.md ()
+::: call ../parameter/parameter.md
 
 A call with one value argument
 

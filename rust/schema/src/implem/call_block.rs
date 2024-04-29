@@ -10,17 +10,20 @@ impl MarkdownCodec for CallBlock {
             .merge_losses(lost_exec_options!(self))
             .push_semis()
             .push_str(" call ")
-            .push_prop_str(NodeProperty::Source, &self.source)
-            .push_str(" (");
+            .push_prop_str(NodeProperty::Source, &self.source);
 
-        for (index, arg) in self.arguments.iter().enumerate() {
-            if index != 0 {
-                context.push_str(", ");
+        if !self.arguments.is_empty() {
+            context.push_str(" (");
+
+            for (index, arg) in self.arguments.iter().enumerate() {
+                if index != 0 {
+                    context.push_str(", ");
+                }
+                arg.to_markdown(context);
             }
-            arg.to_markdown(context);
+            
+            context.push_str(")");
         }
-
-        context.push_str(")");
 
         if self.auto_exec.is_some() || self.media_type.is_some() || self.select.is_some() {
             context.push_str(" {");

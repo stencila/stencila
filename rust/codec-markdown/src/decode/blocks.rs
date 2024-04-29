@@ -4,7 +4,7 @@ use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
-    token::{take_until, take_while},
+    token::{take_till, take_until, take_while},
     IResult, Located, PResult, Parser,
 };
 
@@ -350,12 +350,12 @@ fn call_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("call", multispace1),
         (
-            take_until(1.., '('),
-            delimited(
+            take_till(1.., '('),
+            opt(delimited(
                 ('(', multispace0),
                 separated(0.., call_arg, delimited(multispace0, ",", multispace0)),
                 (multispace0, ')'),
-            ),
+            )),
             opt(attrs),
         ),
     )
@@ -364,7 +364,7 @@ fn call_block(input: &mut Located<&str>) -> PResult<Block> {
 
         Block::CallBlock(CallBlock {
             source: source.trim().to_string(),
-            arguments: args,
+            arguments: args.unwrap_or_default(),
             media_type: options.remove("format").flatten().map(node_to_string),
             select: options.remove("select").flatten().map(node_to_string),
             auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
