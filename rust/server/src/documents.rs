@@ -21,7 +21,7 @@ use axum::{
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
-    eyre::{self, eyre, OptionExt, Result},
+    eyre::{self, eyre, Result},
     futures::{
         stream::{SplitSink, SplitStream},
         SinkExt, StreamExt,
