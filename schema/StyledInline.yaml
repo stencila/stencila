@@ -5,10 +5,12 @@ extends: Styled
 category: style
 description: Styled inline content.
 status: under-development
-jats:
-  elem: styled-content
+dom:
+  derive: false
 html:
   elem: span
+jats:
+  elem: styled-content
 markdown:
   derive: false
 proptest: {}

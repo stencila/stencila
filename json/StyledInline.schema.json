@@ -10,6 +10,9 @@
   "category": "style",
   "description": "Styled inline content.",
   "status": "under-development",
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "span"
   },

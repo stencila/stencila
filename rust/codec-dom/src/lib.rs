@@ -46,19 +46,20 @@ impl Codec for DomCodec {
         } = options.unwrap_or_default();
 
         // Encode to DOM HTML
-        let mut context = DomEncodeContext::default();
+        let mut context = DomEncodeContext::new(standalone.unwrap_or_default());
         node.to_dom(&mut context);
-        let mut dom = context.content();
 
-        // Add the data-root attribute to the root node
+        // Add the root attribute to the root node
         // (the first opening tag)
+        let mut dom = context.content();
         if let Some(pos) = dom.find('>') {
             dom.insert_str(pos, " root");
         }
 
         let html = if standalone == Some(true) {
+            let style = context.style();
             format!(
-                r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title></head><body>{dom}</body></html>"#
+                r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title>{style}</head><body>{dom}</body></html>"#
             )
         } else {
             dom

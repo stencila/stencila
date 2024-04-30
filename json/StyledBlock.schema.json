@@ -10,6 +10,9 @@
   "category": "style",
   "description": "Styled block content.",
   "status": "under-development",
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "div"
   },

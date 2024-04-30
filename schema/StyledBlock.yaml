@@ -5,6 +5,8 @@ status: under-development
 extends: Styled
 category: style
 description: Styled block content.
+dom:
+  derive: false
 html:
   elem: div
 markdown:

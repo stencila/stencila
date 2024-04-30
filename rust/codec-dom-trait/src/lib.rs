@@ -1,7 +1,12 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use common::{inflector::Inflector, serde::Serialize, serde_json, smart_default::SmartDefault};
+use std::collections::HashMap;
+
+use common::{
+    inflector::Inflector, once_cell::sync::Lazy, regex::Regex, serde::Serialize, serde_json,
+    smart_default::SmartDefault,
+};
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 use node_id::NodeId;
 use node_type::NodeType;
@@ -102,11 +107,17 @@ where
 
 #[derive(SmartDefault)]
 pub struct DomEncodeContext {
-    // The DOM HTML content
+    /// The DOM HTML content
     content: String,
 
-    // The names of the current stack of HTML elements
+    /// The names of the current stack of HTML elements
     elements: Vec<String>,
+
+    /// The CSS classes in the document
+    css: HashMap<String, String>,
+
+    /// Whether encoding to a standalone document
+    pub standalone: bool,
 
     /// The maximum number of rows of a datatable to encode
     #[default = 1000]
@@ -114,6 +125,13 @@ pub struct DomEncodeContext {
 }
 
 impl DomEncodeContext {
+    pub fn new(standalone: bool) -> Self {
+        Self {
+            standalone,
+            ..Default::default()
+        }
+    }
+
     /// Enter an element
     pub fn enter_elem(&mut self, name: &str) -> &mut Self {
         self.content.push('<');
@@ -202,6 +220,22 @@ impl DomEncodeContext {
         self
     }
 
+    /// Push CSS classes onto the context
+    pub fn push_css(&mut self, css: &str) -> &mut Self {
+        static REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\.([\w-]+)\{([^}]+)\}").expect("invalid regex"));
+
+        for captures in REGEX.captures_iter(css) {
+            let class = &captures[1];
+            let rules = &captures[2];
+            if !self.css.contains_key(class) {
+                self.css.insert(class.to_string(), rules.to_string());
+            }
+        }
+
+        self
+    }
+
     /// Enter a slot child element
     pub fn enter_slot(&mut self, tag: &str, name: &str) -> &mut Self {
         self.enter_elem_with(tag, "slot", &name.to_kebab_case())
@@ -239,7 +273,26 @@ impl DomEncodeContext {
     }
 
     /// Get the content of the encoding context at completion of encoding
-    pub fn content(self) -> String {
-        self.content
+    pub fn content(&mut self) -> String {
+        // Use take instead of cloning for performance
+        std::mem::take(&mut self.content)
+    }
+
+    /// Get a CSS <style> element for the document
+    pub fn style(&self) -> String {
+        if !self.css.is_empty() {
+            let mut style = "<style>".to_string();
+            for (class, css) in self.css.iter() {
+                style.push('.');
+                style.push_str(class);
+                style.push('{');
+                style.push_str(css);
+                style.push('}');
+            }
+            style += "</style>";
+            style
+        } else {
+            String::new()
+        }
     }
 }

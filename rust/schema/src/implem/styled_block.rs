@@ -2,6 +2,48 @@ use codec_info::lost_options;
 
 use crate::{prelude::*, StyledBlock};
 
+impl DomCodec for StyledBlock {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_attr("code", &self.code);
+
+        if let Some(style_language) = &self.style_language {
+            context.push_attr("style-language", style_language);
+        }
+
+        if !context.standalone {
+            if let Some(css) = &self.options.css {
+                context.push_attr("css", css);
+            }
+            if let Some(class_list) = &self.options.class_list {
+                context.push_attr("class-list", class_list);
+            }
+        } else if let Some(css) = &self.options.css {
+            context.push_css(css);
+        };
+
+        if let Some(messages) = &self.options.compilation_messages {
+            context.push_slot_fn("div", "compilation-messages", |context| {
+                messages.to_dom(context)
+            });
+        }
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+        }
+
+        context.push_slot_fn("div", "content", |context| {
+            if let Some(class) = &self.options.class_list {
+                context.push_attr("class", class);
+            };
+            self.content.to_dom(context)
+        });
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for StyledBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

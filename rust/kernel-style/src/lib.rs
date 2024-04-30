@@ -1,10 +1,13 @@
+use std::hash::{Hash, Hasher};
+
 use kernel_jinja::JinjaKernelInstance;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use railwind::{parse_to_string, CollectionOptions, Source};
 
 use kernel::{
     common::{
-        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
+        async_trait::async_trait, bs58, eyre::Result, once_cell::sync::Lazy, regex::Regex,
+        seahash::SeaHasher, tracing,
     },
     format::Format,
     schema::{
@@ -73,13 +76,24 @@ impl StyleKernelInstance {
             style.to_string()
         };
 
+        // Trim to avoid whitespace at ends changing hashes
+        let style = style.trim();
+
         // Transpile Tailwind to CSS
         let (css, classes) = if !style.contains([':', '{', '}']) {
             let (css, mut tailwind_messages) = self.tailwind_to_css(&style);
             messages.append(&mut tailwind_messages);
-            (css, style)
+            (css, style.to_string())
         } else {
-            (style.to_string(), String::new())
+            let mut hash = SeaHasher::new();
+            style.hash(&mut hash);
+            let digest = hash.finish();
+
+            // Prefix with letter to avoid a number ever being first
+            let class = ["s", &bs58::encode(digest.to_be_bytes()).into_string()].concat();
+            
+            let css = [".", &class, "{", &style, "}"].concat();
+            (css, class)
         };
 
         // Normalize the CSS (including expanding the nesting)
@@ -186,6 +200,23 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn css() -> Result<()> {
+        let mut instance = StyleKernelInstance::default();
+
+        let (outputs, messages) = instance.execute(r" color: red ").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::String(".sLs9P1dtdvTV{color:red}".to_string()),
+                Node::String("sLs9P1dtdvTV".to_string())
+            ]
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn tailwind() -> Result<()> {
         let mut instance = StyleKernelInstance::default();
 
@@ -211,7 +242,10 @@ mod tests {
         );
         assert_eq!(
             outputs,
-            vec![Node::String(".text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity))}".to_string()), Node::String("foo text-blue-800".to_string())]
+            vec![
+                Node::String(".text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity))}".to_string()),
+                Node::String("foo text-blue-800".to_string())
+            ]
         );
 
         Ok(())
