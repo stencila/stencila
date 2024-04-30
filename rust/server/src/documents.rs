@@ -282,21 +282,10 @@ pub async fn serve_path(
     // Get various query parameters
     let mode = query
         .get("mode")
-        .map_or("app", |value: &String| value.as_ref());
-    let view = query
-        .get("view")
-        .map_or("static", |value: &String| value.as_ref());
-    // TODO: restrict the access to the highest based on the user's role
-    let access = query.get("access").map_or("write", |value| value.as_ref());
-    let theme = query
-        .get("theme")
-        .map_or("default", |value: &String| value.as_ref());
-    let format = query
-        .get("format")
-        .map_or("markdown", |value| value.as_ref());
+        .map_or("doc", |value: &String| value.as_ref());
 
-    // Generate the body of the HTML (or an early-returned response for `raw` view)
-    let body = if mode == "raw" {
+    // early-returned response for `raw`
+    if mode == "raw" {
         // If raw is enabled early return a response with the content of the file
         if !raw {
             return Ok(StatusCode::FORBIDDEN.into_response());
@@ -309,28 +298,33 @@ pub async fn serve_path(
             .header(CONTENT_TYPE, content_type.essence_str())
             .body(Body::from(bytes))
             .map_err(InternalError::new);
-    } else if mode == "doc" {
-        if let "static" | "print" = view {
-            doc.export(
-                None,
-                Some(EncodeOptions {
-                    format: Some(Format::Dom),
-                    ..Default::default()
-                }),
-            )
-            .await
-            .map_err(InternalError::new)?
-        } else {
-            format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
-        }
-    } else {
-        let path = path
-            .strip_prefix(&dir)
-            .map_err(InternalError::new)?
-            .display();
-        format!(
-            r#"<stencila-main-app docs='[{{"docId":"{doc_id}","path":"{path}","name":"{name}"}}]' view={view} access={access} theme={theme} format={format}></stencila-main-app>"#,
+    }
+
+    let view = query
+        .get("view")
+        .map_or("static", |value: &String| value.as_ref());
+    // TODO: restrict the access to the highest based on the user's role
+    let access = query.get("access").map_or("write", |value| value.as_ref());
+    let theme = query
+        .get("theme")
+        .map_or("default", |value: &String| value.as_ref());
+    let format = query
+        .get("format")
+        .map_or("markdown", |value| value.as_ref());
+
+    // Generate the body of the HTML
+    let body = if let "static" | "print" = view {
+        doc.export(
+            None,
+            Some(EncodeOptions {
+                format: Some(Format::Dom),
+                ..Default::default()
+            }),
         )
+        .await
+        .map_err(InternalError::new)?
+    } else {
+        format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
     };
 
     // The version path segment for static assets (JS & CSS)
@@ -340,6 +334,10 @@ pub async fn serve_path(
         STENCILA_VERSION
     };
 
+    let icon_tag = format!(
+        r#"<link rel="icon" type="image/png" href="/~static/{version}/images/favicon.png">"#
+    );
+
     // The stylesheet tag for the theme
     // TODO: resolve the theme for the document
     let theme_tag = format!(
@@ -347,30 +345,24 @@ pub async fn serve_path(
     );
 
     // The script tag for the view or app
-    let extra_head = if mode == "doc" {
-        if view == "static" {
-            // No need for any JS in this mode for this view
-            String::new()
-        } else if view == "print" {
-            format!(
-                r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/views/print.css">
-                   <script type="module" src="/~static/{version}/views/print.js"></script>"#
-            )
-        } else {
-            format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
-        }
-    } else if mode == "app" {
+    let extra_head = if view == "static" {
+        // No need for any JS in this mode for this view
+        String::new()
+    } else if view == "print" {
         format!(
-            r#" <link rel="preconnect" href="https://fonts.googleapis.com">
+            r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/views/print.css">
+                   <script type="module" src="/~static/{version}/views/print.js"></script>"#
+        )
+    } else {
+        format!(
+            r#"<link rel="preconnect" href="https://fonts.googleapis.com">
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                 <link href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
                 <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
                 <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/dark.css">
-                <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
-                <script type="module" src="/~static/{version}/apps/main.js"></script>"#
+                <link rel="stylesheet" type="text/css" href="/~static/{version}/views/{view}.css">
+                <script type="module" src="/~static/{version}/views/{view}.js"></script>"#
         )
-    } else {
-        String::new()
     };
 
     let html = format!(
@@ -379,7 +371,7 @@ pub async fn serve_path(
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
-        <link rel="icon" type="image/png" href="/~static/{version}/images/favicon.png">
+        {icon_tag}
         {theme_tag}
         {extra_head}
     </head>

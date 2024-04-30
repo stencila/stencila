@@ -25,7 +25,7 @@ export class UINodeInstructionMessages extends LitElement {
         <div slot="title">
           <span>Chat</span>
         </div>
-        <div slot="content" class="p-3">
+        <div slot="content" class="p-3 font-sans">
           <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>
