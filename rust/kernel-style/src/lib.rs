@@ -82,10 +82,6 @@ impl StyleKernelInstance {
             (style.to_string(), String::new())
         };
 
-        // Nest the CSS within the class that we are targeting. This allows "bare" CSS to
-        // be used e.g. `color: red`.
-        let css = [".styled {", &css, "}"].concat();
-
         // Normalize the CSS (including expanding the nesting)
         let (css, normalize_message) = self.normalize_css(&css);
         if let Some(normalize_message) = normalize_message {
@@ -198,7 +194,7 @@ mod tests {
         assert_eq!(
             outputs,
             vec![
-                Node::String(".styled{& .bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity))}}".to_string()), 
+                Node::String(".bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity))}".to_string()), 
                 Node::String("bg-red-100".to_string())
             ]
         );
@@ -215,7 +211,7 @@ mod tests {
         );
         assert_eq!(
             outputs,
-            vec![Node::String(".styled{& .text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity))}}".to_string()), Node::String("foo text-blue-800".to_string())]
+            vec![Node::String(".text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity))}".to_string()), Node::String("foo text-blue-800".to_string())]
         );
 
         Ok(())

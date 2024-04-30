@@ -27,7 +27,10 @@ export abstract class Styled extends Entity {
   protected adoptCss() {
     if (this.css) {
       const stylesheet = new CSSStyleSheet()
-      stylesheet.replaceSync(this.css)
+      // Wrap the CSS in a class so that the CSS applies to only the element
+      // with class=styled. Note that this requires CSS nesting: https://caniuse.com/css-nesting
+      // which is supported in major browsers.
+      stylesheet.replaceSync(`.styled { ${this.css} }`)
 
       const base = this.shadowRoot.adoptedStyleSheets[0]
       this.shadowRoot.adoptedStyleSheets = base

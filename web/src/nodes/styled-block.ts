@@ -56,7 +56,7 @@ export class StyledBlock extends Styled {
         </stencila-ui-node-code>
       </div>
 
-      <div slot="content" class=${`styled`}>
+      <div slot="content" class="styled">
         <div class="${this.classes}">
           <slot name="content"></slot>
         </div>
