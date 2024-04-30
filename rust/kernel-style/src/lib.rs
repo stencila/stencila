@@ -79,12 +79,15 @@ impl StyleKernelInstance {
         // Trim to avoid whitespace at ends changing hashes
         let style = style.trim();
 
-        // Transpile Tailwind to CSS
-        let (css, classes) = if !style.contains([':', '{', '}']) {
+        // Currently, there is no way to tell the kernel what language the style is
+        // in. So this assumes it is Tailwind unless it contains characters only found in CSS.
+        let (css, classes) = if !style.contains([';', '{', '}']) {
+            // Transpile Tailwind to CSS
             let (css, mut tailwind_messages) = self.tailwind_to_css(&style);
             messages.append(&mut tailwind_messages);
             (css, style.to_string())
         } else {
+            // Hash and wrap CSS
             let mut hash = SeaHasher::new();
             style.hash(&mut hash);
             let digest = hash.finish();
@@ -203,13 +206,13 @@ mod tests {
     async fn css() -> Result<()> {
         let mut instance = StyleKernelInstance::default();
 
-        let (outputs, messages) = instance.execute(r" color: red ").await?;
+        let (outputs, messages) = instance.execute(r" color: red; ").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(
             outputs,
             vec![
-                Node::String(".sLs9P1dtdvTV{color:red}".to_string()),
-                Node::String("sLs9P1dtdvTV".to_string())
+                Node::String(".sXVJTsg4eGEt{color:red}".to_string()),
+                Node::String("sXVJTsg4eGEt".to_string())
             ]
         );
 
