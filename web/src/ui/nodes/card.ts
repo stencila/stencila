@@ -131,6 +131,7 @@ export class UINodeCard extends LitElement {
       `bg-[${borderColour}]`,
       `border border-[${borderColour}]`,
       this.view === 'source' ? '' : 'rounded-t',
+      'font-sans',
       'font-medium',
     ])
 

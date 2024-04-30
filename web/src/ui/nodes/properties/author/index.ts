@@ -83,7 +83,7 @@ export class UINodeAuthor extends LitElement {
   details?: string
 
   override render() {
-    return html`<div class="flex flex-row gap-x-2">
+    return html`<div class="flex flex-row gap-x-2 font-sans">
       <div class="flex items-center justify-center">
         <div class="w-6 h-6 flex items-center justify-center grow-0 stretch-0">
           ${this.renderIconOrAvatar()}
