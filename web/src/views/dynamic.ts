@@ -6,6 +6,8 @@ import { DomClient } from '../clients/dom'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import '../nodes'
+import '../shoelace.css'
+import '../shoelace.ts'
 
 import { outputCSS } from './styles/global-styles'
 
@@ -51,6 +53,14 @@ export class DynamicView extends LitElement {
 
   // Add outputCSS to view
   static override styles?: CSSResultGroup = [outputCSS]
+
+  /**
+   * Override so that this component has a Light DOM so that
+   * theme styles apply to it.
+   */
+  protected override createRenderRoot() {
+    return this
+  }
 
   /**
    * Override so that clients are instantiated _after_ this

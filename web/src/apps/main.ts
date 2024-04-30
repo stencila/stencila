@@ -36,7 +36,7 @@ import { VIEWS } from '../views/views'
 
 import './main.css'
 
-import './shoelace'
+import '../shoelace'
 
 /**
  * Application Wrapper
