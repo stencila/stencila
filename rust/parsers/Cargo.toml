@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-cached = { version = "0.49.3", features = ["async"] }
+cached = { version = "0.50.0", features = ["async"] }
 parser = { path = "../parser" }

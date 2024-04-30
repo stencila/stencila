@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 Inflector = "0.11.4"
-async-recursion = "1.1.0"
+async-recursion = "1.1.1"
 async-trait = "0.1.80"
 base64 = "0.22.0"
 bs58 = "0.5.1"
@@ -26,11 +26,11 @@ proc-macro2 = "1.0.81"
 quote = "1.0.36"
 rand = "0.8.5"
 regex = "1.10.4"
-reqwest = { version = "0.12.3", features = ["json"] }
+reqwest = { version = "0.12.4", features = ["json"] }
 seahash = "4.1.0"
-serde = { version = "1.0.198", features = ["derive", "rc"] }
+serde = { version = "1.0.199", features = ["derive", "rc"] }
 serde_json = { version = "1.0.116", features = ["preserve_order"] }
-serde_with = "3.7.0"
+serde_with = "3.8.1"
 serde_yaml = "0.9.34"
 similar = { version = "2.5.0", features = ["serde", "unicode"] }
 slug = "0.1.5"
@@ -43,7 +43,7 @@ tempfile = "3.10.1"
 tokio = { version = "1.37.0", features = ["full", "tracing"] }
 toml = "0.8.12"
 tracing = { version = "0.1.40", features = ["log"] }
-type-safe-id = "0.2.1"
+type-safe-id = "0.3.0"
 uuid = "1.8.0"
 which = "6.0.1"
 xz2 = "0.1.7"
