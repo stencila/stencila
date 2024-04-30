@@ -36,6 +36,7 @@ repository:
       - include: "#end-block"
       - include: "#figure-block"
       - include: "#table-block"
+      - include: "#styled-block"
       - include: "#raw_block"
       - include: "#link-def"
       - include: "#table"
@@ -50,6 +51,7 @@ repository:
       - include: "#insert-inline"
       - include: "#delete-inline"
       - include: "#replace-inline"
+      - include: "#styled-inline"
       - include: "#ampersand"
       - include: "#bracket"
       - include: "#bold"
@@ -495,6 +497,46 @@ repository:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # table
       "3": { name: variable.name } # label
+
+  ########## StyledBlock & StyledInline ##########
+
+  styled-block:
+    name: meta.stencila.styled-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (\{
+          .*?
+        \})
+        \s*
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.css
+            include: source.css
+
+  styled-inline:
+    name: meta.stencila.styled-inline
+    match: >
+      (?x)
+      \[
+        .*?
+      \](\{
+        .*?
+      \})
+    captures:
+      "1": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.css
+            include: source.css
 
   # The following grammar rules are taken from the VSCode builtin Markdown grammar at
   #   https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml

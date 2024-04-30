@@ -153,6 +153,7 @@
         "path": "./syntaxes/smd/tmGrammar.json",
         "embeddedLanguages": {
           "source.js": "javascript",
+          "meta.embedded.language.css": "css",
           "meta.embedded.language.javascript": "javascript",
           "meta.embedded.language.python": "python",
           "meta.embedded.language.r": "r",
