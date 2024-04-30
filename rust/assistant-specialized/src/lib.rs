@@ -227,10 +227,9 @@ pub struct SpecializedAssistant {
 
     /// The format to convert various parts of the document and generated content
     ///
-    /// Generally this single format is applied to the `document`, the `content` of
+    /// Generally this single format is applied to the `content` of
     /// the instruction, and to the generated content. However, these can be specified
-    /// separately using `document_format`, `content_format`, and `generated_format`
-    /// respectively.
+    /// separately using `content_format`, and `generated_format` respectively.
     format: Option<Format>,
 
     /// The format to convert the instruction content (if any) into when rendered into the prompt.
