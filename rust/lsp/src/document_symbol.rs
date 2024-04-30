@@ -60,14 +60,18 @@ fn symbol(node: &TextNode) -> DocumentSymbol {
         Some(children)
     };
 
+    #[allow(deprecated)]
     DocumentSymbol {
         name: node.node_type.to_string(),
         kind,
         detail: None,
         tags: None,
-        deprecated: None,
         range,
         selection_range,
         children,
+
+        // Annoyingly this is deprecated but needs to be specified
+        // because `DocumentSymbol` does not implement `Default`
+        deprecated: None,
     }
 }
