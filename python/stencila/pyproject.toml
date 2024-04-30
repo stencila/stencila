@@ -30,7 +30,7 @@ classifiers = [
 
 dependencies = [
     'StrEnum==0.4.15;python_version<"3.11"',
-    "beartype==0.18.2",
+    "beartype==0.18.5",
     "cattrs==23.2.3",
     "stencila-types>=2.0.0a26",
 ]
