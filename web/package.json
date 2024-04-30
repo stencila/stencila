@@ -22,19 +22,14 @@
   ],
   "type": "module",
   "source": [
-    "src/apps/main.ts",
     "src/images/favicon.png",
     "src/themes/default.css",
     "src/themes/latex.css",
     "src/themes/tufte.css",
-    "src/views/directory.ts",
     "src/views/dynamic.ts",
     "src/views/live.ts",
     "src/views/print.ts",
-    "src/views/source.ts",
-    "src/views/split.ts",
-    "src/views/static.ts",
-    "src/views/visual.ts"
+    "src/views/static.ts"
   ],
   "staticFiles": [
     {
