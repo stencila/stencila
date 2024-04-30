@@ -2,8 +2,8 @@ use roxmltree::Document;
 
 use codec::{
     common::eyre::{bail, Result},
-    schema::{self, Article},
-    DecodeOptions, Losses,
+    schema::{Article, Node},
+    DecodeInfo, DecodeOptions, Losses,
 };
 
 mod back;
@@ -22,10 +22,7 @@ use self::utilities::{extend_path, record_node_lost};
 /// This is the main entry point for decoding. It parses the XML, and then traverses the
 /// XML DOM, building an [`Article`] from it (JATS is always treated as an article, not any other
 /// type of `CreativeWork`).
-pub(super) fn decode(
-    jats: &str,
-    _options: Option<DecodeOptions>,
-) -> Result<(schema::Node, Losses)> {
+pub(super) fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     let mut article = Article::default();
     let mut losses = Losses::none();
 
@@ -48,5 +45,12 @@ pub(super) fn decode(
         }
     }
 
-    Ok((schema::Node::Article(article), losses))
+    let node = Node::Article(article);
+
+    let info = DecodeInfo {
+        losses,
+        ..Default::default()
+    };
+
+    Ok((node, info))
 }

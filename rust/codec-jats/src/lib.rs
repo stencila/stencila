@@ -98,14 +98,7 @@ impl Codec for JatsCodec {
         str: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let (node, losses) = decode::decode(str, options)?;
-        Ok((
-            node,
-            DecodeInfo {
-                losses,
-                ..Default::default()
-            },
-        ))
+        decode::decode(str, options)
     }
 
     async fn to_string(
