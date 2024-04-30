@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rust/*", "node/stencila-node"]#, "python/stencila"]
+members = ["rust/*", "node/stencila-node", "python/stencila"]
 
 # Reduce the amount of debug info in dev binaries. 
 # Initially introduced to avoid a fatal error when running tests for the Node SDK
