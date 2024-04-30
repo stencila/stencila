@@ -54,7 +54,7 @@ async def test_to_string():
         format="md",
     )
 
-    assert markdown == "Hello **world**!"
+    assert markdown == "Hello **world**!\n"
 
 
 async def test_to_path(tmp_path: Path):
