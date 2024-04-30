@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/card'
+import '../ui/nodes/on-demand/block'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
@@ -31,18 +31,16 @@ export class Paragraph extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-node-card
-        type="Paragraph"
-        view="dynamic"
-        display="on-demand"
-      >
+      <stencila-ui-block-on-demand type="Paragraph" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <slot name="content" slot="content"></slot>
-      </stencila-ui-node-card>
+        <div slot="content">
+          <slot name="content"></slot>
+        </div>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -54,13 +52,13 @@ export class Paragraph extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-node-card type="Paragraph" view="source">
+      <stencila-ui-block-on-demand type="Paragraph" view="source">
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 }

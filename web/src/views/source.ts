@@ -460,7 +460,7 @@ export class SourceView extends TWLitElement {
       Height offset for the source view container,
       includes header height and tab container border
     */
-    const heightOffset = '5rem-1px'
+    const heightOffset = '5rem-3px'
 
     const styles = apply([
       'relative flex',

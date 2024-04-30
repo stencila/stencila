@@ -94,6 +94,7 @@ export class UINodeCard extends LitElement {
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
+      'w-full',
       this.display === 'on-demand' && this.toggle && 'px-3',
     ])
 
@@ -102,7 +103,9 @@ export class UINodeCard extends LitElement {
         ${this.renderAnimation()}
         <div class=${contentStyles}>
           ${this.renderChip()}
-          <slot name="content"></slot>
+          <div class="inline grow">
+            <slot name="content"></slot>
+          </div>
         </div>
       </div>
     </div>`

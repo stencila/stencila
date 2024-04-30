@@ -1,7 +1,8 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/card'
+import '../ui/nodes/on-demand/in-line'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -34,10 +35,9 @@ export class StyledInline extends Styled {
   override renderDynamicView() {
     this.adoptCss()
 
-    return html` <stencila-ui-node-card
+    return html` <stencila-ui-inline-on-demand
       type="StyledInline"
       view="dynamic"
-      display="on-demand"
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledInline">
@@ -59,7 +59,7 @@ export class StyledInline extends Styled {
           <slot name="content"></slot>
         </span>
       </span>
-    </stencila-ui-node-card>`
+    </stencila-ui-inline-on-demand>`
   }
 
   /**
@@ -68,12 +68,12 @@ export class StyledInline extends Styled {
    * TODO: Also render compiled CSS and styled content to help with debugging?
    */
   override renderSourceView() {
-    return html` <stencila-ui-node-card type="StyledBlock" view="source">
+    return html` <stencila-ui-block-in-flow type="StyledBlock" view="source">
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
       </div>
-    </stencila-ui-node-card>`
+    </stencila-ui-block-in-flow>`
   }
 }

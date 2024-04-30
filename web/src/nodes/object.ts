@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/card'
+import '../ui/nodes/in-flow/block'
 
 import { withTwind } from '../twind'
 
@@ -31,11 +31,11 @@ export class Object extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Object" view="dynamic">
+      <stencila-ui-block-in-flow type="Object" view="dynamic">
         <div slot="body" class="p-2">
           <slot></slot>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 
@@ -46,11 +46,11 @@ export class Object extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Object" view="source">
+      <stencila-ui-block-in-flow type="Object" view="source">
         <div slot="body" class="p-2">
           <slot></slot>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 }

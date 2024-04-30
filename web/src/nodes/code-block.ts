@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import '../ui/nodes/card'
+import '../ui/nodes/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -24,7 +24,7 @@ export class CodeBlock extends CodeStatic {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="CodeBlock" view="dynamic">
+      <stencila-ui-block-in-flow type="CodeBlock" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors>
             <slot name="authors"></slot>
@@ -38,7 +38,7 @@ export class CodeBlock extends CodeStatic {
           >
           </stencila-ui-node-code>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 
@@ -48,13 +48,21 @@ export class CodeBlock extends CodeStatic {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="CodeBlock" view="source">
+      <stencila-ui-block-in-flow type="CodeBlock" view="source">
         <div slot="body">
           <stencila-ui-node-authors>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+
+          <stencila-ui-node-code
+            type="CodeBlock"
+            code=${this.code}
+            language=${this.programmingLanguage}
+            read-only
+          >
+          </stencila-ui-node-code>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-in-flow>
     `
   }
 }
