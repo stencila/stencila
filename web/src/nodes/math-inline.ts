@@ -3,8 +3,8 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/on-demand/in-line'
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/on-demand/in-line'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -37,7 +37,6 @@ export class MathInline extends Math {
             code=${this.code}
             language=${this.mathLanguage}
             read-only
-            collapsed
           >
           </stencila-ui-node-code>
         </div>

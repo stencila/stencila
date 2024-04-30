@@ -7,10 +7,6 @@ import { nodeUi } from '../icons-and-colours'
 
 /**
  * A Base class for UI elements. Provides access to ui theming.
- *
- * @export
- * @class UIBaseClass
- * @extends {LitElement}
  */
 export class UIBaseClass extends LitElement {
   /**

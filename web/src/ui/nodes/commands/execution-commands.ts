@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { apply, css } from '@twind/core'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import {
@@ -10,13 +10,14 @@ import {
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { NodeId } from '../../../types'
+import { UIBaseClass } from '../mixins/ui-base-class'
 
 /**
  * A component for providing common execution related actions of executable nodes
  */
 @customElement('stencila-ui-node-execution-commands')
 @withTwind()
-export class UINodeExecutionCommands extends LitElement {
+export class UINodeExecutionCommands extends UIBaseClass {
   /**
    * The id of the node that these commands apply to
    */
@@ -27,7 +28,9 @@ export class UINodeExecutionCommands extends LitElement {
    * Emit a custom event to execute the document with this
    * node id a command scope
    */
-  private emitEvent(scope: DocumentCommand['scope']) {
+  private emitEvent(e: Event, scope: DocumentCommand['scope']) {
+    e.stopImmediatePropagation()
+
     this.dispatchEvent(
       documentCommandEvent({
         command: 'execute-nodes',
@@ -39,15 +42,21 @@ export class UINodeExecutionCommands extends LitElement {
 
   override render() {
     const containerClasses = apply([
-      'flex flex-row items-center gap-x-2',
+      'flex flex-row items-center gap-x-3 flex-shrink-0',
       'text-black',
     ])
 
     const dividerClasses = apply([
       'h-4 w-0',
-      'border border-gray-400',
-      'mix-blend-multiply opacity-50',
+      `border-l-2 border-[${this.ui.borderColour}]`,
+      `brightness-75`,
     ])
+
+    const buttonClasses = css`
+      &::part(base) {
+        --sl-spacing-x-small: 0;
+      }
+    `
 
     return html`
       <div class=${containerClasses}>
@@ -55,18 +64,21 @@ export class UINodeExecutionCommands extends LitElement {
           <sl-icon-button
             name="play"
             library="stencila"
-            @click=${() => this.emitEvent('only')}
+            @click=${(e: Event) => {
+              this.emitEvent(e, 'only')
+            }}
+            class=${`${buttonClasses} text-base`}
           ></sl-icon-button>
         </sl-tooltip>
 
-        <div class=${dividerClasses}></div>
+        <div class=${dividerClasses} aria-hidden="true"></div>
 
         <sl-tooltip content="Execute this node and all following nodes">
           <sl-icon-button
             name="skip"
             library="stencila"
-            class="text-2xl"
-            @click=${() => this.emitEvent('plus-after')}
+            @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
+            class=${`${buttonClasses} text-2xl`}
           ></sl-icon-button>
         </sl-tooltip>
 
@@ -78,9 +90,10 @@ export class UINodeExecutionCommands extends LitElement {
           <sl-icon-button
             name="deps-tree"
             library="stencila"
-            class="text-xl"
             disabled
-            @click=${() => this.emitEvent('plus-upstream-downstream')}
+            @click=${(e: Event) =>
+              this.emitEvent(e, 'plus-upstream-downstream')}
+            class=${`${buttonClasses} text-xl`}
           ></sl-icon-button>
         </sl-tooltip>
       </div>

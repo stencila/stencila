@@ -8,7 +8,7 @@ import { withTwind } from '../twind'
 import { Entity } from './entity'
 
 import './array-item'
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/in-flow/block'
 
 /**
  * Web component representing a Stencila Schema `Array` node

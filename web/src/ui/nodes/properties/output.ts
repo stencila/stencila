@@ -40,6 +40,6 @@ export class UiNodeOutput extends LitElement {
       `border border-[${borderColour}]`,
     ])
 
-    return html`<span class=${classes}><slot></slot></span>`
+    return html`<div class=${classes}><slot></slot></div>`
   }
 }

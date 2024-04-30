@@ -3,13 +3,13 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
-import '../ui/nodes/properties/output'
+import '../ui/nodes/properties/outputs'
 
 import { CodeExecutable } from './code-executable'
 
@@ -34,9 +34,16 @@ export class CodeExpression extends CodeExecutable {
    * on demand with execution actions and details and code read-only.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-block-in-flow type="CodeExpression" view="dynamic">
+    return html`<stencila-ui-inline-on-demand
+      type="CodeExpression"
+      view="dynamic"
+      title=${this.programmingLanguage}
+    >
       <span slot="header-right">
-        <stencila-ui-node-execution-commands node-id=${this.id}>
+        <stencila-ui-node-execution-commands
+          node-id=${this.id}
+          type="CodeExpression"
+        >
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
@@ -63,7 +70,6 @@ export class CodeExpression extends CodeExecutable {
           code=${this.code}
           language=${this.programmingLanguage}
           read-only
-          collapsed
         >
         </stencila-ui-node-code>
 
@@ -75,14 +81,13 @@ export class CodeExpression extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
+        <stencila-ui-node-outputs type="CodeExpression">
+          <slot name="output"></slot>
+        </stencila-ui-node-outputs>
       </div>
 
-      <span slot="content">
-        <stencila-ui-node-output type="CodeExpression">
-          <slot name="output"></slot>
-        </stencila-ui-node-output>
-      </span>
-    </stencila-ui-block-in-flow>`
+      <span slot="content">${this.code}</span>
+    </stencila-ui-inline-on-demand>`
   }
 
   /**
@@ -92,7 +97,10 @@ export class CodeExpression extends CodeExecutable {
   override renderSourceView() {
     return html`<stencila-ui-block-in-flow type="CodeExpression" view="source">
       <span slot="header-right">
-        <stencila-ui-node-execution-commands node-id=${this.id}>
+        <stencila-ui-node-execution-commands
+          node-id=${this.id}
+          type="CodeExpression"
+        >
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
@@ -123,9 +131,9 @@ export class CodeExpression extends CodeExecutable {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 
-        <stencila-ui-node-output>
+        <stencila-ui-node-outputs type="CodeExpression">
           <slot name="output"></slot>
-        </stencila-ui-node-output>
+        </stencila-ui-node-outputs>
       </div>
     </stencila-ui-block-in-flow>`
   }

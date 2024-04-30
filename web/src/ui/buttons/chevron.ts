@@ -20,7 +20,7 @@ export class Chevron extends LitElement {
   disabled: boolean = false
 
   @property()
-  clickEvent: (e: Event) => void | undefined
+  clickEvent?: (e: Event) => void
 
   @property({ type: String, attribute: 'default-pos' })
   direction: Exclude<ChevronPosition, 'down'> = 'left'
@@ -33,6 +33,9 @@ export class Chevron extends LitElement {
 
   @property({ type: String })
   colour: string = 'black'
+
+  @property({ type: Boolean })
+  disableEvents?: boolean = false
 
   private changePosition = () => {
     this.position === this.direction
@@ -58,8 +61,12 @@ export class Chevron extends LitElement {
       <button
         class="${this.customClass} cursor-pointer leading-[0px]"
         @click=${(e: Event) => {
+          if (this.disableEvents) {
+            return
+          }
+
           this.changePosition()
-          this.clickEvent(e)
+          this.clickEvent && this.clickEvent(e)
         }}
       >
         <sl-icon

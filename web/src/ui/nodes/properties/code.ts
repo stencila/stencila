@@ -154,7 +154,7 @@ export class UINodeCode extends LitElement {
   /**
    * Get the title of the language to display
    */
-  private getLanguageTitle(): string {
+  protected getLanguageTitle(): string {
     switch (this.language.toLowerCase()) {
       case 'asciimath':
         return 'AsciiMath'
@@ -216,24 +216,13 @@ export class UINodeCode extends LitElement {
   }
 
   override render() {
-    const { colour, borderColour } = nodeUi(this.type)
-
-    const language = this.getLanguageTitle()
+    const { borderColour } = nodeUi(this.type)
 
     const headerClasses = apply([
       'flex flex-row justify-between items-center',
       'px-4 py-1.5',
       `bg-[${borderColour}]`,
       'cursor-pointer',
-    ])
-
-    const languageClasses = apply([
-      this.language ? 'flex' : 'hidden',
-      'items-center',
-      `bg-[${colour}]`,
-      'px-1.5 py-0.5 mr-3',
-      'rounded-full',
-      'text-xs',
     ])
 
     const contentClasses = apply([
@@ -253,9 +242,6 @@ export class UINodeCode extends LitElement {
           <span class="ml-4 text-sm">Code</span>
         </div>
         <div class="flex items-center">
-          <span class=${languageClasses}>
-            <span>${language}</span>
-          </span>
           <stencila-chevron-button
             position=${this.collapsed ? 'left' : 'down'}
           ></stencila-chevron-button>
@@ -264,7 +250,7 @@ export class UINodeCode extends LitElement {
 
       <div class=${contentClasses}>
         <div hidden><slot></slot></div>
-        <div id="codemirror" class="bg-gray-50"></div>
+        <div id="codemirror" class=${`bg-gray-50`}></div>
       </div>
     </div>`
   }

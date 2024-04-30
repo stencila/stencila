@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/on-demand/block'
+import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'

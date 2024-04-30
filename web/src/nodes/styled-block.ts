@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '../ui/nodes/card'
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -37,7 +37,11 @@ export class StyledBlock extends Styled {
   override renderDynamicView() {
     this.adoptCss()
 
-    return html` <stencila-ui-block-in-flow type="StyledBlock" view="dynamic">
+    return html` <stencila-ui-block-in-flow
+      type="StyledBlock"
+      view="dynamic"
+      .canAnimate=${false}
+    >
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
           <slot name="authors"></slot>
@@ -48,7 +52,6 @@ export class StyledBlock extends Styled {
           code=${this.code}
           language=${this.styleLanguage}
           read-only
-          collapsed
         >
         </stencila-ui-node-code>
       </div>
@@ -80,7 +83,6 @@ export class StyledBlock extends Styled {
           code=${this.code}
           language=${this.styleLanguage}
           read-only
-          collapsed
         >
         </stencila-ui-node-code>
       </div>

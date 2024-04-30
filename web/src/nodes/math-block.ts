@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/in-flow/block'
+import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
 
@@ -36,7 +36,6 @@ export class MathBlock extends Math {
             code=${this.code}
             language=${this.mathLanguage}
             read-only
-            collapsed
           >
           </stencila-ui-node-code>
 

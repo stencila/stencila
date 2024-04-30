@@ -13,22 +13,24 @@ import { withTwind } from '../../twind'
 @withTwind()
 export class UINodeCollapsibleAnimation extends LitElement {
   static override styles = css`
-    div {
+    :host div {
       overflow: hidden;
       opacity: 0;
       max-height: 0;
       transition:
         max-height 400ms cubic-bezier(0, 1, 0, 1),
-        opacity 400ms;
+        opacity 800ms;
       transform: translate3d(0, 0, 0);
     }
 
     :host(.opened) div {
-      max-height: 1000px;
+      max-height: 10000px;
       opacity: 1;
       transition:
         max-height 700ms ease-in-out,
         opacity 400ms;
+      transform: translate3d(0, 0, 0);
+      overflow: visible;
     }
   `
 

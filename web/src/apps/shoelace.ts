@@ -23,3 +23,18 @@ setBasePath(`/~static/${base}/shoelace-style/`)
 registerIconLibrary('stencila', {
   resolver: (name) => `/~static/${base}/app-assets/icons/${name}.svg`,
 })
+
+registerIconLibrary('boxicons', {
+  resolver: (name) => {
+    let folder = 'regular'
+    if (name.substring(0, 4) === 'bxs-') folder = 'solid'
+    if (name.substring(0, 4) === 'bxl-') folder = 'logos'
+    return `https://cdn.jsdelivr.net/npm/boxicons@2.1.4/svg/${folder}/${name}.svg`
+  },
+  mutator: (svg) => svg.setAttribute('fill', 'currentColor'),
+})
+
+registerIconLibrary('lucide', {
+  resolver: (name) =>
+    `https://cdn.jsdelivr.net/npm/lucide-static@0.365.0/icons/${name}.svg`,
+})
