@@ -66,7 +66,7 @@ export class UINodeExecutionDetails extends LitElement {
       'py-1.5 px-4',
       `bg-[${borderColour}]`,
       'border-t border-b border-black/20',
-      'font-sans'
+      'font-sans',
     ])
 
     return html`
