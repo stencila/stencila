@@ -109,13 +109,13 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
 }
 
 trait Inspect {
-    fn inspect(&self, inspector: &mut Inspector) {}
+    fn inspect(&self, _inspector: &mut Inspector) {}
 }
 
 macro_rules! executable {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
-            fn inspect(&self, inspector: &mut Inspector) {
+            fn inspect(&self, _inspector: &mut Inspector) {
 
             }
         })*

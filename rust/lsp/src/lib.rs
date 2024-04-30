@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use async_lsp::ClientSocket;
 
 mod code_lens;
-mod document_symbol;
 mod commands;
+mod document_symbol;
 mod inspect;
 mod lifecycle;
 mod run;

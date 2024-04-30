@@ -23,8 +23,8 @@ where
 {
     pub fn new(source: &'source str, generated: &'generated str, mapping: Mapping) -> Self {
         Self {
-            positions: Positions::new(&source),
-            shifter: Shifter::new(&source, &generated),
+            positions: Positions::new(source),
+            shifter: Shifter::new(source, generated),
             mapping,
         }
     }

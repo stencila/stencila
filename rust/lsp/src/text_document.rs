@@ -25,7 +25,7 @@ use schema::{NodeId, NodeType, Visitor};
 use crate::{inspect::Inspector, ServerState};
 
 /// A Stencila `Node` within a `TextDocument`
-/// 
+///
 /// This mirrors the structure of a document but only recording the attributes needed for
 /// deriving code lenses, document symbols etc.
 #[derive(Clone)]

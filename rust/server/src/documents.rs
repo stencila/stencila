@@ -273,11 +273,6 @@ pub async fn serve_path(
         .await
         .map_err(InternalError::new)?;
     let doc_id = doc.id();
-    let name = path
-        .file_name()
-        .ok_or_eyre("File has no name")
-        .map_err(InternalError::new)?
-        .to_string_lossy();
 
     // Get various query parameters
     let mode = query

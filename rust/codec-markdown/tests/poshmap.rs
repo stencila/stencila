@@ -39,7 +39,7 @@ async fn same() -> Result<()> {
     let art = mapping.entry_at(13).unwrap().clone();
     assert_eq!(art.node_type, NodeType::Article);
 
-    let poshmap = PoshMap::new(&source, &generated, mapping);
+    let poshmap = PoshMap::new(source, &generated, mapping);
 
     assert_eq!(
         poshmap.node_id_to_range8(&p1.node_id),
@@ -93,7 +93,7 @@ async fn spacing() -> Result<()> {
     let art = mapping.entry_at(13).unwrap().clone();
     assert_eq!(art.node_type, NodeType::Article);
 
-    let poshmap = PoshMap::new(&source, &generated, mapping);
+    let poshmap = PoshMap::new(source, &generated, mapping);
 
     assert_eq!(
         poshmap.node_id_to_range8(&p1.node_id),
@@ -165,7 +165,7 @@ async fn emoji() -> Result<()> {
     let art = mapping.entry_at(15).unwrap().clone();
     assert_eq!(art.node_type, NodeType::Article);
 
-    let poshmap = PoshMap::new(&source, &generated, mapping);
+    let poshmap = PoshMap::new(source, &generated, mapping);
 
     assert_eq!(
         poshmap.node_id_to_range8(&p1.node_id),

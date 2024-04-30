@@ -21,7 +21,7 @@ impl MarkdownCodec for CallBlock {
                 }
                 arg.to_markdown(context);
             }
-            
+
             context.push_str(")");
         }
 

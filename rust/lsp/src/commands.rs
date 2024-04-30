@@ -88,7 +88,7 @@ async fn run_all_doc(
         .ok_or_else(|| {
             ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
-                format!("No document path in args"),
+                "No document path in args".to_string(),
             )
         })?;
 
@@ -96,7 +96,7 @@ async fn run_all_doc(
 
     let file_name = path
         .file_name()
-        .map_or_else(|| String::new(), |name| name.to_string_lossy().to_string());
+        .map_or_else(String::new, |name| name.to_string_lossy().to_string());
 
     let progress_sender = create_progress(client, format!("Running {file_name}")).await;
 
@@ -105,7 +105,7 @@ async fn run_all_doc(
         let mut percentage = 10;
         while percentage <= 100 {
             percentage += 10;
-            if let Err(..) = progress_sender.send((percentage, None)) {
+            if progress_sender.send((percentage, None)).is_err() {
                 break;
             };
             tokio::time::sleep(Duration::from_secs(1)).await;
@@ -115,7 +115,7 @@ async fn run_all_doc(
     Ok(None)
 }
 
-static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(|| AtomicI32::default());
+static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);
 
 /// Create and begin a progress notification
 async fn create_progress(

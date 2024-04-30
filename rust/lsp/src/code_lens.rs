@@ -22,7 +22,6 @@ use crate::{
 pub(crate) async fn request(root: &TextNode) -> Result<Option<Vec<CodeLens>>, ResponseError> {
     let code_lenses = root
         .flatten()
-        .into_iter()
         .flat_map(
             |TextNode {
                  range,
@@ -31,7 +30,7 @@ pub(crate) async fn request(root: &TextNode) -> Result<Option<Vec<CodeLens>>, Re
                  ..
              }| {
                 let lens = |command: &str| CodeLens {
-                    range: range.clone(),
+                    range: *range,
                     command: None,
                     data: Some(json!([command, node_type, node_id])),
                 };

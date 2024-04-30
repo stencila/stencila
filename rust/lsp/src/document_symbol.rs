@@ -50,8 +50,8 @@ fn symbol(node: &TextNode) -> DocumentSymbol {
         _ => SymbolKind::CONSTRUCTOR,
     };
 
-    let range = node.range.clone();
-    let selection_range = range.clone();
+    let range = node.range;
+    let selection_range = range;
 
     let children: Vec<DocumentSymbol> = node.children.iter().map(symbol).collect();
     let children = if children.is_empty() {
