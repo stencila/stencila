@@ -528,7 +528,7 @@ mod tests {
             })
             .await?;
         watch.changed().await.ok();
-        assert_eq!(md().await?, "Hello world");
+        assert_eq!(md().await?, "Hello world\n");
 
         // Test delete operation
         patch_sender
@@ -538,7 +538,7 @@ mod tests {
             })
             .await?;
         watch.changed().await.ok();
-        assert_eq!(md().await?, "Hello ld");
+        assert_eq!(md().await?, "Hello ld\n");
 
         // Test replace operation
         patch_sender
@@ -548,7 +548,7 @@ mod tests {
             })
             .await?;
         watch.changed().await.ok();
-        assert_eq!(md().await?, "Hello friend");
+        assert_eq!(md().await?, "Hello friend\n");
 
         Ok(())
     }
@@ -588,7 +588,7 @@ mod tests {
         assert_eq!(patch.version, 2);
         assert_eq!(
             patch.ops[0],
-            FormatOperation::insert_content(0, "Hello world")
+            FormatOperation::insert_content(0, "Hello world\n")
         );
 
         // Test deleting content
