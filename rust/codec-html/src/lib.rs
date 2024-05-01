@@ -24,7 +24,7 @@ impl Codec for HtmlCodec {
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Html => CodecSupport::LowLoss,
+            Format::Html => CodecSupport::HighLoss,
             _ => CodecSupport::None,
         }
     }

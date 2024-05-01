@@ -61,7 +61,9 @@ expression: specs
   },
   "html": {
     "status": "under-development",
-    "supports_from_formats": {},
+    "supports_from_formats": {
+      "html": "HighLoss"
+    },
     "supports_from_bytes": false,
     "supports_from_string": true,
     "supports_from_path": true,

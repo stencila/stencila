@@ -3,10 +3,7 @@ use codec::{common::eyre::Result, schema::Node, EncodeInfo, EncodeOptions};
 use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
 /// Encode a Stencila Schema [`Node`] to aHTML string
-pub(super) fn encode(
-    node: &Node,
-    options: Option<EncodeOptions>,
-) -> Result<(String, EncodeInfo)> {
+pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let EncodeOptions {
         compact,
         standalone,
