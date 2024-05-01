@@ -53,7 +53,7 @@
     "test": "jest",
     "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
     "bench": "tsup --entry.index src/bench.ts --external ../stencila.node --format cjs --out-dir bench --clean && node bench/index.cjs | tee bench/results.txt",
-    "unused": "depcheck --quiet --ignores @types/jest,benchmark,tmp --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignores @napi-rs/cli,@types/jest,benchmark,tmp --ignore-patterns '.eslintrc*'"
   },
   "engines": {
     "node": ">=16"
