@@ -97,7 +97,7 @@ function registerCommands(context: vscode.ExtensionContext) {
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Inspect Node</title>
           </head>
-          <body style="background: white">
+          <body style="background: white;">
             TODO: Load node "${nodeId}" as WebComponent from WebSocket server
           </body>
         </html>`;

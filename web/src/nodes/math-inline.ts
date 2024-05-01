@@ -26,7 +26,7 @@ export class MathInline extends Math {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-inline-on-demand type="MathInline" view="source">
+      <stencila-ui-inline-on-demand type="MathInline" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="MathInline">
             <slot name="authors"></slot>

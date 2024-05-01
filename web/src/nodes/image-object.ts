@@ -26,13 +26,14 @@ export class ImageObject extends Entity {
    * In dynamic view, in addition to the image, render a node card.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card
-      type="ImageObject"
-      view="dynamic"
-      collapsible=${true}
-      ><div slot="body">
-        <slot></slot></div
-    ></stencila-ui-node-card>`
+    return html`
+      <stencila-ui-block-on-demand type="ImageObject" view="dynamic">
+        <div slot="body"></div>
+        <div slot="content">
+          <slot></slot>
+        </div>
+      </stencila-ui-block-on-demand>
+    `
   }
 
   /**
@@ -40,12 +41,14 @@ export class ImageObject extends Entity {
    * image itself, which won't be displayed in the source.
    */
   override renderSourceView() {
-    return html`<stencila-ui-node-card
-      type="ImageObject"
-      view="source"
-      collapsible=${true}
-      ><div slot="body">
-        <slot></slot></div
-    ></stencila-ui-node-card>`
+    return html`
+      <stencila-ui-node-card
+        type="ImageObject"
+        view="source"
+        collapsible=${true}
+        ><div slot="body">
+          <slot></slot></div
+      ></stencila-ui-node-card>
+    `
   }
 }

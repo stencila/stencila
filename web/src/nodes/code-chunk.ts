@@ -54,7 +54,7 @@ export class CodeChunk extends CodeExecutable {
    * with execution actions and details and code read-only and collapsed.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-block-in-flow
+    return html`<stencila-ui-block-on-demand
       type="CodeChunk"
       view="dynamic"
       title=${this.programmingLanguage}
@@ -101,11 +101,9 @@ export class CodeChunk extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
-
-        <stencila-ui-node-outputs type="CodeChunk">
-          <slot name="outputs"></slot>
-        </stencila-ui-node-outputs>
-
+      </div>
+      <div slot="content">
+        <slot name="outputs"></slot>
         <stencila-ui-node-label-and-caption
           type="CodeChunk"
           label-type=${this.labelType}
@@ -114,7 +112,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="caption" slot="caption"></slot>
         </stencila-ui-node-label-and-caption>
       </div>
-    </stencila-ui-block-in-flow>`
+    </stencila-ui-block-on-demand>`
   }
 
   /**
