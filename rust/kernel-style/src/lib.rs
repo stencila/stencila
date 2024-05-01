@@ -83,7 +83,7 @@ impl StyleKernelInstance {
         // in. So this assumes it is Tailwind unless it contains characters only found in CSS.
         let (css, classes) = if !style.contains([';', '{', '}']) {
             // Transpile Tailwind to CSS
-            let (css, mut tailwind_messages) = self.tailwind_to_css(&style);
+            let (css, mut tailwind_messages) = self.tailwind_to_css(style);
             messages.append(&mut tailwind_messages);
             (css, style.to_string())
         } else {
@@ -94,7 +94,7 @@ impl StyleKernelInstance {
 
             // Prefix with letter to avoid a number ever being first
             let class = ["s", &bs58::encode(digest.to_be_bytes()).into_string()].concat();
-            
+
             let css = [".", &class, "{", &style, "}"].concat();
             (css, class)
         };
