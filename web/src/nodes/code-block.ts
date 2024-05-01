@@ -24,12 +24,13 @@ export class CodeBlock extends CodeStatic {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-in-flow type="CodeBlock" view="dynamic">
+      <stencila-ui-block-on-demand type="CodeBlock" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-
+        </div>
+        <div slot="content">
           <stencila-ui-node-code
             type="CodeBlock"
             code=${this.code}
@@ -38,7 +39,7 @@ export class CodeBlock extends CodeStatic {
           >
           </stencila-ui-node-code>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 
