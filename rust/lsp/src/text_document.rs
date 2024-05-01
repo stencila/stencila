@@ -28,7 +28,7 @@ use crate::{inspect::Inspector, ServerState};
 ///
 /// This mirrors the structure of a document but only recording the attributes needed for
 /// deriving code lenses, document symbols etc.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(super) struct TextNode {
     /// The range in the document that the node occurs
     pub range: Range,
@@ -38,6 +38,9 @@ pub(super) struct TextNode {
 
     /// The id of the node
     pub node_id: NodeId,
+
+    /// A string detail of the node
+    pub detail: Option<String>,
 
     /// The children of the node
     pub children: Vec<TextNode>,
@@ -49,6 +52,7 @@ impl Default for TextNode {
             range: Range::default(),
             node_type: NodeType::Article,
             node_id: NodeId::null(),
+            detail: None,
             children: Vec::new(),
         }
     }
