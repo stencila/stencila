@@ -7,7 +7,6 @@ import { withTwind } from '../twind'
 import { Instruction } from './instruction'
 
 import '../ui/nodes/node-card/on-demand/in-line'
-import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-messages'
 
