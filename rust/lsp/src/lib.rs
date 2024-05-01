@@ -4,11 +4,13 @@ use async_lsp::ClientSocket;
 
 mod code_lens;
 mod commands;
+mod completion;
 mod document_symbol;
 mod inspect;
 mod lifecycle;
 mod run;
 mod text_document;
+mod utils;
 
 pub use run::run;
 use text_document::TextDocument;

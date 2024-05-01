@@ -1,7 +1,7 @@
-use async_lsp::lsp_types::{Position, Range};
+use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
-use codecs::{Mapping, PoshMap, Position16, Range16};
+use codecs::{Mapping, PoshMap};
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
@@ -13,7 +13,7 @@ use schema::{
     ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
-use crate::text_document::TextNode;
+use crate::{text_document::TextNode, utils::range16_to_range};
 
 /// A struct that implements the [`Visitor`] trait to collect
 /// diagnostics, code lenses etc from the nodes in a document
@@ -61,22 +61,6 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
                 }
             }
         }
-    }
-}
-
-/// Convert a Stencila [`Range16`] to a LSP [`Range`]
-fn range16_to_range(range: Range16) -> Range {
-    Range {
-        start: position16_to_position(range.start),
-        end: position16_to_position(range.end),
-    }
-}
-
-/// Convert a Stencila [`Position16`] to a LSP [`Position`]
-fn position16_to_position(position: Position16) -> Position {
-    Position {
-        line: position.line as u32,
-        character: position.column as u32,
     }
 }
 
