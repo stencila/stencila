@@ -466,6 +466,10 @@ impl Assistant for SpecializedAssistant {
         self.version.clone()
     }
 
+    fn description(&self) -> Option<String> {
+        Some(self.description.clone())
+    }
+
     fn context_length(&self) -> usize {
         self.context_length.unwrap_or_default()
     }
