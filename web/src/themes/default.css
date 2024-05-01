@@ -56,11 +56,11 @@ body {
     background: orange;
     border: 1px solid transparent;
 
-    /* &:has(+ stencila-heading) { */
-    p {
-      margin-bottom: 0;
+    &:has(+ stencila-heading) {
+      p {
+        margin-bottom: 0;
+      }
     }
-    /* } */
   }
 
   stencila-list-item {
