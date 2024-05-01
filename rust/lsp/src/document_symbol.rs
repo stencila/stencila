@@ -10,50 +10,64 @@ use schema::NodeType;
 
 use crate::text_document::TextNode;
 
-/// Handle a request for code lenses for a document
-///
-/// Note that, as recommended for performance reasons, this function returns
-/// code lenses without a `command` but with `data` which is used to "resolve"
-/// the command in the `resolve` handler below
+/// Handle a request for document symbols
 pub(crate) async fn request(
     root: &TextNode,
 ) -> Result<Option<DocumentSymbolResponse>, ResponseError> {
-    let symbols = symbol(root).children.unwrap_or_default();
+    let symbols = symbol(root)
+        .and_then(|symbol| symbol.children)
+        .unwrap_or_default();
 
     Ok(Some(DocumentSymbolResponse::Nested(symbols)))
 }
 
 /// Create a [`DocumentSymbol`] for a [`TextNode`]
-fn symbol(node: &TextNode) -> DocumentSymbol {
+fn symbol(node: &TextNode) -> Option<DocumentSymbol> {
+    use NodeType::*;
     let kind = match node.node_type {
         // Primitive node types
-        NodeType::Null => SymbolKind::NULL,
-        NodeType::Boolean => SymbolKind::BOOLEAN,
-        NodeType::Integer => SymbolKind::NUMBER,
-        NodeType::Number => SymbolKind::NUMBER,
-        NodeType::String => SymbolKind::STRING,
-        NodeType::Array => SymbolKind::ARRAY,
-        NodeType::Object => SymbolKind::OBJECT,
+        Null => SymbolKind::NULL,
+        Boolean => SymbolKind::BOOLEAN,
+        Integer => SymbolKind::NUMBER,
+        Number => SymbolKind::NUMBER,
+        String => SymbolKind::STRING,
+        Array => SymbolKind::ARRAY,
+        Object => SymbolKind::OBJECT,
 
         // Executable node types
-        NodeType::CodeChunk | NodeType::CodeExpression => SymbolKind::EVENT,
-        NodeType::IfBlock => SymbolKind::CLASS,
-        NodeType::ForBlock => SymbolKind::ENUM,
-        NodeType::Parameter => SymbolKind::VARIABLE,
+        CodeChunk | CodeExpression | IfBlockClause => SymbolKind::EVENT,
+        IfBlock => SymbolKind::CLASS,
+        ForBlock => SymbolKind::ENUM,
+        Parameter => SymbolKind::VARIABLE,
 
-        // No executable node types
-        NodeType::Paragraph => SymbolKind::STRING,
-        NodeType::CodeBlock | NodeType::CodeInline => SymbolKind::OBJECT,
-        NodeType::MathBlock | NodeType::MathInline => SymbolKind::OPERATOR,
-        NodeType::Table => SymbolKind::STRUCT,
+        // Non-executable node types
+        Paragraph => SymbolKind::STRING,
+        CodeBlock | CodeInline => SymbolKind::OBJECT,
+        MathBlock | MathInline => SymbolKind::OPERATOR,
+        Table => SymbolKind::STRUCT,
+
+        // Skip generating symbols for table cells and text nodes
+        // (of which there are likely to be many)
+        TableCell | Text => return None,
 
         _ => SymbolKind::CONSTRUCTOR,
+    };
+
+    let detail = if let Some(detail) = &node.detail {
+        const MAX_LEN: usize = 24;
+        if detail.len() > MAX_LEN && MAX_LEN > 3 {
+            Some(format!("{}...", &detail[..MAX_LEN - 3]))
+        } else {
+            Some(detail.to_string())
+        }
+    } else {
+        None
     };
 
     let range = node.range;
     let selection_range = range;
 
-    let children: Vec<DocumentSymbol> = node.children.iter().map(symbol).collect();
+    let children: Vec<DocumentSymbol> = node.children.iter().filter_map(symbol).collect();
     let children = if children.is_empty() {
         None
     } else {
@@ -61,10 +75,10 @@ fn symbol(node: &TextNode) -> DocumentSymbol {
     };
 
     #[allow(deprecated)]
-    DocumentSymbol {
+    Some(DocumentSymbol {
         name: node.node_type.to_string(),
         kind,
-        detail: None,
+        detail,
         tags: None,
         range,
         selection_range,
@@ -73,5 +87,5 @@ fn symbol(node: &TextNode) -> DocumentSymbol {
         // Annoyingly this is deprecated but needs to be specified
         // because `DocumentSymbol` does not implement `Default`
         deprecated: None,
-    }
+    })
 }

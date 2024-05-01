@@ -18,8 +18,14 @@ pub use assistant;
 pub mod cli;
 
 /// Get a list of available assistants in descending preference rank
-pub async fn list() -> Vec<Arc<dyn Assistant>> {
-    let futures = (0..=6).map(|provider| async move {
+pub async fn list(all: bool) -> Vec<Arc<dyn Assistant>> {
+    let range = if all {
+        0..=6
+    } else {
+        5..=6
+    };
+
+    let futures = range.map(|provider| async move {
         let (provider, result) = match provider {
             0 => ("Anthropic", assistant_anthropic::list().await),
             1 => ("Google", assistant_google::list().await),
@@ -75,7 +81,7 @@ where
 /// task) then returns that assistant. Otherwise returns the assignee with the highest
 /// suitability score for the task.
 pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>> {
-    let assistants = list().await;
+    let assistants = list(true).await;
 
     let assistant = if let Some(assignee) = task.instruction().assignee() {
         let name = if assignee.contains('/') {
