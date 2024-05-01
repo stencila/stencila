@@ -23,6 +23,7 @@
   "type": "module",
   "source": [
     "src/shoelace.css",
+    "src/apps/main.css",
     "src/images/favicon.png",
     "src/themes/default.css",
     "src/themes/latex.css",

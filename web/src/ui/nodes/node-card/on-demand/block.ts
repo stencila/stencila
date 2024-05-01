@@ -25,11 +25,11 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       'transition duration-400',
       'border border-[transparent]',
       'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
-      this.toggle && `border-[${this.ui.borderColour}]`,
+      this.view === 'source' ? 'flex flex-col h-full' : '',
+      this.toggle && `border-[${this.ui.borderColour}] mb-2`,
     ])
 
-    return html`<div class=${`${cardStyles}`}>
+    return html`<div class=${`ui-block-on-demand ${cardStyles}`}>
       <div class="relative">
         <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
           ${this.renderHeader()} ${this.renderBody()}

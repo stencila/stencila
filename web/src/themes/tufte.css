@@ -28,13 +28,14 @@
   background-color: #fffff8;
   color: #111;
   counter-reset: sidenote-counter;
+  display: block;
 
   h1 {
     font-weight: 400;
-    margin-top: 4rem;
+    /* margin-top: 4rem;
     margin-bottom: 1.5rem;
     font-size: 3.2rem;
-    line-height: 1;
+    line-height: 1; */
   }
 
   h2 {
@@ -240,5 +241,19 @@
     margin-left: 2.5%;
     overflow-x: auto;
     display: block;
+  }
+}
+
+[view='dynamic'] {
+  > [root] {
+    font-size: unset;
+    width: 100%;
+    max-width: 25rem;
+
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: unset;
+    background-color: #fffff8;
+    color: #111;
   }
 }

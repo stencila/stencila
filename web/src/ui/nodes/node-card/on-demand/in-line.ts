@@ -41,7 +41,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       this.view === 'source' ? 'flex flex-col h-full' : '',
     ])
 
-    return html`<div class=${`${cardStyles}`}>
+    return html`<div class=${`ui-inline-on-demand ${cardStyles}`}>
       ${this.renderContentContainer()}
     </div>`
   }

@@ -6,8 +6,17 @@
  * print mode.
 */
 
+@import './shared.css';
+
+body {
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
 :root {
-  @apply mx-auto prose max-w-none lg:prose-xl;
+  @apply mx-auto prose max-w-prose lg:prose-xl;
   font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
@@ -17,4 +26,82 @@
 @page {
   size: 21cm 29.7cm;
   margin: 1cm;
+}
+
+[root] {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+    background: green;
+  }
+
+  stencila-heading {
+    display: block;
+    background: blue;
+    border: 1px solid transparent;
+
+    + stencila-paragraph {
+      p {
+        margin-top: 0;
+      }
+    }
+  }
+
+  stencila-paragraph {
+    display: block;
+    background: orange;
+    border: 1px solid transparent;
+
+    /* &:has(+ stencila-heading) { */
+    p {
+      margin-bottom: 0;
+    }
+    /* } */
+  }
+
+  stencila-list-item {
+    stencila-paragraph {
+      margin: 0;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  p {
+    margin-top: 1.4rem;
+    margin-bottom: 1.4rem;
+    padding-right: 0;
+    vertical-align: baseline;
+    background: red;
+  }
+}
+
+[view='dynamic'] {
+  > [root] {
+    h1 {
+      margin-top: 2rem;
+    }
+
+    figure {
+      @apply mx-0;
+    }
+
+    stencila-figure {
+      figure {
+        @apply my-3;
+      }
+    }
+
+    stencila-instruction-block {
+      + stencila-instruction-block {
+        background: rebeccapurple;
+      }
+    }
+  }
 }
