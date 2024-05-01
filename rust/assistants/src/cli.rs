@@ -62,7 +62,7 @@ impl List {
             "Outputs",
         ]);
 
-        for assistant in super::list().await {
+        for assistant in super::list(true).await {
             use AssistantAvailability::*;
             let availability = assistant.availability();
 
