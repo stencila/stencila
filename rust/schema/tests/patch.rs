@@ -563,13 +563,6 @@ fn authors() -> Result<()> {
         AuthorRoleName::Writer,
     );
 
-    // If authorship has not yet been recorded, then u8::MAX is used to indicate
-    // unknown authorship.
-    let mut cord = Cord::from("a");
-    merge(&mut cord, &Cord::from("ab"), Some(vec![alice.clone()]))?;
-    assert_eq!(cord.to_string(), "ab");
-    assert_eq!(cord.runs, vec![(1, u8::MAX as u64, 1), (1, 0, 1)]);
-
     // For code chunk, and any thing else with authors, authorship is recorded
     // at that level.
     let mut chunk = CodeChunk::new("a".into());

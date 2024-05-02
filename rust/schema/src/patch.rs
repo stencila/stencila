@@ -85,7 +85,7 @@ pub struct PatchContext {
 
     /// The author (0-based index) which should be using when making changes to the
     /// authorship of `Cord` nodes during a call to `patch`.
-    author_index: u8,
+    author_index: Option<u8>,
 }
 
 impl PatchContext {
@@ -214,7 +214,7 @@ impl PatchContext {
             );
 
             // Set the author id to the first author and mark authors as "taken"
-            self.author_index = 0u8;
+            self.author_index = Some(0u8);
         } else if let Some(existing_authors) = authors {
             // The node has existing authors: if an author role is already present
             // update `last_modified`, otherwise add the author role.
@@ -252,7 +252,7 @@ impl PatchContext {
             }
 
             // Set the author id to the index of the first in self.authors
-            self.author_index = author_id.unwrap_or(0) as u8;
+            self.author_index = Some(author_id.unwrap_or(0) as u8);
         }
 
         if take {
@@ -268,7 +268,7 @@ impl PatchContext {
     }
 
     /// Get the current author index for the context
-    pub fn author_index(&self) -> u8 {
+    pub fn author_index(&self) -> Option<u8> {
         self.author_index
     }
 

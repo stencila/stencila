@@ -96,7 +96,7 @@ fn insert_at_start() {
         string: "world!".to_string(),
         runs: vec![(1, 0, 6)],
     };
-    cord.apply_insert(0, "Hello, ", 1);
+    cord.apply_insert(0, "Hello, ", Some(1));
     assert_eq!(cord.string, "Hello, world!");
     assert_eq!(cord.runs, vec![(1, 1, 7), (1, 0, 6)]);
 }
@@ -107,7 +107,7 @@ fn insert_at_end() {
         string: "Hello".to_string(),
         runs: vec![(1, 1, 5)],
     };
-    cord.apply_insert(5, ", world!", 1);
+    cord.apply_insert(5, ", world!", Some(1));
     assert_eq!(cord.string, "Hello, world!");
     assert_eq!(cord.runs, vec![(1, 1, 13)]);
 }
@@ -118,7 +118,7 @@ fn insert_at_middle() {
         string: "Hello world!".to_string(),
         runs: vec![(1, 1, 5), (1, 2, 7)],
     };
-    cord.apply_insert(5, ", beautiful", 3);
+    cord.apply_insert(5, ", beautiful", Some(3));
     assert_eq!(cord.string, "Hello, beautiful world!");
     assert_eq!(cord.runs, vec![(1, 1, 5), (1, 3, 11), (1, 2, 7)]);
 }
@@ -129,7 +129,7 @@ fn insert_nothing() {
         string: "Hello".to_string(),
         runs: vec![(1, 1, 5)],
     };
-    cord.apply_insert(3, "", 1); // Empty string insertion
+    cord.apply_insert(3, "", Some(1)); // Empty string insertSome(i)on
     assert_eq!(cord.string, "Hello");
     assert_eq!(cord.runs, vec![(1, 1, 5)]);
 }
@@ -140,7 +140,7 @@ fn insert_out_of_bounds() {
         string: "Hello".to_string(),
         runs: vec![(1, 1, 5)],
     };
-    cord.apply_insert(10, " world", 1); // Beyond the length of the string
+    cord.apply_insert(10, " world", Some(1)); // Beyond the length of the strSome(i)ng
     assert_eq!(cord.string, "Hello");
     assert_eq!(cord.runs, vec![(1, 1, 5)]); // No change
 }
@@ -257,18 +257,18 @@ fn replace_entire_run() {
         string: "a".to_string(),
         runs: vec![(1, 1, 1)],
     };
-    cord.apply_replace(0..1, " b", 1);
+    cord.apply_replace(0..1, " b", Some(1));
 
     let mut cord = Cord {
         string: "Hello, world!".to_string(),
         runs: vec![(1, 1, 5), (1, 2, 8)],
     };
 
-    cord.apply_replace(0..5, "Howdy", 1); // Same author
+    cord.apply_replace(0..5, "Howdy", Some(1)); // Same author
     assert_eq!(cord.string, "Howdy, world!");
     assert_eq!(cord.runs, vec![(1, 1, 5), (1, 2, 8)]);
 
-    cord.apply_replace(0..5, "Heyya", 3); // Different author
+    cord.apply_replace(0..5, "Heyya", Some(3)); // Different author
     assert_eq!(cord.string, "Heyya, world!");
     assert_eq!(cord.runs(), 2);
     assert_eq!(cord.run_authors(0), vec![3, 1]);
@@ -283,18 +283,18 @@ fn replace_start_of_a_run() {
         runs: vec![(1, 1, 13)],
     };
 
-    cord.apply_replace(0..5, "Hi", 1); // Same author
+    cord.apply_replace(0..5, "Hi", Some(1)); // Same author
     assert_eq!(cord.string, "Hi, world!");
     assert_eq!(cord.runs, vec![(1, 1, 10)]);
 
-    cord.apply_replace(0..5, "Yo! W", 2); // Different author
+    cord.apply_replace(0..5, "Yo! W", Some(2)); // Different author
     assert_eq!(cord.string, "Yo! World!");
     assert_eq!(cord.runs(), 2);
     assert_eq!(cord.run_authors(0), vec![2, 1]);
     assert_eq!(cord.run_length(0), 5);
     assert_eq!(cord.runs[1], (1, 1, 5));
 
-    cord.apply_replace(0..1, "Hey, y", 3); // Another author
+    cord.apply_replace(0..1, "Hey, y", Some(3)); // Another author
     assert_eq!(cord.string, "Hey, yo! World!");
     assert_eq!(cord.runs(), 3);
     assert_eq!(cord.run_authors(0), vec![3, 2, 1]);
@@ -311,18 +311,18 @@ fn replace_end_of_a_run() {
         runs: vec![(1, 1, 13)],
     };
 
-    cord.apply_replace(7..13, "their", 1); // Same author
+    cord.apply_replace(7..13, "their", Some(1)); // Same author
     assert_eq!(cord.string, "Hello, their");
     assert_eq!(cord.runs, vec![(1, 1, 12)]);
 
-    cord.apply_replace(10..12, "re.", 2); // Different author
+    cord.apply_replace(10..12, "re.", Some(2)); // Different author
     assert_eq!(cord.string, "Hello, there.");
     assert_eq!(cord.runs(), 2);
     assert_eq!(cord.runs[0], (1, 1, 10));
     assert_eq!(cord.run_authors(1), vec![2, 1]);
     assert_eq!(cord.run_length(1), 3);
 
-    cord.apply_replace(12..13, "!", 3); // Another author
+    cord.apply_replace(12..13, "!", Some(3)); // Another author
     assert_eq!(cord.string, "Hello, there!");
     assert_eq!(cord.runs(), 3);
     assert_eq!(cord.runs[0], (1, 1, 10));
@@ -339,11 +339,11 @@ fn replace_within_run() {
         runs: vec![(1, 1, 13)],
     };
 
-    cord.apply_replace(1..5, "ey", 1); // Same author
+    cord.apply_replace(1..5, "ey", Some(1)); // Same author
     assert_eq!(cord.string, "Hey, world!");
     assert_eq!(cord.runs, vec![(1, 1, 11)]);
 
-    cord.apply_replace(1..3, "owdy", 2); // Different author
+    cord.apply_replace(1..3, "owdy", Some(2)); // Different author
     assert_eq!(cord.string, "Howdy, world!");
     assert_eq!(cord.runs(), 3);
     assert_eq!(cord.runs[0], (1, 1, 1));
@@ -351,7 +351,7 @@ fn replace_within_run() {
     assert_eq!(cord.run_length(1), 4);
     assert_eq!(cord.runs[2], (1, 1, 8));
 
-    cord.apply_replace(4..5, "'y", 3); // Another author
+    cord.apply_replace(4..5, "'y", Some(3)); // Another author
     assert_eq!(cord.string, "Howd'y, world!");
     assert_eq!(cord.runs(), 4);
     assert_eq!(cord.runs[0], (1, 1, 1));
@@ -371,7 +371,7 @@ fn replace_across_runs() {
 
     // First author at start, equal replacement
     let mut c = cord.clone();
-    c.apply_replace(0..6, "------", 1);
+    c.apply_replace(0..6, "------", Some(1));
     assert_eq!(c.string, "------bbccccdddd");
     assert_eq!(c.runs[0], (1, 1, 6));
     assert_eq!(c.runs[1], (1, 2, 2));
@@ -380,7 +380,7 @@ fn replace_across_runs() {
 
     // First author at start, shorter, replacement
     let mut c = cord.clone();
-    c.apply_replace(0..6, "----", 1);
+    c.apply_replace(0..6, "----", Some(1));
     assert_eq!(c.string, "----bbccccdddd");
     assert_eq!(c.runs[0], (1, 1, 4));
     assert_eq!(c.runs[1], (1, 2, 2));
@@ -389,7 +389,7 @@ fn replace_across_runs() {
 
     // First author at start, longer replacement
     let mut c = cord.clone();
-    c.apply_replace(0..6, "--------", 1);
+    c.apply_replace(0..6, "--------", Some(1));
     assert_eq!(c.string, "--------bbccccdddd");
     assert_eq!(c.runs[0], (1, 1, 8));
     assert_eq!(c.runs[1], (1, 2, 2));
@@ -398,7 +398,7 @@ fn replace_across_runs() {
 
     // New author, shorter replacement in middle
     let mut c = cord.clone();
-    c.apply_replace(6..10, "--", 5);
+    c.apply_replace(6..10, "--", Some(5));
     assert_eq!(c.string, "aaaabb--ccdddd");
     assert_eq!(c.runs[0], (1, 1, 4));
     assert_eq!(c.runs[1], (1, 2, 2));
@@ -409,7 +409,7 @@ fn replace_across_runs() {
 
     // New author, wide, longer replacement in middle
     let mut c = cord.clone();
-    c.apply_replace(1..15, "---------------", 5);
+    c.apply_replace(1..15, "---------------", Some(5));
     assert_eq!(c.string, "a---------------d");
     assert_eq!(c.runs[0], (1, 1, 1));
     assert_eq!(c.run_authors(1), vec![5, 1]);
@@ -423,7 +423,7 @@ fn replace_across_runs() {
 
     // New author, as above but ending on boundary of existing run
     let mut c = cord.clone();
-    c.apply_replace(1..12, "---------------", 5);
+    c.apply_replace(1..12, "---------------", Some(5));
     assert_eq!(c.string, "a---------------dddd");
     assert_eq!(c.runs[0], (1, 1, 1));
     assert_eq!(c.run_authors(1), vec![5, 1]);
@@ -444,7 +444,7 @@ fn merge_cords(s1: &str, s2: &str) {
 
     let ops = c1.create_ops(&c2);
     //println!("{ops:?}");
-    c1.apply_ops(ops, 1);
+    c1.apply_ops(ops, Some(1));
 
     assert_eq!(c1.string, s2)
 }
