@@ -3,9 +3,6 @@ use std::{
     str,
 };
 
-#[cfg(debug_assertions)]
-use std::sync::atomic::{AtomicU64, Ordering};
-
 use common::eyre::bail;
 #[allow(unused)]
 use common::{
@@ -25,37 +22,12 @@ use common::{
 /// - define a `Default` implementation which creates a random UUID, and
 /// - define a `PartialEq` implementation which always returns true so that
 ///   a node's `uid` is ignored in equality testing.
-#[derive(Deref)]
+#[derive(Clone, Deref)]
 pub struct NodeUid(Vec<u8>);
-
-/// An atomic counter for deterministic auto-incremented ids
-/// during development
-///
-/// Having deterministic ids is particularly useful for snapshot tests
-/// to avoid changes in snapshots due to random ids.
-#[cfg(debug_assertions)]
-static NODE_UID: Lazy<AtomicU64> = Lazy::new(AtomicU64::default);
-
-impl NodeUid {
-    // Reset the `NodeUid` counter during tests
-    pub fn testing_only_reset() {
-        #[cfg(debug_assertions)]
-        NODE_UID.store(0, Ordering::SeqCst)
-    }
-}
 
 impl Default for NodeUid {
     fn default() -> Self {
-        #[cfg(not(debug_assertions))]
-        let bytes = Uuid::new_v4().as_bytes().to_vec();
-
-        #[cfg(debug_assertions)]
-        let bytes = NODE_UID
-            .fetch_add(1, Ordering::SeqCst)
-            .to_be_bytes()
-            .to_vec();
-
-        Self(bytes)
+        Self(Uuid::new_v4().as_bytes().to_vec())
     }
 }
 
@@ -69,14 +41,6 @@ impl fmt::Debug for NodeUid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let id = bs58::encode(&self.0).into_string();
         f.write_str(&id)
-    }
-}
-
-impl Clone for NodeUid {
-    fn clone(&self) -> Self {
-        // To maintain uniqueness never clone id.
-        // Instead generate a new one.
-        Self::default()
     }
 }
 
@@ -118,8 +82,6 @@ impl NodeId {
     }
 
     /// Get the unique id part of the node id
-    ///
-    /// Note that this id is unique within a document, not universally.
     pub fn uid(&self) -> &[u8] {
         &self.uid
     }

@@ -143,7 +143,7 @@ impl Cord {
     }
 
     /// Apply an insert operation
-    pub fn apply_insert(&mut self, position: usize, value: &str, author: u8) {
+    pub fn apply_insert(&mut self, position: usize, value: &str, author: Option<u8>) {
         let old_length = self.chars().count();
 
         // Check for out of bounds pos  or empty value
@@ -157,6 +157,15 @@ impl Cord {
         } else {
             self.push_str(value);
         }
+
+        // If was empty and no author supplied then can return early
+        if old_length == 0 && author.is_none() {
+            return;
+        }
+
+        // Otherwise, we need to add some authorship so if author
+        // not supplied then add as unknown author
+        let author = author.unwrap_or(u8::MAX);
 
         let value_length = value.chars().count() as u32;
 
@@ -325,7 +334,7 @@ impl Cord {
     }
 
     // Replace a range in the string with new content and update authorship
-    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author: u8) {
+    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author: Option<u8>) {
         let old_length = self.chars().count();
 
         // Check for out of bounds range or nothing to do
@@ -344,6 +353,15 @@ impl Cord {
             (None, Some((end, ..))) => self.replace_range(..end, value),
             (None, None) => self.replace_range(.., value),
         }
+
+        // If was empty and no author supplied then can return early
+        if old_length == 0 && author.is_none() {
+            return;
+        }
+
+        // Otherwise, need to add some authorship, so if author
+        // not supplied then add as unknown author
+        let author = author.unwrap_or(u8::MAX);
 
         // If runs is empty then add a single "unknown author" run for the old_length
         if self.runs.is_empty() && !self.is_empty() {
@@ -484,7 +502,7 @@ impl Cord {
     }
 
     // Apply operations
-    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: u8) {
+    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: Option<u8>) {
         for op in ops {
             match op {
                 CordOp::Insert(pos, value) => self.apply_insert(pos, &value, author_id),
@@ -499,8 +517,9 @@ impl StripNode for Cord {}
 
 impl PatchNode for Cord {
     fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
-        let author_index = context.author_index();
-        self.runs = vec![(1, author_index as u64, self.len() as u32)];
+        if let Some(author_index) = context.author_index() {
+            self.runs = vec![(1, author_index as u64, self.len() as u32)];
+        }
 
         Ok(())
     }
@@ -516,8 +535,7 @@ impl PatchNode for Cord {
         }
     }
 
-    #[allow(unused_variables)]
-    fn similarity(&self, other: &Cord, context: &mut PatchContext) -> Result<f32> {
+    fn similarity(&self, other: &Cord, _context: &mut PatchContext) -> Result<f32> {
         // Calculate a difference ratio using chars as we do for generating diffs
         let diff = TextDiffConfig::default()
             .algorithm(Algorithm::Patience)
@@ -539,8 +557,15 @@ impl PatchNode for Cord {
         Ok(())
     }
 
-    #[allow(unused_variables)]
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        if patch.node_id.is_some() {
+            return Ok(false);
+        }
+
+        patch.apply(self, context)
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,

@@ -7,17 +7,25 @@
       "type": "CodeChunk",
       "code": "Sys.sleep(1)",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 13168097592616715601
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 13168097592616715601
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300010096,
+        "value": 1714644362868,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 1847,
+        "value": 1314,
         "timeUnit": "Millisecond"
       }
     },
@@ -25,17 +33,25 @@
       "type": "CodeChunk",
       "code": "Sys.sleep(2)",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 18206861373578511638
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 18206861373578511638
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300012146,
+        "value": 1714644364892,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 2050,
+        "value": 2024,
         "timeUnit": "Millisecond"
       }
     },
@@ -43,17 +59,25 @@
       "type": "CodeChunk",
       "code": "Sys.sleep(4)",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 13638255075349850711
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 13638255075349850711
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300016165,
+        "value": 1714644368900,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 4019,
+        "value": 4008,
         "timeUnit": "Millisecond"
       }
     },
@@ -61,17 +85,25 @@
       "type": "CodeChunk",
       "code": "Sys.sleep(8)",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 5757814245444827195
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 5757814245444827195
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300024192,
+        "value": 1714644376915,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 8026,
+        "value": 8015,
         "timeUnit": "Millisecond"
       }
     }
@@ -81,12 +113,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300024192,
+    "value": 1714644376915,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 15943,
+    "value": 15361,
     "timeUnit": "Millisecond"
   }
 }

@@ -15,7 +15,10 @@
     {
       "type": "MathBlock",
       "code": "a = \\pi r^2",
-      "mathLanguage": "tex",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 4713797695762587193
+      },
       "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"block\"><mi>a</mi><mo>=</mo><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></math>"
     },
     {
@@ -30,13 +33,15 @@
     {
       "type": "MathBlock",
       "code": "\\foo",
-      "mathLanguage": "tex",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1725569055879263474
+      },
       "compilationMessages": [
         {
           "type": "CompilationMessage",
-          "level": "Exception",
-          "message": "Undefined(\"Command(\\\"foo\\\")\")",
-          "errorType": "Syntax error"
+          "level": "Error",
+          "message": "Expected a string"
         }
       ]
     }
@@ -46,12 +51,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710654917885,
+    "value": 1714644398329,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 9,
+    "value": 0,
     "timeUnit": "Millisecond"
   }
 }

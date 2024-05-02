@@ -742,11 +742,8 @@ where
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields, crate = "common::serde")]
 pub struct GenerateOutput {
-    /// The assistant that created the prompt for the task
-    pub prompter: Option<SoftwareApplication>,
-
-    /// The assistant that generated the content
-    pub generator: SoftwareApplication,
+    /// The assistants that were involved in generating the output
+    pub authors: Vec<AuthorRole>,
 
     /// The kind of output in the content
     ///
@@ -773,8 +770,7 @@ impl GenerateOutput {
     /// Usually only used when the `--dry-run` flag is used.
     pub fn empty(assistant: &dyn Assistant) -> Result<Self> {
         Ok(Self {
-            prompter: None,
-            generator: assistant.to_software_application(),
+            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
             kind: GenerateKind::Text,
             format: Format::Unknown,
             content: (String::new()),
@@ -890,8 +886,7 @@ impl GenerateOutput {
         }
 
         Ok(Self {
-            prompter: None,
-            generator: assistant.to_software_application(),
+            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
             kind: GenerateKind::Text,
             format,
             content: text,
@@ -937,8 +932,7 @@ impl GenerateOutput {
         let nodes = Nodes::Inlines(vec![node]);
 
         Ok(Self {
-            prompter: None,
-            generator: assistant.to_software_application(),
+            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
             kind: GenerateKind::Url,
             format,
             content: url,
@@ -946,7 +940,7 @@ impl GenerateOutput {
         })
     }
 
-    /// Update an assistant after it has been deserialized from a plugin based assistant
+    /// Update output after it has been deserialized from a plugin based assistant
     pub async fn from_plugin(
         other: Self,
         assistant: &dyn Assistant,
@@ -967,28 +961,25 @@ impl GenerateOutput {
             }
         };
 
-        output.generator = assistant.to_software_application();
+        output
+            .authors
+            .push(assistant.to_author_role(AuthorRoleName::Generator));
 
         Ok(output)
-    }
-
-    /// Assign a `Assistant` as the prompter to this output
-    pub fn assign_prompter(&mut self, prompter: &dyn Assistant) {
-        // Set `prompter` property for use in `to_message`
-        self.prompter = Some(prompter.to_software_application());
     }
 
     /// Create a `Message` from the output that can be added to the `messages` property
     /// of the instruction
     pub fn to_message(&self) -> InstructionMessage {
-        let authors = if let Some(prompter) = &self.prompter {
-            vec![prompter.clone(), self.generator.clone()]
-        } else {
-            vec![self.generator.clone()]
-        }
-        .into_iter()
-        .map(PersonOrOrganizationOrSoftwareApplication::SoftwareApplication)
-        .collect();
+        let authors = self
+            .authors
+            .iter()
+            .filter_map(|role| match &role.author {
+                AuthorRoleAuthor::SoftwareApplication(app) => Some(app.clone()),
+                _ => None,
+            })
+            .map(PersonOrOrganizationOrSoftwareApplication::SoftwareApplication)
+            .collect();
         let authors = Some(authors);
 
         let parts = vec![match &self.kind {

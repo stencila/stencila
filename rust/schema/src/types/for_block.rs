@@ -16,7 +16,6 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
-use super::section::Section;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -108,7 +107,7 @@ pub struct ForBlock {
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
-    pub iterations: Option<Vec<Section>>,
+    pub iterations: Option<Vec<Block>>,
 
     /// Non-core optional fields
     #[serde(flatten)]

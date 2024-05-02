@@ -16,17 +16,25 @@
       "type": "CodeChunk",
       "code": "color=pink",
       "programmingLanguage": "bash",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6149006589777468474
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6149006589777468474
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1711242619219,
+        "value": 1714644400494,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 26,
+        "value": 19,
         "timeUnit": "Millisecond"
       }
     },
@@ -43,17 +51,25 @@
       "type": "CodeChunk",
       "code": "styles = {\n  'bg': 100,\n  'txt': 800,\n  'pad': 1\n}",
       "programmingLanguage": "py",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8301707187779789424
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8301707187779789424
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1711242620226,
+        "value": 1714644401066,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 1006,
+        "value": 572,
         "timeUnit": "Millisecond"
       }
     },
@@ -62,23 +78,80 @@
       "content": [
         {
           "type": "Text",
-          "value": "A paragraph with "
+          "value": "A paragraph with [some dynamically styled content]{bg-"
         },
         {
-          "type": "StyledInline",
-          "code": "bg-$color-{{styles.bg}} text-$color-{{styles.txt}} p-{{styles.pad}}",
-          "content": [
-            {
-              "type": "Text",
-              "value": "some dynamically styled content"
-            }
-          ],
-          "css": ".styled{& .bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity))}& .text-pink-800{--tw-text-opacity:1;color:rgb(157 23 77/var(--tw-text-opacity))}& .p-1{padding:.25rem}}",
-          "classList": "bg-pink-100 text-pink-800 p-1"
+          "type": "MathInline",
+          "code": "color-{{styles.bg}} text-",
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 4971204706938646100
+          },
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"inline\"><mi>c</mi><mi>o</mi><mi>l</mi><mi>o</mi><mi>r</mi><mo>-</mo><mrow><mi>s</mi><mi>t</mi><mi>y</mi><mi>l</mi><mi>e</mi><mi>s</mi><mo>.</mo><mi>b</mi><mi>g</mi></mrow><mi>t</mi><mi>e</mi><mi>x</mi><mi>t</mi><mo>-</mo></math>"
         },
         {
           "type": "Text",
-          "value": "."
+          "value": "color-"
+        },
+        {
+          "type": "CodeExpression",
+          "code": "styles.txt",
+          "output": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"inline\"><mi>s</mi><mi>t</mi><mi>y</mi><mi>l</mi><mi>e</mi><mi>s</mi><mo>.</mo><mi>t</mi><mi>x</mi><mi>t</mi></math>",
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 11107592414613827864
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 11107592414613827864
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1714644401066,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 0,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "Text",
+          "value": " p-"
+        },
+        {
+          "type": "CodeExpression",
+          "code": "styles.pad",
+          "output": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"inline\"><mi>s</mi><mi>t</mi><mi>y</mi><mi>l</mi><mi>e</mi><mi>s</mi><mo>.</mo><mi>p</mi><mi>a</mi><mi>d</mi></math>",
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 10996364422454020871
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 10996364422454020871
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1714644401066,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 0,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "Text",
+          "value": "}."
         }
       ]
     },
@@ -98,6 +171,10 @@
               "value": "some content"
             }
           ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 12976586113833083964
+          },
           "compilationMessages": [
             {
               "type": "CompilationMessage",
@@ -105,7 +182,7 @@
               "message": "Warning on Line: 1, Col: 1 in file: ''; Could not match class 'bg--100', argument '-100' could not be found"
             }
           ],
-          "css": ".styled{}",
+          "css": "",
           "classList": "bg--100"
         },
         {
@@ -120,12 +197,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1711242620282,
+    "value": 1714644401070,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 1089,
+    "value": 596,
     "timeUnit": "Millisecond"
   }
 }

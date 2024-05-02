@@ -55,17 +55,25 @@
           "b": 2
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 7687308895645674288
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 7687308895645674288
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299947278,
+        "value": 1714644295266,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 42,
+        "value": 22,
         "timeUnit": "Millisecond"
       }
     }
@@ -75,12 +83,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710299947278,
+    "value": 1714644295266,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 42,
+    "value": 22,
     "timeUnit": "Millisecond"
   }
 }

@@ -12,8 +12,8 @@ use schema::{
     authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordOp, Figure, Inline,
-    Node, NodeProperty, Paragraph, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person,
-    Primitive, Strong, Text, TimeUnit,
+    Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue,
+    Person, Primitive, Strong, Text, TimeUnit,
 };
 
 /// An individual fixture
@@ -87,11 +87,6 @@ async fn fixtures() -> Result<()> {
         authorship(&mut old, vec![alice])?;
 
         // Calculate the ops
-        let ops = diff(&old, &new)?;
-        ops_count.insert(name.clone(), ops.len());
-        ops_total += ops.len();
-
-        // Apply ops with new author
         let bob = AuthorRole::person(
             Person {
                 given_names: Some(vec!["Bob".to_string()]),
@@ -99,15 +94,20 @@ async fn fixtures() -> Result<()> {
             },
             AuthorRoleName::Writer,
         );
+        let patch = diff(&old, &new, Some(vec![bob]))?;
+        ops_count.insert(name.clone(), patch.ops.len());
+        ops_total += patch.ops.len();
+
+        // Apply ops
         let mut merged = old.clone();
-        patch(&mut merged, ops.clone(), vec![bob])?;
+        schema::patch(&mut merged, patch.clone())?;
 
         // Assert that, when authors are stripped from both, `merged` is the same as `new`
         let mut merged_strip = merged.clone();
         strip(&mut merged_strip, StripTargets::scope(StripScope::Authors));
         let mut new_strip = new.clone();
         strip(&mut new_strip, StripTargets::scope(StripScope::Authors));
-        assert_eq!(merged_strip, new_strip, "{name}\n{ops:#?}");
+        assert_eq!(merged_strip, new_strip, "{name}\n{patch:#?}");
 
         // Snapshot the fixture
         assert_yaml_snapshot!(
@@ -115,7 +115,7 @@ async fn fixtures() -> Result<()> {
             Fixture {
                 old,
                 new,
-                ops,
+                ops: patch.ops,
                 merged
             }
         );
@@ -133,57 +133,71 @@ async fn fixtures() -> Result<()> {
     Ok(())
 }
 
+/// Do a diff and get to ops
+pub fn diff_ops<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
+    Ok(diff(old, new, None)?.ops)
+}
+
 /// Patch a node with an anonymous author role
-fn patch_anon<T>(old: &mut T, ops: Vec<(PatchPath, PatchOp)>) -> Result<()>
-where
-    T: PatchNode,
-{
-    let anon = AuthorRole::anon(AuthorRoleName::Writer);
-    patch(old, ops, vec![anon])
+fn patch_anon<T: PatchNode + std::fmt::Debug>(
+    old: &mut T,
+    ops: Vec<(PatchPath, PatchOp)>,
+) -> Result<()> {
+    patch(
+        old,
+        Patch {
+            ops,
+            authors: Some(vec![AuthorRole::anon(AuthorRoleName::Writer)]),
+            ..Default::default()
+        },
+    )
 }
 
 #[test]
 fn atoms() -> Result<()> {
     // Boolean
 
-    assert_eq!(diff(&true, &true)?, vec![]);
+    assert_eq!(diff_ops(&true, &true)?, vec![]);
 
     let mut old = true;
     let new = false;
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Integer
 
-    assert_eq!(diff(&1_i64, &1_i64)?, vec![]);
+    assert_eq!(diff_ops(&1_i64, &1_i64)?, vec![]);
 
     let mut old = 1_i64;
     let new = 2_i64;
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // Number
 
-    assert_eq!(diff(&1_f64, &1_f64)?, vec![]);
+    assert_eq!(diff_ops(&1_f64, &1_f64)?, vec![]);
 
     let mut old = 1_f64;
     let new = 2_f64;
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
     // String
 
-    assert_eq!(diff(&String::from("abc"), &String::from("abc"))?, vec![]);
+    assert_eq!(
+        diff_ops(&String::from("abc"), &String::from("abc"))?,
+        vec![]
+    );
 
     let mut old = String::from("abc");
     let new = String::from("bcd");
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -193,11 +207,11 @@ fn atoms() -> Result<()> {
 
 #[test]
 fn cord() -> Result<()> {
-    assert_eq!(diff(&Cord::from("abc"), &Cord::from("abc"))?, vec![]);
+    assert_eq!(diff_ops(&Cord::from("abc"), &Cord::from("abc"))?, vec![]);
 
     let mut old = Cord::from("abc");
     let new = Cord::from("bcad");
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -213,7 +227,7 @@ fn cord() -> Result<()> {
 
     let mut old = Cord::from("height in feet");
     let new = Cord::from("height in metres");
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -236,7 +250,7 @@ fn vecs() -> Result<()> {
     // No ops: Both empty
     let mut old: Vec<i32> = vec![];
     let new = vec![];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -244,7 +258,7 @@ fn vecs() -> Result<()> {
     // Change: same size, all different
     let mut old = vec![1, 2];
     let new = vec![3, 4];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![
@@ -269,7 +283,7 @@ fn vec_push() -> Result<()> {
     // Push: Old empty, new only has one
     let mut old = vec![];
     let new = vec![1];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(1.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -277,7 +291,7 @@ fn vec_push() -> Result<()> {
     // Push: adding one
     let mut old = vec![1];
     let new = vec![1, 2];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(2.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -290,7 +304,7 @@ fn vec_append() -> Result<()> {
     // Append: Old empty, new has more than one
     let mut old = vec![];
     let new = vec![1, 2, 3];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -304,7 +318,7 @@ fn vec_append() -> Result<()> {
     // Append: adding more than one
     let mut old = vec![1];
     let new = vec![1, 2, 3];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -323,7 +337,7 @@ fn vec_insert() -> Result<()> {
     // Insert
     let mut old = vec![1, 3];
     let new = vec![0, 1, 2, 3, 4, 5];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -347,7 +361,7 @@ fn vecs_remove() -> Result<()> {
     // Clear: New empty
     let mut old = vec![1, 2, 3];
     let new = vec![];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Clear)]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -355,7 +369,7 @@ fn vecs_remove() -> Result<()> {
     // Remove: all different
     let mut old = vec![1, 2, 3, 4, 5, 6, 7];
     let new = vec![1, 3, 7];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(PatchPath::new(), PatchOp::Remove(vec![1, 3, 4, 5]))]
@@ -366,7 +380,7 @@ fn vecs_remove() -> Result<()> {
     // Remove: some same
     let mut old = vec![1, 1, 2, 2, 2, 3, 3, 4, 5, 5];
     let new = vec![1, 2, 3, 3, 4, 5];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(PatchPath::new(), PatchOp::Remove(vec![1, 3, 4, 9]))]
@@ -382,7 +396,7 @@ fn vec_copy() -> Result<()> {
     // Copy forward
     let mut old = vec![1, 2, 3];
     let new = vec![1, 1, 2, 1, 3];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -396,7 +410,7 @@ fn vec_copy() -> Result<()> {
     // Copy back
     let mut old = vec![1, 2, 3];
     let new = vec![1, 3, 2, 3, 3];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -410,7 +424,7 @@ fn vec_copy() -> Result<()> {
     // Copy forward and back
     let mut old = vec![1, 2, 3, 4];
     let new = vec![1, 4, 2, 3, 4, 1];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(
@@ -428,7 +442,7 @@ fn vec_copy() -> Result<()> {
 fn vec_move() -> Result<()> {
     let mut old = vec![1, 2, 3];
     let new = vec![3, 2, 1];
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
         vec![(PatchPath::new(), PatchOp::Move(vec![(0, 2), (0, 1)]))]
@@ -444,7 +458,7 @@ fn vec_section() -> Result<()> {
     // This is a regression test for a bug found during testing
     let mut old = art([sec([p([t("para1")])])]);
     let new = art([sec([p([t("para1")]), p([t("para2")])])]);
-    let ops = diff(&old, &new)?;
+    let ops = diff_ops(&old, &new)?;
     assert!(matches!(ops[0].1, PatchOp::Push(..)));
     patch_anon(&mut old, ops)?;
     strip(&mut old, StripTargets::scope(StripScope::Authors));
@@ -458,54 +472,54 @@ fn enums() -> Result<()> {
     // Equal variants and values: no ops
 
     let node = Node::Article(Article::default());
-    assert_eq!(diff(&node, &node)?, vec![]);
+    assert_eq!(diff_ops(&node, &node)?, vec![]);
 
     let block = Block::Paragraph(Paragraph::default());
-    assert_eq!(diff(&block, &block)?, vec![]);
+    assert_eq!(diff_ops(&block, &block)?, vec![]);
 
     let inline = Inline::Text(Text::default());
-    assert_eq!(diff(&inline, &inline)?, vec![]);
+    assert_eq!(diff_ops(&inline, &inline)?, vec![]);
 
     let primitive = Primitive::Integer(1);
-    assert_eq!(diff(&primitive, &primitive)?, vec![]);
+    assert_eq!(diff_ops(&primitive, &primitive)?, vec![]);
 
     let time_unit = TimeUnit::Millisecond;
-    assert_eq!(diff(&time_unit, &time_unit)?, vec![]);
+    assert_eq!(diff_ops(&time_unit, &time_unit)?, vec![]);
 
     // Different variants: single replace op at root
 
     let node1 = Node::Article(Article::default());
     let node2 = Node::Integer(1);
     assert_eq!(
-        diff(&node1, &node2)?,
+        diff_ops(&node1, &node2)?,
         vec![(PatchPath::new(), PatchOp::Set(PatchValue::Node(node2)))]
     );
 
     let block1 = Block::Paragraph(Paragraph::default());
     let block2 = Block::Figure(Figure::default());
     assert_eq!(
-        diff(&block1, &block2)?,
+        diff_ops(&block1, &block2)?,
         vec![(PatchPath::new(), PatchOp::Set(PatchValue::Block(block2)))]
     );
 
     let inline1 = Inline::Text(Text::default());
     let inline2 = Inline::Strong(Strong::default());
     assert_eq!(
-        diff(&inline1, &inline2)?,
+        diff_ops(&inline1, &inline2)?,
         vec![(PatchPath::new(), PatchOp::Set(PatchValue::Inline(inline2)))]
     );
 
     let primitive1 = Primitive::Integer(1);
     let primitive2 = Primitive::String(String::new());
     assert_eq!(
-        diff(&primitive1, &primitive2)?,
+        diff_ops(&primitive1, &primitive2)?,
         vec![(PatchPath::new(), PatchOp::Set(primitive2.to_value()?))]
     );
 
     let time_unit1 = TimeUnit::Day;
     let time_unit2 = TimeUnit::Month;
     assert_eq!(
-        diff(&time_unit1, &time_unit2)?,
+        diff_ops(&time_unit1, &time_unit2)?,
         vec![(PatchPath::new(), PatchOp::Set(time_unit2.to_value()?))]
     );
 
@@ -515,7 +529,7 @@ fn enums() -> Result<()> {
     let node1 = art([]);
     let node2 = art([p([t("para1")])]);
     assert_eq!(
-        diff(&node1, &node2)?,
+        diff_ops(&node1, &node2)?,
         vec![(
             PatchPath::from([Property(NodeProperty::Content)]),
             PatchOp::Push(PatchValue::Block(p([t("para1")])))
@@ -549,13 +563,6 @@ fn authors() -> Result<()> {
         AuthorRoleName::Writer,
     );
 
-    // If authorship has not yet been recorded, then u8::MAX is used to indicate
-    // unknown authorship.
-    let mut cord = Cord::from("a");
-    merge(&mut cord, &Cord::from("ab"), vec![alice.clone()])?;
-    assert_eq!(cord.to_string(), "ab");
-    assert_eq!(cord.runs, vec![(1, u8::MAX as u64, 1), (1, 0, 1)]);
-
     // For code chunk, and any thing else with authors, authorship is recorded
     // at that level.
     let mut chunk = CodeChunk::new("a".into());
@@ -565,7 +572,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abc".into()),
-        vec![alice.clone()],
+        Some(vec![alice.clone()]),
     )?;
     assert_eq!(chunk.code, "abc".into());
     assert_eq!(chunk.code.runs, vec![(1, 0, 3)]);
@@ -578,7 +585,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abcd".into()),
-        vec![bob.clone()],
+        Some(vec![bob.clone()]),
     )?;
     assert_eq!(chunk.code, "abcd".into());
     assert_eq!(chunk.code.runs, vec![(1, 0, 3), (1, 1, 1)]);
@@ -594,7 +601,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abxcd".into()),
-        vec![bob.clone()],
+        Some(vec![bob.clone()]),
     )?;
     assert_eq!(chunk.code, "abxcd".into());
     assert_eq!(
@@ -613,7 +620,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("ad".into()),
-        vec![carol.clone()],
+        Some(vec![carol.clone()]),
     )?;
     assert_eq!(chunk.code, "ad".into());
     assert_eq!(chunk.code.runs, vec![(1, 0, 1), (1, 1, 1)]);
@@ -630,7 +637,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("and".into()),
-        vec![carol.clone()],
+        Some(vec![carol.clone()]),
     )?;
     assert_eq!(chunk.code, "and".into());
     assert_eq!(chunk.code.runs, vec![(1, 0, 1), (1, 2, 1), (1, 1, 1)]);

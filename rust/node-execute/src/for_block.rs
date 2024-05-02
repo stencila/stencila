@@ -1,6 +1,5 @@
 use codec_cbor::r#trait::CborCodec;
-use common::itertools::Itertools;
-use schema::{ForBlock, Section, SectionType};
+use schema::{replicate, Block, ForBlock, Section, SectionType};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -26,10 +25,9 @@ impl Executable for ForBlock {
             }
         }
 
-        executor.replace_property(
+        executor.patch(
             &node_id,
-            Property::CompilationDigest,
-            compilation_digest.into(),
+            [set(NodeProperty::CompilationDigest, compilation_digest)],
         );
 
         // Walk over `otherwise` here because this function returns `Break` so it
@@ -71,11 +69,11 @@ impl Executable for ForBlock {
 
         tracing::trace!("Executing ForBlock {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -101,7 +99,10 @@ impl Executable for ForBlock {
                 .unwrap_or_else(|error| {
                     (
                         Node::Null(Null),
-                        vec![error_to_message("While evaluating expression", error)],
+                        vec![error_to_execution_message(
+                            "While evaluating expression",
+                            error,
+                        )],
                     )
                 });
             messages.append(&mut code_messages);
@@ -151,49 +152,57 @@ impl Executable for ForBlock {
                 _ => vec![],
             };
 
-            // Clone the `content` for each iteration
-            let iterations = iterator
-                .iter()
-                .map(|_| Section {
-                    section_type: Some(SectionType::Iteration),
-                    content: self.content.clone(),
-                    ..Default::default()
-                })
-                .collect_vec();
-
-            // Update `iterations` and then load back from the store. This is necessary so that we obtain distinct
-            // `NodeId`s for the executable nodes from the store (they will just be cloned ids now) in each
-            // iteration so that when they are executed, the correct node is updated
-            let mut iterations: Vec<Section> = match executor
-                .swap_property(&node_id, Property::Iterations, iterations.into())
-                .await
-            {
-                Ok(iterations) => iterations,
-                Err(error) => {
-                    messages.push(error_to_message("While loading iterations", error));
-                    Vec::new()
-                }
+            // Clear any existing iterations while ensuring an array to push to later
+            let reset = if self.iterations.is_some() {
+                clear(NodeProperty::Iterations)
+            } else {
+                set(NodeProperty::Iterations, Vec::<Section>::new())
             };
+            executor.patch(&node_id, [reset]);
 
             // Iterate over iterable, and iterations, setting the variable and executing each iteration.
-            for (node, iteration) in iterator.iter().zip(iterations.iter_mut()) {
+            for node in iterator.iter() {
                 has_iterations = true;
+
+                // Replicate the content, rather than clone it so it has different
+                // ids from the original when executed.
+                let content = replicate(&self.content).unwrap_or_default();
+
+                // Add the iteration so it can be patched when it is executed
+                let mut iteration = Block::Section(Section {
+                    section_type: Some(SectionType::Iteration),
+                    content,
+                    ..Default::default()
+                });
+                executor.patch(
+                    &node_id,
+                    [push(NodeProperty::Iterations, iteration.clone())],
+                );
 
                 // Set the loop's variable
                 if let Err(error) = executor.kernels.write().await.set(variable, node).await {
-                    messages.push(error_to_message("While setting iteration variable", error));
+                    messages.push(error_to_execution_message(
+                        "While setting iteration variable",
+                        error,
+                    ));
                 };
 
                 // Execute the iteration
                 if let Err(error) = iteration.walk_async(executor).await {
-                    messages.push(error_to_message("While executing iteration", error));
+                    messages.push(error_to_execution_message(
+                        "While executing iteration",
+                        error,
+                    ));
                 }
             }
 
             // Remove the loop's variable (if it was set)
             if has_iterations {
                 if let Err(error) = executor.kernels.write().await.remove(&self.variable).await {
-                    messages.push(error_to_message("While removing iteration variable", error));
+                    messages.push(error_to_execution_message(
+                        "While removing iteration variable",
+                        error,
+                    ));
                 }
             };
         }
@@ -203,7 +212,10 @@ impl Executable for ForBlock {
             is_empty = false;
 
             if let Err(error) = otherwise.walk_async(executor).await {
-                messages.push(error_to_message("While executing otherwise", error))
+                messages.push(error_to_execution_message(
+                    "While executing otherwise",
+                    error,
+                ))
             }
         }
 
@@ -217,29 +229,29 @@ impl Executable for ForBlock {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, status.into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
-                    (Property::ExecutionDigest, compilation_digest.into()),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::Iterations, Value::None),
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
-                    (Property::ExecutionDigest, compilation_digest.into()),
+                    none(NodeProperty::Iterations),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         }

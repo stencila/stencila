@@ -16,17 +16,25 @@
       "type": "CodeChunk",
       "code": "color=pink",
       "programmingLanguage": "bash",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6149006589777468474
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6149006589777468474
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1711242570260,
+        "value": 1714644399123,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 31,
+        "value": 20,
         "timeUnit": "Millisecond"
       }
     },
@@ -43,17 +51,25 @@
       "type": "CodeChunk",
       "code": "var shades = {\n  bg: 100,\n  txt: 800,\n};",
       "programmingLanguage": "js",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1176276285281864077
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1176276285281864077
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1711242570451,
+        "value": 1714644399127,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 191,
+        "value": 4,
         "timeUnit": "Millisecond"
       }
     },
@@ -70,17 +86,25 @@
       "type": "CodeChunk",
       "code": "pad = 3",
       "programmingLanguage": "python",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10604832597507169529
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10604832597507169529
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1711242571390,
+        "value": 1714644399668,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 938,
+        "value": 541,
         "timeUnit": "Millisecond"
       }
     },
@@ -95,7 +119,7 @@
     },
     {
       "type": "StyledBlock",
-      "code": " bg-$color-{{shades.bg}} text-$color-{{shades.txt}} p-$pad ",
+      "code": "bg-$color-{{shades.bg}} text-$color-{{shades.txt}} p-$pad",
       "content": [
         {
           "type": "Paragraph",
@@ -107,7 +131,11 @@
           ]
         }
       ],
-      "css": ".styled{& .bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity))}& .text-pink-800{--tw-text-opacity:1;color:rgb(157 23 77/var(--tw-text-opacity))}& .p-3{padding:.75rem}}",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 2599620048891612750
+      },
+      "css": ".bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity))}.text-pink-800{--tw-text-opacity:1;color:rgb(157 23 77/var(--tw-text-opacity))}.p-3{padding:.75rem}",
       "classList": "bg-pink-100 text-pink-800 p-3"
     },
     {
@@ -121,7 +149,7 @@
     },
     {
       "type": "StyledBlock",
-      "code": " bg-color-$foo ",
+      "code": "bg-color-$foo",
       "content": [
         {
           "type": "Paragraph",
@@ -133,6 +161,10 @@
           ]
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17073427817365123148
+      },
       "compilationMessages": [
         {
           "type": "CompilationMessage",
@@ -140,7 +172,7 @@
           "message": "Warning on Line: 1, Col: 1 in file: ''; Could not match class 'bg-color-', argument 'color-' could not be found"
         }
       ],
-      "css": ".styled{}",
+      "css": "",
       "classList": "bg-color-"
     }
   ],
@@ -149,12 +181,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1711242571447,
+    "value": 1714644399682,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 1218,
+    "value": 579,
     "timeUnit": "Millisecond"
   }
 }

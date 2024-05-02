@@ -11,17 +11,25 @@
           "code": "1 + 2 + 3",
           "programmingLanguage": "bash",
           "output": 6,
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 18246523687614665546
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 18246523687614665546
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300028449,
+            "value": 1714644378299,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 36,
+            "value": 19,
             "timeUnit": "Millisecond"
           }
         }
@@ -33,12 +41,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300028450,
+    "value": 1714644378299,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 37,
+    "value": 19,
     "timeUnit": "Millisecond"
   }
 }

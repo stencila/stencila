@@ -1660,7 +1660,7 @@ class ForBlock(CodeExecutable):
     otherwise: list[Block] | None = None
     """The content to render if there are no items"""
 
-    iterations: list[Section] | None = None
+    iterations: list[Block] | None = None
     """The content repeated for each iteration"""
 
 

@@ -10,20 +10,36 @@
           "type": "CodeExpression",
           "code": "1 + 2 + 3",
           "programmingLanguage": "node",
-          "output": 6,
+          "output": null,
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9695321780275120580
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9695321780275120580
+          },
           "executionCount": 1,
-          "executionRequired": "No",
-          "executionStatus": "Succeeded",
+          "executionRequired": "ExecutionFailed",
+          "executionStatus": "Errors",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300029787,
+            "value": 1714644379078,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 385,
+            "value": 3,
             "timeUnit": "Millisecond"
-          }
+          },
+          "executionMessages": [
+            {
+              "type": "ExecutionMessage",
+              "level": "Error",
+              "message": "No kernel available with name, or that supports language, `node`",
+              "stackTrace": "While evaluating expression"
+            }
+          ]
         }
       ]
     }
@@ -33,12 +49,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300029787,
+    "value": 1714644379078,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 385,
+    "value": 3,
     "timeUnit": "Millisecond"
   }
 }

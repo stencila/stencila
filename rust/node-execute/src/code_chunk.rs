@@ -1,4 +1,4 @@
-use schema::CodeChunk;
+use schema::{CodeChunk, NodeProperty};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -13,11 +13,11 @@ impl Executable for CodeChunk {
             self.programming_language.as_deref().unwrap_or_default(),
         );
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::CompilationDigest, info.compilation_digest.into()),
-                (Property::ExecutionTags, info.execution_tags.into()),
+                set(NodeProperty::CompilationDigest, info.compilation_digest),
+                set(NodeProperty::ExecutionTags, info.execution_tags),
             ],
         );
 
@@ -51,11 +51,11 @@ impl Executable for CodeChunk {
 
         tracing::trace!("Executing CodeChunk {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -73,7 +73,7 @@ impl Executable for CodeChunk {
                 .unwrap_or_else(|error| {
                     (
                         Vec::new(),
-                        vec![error_to_message("While executing code", error)],
+                        vec![error_to_execution_message("While executing code", error)],
                     )
                 });
 
@@ -87,30 +87,30 @@ impl Executable for CodeChunk {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::Outputs, outputs.into()),
-                    (Property::ExecutionStatus, status.clone().into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
-                    (Property::ExecutionDigest, compilation_digest.into()),
+                    set(NodeProperty::Outputs, outputs),
+                    set(NodeProperty::ExecutionStatus, status.clone()),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::Outputs, Value::None),
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionMessages, Value::None),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
-                    (Property::ExecutionDigest, compilation_digest.into()),
+                    none(NodeProperty::Outputs),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    none(NodeProperty::ExecutionMessages),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         };

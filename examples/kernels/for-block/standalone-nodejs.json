@@ -6,7 +6,7 @@
     {
       "type": "ForBlock",
       "code": "null",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
       "variable": "item",
       "content": [
         {
@@ -20,17 +20,25 @@
         }
       ],
       "iterations": [],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 5379037027975027242
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 5379037027975027242
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300047514,
+        "value": 1714644387104,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 267,
+        "value": 99,
         "timeUnit": "Millisecond"
       }
     },
@@ -65,12 +73,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047523,
+                    "value": 1714644387106,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 2,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -80,17 +88,25 @@
           "sectionType": "Iteration"
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 16914997631442930553
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 16914997631442930553
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300047526,
+        "value": 1714644387106,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 12,
+        "value": 2,
         "timeUnit": "Millisecond"
       }
     },
@@ -125,12 +141,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047538,
+                    "value": 1714644387107,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 4,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -154,12 +170,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047544,
+                    "value": 1714644387107,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 2,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -183,12 +199,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047551,
+                    "value": 1714644387108,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 3,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -198,17 +214,25 @@
           "sectionType": "Iteration"
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10489139260846039361
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10489139260846039361
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300047555,
+        "value": 1714644387108,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 29,
+        "value": 2,
         "timeUnit": "Millisecond"
       }
     },
@@ -243,12 +267,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047568,
+                    "value": 1714644387108,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 4,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -272,12 +296,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047576,
+                    "value": 1714644387109,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 3,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -301,12 +325,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047585,
+                    "value": 1714644387110,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 4,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -316,17 +340,25 @@
           "sectionType": "Iteration"
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 16106270102739274808
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 16106270102739274808
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300047590,
+        "value": 1714644387110,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 35,
+        "value": 2,
         "timeUnit": "Millisecond"
       }
     },
@@ -361,12 +393,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047606,
+                    "value": 1714644387111,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 6,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -390,12 +422,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047615,
+                    "value": 1714644387111,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 4,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -419,12 +451,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047626,
+                    "value": 1714644387112,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 5,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -434,17 +466,25 @@
           "sectionType": "Iteration"
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1382367851828009517
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 1382367851828009517
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300047631,
+        "value": 1714644387112,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 41,
+        "value": 2,
         "timeUnit": "Millisecond"
       }
     },
@@ -479,12 +519,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047649,
+                    "value": 1714644387113,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 5,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -508,12 +548,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047661,
+                    "value": 1714644387113,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 5,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -537,12 +577,12 @@
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300047673,
+                    "value": 1714644387114,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 6,
+                    "value": 1,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -552,62 +592,80 @@
           "sectionType": "Iteration"
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8682891849222145763
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8682891849222145763
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300047679,
+        "value": 1714644387114,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 48,
+        "value": 2,
         "timeUnit": "Millisecond"
       }
     },
     {
-      "type": "Paragraph",
+      "type": "ForBlock",
+      "code": "{'a': 1, 'b': 2, 'c': 3}",
+      "variable": "pair",
       "content": [
         {
-          "type": "Text",
-          "value": "::: for pair in "
-        },
-        {
-          "type": "CodeInline",
-          "code": "{'a': 1, 'b': 2, 'c': 3}"
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "CodeExpression",
-          "code": " `${pair[0]}: ${pair[1]}` ",
-          "output": null,
-          "executionCount": 1,
-          "executionRequired": "ExecutionFailed",
-          "executionStatus": "Exceptions",
-          "executionEnded": {
-            "type": "Timestamp",
-            "value": 1710300047691,
-            "timeUnit": "Millisecond"
-          },
-          "executionDuration": {
-            "type": "Duration",
-            "value": 12,
-            "timeUnit": "Millisecond"
-          },
-          "executionMessages": [
+          "type": "Paragraph",
+          "content": [
             {
-              "type": "ExecutionMessage",
-              "level": "Exception",
-              "message": "pair is not defined",
-              "errorType": "ReferenceError",
-              "stackTrace": "evalmachine.<anonymous>:1\n`${pair[0]}: ${pair[1]}`\n^\n\nReferenceError: pair is not defined\n    at evalmachine.<anonymous>:1:1\n    at sigintHandlersWrap (node:vm:258:12)\n    at Script.runInContext (node:vm:131:14)\n    at Object.runInContext (node:vm:279:6)\n    at evaluate (/home/nokome/.config/stencila/kernels/node:169:20)\n    at /home/nokome/.config/stencila/kernels/node:313:18\n    at Interface.<anonymous> (/home/nokome/.config/stencila/kernels/node:331:7)\n    at Interface.emit (node:events:514:28)\n    at [_onLine] [as _onLine] (node:internal/readline/interface:416:12)\n    at [_normalWrite] [as _normalWrite] (node:internal/readline/interface:610:22)"
+              "type": "Text",
+              "value": "{{ `"
+            },
+            {
+              "type": "MathInline",
+              "code": "{pair[0]}: "
+            },
+            {
+              "type": "Text",
+              "value": "{pair[1]}` }}"
             }
           ]
+        }
+      ],
+      "iterations": [],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 2518230968571619558
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 2518230968571619558
+      },
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1714644387114,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 0,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "Unexpected token ':'",
+          "errorType": "SyntaxError",
+          "stackTrace": "evalmachine.<anonymous>:1\n{'a': 1, 'b': 2, 'c': 3}\n    ^\n\nSyntaxError: Unexpected token ':'\n    at new Script (node:vm:99:7)\n    at createScript (node:vm:247:10)\n    at Object.runInContext (node:vm:278:10)\n    at evaluate (/home/nokome/.config/stencila/kernels/nodejs:169:20)\n    at /home/nokome/.config/stencila/kernels/nodejs:313:18\n    at Interface.<anonymous> (/home/nokome/.config/stencila/kernels/nodejs:331:7)\n    at Interface.emit (node:events:514:28)\n    at [_onLine] [as _onLine] (node:internal/readline/interface:416:12)\n    at [_normalWrite] [as _normalWrite] (node:internal/readline/interface:610:22)\n    at Socket.ondata (node:internal/readline/interface:243:23)"
         }
       ]
     }
@@ -617,12 +675,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300047691,
+    "value": 1714644387114,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 444,
+    "value": 110,
     "timeUnit": "Millisecond"
   }
 }

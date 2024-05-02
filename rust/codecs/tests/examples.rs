@@ -8,6 +8,7 @@ use codec::{
         glob::glob,
         itertools::Itertools,
         once_cell::sync::Lazy,
+        regex::Regex,
         serde::{Deserialize, Serialize},
         serde_json, serde_yaml,
         smart_default::SmartDefault,
@@ -375,8 +376,15 @@ async fn examples() -> Result<()> {
 
                 if codec.supports_to_string() {
                     // Encode to string
-                    let (actual, EncodeInfo { losses, mapping }) =
+                    let (mut actual, EncodeInfo { losses, mapping }) =
                         codec.to_string(&original, encode_options).await?;
+
+                    // If DOM HTML redact ids since these will change between test runs
+                    if config.format == Format::Dom {
+                        static REGEX: Lazy<Regex> =
+                            Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
+                        actual = REGEX.replace_all(&actual, " id=xxx").to_string();
+                    }
 
                     if file.exists() {
                         // Existing file: compare string content of files

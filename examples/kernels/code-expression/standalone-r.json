@@ -11,17 +11,25 @@
           "code": "1 + 2 + 3",
           "programmingLanguage": "r",
           "output": 6,
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 17834802965811007399
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 17834802965811007399
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300035375,
+            "value": 1714644381575,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 893,
+            "value": 341,
             "timeUnit": "Millisecond"
           }
         }
@@ -33,12 +41,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300035375,
+    "value": 1714644381575,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 894,
+    "value": 341,
     "timeUnit": "Millisecond"
   }
 }

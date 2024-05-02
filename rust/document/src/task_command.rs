@@ -8,7 +8,7 @@ use node_execute::{compile, execute, interrupt, ExecuteOptions};
 
 use crate::{
     Command, CommandNodes, CommandStatus, Document, DocumentCommandReceiver,
-    DocumentCommandStatusSender, DocumentKernels, DocumentPatchSender, DocumentStore,
+    DocumentCommandStatusSender, DocumentKernels, DocumentPatchSender, DocumentRoot,
 };
 
 impl Document {
@@ -18,7 +18,7 @@ impl Document {
         mut command_receiver: DocumentCommandReceiver,
         command_status_sender: DocumentCommandStatusSender,
         home: PathBuf,
-        store: DocumentStore,
+        root: DocumentRoot,
         kernels: DocumentKernels,
         patch_sender: DocumentPatchSender,
     ) {
@@ -56,7 +56,7 @@ impl Document {
 
                             let status = if let Err(error) = interrupt(
                                 home.clone(),
-                                store.clone(),
+                                root.clone(),
                                 kernels.clone(),
                                 patch_sender.clone(),
                                 None,
@@ -79,7 +79,7 @@ impl Document {
             }
 
             let home = home.clone();
-            let store = store.clone();
+            let store = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
             let status_sender = command_status_sender.clone();

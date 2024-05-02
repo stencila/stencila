@@ -473,6 +473,7 @@
     "iterations": {
       "@id": "stencila:iterations",
       "description": "The content repeated for each iteration",
+      "$comment": "Usually each item in `iterations` will be a `Section` with `SectionType: Iteration`\nbut it could be another `Block` type depending upon the implementation.\n",
       "aliases": [
         "iteration"
       ],
@@ -485,7 +486,7 @@
       },
       "type": "array",
       "items": {
-        "$ref": "Section.schema.json"
+        "$ref": "Block.schema.json"
       }
     }
   }

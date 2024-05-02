@@ -6,31 +6,47 @@
     {
       "type": "CodeChunk",
       "code": "// A sleep function which can be called at top level\n// without using await (which is not supported in\n// Node.js's `vm` module)\nfunction sleep(seconds) {\n    const startTime = new Date().getTime();\n    let currentTime = null;\n    do {\n        currentTime = new Date().getTime();\n    } while (currentTime - startTime < seconds * 1000);\n}\n\nsleep(1)",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8857835612761557738
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8857835612761557738
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299975488,
+        "value": 1714644315827,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 1406,
+        "value": 1165,
         "timeUnit": "Millisecond"
       }
     },
     {
       "type": "CodeChunk",
       "code": "sleep(2)",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 4793815874270711735
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 4793815874270711735
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299977490,
+        "value": 1714644317828,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
@@ -42,36 +58,52 @@
     {
       "type": "CodeChunk",
       "code": "sleep(4)",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10903071583354677471
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10903071583354677471
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299981492,
+        "value": 1714644321828,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 4001,
+        "value": 4000,
         "timeUnit": "Millisecond"
       }
     },
     {
       "type": "CodeChunk",
       "code": "sleep(8)",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 18066521638320722117
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 18066521638320722117
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299989493,
+        "value": 1714644329828,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 8001,
+        "value": 8000,
         "timeUnit": "Millisecond"
       }
     }
@@ -81,12 +113,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710299989493,
+    "value": 1714644329828,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 15411,
+    "value": 15166,
     "timeUnit": "Millisecond"
   }
 }

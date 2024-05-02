@@ -14,7 +14,7 @@
     },
     {
       "type": "StyledBlock",
-      "code": " bg-indigo-100 rounded border border-indigo-400 p-3 text-indigo-800 ",
+      "code": "bg-indigo-100 rounded border border-indigo-400 p-3 text-indigo-800",
       "content": [
         {
           "type": "Paragraph",
@@ -26,7 +26,11 @@
           ]
         }
       ],
-      "css": ".styled{& .bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity))}& .rounded{border-radius:.25rem}& .border{border-width:1px}& .border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248/var(--tw-border-opacity))}& .p-3{padding:.75rem}& .text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163/var(--tw-text-opacity))}}",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12944551871697342736
+      },
+      "css": ".bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity))}.rounded{border-radius:.25rem}.border{border-width:1px}.border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248/var(--tw-border-opacity))}.p-3{padding:.75rem}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163/var(--tw-text-opacity))}",
       "classList": "bg-indigo-100 rounded border border-indigo-400 p-3 text-indigo-800"
     },
     {
@@ -40,7 +44,7 @@
     },
     {
       "type": "StyledBlock",
-      "code": " background-color:#fce7f3; color:#9d174d; padding:0.75rem ",
+      "code": "background-color:#fce7f3; color:#9d174d; padding:0.75rem",
       "content": [
         {
           "type": "Paragraph",
@@ -52,8 +56,12 @@
           ]
         }
       ],
-      "css": ".styled{background-color:#fce7f3;color:#9d174d;padding:.75rem}",
-      "classList": ""
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6215810543420061450
+      },
+      "css": ".s9vNpD4Tm8dG{background-color:#fce7f3;color:#9d174d;padding:.75rem}",
+      "classList": "s9vNpD4Tm8dG"
     },
     {
       "type": "Paragraph",
@@ -66,7 +74,7 @@
     },
     {
       "type": "StyledBlock",
-      "code": " background-color: ",
+      "code": "background-color:",
       "content": [
         {
           "type": "Paragraph",
@@ -78,8 +86,19 @@
           ]
         }
       ],
-      "css": ".styled{background-color:}",
-      "classList": ""
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17227670532186656073
+      },
+      "compilationMessages": [
+        {
+          "type": "CompilationMessage",
+          "level": "Warning",
+          "message": "Warning on Line: 1, Col: 1 in file: ''; Could not match state at class 'background-color:', 'background-color' is not a valid state"
+        }
+      ],
+      "css": "",
+      "classList": "background-color:"
     }
   ],
   "executionCount": 1,
@@ -87,12 +106,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1711242582934,
+    "value": 1714644400079,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 26,
+    "value": 1,
     "timeUnit": "Millisecond"
   }
 }

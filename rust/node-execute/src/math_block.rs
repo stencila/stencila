@@ -1,4 +1,4 @@
-use schema::MathBlock;
+use schema::{CompilationMessage, MathBlock};
 
 use crate::prelude::*;
 
@@ -29,41 +29,61 @@ impl Executable for MathBlock {
                 .map_or("tex".to_string(), |lang| lang.to_lowercase());
 
             let (mathml, messages) = if lang == "mathml" {
-                (Some(Node::String(code.to_string())), None)
+                (Some(code.to_string()), None)
             } else {
-                let (mut outputs, messages) = executor
+                let (mathml, messages) = executor
                     .kernels()
                     .await
                     .execute(code, Some(&lang))
                     .await
-                    .unwrap_or_else(|error| {
-                        (
-                            Vec::new(),
-                            vec![error_to_message("While compiling math", error)],
-                        )
-                    });
+                    .map_or_else(
+                        |error| (None, vec![error_to_compilation_message(error)]),
+                        |(mut outputs, messages)| {
+                            let output = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
+                            let Some(Node::String(mathml)) = output else {
+                                return (
+                                    None,
+                                    vec![CompilationMessage::new(
+                                        MessageLevel::Error,
+                                        "Expected a string".to_string(),
+                                    )],
+                                );
+                            };
 
-                let mathml = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
+                            let messages = messages
+                                .into_iter()
+                                .map(|message| CompilationMessage {
+                                    level: message.level,
+                                    message: message.message,
+                                    error_type: message.error_type,
+                                    ..Default::default()
+                                })
+                                .collect();
+
+                            (Some(mathml), messages)
+                        },
+                    );
+
                 let messages = (!messages.is_empty()).then_some(messages);
 
                 (mathml, messages)
             };
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::MathMl, mathml.into()),
-                    (Property::CompilationMessages, messages.into()),
-                    (Property::CompilationDigest, compilation_digest.into()),
+                    set(NodeProperty::Mathml, mathml),
+                    set(NodeProperty::CompilationMessages, messages),
+                    set(NodeProperty::CompilationDigest, compilation_digest),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::MathMl, Value::None),
-                    (Property::CompilationMessages, Value::None),
-                    (Property::CompilationDigest, compilation_digest.into()),
+                    none(NodeProperty::Mathml),
+                    none(NodeProperty::CompilationMessages),
+                    set(NodeProperty::CompilationDigest, compilation_digest),
                 ],
             );
         };

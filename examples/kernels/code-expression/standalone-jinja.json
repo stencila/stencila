@@ -11,17 +11,25 @@
           "code": "1 + 2 + 3",
           "programmingLanguage": "jinja",
           "output": 6,
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9256056712595208386
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9256056712595208386
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1711233821158,
+            "value": 1714644378690,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 8,
+            "value": 3,
             "timeUnit": "Millisecond"
           }
         }
@@ -33,12 +41,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1711233821158,
+    "value": 1714644378690,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 8,
+    "value": 4,
     "timeUnit": "Millisecond"
   }
 }
