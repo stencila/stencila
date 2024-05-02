@@ -205,7 +205,7 @@ impl Document {
         tracing::trace!("Syncing string");
 
         // Create initial encoding of the root node
-        let node = self.load().await?;
+        let node = self.root.read().await;
         let (
             initial_content,
             EncodeInfo {
@@ -469,8 +469,6 @@ mod tests {
     use format::Format;
     use schema::shortcuts::{art, p, t};
 
-    use crate::DocumentType;
-
     use super::*;
 
     /// Test receiving patches from a client
@@ -482,7 +480,7 @@ mod tests {
     #[timeout(1000)]
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(DocumentType::Article)?;
+        let document = Document::new()?;
         let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
             .sync_format(
@@ -557,7 +555,7 @@ mod tests {
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(DocumentType::Article)?;
+        let document = Document::new()?;
         let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document
             .sync_format(

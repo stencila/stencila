@@ -10,7 +10,6 @@ use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
-    itertools::Itertools,
     serde::{Deserialize, Serialize},
     strum::{Display, EnumString},
     tokio::{
@@ -24,9 +23,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use node_patch::NodePatchSender;
-use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
-use schema::{Article, Node, NodeId};
+use schema::{Article, Node, NodeId, Patch};
 
 mod sync_directory;
 mod sync_file;
@@ -34,63 +31,6 @@ mod sync_format;
 mod sync_object;
 mod task_command;
 mod task_update;
-
-/// The document type
-///
-/// Defines which `CreativeWork` variants can be the root node of a document
-/// and the default file extension etc for each variant.
-#[derive(Debug, Display, Clone, PartialEq, ValueEnum, EnumString)]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
-pub enum DocumentType {
-    Article,
-}
-
-impl DocumentType {
-    /// Determine the document type from the type of a [`Node`]
-    fn from_node(node: &Node) -> Result<Self> {
-        match node {
-            Node::Article(..) => Ok(Self::Article),
-            _ => bail!(
-                "Node of type `{}` is not associated with a document type",
-                node
-            ),
-        }
-    }
-
-    /// Determine the document type from the [`Format`]
-    ///
-    /// Returns `None` if the format can be associated with more than one
-    /// document type (e.g. [`Format::Json`]).
-    #[allow(unused)]
-    fn from_format(format: &Format) -> Option<Self> {
-        match format {
-            Format::Jats | Format::Markdown => Some(Self::Article),
-            _ => None,
-        }
-    }
-
-    /// Get the file extension for the document type
-    fn extension(&self) -> &str {
-        match self {
-            Self::Article => "sta",
-        }
-    }
-
-    /// Get the default 'main' file name for the document type
-    ///
-    /// This filename is the default used when creating a document
-    /// of this type.
-    fn main(&self) -> PathBuf {
-        PathBuf::from(format!("main.{}", self.extension()))
-    }
-
-    /// Get an empty root [`Node`] for the document type
-    fn empty(&self) -> Node {
-        match self {
-            DocumentType::Article => Node::Article(Article::default()),
-        }
-    }
-}
 
 #[derive(Default)]
 pub struct Document_;
@@ -199,7 +139,7 @@ impl CommandStatus {
 
 type DocumentKernels = Arc<RwLock<Kernels>>;
 
-type DocumentStore = Arc<RwLock<WriteStore>>;
+type DocumentRoot = Arc<RwLock<Node>>;
 
 type DocumentWatchSender = watch::Sender<Node>;
 type DocumentWatchReceiver = watch::Receiver<Node>;
@@ -207,7 +147,8 @@ type DocumentWatchReceiver = watch::Receiver<Node>;
 type DocumentUpdateSender = mpsc::Sender<Node>;
 type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 
-type DocumentPatchSender = NodePatchSender;
+type DocumentPatchSender = mpsc::UnboundedSender<Patch>;
+type DocumentPatchReceiver = mpsc::UnboundedReceiver<Patch>;
 
 type DocumentCommandCounter = AtomicU64;
 
@@ -239,11 +180,10 @@ pub struct Document {
     /// The filesystem path to the document's Automerge store
     path: Option<PathBuf>,
 
+    root: DocumentRoot,
+
     /// The document's execution kernels
     kernels: DocumentKernels,
-
-    /// The document's Automerge store with a [`Node`] at its root
-    store: DocumentStore,
 
     /// A channel receiver for watching for changes to the root [`Node`]
     watch_receiver: DocumentWatchReceiver,
@@ -269,27 +209,24 @@ impl Document {
     ///
     /// This initializes the document's "watch", "update", and "command" channels, and
     /// starts its background tasks.
-    #[tracing::instrument(skip(store))]
-    fn init(store: WriteStore, home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
+    #[tracing::instrument]
+    fn init(home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
         // Create the document's kernels with the same home directory
         let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
 
         // Load the node from the store to initialize the watch channel
-        let node = Node::load(&store)?;
-        let (watch_sender, watch_receiver) = watch::channel(node);
-
-        // Create an `Arc` for the store so it can be cloned for the document's
-        // background tasks
-        let store = Arc::new(RwLock::new(store));
+        let root = Node::Article(Article::default());
+        let (watch_sender, watch_receiver) = watch::channel(root.clone());
+        let root = Arc::new(RwLock::new(root));
 
         // Start the update task
         let (update_sender, update_receiver) = mpsc::channel(8);
         let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
-        let store_clone = store.clone();
+        let root_clone = root.clone();
         tokio::spawn(async move {
-            Self::update_task(update_receiver, patch_receiver, store_clone, watch_sender).await
+            Self::update_task(update_receiver, patch_receiver, root_clone, watch_sender).await
         });
 
         // Start counter at one, so tasks that do not wait can use zero
@@ -299,7 +236,7 @@ impl Document {
         let (command_sender, command_receiver) = mpsc::channel(256);
         let (command_status_sender, command_status_receiver) = broadcast::channel(256);
         let home_clone = home.clone();
-        let store_clone = store.clone();
+        let root_clone = root.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_sender.clone();
         tokio::spawn(async move {
@@ -307,7 +244,7 @@ impl Document {
                 command_receiver,
                 command_status_sender,
                 home_clone,
-                store_clone,
+                root_clone,
                 kernels_clone,
                 patch_sender_clone,
             )
@@ -318,8 +255,8 @@ impl Document {
             id,
             home,
             path,
+            root,
             kernels,
-            store,
             watch_receiver,
             update_sender,
             patch_sender,
@@ -330,15 +267,9 @@ impl Document {
     }
 
     /// Create a new in-memory document
-    pub fn new(r#type: DocumentType) -> Result<Self> {
-        let root = r#type.empty();
-
-        let mut store = WriteStore::new();
-        root.dump(&mut store)?;
-
+    pub fn new() -> Result<Self> {
         let home = std::env::current_dir()?;
-
-        Self::init(store, home, None)
+        Self::init(home, None)
     }
 
     /// Create a new document
@@ -351,45 +282,22 @@ impl Document {
     /// decode it with.
     #[tracing::instrument]
     pub async fn create(
-        r#type: DocumentType,
-        path: Option<&Path>,
+        path: &Path,
         overwrite: bool,
         source: Option<&Path>,
         format: Option<Format>,
         codec: Option<String>,
     ) -> Result<Self> {
-        let path = path.map_or_else(|| r#type.main(), PathBuf::from);
-
         if path.exists() && !overwrite {
             bail!("Path already exists; remove the file or use the `--overwrite` option")
         }
-
-        let (root, message) = if let Some(source) = source {
-            let decode_options = Some(DecodeOptions {
-                format,
-                codec,
-                ..Default::default()
-            });
-            let filename = source
-                .file_name()
-                .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
-            (
-                codecs::from_path(source, decode_options).await?,
-                format!("Initial commit of {type} imported from `{filename}`"),
-            )
-        } else {
-            (r#type.empty(), format!("Initial commit of empty {type}"))
-        };
-
-        let mut store = WriteStore::new();
-        root.write(&mut store, &path, &message).await?;
 
         let home = path
             .parent()
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(store, home, Some(path))
+        Self::init(home, None)
     }
 
     /// Open an existing document
@@ -403,16 +311,10 @@ impl Document {
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        let format = Format::from_path(path)?;
-        if format.is_store() {
-            let store = load_store(path).await?;
-            Self::init(store, home, Some(path.to_path_buf()))
-        } else {
-            let root = codecs::from_path(path, None).await?;
-            let mut store = WriteStore::new();
-            root.dump(&mut store)?;
-            Self::init(store, home, None)
-        }
+        let me = Self::init(home, None)?;
+        me.import(path, None).await?;
+
+        Ok(me)
     }
 
     /// Get the id of the document
@@ -420,64 +322,16 @@ impl Document {
         &self.id
     }
 
-    /// Load the root [`Node`] from the document's Automerge store
-    async fn load(&self) -> Result<Node> {
-        let store = self.store.read().await;
-        Node::load(&*store)
-    }
-
-    /// Dump a [`Node`] to the root of the document's Automerge store
-    async fn dump(&self, node: &Node) -> Result<()> {
-        let mut store = self.store.write().await;
-        node.dump(&mut store)
-    }
-
-    /// Inspect a document
-    ///
-    /// Loads the Automerge store at the `path` (without attempting to load as a `Node`)
-    /// and returns a JSON representation of the contents of the store. This is mainly useful
-    /// during development to debug issues with loading a node from a store because it allows
-    /// us to inspect the "raw" structure in the store.
-    #[tracing::instrument]
-    pub async fn inspect(path: &Path) -> Result<String> {
-        let store = load_store(path).await?;
-        inspect_store(&store)
-    }
-
     /// Import a file into a new, or existing, document
     ///
     /// By default the format of the `source` file is inferred from its extension but
     /// this can be overridden by providing the `format` option.
     #[tracing::instrument(skip(self))]
-    pub async fn import(
-        &self,
-        source: &Path,
-        options: Option<DecodeOptions>,
-        r#type: Option<DocumentType>,
-    ) -> Result<()> {
-        let root = codecs::from_path(source, options).await?;
+    pub async fn import(&self, source: &Path, options: Option<DecodeOptions>) -> Result<()> {
+        let node = codecs::from_path(source, options).await?;
 
-        if let Some(expected_type) = r#type {
-            let actual_type = DocumentType::from_node(&root)?;
-            if expected_type == actual_type {
-                bail!(
-                    "The imported document is of type `{actual_type}` but expected type `{expected_type}`"
-                )
-            }
-        }
-
-        let mut store = self.store.write().await;
-
-        let filename = source
-            .file_name()
-            .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
-
-        if let Some(path) = &self.path {
-            root.write(&mut store, path, &format!("Import from `{filename}`"))
-                .await?;
-        } else {
-            root.dump(&mut store)?;
-        }
+        let mut root = self.root.write().await;
+        *root = node;
 
         Ok(())
     }
@@ -496,56 +350,20 @@ impl Document {
         dest: Option<&Path>,
         options: Option<EncodeOptions>,
     ) -> Result<String> {
-        let root = self.load().await?;
+        let root = self.root.read().await;
 
         if let Some(dest) = dest {
-            let mut store = self.store.write().await;
-
-            if let Some(path) = &self.path {
-                let _commit = root
-                    .write(&mut store, path, &format!("Export to `{}`", dest.display()))
-                    .await?;
-            }
-
             codecs::to_path(&root, dest, options).await?;
-
             Ok(String::new())
         } else {
             codecs::to_string(&root, options).await
         }
     }
 
-    /// Get the history of commits to the document
-    #[tracing::instrument(skip(self))]
-    pub async fn log(&self) -> Result<Vec<LogEntry>> {
-        let mut store = self.store.write().await;
+    pub async fn update(&self, node: Node) -> Result<()> {
+        self.update_sender.send(node).await?;
 
-        let changes = store.get_changes(&[]);
-
-        let entries = changes
-            .iter()
-            .map(|change| {
-                let hash = change.hash().to_string();
-                let parents = change
-                    .deps()
-                    .iter()
-                    .map(|hash| hash.to_string())
-                    .collect_vec();
-                let timestamp = change.timestamp();
-                let author = change.actor_id().to_hex_string();
-                let message = change.message().cloned().unwrap_or_default();
-
-                LogEntry {
-                    hash,
-                    parents,
-                    timestamp,
-                    author,
-                    message,
-                }
-            })
-            .collect_vec();
-
-        Ok(entries)
+        Ok(())
     }
 
     /// Perform a command on the document and optionally wait for it to complete

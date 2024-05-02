@@ -89,9 +89,12 @@ impl Document {
         tracing::trace!("Syncing JSON");
 
         // Get the node and its JSON value
-        let node = self.load().await?;
-        let map = node_map(&node);
-        let value = serde_json::to_value(&ObjectState { node, map })?;
+        let node = self.root.read().await;
+        let map = node_map(&*node);
+        let value = serde_json::to_value(&ObjectState {
+            node: node.clone(),
+            map,
+        })?;
 
         // Create current state mutex and initialize the version
         let current = Arc::new(Mutex::new(value.clone()));
@@ -180,15 +183,13 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use schema::shortcuts::{art, p, t};
 
-    use crate::DocumentType;
-
     use super::*;
 
     /// Test sending patches to the client
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(DocumentType::Article)?;
+        let document = Document::new()?;
         let (.., in_receiver) = channel(1);
         let (out_sender, mut out_receiver) = channel(4);
         document.sync_object(in_receiver, out_sender).await?;

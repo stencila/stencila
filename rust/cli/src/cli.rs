@@ -1,17 +1,14 @@
 use std::path::PathBuf;
 
-use yansi::Color;
-
 use app::DirType;
 use cli_utils::{Code, ToStdout};
 use common::{
-    chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, Args, Parser, Subcommand},
-    eyre::{eyre, Result},
+    eyre::Result,
     tokio::{self},
     tracing,
 };
-use document::{Document, DocumentType, SyncDirection};
+use document::{Document, SyncDirection};
 use format::Format;
 use node_execute::ExecuteOptions;
 use node_strip::StripScope;
@@ -81,12 +78,8 @@ impl Cli {
 enum Command {
     /// Create a new document
     New {
-        /// The type of document to create
-        #[arg(default_value_t = DocumentType::Article)]
-        r#type: DocumentType,
-
         /// The path of the document to create
-        path: Option<PathBuf>,
+        path: PathBuf,
 
         /// The source file to import from
         #[arg(long, short)]
@@ -119,13 +112,6 @@ enum Command {
         /// of the source file.
         #[arg(long, short, alias = "format")]
         from: Option<String>,
-
-        /// The type of document to import
-        ///
-        /// Defaults to determining the type based on the `format`, or for
-        /// formats such as JSON and YAML, the value of the root `type` property.
-        #[arg(long, short)]
-        r#type: Option<DocumentType>,
 
         /// What to do if there are losses when decoding
         #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
@@ -190,21 +176,6 @@ enum Command {
 
         #[command(flatten)]
         strip_options: StripOptions,
-    },
-
-    /// Display the history of commits to the document
-    Log {
-        /// The path of the document to display the history for
-        doc: PathBuf,
-    },
-
-    /// Inspect a document as JSON
-    ///
-    /// This command is mostly intended for debugging issues with loading a
-    /// document from file storage.
-    Inspect {
-        /// The path of the document to inspect
-        doc: PathBuf,
     },
 
     /// Convert a document between formats
@@ -448,30 +419,14 @@ impl Cli {
 
         let mut wait = false;
         match self.command {
-            Command::New {
-                r#type,
-                path,
-                overwrite,
-                source,
-                format,
-                codec,
-            } => {
-                Document::create(
-                    r#type,
-                    path.as_deref(),
-                    overwrite,
-                    source.as_deref(),
-                    format,
-                    codec,
-                )
-                .await?;
+            Command::New { .. } => {
+                Document::new()?;
             }
 
             Command::Import {
                 doc,
                 source,
                 from,
-                r#type,
                 losses,
                 strip_options,
                 ..
@@ -480,7 +435,7 @@ impl Cli {
 
                 let options = DecodeOptions {}.build(from, strip_options, losses);
 
-                doc.import(&source, Some(options), r#type).await?;
+                doc.import(&source, Some(options)).await?;
             }
 
             Command::Export {
@@ -543,37 +498,6 @@ impl Cli {
                         .await?;
                 }
                 wait = true;
-            }
-
-            Command::Log { doc } => {
-                let doc = Document::open(&doc).await?;
-                let log = doc.log().await?;
-
-                for entry in log {
-                    let date = Local
-                        .timestamp_opt(entry.timestamp, 0)
-                        .single()
-                        .ok_or_else(|| eyre!("invalid timestamp"))?
-                        .to_rfc3339_opts(SecondsFormat::Secs, true);
-                    let date = Color::Blue.paint(date);
-
-                    let author = Color::Green.paint(entry.author);
-                    let hash = Color::White.style().dimmed().paint(entry.hash);
-                    let message = entry.message;
-
-                    println!(
-                        "{date} {author}
-{hash}
-
-{message}
-"
-                    )
-                }
-            }
-
-            Command::Inspect { doc } => {
-                let json = Document::inspect(&doc).await?;
-                Code::new(Format::Json, &json).to_stdout();
             }
 
             Command::Convert {

@@ -1,9 +1,12 @@
-use common::{tokio, tracing};
-use node_patch::NodePatchReceiver;
-use node_store::{ReadNode, WriteNode};
-use schema::Node;
+use common::{
+    tokio::{self},
+    tracing,
+};
+use schema;
 
-use crate::{Document, DocumentStore, DocumentUpdateReceiver, DocumentWatchSender};
+use crate::{
+    Document, DocumentPatchReceiver, DocumentRoot, DocumentUpdateReceiver, DocumentWatchSender,
+};
 
 impl Document {
     /// Asynchronous task to update the document's store and notify watchers of the update
@@ -19,8 +22,8 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub(super) async fn update_task(
         mut update_receiver: DocumentUpdateReceiver,
-        mut patch_receiver: NodePatchReceiver,
-        store: DocumentStore,
+        mut patch_receiver: DocumentPatchReceiver,
+        root: DocumentRoot,
         watch_sender: DocumentWatchSender,
     ) {
         tracing::debug!("Document update task started");
@@ -30,19 +33,17 @@ impl Document {
                 Some(node) = update_receiver.recv() => {
                     tracing::trace!("Document root node update received");
 
-                    // Dump the node to the store
-                    let mut store = store.write().await;
-                    if let Err(error) = node.dump(&mut store) {
-                        tracing::error!("While dumping node to store: {error}");
+                    let root = &mut *root.write().await;
+                    if let Err(error) = schema::merge(root, &node, None) { // TODO: supply authors
+                        tracing::error!("While merging update into root: {error}");
                     }
                 },
                 Some(patch) = patch_receiver.recv() => {
-                    tracing::trace!("Document node patch received");
+                    tracing::trace!("Document root node patch received");
 
-                    // Apply the patch to the store
-                    let mut store = store.write().await;
-                    if let Err(error) = patch.apply(&mut store) {
-                        tracing::error!("While applying patch to store: {error}");
+                    let root = &mut *root.write().await;
+                    if let Err(error) = schema::patch(root, patch) {
+                        tracing::error!("While applying patch to root: {error}");
                     }
                 },
                 else => {
@@ -51,19 +52,13 @@ impl Document {
                 },
             }
 
-            // Load the node from the store.
-            let store = store.read().await;
-            let node = match Node::load(&*store) {
-                Ok(node) => node,
-                Err(error) => {
-                    tracing::error!("While loading node from store: {error}");
-                    continue;
-                }
-            };
-
             // Send the node to watchers
-            if let Err(error) = watch_sender.send(node) {
-                tracing::error!("While notifying watchers: {error}");
+            if watch_sender.receiver_count() > 0 {
+                let root = root.read().await.clone();
+
+                if let Err(error) = watch_sender.send(root) {
+                    tracing::error!("While notifying watchers: {error}");
+                }
             }
         }
 
