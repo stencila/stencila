@@ -14,7 +14,7 @@ use common::{
 use node_id::NodeId;
 use node_type::NodeProperty;
 
-use crate::{Author, AuthorRole, Block, CordOp, Inline, Node};
+use crate::{replicate, Author, AuthorRole, Block, CordOp, Inline, Node};
 
 /// Assign authorship to a node
 ///
@@ -1175,10 +1175,11 @@ where
                 for (from, tos) in indices {
                     let item = self[from].clone();
                     for to in tos {
+                        let replica = replicate(&item)?;
                         if to < self.len() {
-                            self.insert(to, item.clone());
+                            self.insert(to, replica);
                         } else {
-                            self.push(item.clone());
+                            self.push(replica);
                         }
                     }
                 }

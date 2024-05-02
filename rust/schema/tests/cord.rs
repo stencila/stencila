@@ -1,6 +1,46 @@
+use common::serde_json;
 use common_dev::{pretty_assertions::assert_eq, proptest::prelude::*};
 
-use schema::Cord;
+use schema::{Block, Cord};
+
+#[test]
+fn serialization() {
+    // Test deserialization of a union type containing a cord with
+    // authorship
+    serde_json::from_str::<Block>(
+        r#"{
+            "type": "Paragraph",
+            "content": [
+                {
+                    "type": "Text",
+                    "value": {
+                        "string": "abc",
+                        "authorship": [
+                            [
+                                1,
+                                0,
+                                3
+                            ]
+                        ]
+                    }
+                }
+            ],
+            "authors": [
+                {
+                    "type": "AuthorRole",
+                    "author": {
+                        "type": "Person",
+                        "givenNames": [
+                            "Alice"
+                        ]
+                    },
+                    "roleName": "Importer"
+                }
+            ]
+        }"#,
+    )
+    .unwrap();
+}
 
 #[test]
 fn update_authors() {
