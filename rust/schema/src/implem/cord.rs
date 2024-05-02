@@ -516,8 +516,7 @@ impl PatchNode for Cord {
         }
     }
 
-    #[allow(unused_variables)]
-    fn similarity(&self, other: &Cord, context: &mut PatchContext) -> Result<f32> {
+    fn similarity(&self, other: &Cord, _context: &mut PatchContext) -> Result<f32> {
         // Calculate a difference ratio using chars as we do for generating diffs
         let diff = TextDiffConfig::default()
             .algorithm(Algorithm::Patience)
@@ -539,8 +538,15 @@ impl PatchNode for Cord {
         Ok(())
     }
 
-    #[allow(unused_variables)]
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        if patch.node_id.is_some() {
+            return Ok(false);
+        }
+
+        patch.apply(self, context)
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,

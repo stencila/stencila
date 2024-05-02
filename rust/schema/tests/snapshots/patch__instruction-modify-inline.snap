@@ -182,4 +182,4 @@ ops:
       - content
       - 1
       - assignee
-    - Clear
+    - Set: ~
