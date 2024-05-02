@@ -86,26 +86,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             Span::call_site(),
         );
 
-        // These methods are conditionally implemented based on the format
-        // TODO: This currently does not consider different formats. Merging
-        // is turned on for the property if there is any format in the list.
-        if !field_attr.formats.is_empty() {
-            authorship_fields.extend(quote! {
-                self.#field_name.authorship(context)?;
-            });
-
-            similarity_fields.extend(quote! {
-                self.#field_name.similarity(&other.#field_name, context)?,
-            });
-
-            diff_fields.extend(quote! {
-                context.enter_property(NodeProperty::#property);
-                self.#field_name.diff(&other.#field_name, context)?;
-                context.exit_property();
-            });
-        }
-
-        // Application of patches is implemented for all fields
+        // Authorship and application of patches is implemented for all fields
+        authorship_fields.extend(quote! {
+            self.#field_name.authorship(context)?;
+        });
         patch_fields.extend(quote! {
             if self.#field_name.patch(patch, context)? {
                 return Ok(true);
@@ -116,6 +100,21 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 self.#field_name.apply(path, op, context)?;
             },
         });
+
+        // Diffing related methods are conditionally implemented based on the format
+        // TODO: This currently does not consider different formats. Merging
+        // is turned on for the property if there is any format in the list.
+        if !field_attr.formats.is_empty() {
+            similarity_fields.extend(quote! {
+                self.#field_name.similarity(&other.#field_name, context)?,
+            });
+
+            diff_fields.extend(quote! {
+                context.enter_property(NodeProperty::#property);
+                self.#field_name.diff(&other.#field_name, context)?;
+                context.exit_property();
+            });
+        }
     });
 
     let update_release_authors = |overwrite: bool| {
@@ -180,8 +179,13 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let patch = if !is_options {
-        // Do not generate `patch` method for `*Options` structs since they have
-        // no `node_id` method and patch should not get called on them.
+        // If no fields applied patch and has option, then fallback to trying that
+        let end = if has_options {
+            quote! { self.options.patch(patch, context) }
+        } else {
+            quote! { Ok(false) }
+        };
+
         quote! {
             fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
                 if let Some(node_id) = patch.node_id.as_ref() {
@@ -194,11 +198,18 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
                 #patch_fields
 
-                Ok(false)
+                #end
             }
         }
     } else {
-        TokenStream::new()
+        // For options, there is no node_id, so just attempt to apply patch to fields
+        quote! {
+            fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+                #patch_fields
+
+                Ok(false)
+            }
+        }
     };
 
     let apply = {
@@ -254,13 +265,14 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
     let (to_value, from_value) = match enum_name.to_string().as_str() {
-        "Inline" | "Block" | "Node" => (
+        "Inline" | "Block" | "Node" | "SuggestionBlockType" | "SuggestionInlineType" => (
             quote! {
                 Ok(PatchValue::#enum_name(self.clone()))
             },
             quote! {
                 match value {
                     PatchValue::#enum_name(value) => Ok(value),
+                    PatchValue::Json(value) => Ok(serde_json::from_value(value)?),
                     _ => bail!("Invalid value for `{}`", stringify!(#enum_name))
                 }
             },

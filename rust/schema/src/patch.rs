@@ -14,7 +14,10 @@ use common::{
 use node_id::NodeId;
 use node_type::NodeProperty;
 
-use crate::{replicate, Author, AuthorRole, Block, CordOp, Inline, Node};
+use crate::{
+    replicate, Author, AuthorRole, Block, CordOp, Inline, Node, SuggestionBlockType,
+    SuggestionInlineType,
+};
 
 /// Assign authorship to a node
 ///
@@ -354,13 +357,16 @@ pub enum PatchOp {
 ///
 /// This enum allows use to store values in a patch operation so that
 /// they can be used when applying that operation. It has variants for
-/// the main union types in the Stencila Schema with a fallback
+/// the main union types in the Stencila Schema, and for those that are
+/// often involved in patches for execution with a fallback
 /// variant of a [`serde_json::Value`].
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged, crate = "common::serde")]
 pub enum PatchValue {
     Inline(Inline),
     Block(Block),
+    SuggestionInlineType(SuggestionInlineType),
+    SuggestionBlockType(SuggestionBlockType),
     Node(Node),
     String(String),
     Json(JsonValue),
