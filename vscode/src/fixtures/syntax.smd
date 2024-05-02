@@ -353,6 +353,24 @@ Repeated content
 
 :::
 
+---
+
+# Styled
+
+## StyledBlock
+
+::: {color:red}
+
+A red paragraph
+
+:::
+
+## StyledInline
+
+A [green]{color:green} word.
+
+---
+
 # Figure
 
 ::: figure 1

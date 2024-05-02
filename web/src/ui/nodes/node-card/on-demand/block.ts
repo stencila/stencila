@@ -26,7 +26,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       'border border-[transparent]',
       'rounded',
       this.view === 'source' ? 'flex flex-col h-full' : '',
-      this.toggle && `border-[${this.ui.borderColour}] mb-2`,
+      this.toggle && `border-[${this.ui.borderColour}] my-2 mx-auto`,
     ])
 
     return html`<div class=${`ui-block-on-demand ${cardStyles}`}>
@@ -55,16 +55,18 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override renderContent() {
     const contentStyles = apply([
-      !this.displayContent && this.toggle ? 'hidden' : 'flex',
+      !this.displayContent && this.toggle ? 'hidden' : 'block',
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
       this.toggle && 'px-3',
     ])
 
-    return html` <div class=${contentStyles}>
+    return html` <div class=${`${contentStyles}`}>
       ${this.renderChip(this.getIcon(), this.ui)}
-      <slot name="content"></slot>
+      <div class="content-block flex">
+        <slot name="content" class="w-full"></slot>
+      </div>
     </div>`
   }
 

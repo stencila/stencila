@@ -34,7 +34,7 @@
   figure,
   stencila-image-object {
     img {
-      @apply object-cover max-w-full aspect-auto;
+      @apply object-cover max-w-full aspect-auto m-auto block;
     }
   }
 }

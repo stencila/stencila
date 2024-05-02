@@ -3614,7 +3614,9 @@ dependencies = [
 name = "lsp"
 version = "0.0.0"
 dependencies = [
+ "assistants",
  "async-lsp",
+ "codec-text-trait",
  "codecs",
  "common",
  "document",

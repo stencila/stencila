@@ -35,7 +35,7 @@ export abstract class Instruction extends Executable {
    * with execution actions and details and code read-only and collapsed.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-node-card type=${this.type} view="dynamic">
+    return html`<stencila-ui-block-on-demand type=${this.type} view="dynamic">
       <span slot="header-right">
         <stencila-ui-node-execution-commands
           node-id=${this.id}
@@ -73,12 +73,11 @@ export abstract class Instruction extends Executable {
         <stencila-ui-node-instruction-messages type=${this.type}>
           <slot name="messages"></slot>
         </stencila-ui-node-instruction-messages>
-
-        <stencila-ui-node-suggestion type=${this.type}>
-          <slot name="suggestion"></slot>
-        </stencila-ui-node-suggestion>
       </div>
-    </stencila-ui-node-card>`
+      <div slot="content" class="w-full">
+        <slot name="suggestion"></slot>
+      </div>
+    </stencila-ui-block-on-demand>`
   }
 
   /**

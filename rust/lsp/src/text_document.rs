@@ -7,12 +7,12 @@ use std::{ops::ControlFlow, sync::Arc};
 use async_lsp::{
     lsp_types::{
         DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-        DidSaveTextDocumentParams, Range,
+        DidSaveTextDocumentParams, Position, Range,
     },
     Error,
 };
 
-use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format};
+use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format, Positions};
 use common::{
     tokio::{
         self,
@@ -22,13 +22,13 @@ use common::{
 };
 use schema::{NodeId, NodeType, Visitor};
 
-use crate::{inspect::Inspector, ServerState};
+use crate::{inspect::Inspector, utils::position_to_position16, ServerState};
 
 /// A Stencila `Node` within a `TextDocument`
 ///
 /// This mirrors the structure of a document but only recording the attributes needed for
 /// deriving code lenses, document symbols etc.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(super) struct TextNode {
     /// The range in the document that the node occurs
     pub range: Range,
@@ -38,6 +38,9 @@ pub(super) struct TextNode {
 
     /// The id of the node
     pub node_id: NodeId,
+
+    /// A string detail of the node
+    pub detail: Option<String>,
 
     /// The children of the node
     pub children: Vec<TextNode>,
@@ -49,6 +52,7 @@ impl Default for TextNode {
             range: Range::default(),
             node_type: NodeType::Article,
             node_id: NodeId::null(),
+            detail: None,
             children: Vec::new(),
         }
     }
@@ -90,6 +94,9 @@ impl TextNode {
 
 /// A text document that has been opened by the language server
 pub(super) struct TextDocument {
+    /// The source text of the document e.g. Markdown
+    source: String,
+
     /// A sender to the `update_task`
     ///
     /// This is an `UnboundedSender` to that updates can be sent from
@@ -113,15 +120,34 @@ impl TextDocument {
             Self::update_task(receiver, root_clone).await;
         });
 
-        if let Err(error) = sender.send(source) {
+        if let Err(error) = sender.send(source.clone()) {
             tracing::error!("While sending initial source: {error}");
         }
 
-        Self { sender, root }
+        Self {
+            source,
+            sender,
+            root,
+        }
+    }
+
+    /// Get the source before a position
+    pub fn source_before(&self, position: Position) -> String {
+        let positions = Positions::new(&self.source);
+
+        let end = positions
+            .index_at_position16(position_to_position16(position))
+            .unwrap_or_else(|| self.source.chars().count());
+
+        let start = end.saturating_sub(100);
+        let take = end - start;
+
+        self.source.chars().skip(start).take(take).collect()
     }
 
     /// Update the text document with new text content
-    fn update(&self, source: String) {
+    fn update(&mut self, source: String) {
+        self.source = source.clone();
         if let Err(error) = self.sender.send(source) {
             tracing::error!("While sending updated source: {error}");
         }

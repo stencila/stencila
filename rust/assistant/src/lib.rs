@@ -1156,6 +1156,11 @@ pub trait Assistant: Sync + Send {
         AssistantAvailability::Available
     }
 
+    /// Is the assistant currently available?
+    fn is_available(&self) -> bool {
+        matches!(self.availability(), AssistantAvailability::Available)
+    }
+
     /// Get the name of the publisher of the assistant
     ///
     /// This default implementation returns the title cased name
@@ -1195,6 +1200,11 @@ pub trait Assistant: Sync + Send {
             .map(|(.., version)| version)
             .unwrap_or_default();
         version.to_string()
+    }
+
+    /// A description of the assistant in Markdown
+    fn description(&self) -> Option<String> {
+        None
     }
 
     /// Create an `AuthorRole` node for this assistant

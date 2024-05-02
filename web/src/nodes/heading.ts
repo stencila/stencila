@@ -31,14 +31,14 @@ export class Heading extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-node-card type="Heading" view="dynamic" display="on-demand">
+      <stencila-ui-block-on-demand type="Heading" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
         <slot name="content" slot="content"></slot>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 

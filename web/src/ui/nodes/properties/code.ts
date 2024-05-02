@@ -219,6 +219,7 @@ export class UINodeCode extends LitElement {
     const { borderColour } = nodeUi(this.type)
 
     const headerClasses = apply([
+      'font-sans',
       'flex flex-row justify-between items-center',
       'px-4 py-1.5',
       `bg-[${borderColour}]`,
@@ -232,7 +233,7 @@ export class UINodeCode extends LitElement {
 
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`
-    return html`<div class="overflow-hidden">
+    return html`<div class="overflow-hidden not-prose w-full">
       <div
         class=${headerClasses}
         @click=${() => (this.collapsed = !this.collapsed)}
@@ -250,7 +251,10 @@ export class UINodeCode extends LitElement {
 
       <div class=${contentClasses}>
         <div hidden><slot></slot></div>
-        <div id="codemirror" class=${`bg-gray-50`}></div>
+        <div
+          id="codemirror"
+          class=${`bg-gray-50 max-w-[calc(65ch)] sm:max-w-full`}
+        ></div>
       </div>
     </div>`
   }

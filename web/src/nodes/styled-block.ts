@@ -37,7 +37,7 @@ export class StyledBlock extends Styled {
   override renderDynamicView() {
     this.adoptCss()
 
-    return html` <stencila-ui-block-in-flow
+    return html` <stencila-ui-block-on-demand
       type="StyledBlock"
       view="dynamic"
       .canAnimate=${false}
@@ -61,7 +61,7 @@ export class StyledBlock extends Styled {
           <slot name="content"></slot>
         </div>
       </div>
-    </stencila-ui-block-in-flow>`
+    </stencila-ui-block-on-demand>`
   }
 
   /**

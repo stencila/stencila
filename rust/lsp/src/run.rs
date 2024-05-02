@@ -10,7 +10,9 @@ use tower::ServiceBuilder;
 
 use common::tracing;
 
-use crate::{code_lens, commands, document_symbol, lifecycle, text_document, ServerState};
+use crate::{
+    code_lens, commands, completion, document_symbol, lifecycle, text_document, ServerState,
+};
 
 /// Run the language server
 pub async fn run() {
@@ -41,6 +43,14 @@ pub async fn run() {
                     None => Ok(None),
                 }
             }
+        });
+
+        router.request::<request::Completion, _>(|state, params| {
+            let source_before = state
+                .documents
+                .get(&params.text_document_position.text_document.uri.to_string())
+                .map(|doc| doc.source_before(params.text_document_position.position));
+            async move { completion::request(params, source_before).await }
         });
 
         router
@@ -76,7 +86,7 @@ pub async fn run() {
 
     // Setup printing of tracing logs
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::TRACE)
+        .with_max_level(tracing::Level::INFO)
         .with_ansi(false)
         .with_writer(std::io::stderr)
         .init();
