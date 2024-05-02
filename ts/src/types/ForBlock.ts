@@ -3,7 +3,6 @@
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
-import { Section } from "./Section.js";
 
 /**
  * Repeat a block content for each item in an array.
@@ -30,7 +29,7 @@ export class ForBlock extends CodeExecutable {
   /**
    * The content repeated for each iteration
    */
-  iterations?: Section[];
+  iterations?: Block[];
 
   constructor(code: Cord, variable: string, content: Block[], options?: Partial<ForBlock>) {
     super(code);
