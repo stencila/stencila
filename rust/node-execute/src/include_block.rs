@@ -87,7 +87,7 @@ impl Executable for IncludeBlock {
             // TODO: Implement sub-selecting from included based on `select`
 
             if let Some(mut content) = content {
-                // Clear any existing iterations while ensuring an array to append to
+                // Clear any existing content while ensuring an array to append to
                 let reset = if self.content.is_some() {
                     clear(NodeProperty::Content)
                 } else {

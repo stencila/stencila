@@ -427,25 +427,24 @@ impl Executor {
     where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
-        let ops = pairs
-            .into_iter()
-            .map(|(property, op)| (PatchPath::from(property), op))
-            .collect();
-
-        self.send_patch(Patch {
-            node_id: Some(node_id.clone()),
-            authors: None,
-            ops,
-        })
+        self.send_patch(node_id, None, pairs)
     }
 
     /// Patch several properties of a node and attribute authorship
     pub fn patch_with_authors<P>(
         &self,
         node_id: &NodeId,
-        authors: Option<Vec<schema::AuthorRole>>,
+        authors: Vec<schema::AuthorRole>,
         pairs: P,
     ) where
+        P: IntoIterator<Item = (NodeProperty, PatchOp)>,
+    {
+        self.send_patch(node_id, Some(authors), pairs)
+    }
+
+    /// Send a patch reflecting a change in the state of a node during execution
+    fn send_patch<P>(&self, node_id: &NodeId, authors: Option<Vec<schema::AuthorRole>>, pairs: P)
+    where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
         let ops = pairs
@@ -453,15 +452,12 @@ impl Executor {
             .map(|(property, op)| (PatchPath::from(property), op))
             .collect();
 
-        self.send_patch(Patch {
+        let patch = Patch {
             node_id: Some(node_id.clone()),
             authors,
             ops,
-        })
-    }
+        };
 
-    /// Send a patch reflecting a change in the state of a node during execution
-    pub fn send_patch(&self, patch: Patch) {
         if let Err(error) = self.patch_sender.send(patch) {
             tracing::error!("When sending execution node patch: {error}")
         }
