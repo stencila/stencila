@@ -6,7 +6,7 @@ impl Executable for Article {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending Article {node_id}");
+        tracing::trace!("Pending Article {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -17,20 +17,20 @@ impl Executable for Article {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Executing Article {node_id}");
+        tracing::trace!("Executing Article {node_id}: {self:?}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
         let started = Timestamp::now();
 
         let messages = if let Err(error) = self.content.walk_async(executor).await {
-            Some(vec![error_to_message("While executing content", error)])
+            Some(vec![error_to_execution_message("While executing content", error)])
         } else {
             None
         };
@@ -45,15 +45,15 @@ impl Executable for Article {
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, status.into()),
-                (Property::ExecutionRequired, required.into()),
-                (Property::ExecutionMessages, messages.into()),
-                (Property::ExecutionDuration, duration.into()),
-                (Property::ExecutionEnded, ended.into()),
-                (Property::ExecutionCount, count.into()),
+                set(NodeProperty::ExecutionStatus, status),
+                set(NodeProperty::ExecutionRequired, required),
+                set(NodeProperty::ExecutionMessages, messages),
+                set(NodeProperty::ExecutionDuration, duration),
+                set(NodeProperty::ExecutionEnded, ended),
+                set(NodeProperty::ExecutionCount, count),
             ],
         );
 

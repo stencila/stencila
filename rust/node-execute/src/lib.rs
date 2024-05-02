@@ -9,19 +9,15 @@ use common::{
     clap::{self, Args},
     eyre::Result,
     serde::{Deserialize, Serialize},
-    tokio::sync::{RwLock, RwLockWriteGuard},
+    tokio::sync::{mpsc::UnboundedSender, RwLock, RwLockWriteGuard},
     tracing,
 };
 use context::Context;
 use kernels::Kernels;
-use node_patch::{
-    load_property, replace_property, NodePatch, NodePatchSender, Operation, Property, Value,
-};
-use node_store::{ReadNode, WriteStore};
 use schema::{
     AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
-    Node, NodeId, SuggestionBlockType, SuggestionInlineType, SuggestionStatus, VisitorAsync,
-    WalkControl, WalkNode,
+    Node, NodeId, NodeProperty, Patch, PatchOp, PatchPath, SuggestionBlockType,
+    SuggestionInlineType, SuggestionStatus, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -45,38 +41,28 @@ mod styled_inline;
 /// Walk over a root node and compile it and child nodes
 pub async fn compile(
     home: PathBuf,
-    store: Arc<RwLock<WriteStore>>,
+    root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: NodePatchSender,
+    patch_sender: UnboundedSender<Patch>,
     node_ids: Option<NodeIds>,
     options: Option<ExecuteOptions>,
 ) -> Result<()> {
-    let mut root = {
-        // This is within a block to ensure that the lock on `store` gets dropped
-        let store = store.read().await;
-        Node::load(&*store).unwrap()
-    };
-
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, options);
+    let mut root = root.read().await.clone();
+    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
     executor.compile(&mut root).await
 }
 
 /// Walk over a root node and execute it and child nodes
 pub async fn execute(
     home: PathBuf,
-    store: Arc<RwLock<WriteStore>>,
+    root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: NodePatchSender,
+    patch_sender: UnboundedSender<Patch>,
     node_ids: Option<NodeIds>,
     options: Option<ExecuteOptions>,
 ) -> Result<()> {
-    let mut root = {
-        // This is within a block to ensure that the lock on `store` gets dropped
-        let store = store.read().await;
-        Node::load(&*store).unwrap()
-    };
-
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, options);
+    let mut root = root.read().await.clone();
+    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
     executor.pending(&mut root).await?;
     executor.execute(&mut root).await
 }
@@ -84,18 +70,13 @@ pub async fn execute(
 /// Walk over a root node and interrupt it and child nodes
 pub async fn interrupt(
     home: PathBuf,
-    store: Arc<RwLock<WriteStore>>,
+    root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: NodePatchSender,
+    patch_sender: UnboundedSender<Patch>,
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
-    let mut root = {
-        // This is within a block to ensure that the lock on `store` gets dropped
-        let store = store.read().await;
-        Node::load(&*store).unwrap()
-    };
-
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, None);
+    let mut root = root.read().await.clone();
+    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, None);
     executor.interrupt(&mut root).await
 }
 
@@ -140,8 +121,8 @@ pub struct Executor {
     /// Used to resolve relative file paths in `IncludeBlock` and `CallBlock` nodes.
     home: PathBuf,
 
-    /// The store of the root node
-    store: Arc<RwLock<WriteStore>>,
+    /// The root node
+    //root: Arc<RwLock<Node>>,
 
     /// The kernels that will be used for execution
     kernels: Arc<RwLock<Kernels>>,
@@ -150,7 +131,7 @@ pub struct Executor {
     ///
     /// Patches reflecting the state of nodes during execution should be sent
     /// on this channel.
-    patch_sender: NodePatchSender,
+    patch_sender: UnboundedSender<Patch>,
 
     /// The nodes that should be executed
     ///
@@ -239,15 +220,13 @@ impl Executor {
     /// Create a new executor
     fn new(
         home: PathBuf,
-        store: Arc<RwLock<WriteStore>>,
         kernels: Arc<RwLock<Kernels>>,
-        patch_sender: NodePatchSender,
+        patch_sender: UnboundedSender<Patch>,
         node_ids: Option<NodeIds>,
         options: Option<ExecuteOptions>,
     ) -> Self {
         Self {
             home,
-            store,
             kernels,
             patch_sender,
             node_ids,
@@ -443,47 +422,46 @@ impl Executor {
         self.should_execute_instruction(status)
     }
 
-    /// Load a property of a node from the store
-    ///
-    /// Creates and sends a patch with a single `ReplaceProperty` operation.
-    pub async fn swap_property<T>(
-        &self,
-        node_id: &NodeId,
-        property: Property,
-        value: Value,
-    ) -> Result<T>
+    /// Patch several properties of a node
+    pub fn patch<P>(&self, node_id: &NodeId, pairs: P)
     where
-        T: ReadNode,
+        P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
-        let mut store = self.store.write().await;
-        replace_property(&mut store, node_id, property, value)?;
-        load_property(&*store, node_id, property)
-    }
+        let ops = pairs
+            .into_iter()
+            .map(|(property, op)| (PatchPath::from(property), op))
+            .collect();
 
-    /// Replace a property of a node
-    pub fn replace_property(&self, node_id: &NodeId, property: Property, value: Value) {
-        self.send_patch(NodePatch {
-            node_id: node_id.clone(),
-            ops: vec![Operation::replace_property(property, value)],
+        self.send_patch(Patch {
+            node_id: Some(node_id.clone()),
+            authors: None,
+            ops,
         })
     }
 
-    /// Replace several properties of a node
-    pub fn replace_properties<P>(&self, node_id: &NodeId, pairs: P)
-    where
-        P: IntoIterator<Item = (Property, Value)>,
+    /// Patch several properties of a node and attribute authorship
+    pub fn patch_with_authors<P>(
+        &self,
+        node_id: &NodeId,
+        authors: Option<Vec<schema::AuthorRole>>,
+        pairs: P,
+    ) where
+        P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
-        self.send_patch(NodePatch {
-            node_id: node_id.clone(),
-            ops: pairs
-                .into_iter()
-                .map(|(property, value)| Operation::replace_property(property, value))
-                .collect(),
+        let ops = pairs
+            .into_iter()
+            .map(|(property, op)| (PatchPath::from(property), op))
+            .collect();
+
+        self.send_patch(Patch {
+            node_id: Some(node_id.clone()),
+            authors,
+            ops,
         })
     }
 
     /// Send a patch reflecting a change in the state of a node during execution
-    pub fn send_patch(&self, patch: NodePatch) {
+    pub fn send_patch(&self, patch: Patch) {
         if let Err(error) = self.patch_sender.send(patch) {
             tracing::error!("When sending execution node patch: {error}")
         }

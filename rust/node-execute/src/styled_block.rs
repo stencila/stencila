@@ -1,4 +1,4 @@
-use schema::StyledBlock;
+use schema::{CompilationMessage, StyledBlock};
 
 use crate::prelude::*;
 
@@ -30,36 +30,52 @@ impl Executable for StyledBlock {
                 .await
                 .execute(code, lang)
                 .await
-                .unwrap_or_else(|error| {
-                    (
-                        Vec::new(),
-                        vec![error_to_message("While compiling style", error)],
-                    )
-                });
+                .map_or_else(
+                    |error| (None, vec![error_to_compilation_message(error)]),
+                    |(outputs, messages)| {
+                        let messages = messages
+                            .into_iter()
+                            .map(|message| CompilationMessage {
+                                level: message.level,
+                                message: message.message,
+                                error_type: message.error_type,
+                                ..Default::default()
+                            })
+                            .collect();
 
-            let mut result = result.into_iter();
-            let css = result.next();
-            let class_list = result.next();
+                        (Some(outputs), messages)
+                    },
+                );
+
+            let mut result = result.into_iter().flatten();
+            let css = match result.next() {
+                Some(Node::String(value)) => Some(value),
+                _ => None,
+            };
+            let class_list = match result.next() {
+                Some(Node::String(value)) => Some(value),
+                _ => None,
+            };
 
             let messages = (!messages.is_empty()).then_some(messages);
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::Css, css.into()),
-                    (Property::ClassList, class_list.into()),
-                    (Property::CompilationMessages, messages.into()),
-                    (Property::CompilationDigest, compilation_digest.into()),
+                    set(NodeProperty::Css, css),
+                    set(NodeProperty::ClassList, class_list),
+                    set(NodeProperty::CompilationMessages, messages),
+                    set(NodeProperty::CompilationDigest, compilation_digest),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::Css, Value::None),
-                    (Property::ClassList, Value::None),
-                    (Property::CompilationMessages, Value::None),
-                    (Property::CompilationDigest, compilation_digest.into()),
+                    none(NodeProperty::Css),
+                    none(NodeProperty::ClassList),
+                    none(NodeProperty::CompilationMessages),
+                    set(NodeProperty::CompilationDigest, compilation_digest),
                 ],
             );
         };

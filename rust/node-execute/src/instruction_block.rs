@@ -1,5 +1,5 @@
 use assistants::assistant::GenerateOptions;
-use schema::{InstructionBlock, SuggestionBlockType};
+use schema::InstructionBlock;
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -31,11 +31,11 @@ impl Executable for InstructionBlock {
 
         tracing::trace!("Executing InstructionBlock {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -43,7 +43,7 @@ impl Executable for InstructionBlock {
             let started = Timestamp::now();
 
             // Get the `assistants` crate to execute this instruction
-            let (suggestion, mut messages) = match assistants::execute_instruction(
+            let (mut suggestion, mut messages) = match assistants::execute_instruction(
                 self.clone(),
                 executor.context().await,
                 GenerateOptions {
@@ -59,27 +59,14 @@ impl Executable for InstructionBlock {
                 ),
                 Err(error) => (
                     None,
-                    vec![error_to_message("While performing instruction", error)],
+                    vec![error_to_execution_message("While performing instruction", error)],
                 ),
-            };
-
-            // Insert the suggestion into the store, so that it can be executed in
-            // the next step (if so configured) and update the instruction status
-            let mut suggestion: Option<SuggestionBlockType> = match executor
-                .swap_property(&node_id, Property::Suggestion, suggestion.into())
-                .await
-            {
-                Ok(suggestion) => suggestion,
-                Err(error) => {
-                    messages.push(error_to_message("While loading content", error));
-                    None
-                }
             };
 
             // Execute the suggestion
             // TODO: This requires configurable rules around when, if at all, suggestions are executed.
             if let Err(error) = suggestion.walk_async(executor).await {
-                messages.push(error_to_message("While executing suggestion", error));
+                messages.push(error_to_execution_message("While executing suggestion", error));
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
@@ -91,25 +78,25 @@ impl Executable for InstructionBlock {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, status.into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
                 ],
             );
         }

@@ -32,11 +32,11 @@ impl Executable for IncludeBlock {
 
         tracing::trace!("Executing IncludeBlock {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -79,29 +79,31 @@ impl Executable for IncludeBlock {
                     }
                 }
                 Err(error) => {
-                    messages.push(error_to_message("While decoding source", error));
+                    messages.push(error_to_execution_message("While decoding source", error));
                     None
                 }
             };
 
             // TODO: Implement sub-selecting from included based on `select`
 
-            // Update the iterations in the store to get store ids for when it
-            // is executed
-            let mut content: Vec<Block> = match executor
-                .swap_property(&node_id, Property::Content, content.into())
-                .await
-            {
-                Ok(content) => content,
-                Err(error) => {
-                    messages.push(error_to_message("While loading content", error));
-                    Vec::new()
-                }
-            };
+            if let Some(mut content) = content {
+                // Clear any existing iterations while ensuring an array to append to
+                let reset = if self.content.is_some() {
+                    clear(NodeProperty::Content)
+                } else {
+                    set(NodeProperty::Content, Vec::<Block>::new())
+                };
 
-            // Execute the content
-            if let Err(error) = content.walk_async(executor).await {
-                messages.push(error_to_message("While executing content", error));
+                // Append the content as a Vec<Block> to avoid loosing ids which
+                // may be needed when executing the content (which would happen if used set)
+                executor.patch(&node_id, [reset, append(NodeProperty::Content, content.clone())]);
+
+                // Execute the content
+                if let Err(error) = content.walk_async(executor).await {
+                    messages.push(error_to_execution_message("While executing content", error));
+                }
+            } else {
+                executor.patch(&node_id, [none(NodeProperty::Content)]);
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
@@ -113,25 +115,25 @@ impl Executable for IncludeBlock {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, status.into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
                 ],
             );
         }

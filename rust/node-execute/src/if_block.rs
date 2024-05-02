@@ -31,11 +31,11 @@ impl Executable for IfBlock {
 
         tracing::trace!("Executing IfBlock {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -73,24 +73,24 @@ impl Executable for IfBlock {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, status.into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
                 ],
             );
         }
@@ -124,11 +124,11 @@ impl Executable for IfBlockClause {
         let node_id = self.node_id();
         tracing::trace!("Executing IfBlockClause {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -147,7 +147,7 @@ impl Executable for IfBlockClause {
                 .unwrap_or_else(|error| {
                     (
                         Node::Null(Null),
-                        vec![error_to_message("While evaluating clause", error)],
+                        vec![error_to_execution_message("While evaluating clause", error)],
                     )
                 });
             messages.append(&mut code_messages);
@@ -168,7 +168,7 @@ impl Executable for IfBlockClause {
             // Execute nodes in content if truthy
             if truthy {
                 if let Err(error) = self.content.walk_async(executor).await {
-                    messages.push(error_to_message("While executing content", error))
+                    messages.push(error_to_execution_message("While executing content", error))
                 };
             }
 
@@ -177,7 +177,7 @@ impl Executable for IfBlockClause {
             // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
             if let Err(error) = self.content.walk_async(executor).await {
-                messages.push(error_to_message("While executing content", error))
+                messages.push(error_to_execution_message("While executing content", error))
             };
 
             (true, ExecutionStatus::Running)
@@ -205,16 +205,16 @@ impl Executable for IfBlockClause {
         // can update its status based on clauses
         self.options.execution_status = Some(status.clone());
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::IsActive, is_active.into()),
-                (Property::ExecutionStatus, status.into()),
-                (Property::ExecutionRequired, required.into()),
-                (Property::ExecutionMessages, messages.into()),
-                (Property::ExecutionDuration, duration.into()),
-                (Property::ExecutionEnded, ended.into()),
-                (Property::ExecutionCount, count.into()),
+                set(NodeProperty::IsActive, is_active),
+                set(NodeProperty::ExecutionStatus, status),
+                set(NodeProperty::ExecutionRequired, required),
+                set(NodeProperty::ExecutionMessages, messages),
+                set(NodeProperty::ExecutionDuration, duration),
+                set(NodeProperty::ExecutionEnded, ended),
+                set(NodeProperty::ExecutionCount, count),
             ],
         );
 
