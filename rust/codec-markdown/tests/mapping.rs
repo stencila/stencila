@@ -55,7 +55,7 @@ async fn paragraph() -> Result<()> {
     authorship(&mut node, vec![alice])?;
 
     let (edited, ..) = codec.from_str("Hello, world!", None).await?;
-    merge(&mut node, &edited, vec![bob])?;
+    merge(&mut node, &edited, Some(vec![bob]))?;
 
     assert_yaml_snapshot!(node, @r###"
     ---
@@ -184,7 +184,7 @@ print('Hello, world!')
             None,
         )
         .await?;
-    merge(&mut node, &edited, vec![bob])?;
+    merge(&mut node, &edited, Some(vec![bob]))?;
 
     assert_yaml_snapshot!(node, @r###"
     ---
