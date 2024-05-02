@@ -25,7 +25,7 @@ use common::{
 /// - define a `Default` implementation which creates a random UUID, and
 /// - define a `PartialEq` implementation which always returns true so that
 ///   a node's `uid` is ignored in equality testing.
-#[derive(Deref)]
+#[derive(Clone, Deref)]
 pub struct NodeUid(Vec<u8>);
 
 /// An atomic counter for deterministic auto-incremented ids
@@ -69,14 +69,6 @@ impl fmt::Debug for NodeUid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let id = bs58::encode(&self.0).into_string();
         f.write_str(&id)
-    }
-}
-
-impl Clone for NodeUid {
-    fn clone(&self) -> Self {
-        // To maintain uniqueness never clone id.
-        // Instead generate a new one.
-        Self::default()
     }
 }
 

@@ -12,6 +12,9 @@ pub use patch::*;
 mod walk;
 pub use walk::*;
 
+mod replicate;
+pub use replicate::*;
+
 pub mod shortcuts;
 pub mod transforms;
 
