@@ -13,7 +13,10 @@
         {
           "type": "MathInline",
           "code": "\\pi r^2",
-          "mathLanguage": "tex",
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9630638750169303087
+          },
           "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"inline\"><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></math>"
         },
         {
@@ -32,7 +35,10 @@
         {
           "type": "MathInline",
           "code": "\\foo",
-          "mathLanguage": "tex",
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 1725569055879263474
+          },
           "compilationMessages": [
             {
               "type": "CompilationMessage",
@@ -55,12 +61,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710654952642,
+    "value": 1714644398710,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 7,
+    "value": 0,
     "timeUnit": "Millisecond"
   }
 }

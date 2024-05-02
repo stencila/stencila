@@ -11,17 +11,25 @@
           "code": "1 + 2 + 3",
           "programmingLanguage": "python",
           "output": 6,
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 5151122780009312970
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 5151122780009312970
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300032434,
+            "value": 1714644380044,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 1720,
+            "value": 578,
             "timeUnit": "Millisecond"
           }
         }
@@ -33,12 +41,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300032434,
+    "value": 1714644380044,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 1720,
+    "value": 578,
     "timeUnit": "Millisecond"
   }
 }

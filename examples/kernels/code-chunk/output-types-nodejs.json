@@ -23,7 +23,7 @@
     {
       "type": "CodeChunk",
       "code": "console.log(true, 1, 2.34, \"string\", [1, 2, 3], { a: 1, b: 2 });",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
       "outputs": [
         true,
         1,
@@ -39,17 +39,25 @@
           "b": 2
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8622027498555944617
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8622027498555944617
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299948612,
+        "value": 1714644295783,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 318,
+        "value": 137,
         "timeUnit": "Millisecond"
       }
     }
@@ -59,12 +67,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710299948613,
+    "value": 1714644295783,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 319,
+    "value": 137,
     "timeUnit": "Millisecond"
   }
 }

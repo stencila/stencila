@@ -7,17 +7,25 @@
       "type": "CodeChunk",
       "code": "if # This is a syntax error",
       "programmingLanguage": "bash",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10543643426506011557
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 10543643426506011557
+      },
       "executionCount": 1,
       "executionRequired": "ExecutionFailed",
       "executionStatus": "Errors",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300209581,
+        "value": 1714644292306,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 33,
+        "value": 20,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -32,17 +40,25 @@
       "type": "CodeChunk",
       "code": "foo # This is a runtime error",
       "programmingLanguage": "bash",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17604437288788554289
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17604437288788554289
+      },
       "executionCount": 1,
       "executionRequired": "ExecutionFailed",
       "executionStatus": "Errors",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300209590,
+        "value": 1714644292310,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 9,
+        "value": 4,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -59,12 +75,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300209590,
+    "value": 1714644292310,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 42,
+    "value": 25,
     "timeUnit": "Millisecond"
   }
 }
