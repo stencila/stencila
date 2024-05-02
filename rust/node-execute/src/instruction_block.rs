@@ -1,5 +1,5 @@
 use assistants::assistant::GenerateOptions;
-use schema::InstructionBlock;
+use schema::{authorship, InstructionBlock};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -43,7 +43,7 @@ impl Executable for InstructionBlock {
             let started = Timestamp::now();
 
             // Get the `assistants` crate to execute this instruction
-            let (mut suggestion, mut messages) = match assistants::execute_instruction(
+            let (authors, suggestion, mut messages) = match assistants::execute_instruction(
                 self.clone(),
                 executor.context().await,
                 GenerateOptions {
@@ -54,19 +54,47 @@ impl Executable for InstructionBlock {
             .await
             {
                 Ok(output) => (
+                    Some(output.authors.clone()),
                     Some(output.to_suggestion_block(self.content.is_none())),
                     Vec::new(),
                 ),
                 Err(error) => (
                     None,
-                    vec![error_to_execution_message("While performing instruction", error)],
+                    None,
+                    vec![error_to_execution_message(
+                        "While performing instruction",
+                        error,
+                    )],
                 ),
             };
 
-            // Execute the suggestion
-            // TODO: This requires configurable rules around when, if at all, suggestions are executed.
-            if let Err(error) = suggestion.walk_async(executor).await {
-                messages.push(error_to_execution_message("While executing suggestion", error));
+            if let Some(mut suggestion) = suggestion {
+                // Apply authorship to the suggestion.
+                // Do this here, rather than by adding the authors to the patch
+                // so that the authors are not added to the instruction itself
+                if let Some(authors) = authors {
+                    if let Err(error) = authorship(&mut suggestion, authors) {
+                        messages.push(error_to_execution_message(
+                            "Unable to assign authorship to suggestion",
+                            error,
+                        ));
+                    }
+                }
+
+                // Set the suggestion
+                executor.patch(
+                    &node_id,
+                    [set(NodeProperty::Suggestion, suggestion.clone())],
+                );
+
+                // Execute the suggestion
+                // TODO: This requires configurable rules around when, if at all, suggestions are executed.
+                if let Err(error) = suggestion.walk_async(executor).await {
+                    messages.push(error_to_execution_message(
+                        "While executing suggestion",
+                        error,
+                    ));
+                }
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
