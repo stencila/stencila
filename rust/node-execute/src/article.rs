@@ -30,7 +30,10 @@ impl Executable for Article {
         let started = Timestamp::now();
 
         let messages = if let Err(error) = self.content.walk_async(executor).await {
-            Some(vec![error_to_execution_message("While executing content", error)])
+            Some(vec![error_to_execution_message(
+                "While executing content",
+                error,
+            )])
         } else {
             None
         };

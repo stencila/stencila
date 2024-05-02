@@ -96,7 +96,10 @@ impl Executable for IncludeBlock {
 
                 // Append the content as a Vec<Block> to avoid loosing ids which
                 // may be needed when executing the content (which would happen if used set)
-                executor.patch(&node_id, [reset, append(NodeProperty::Content, content.clone())]);
+                executor.patch(
+                    &node_id,
+                    [reset, append(NodeProperty::Content, content.clone())],
+                );
 
                 // Execute the content
                 if let Err(error) = content.walk_async(executor).await {

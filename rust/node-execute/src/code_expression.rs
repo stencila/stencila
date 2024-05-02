@@ -74,7 +74,10 @@ impl Executable for CodeExpression {
                 .unwrap_or_else(|error| {
                     (
                         Node::Null(Null),
-                        vec![error_to_execution_message("While evaluating expression", error)],
+                        vec![error_to_execution_message(
+                            "While evaluating expression",
+                            error,
+                        )],
                     )
                 });
 

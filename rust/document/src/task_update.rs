@@ -2,7 +2,6 @@ use common::{
     tokio::{self},
     tracing,
 };
-use schema;
 
 use crate::{
     Document, DocumentPatchReceiver, DocumentRoot, DocumentUpdateReceiver, DocumentWatchSender,

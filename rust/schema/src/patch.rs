@@ -296,11 +296,6 @@ pub struct Patch {
 }
 
 impl Patch {
-    /// Get the length of the ops in the patch
-    pub fn len(&self) -> usize {
-        self.ops.len()
-    }
-
     /// Apply the operations in the patch to a node
     ///
     /// Note that this `drain`s the ops to avoid cloning ops.
@@ -757,12 +752,9 @@ where
         context: &mut PatchContext,
     ) -> Result<()> {
         if path.is_empty() {
-            match op {
-                PatchOp::Set(value) => {
-                    *self = Self::from_value(value)?;
-                    return Ok(());
-                }
-                _ => {}
+            if let PatchOp::Set(value) = op {
+                *self = Self::from_value(value)?;
+                return Ok(());
             }
         }
 

@@ -37,12 +37,7 @@ impl Executable for MathBlock {
                     .execute(code, Some(&lang))
                     .await
                     .map_or_else(
-                        |error| {
-                            (
-                                None,
-                                vec![error_to_compilation_message(error)],
-                            )
-                        },
+                        |error| (None, vec![error_to_compilation_message(error)]),
                         |(mut outputs, messages)| {
                             let output = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
                             let Some(Node::String(mathml)) = output else {
