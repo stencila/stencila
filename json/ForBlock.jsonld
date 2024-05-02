@@ -431,7 +431,7 @@
         "@id": "stencila:ForBlock"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Section"
+        "@id": "stencila:Block"
       }
     }
   ]
