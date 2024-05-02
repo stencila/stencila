@@ -29,7 +29,7 @@ export class ForBlock extends CodeExecutable {
 
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="ForBlock" view="dynamic">
+      <stencila-ui-block-on-demand type="ForBlock" view="dynamic">
         <span slot="header-right">
           <stencila-ui-node-execution-commands
             node-id=${this.id}
@@ -38,11 +38,45 @@ export class ForBlock extends CodeExecutable {
           </stencila-ui-node-execution-commands>
         </span>
         <div slot="body" class="h-full">
-          <slot name="code"></slot>
-          <slot name="execution-messages"></slot>
+          <stencila-ui-node-execution-details
+            type="ForBlock"
+            auto-exec=${this.autoExec}
+            .tags=${this.executionTags}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
+            count=${this.executionCount}
+            ended=${this.executionEnded}
+            duration=${this.executionDuration}
+          >
+            <slot name="execution-dependencies"></slot>
+            <slot name="execution-dependants"></slot>
+          </stencila-ui-node-execution-details>
+
+          <stencila-ui-node-authors type="ForBlock">
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
+
+          <stencila-ui-node-code
+            type="ForBlock"
+            code=${this.code}
+            language=${this.programmingLanguage}
+            read-only
+          >
+          </stencila-ui-node-code>
+
+          <stencila-ui-node-execution-messages
+            type="ForBlock"
+            message-count=${this.messageCount}
+            warning-count=${this.warningCount}
+            error-count=${this.errorCount}
+          >
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
         </div>
-      </stencila-ui-node-card>
-      <slot name="iterations"></slot>
+        <div slot="content">
+          <slot name="iterations"></slot>
+        </div>
+      </stencila-ui-block-on-demand>
     `
   }
 
