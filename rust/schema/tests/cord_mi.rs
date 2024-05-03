@@ -36,16 +36,20 @@ fn cord_mi() {
     assert_eq!(category(mi), MwHeHv);
 
     let mi = machine_verified(mi);
-    assert_eq!(display(mi), "MwHeMvHv");
+    assert_eq!(display(mi), "MwHeHvMv");
     assert_eq!(category(mi), MwHeHv);
 
     let mi = machine_verified(mi);
-    assert_eq!(display(mi), "MwHeMvMvHv");
+    assert_eq!(display(mi), "MwHeHv2Mv");
     assert_eq!(category(mi), MwHeHv);
 
     let mi = machine_verified(mi);
-    assert_eq!(display(mi), "MwHeMvMvMv");
-    assert_eq!(category(mi), MwHeMv);
+    assert_eq!(display(mi), "MwHeHv3Mv");
+    assert_eq!(category(mi), MwHeHv);
+
+    let mi = machine_verified(mi);
+    assert_eq!(display(mi), "MwHeHv3Mv"); // Maximum 3Mv
+    assert_eq!(category(mi), MwHeHv);
 
     // Adding editor will clear verifiers
 
@@ -60,4 +64,18 @@ fn cord_mi() {
     let mi = human_edited(mi);
     assert_eq!(display(mi), "MwHe");
     assert_eq!(category(mi), MwHe);
+
+    // Adding verifiers again
+
+    let mi = human_verified(mi);
+    assert_eq!(display(mi), "MwHeHv");
+    assert_eq!(category(mi), MwHeHv);
+
+    let mi = human_verified(mi);
+    assert_eq!(display(mi), "MwHe2Hv");
+    assert_eq!(category(mi), MwHeHv);
+
+    let mi = human_verified(mi);
+    assert_eq!(display(mi), "MwHe3Hv");
+    assert_eq!(category(mi), MwHeHv);
 }

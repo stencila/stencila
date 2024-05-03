@@ -27,16 +27,22 @@ pub fn display(mi: u8) -> String {
         display.push_str("Me");
     }
 
-    // Verifiers
-    let verifiers = (mi & 0b00011000) >> 3;
-    if verifiers > 0 {
-        display.push_str(if mi & 0b00100000 == 0 { "Hv" } else { "Mv" });
-        if verifiers > 1 {
-            display.push_str(if mi & 0b01000000 == 0 { "Hv" } else { "Mv" });
+    // Human verifiers
+    let human_verifiers = (mi & 0b00111000) >> 3;
+    if human_verifiers > 0 {
+        if human_verifiers > 1 {
+            display.push_str(&human_verifiers.to_string());
         }
-        if verifiers > 2 {
-            display.push_str(if mi & 0b10000000 == 0 { "Hv" } else { "Mv" });
+        display.push_str("Hv");
+    }
+
+    // Machine verifiers
+    let machine_verifiers = (mi & 0b11000000) >> 6;
+    if machine_verifiers > 0 {
+        if machine_verifiers > 1 {
+            display.push_str(&machine_verifiers.to_string());
         }
+        display.push_str("Mv");
     }
 
     display
@@ -85,32 +91,8 @@ pub fn category(mi: u8) -> Mic {
     let he = mi & 0b00000010 != 0;
     let me = mi & 0b00000100 != 0;
 
-    let mut hv = false;
-    let mut mv = false;
-    let verifiers = (mi & 0b00011000) >> 3;
-    if verifiers > 0 {
-        if mi & 0b00100000 == 0 {
-            hv = true;
-        } else {
-            mv = true;
-        };
-
-        if verifiers > 1 {
-            if mi & 0b01000000 == 0 {
-                hv = true;
-            } else {
-                mv = true;
-            };
-        }
-
-        if verifiers > 2 {
-            if mi & 0b10000000 == 0 {
-                hv = true;
-            } else {
-                mv = true;
-            };
-        }
-    }
+    let hv = ((mi & 0b00111000) >> 3) > 0;
+    let mv = ((mi & 0b11000000) >> 6) > 0;
 
     use Mic::*;
     if hw {
@@ -180,62 +162,40 @@ pub fn machine_written() -> u8 {
 
 /// The run was edited by a human
 ///
-/// Set the 'human edited' bit and clear 'machine edited' and
-/// all verification bits.
+/// Set the "human edited" bit and clear the "machine edited" bit
+/// and all verification bits.
 pub fn human_edited(mi: u8) -> u8 {
     (mi | 0b00000010) & 0b00000011
 }
 
 /// The run was edited by a machine
 ///
-/// Set the 'machine edited' bit and clear 'human edited' and
-/// all verification bits.
+/// Set the "machine edited" bit and clear the "human edited" bit
+/// and all verification bits.
 pub fn machine_edited(mi: u8) -> u8 {
     (mi | 0b00000100) & 0b00000101
 }
 
 /// The run was verified by a human
 ///
-/// Increment the two 'verification count' bits
+/// Increment the three "human verifications" bits.
 pub fn human_verified(mi: u8) -> u8 {
-    verified(mi)
-}
-
-/// The run was verified by a machine
-///
-/// Increment the two 'verification count' bits and set the
-/// appropriate 'verifier' bit to indicate machine verified.
-pub fn machine_verified(mi: u8) -> u8 {
-    verified(mi) | 0b00100000
-}
-
-/// The run was verified by a machine
-///
-/// Increment the two 'verification count' bits and set the
-/// appropriate 'verifier' bit.
-fn verified(mi: u8) -> u8 {
-    // Get current number of verifiers
-    let verifiers = (mi & 0b00011000) >> 3;
-
-    let mi = if verifiers < 3 {
-        // Increment the number of verifiers
-        (mi & 0b11100111) | ((verifiers + 1) << 3)
+    let verifiers = (mi & 0b00111000) >> 3;
+    if verifiers < 7 {
+        (mi & 0b11000111) | ((verifiers + 1) << 3)
     } else {
         mi
-    };
+    }
+}
 
-    // Mask to isolate verifier bits
-    let mask = 0b11100000;
-
-    // Extract the verifiers
-    let bits = mi & mask;
-
-    // Shift these bits to the left by 1
-    let shifted_bits = (bits << 1) & 0b11000000; // Mask to discard overflow beyond the 7th bit
-
-    // Clear the original bit positions in the value
-    let mi_cleared = mi & !mask;
-
-    // Set the new positions of the shifted bits
-    mi_cleared | shifted_bits
+/// The run was verified by a machine
+///
+/// Increment the two "machine verification" bits.
+pub fn machine_verified(mi: u8) -> u8 {
+    let verifiers = (mi & 0b11000000) >> 6;
+    if verifiers < 3 {
+        (mi & 0b00111111) | ((verifiers + 1) << 6)
+    } else {
+        mi
+    }
 }
