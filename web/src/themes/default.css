@@ -21,6 +21,10 @@ body {
   padding: 3rem;
 }
 
+figure {
+  @apply mx-0;
+}
+
 @media print {
 }
 
@@ -138,6 +142,26 @@ body {
       @apply m-0 list-item w-full;
     }
 
+    table {
+      @apply my-4;
+
+      tr:first-child {
+        @apply font-bold;
+        @apply border-b border-black;
+
+        td {
+        }
+      }
+
+      td {
+        @apply p-0;
+      }
+
+      p {
+        @apply m-0;
+      }
+    }
+
     stencila-figure,
     stencila-ui-block-on-demand {
       figure {
@@ -154,18 +178,6 @@ body {
     stencila-table {
       [slot='authors'] {
         @apply mt-3;
-      }
-    }
-
-    table {
-      @apply my-4;
-
-      td {
-        @apply p-0;
-      }
-
-      p {
-        @apply m-0;
       }
     }
   }

@@ -64,7 +64,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     return html` <div class=${`${contentStyles}`}>
       ${this.renderChip(this.getIcon(), this.ui)}
-      <div class="content-block flex">
+      <div class="content-block">
         <slot name="content" class="w-full"></slot>
       </div>
     </div>`
