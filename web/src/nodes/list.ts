@@ -28,14 +28,14 @@ export class List extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-node-card type="List" view="dynamic" display="on-demand">
+      <stencila-ui-block-on-demand type="List" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
         <slot name="items" slot="content"></slot>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 

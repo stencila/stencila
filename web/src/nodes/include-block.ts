@@ -30,11 +30,15 @@ export class IncludeBlock extends Executable {
 
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="IncludeBlock">
-        <div slot="body"><span>source: </span><span>${this.source}</span></div>
-        <slot name="authors"></slot>
-        <slot name="output"></slot>
-      </stencila-ui-node-card>
+      <stencila-ui-block-on-demand type="IncludeBlock" view="dynamic">
+        <div slot="body">
+          <div><span>source: </span><span>${this.source}</span></div>
+          <slot name="authors"></slot>
+        </div>
+        <div slot="content">
+          <slot name="output"></slot>
+        </div>
+      </stencila-ui-block-on-demand>
     `
   }
 

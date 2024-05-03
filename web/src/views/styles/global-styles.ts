@@ -6,6 +6,7 @@ import { css } from 'lit'
  */
 export const outputCSS = css`
   /* Keep all img tags within their parent's bounds */
+
   img {
     object-fit: fill;
     width: 100%;
