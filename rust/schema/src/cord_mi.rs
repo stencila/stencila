@@ -14,36 +14,161 @@ pub fn display(mi: u8) -> String {
     let mut display = String::new();
 
     // Initial writer: human or machine
-    if (mi & 0b00000001) == 0 {
-        display.push('H');
+    if mi & 0b00000001 == 0 {
+        display.push_str("Hw");
     } else {
-        display.push('M');
+        display.push_str("Mw");
     }
 
     // Last editor: human or machine
-    if (mi & 0b00000010) != 0 {
-        display.push('H');
-    } else if (mi & 0b00000100) != 0 {
-        display.push('M');
+    if mi & 0b00000010 != 0 {
+        display.push_str("He");
+    } else if mi & 0b00000100 != 0 {
+        display.push_str("Me");
     }
 
     // Verifiers
     let verifiers = (mi & 0b00011000) >> 3;
     if verifiers > 0 {
-        display.push('-');
-        display.push(if mi & 0b00100000 == 0 { 'H' } else { 'M' });
+        display.push_str(if mi & 0b00100000 == 0 { "Hv" } else { "Mv" });
         if verifiers > 1 {
-            display.push(if mi & 0b01000000 == 0 { 'H' } else { 'M' });
+            display.push_str(if mi & 0b01000000 == 0 { "Hv" } else { "Mv" });
         }
         if verifiers > 2 {
-            display.push(if mi & 0b10000000 == 0 { 'H' } else { 'M' });
+            display.push_str(if mi & 0b10000000 == 0 { "Hv" } else { "Mv" });
         }
     }
 
     display
 }
 
-/// The run was written by a human
+/// The Machine Influence Category
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum Mic {
+    // Human only
+    HwHeHv = 0,
+    HwHe = 1,
+    HwHv = 2,
+    Hw = 3,
+
+    // TODO: the ordering and grouping of the following
+    // needs to be reviewed
+
+    // Human written, machine verified
+    HwMv = 4,
+
+    // Machine written, human edited
+    MwHeHv = 5,
+    MwHe = 6,
+    MwHeMv = 7,
+
+    // Human written, machine edited
+    HwMeHv = 8,
+    HwMe = 9,
+    HwMeMv = 10,
+
+    // Machine written, human verified
+    MwHv = 11,
+    MwMeHv = 12,
+
+    // Machine only
+    Mw = 13,
+    MwMv = 14,
+    MwMe = 15,
+    MwMeMv = 16,
+}
+
+/// Get the category of Machine Influence
+pub fn category(mi: u8) -> Mic {
+    let hw = mi & 0b00000001 == 0;
+
+    let he = mi & 0b00000010 != 0;
+    let me = mi & 0b00000100 != 0;
+
+    let mut hv = false;
+    let mut mv = false;
+    let verifiers = (mi & 0b00011000) >> 3;
+    if verifiers > 0 {
+        if mi & 0b00100000 == 0 {
+            hv = true;
+        } else {
+            mv = true;
+        };
+
+        if verifiers > 1 {
+            if mi & 0b01000000 == 0 {
+                hv = true;
+            } else {
+                mv = true;
+            };
+        }
+
+        if verifiers > 2 {
+            if mi & 0b10000000 == 0 {
+                hv = true;
+            } else {
+                mv = true;
+            };
+        }
+    }
+
+    use Mic::*;
+    if hw {
+        if he {
+            if hv {
+                HwHeHv
+            } else if mv {
+                HwMv
+            } else {
+                HwHe
+            }
+        } else if me {
+            if hv {
+                HwMeHv
+            } else if mv {
+                HwMeMv
+            } else {
+                HwMe
+            }
+        } else {
+            if hv {
+                HwHv
+            } else if mv {
+                HwMv
+            } else {
+                Hw
+            }
+        }
+    } else {
+        if he {
+            if hv {
+                MwHeHv
+            } else if mv {
+                MwHeMv
+            } else {
+                MwHe
+            }
+        } else if me {
+            if hv {
+                MwMeHv
+            } else if mv {
+                MwMeMv
+            } else {
+                MwMe
+            }
+        } else {
+            if hv {
+                MwHv
+            } else if mv {
+                MwMv
+            } else {
+                Mw
+            }
+        }
+    }
+}
+
+/// The run was written bStringy a human
 pub fn human_written() -> u8 {
     0b00000000
 }

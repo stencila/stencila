@@ -60,12 +60,12 @@ fn update_authors() {
     let (count, authors, mi) = update(count, authors, mi, 0, Human).unwrap();
     assert_eq!(count, 1);
     assert_eq!(extract(count, authors), vec![0]);
-    assert_eq!(display(mi), "HH");
+    assert_eq!(display(mi), "HwHe");
 
     let (count, authors, mi) = update(count, authors, mi, 1, Machine).unwrap();
     assert_eq!(count, 2);
     assert_eq!(extract(count, authors), vec![1, 0]);
-    assert_eq!(display(mi), "HM");
+    assert_eq!(display(mi), "HwMe");
 
     let result = update(count, authors, mi, 1, Machine);
     assert!(result.is_none());
@@ -73,37 +73,37 @@ fn update_authors() {
     let (count, authors, mi) = update(count, authors, mi, 2, Human).unwrap();
     assert_eq!(count, 3);
     assert_eq!(extract(count, authors), vec![2, 1, 0]);
-    assert_eq!(display(mi), "HH");
+    assert_eq!(display(mi), "HwHe");
 
     let (count, authors, mi) = update(count, authors, mi, 3, Human).unwrap();
     assert_eq!(count, 4);
     assert_eq!(extract(count, authors), vec![3, 2, 1, 0]);
-    assert_eq!(display(mi), "HH");
+    assert_eq!(display(mi), "HwHe");
 
     let (count, authors, mi) = update(count, authors, mi, 4, Machine).unwrap();
     assert_eq!(count, 5);
     assert_eq!(extract(count, authors), vec![4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HM");
+    assert_eq!(display(mi), "HwMe");
 
     let (count, authors, mi) = update(count, authors, mi, 5, Human).unwrap();
     assert_eq!(count, 6);
     assert_eq!(extract(count, authors), vec![5, 4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HH");
+    assert_eq!(display(mi), "HwHe");
 
     let (count, authors, mi) = update(count, authors, mi, 6, Machine).unwrap();
     assert_eq!(count, 7);
     assert_eq!(extract(count, authors), vec![6, 5, 4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HM");
+    assert_eq!(display(mi), "HwMe");
 
     let (count, authors, mi) = update(count, authors, mi, 7, Human).unwrap();
     assert_eq!(count, 8);
     assert_eq!(extract(count, authors), vec![7, 6, 5, 4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HH");
+    assert_eq!(display(mi), "HwHe");
 
     let (count, authors, mi) = update(count, authors, mi, 8, Human).unwrap();
     assert_eq!(count, 9);
     assert_eq!(extract(count, authors), vec![8, 7, 6, 5, 4, 3, 2, 1]);
-    assert_eq!(display(mi), "HH");
+    assert_eq!(display(mi), "HwHe");
 }
 
 /// Create a `CordRun` that has a default `mii`
