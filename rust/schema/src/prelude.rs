@@ -28,6 +28,7 @@ pub use node_type::{NodeProperty, NodeType};
 pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
+pub use crate::implem::AuthorType;
 pub use crate::patch::{Patch, PatchContext, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue};
 pub use crate::walk::{Visitor, VisitorAsync, VisitorMut, WalkNode};
 

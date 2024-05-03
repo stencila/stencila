@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -20,6 +20,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -36,6 +37,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -51,6 +53,7 @@ old:
             string: para3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -103,21 +106,6 @@ merged:
             authorship:
               - - 1
                 - 0
-                - 5
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-    - type: Paragraph
-      content:
-        - type: Text
-          value:
-            string: para2
-            authorship:
-              - - 1
                 - 0
                 - 5
       authors:
@@ -134,6 +122,24 @@ merged:
             string: para2
             authorship:
               - - 1
+                - 0
+                - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para2
+            authorship:
+              - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -150,6 +156,7 @@ merged:
             string: para3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:

@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -21,6 +21,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -37,6 +38,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -52,6 +54,7 @@ old:
             string: para2
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -70,6 +73,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -85,6 +89,7 @@ old:
             string: para3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -152,6 +157,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -168,6 +174,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -181,6 +188,7 @@ merged:
         string: ""
         authorship:
           - - 1
+            - 0
             - 0
             - 0
       programmingLanguage: python
@@ -199,6 +207,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -215,6 +224,7 @@ merged:
             string: heading3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 8
       authors:
@@ -233,6 +243,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -248,6 +259,7 @@ merged:
             string: para3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:

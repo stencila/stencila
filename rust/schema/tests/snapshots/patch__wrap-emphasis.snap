@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -19,6 +19,7 @@ old:
             string: grass rabbit
             authorship:
               - - 1
+                - 0
                 - 0
                 - 12
       authors:
@@ -63,6 +64,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 6
         - type: Emphasis
           content:
@@ -72,6 +74,7 @@ merged:
                 authorship:
                   - - 1
                     - 1
+                    - 0
                     - 6
       authors:
         - type: AuthorRole

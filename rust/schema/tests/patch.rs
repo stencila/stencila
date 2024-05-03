@@ -11,9 +11,9 @@ use node_strip::{strip, StripScope, StripTargets};
 use schema::{
     authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
-    Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordOp, Figure, Inline,
-    Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue,
-    Person, Primitive, Strong, Text, TimeUnit,
+    Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordOp, CordRun, Figure,
+    Inline, Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot,
+    PatchValue, Person, Primitive, Strong, Text, TimeUnit,
 };
 
 /// An individual fixture
@@ -575,7 +575,7 @@ fn authors() -> Result<()> {
         Some(vec![alice.clone()]),
     )?;
     assert_eq!(chunk.code, "abc".into());
-    assert_eq!(chunk.code.runs, vec![(1, 0, 3)]);
+    assert_eq!(chunk.code.runs, vec![CordRun::new(1, 0, 0, 3)]);
     assert_eq!(
         chunk.options.authors,
         Some(vec![Author::AuthorRole(alice.clone())])
@@ -588,7 +588,10 @@ fn authors() -> Result<()> {
         Some(vec![bob.clone()]),
     )?;
     assert_eq!(chunk.code, "abcd".into());
-    assert_eq!(chunk.code.runs, vec![(1, 0, 3), (1, 1, 1)]);
+    assert_eq!(
+        chunk.code.runs,
+        vec![CordRun::new(1, 0, 0, 3), CordRun::new(1, 1, 0, 1)]
+    );
     assert_eq!(
         chunk.options.authors,
         Some(vec![
@@ -606,7 +609,12 @@ fn authors() -> Result<()> {
     assert_eq!(chunk.code, "abxcd".into());
     assert_eq!(
         chunk.code.runs,
-        vec![(1, 0, 2), (1, 1, 1), (1, 0, 1), (1, 1, 1)]
+        vec![
+            CordRun::new(1, 0, 0, 2),
+            CordRun::new(1, 1, 0, 1),
+            CordRun::new(1, 0, 0, 1),
+            CordRun::new(1, 1, 0, 1)
+        ]
     );
     assert_eq!(
         chunk.options.authors,
@@ -623,7 +631,10 @@ fn authors() -> Result<()> {
         Some(vec![carol.clone()]),
     )?;
     assert_eq!(chunk.code, "ad".into());
-    assert_eq!(chunk.code.runs, vec![(1, 0, 1), (1, 1, 1)]);
+    assert_eq!(
+        chunk.code.runs,
+        vec![CordRun::new(1, 0, 0, 1), CordRun::new(1, 1, 0, 1)]
+    );
     assert_eq!(
         chunk.options.authors,
         Some(vec![
@@ -640,7 +651,14 @@ fn authors() -> Result<()> {
         Some(vec![carol.clone()]),
     )?;
     assert_eq!(chunk.code, "and".into());
-    assert_eq!(chunk.code.runs, vec![(1, 0, 1), (1, 2, 1), (1, 1, 1)]);
+    assert_eq!(
+        chunk.code.runs,
+        vec![
+            CordRun::new(1, 0, 0, 1),
+            CordRun::new(1, 2, 0, 1),
+            CordRun::new(1, 1, 0, 1)
+        ]
+    );
     assert_eq!(
         chunk.options.authors,
         Some(vec![

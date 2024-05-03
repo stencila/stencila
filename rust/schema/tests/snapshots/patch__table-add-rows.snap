@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -26,6 +26,7 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 7
             - type: TableCell
               content:
@@ -37,6 +38,7 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 7
             - type: TableCell
               content:
@@ -47,6 +49,7 @@ old:
                         string: Population (millions)
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 21
           rowType: HeaderRow
@@ -62,6 +65,7 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 3
             - type: TableCell
               content:
@@ -73,6 +77,7 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 2
             - type: TableCell
               content:
@@ -83,6 +88,7 @@ old:
                         string: "328"
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 3
       authors:
@@ -208,6 +214,7 @@ merged:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 7
             - type: TableCell
               content:
@@ -219,6 +226,7 @@ merged:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 7
             - type: TableCell
               content:
@@ -229,6 +237,7 @@ merged:
                         string: Population (millions)
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 21
           rowType: HeaderRow
@@ -244,6 +253,7 @@ merged:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 3
             - type: TableCell
               content:
@@ -255,6 +265,7 @@ merged:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 2
             - type: TableCell
               content:
@@ -265,6 +276,7 @@ merged:
                         string: "328"
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 3
         - type: TableRow
@@ -279,6 +291,7 @@ merged:
                         authorship:
                           - - 1
                             - 1
+                            - 0
                             - 6
             - type: TableCell
               content:
@@ -290,6 +303,7 @@ merged:
                         authorship:
                           - - 1
                             - 1
+                            - 0
                             - 6
             - type: TableCell
               content:
@@ -301,6 +315,7 @@ merged:
                         authorship:
                           - - 1
                             - 1
+                            - 0
                             - 2
         - type: TableRow
           cells:
@@ -314,6 +329,7 @@ merged:
                         authorship:
                           - - 1
                             - 1
+                            - 0
                             - 6
             - type: TableCell
               content:
@@ -325,6 +341,7 @@ merged:
                         authorship:
                           - - 1
                             - 1
+                            - 0
                             - 11
             - type: TableCell
               content:
@@ -336,6 +353,7 @@ merged:
                         authorship:
                           - - 1
                             - 1
+                            - 0
                             - 3
       authors:
         - type: AuthorRole

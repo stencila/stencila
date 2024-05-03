@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -20,6 +20,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -30,6 +31,7 @@ old:
                     string: equation for surface area of cube
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 33
           assignee: insert-inline-math
@@ -46,6 +48,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 14
         - type: Emphasis
           content:
@@ -54,6 +57,7 @@ old:
                 string: text.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 5
       authors:
@@ -106,6 +110,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -117,8 +122,10 @@ merged:
                     authorship:
                       - - 1
                         - 1
+                        - 0
                         - 7
                       - - 1
+                        - 0
                         - 0
                         - 33
           authors:
@@ -140,6 +147,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 14
         - type: Emphasis
           content:
@@ -148,6 +156,7 @@ merged:
                 string: text.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 5
       authors:

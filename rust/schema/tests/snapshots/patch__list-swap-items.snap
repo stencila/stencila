@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -24,6 +24,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 22
                 - type: ImageObject
                   contentUrl: image.png
@@ -39,6 +40,7 @@ old:
                     string: ", see!"
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 6
               authors:
@@ -58,6 +60,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 13
                 - type: Emphasis
                   content:
@@ -66,6 +69,7 @@ old:
                         string: emphasis
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 8
               authors:
@@ -85,6 +89,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 18
                 - type: Underline
                   content:
@@ -93,6 +98,7 @@ old:
                         string: underlined
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 10
               authors:
@@ -174,6 +180,7 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 13
                 - type: Emphasis
                   content:
@@ -182,6 +189,7 @@ merged:
                         string: emphasis
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 8
               authors:
@@ -201,6 +209,7 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 22
                 - type: ImageObject
                   contentUrl: image.png
@@ -216,6 +225,7 @@ merged:
                     string: ", see!"
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 6
               authors:
@@ -235,6 +245,7 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 18
                 - type: Underline
                   content:
@@ -243,6 +254,7 @@ merged:
                         string: underlined
                         authorship:
                           - - 1
+                            - 0
                             - 0
                             - 10
               authors:

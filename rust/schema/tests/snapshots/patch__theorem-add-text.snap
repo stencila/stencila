@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -23,6 +23,7 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 23
           authors:
             - type: AuthorRole
@@ -36,6 +37,7 @@ old:
             string: e = m*c^2
             authorship:
               - - 1
+                - 0
                 - 0
                 - 9
           mathLanguage: latex
@@ -97,6 +99,7 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 23
           authors:
             - type: AuthorRole
@@ -110,6 +113,7 @@ merged:
             string: e = m*c^2
             authorship:
               - - 1
+                - 0
                 - 0
                 - 9
           mathLanguage: latex
@@ -127,6 +131,7 @@ merged:
                 string: May be true.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 12
           authors:

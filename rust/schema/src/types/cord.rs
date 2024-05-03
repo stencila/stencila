@@ -15,34 +15,52 @@ pub struct Cord {
     #[deref_mut]
     pub string: String,
 
-    /// The authorship of the cord
-    ///
-    /// This vector of triples is a run length encoding of which authors created
-    /// which UTF-8 bytes in the value.
-    ///
-    /// Each triple is made up of:
-    ///
-    /// 0. A `u8` representing the total number of authors
-    ///
-    /// 1. The last eight authors, each as a `u8`, encoded within a `u64` with the most
-    ///    recent author at the least significant digit.
-    ///    The `u8` for each author is the index of the author in the closest ancestor node
-    ///    that has an `authors` property. A value of u8::MAX indicates an unknown author.
-    ///
-    /// 2. The number of characters (Unicode code points) in the run
-    pub runs: Vec<(u8, u64, u32)>,
+    /// The runs of authorship in the cord
+    pub runs: Vec<CordRun>,
 }
 
-impl Cord {
-    /// Create a new `Cord` with authorship assigned to a user
-    pub fn with_author<S>(value: S, author: u8) -> Self
-    where
-        S: AsRef<str>,
-    {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CordRun {
+    /// A count of all authors of the run
+    pub count: u8,
+
+    /// The last eight authors, each as a `u8`, encoded within a `u64` with the most
+    /// recent author at the least significant digit.
+    ///
+    /// The `u8` for each author is the index of the author in the closest ancestor node
+    /// that has an `authors` property. A value of u8::MAX indicates an unknown author.
+    pub authors: u64,
+
+    /// The "Machine Influence Index"
+    ///
+    /// 0 = 100% human written ie. no machine influence
+    /// 1 = human written, machine edited once
+    /// 2 = human written, machine edited twice
+    /// ...
+    /// 254 = machine written, human edited once
+    /// 255 = 100% machine written i.e. no human influence
+    pub mii: u8,
+
+    /// The number of characters (Unicode code points) in the run
+    pub length: u32,
+}
+
+impl CordRun {
+    pub fn new(count: u8, authors: u64, mii: u8, length: u32) -> Self {
         Self {
-            string: value.as_ref().to_string(),
-            runs: vec![(1, author as u64, value.as_ref().chars().count() as u32)],
+            count,
+            authors,
+            mii,
+            length,
         }
+    }
+
+    pub fn from_tuple((count, authors, mii, length): (u8, u64, u8, u32)) -> Self {
+        Self::new(count, authors, mii, length)
+    }
+
+    pub fn as_tuple(&self) -> (u8, u64, u8, u32) {
+        (self.count, self.authors, self.mii, self.length)
     }
 }
 
@@ -142,6 +160,23 @@ impl<'de> SerdeVisitor<'de> for CordVisitor {
 impl<'de> Deserialize<'de> for Cord {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         deserializer.deserialize_any(CordVisitor)
+    }
+}
+
+impl Serialize for CordRun {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.as_tuple().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for CordRun {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        type Tuple = (u8, u64, u8, u32);
+        let tuple = Tuple::deserialize(deserializer)?;
+        Ok(CordRun::from_tuple(tuple))
     }
 }
 

@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -23,6 +23,7 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 8
           authors:
             - type: AuthorRole
@@ -38,6 +39,7 @@ old:
                 string: Text.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 5
           authors:
@@ -58,6 +60,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 11
               authors:
                 - type: AuthorRole
@@ -73,6 +76,7 @@ old:
                     string: This is in the sub section.
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 27
               authors:
@@ -156,6 +160,7 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 8
           authors:
             - type: AuthorRole
@@ -172,6 +177,7 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 5
           authors:
             - type: AuthorRole
@@ -187,6 +193,7 @@ merged:
                 string: More text.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 10
           authors:
@@ -207,6 +214,7 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 11
               authors:
                 - type: AuthorRole
@@ -222,6 +230,7 @@ merged:
                     string: This is in the sub section.
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 27
               authors:
@@ -245,6 +254,7 @@ merged:
                 string: End text.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 9
           authors:

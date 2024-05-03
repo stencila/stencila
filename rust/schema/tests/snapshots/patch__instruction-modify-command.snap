@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -20,6 +20,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 39
       authors:
         - type: AuthorRole
@@ -37,6 +38,7 @@ old:
                 string: "top five highest mountains, with height in metres"
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 49
       assignee: insert-table
@@ -85,6 +87,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 39
       authors:
         - type: AuthorRole
@@ -103,11 +106,14 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 43
                   - - 2
                     - 1
+                    - 0
                     - 2
                   - - 1
+                    - 0
                     - 0
                     - 2
       assignee: insert-table

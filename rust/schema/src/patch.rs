@@ -15,8 +15,8 @@ use node_id::NodeId;
 use node_type::NodeProperty;
 
 use crate::{
-    replicate, Author, AuthorRole, Block, CordOp, Inline, Node, SuggestionBlockType,
-    SuggestionInlineType,
+    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, Block, CordOp, Inline,
+    Node, SuggestionBlockType, SuggestionInlineType,
 };
 
 /// Assign authorship to a node
@@ -273,6 +273,20 @@ impl PatchContext {
     /// Get the current author index for the context
     pub fn author_index(&self) -> Option<u8> {
         self.author_index
+    }
+
+    /// Get the current author type for the context
+    pub fn author_type(&self) -> Option<AuthorType> {
+        if let (Some(authors), Some(index)) = (&self.authors, self.author_index) {
+            authors
+                .get(index as usize)
+                .map(|author_role| match author_role.author {
+                    AuthorRoleAuthor::SoftwareApplication(..) => AuthorType::Machine,
+                    _ => AuthorType::Human,
+                })
+        } else {
+            None
+        }
     }
 
     /// Take the operations from the context

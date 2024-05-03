@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -20,6 +20,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -30,6 +31,7 @@ old:
                     string: equation for surface area of cube
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 33
           assignee: insert-inline-math
@@ -46,6 +48,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 1
         - type: Note
           noteType: Footnote
@@ -57,6 +60,7 @@ old:
                     string: according to AI.
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 16
               authors:
@@ -120,6 +124,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 23
         - type: InstructionInline
           messages:
@@ -130,6 +135,7 @@ merged:
                     string: equation for surface area of cube
                     authorship:
                       - - 1
+                        - 0
                         - 0
                         - 33
           assignee: insert-inline-math
@@ -146,6 +152,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 1
         - type: Note
           noteType: Footnote
@@ -158,11 +165,14 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 13
                       - - 1
                         - 1
+                        - 0
                         - 4
                       - - 1
+                        - 0
                         - 0
                         - 3
               authors:
