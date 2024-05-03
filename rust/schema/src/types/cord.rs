@@ -31,7 +31,7 @@ pub struct CordRun {
     /// that has an `authors` property. A value of u8::MAX indicates an unknown author.
     pub authors: u64,
 
-    /// The "Machine Influence Index"
+    /// The "Machine Influence" byte
     ///
     /// 0 = 100% human written ie. no machine influence
     /// 1 = human written, machine edited once
@@ -39,28 +39,28 @@ pub struct CordRun {
     /// ...
     /// 254 = machine written, human edited once
     /// 255 = 100% machine written i.e. no human influence
-    pub mii: u8,
+    pub mi: u8,
 
     /// The number of characters (Unicode code points) in the run
     pub length: u32,
 }
 
 impl CordRun {
-    pub fn new(count: u8, authors: u64, mii: u8, length: u32) -> Self {
+    pub fn new(count: u8, authors: u64, mi: u8, length: u32) -> Self {
         Self {
             count,
             authors,
-            mii,
+            mi,
             length,
         }
     }
 
-    pub fn from_tuple((count, authors, mii, length): (u8, u64, u8, u32)) -> Self {
-        Self::new(count, authors, mii, length)
+    pub fn from_tuple((count, authors, mi, length): (u8, u64, u8, u32)) -> Self {
+        Self::new(count, authors, mi, length)
     }
 
     pub fn as_tuple(&self) -> (u8, u64, u8, u32) {
-        (self.count, self.authors, self.mii, self.length)
+        (self.count, self.authors, self.mi, self.length)
     }
 }
 

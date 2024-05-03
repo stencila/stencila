@@ -271,7 +271,7 @@ merged:
                         authorship:
                           - - 2
                             - 1
-                            - 0
+                            - 2
                             - 2
             - type: TableCell
               content:
@@ -283,7 +283,7 @@ merged:
                         authorship:
                           - - 2
                             - 1
-                            - 0
+                            - 2
                             - 5
             - type: TableCell
               content:
@@ -299,7 +299,7 @@ merged:
                             - 2
                           - - 2
                             - 1
-                            - 0
+                            - 2
                             - 5
                           - - 1
                             - 0
@@ -317,7 +317,7 @@ merged:
                         authorship:
                           - - 2
                             - 1
-                            - 0
+                            - 2
                             - 2
             - type: TableCell
               content:
@@ -329,7 +329,7 @@ merged:
                         authorship:
                           - - 2
                             - 1
-                            - 0
+                            - 2
                             - 3
             - type: TableCell
               content:
@@ -345,7 +345,7 @@ merged:
                             - 2
                           - - 2
                             - 1
-                            - 0
+                            - 2
                             - 4
                           - - 1
                             - 0

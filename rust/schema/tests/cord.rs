@@ -1,7 +1,10 @@
 use common::serde_json;
 use common_dev::{pretty_assertions::assert_eq, proptest::prelude::*};
 
-use schema::{Block, Cord, CordRun};
+use schema::{
+    cord_mi::{display, human_written},
+    AuthorType, Block, Cord, CordRun,
+};
 
 #[test]
 fn serialization() {
@@ -50,45 +53,57 @@ fn update_authors() {
 
     let count = 0;
     let authors = 0;
+    let mi = human_written();
 
-    let (count, authors) = update(count, authors, 0).unwrap();
+    use AuthorType::*;
+
+    let (count, authors, mi) = update(count, authors, mi, 0, Human).unwrap();
     assert_eq!(count, 1);
     assert_eq!(extract(count, authors), vec![0]);
+    assert_eq!(display(mi), "HH");
 
-    let (count, authors) = update(count, authors, 1).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 1, Machine).unwrap();
     assert_eq!(count, 2);
     assert_eq!(extract(count, authors), vec![1, 0]);
+    assert_eq!(display(mi), "HM");
 
-    let result = update(count, authors, 1);
+    let result = update(count, authors, mi, 1, Machine);
     assert!(result.is_none());
 
-    let (count, authors) = update(count, authors, 2).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 2, Human).unwrap();
     assert_eq!(count, 3);
     assert_eq!(extract(count, authors), vec![2, 1, 0]);
+    assert_eq!(display(mi), "HH");
 
-    let (count, authors) = update(count, authors, 3).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 3, Human).unwrap();
     assert_eq!(count, 4);
     assert_eq!(extract(count, authors), vec![3, 2, 1, 0]);
+    assert_eq!(display(mi), "HH");
 
-    let (count, authors) = update(count, authors, 4).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 4, Machine).unwrap();
     assert_eq!(count, 5);
     assert_eq!(extract(count, authors), vec![4, 3, 2, 1, 0]);
+    assert_eq!(display(mi), "HM");
 
-    let (count, authors) = update(count, authors, 5).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 5, Human).unwrap();
     assert_eq!(count, 6);
     assert_eq!(extract(count, authors), vec![5, 4, 3, 2, 1, 0]);
+    assert_eq!(display(mi), "HH");
 
-    let (count, authors) = update(count, authors, 6).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 6, Machine).unwrap();
     assert_eq!(count, 7);
     assert_eq!(extract(count, authors), vec![6, 5, 4, 3, 2, 1, 0]);
+    assert_eq!(display(mi), "HM");
 
-    let (count, authors) = update(count, authors, 7).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 7, Human).unwrap();
     assert_eq!(count, 8);
     assert_eq!(extract(count, authors), vec![7, 6, 5, 4, 3, 2, 1, 0]);
+    assert_eq!(display(mi), "HH");
 
-    let (count, authors) = update(count, authors, 8).unwrap();
+    let (count, authors, mi) = update(count, authors, mi, 8, Human).unwrap();
     assert_eq!(count, 9);
     assert_eq!(extract(count, authors), vec![8, 7, 6, 5, 4, 3, 2, 1]);
+    assert_eq!(display(mi), "HH");
 }
 
 /// Create a `CordRun` that has a default `mii`
