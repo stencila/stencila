@@ -17,7 +17,7 @@ import { UIBaseCard } from '../base-card'
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
 export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
-  protected override toggleChipPosition: string = 'mt-2'
+  protected override toggleChipPosition: string = ''
 
   override render() {
     const cardStyles = apply([
@@ -34,7 +34,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
         <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
           ${this.renderHeader()} ${this.renderBody()}
         </stencila-ui-collapsible-animation>
-        ${this.renderContent()}
+        <div class=${`animated-content`}>${this.renderContent()}</div>
       </div>
     </div>`
   }
@@ -59,7 +59,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
-      this.toggle && 'px-3',
+      this.toggle && 'p-3',
     ])
 
     return html` <div class=${`${contentStyles}`}>

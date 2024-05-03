@@ -59,7 +59,7 @@ export const ToggleChipMixin = <T extends Constructor<LitElement>>(
       ])
 
       return html`
-        <div class=${`chip -ml-[40px] pr-[6px] ${this.toggleChipPosition}`}>
+        <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
           <div class=${`${styles}`} @click=${this.toggleChip}>
             <sl-icon
               library=${library}

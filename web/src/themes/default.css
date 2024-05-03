@@ -30,9 +30,11 @@ body {
 }
 
 [root] {
-  /* @apply prose max-w-prose lg:prose-xl; */
+  @apply text-black prose lg:prose-lg;
 
-  max-width: 300px;
+  > section {
+    @apply min-w-80 max-w-prose mx-auto;
+  }
 
   h1,
   h2,
@@ -42,6 +44,30 @@ body {
   h6 {
     font-weight: 500;
     /* background: green; */
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply mb-1.5;
+  }
+
+  p {
+    @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
+  }
+
+  figure {
+    @apply my-4 mx-0;
+  }
+
+  figcaption {
+    @apply text-black;
+
+    p {
+      @apply italic;
+    }
   }
 
   stencila-heading {
@@ -68,6 +94,12 @@ body {
     }
   }
 
+  stencila-instruction-block {
+    [slot='messages'] {
+      display: none;
+    }
+  }
+
   stencila-list-item {
     stencila-paragraph {
       margin: 0;
@@ -87,19 +119,11 @@ body {
       /* background: goldenrod; */
     }
   }
-
-  p {
-    margin-top: 1.4rem;
-    margin-bottom: 1.4rem;
-    padding-right: 0;
-    vertical-align: baseline;
-    /* background: red; */
-  }
 }
 
 [view='dynamic'] {
   > [root] {
-    @apply max-w-prose;
+    /* @apply max-w-prose; */
     /* max-width: 100%; */
 
     h1 {
@@ -107,16 +131,23 @@ body {
     }
 
     figure {
-      @apply mx-0;
-    }
-
-    li {
       @apply m-0;
     }
 
-    stencila-figure {
+    li {
+      @apply m-0 list-item w-full;
+    }
+
+    stencila-figure,
+    stencila-ui-block-on-demand {
       figure {
-        @apply my-3;
+        @apply my-3 mx-0 max-w-full;
+      }
+    }
+
+    stencila-instruction-block {
+      [slot='messages'] {
+        display: block;
       }
     }
 
@@ -126,10 +157,16 @@ body {
       }
     }
 
-    /* stencila-instruction-block {
-      + stencila-instruction-block {
-        background: rebeccapurple;
+    table {
+      @apply my-4;
+
+      td {
+        @apply p-0;
       }
-    } */
+
+      p {
+        @apply m-0;
+      }
+    }
   }
 }
