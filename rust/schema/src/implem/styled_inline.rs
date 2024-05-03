@@ -4,9 +4,9 @@ use crate::{prelude::*, StyledInline};
 
 impl DomCodec for StyledInline {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .push_attr("code", &self.code);
+        context.enter_node(self.node_type(), self.node_id());
+
+        self.code.to_dom_attr("code", context);
 
         if let Some(style_language) = &self.style_language {
             context.push_attr("style-language", style_language);

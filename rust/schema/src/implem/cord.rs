@@ -8,7 +8,7 @@ use node_store::{
 };
 
 use crate::{
-    cord_mi::{human_edited, human_written, machine_edited, machine_written},
+    cord_mi::{display, human_edited, human_written, machine_edited, machine_written},
     prelude::*,
     Cord, CordOp, CordRun,
 };
@@ -77,6 +77,21 @@ impl Cord {
             value >>= 8;
         }
         authors
+    }
+
+    /// Create a JSON array of the authors
+    pub fn json_authors(count: u8, value: u64) -> String {
+        let mut json = "[".to_string();
+        let mut first = true;
+        for author in Self::extract_authors(count, value) {
+            if !first {
+                json.push(',')
+            }
+            json.push_str(&author.to_string());
+            first = false;
+        }
+        json.push(']');
+        json
     }
 
     /// Set the run of the cord to indicate unknown authorship
@@ -745,6 +760,64 @@ impl WriteNode for Cord {
         }
 
         Ok(())
+    }
+}
+
+impl DomCodec for Cord {
+    /// Encode a cord to DOM HTML as a series of <stencila-authorship> elements
+    ///
+    /// For use when the cord is a `Text::value`.
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        if self.runs.is_empty() {
+            context.push_text(&self.string);
+        } else {
+            let chars = self.string.chars();
+
+            for run in &self.runs {
+                context
+                    .enter_elem_attrs(
+                        "stencila-authorship",
+                        [
+                            ("count", &run.count.to_string()),
+                            ("authors", &Self::json_authors(run.count, run.authors)),
+                            ("mi", &display(run.mi)),
+                        ],
+                    )
+                    .push_text(&chars.clone().take(run.length as usize).collect::<String>())
+                    .exit_elem();
+            }
+        }
+    }
+
+    /// Encode a cord to DOM HTML as a HTML attribute
+    ///
+    /// For use when the cord is a `CodeChunk::code`, `MathBlock::code` etc.
+    fn to_dom_attr(&self, name: &str, context: &mut DomEncodeContext) {
+        context.push_attr(name, &self.string);
+
+        if !self.runs.is_empty() {
+            let mut json = "[".to_string();
+            let mut start = 0;
+            for run in &self.runs {
+                let end = start + run.length;
+
+                json.push('[');
+                json.push_str(&start.to_string());
+                json.push(',');
+                json.push_str(&end.to_string());
+                json.push(',');
+                json.push_str(&run.count.to_string());
+                json.push(',');
+                json.push_str(&Self::json_authors(run.count, run.authors));
+                json.push_str(",\"");
+                json.push_str(&display(run.mi));
+                json.push_str("\"]");
+
+                start = end;
+            }
+            json.push(']');
+            context.push_attr(&[name, "-authorship"].concat(), &json);
+        }
     }
 }
 
