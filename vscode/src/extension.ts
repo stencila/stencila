@@ -104,6 +104,51 @@ function registerCommands(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  /// Command to insert text into a Stencila Markdown file during walkthroughs
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.walkthroughType", async (source) => {
+      const uri = vscode.Uri.file(
+        context.asAbsolutePath("walkthroughs/empty.smd")
+      );
+
+      // Get the document editor
+      let editor;
+      try {
+        const document = await vscode.workspace.openTextDocument(uri);
+        editor = await vscode.window.showTextDocument(document, {
+          viewColumn: vscode.ViewColumn.Beside,
+          preview: false,
+          preserveFocus: true,
+        });
+      } catch (error: any) {
+        vscode.window.showErrorMessage(
+          `Failed to open document: ${error.message}`
+        );
+      }
+
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      // Determine the position at the end of the document
+      const document = editor.document;
+      const lastLine = document.lineCount - 1;
+      const lastLineLength = document.lineAt(lastLine).text.length;
+      const position = new vscode.Position(lastLine, lastLineLength);
+
+      // Insert the source at the end of the document
+      // This could be made to simulate human typing like other extensions
+      // such as https://github.com/marcosgomesneto/typing-simulator do.
+      // However, that (a) complicates this, (b) it would increase the load
+      // on the Stencila Language Server as it updates things on each character
+      // insertion.
+      editor.edit((editBuilder) => {
+        editBuilder.insert(position, source);
+      });
+    })
+  );
 }
 
 /**
