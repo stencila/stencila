@@ -7,10 +7,13 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum SuggestionStatus {
+    /// A suggestion has been proposed for the instruction.
     #[default]
     Proposed,
 
+    /// The suggestion has been accepted.
     Accepted,
 
+    /// The suggestion has been rejected.
     Rejected,
 }

@@ -7,12 +7,16 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum ExecutionDependantRelation {
+    /// The node assigns its dependant (usually a variable)
     #[default]
     Assigns,
 
+    /// The node alters its dependant (usually a variable)
     Alters,
 
+    /// The node declares its dependant (e.g. a database table)
     Declares,
 
+    /// The node writes its dependant (usually a file)
     Writes,
 }

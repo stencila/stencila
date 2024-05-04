@@ -7,16 +7,22 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum MessageLevel {
+    /// A tracing message
     #[default]
     Trace,
 
+    /// A debug message
     Debug,
 
+    /// An information message
     Info,
 
+    /// A warning message
     Warning,
 
+    /// An error message
     Error,
 
+    /// An exception message
     Exception,
 }

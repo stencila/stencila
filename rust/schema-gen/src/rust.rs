@@ -1027,11 +1027,17 @@ impl {title} {{
                     attrs.push_str("\n    ");
                 }
 
+                let desc = variant_schema
+                    .description
+                    .as_ref()
+                    .map(|desc| format!("/// {}\n    ", desc.replace("\n", " ")))
+                    .unwrap_or_default();
+
                 if is_type {
                     unit_variants = false;
-                    format!("{attrs}{variant}({variant}),")
+                    format!("{desc}{attrs}{variant}({variant}),")
                 } else {
-                    format!("{attrs}{variant},")
+                    format!("{desc}{attrs}{variant},")
                 }
             })
             .join("\n\n    ");
