@@ -1,0 +1,57 @@
+{
+  "@id": "https://stencila.org/ProvenanceCount",
+  "name": "ProvenanceCount",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ProvenanceCount",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ProvenanceCount",
+      "rdfs:comment": "The count of the number of characters in a `ProvenanceCategory` within an entity.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:provenanceCategory",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provenanceCategory",
+      "rdfs:comment": "The provenance category that the character count applies to.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ProvenanceCount"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ProvenanceCategory"
+      }
+    },
+    {
+      "@id": "stencila:characterCount",
+      "@type": "rdfs:Property",
+      "rdfs:label": "characterCount",
+      "rdfs:comment": "The number of characters in the provenance category.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ProvenanceCount"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:characterPercent",
+      "@type": "rdfs:Property",
+      "rdfs:label": "characterPercent",
+      "rdfs:comment": "The percentage of characters in the provenance category.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ProvenanceCount"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    }
+  ]
+}

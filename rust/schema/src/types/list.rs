@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// A list of items.
@@ -15,7 +16,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "List")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(special)]
 #[jats(elem = "list")]
 pub struct List {
@@ -50,30 +51,23 @@ pub struct List {
     #[jats(attr = "list-type")]
     pub order: ListOrder,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<ListOptions>,
-
-    /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[serde(skip)]
-    pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct ListOptions {
     /// The authors of the list.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the list.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl List {

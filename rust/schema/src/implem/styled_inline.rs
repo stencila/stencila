@@ -29,7 +29,7 @@ impl DomCodec for StyledInline {
             });
         }
 
-        if let Some(authors) = &self.options.authors {
+        if let Some(authors) = &self.authors {
             context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
         }
 

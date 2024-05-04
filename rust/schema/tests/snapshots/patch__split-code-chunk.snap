@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 7
+      characterPercent: 100
   content:
     - type: CodeChunk
       code:
@@ -28,6 +33,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 7
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -56,6 +66,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 10
+      characterPercent: 100
   content:
     - type: CodeChunk
       code:
@@ -79,6 +94,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -96,6 +116,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 4
+          characterPercent: 100
     - type: CodeChunk
       code:
         string: "4"
@@ -112,6 +137,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 1
+          characterPercent: 100
 ops:
   - - - content
     - Append:

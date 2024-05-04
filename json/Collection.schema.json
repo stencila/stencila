@@ -163,6 +163,20 @@
         "$ref": "Author.schema.json"
       }
     },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the work.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
+    },
     "contributors": {
       "@id": "schema:contributor",
       "description": "A secondary contributor to the `CreativeWork`.",

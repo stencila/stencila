@@ -1,6 +1,5 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { Author } from "./Author.js";
 import { Executable } from "./Executable.js";
 import { IfBlockClause } from "./IfBlockClause.js";
 
@@ -15,11 +14,6 @@ export class IfBlock extends Executable {
    * The clauses making up the `IfBlock` node
    */
   clauses: IfBlockClause[];
-
-  /**
-   * The authors of the if block.
-   */
-  authors?: Author[];
 
   constructor(clauses: IfBlockClause[], options?: Partial<IfBlock>) {
     super();

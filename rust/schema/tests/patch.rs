@@ -5,7 +5,12 @@ use std::{
 
 use codec::{format::Format, Codec, DecodeOptions};
 use codec_markdown::MarkdownCodec;
-use common::{eyre::Result, glob::glob, serde::Serialize, tokio};
+use common::{
+    eyre::{bail, Ok, Result},
+    glob::glob,
+    serde::Serialize,
+    tokio,
+};
 use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
 use node_strip::{strip, StripScope, StripTargets};
 use schema::{
@@ -13,7 +18,8 @@ use schema::{
     shortcuts::{art, p, sec, t},
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordOp, CordRun, Figure,
     Inline, Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot,
-    PatchValue, Person, Primitive, Strong, Text, TimeUnit,
+    PatchValue, Person, Primitive, ProvenanceCategory, ProvenanceCount, SoftwareApplication,
+    Strong, Text, TimeUnit,
 };
 
 /// An individual fixture
@@ -84,7 +90,7 @@ async fn fixtures() -> Result<()> {
             },
             AuthorRoleName::Importer,
         );
-        authorship(&mut old, vec![alice])?;
+        schema::authorship(&mut old, vec![alice])?;
 
         // Calculate the ops
         let bob = AuthorRole::person(
@@ -102,11 +108,13 @@ async fn fixtures() -> Result<()> {
         let mut merged = old.clone();
         schema::patch(&mut merged, patch.clone())?;
 
-        // Assert that, when authors are stripped from both, `merged` is the same as `new`
+        // Assert that, when authors and provenance are stripped from both,
+        // `merged` is the same as `new`
+        let strip_targets = StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]);
         let mut merged_strip = merged.clone();
-        strip(&mut merged_strip, StripTargets::scope(StripScope::Authors));
+        strip(&mut merged_strip, strip_targets.clone());
         let mut new_strip = new.clone();
-        strip(&mut new_strip, StripTargets::scope(StripScope::Authors));
+        strip(&mut new_strip, strip_targets);
         assert_eq!(merged_strip, new_strip, "{name}\n{patch:#?}");
 
         // Snapshot the fixture
@@ -461,7 +469,10 @@ fn vec_section() -> Result<()> {
     let ops = diff_ops(&old, &new)?;
     assert!(matches!(ops[0].1, PatchOp::Push(..)));
     patch_anon(&mut old, ops)?;
-    strip(&mut old, StripTargets::scope(StripScope::Authors));
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
     assert_eq!(old, new);
 
     Ok(())
@@ -562,11 +573,29 @@ fn authors() -> Result<()> {
         },
         AuthorRoleName::Writer,
     );
+    let _hal = AuthorRole::software(
+        SoftwareApplication {
+            name: "Hal".to_string(),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
+
+    use ProvenanceCategory::*;
+    fn prov(cat: ProvenanceCategory, count: u64, percent: u64) -> ProvenanceCount {
+        ProvenanceCount {
+            provenance_category: cat,
+            character_count: count,
+            character_percent: Some(percent),
+            ..Default::default()
+        }
+    }
 
     // For code chunk, and any thing else with authors, authorship is recorded
     // at that level.
     let mut chunk = CodeChunk::new("a".into());
     authorship(&mut chunk, vec![alice.clone()])?;
+    assert_eq!(chunk.provenance, Some(vec![prov(Hw, 1, 100)]));
 
     // Extend authorship run for alice
     merge(
@@ -576,10 +605,8 @@ fn authors() -> Result<()> {
     )?;
     assert_eq!(chunk.code, "abc".into());
     assert_eq!(chunk.code.runs, vec![CordRun::new(1, 0, 0, 3)]);
-    assert_eq!(
-        chunk.options.authors,
-        Some(vec![Author::AuthorRole(alice.clone())])
-    );
+    assert_eq!(chunk.authors, Some(vec![Author::AuthorRole(alice.clone())]));
+    assert_eq!(chunk.provenance, Some(vec![prov(Hw, 3, 100)]));
 
     // Append by bob
     merge(
@@ -593,12 +620,13 @@ fn authors() -> Result<()> {
         vec![CordRun::new(1, 0, 0, 3), CordRun::new(1, 1, 0, 1)]
     );
     assert_eq!(
-        chunk.options.authors,
+        chunk.authors,
         Some(vec![
             Author::AuthorRole(alice.clone()),
             Author::AuthorRole(bob.clone())
         ])
     );
+    assert_eq!(chunk.provenance, Some(vec![prov(Hw, 4, 100)]));
 
     // Insert by bob
     merge(
@@ -617,12 +645,13 @@ fn authors() -> Result<()> {
         ]
     );
     assert_eq!(
-        chunk.options.authors,
+        chunk.authors,
         Some(vec![
             Author::AuthorRole(alice.clone()),
             Author::AuthorRole(bob.clone())
         ])
     );
+    assert_eq!(chunk.provenance, Some(vec![prov(Hw, 5, 100)]));
 
     // Delete by carol
     merge(
@@ -636,13 +665,14 @@ fn authors() -> Result<()> {
         vec![CordRun::new(1, 0, 0, 1), CordRun::new(1, 1, 0, 1)]
     );
     assert_eq!(
-        chunk.options.authors,
+        chunk.authors,
         Some(vec![
             Author::AuthorRole(alice.clone()),
             Author::AuthorRole(bob.clone()),
             Author::AuthorRole(carol.clone())
         ])
     );
+    assert_eq!(chunk.provenance, Some(vec![prov(Hw, 2, 100)]));
 
     // Insert by carol
     merge(
@@ -660,13 +690,85 @@ fn authors() -> Result<()> {
         ]
     );
     assert_eq!(
-        chunk.options.authors,
+        chunk.authors,
         Some(vec![
             Author::AuthorRole(alice.clone()),
             Author::AuthorRole(bob.clone()),
             Author::AuthorRole(carol.clone())
         ])
     );
+    assert_eq!(chunk.provenance, Some(vec![prov(Hw, 3, 100)]));
+
+    /*
+    TODO: Fix and re-enable
+
+    // Edit by bob
+    merge(
+        &mut chunk,
+        &CodeChunk::new("ant".into()),
+        Some(vec![bob.clone()]),
+    )?;
+    assert_eq!(chunk.code, "ant".into());
+    assert_eq!(
+        chunk.code.runs,
+        vec![
+            CordRun::new(1, 0, 0, 1),
+            CordRun::new(1, 2, 0, 1),
+            CordRun::new(2, 513, 2, 1)
+        ]
+    );
+    assert_eq!(
+        chunk.authors,
+        Some(vec![
+            Author::AuthorRole(alice.clone()),
+            Author::AuthorRole(bob.clone()),
+            Author::AuthorRole(carol.clone())
+        ])
+    );
+    assert_eq!(
+        chunk.provenance,
+        Some(vec![prov(Hw, 3, 100), prov(HwHe, 1, 100)])
+    );
+    */
+
+    Ok(())
+}
+
+/// Test that authorship is set and provenance is passed back up
+#[test]
+fn authorship_on_nodes() -> Result<()> {
+    let alice = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Alice".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
+    let authors = vec![alice.clone()];
+
+    let mut para = Paragraph::new(vec![t("abc")]);
+    authorship(&mut para, authors.clone())?;
+
+    // Authors set OK?
+    assert_eq!(para.authors, Some(vec![Author::AuthorRole(alice.clone())]));
+
+    // Provenance on Cord?
+    match &para.content[0] {
+        Inline::Text(Text { value: cord, .. }) => assert!(cord.provenance().is_some()),
+        _ => bail!("unexpected type"),
+    }
+
+    // Provenance on Text
+    match &para.content[0] {
+        Inline::Text(text) => assert!(text.provenance().is_some()),
+        _ => bail!("unexpected type"),
+    }
+
+    // Provenance on Inline?
+    assert!(para.content[0].provenance().is_some());
+
+    // Provenance on Vec<Inline>?
+    assert!(para.content.provenance().is_some());
 
     Ok(())
 }

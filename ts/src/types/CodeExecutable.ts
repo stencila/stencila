@@ -3,6 +3,7 @@
 import { Author } from "./Author.js";
 import { Cord } from "./Cord.js";
 import { Executable } from "./Executable.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * Abstract base type for executable code nodes (e.g. `CodeChunk`).
@@ -25,6 +26,11 @@ export class CodeExecutable extends Executable {
    * The authors of the executable code.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the code.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(code: Cord, options?: Partial<CodeExecutable>) {
     super();

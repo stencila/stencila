@@ -469,6 +469,7 @@ pub struct ItemsAnyOf {
 #[strum(serialize_all = "lowercase")]
 pub enum StripScopes {
     Authors,
+    Provenance,
     Metadata,
     Content,
     Code,

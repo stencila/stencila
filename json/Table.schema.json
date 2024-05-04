@@ -27,7 +27,9 @@
     "id",
     "label",
     "caption",
-    "notes"
+    "notes",
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {
@@ -158,7 +160,7 @@
     },
     "authors": {
       "@id": "schema:author",
-      "description": "The authors of the table.",
+      "description": "The authors of the `CreativeWork`.",
       "aliases": [
         "author"
       ],
@@ -169,11 +171,25 @@
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
-        "elem": "div"
+        "elem": "section"
       },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the work.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     },
     "contributors": {

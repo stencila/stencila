@@ -840,6 +840,7 @@
       "type": "string",
       "enum": [
         "authors",
+        "provenance",
         "metadata",
         "content",
         "code",

@@ -37,7 +37,7 @@ pub struct MappingEntry {
     /// The node property for property entries
     pub property: Option<NodeProperty>,
 
-    /// The authorship (`count`, `authors`, and `mii`) for `Cord` runs
+    /// The authorship (`count`, `authors`, and `provenance`) for `Cord` runs
     pub authorship: Option<(u8, u64, u8)>,
 }
 

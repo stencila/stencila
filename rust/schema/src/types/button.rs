@@ -16,6 +16,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -26,7 +27,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Button")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(elem = "button")]
 pub struct Button {
     /// The type of this item.
@@ -55,6 +56,19 @@ pub struct Button {
     #[patch(format = "md")]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The authors of the executable code.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[dom(elem = "span")]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the code.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// The name of the variable associated with the button.
     pub name: String,
@@ -157,13 +171,6 @@ pub struct ButtonOptions {
     #[strip(execution)]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The authors of the executable code.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[dom(elem = "span")]
-    pub authors: Option<Vec<Author>>,
 
     /// Whether the button is currently disabled
     #[serde(alias = "is-disabled", alias = "is_disabled")]

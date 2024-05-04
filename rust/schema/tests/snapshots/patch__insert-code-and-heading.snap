@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 31
+      characterPercent: 100
   content:
     - type: Heading
       level: 1
@@ -30,6 +35,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -47,6 +57,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -64,6 +79,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -82,6 +102,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -99,6 +124,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -147,6 +177,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 39
+      characterPercent: 100
   content:
     - type: Heading
       level: 1
@@ -166,6 +201,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -183,6 +223,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: CodeBlock
       code:
         string: ""
@@ -216,6 +261,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -234,6 +284,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -252,6 +307,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -269,6 +329,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 ops:
   - - - content
     - Insert:

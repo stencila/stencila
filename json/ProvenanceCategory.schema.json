@@ -1,0 +1,206 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ProvenanceCategory.schema.json",
+  "@id": "stencila:ProvenanceCategory",
+  "title": "ProvenanceCategory",
+  "extends": [
+    "Enumeration"
+  ],
+  "description": "A description of the provenance of content in terms of human/machine involvement.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "Text.schema.json"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "anyOf": [
+    {
+      "@id": "stencila:ProvenanceHwHeHv",
+      "description": "Content that is human written, edited and verified.",
+      "const": "HwHeHv"
+    },
+    {
+      "@id": "stencila:ProvenanceHwHe",
+      "description": "Content that is human written and edited.",
+      "const": "HwHe"
+    },
+    {
+      "@id": "stencila:ProvenanceHwHv",
+      "description": "Content that is human written and verified.",
+      "const": "HwHv"
+    },
+    {
+      "@id": "stencila:ProvenanceHw",
+      "description": "Content that is human written.",
+      "const": "Hw"
+    },
+    {
+      "@id": "stencila:ProvenanceHwMv",
+      "description": "Content that is human written, machine verified.",
+      "const": "HwMv"
+    },
+    {
+      "@id": "stencila:ProvenanceMwHeHv",
+      "description": "Content that is machine written, human edited, human verified.",
+      "const": "MwHeHv"
+    },
+    {
+      "@id": "stencila:ProvenanceMwHe",
+      "description": "Content that is machine written, human edited.",
+      "const": "MwHe"
+    },
+    {
+      "@id": "stencila:ProvenanceMwHeHv",
+      "description": "Content that is machine written, human edited, machine verified.",
+      "const": "MwHeMv"
+    },
+    {
+      "@id": "stencila:ProvenanceHwMeHv",
+      "description": "Content that is human written, machine edited, human verified.",
+      "const": "HwMeHv"
+    },
+    {
+      "@id": "stencila:ProvenanceHwMe",
+      "description": "Content that is human written, machine edited.",
+      "const": "HwMe"
+    },
+    {
+      "@id": "stencila:ProvenanceHwMeMv",
+      "description": "Content that is human written, machine edited, machine verified.",
+      "const": "HwMeMv"
+    },
+    {
+      "@id": "stencila:ProvenanceMwHv",
+      "description": "Content that is machine written, human verified.",
+      "const": "MwHv"
+    },
+    {
+      "@id": "stencila:ProvenanceMwMeHv",
+      "description": "Content that is machine written, machine edited, human verified.",
+      "const": "MwMeHv"
+    },
+    {
+      "@id": "stencila:ProvenanceMw",
+      "description": "Content that is machine written.",
+      "const": "Mw"
+    },
+    {
+      "@id": "stencila:ProvenanceMwMv",
+      "description": "Content that is machine written and verified.",
+      "const": "MwMv"
+    },
+    {
+      "@id": "stencila:ProvenanceMwMe",
+      "description": "Content that is machine written and edited.",
+      "const": "MwMe"
+    },
+    {
+      "@id": "stencila:ProvenanceMwMeMv",
+      "description": "Content that is machine written, edited and verified.",
+      "const": "MwMeMv"
+    }
+  ],
+  "default": "Hw"
+}

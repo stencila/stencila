@@ -11,8 +11,25 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 46
+      characterPercent: 100
   content:
     - type: Table
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 46
+          characterPercent: 100
       rows:
         - type: TableRow
           cells:
@@ -28,6 +45,11 @@ old:
                             - 0
                             - 0
                             - 4
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 4
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -40,6 +62,11 @@ old:
                             - 0
                             - 0
                             - 10
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 10
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -52,6 +79,11 @@ old:
                             - 0
                             - 0
                             - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -67,6 +99,11 @@ old:
                             - 0
                             - 0
                             - 5
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 5
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -79,6 +116,11 @@ old:
                             - 0
                             - 0
                             - 9
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 9
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -91,6 +133,11 @@ old:
                             - 0
                             - 0
                             - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 2
+                      characterPercent: 100
         - type: TableRow
           cells:
             - type: TableCell
@@ -105,6 +152,11 @@ old:
                             - 0
                             - 0
                             - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -117,6 +169,11 @@ old:
                             - 0
                             - 0
                             - 8
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 8
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -129,13 +186,11 @@ old:
                             - 0
                             - 0
                             - 2
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 2
+                      characterPercent: 100
 new:
   type: Article
   content:
@@ -217,8 +272,39 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 25
+      characterPercent: 54
+    - type: ProvenanceCount
+      provenanceCategory: HwHe
+      characterCount: 21
+      characterPercent: 45
   content:
     - type: Table
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 25
+          characterPercent: 54
+        - type: ProvenanceCount
+          provenanceCategory: HwHe
+          characterCount: 21
+          characterPercent: 45
       rows:
         - type: TableRow
           cells:
@@ -234,6 +320,11 @@ merged:
                             - 0
                             - 0
                             - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -246,6 +337,11 @@ merged:
                             - 0
                             - 0
                             - 4
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 4
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -258,6 +354,11 @@ merged:
                             - 0
                             - 0
                             - 10
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 10
+                      characterPercent: 100
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -273,6 +374,11 @@ merged:
                             - 1
                             - 2
                             - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: HwHe
+                      characterCount: 2
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -285,6 +391,11 @@ merged:
                             - 1
                             - 2
                             - 5
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: HwHe
+                      characterCount: 5
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -305,6 +416,15 @@ merged:
                             - 0
                             - 0
                             - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 4
+                      characterPercent: 44
+                    - type: ProvenanceCount
+                      provenanceCategory: HwHe
+                      characterCount: 5
+                      characterPercent: 55
         - type: TableRow
           cells:
             - type: TableCell
@@ -319,6 +439,11 @@ merged:
                             - 1
                             - 2
                             - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: HwHe
+                      characterCount: 2
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -331,6 +456,11 @@ merged:
                             - 1
                             - 2
                             - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: HwHe
+                      characterCount: 3
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -351,19 +481,15 @@ merged:
                             - 0
                             - 0
                             - 2
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 4
+                      characterPercent: 50
+                    - type: ProvenanceCount
+                      provenanceCategory: HwHe
+                      characterCount: 4
+                      characterPercent: 50
 ops:
   - - - content
       - 0

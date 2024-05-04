@@ -2118,6 +2118,7 @@ dependencies = [
  "node-execute",
  "node-map",
  "node-store",
+ "node-strip",
  "notify",
  "schema",
 ]

@@ -53,7 +53,7 @@ impl DomCodec for MathBlock {
             });
         }
 
-        if let Some(authors) = &self.options.authors {
+        if let Some(authors) = &self.authors {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
 
@@ -71,7 +71,7 @@ impl MarkdownCodec for MathBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, label))
+            .merge_losses(lost_options!(self, id, label, authors, provenance))
             .merge_losses(lost_options!(
                 self.options,
                 compilation_digest,

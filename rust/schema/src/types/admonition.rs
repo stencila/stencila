@@ -7,6 +7,7 @@ use super::author::Author;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::inline::Inline;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// A admonition within a document.
@@ -17,7 +18,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Admonition")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(elem = "aside")]
 #[jats(elem = "boxed-text")]
 pub struct Admonition {
@@ -73,24 +74,6 @@ pub struct Admonition {
     #[dom(elem = "aside")]
     pub content: Vec<Block>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<AdmonitionOptions>,
-
-    /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[serde(skip)]
-    pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct AdmonitionOptions {
     /// The authors of the admonition.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
@@ -98,6 +81,18 @@ pub struct AdmonitionOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the admonition.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Admonition {

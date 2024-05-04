@@ -1030,7 +1030,7 @@ impl {title} {{
                 let desc = variant_schema
                     .description
                     .as_ref()
-                    .map(|desc| format!("/// {}\n    ", desc.replace("\n", " ")))
+                    .map(|desc| format!("/// {}\n    ", desc.replace('\n', " ")))
                     .unwrap_or_default();
 
                 if is_type {

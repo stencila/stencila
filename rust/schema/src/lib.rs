@@ -21,7 +21,7 @@ pub mod transforms;
 pub use node_id::NodeId;
 pub use node_type::{NodeProperty, NodeType};
 
-pub mod cord_mi;
+pub mod cord_provenance;
 
 pub use implem::AuthorType;
 

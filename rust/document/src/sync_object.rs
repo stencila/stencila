@@ -218,8 +218,10 @@ mod tests {
 
         // Test replacing content
         document.update_sender.send(art([p([t("Hello!")])])).await?;
-        let patch = out_receiver.recv().await.unwrap();
+        let mut patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
+        patch.ops.pop();
+        patch.ops.pop();
         if let Some(PatchOperation::Replace(ReplaceOperation { path, .. })) = &patch.ops.last() {
             assert_eq!(path, "/node/content/0/content/0/value");
         } else {
@@ -228,8 +230,10 @@ mod tests {
 
         // Test removing content
         document.update_sender.send(art([p([])])).await?;
-        let patch = out_receiver.recv().await.unwrap();
+        let mut patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
+        patch.ops.pop();
+        patch.ops.pop();
         if let Some(PatchOperation::Remove(RemoveOperation { path, .. })) = &patch.ops.last() {
             assert_eq!(path, "/node/content/0/content/0");
         } else {

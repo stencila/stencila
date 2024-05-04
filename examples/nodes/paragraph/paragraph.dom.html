@@ -6,15 +6,18 @@
       </p>
     </stencila-paragraph>
     <stencila-paragraph id=xxx>
+      <p slot=content>
+        <stencila-text id=xxx>Paragraph two has one person author.</stencila-text>
+      </p>
       <div slot=authors>
         <stencila-person id=xxx family-names='["Aardvark"]' given-names='["Ann"]'>
         </stencila-person>
       </div>
-      <p slot=content>
-        <stencila-text id=xxx>Paragraph two has one person author.</stencila-text>
-      </p>
     </stencila-paragraph>
     <stencila-paragraph id=xxx>
+      <p slot=content>
+        <stencila-text id=xxx>Paragraph three has three authors of different types: a software application, a person, and organization</stencila-text>
+      </p>
       <div slot=authors>
         <stencila-software-application id=xxx @id=super-editor name=Super-editor>
         </stencila-software-application>
@@ -23,11 +26,11 @@
         <stencila-organization id=xxx name='Acme Corp'>
         </stencila-organization>
       </div>
-      <p slot=content>
-        <stencila-text id=xxx>Paragraph three has three authors of different types: a software application, a person, and organization</stencila-text>
-      </p>
     </stencila-paragraph>
     <stencila-paragraph id=xxx>
+      <p slot=content>
+        <stencila-text id=xxx>Paragraph four has four author roles. These provide additional information for each author such as role and time.</stencila-text>
+      </p>
       <div slot=authors>
         <stencila-author-role id=xxx role-name=Instructor last-modified=1710370000000>
           <stencila-person id=xxx family-names='["Coyote"]' given-names='["Carol"]'>
@@ -46,9 +49,6 @@
           </stencila-person>
         </stencila-author-role>
       </div>
-      <p slot=content>
-        <stencila-text id=xxx>Paragraph four has four author roles. These provide additional information for each author such as role and time.</stencila-text>
-      </p>
     </stencila-paragraph>
   </section>
 </stencila-article>

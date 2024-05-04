@@ -16,7 +16,9 @@
   ],
   "core": [
     "id",
-    "mathLanguage"
+    "mathLanguage",
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {
@@ -122,6 +124,20 @@
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the math.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     },
     "compilationDigest": {

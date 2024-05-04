@@ -5,6 +5,7 @@ import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * A admonition within a document.
@@ -37,6 +38,11 @@ export class Admonition extends Entity {
    * The authors of the admonition.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the content within the admonition.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(admonitionType: AdmonitionType, content: Block[], options?: Partial<Admonition>) {
     super();

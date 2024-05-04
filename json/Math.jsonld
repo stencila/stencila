@@ -68,9 +68,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Table"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -81,9 +78,6 @@
         },
         {
           "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfBlock"
         },
         {
           "@id": "stencila:Instruction"
@@ -109,6 +103,53 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "stencila:provenance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provenance",
+      "rdfs:comment": "A summary of the provenance of the math.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ProvenanceCount"
       }
     },
     {

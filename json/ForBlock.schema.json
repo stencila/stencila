@@ -24,6 +24,8 @@
     "id",
     "autoExec",
     "programmingLanguage",
+    "authors",
+    "provenance",
     "otherwise",
     "iterations"
   ],
@@ -369,6 +371,20 @@
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the code.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     },
     "variable": {

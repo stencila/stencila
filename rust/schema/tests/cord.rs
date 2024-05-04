@@ -2,7 +2,7 @@ use common::serde_json;
 use common_dev::{pretty_assertions::assert_eq, proptest::prelude::*};
 
 use schema::{
-    cord_mi::{display, human_written},
+    cord_provenance::{display, human_written},
     AuthorType, Block, Cord, CordRun,
 };
 
@@ -53,62 +53,62 @@ fn update_authors() {
 
     let count = 0;
     let authors = 0;
-    let mi = human_written();
+    let prov = human_written();
 
     use AuthorType::*;
 
-    let (count, authors, mi) = update(count, authors, mi, 0, Human).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 0, Human).unwrap();
     assert_eq!(count, 1);
     assert_eq!(extract(count, authors), vec![0]);
-    assert_eq!(display(mi), "HwHe");
+    assert_eq!(display(prov), "HwHe");
 
-    let (count, authors, mi) = update(count, authors, mi, 1, Machine).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 1, Machine).unwrap();
     assert_eq!(count, 2);
     assert_eq!(extract(count, authors), vec![1, 0]);
-    assert_eq!(display(mi), "HwMe");
+    assert_eq!(display(prov), "HwMe");
 
-    let result = update(count, authors, mi, 1, Machine);
+    let result = update(count, authors, prov, 1, Machine);
     assert!(result.is_none());
 
-    let (count, authors, mi) = update(count, authors, mi, 2, Human).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 2, Human).unwrap();
     assert_eq!(count, 3);
     assert_eq!(extract(count, authors), vec![2, 1, 0]);
-    assert_eq!(display(mi), "HwHe");
+    assert_eq!(display(prov), "HwHe");
 
-    let (count, authors, mi) = update(count, authors, mi, 3, Human).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 3, Human).unwrap();
     assert_eq!(count, 4);
     assert_eq!(extract(count, authors), vec![3, 2, 1, 0]);
-    assert_eq!(display(mi), "HwHe");
+    assert_eq!(display(prov), "HwHe");
 
-    let (count, authors, mi) = update(count, authors, mi, 4, Machine).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 4, Machine).unwrap();
     assert_eq!(count, 5);
     assert_eq!(extract(count, authors), vec![4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HwMe");
+    assert_eq!(display(prov), "HwMe");
 
-    let (count, authors, mi) = update(count, authors, mi, 5, Human).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 5, Human).unwrap();
     assert_eq!(count, 6);
     assert_eq!(extract(count, authors), vec![5, 4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HwHe");
+    assert_eq!(display(prov), "HwHe");
 
-    let (count, authors, mi) = update(count, authors, mi, 6, Machine).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 6, Machine).unwrap();
     assert_eq!(count, 7);
     assert_eq!(extract(count, authors), vec![6, 5, 4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HwMe");
+    assert_eq!(display(prov), "HwMe");
 
-    let (count, authors, mi) = update(count, authors, mi, 7, Human).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 7, Human).unwrap();
     assert_eq!(count, 8);
     assert_eq!(extract(count, authors), vec![7, 6, 5, 4, 3, 2, 1, 0]);
-    assert_eq!(display(mi), "HwHe");
+    assert_eq!(display(prov), "HwHe");
 
-    let (count, authors, mi) = update(count, authors, mi, 8, Human).unwrap();
+    let (count, authors, prov) = update(count, authors, prov, 8, Human).unwrap();
     assert_eq!(count, 9);
     assert_eq!(extract(count, authors), vec![8, 7, 6, 5, 4, 3, 2, 1]);
-    assert_eq!(display(mi), "HwHe");
+    assert_eq!(display(prov), "HwHe");
 }
 
-/// Create a `CordRun` that has a default `mii`
+/// Create a `CordRun` that has a default provenance
 fn run(count: u8, authors: u64, length: u32) -> CordRun {
-    CordRun::new(count, authors, 0, length)
+    CordRun::new(count, authors, human_written(), length)
 }
 
 #[test]
@@ -459,17 +459,21 @@ fn replace_across_runs() {
 
 // Merge two cords. Used for testing that merged value is correct
 // and that does not panic due to invalid slots
-fn merge_cords(s1: &str, s2: &str) {
-    let mut c1 = Cord {
+fn merge_cords(s1: &str, s2: &str, s3: Option<&str>) {
+    let mut cord = Cord {
         string: s1.to_string(),
         runs: vec![run(1, 0, s1.chars().count() as u32)],
     };
-    let c2 = Cord::from(s2);
 
-    let ops = c1.create_ops(&c2);
-    c1.apply_ops(ops, Some(1), None);
+    let ops = cord.create_ops(&Cord::from(s2));
+    cord.apply_ops(ops, Some(1), None);
+    assert_eq!(cord.string, s2);
 
-    assert_eq!(c1.string, s2)
+    let Some(s3) = s3 else { return };
+
+    let ops = cord.create_ops(&Cord::from(s3));
+    cord.apply_ops(ops, Some(2), None);
+    assert_eq!(cord.string, s3);
 }
 
 proptest! {
@@ -477,25 +481,43 @@ proptest! {
 
     #[test]
     fn proptest_alpha_num(s1 in "[a-zA-Z0-9]*", s2 in "[a-zA-Z0-9]*") {
-        merge_cords(&s1, &s2);
+        merge_cords(&s1, &s2, None);
     }
 
     #[test]
     fn proptest_unicode(s1 in "\\PC*", s2 in "\\PC*") {
-       merge_cords(&s1, &s2);
+       merge_cords(&s1, &s2, None);
     }
+
+    /*
+    TODO: Enable this test
+    #[test]
+    fn proptest_unicode_twice(s1 in "\\PC*", s2 in "\\PC*", s3 in "\\PC*") {
+       merge_cords(&s1, &s2, Some(&s3));
+    }
+    */
 }
 
 // The following are regression tests for problems found from proptests
+// and elsewhere
 
 #[test]
 fn no_zero_run_lengths() {
-    merge_cords("", "A");
+    merge_cords("", "A", None);
+
+    //merge_cords("a", "bba", Some("c"));
+
+    let mut c = Cord {
+        string: "and".to_string(),
+        runs: vec![run(1, 0, 1), run(1, 2, 1), run(1, 1, 1)],
+    };
+    c.apply_replace(2..3, "t", Some(1), None);
+    assert_eq!(c.string, "ant");
 }
 
 #[test]
 fn unicode_merges() {
-    merge_cords("", "🌀");
-    merge_cords("🌀", "");
-    merge_cords("🌀", "a");
+    merge_cords("", "🌀", None);
+    merge_cords("🌀", "", None);
+    merge_cords("🌀", "a", None);
 }

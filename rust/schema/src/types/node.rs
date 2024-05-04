@@ -94,6 +94,7 @@ use super::person::Person;
 use super::postal_address::PostalAddress;
 use super::product::Product;
 use super::property_value::PropertyValue;
+use super::provenance_count::ProvenanceCount;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::quote_block::QuoteBlock;
@@ -322,6 +323,8 @@ pub enum Node {
     Product(Product),
 
     PropertyValue(PropertyValue),
+
+    ProvenanceCount(ProvenanceCount),
 
     PublicationIssue(PublicationIssue),
 

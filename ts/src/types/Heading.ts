@@ -4,6 +4,7 @@ import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 import { Integer } from "./Integer.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * A heading.
@@ -26,6 +27,11 @@ export class Heading extends Entity {
    * The authors of the heading.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the content within the heading.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(level: Integer, content: Inline[], options?: Partial<Heading>) {
     super();

@@ -117,6 +117,9 @@
       "$ref": "PropertyValue.schema.json"
     },
     {
+      "$ref": "ProvenanceCategory.schema.json"
+    },
+    {
       "$ref": "PublicationIssue.schema.json"
     },
     {

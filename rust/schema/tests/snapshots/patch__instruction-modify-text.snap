@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 44
+      characterPercent: 100
   content:
     - type: InstructionBlock
       messages:
@@ -24,6 +29,18 @@ old:
                     - 0
                     - 0
                     - 13
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 44
+          characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -42,13 +59,11 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 31
+              characterPercent: 100
 new:
   type: Article
   content:
@@ -78,6 +93,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 64
+      characterPercent: 100
   content:
     - type: InstructionBlock
       messages:
@@ -91,6 +111,24 @@ merged:
                     - 0
                     - 0
                     - 13
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 64
+          characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -123,19 +161,11 @@ merged:
                 givenNames:
                   - Bob
               roleName: Writer
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 51
+              characterPercent: 100
 ops:
   - - - content
       - 0

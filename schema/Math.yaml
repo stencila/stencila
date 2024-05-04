@@ -13,6 +13,8 @@ required:
   - code
 core:
   - mathLanguage
+  - authors
+  - provenance
 properties:
   code:
     '@id': stencila:code
@@ -69,6 +71,15 @@ properties:
       deserializeWith: option_one_or_many_string_or_object
     dom:
       # Need to use <span> here to allow for both `MathBlock` and `MathInline`
+      elem: span
+  provenance:
+    '@id': stencila:provenance
+    description: A summary of the provenance of the math.
+    type: array
+    items:
+      $ref: ProvenanceCount
+    strip: [provenance]
+    dom:
       elem: span
   compilationDigest:
     '@id': stencila:compilationDigest

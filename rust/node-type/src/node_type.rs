@@ -102,6 +102,7 @@ pub enum NodeType {
     PostalAddress,
     Product,
     PropertyValue,
+    ProvenanceCount,
     PublicationIssue,
     PublicationVolume,
     QuoteBlock,

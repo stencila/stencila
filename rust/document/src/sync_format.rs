@@ -467,6 +467,7 @@ mod tests {
     use common::{eyre::Report, tokio::sync::mpsc::channel};
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use format::Format;
+    use node_strip::StripScope;
     use schema::shortcuts::{art, p, t};
 
     use super::*;
@@ -508,6 +509,7 @@ mod tests {
                     None,
                     Some(EncodeOptions {
                         format: Some(Format::Markdown),
+                        strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                         ..Default::default()
                     }),
                 )
@@ -563,10 +565,12 @@ mod tests {
                 Some(patch_sender),
                 Some(DecodeOptions {
                     format: Some(Format::Markdown),
+                    strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                     ..Default::default()
                 }),
                 Some(EncodeOptions {
                     format: Some(Format::Markdown),
+                    strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                     ..Default::default()
                 }),
             )

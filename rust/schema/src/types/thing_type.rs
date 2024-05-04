@@ -40,6 +40,7 @@ use super::person::Person;
 use super::postal_address::PostalAddress;
 use super::product::Product;
 use super::property_value::PropertyValue;
+use super::provenance_category::ProvenanceCategory;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::review::Review;
@@ -133,6 +134,8 @@ pub enum ThingType {
     Product(Product),
 
     PropertyValue(PropertyValue),
+
+    ProvenanceCategory(ProvenanceCategory),
 
     PublicationIssue(PublicationIssue),
 

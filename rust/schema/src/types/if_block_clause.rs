@@ -17,6 +17,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -28,7 +29,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "IfBlockClause")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 pub struct IfBlockClause {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -67,6 +68,21 @@ pub struct IfBlockClause {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The authors of the executable code.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the code.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// Whether this clause is the active clause in the parent `IfBlock` node
     #[serde(alias = "is-active", alias = "is_active")]
@@ -195,14 +211,6 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The authors of the executable code.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
-    pub authors: Option<Vec<Author>>,
 }
 
 impl IfBlockClause {

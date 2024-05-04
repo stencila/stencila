@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 36
+      characterPercent: 100
   content:
     - type: Admonition
       admonitionType: Tip
@@ -41,6 +46,11 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 22
+              characterPercent: 100
       authors:
         - type: AuthorRole
           author:
@@ -48,6 +58,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 36
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -80,6 +95,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 45
+      characterPercent: 100
   content:
     - type: Admonition
       admonitionType: Tip
@@ -110,6 +130,11 @@ merged:
                 givenNames:
                   - Alice
               roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 22
+              characterPercent: 100
         - type: Paragraph
           content:
             - type: Text
@@ -127,6 +152,11 @@ merged:
                 givenNames:
                   - Bob
               roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 9
+              characterPercent: 100
       authors:
         - type: AuthorRole
           author:
@@ -140,6 +170,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 45
+          characterPercent: 100
 ops:
   - - - content
       - 0

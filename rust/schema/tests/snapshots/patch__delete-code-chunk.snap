@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 15
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -29,6 +34,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: CodeChunk
       code:
         string: 1 + 2
@@ -45,6 +55,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -62,6 +77,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -88,6 +108,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 10
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -106,6 +131,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -123,6 +153,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 ops:
   - - - content
     - Remove:

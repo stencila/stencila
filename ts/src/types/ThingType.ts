@@ -37,6 +37,7 @@ import { type Person } from "./Person.js";
 import { type PostalAddress } from "./PostalAddress.js";
 import { type Product } from "./Product.js";
 import { type PropertyValue } from "./PropertyValue.js";
+import { type ProvenanceCategory } from "./ProvenanceCategory.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Review } from "./Review.js";
@@ -92,6 +93,7 @@ export type ThingType =
   PostalAddress |
   Product |
   PropertyValue |
+  ProvenanceCategory |
   PublicationIssue |
   PublicationVolume |
   Review |

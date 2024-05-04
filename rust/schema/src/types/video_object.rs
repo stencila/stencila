@@ -15,6 +15,7 @@ use super::number::Number;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -147,6 +148,13 @@ pub struct VideoObjectOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "section")]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the work.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]

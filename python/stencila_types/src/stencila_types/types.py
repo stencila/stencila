@@ -325,6 +325,30 @@ class NoteType(StrEnum):
     Sidenote = "Sidenote"
 
 
+class ProvenanceCategory(StrEnum):
+    """
+    A description of the provenance of content in terms of human/machine involvement.
+    """
+
+    HwHeHv = "HwHeHv"
+    HwHe = "HwHe"
+    HwHv = "HwHv"
+    Hw = "Hw"
+    HwMv = "HwMv"
+    MwHeHv = "MwHeHv"
+    MwHe = "MwHe"
+    MwHeMv = "MwHeMv"
+    HwMeHv = "HwMeHv"
+    HwMe = "HwMe"
+    HwMeMv = "HwMeMv"
+    MwHv = "MwHv"
+    MwMeHv = "MwMeHv"
+    Mw = "Mw"
+    MwMv = "MwMv"
+    MwMe = "MwMe"
+    MwMeMv = "MwMeMv"
+
+
 class SectionType(StrEnum):
     """
     The type of a `Section`.
@@ -447,6 +471,9 @@ class CreativeWork(Thing):
 
     authors: list[Author] | None = None
     """The authors of the `CreativeWork`."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the work."""
 
     contributors: list[Author] | None = None
     """A secondary contributor to the `CreativeWork`."""
@@ -592,6 +619,9 @@ class CodeExecutable(Executable):
     authors: list[Author] | None = None
     """The authors of the executable code."""
 
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the code."""
+
 
 @dataclass(kw_only=True, repr=False)
 class CodeStatic(Entity):
@@ -609,6 +639,9 @@ class CodeStatic(Entity):
 
     authors: list[Author] | None = None
     """The authors of the code."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the code."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -685,6 +718,9 @@ class Instruction(Executable):
     authors: list[Author] | None = None
     """The authors of the instruction."""
 
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the messages and content within the instruction."""
+
 
 @dataclass(kw_only=True, repr=False)
 class Mark(Entity):
@@ -714,6 +750,9 @@ class Math(Entity):
 
     authors: list[Author] | None = None
     """The authors of the math."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the math."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the `code` and `mathLanguage`."""
@@ -824,7 +863,10 @@ class Styled(Entity):
     """The language used for the style specification e.g. css, tw"""
 
     authors: list[Author] | None = None
-    """The authors of the styling code."""
+    """The authors of the code and content in the styled node."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the code and content in the styed node."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the `code` and `styleLanguage`."""
@@ -885,6 +927,9 @@ class Admonition(Entity):
 
     authors: list[Author] | None = None
     """The authors of the admonition."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the admonition."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1720,6 +1765,9 @@ class Heading(Entity):
     authors: list[Author] | None = None
     """The authors of the heading."""
 
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the heading."""
+
 
 @dataclass(kw_only=True, repr=False)
 class IfBlock(Executable):
@@ -1731,9 +1779,6 @@ class IfBlock(Executable):
 
     clauses: list[IfBlockClause]
     """The clauses making up the `IfBlock` node"""
-
-    authors: list[Author] | None = None
-    """The authors of the if block."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1881,6 +1926,9 @@ class List(Entity):
 
     authors: list[Author] | None = None
     """The authors of the list."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the list."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2062,6 +2110,9 @@ class Paragraph(Entity):
     authors: list[Author] | None = None
     """The authors of the paragraph."""
 
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of content within the paragraph."""
+
 
 @dataclass(kw_only=True, repr=False)
 class Periodical(CreativeWork):
@@ -2184,6 +2235,24 @@ class PropertyValue(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
+class ProvenanceCount(Entity):
+    """
+    The count of the number of characters in a `ProvenanceCategory` within an entity.
+    """
+
+    type: Literal["ProvenanceCount"] = "ProvenanceCount"
+
+    provenance_category: ProvenanceCategory
+    """The provenance category that the character count applies to."""
+
+    character_count: UnsignedInteger
+    """The number of characters in the provenance category."""
+
+    character_percent: UnsignedInteger | None = None
+    """The percentage of characters in the provenance category."""
+
+
+@dataclass(kw_only=True, repr=False)
 class PublicationIssue(CreativeWork):
     """
     A part of a successively published publication such as a periodical or publication volume, often numbered.
@@ -2241,6 +2310,9 @@ class QuoteBlock(Entity):
 
     authors: list[Author] | None = None
     """The authors of the quote."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the section."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2310,6 +2382,9 @@ class Section(Entity):
 
     authors: list[Author] | None = None
     """The authors of the section."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the section."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2484,9 +2559,6 @@ class Table(CreativeWork):
     """
 
     type: Literal["Table"] = "Table"
-
-    authors: list[Author] | None = None
-    """The authors of the table."""
 
     label: str | None = None
     """A short label for the table."""
@@ -2970,6 +3042,7 @@ Node = Union[
     PostalAddress,
     Product,
     PropertyValue,
+    ProvenanceCount,
     PublicationIssue,
     PublicationVolume,
     QuoteBlock,
@@ -3073,6 +3146,7 @@ ThingType = Union[
     PostalAddress,
     Product,
     PropertyValue,
+    ProvenanceCategory,
     PublicationIssue,
     PublicationVolume,
     Review,

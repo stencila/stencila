@@ -3,6 +3,7 @@
 import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * A paragraph.
@@ -20,6 +21,11 @@ export class Paragraph extends Entity {
    * The authors of the paragraph.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of content within the paragraph.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(content: Inline[], options?: Partial<Paragraph>) {
     super();

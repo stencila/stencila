@@ -3,6 +3,7 @@
 import { Author } from "./Author.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
@@ -25,6 +26,11 @@ export class CodeStatic extends Entity {
    * The authors of the code.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the code.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(code: Cord, options?: Partial<CodeStatic>) {
     super();

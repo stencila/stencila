@@ -15,6 +15,7 @@ use super::inline::Inline;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -28,7 +29,7 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Claim")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[jats(elem = "statement")]
 pub struct Claim {
     /// The type of this item.
@@ -40,6 +41,21 @@ pub struct Claim {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// The authors of the `CreativeWork`.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "section")]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the work.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// The type of the claim.
     #[serde(alias = "claim-type", alias = "claim_type")]
@@ -131,14 +147,6 @@ pub struct ClaimOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
-
-    /// The authors of the `CreativeWork`.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
-    pub authors: Option<Vec<Author>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]

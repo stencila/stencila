@@ -7,6 +7,7 @@ use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::inline::Inline;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// Styled inline content.
@@ -17,7 +18,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "StyledInline")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(elem = "span")]
 #[jats(elem = "styled-content")]
 pub struct StyledInline {
@@ -50,6 +51,19 @@ pub struct StyledInline {
     #[jats(attr = "style-detail")]
     pub style_language: Option<String>,
 
+    /// The authors of the code and content in the styled node.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the code and content in the styed node.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
     /// The content within the span.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
@@ -78,13 +92,6 @@ pub struct StyledInline {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct StyledInlineOptions {
-    /// The authors of the styling code.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<Author>>,
-
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

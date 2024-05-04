@@ -16,7 +16,7 @@ use node_type::NodeProperty;
 
 use crate::{
     prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, Block, CordOp, Inline,
-    Node, SuggestionBlockType, SuggestionInlineType,
+    Node, ProvenanceCount, SuggestionBlockType, SuggestionInlineType,
 };
 
 /// Assign authorship to a node
@@ -99,6 +99,50 @@ impl PatchContext {
         let n = values.len() as f32;
         let sum = values.into_iter().fold(0., |sum, v| sum + v);
         Ok(sum / n)
+    }
+
+    /// Update the provenance of a node
+    pub fn update_provenance(
+        provenance: &mut Option<Vec<ProvenanceCount>>,
+        children: Vec<Option<Vec<ProvenanceCount>>>,
+    ) {
+        // Aggregate counts from children
+        let mut new: Vec<ProvenanceCount> = Vec::new();
+        let mut sum: u64 = 0;
+        for child in children.into_iter().flatten().flatten() {
+            sum += child.character_count;
+            if let Some(entry) = new
+                .iter_mut()
+                .find(|count| count.provenance_category == child.provenance_category)
+            {
+                entry.character_count += child.character_count;
+            } else {
+                new.push(child);
+            }
+        }
+
+        // Calculate percentages
+        if sum > 0 {
+            for entry in new.iter_mut() {
+                entry.character_percent = Some(((entry.character_count * 100) / sum).min(100));
+            }
+        }
+
+        // Set the provenance if any. If no characters e.g. empty code chunk
+        // then return None
+        *provenance = if new.is_empty() || sum == 0 {
+            None
+        } else {
+            Some(new)
+        };
+    }
+
+    /// Flatten the results from calling provenance on several fields
+    pub fn flatten_provenance(
+        children: Vec<Option<Vec<ProvenanceCount>>>,
+    ) -> Option<Vec<ProvenanceCount>> {
+        let prov: Vec<ProvenanceCount> = children.into_iter().flatten().flatten().collect();
+        (!prov.is_empty()).then_some(prov)
     }
 
     /// Enter a property during the walk
@@ -467,6 +511,13 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
         Ok(())
     }
 
+    /// Get the provenance information for the node, if any
+    ///
+    /// This default returns nothing.
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        None
+    }
+
     /// Convert the node to a [`PatchValue`]
     ///
     /// This default implementation uses the fallback of marshalling to
@@ -671,6 +722,10 @@ where
         self.as_mut().authorship(context)
     }
 
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        self.as_ref().provenance()
+    }
+
     fn to_value(&self) -> Result<PatchValue> {
         self.as_ref().to_value()
     }
@@ -725,6 +780,10 @@ where
             Some(value) => value.authorship(context),
             None => Ok(()),
         }
+    }
+
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        self.as_ref().and_then(|value| value.provenance())
     }
 
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
@@ -793,6 +852,14 @@ where
         }
 
         Ok(())
+    }
+
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        let provenance: Vec<ProvenanceCount> = self
+            .iter()
+            .flat_map(|item| item.provenance().into_iter().flatten())
+            .collect();
+        (!provenance.is_empty()).then_some(provenance)
     }
 
     #[allow(unused_variables)]

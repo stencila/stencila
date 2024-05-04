@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::inline::Inline;
 use super::integer::Integer;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// A heading.
@@ -15,7 +16,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Heading")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(special)]
 #[jats(elem = "title", special)]
 pub struct Heading {
@@ -48,30 +49,23 @@ pub struct Heading {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(Inline::arbitrary(), size_range(0..=8))"#))]
     pub content: Vec<Inline>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<HeadingOptions>,
-
-    /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[serde(skip)]
-    pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct HeadingOptions {
     /// The authors of the heading.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the heading.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Heading {

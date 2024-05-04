@@ -59,8 +59,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     let is_options = struct_name.to_string().ends_with("Options");
     let mut has_options = false;
+    let mut has_provenance = false;
 
     let mut authorship_fields = TokenStream::new();
+    let mut provenance_fields = TokenStream::new();
     let mut similarity_fields = TokenStream::new();
     let mut diff_fields = TokenStream::new();
     let mut patch_fields = TokenStream::new();
@@ -81,15 +83,29 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return;
         }
 
+        // Provenance should not need to be patched etc
+        if field_name == "provenance" {
+            has_provenance = true;
+            return;
+        }
+
         let property = Ident::new(
             &field_name.to_string().replace("r#", "").to_pascal_case(),
             Span::call_site(),
         );
 
-        // Authorship and application of patches is implemented for all fields
-        authorship_fields.extend(quote! {
-            self.#field_name.authorship(context)?;
-        });
+        // Do no apply authorship and provenance to any `authors` field (e.g. on SoftwareApplication)
+        // and other common, atomic properties
+        if field_name != "id" && field_name != "authors" {
+            authorship_fields.extend(quote! {
+                self.#field_name.authorship(context)?;
+            });
+            provenance_fields.extend(quote! {
+                self.#field_name.provenance(),
+            });
+        }
+
+        // Application of patches is implemented for all fields
         patch_fields.extend(quote! {
             if self.#field_name.patch(patch, context)? {
                 return Ok(true);
@@ -117,7 +133,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         }
     });
 
-    let update_release_authors = |overwrite: bool| {
+    let call_update_and_release_authors = |overwrite: bool| {
         if let Some(authors_on) = &type_attr.authors_on {
             let authors = if authors_on == "options" {
                 quote! { self.options.authors }
@@ -140,15 +156,49 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         }
     };
 
+    let call_update_provenance = if has_provenance && !provenance_fields.is_empty() {
+        quote! {
+            PatchContext::update_provenance(&mut self.provenance, vec![
+                #provenance_fields
+            ]);
+        }
+    } else {
+        TokenStream::new()
+    };
+
     let authorship = if !authorship_fields.is_empty() {
-        let (update_authors, release_authors) = update_release_authors(true);
+        let (call_update_authors, call_release_authors) = call_update_and_release_authors(true);
         quote! {
             fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
-                #update_authors
+                #call_update_authors
+
                 #authorship_fields
-                #release_authors
+
+                #call_release_authors
+                #call_update_provenance
 
                 Ok(())
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
+
+    let provenance = if has_provenance {
+        // The struct has provence so pass that up
+        quote! {
+            fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+                self.provenance.clone()
+            }
+        }
+    } else if !provenance_fields.is_empty() {
+        // The struct has fields that potentially have provenance
+        // so flatten those and pass up
+        quote! {
+            fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+                PatchContext::flatten_provenance(vec![
+                    #provenance_fields
+                ])
             }
         }
     } else {
@@ -213,7 +263,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let apply = {
-        let (update_authors, release_authors) = update_release_authors(false);
+        let (call_update_authors, call_release_authors) = call_update_and_release_authors(false);
 
         let unmatched_field = if has_options {
             // Put the property back on to the path and try in options
@@ -235,14 +285,15 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     bail!("Invalid patch path for `{}`", stringify!(#struct_name));
                 };
 
-                #update_authors
+                #call_update_authors
 
                 match (property) {
                     #apply_fields
                     _ => #unmatched_field
                 }
 
-                #release_authors
+                #call_release_authors
+                #call_update_provenance
 
                 Ok(())
             }
@@ -252,6 +303,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     quote! {
         impl PatchNode for #struct_name {
             #authorship
+            #provenance
             #similarity
             #diff
             #patch
@@ -291,6 +343,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     };
 
     let mut authorship_variants = TokenStream::new();
+    let mut provenance_variants = TokenStream::new();
     let mut similarity_variants = TokenStream::new();
     let mut diff_variants = TokenStream::new();
     let mut patch_variants = TokenStream::new();
@@ -302,6 +355,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             Fields::Named(..) | Fields::Unnamed(..) => {
                 authorship_variants.extend(quote! {
                     Self::#variant_name(me) => me.authorship(context),
+                });
+                provenance_variants.extend(quote! {
+                    Self::#variant_name(me) => me.provenance(),
                 });
                 similarity_variants.extend(quote! {
                     (Self::#variant_name(me), Self::#variant_name(other)) => me.similarity(other, context),
@@ -319,6 +375,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             Fields::Unit => {
                 authorship_variants.extend(quote! {
                     Self::#variant_name => Ok(()),
+                });
+                provenance_variants.extend(quote! {
+                    Self::#variant_name => None,
                 });
                 similarity_variants.extend(quote! {
                     (Self::#variant_name, Self::#variant_name) => Ok(1.0),
@@ -341,6 +400,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
                 match self {
                     #authorship_variants
+                }
+            }
+
+            fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+                match self {
+                    #provenance_variants
                 }
             }
 
