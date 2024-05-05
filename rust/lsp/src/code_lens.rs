@@ -40,7 +40,7 @@ pub(crate) async fn request(
                 let lens = |command: &str| CodeLens {
                     range: *range,
                     command: None,
-                    data: Some(json!([command, uri, node_id])),
+                    data: Some(json!([command, uri, node_type, node_id])),
                 };
 
                 let mut lenses = match node_type {
@@ -72,7 +72,7 @@ pub(crate) async fn request(
                     lenses.push(CodeLens {
                         range: *range,
                         command: None,
-                        data: Some(json!([INSPECT_NODE, uri, node_id, desc])),
+                        data: Some(json!([INSPECT_NODE, uri, node_type, node_id, desc])),
                     });
                 }
 
@@ -99,14 +99,14 @@ pub(crate) async fn resolve(
         ));
     };
 
-    let Some((command, uri, node_id)) = data.next_tuple() else {
+    let Some((command, uri, node_type, node_id)) = data.next_tuple() else {
         return Err(ResponseError::new(
             ErrorCode::INVALID_REQUEST,
             "Expected three items in code lens data",
         ));
     };
 
-    let arguments = Some(vec![json!(uri), json!(node_id)]);
+    let arguments = Some(vec![json!(uri), json!(node_type), json!(node_id)]);
 
     let command = match command {
         RUN_NODE => Command::new(

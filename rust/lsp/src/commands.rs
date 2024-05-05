@@ -6,18 +6,21 @@ use std::{
         atomic::{AtomicI32, Ordering},
         Arc,
     },
+    time::Duration,
 };
 
 use async_lsp::{
     lsp_types::{
-        ExecuteCommandParams, MessageType, NumberOrString, Position, ProgressParams,
-        ProgressParamsValue, ShowMessageParams, WorkDoneProgress, WorkDoneProgressBegin,
-        WorkDoneProgressCancelParams, WorkDoneProgressCreateParams, WorkDoneProgressEnd,
-        WorkDoneProgressReport,
+        ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
+        NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
+        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
+        WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
+        WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
+use codecs::Format;
 use common::{
     eyre::Result,
     once_cell::sync::Lazy,
@@ -31,9 +34,9 @@ use common::{
 };
 use document::{Command, CommandNodes, Document};
 use node_execute::ExecuteOptions;
-use schema::NodeId;
+use schema::{NodeId, NodeType};
 
-use crate::{text_document::TextNode, ServerState};
+use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
@@ -88,25 +91,35 @@ pub(super) async fn execute_command(
     let mut args = arguments.into_iter();
     let uri = uri_arg(args.next())?;
 
-    let file_name = PathBuf::from(&uri)
+    let file_name = PathBuf::from(&uri.to_string())
         .file_name()
         .map_or_else(String::new, |name| name.to_string_lossy().to_string());
 
-    let command = match command.as_str() {
+    let (command, update) = match command.as_str() {
         RUN_NODE => {
+            let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
-            Command::ExecuteNodes(CommandNodes::new(vec![node_id], None))
+            (
+                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                matches!(
+                    node_type,
+                    NodeType::InstructionBlock | NodeType::InstructionInline
+                ),
+            )
         }
         RUN_CURR => {
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_at(position) {
-                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None))
+                (
+                    Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                    false,
+                )
             } else {
                 tracing::warn!("No node found at position {position:?}");
                 return Ok(None);
             }
         }
-        RUN_ALL_DOC => Command::ExecuteDocument(ExecuteOptions::default()),
+        RUN_ALL_DOC => (Command::ExecuteDocument(ExecuteOptions::default()), false),
         command => {
             return Err(ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
@@ -115,6 +128,7 @@ pub(super) async fn execute_command(
         }
     };
 
+    // Send the command to the document with a subscription to receive status updates
     let (command_id, mut status_receiver) = match doc.read().await.command_subscribe(command).await
     {
         Ok(receiver) => receiver,
@@ -129,13 +143,59 @@ pub(super) async fn execute_command(
         }
     };
 
+    // If necessary, create a task to update the text for the node when the command is finished
+    // TODO: this is not ideal because it does not handle case where nodes need to be updated after
+    // the whole document is run, and because it has to hackily wait for the final patch to be
+    // applied. Instead need to set up a patch watcher that allows us to watch for
+    // the node types and ids to which a patch was applied.
+    if update {
+        let mut status_receiver = status_receiver.resubscribe();
+        let mut client = client.clone();
+        tokio::spawn(async move {
+            while let Ok((id, status)) = status_receiver.recv().await {
+                if id == command_id && status.is_finished() {
+                    // Wait an arbitrary amount of time
+                    tokio::time::sleep(Duration::from_millis(100)).await;
+
+                    // Currently this applies a whole document formatting.
+                    // TODO: In the future this should be refined to only update the specific node.
+                    let edit = match format_doc(doc.clone(), Format::Markdown).await {
+                        Ok(edit) => edit,
+                        Err(error) => {
+                            tracing::error!("While formatting doc after command: {error}");
+                            continue;
+                        }
+                    };
+                    client
+                        .apply_edit(ApplyWorkspaceEditParams {
+                            edit: WorkspaceEdit {
+                                document_changes: Some(DocumentChanges::Edits(vec![
+                                    TextDocumentEdit {
+                                        text_document: OptionalVersionedTextDocumentIdentifier {
+                                            uri,
+                                            version: None,
+                                        },
+                                        edits: vec![OneOf::Left(edit)],
+                                    },
+                                ])),
+                                ..Default::default()
+                            },
+                            label: Some(format!("Update after completion")),
+                        })
+                        .await
+                        .ok();
+                    break;
+                }
+            }
+        });
+    }
+
+    // Create a progress notification and spawn a task to update it
     let progress_sender = create_progress(client, format!("Running {file_name}")).await;
     tokio::spawn(async move {
         while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id
-                && status.is_finished()
-                && progress_sender.send((100, None)).is_err()
-            {
+            if id == command_id && status.is_finished() {
+                progress_sender.send((100, None)).ok();
                 break;
             }
         }
@@ -145,12 +205,24 @@ pub(super) async fn execute_command(
 }
 
 /// Extract a document URI from a command arg
-pub(super) fn uri_arg(arg: Option<Value>) -> Result<String, ResponseError> {
-    arg.and_then(|value| value.as_str().map(String::from))
+pub(super) fn uri_arg(arg: Option<Value>) -> Result<Url, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| {
             ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
                 "Document URI argument missing or invalid".to_string(),
+            )
+        })
+}
+
+/// Extract a Stencila [`NodeType`] from a command arg
+fn node_type_arg(arg: Option<Value>) -> Result<NodeType, ResponseError> {
+    arg.and_then(|value| value.as_str().map(String::from))
+        .and_then(|node_id| NodeType::from_str(&node_id).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Node id argument missing or invalid".to_string(),
             )
         })
 }
