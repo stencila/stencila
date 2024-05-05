@@ -311,7 +311,10 @@ macro_rules! executable {
             fn inspect(&self, inspector: &mut Inspector) {
                 let execution = if let Some(execution_status) = &self.options.execution_status {
                     Some(TextNodeExecution{
-                        execution_status: execution_status.clone(),
+                        status: execution_status.clone(),
+                        duration: self.options.execution_duration.clone(),
+                        ended: self.options.execution_ended.clone(),
+                        messages: self.options.execution_messages.clone(),
                     })
                 } else {
                     None

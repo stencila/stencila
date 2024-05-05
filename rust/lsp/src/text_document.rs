@@ -21,7 +21,9 @@ use common::{
     tracing,
 };
 use document::Document;
-use schema::{ExecutionStatus, Node, NodeId, NodeType, Visitor};
+use schema::{
+    Duration, ExecutionMessage, ExecutionStatus, Node, NodeId, NodeType, Timestamp, Visitor,
+};
 
 use crate::{diagnostics, inspect::Inspector, ServerState};
 
@@ -56,7 +58,10 @@ pub(super) struct TextNode {
 
 #[derive(Debug, Clone)]
 pub(super) struct TextNodeExecution {
-    pub execution_status: ExecutionStatus,
+    pub status: ExecutionStatus,
+    pub duration: Option<Duration>,
+    pub ended: Option<Timestamp>,
+    pub messages: Option<Vec<ExecutionMessage>>,
 }
 
 impl Default for TextNode {
