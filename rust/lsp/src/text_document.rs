@@ -22,7 +22,8 @@ use common::{
 };
 use document::Document;
 use schema::{
-    Duration, ExecutionMessage, ExecutionStatus, Node, NodeId, NodeType, Timestamp, Visitor,
+    Duration, ExecutionMessage, ExecutionStatus, Node, NodeId, NodeType, ProvenanceCount,
+    Timestamp, Visitor,
 };
 
 use crate::{diagnostics, inspect::Inspector, ServerState};
@@ -49,8 +50,15 @@ pub(super) struct TextNode {
 
     /// Execution details (for executable nodes only)
     ///
-    /// These detail are used to publish diagnostics for the node
+    /// These detail are used to publish diagnostics and status
+    /// notifications for the node
     pub execution: Option<TextNodeExecution>,
+
+    /// Provenance details (for nodes with a `provenance` field)
+    ///
+    /// These detail are used to publish provenance summaries
+    /// for the node
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// The children of the node
     pub children: Vec<TextNode>,
@@ -72,6 +80,7 @@ impl Default for TextNode {
             node_id: NodeId::null(),
             detail: None,
             execution: None,
+            provenance: None,
             children: Vec::new(),
         }
     }

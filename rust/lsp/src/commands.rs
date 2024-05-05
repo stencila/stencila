@@ -50,9 +50,10 @@ pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 pub(super) const ACCEPT_NODE: &str = "stencila.accept_node";
 pub(super) const REJECT_NODE: &str = "stencila.reject_node";
 
-// This command is implemented on the client but included here
+// These commands are implemented on the client but included here
 // for us in the construction of code lenses
-pub(super) const INSPECT_NODE: &str = "stencila.inspect_node";
+pub(super) const VIEW_NODE: &str = "stencila.view-node";
+pub(super) const INSPECT_NODE: &str = "stencila.inspect-node";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
@@ -131,7 +132,10 @@ pub(super) async fn execute_command(
     let progress_sender = create_progress(client, format!("Running {file_name}")).await;
     tokio::spawn(async move {
         while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id && status.is_finished() && progress_sender.send((100, None)).is_err() {
+            if id == command_id
+                && status.is_finished()
+                && progress_sender.send((100, None)).is_err()
+            {
                 break;
             }
         }

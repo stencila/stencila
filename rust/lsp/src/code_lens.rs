@@ -12,7 +12,7 @@ use common::{itertools::Itertools, serde_json::json, tokio::sync::RwLock};
 use schema::NodeType;
 
 use crate::{
-    commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE},
+    commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE, VIEW_NODE},
     text_document::TextNode,
 };
 
@@ -29,11 +29,14 @@ pub(crate) async fn request(
         .read()
         .await
         .flatten()
+        // Do not create a code lens for the whole article
+        .filter(|node| !matches!(node.node_type, NodeType::Article))
         .flat_map(
             |TextNode {
                  range,
                  node_type,
                  node_id,
+                 provenance,
                  ..
              }| {
                 let lens = |command: &str| CodeLens {
@@ -42,7 +45,7 @@ pub(crate) async fn request(
                     data: Some(json!([command, uri, node_id])),
                 };
 
-                match node_type {
+                let mut lenses = match node_type {
                     // Executable block nodes
                     NodeType::CallBlock
                     | NodeType::CodeChunk
@@ -50,14 +53,32 @@ pub(crate) async fn request(
                     | NodeType::IfBlock
                     | NodeType::IncludeBlock
                     | NodeType::InstructionBlock => {
-                        vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(INSPECT_NODE)]
+                        vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(VIEW_NODE)]
                     }
                     // Block suggestions
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
-                        vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(INSPECT_NODE)]
+                        vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(VIEW_NODE)]
                     }
                     _ => vec![],
+                };
+
+                if let Some(provenance) = provenance {
+                    let desc = provenance
+                        .iter()
+                        .filter_map(|count| {
+                            count.character_percent.map(|percent| {
+                                format!("{}:{}%", count.provenance_category, percent)
+                            })
+                        })
+                        .join(" ");
+                    lenses.push(CodeLens {
+                        range: *range,
+                        command: None,
+                        data: Some(json!([INSPECT_NODE, uri, node_id, desc])),
+                    });
                 }
+
+                lenses
             },
         )
         .collect();
@@ -69,7 +90,7 @@ pub(crate) async fn request(
 pub(crate) async fn resolve(
     CodeLens { range, data, .. }: CodeLens,
 ) -> Result<CodeLens, ResponseError> {
-    let Some(data) = data
+    let Some(mut data) = data
         .as_ref()
         .and_then(|value| value.as_array())
         .map(|array| array.iter().filter_map(|value| value.as_str()))
@@ -80,7 +101,7 @@ pub(crate) async fn resolve(
         ));
     };
 
-    let Some((command, uri, node_id)) = data.collect_tuple() else {
+    let Some((command, uri, node_id)) = data.next_tuple() else {
         return Err(ResponseError::new(
             ErrorCode::INVALID_REQUEST,
             "Expected three items in code lens data",
@@ -110,8 +131,13 @@ pub(crate) async fn resolve(
             "stencila.reject-node".to_string(),
             arguments,
         ),
+        VIEW_NODE => Command::new(
+            "$(eye) View".to_string(),
+            "stencila.view-node".to_string(),
+            arguments,
+        ),
         INSPECT_NODE => Command::new(
-            "$(search) Inspect".to_string(),
+            format!("$(search) {prov}", prov = data.next().unwrap_or_default()),
             "stencila.inspect-node".to_string(),
             arguments,
         ),

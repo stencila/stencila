@@ -81,27 +81,33 @@ function registerCommands(context: vscode.ExtensionContext) {
 
   // Commands that are handled entirely by the client
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      `stencila.inspect-node`,
-      (nodeType, nodeId) => {
-        const panel = vscode.window.createWebviewPanel(
-          "inspect-node",
-          nodeType,
-          vscode.ViewColumn.Beside,
-          { enableScripts: true }
-        );
-        panel.iconPath; // TODO: Set this to a the icon for the nodeType
-        panel.webview.html = `<!DOCTYPE html>
+    vscode.commands.registerCommand(`stencila.view-node`, (uri, nodeId) => {
+      const panel = vscode.window.createWebviewPanel(
+        "view-node",
+        uri,
+        vscode.ViewColumn.Beside,
+        { enableScripts: true }
+      );
+      panel.iconPath; // TODO: Set this to a the icon for the nodeType
+      panel.webview.html = `<!DOCTYPE html>
         <html lang="en">
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Inspect Node</title>
+              <title>View Node</title>
           </head>
           <body style="background: white;">
             TODO: Load node "${nodeId}" as WebComponent from WebSocket server
           </body>
         </html>`;
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `stencila.inspect-node`,
+      async (uri, nodeId) => {
+        // TODO: open webview with authors and provenance shown
       }
     )
   );
@@ -214,6 +220,7 @@ const runningDecoration = vscode.window.createTextEditorDecorationType({
 });
 
 const succeededDecoration = vscode.window.createTextEditorDecorationType({
+  // TODO: check these colors
   // Green indicator in overview ruler
   // Use the right lane because it is for diagnostics
   overviewRulerColor: "#28a31f",
@@ -238,7 +245,7 @@ const succeededDecoration = vscode.window.createTextEditorDecorationType({
  * Register subscriptions to notifications from the language server
  */
 function registerSubscriptions(client: LanguageClient) {
-  // Handling status notifications
+  // Handle status notifications
   client.onNotification(
     "stencila/publishStatus",
     ({ uri, statuses }: { uri: string; statuses: Status[] }) => {

@@ -8,9 +8,10 @@ use schema::{
     Emphasis, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
     Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, Link, List, ListItem,
     MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note,
-    Paragraph, Parameter, QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout,
-    Strong, StyledBlock, StyledInline, Subscript, Superscript, Table, TableCell, TableRow, Text,
-    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Paragraph, Parameter, ProvenanceCount, QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline,
+    Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, Superscript, Table,
+    TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor,
+    WalkControl,
 };
 
 use crate::{
@@ -50,6 +51,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         node_id: NodeId,
         detail: Option<String>,
         execution: Option<TextNodeExecution>,
+        provenance: Option<Vec<ProvenanceCount>>,
     ) {
         if let Some(range) = self.poshmap.node_id_to_range16(&node_id) {
             self.stack.push(TextNode {
@@ -58,6 +60,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
                 node_id,
                 detail,
                 execution,
+                provenance,
                 children: Vec::new(),
             })
         }
@@ -171,7 +174,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
-        self.enter_node(clause.node_type(), clause.node_id(), None, None);
+        self.enter_node(clause.node_type(), clause.node_id(), None, None, None);
         self.visit(&clause.content);
         self.exit_node();
 
@@ -179,7 +182,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
-        self.enter_node(list_item.node_type(), list_item.node_id(), None, None);
+        self.enter_node(list_item.node_type(), list_item.node_id(), None, None, None);
         self.visit(&list_item.content);
         self.exit_node();
 
@@ -187,7 +190,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
-        self.enter_node(table_row.node_type(), table_row.node_id(), None, None);
+        self.enter_node(table_row.node_type(), table_row.node_id(), None, None, None);
         self.visit(&table_row.cells);
         self.exit_node();
 
@@ -195,7 +198,13 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
-        self.enter_node(table_cell.node_type(), table_cell.node_id(), None, None);
+        self.enter_node(
+            table_cell.node_type(),
+            table_cell.node_id(),
+            None,
+            None,
+            None,
+        );
         self.visit(&table_cell.content);
         self.exit_node();
 
@@ -209,13 +218,25 @@ trait Inspect {
 
 impl Inspect for Article {
     fn inspect(&self, inspector: &mut Inspector) {
+        let execution = if let Some(execution_status) = &self.options.execution_status {
+            Some(TextNodeExecution {
+                status: execution_status.clone(),
+                duration: self.options.execution_duration.clone(),
+                ended: self.options.execution_ended.clone(),
+                messages: self.options.execution_messages.clone(),
+            })
+        } else {
+            None
+        };
+
         // Set this as the root node that others will become children of
         inspector.stack.push(TextNode {
             range: Range::default(),
             node_type: self.node_type(),
             node_id: self.node_id(),
             detail: None,
-            execution: None, // TODO
+            execution,
+            provenance: self.provenance.clone(),
             children: Vec::new(),
         });
 
@@ -229,7 +250,7 @@ macro_rules! default {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                inspector.enter_node(self.node_type(), self.node_id(), None, None);
+                inspector.enter_node(self.node_type(), self.node_id(), None, None, None);
                 inspector.visit(self);
                 inspector.exit_node();
             }
@@ -293,8 +314,9 @@ macro_rules! contented {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
                 let detail = self.content.first().map(|first| first.to_text().0);
+                let provenance = self.provenance.clone();
 
-                inspector.enter_node(self.node_type(), self.node_id(), detail, None);
+                inspector.enter_node(self.node_type(), self.node_id(), detail, None, provenance);
                 inspector.visit(self);
                 inspector.exit_node();
             }
@@ -320,7 +342,35 @@ macro_rules! executable {
                     None
                 };
 
-                inspector.enter_node(self.node_type(), self.node_id(), None, execution);
+                inspector.enter_node(self.node_type(), self.node_id(), None, execution, None);
+                inspector.visit(self);
+                inspector.exit_node();
+            }
+        })*
+    };
+}
+
+executable!(CallBlock, ForBlock, IfBlock, IncludeBlock, Parameter);
+
+/// Implementation for executable nodes with provenance
+macro_rules! executable {
+    ($( $type:ident ),*) => {
+        $(impl Inspect for $type {
+            fn inspect(&self, inspector: &mut Inspector) {
+                let execution = if let Some(execution_status) = &self.options.execution_status {
+                    Some(TextNodeExecution{
+                        status: execution_status.clone(),
+                        duration: self.options.execution_duration.clone(),
+                        ended: self.options.execution_ended.clone(),
+                        messages: self.options.execution_messages.clone(),
+                    })
+                } else {
+                    None
+                };
+
+                let provenance = self.provenance.clone();
+
+                inspector.enter_node(self.node_type(), self.node_id(), None, execution, provenance);
                 inspector.visit(self);
                 inspector.exit_node();
             }
@@ -329,13 +379,8 @@ macro_rules! executable {
 }
 
 executable!(
-    CallBlock,
     CodeChunk,
     CodeExpression,
-    ForBlock,
-    IfBlock,
-    IncludeBlock,
     InstructionBlock,
-    InstructionInline,
-    Parameter
+    InstructionInline
 );

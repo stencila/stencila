@@ -56,16 +56,15 @@ pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket
         }
     }
 
-    // Publish any diagnostics
+    // Publish diagnostics. This intentionally publishes an empty set so as to clear
+    // any existing diagnostics.
     let diagnostics = diagnostics(text_node);
-    if !diagnostics.is_empty() {
-        if let Err(error) = client.publish_diagnostics(PublishDiagnosticsParams {
-            uri: uri.clone(),
-            diagnostics,
-            version: None,
-        }) {
-            tracing::error!("While publishing diagnostics: {error}");
-        }
+    if let Err(error) = client.publish_diagnostics(PublishDiagnosticsParams {
+        uri: uri.clone(),
+        diagnostics,
+        version: None,
+    }) {
+        tracing::error!("While publishing diagnostics: {error}");
     }
 }
 
