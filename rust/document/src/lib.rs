@@ -105,6 +105,12 @@ pub struct CommandNodes {
     scope: Option<CommandScope>,
 }
 
+impl CommandNodes {
+    pub fn new(node_ids: Vec<NodeId>, scope: Option<CommandScope>) -> Self {
+        Self { node_ids, scope }
+    }
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", crate = "common::serde")]
 pub enum CommandScope {
@@ -131,7 +137,7 @@ pub enum CommandStatus {
 }
 
 impl CommandStatus {
-    fn is_finished(&self) -> bool {
+    pub fn is_finished(&self) -> bool {
         use CommandStatus::*;
         matches!(self, Ignored | Succeeded | Failed | Interrupted)
     }
@@ -360,23 +366,46 @@ impl Document {
         }
     }
 
-    pub async fn update(&self, node: Node) -> Result<()> {
-        self.update_sender.send(node).await?;
+    /// Subscribe to updates to the document's root node
+    pub fn watch(&self) -> watch::Receiver<Node> {
+        self.watch_receiver.clone()
+    }
 
-        Ok(())
+    /// Update the root node of the document
+    pub async fn update(&self, node: Node) -> Result<()> {
+        Ok(self.update_sender.send(node).await?)
+    }
+
+    /// Perform a command on the document
+    #[tracing::instrument(skip(self))]
+    pub async fn command(&self, command: Command) -> Result<()> {
+        tracing::trace!("Performing document command");
+        Ok(self.command_sender.send((command, 0)).await?)
+    }
+
+    /// Perform a command on the document and obtain a command id and
+    /// a receiver to receive updates on its status
+    #[tracing::instrument(skip(self))]
+    pub async fn command_subscribe(
+        &self,
+        command: Command,
+    ) -> Result<(u64, DocumentCommandStatusReceiver)> {
+        tracing::trace!("Performing document command and returning status subscription");
+
+        let command_id: u64 = self
+            .command_counter
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let status_receiver = self.command_status_receiver.resubscribe();
+
+        self.command_sender.send((command, command_id)).await?;
+
+        Ok((command_id, status_receiver))
     }
 
     /// Perform a command on the document and optionally wait for it to complete
     #[tracing::instrument(skip(self))]
-    pub async fn command(&self, command: Command, wait: bool) -> Result<()> {
-        tracing::trace!("Performing document command");
-
-        // If not waiting then just send the command and return
-        if !wait {
-            self.command_sender.send((command, 0)).await?;
-
-            return Ok(());
-        }
+    pub async fn command_wait(&self, command: Command) -> Result<()> {
+        tracing::trace!("Performing document command and waiting for it to finish");
 
         // Set up things to be able to wait for completion
         let command_id: u64 = self
@@ -399,7 +428,7 @@ impl Document {
         // store (e.g. updating execution status etc). Currently we have no
         // way to know when that is complete, so this this just sleeps for a bit
         // in the hope that this will be long enough.
-        sleep(Duration::from_millis(50)).await;
+        sleep(Duration::from_millis(100)).await;
 
         Ok(())
     }
@@ -408,13 +437,21 @@ impl Document {
     #[tracing::instrument(skip(self))]
     pub async fn compile(&self, wait: bool) -> Result<()> {
         tracing::trace!("Compiling document");
-        self.command(Command::CompileDocument, wait).await
+        let command = Command::CompileDocument;
+        match wait {
+            false => self.command(command).await,
+            true => self.command_wait(command).await,
+        }
     }
 
     /// Execute the document
     #[tracing::instrument(skip(self))]
     pub async fn execute(&self, options: ExecuteOptions, wait: bool) -> Result<()> {
         tracing::trace!("Executing document");
-        self.command(Command::ExecuteDocument(options), wait).await
+        let command = Command::ExecuteDocument(options);
+        match wait {
+            false => self.command(command).await,
+            true => self.command_wait(command).await,
+        }
     }
 }
