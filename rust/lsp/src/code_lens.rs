@@ -29,8 +29,6 @@ pub(crate) async fn request(
         .read()
         .await
         .flatten()
-        // Do not create a code lens for the whole article
-        .filter(|node| !matches!(node.node_type, NodeType::Article))
         .flat_map(
             |TextNode {
                  range,

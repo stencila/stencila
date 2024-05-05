@@ -218,25 +218,16 @@ trait Inspect {
 
 impl Inspect for Article {
     fn inspect(&self, inspector: &mut Inspector) {
-        let execution = if let Some(execution_status) = &self.options.execution_status {
-            Some(TextNodeExecution {
-                status: execution_status.clone(),
-                duration: self.options.execution_duration.clone(),
-                ended: self.options.execution_ended.clone(),
-                messages: self.options.execution_messages.clone(),
-            })
-        } else {
-            None
-        };
-
         // Set this as the root node that others will become children of
         inspector.stack.push(TextNode {
             range: Range::default(),
             node_type: self.node_type(),
             node_id: self.node_id(),
             detail: None,
-            execution,
-            provenance: self.provenance.clone(),
+            // Do not collect execution details or provenance because
+            // we do not want these displayed on the first line in code lenses etc
+            execution: None,
+            provenance: None,
             children: Vec::new(),
         });
 
