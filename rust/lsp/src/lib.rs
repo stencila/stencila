@@ -6,7 +6,7 @@ mod code_lens;
 mod commands;
 mod completion;
 mod diagnostics;
-mod document_symbol;
+mod symbols;
 mod inspect;
 mod lifecycle;
 mod run;
