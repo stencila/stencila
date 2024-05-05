@@ -6,10 +6,11 @@ mod code_lens;
 mod commands;
 mod completion;
 mod diagnostics;
-mod symbols;
+mod formatting;
 mod inspect;
 mod lifecycle;
 mod run;
+mod symbols;
 mod text_document;
 mod utils;
 

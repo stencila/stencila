@@ -45,6 +45,7 @@ pub(super) async fn initialize(
                 commands: commands::commands(),
                 ..Default::default()
             }),
+            document_formatting_provider: Some(OneOf::Left(true)),
             ..ServerCapabilities::default()
         },
     })

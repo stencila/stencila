@@ -11,7 +11,7 @@ use tower::ServiceBuilder;
 use common::{serde_json, tracing};
 
 use crate::{
-    code_lens, commands, completion, document_symbol, lifecycle, text_document, ServerState,
+    code_lens, commands, completion, formatting, lifecycle, symbols, text_document, ServerState,
 };
 
 /// Run the language server
@@ -40,7 +40,7 @@ pub async fn run() {
                 .map(|text_doc| text_doc.root.clone());
             async move {
                 match root {
-                    Some(root) => document_symbol::request(root).await,
+                    Some(root) => symbols::request(root).await,
                     None => Ok(None),
                 }
             }
@@ -94,6 +94,21 @@ pub async fn run() {
                 }
             })
             .notification::<notification::WorkDoneProgressCancel>(commands::cancel_progress);
+
+        router.request::<request::Formatting, _>(|state, params| {
+            let uri = params.text_document.uri;
+            let doc = state
+                .documents
+                .get(&uri)
+                .map(|text_doc| text_doc.doc.clone());
+            let client = state.client.clone();
+            async move {
+                match doc {
+                    Some(doc) => formatting::request(doc, client).await,
+                    None => Ok(None),
+                }
+            }
+        });
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())
