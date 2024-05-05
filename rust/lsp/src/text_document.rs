@@ -7,22 +7,23 @@ use std::{ops::ControlFlow, sync::Arc};
 use async_lsp::{
     lsp_types::{
         DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-        DidSaveTextDocumentParams, Position, Range,
+        DidSaveTextDocumentParams, Position, Range, Url,
     },
-    Error,
+    ClientSocket, Error,
 };
 
-use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format, Positions};
+use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format};
 use common::{
     tokio::{
         self,
-        sync::{mpsc, RwLock},
+        sync::{mpsc, watch, RwLock},
     },
     tracing,
 };
-use schema::{NodeId, NodeType, Visitor};
+use document::Document;
+use schema::{ExecutionStatus, Node, NodeId, NodeType, Visitor};
 
-use crate::{inspect::Inspector, utils::position_to_position16, ServerState};
+use crate::{diagnostics, inspect::Inspector, ServerState};
 
 /// A Stencila `Node` within a `TextDocument`
 ///
@@ -40,10 +41,22 @@ pub(super) struct TextNode {
     pub node_id: NodeId,
 
     /// A string detail of the node
+    ///
+    /// Used when creating a document symbol for the node.
     pub detail: Option<String>,
+
+    /// Execution details (for executable nodes only)
+    ///
+    /// These detail are used to publish diagnostics for the node
+    pub execution: Option<TextNodeExecution>,
 
     /// The children of the node
     pub children: Vec<TextNode>,
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct TextNodeExecution {
+    pub execution_status: ExecutionStatus,
 }
 
 impl Default for TextNode {
@@ -53,6 +66,7 @@ impl Default for TextNode {
             node_type: NodeType::Article,
             node_id: NodeId::null(),
             detail: None,
+            execution: None,
             children: Vec::new(),
         }
     }
@@ -86,6 +100,21 @@ impl<'a> Iterator for TextNodeIterator<'a> {
 }
 
 impl TextNode {
+    /// Get the node a position (if any)
+    pub fn node_id_at(&self, position: Position) -> Option<NodeId> {
+        if position >= self.range.start && position < self.range.end {
+            return Some(self.node_id.clone());
+        }
+
+        for child in &self.children {
+            if let Some(node_id) = child.node_id_at(position) {
+                return Some(node_id);
+            }
+        }
+
+        None
+    }
+
     /// Get the node and it descendants as a list
     pub fn flatten(&self) -> TextNodeIterator {
         TextNodeIterator::new(self)
@@ -95,88 +124,112 @@ impl TextNode {
 /// A text document that has been opened by the language server
 pub(super) struct TextDocument {
     /// The source text of the document e.g. Markdown
-    source: String,
+    pub source: Arc<RwLock<String>>,
+
+    /// The root node in the text document
+    ///
+    /// This is updated in the `update_task`.
+    pub root: Arc<RwLock<TextNode>>,
+
+    /// The Stencila document for the text document
+    ///
+    /// This is also updated in the `update_task`.
+    pub doc: Arc<RwLock<Document>>,
 
     /// A sender to the `update_task`
     ///
-    /// This is an `UnboundedSender` to that updates can be sent from
-    ///
-    sender: mpsc::UnboundedSender<String>,
-
-    /// The nodes in the text document
-    ///
-    /// This is updated in the `update_task`
-    pub root: Arc<RwLock<TextNode>>,
+    /// Sends new source to the `update_task`. This is an `UnboundedSender`
+    /// so that updates can be sent from sync functions
+    update_sender: mpsc::UnboundedSender<String>,
 }
 
 impl TextDocument {
     /// Create a new text document with an initial source
-    fn new(source: String) -> Self {
-        let (sender, receiver) = mpsc::unbounded_channel();
-        let root = Arc::new(RwLock::new(TextNode::default()));
+    fn new(uri: Url, source: String, client: ClientSocket) -> Self {
+        let doc = Document::new().unwrap(); // TODO: no unwrap
 
-        let root_clone = root.clone();
+        let watch_receiver = doc.watch();
+
+        let source_string = source.clone();
+
+        let source = Arc::new(RwLock::new(source));
+        let root = Arc::new(RwLock::new(TextNode::default()));
+        let doc = Arc::new(RwLock::new(doc));
+
+        let (update_sender, update_receiver) = mpsc::unbounded_channel();
+        let source_clone = source.clone();
+        let doc_clone = doc.clone();
         tokio::spawn(async {
-            Self::update_task(receiver, root_clone).await;
+            Self::update_task(update_receiver, source_clone, doc_clone).await;
         });
 
-        if let Err(error) = sender.send(source.clone()) {
+        let source_clone = source.clone();
+        let root_clone = root.clone();
+        tokio::spawn(async move {
+            Self::watch_task(watch_receiver, uri, source_clone, root_clone, client).await;
+        });
+
+        if let Err(error) = update_sender.send(source_string) {
             tracing::error!("While sending initial source: {error}");
         }
 
-        Self {
+        TextDocument {
             source,
-            sender,
             root,
+            doc,
+            update_sender,
         }
     }
 
-    /// Get the source before a position
-    pub fn source_before(&self, position: Position) -> String {
-        let positions = Positions::new(&self.source);
-
-        let end = positions
-            .index_at_position16(position_to_position16(position))
-            .unwrap_or_else(|| self.source.chars().count());
-
-        let start = end.saturating_sub(100);
-        let take = end - start;
-
-        self.source.chars().skip(start).take(take).collect()
-    }
-
-    /// Update the text document with new text content
-    fn update(&mut self, source: String) {
-        self.source = source.clone();
-        if let Err(error) = self.sender.send(source) {
-            tracing::error!("While sending updated source: {error}");
-        }
-    }
-
-    /// The async background task which updates the document and inspects it to
-    /// enumerate nodes, diagnostics etc
+    /// An async background task which updates the source and
+    /// the Stencila document
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<String>,
-        root: Arc<RwLock<TextNode>>,
+        source: Arc<RwLock<String>>,
+        doc: Arc<RwLock<Document>>,
     ) {
-        while let Some(source) = receiver.recv().await {
-            // Take a write lock on the root node so that readers can not read
-            // until the update is finished
-            let mut root = root.write().await;
+        while let Some(new_source) = receiver.recv().await {
+            // Update the source
+            *source.write().await = new_source.clone();
 
             // Decode the document
-            let node = codecs::from_str(
-                &source,
+            let node = match codecs::from_str(
+                &new_source,
                 Some(DecodeOptions {
                     format: Some(Format::Markdown),
                     ..Default::default()
                 }),
             )
             .await
-            .unwrap(); // TODO: record diagnostic if this fails
+            {
+                Ok(node) => node,
+                Err(error) => {
+                    tracing::error!("While decoding document: {error}");
+                    continue;
+                }
+            };
+
+            // Update the Stencila document with the new node
+            let doc = doc.write().await;
+            if let Err(error) = doc.update(node.clone()).await {
+                tracing::error!("While updating node: {error}");
+            }
+        }
+    }
+
+    /// An async background task that watches the document
+    async fn watch_task(
+        mut receiver: watch::Receiver<Node>,
+        uri: Url,
+        source: Arc<RwLock<String>>,
+        root: Arc<RwLock<TextNode>>,
+        mut client: ClientSocket,
+    ) {
+        while receiver.changed().await.is_ok() {
+            let node = receiver.borrow_and_update().clone();
 
             // Encode the document to get generated content and mapping
-            let (generated, EncodeInfo { mapping, .. }) = codecs::to_string_with_info(
+            let (generated, EncodeInfo { mapping, .. }) = match codecs::to_string_with_info(
                 &node,
                 Some(EncodeOptions {
                     format: Some(Format::Markdown),
@@ -184,15 +237,23 @@ impl TextDocument {
                 }),
             )
             .await
-            .unwrap(); // TODO: record diagnostic if this fails
+            {
+                Ok(node) => node,
+                Err(error) => {
+                    tracing::error!("While encoding document: {error}");
+                    continue;
+                }
+            };
 
-            // Walk the node to enumerate nodes and diagnostics within it
+            // Walk the node to collect nodes and diagnostics
+            let source = source.read().await;
             let mut inspector = Inspector::new(&source, &generated, mapping);
             inspector.visit(&node);
 
-            // Update the document's nodes etc
-            if let Some(node) = inspector.root() {
-                *root = node;
+            // Publish diagnostics and update the root TextNode
+            if let Some(text_node) = inspector.root() {
+                diagnostics::publish(&uri, &text_node, &mut client);
+                *root.write().await = text_node;
             }
         }
     }
@@ -203,9 +264,11 @@ pub(super) fn did_open(
     state: &mut ServerState,
     params: DidOpenTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
+    let uri = params.text_document.uri;
+    let source = params.text_document.text;
     state.documents.insert(
-        params.text_document.uri.to_string(),
-        TextDocument::new(params.text_document.text),
+        uri.clone(),
+        TextDocument::new(uri, source, state.client.clone()),
     );
 
     ControlFlow::Continue(())
@@ -216,11 +279,14 @@ pub(super) fn did_change(
     state: &mut ServerState,
     params: DidChangeTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
-    let uri = params.text_document.uri.to_string();
+    let uri = params.text_document.uri;
     if let Some(doc) = state.documents.get_mut(&uri) {
         // TODO: This assumes a whole document change (with TextDocumentSyncKind::FULL in initialize):
         // needs more defensiveness and potentially implement incremental sync
-        doc.update(params.content_changes[0].text.clone());
+        let source = params.content_changes[0].text.clone();
+        if let Err(error) = doc.update_sender.send(source) {
+            tracing::error!("While sending updated source: {error}");
+        }
     } else {
         tracing::warn!("Unknown document `${uri}`")
     }
@@ -241,9 +307,7 @@ pub(super) fn did_close(
     state: &mut ServerState,
     params: DidCloseTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
-    state
-        .documents
-        .remove(&params.text_document.uri.to_string());
+    state.documents.remove(&params.text_document.uri);
 
     ControlFlow::Continue(())
 }

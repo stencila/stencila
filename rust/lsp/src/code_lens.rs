@@ -2,11 +2,13 @@
 //!
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeLens
 
+use std::sync::Arc;
+
 use async_lsp::{
-    lsp_types::{CodeLens, Command},
+    lsp_types::{CodeLens, Command, Url},
     ErrorCode, ResponseError,
 };
-use common::{itertools::Itertools, serde_json::json};
+use common::{itertools::Itertools, serde_json::json, tokio::sync::RwLock};
 use schema::NodeType;
 
 use crate::{
@@ -19,8 +21,13 @@ use crate::{
 /// Note that, as recommended for performance reasons, this function returns
 /// code lenses without a `command` but with `data` which is used to "resolve"
 /// the command in the `resolve` handler below
-pub(crate) async fn request(root: &TextNode) -> Result<Option<Vec<CodeLens>>, ResponseError> {
+pub(crate) async fn request(
+    uri: Url,
+    root: Arc<RwLock<TextNode>>,
+) -> Result<Option<Vec<CodeLens>>, ResponseError> {
     let code_lenses = root
+        .read()
+        .await
         .flatten()
         .flat_map(
             |TextNode {
@@ -32,7 +39,7 @@ pub(crate) async fn request(root: &TextNode) -> Result<Option<Vec<CodeLens>>, Re
                 let lens = |command: &str| CodeLens {
                     range: *range,
                     command: None,
-                    data: Some(json!([command, node_type, node_id])),
+                    data: Some(json!([command, uri, node_id])),
                 };
 
                 match node_type {
@@ -73,38 +80,40 @@ pub(crate) async fn resolve(
         ));
     };
 
-    let Some((command, node_type, node_id)) = data.collect_tuple() else {
+    let Some((command, uri, node_id)) = data.collect_tuple() else {
         return Err(ResponseError::new(
             ErrorCode::INVALID_REQUEST,
             "Expected three items in code lens data",
         ));
     };
 
+    let arguments = Some(vec![json!(uri), json!(node_id)]);
+
     let command = match command {
         RUN_NODE => Command::new(
             "$(run) Run".to_string(),
             "stencila.run-node".to_string(),
-            Some(vec![json!(node_id)]),
+            arguments,
         ),
         CANCEL_NODE => Command::new(
             "$(stop-circle) Cancel".to_string(),
             "stencila.cancel-node".to_string(),
-            Some(vec![json!(node_id)]),
+            arguments,
         ),
         ACCEPT_NODE => Command::new(
             "$(thumbsup) Accept".to_string(),
             "stencila.accept-node".to_string(),
-            Some(vec![json!(node_id)]),
+            arguments,
         ),
         REJECT_NODE => Command::new(
             "$(thumbsdown) Reject".to_string(),
             "stencila.reject-node".to_string(),
-            Some(vec![json!(node_id)]),
+            arguments,
         ),
         INSPECT_NODE => Command::new(
             "$(search) Inspect".to_string(),
             "stencila.inspect-node".to_string(),
-            Some(vec![json!(node_type), json!(node_id)]),
+            arguments,
         ),
         _ => {
             return Err(ResponseError::new(

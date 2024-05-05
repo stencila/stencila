@@ -2,19 +2,22 @@
 //!
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_documentSymbol
 
+use std::sync::Arc;
+
 use async_lsp::{
     lsp_types::{DocumentSymbol, DocumentSymbolResponse, SymbolKind},
     ResponseError,
 };
+use common::tokio::sync::RwLock;
 use schema::NodeType;
 
 use crate::text_document::TextNode;
 
 /// Handle a request for document symbols
 pub(crate) async fn request(
-    root: &TextNode,
+    root: Arc<RwLock<TextNode>>,
 ) -> Result<Option<DocumentSymbolResponse>, ResponseError> {
-    let symbols = symbol(root)
+    let symbols = symbol(&*root.read().await)
         .and_then(|symbol| symbol.children)
         .unwrap_or_default();
 

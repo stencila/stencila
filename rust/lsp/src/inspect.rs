@@ -13,7 +13,10 @@ use schema::{
     ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
-use crate::{text_document::TextNode, utils::range16_to_range};
+use crate::{
+    text_document::{TextNode, TextNodeExecution},
+    utils::range16_to_range,
+};
 
 /// A struct that implements the [`Visitor`] trait to collect
 /// diagnostics, code lenses etc from the nodes in a document
@@ -41,13 +44,20 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         self.stack.first().cloned()
     }
 
-    fn enter_node(&mut self, node_type: NodeType, node_id: NodeId, detail: Option<String>) {
+    fn enter_node(
+        &mut self,
+        node_type: NodeType,
+        node_id: NodeId,
+        detail: Option<String>,
+        execution: Option<TextNodeExecution>,
+    ) {
         if let Some(range) = self.poshmap.node_id_to_range16(&node_id) {
             self.stack.push(TextNode {
                 range: range16_to_range(range),
                 node_type,
                 node_id,
                 detail,
+                execution,
                 children: Vec::new(),
             })
         }
@@ -66,6 +76,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
 
 impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     fn visit_node(&mut self, node: &Node) -> WalkControl {
+        #[allow(clippy::single_match)]
         match node {
             Node::Article(node) => node.inspect(self),
             _ => {}
@@ -160,7 +171,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
-        self.enter_node(clause.node_type(), clause.node_id(), None);
+        self.enter_node(clause.node_type(), clause.node_id(), None, None);
         self.visit(&clause.content);
         self.exit_node();
 
@@ -168,7 +179,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
-        self.enter_node(list_item.node_type(), list_item.node_id(), None);
+        self.enter_node(list_item.node_type(), list_item.node_id(), None, None);
         self.visit(&list_item.content);
         self.exit_node();
 
@@ -176,7 +187,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
-        self.enter_node(table_row.node_type(), table_row.node_id(), None);
+        self.enter_node(table_row.node_type(), table_row.node_id(), None, None);
         self.visit(&table_row.cells);
         self.exit_node();
 
@@ -184,7 +195,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
-        self.enter_node(table_cell.node_type(), table_cell.node_id(), None);
+        self.enter_node(table_cell.node_type(), table_cell.node_id(), None, None);
         self.visit(&table_cell.content);
         self.exit_node();
 
@@ -204,6 +215,7 @@ impl Inspect for Article {
             node_type: self.node_type(),
             node_id: self.node_id(),
             detail: None,
+            execution: None, // TODO
             children: Vec::new(),
         });
 
@@ -217,7 +229,7 @@ macro_rules! default {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                inspector.enter_node(self.node_type(), self.node_id(), None);
+                inspector.enter_node(self.node_type(), self.node_id(), None, None);
                 inspector.visit(self);
                 inspector.exit_node();
             }
@@ -282,7 +294,7 @@ macro_rules! contented {
             fn inspect(&self, inspector: &mut Inspector) {
                 let detail = self.content.first().map(|first| first.to_text().0);
 
-                inspector.enter_node(self.node_type(), self.node_id(), detail);
+                inspector.enter_node(self.node_type(), self.node_id(), detail, None);
                 inspector.visit(self);
                 inspector.exit_node();
             }
@@ -297,9 +309,15 @@ macro_rules! executable {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                // TODO: record diagnostics here
+                let execution = if let Some(execution_status) = &self.options.execution_status {
+                    Some(TextNodeExecution{
+                        execution_status: execution_status.clone(),
+                    })
+                } else {
+                    None
+                };
 
-                inspector.enter_node(self.node_type(), self.node_id(), None);
+                inspector.enter_node(self.node_type(), self.node_id(), None, execution);
                 inspector.visit(self);
                 inspector.exit_node();
             }
