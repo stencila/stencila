@@ -25,13 +25,15 @@ export class DatatableColumn extends LitElement {
       : ''
     const { icon, iconLibrary } = nodeUi(itemsType as NodeType)
 
-    return html` <div class="flex justify-start items-center">
-      <sl-icon
-        library=${iconLibrary}
-        name=${icon}
-        class=${`pr-0.5 text-base`}
-      ></sl-icon>
-      <span class="font-bold">${this.name}</span>
-    </div>`
+    return html`
+      <div class="flex justify-start items-center">
+        <sl-icon
+          library=${iconLibrary}
+          name=${icon}
+          class=${`pr-0.5 text-base`}
+        ></sl-icon>
+        <span class="font-bold">${this.name}</span>
+      </div>
+    `
   }
 }

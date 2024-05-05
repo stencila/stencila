@@ -16,8 +16,8 @@ export class ObjectItem extends LitElement {
 
   override render() {
     const keyClasses = apply([
+      'flex items-center',
       'w-full max-w-1/5',
-      'p-3',
       'font-mono text-ellipsis',
       'overflow-hidden',
     ])

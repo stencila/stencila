@@ -6,7 +6,7 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/node-card/in-flow/block'
+import '../ui/nodes/node-card/on-demand/block'
 
 /**
  * Web component representing a Stencila Schema `Boolean` node
@@ -19,12 +19,7 @@ import '../ui/nodes/node-card/in-flow/block'
 @customElement('stencila-boolean')
 @withTwind()
 export class Boolean extends Entity {
-  private bodyStyles = apply([
-    'flex justify-center',
-    'w-full',
-    'py-2 px-4',
-    'font-bold font-mono',
-  ])
+  private bodyStyles = apply(['w-full', 'p-2', 'font-bold font-mono'])
 
   /**
    * In static view just render the value
@@ -34,13 +29,13 @@ export class Boolean extends Entity {
   }
 
   /**
-   * In dynamic view, in addition to the value, render a node card.
+   * In dynamic view, render a node card with the value in the content slot.
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-in-flow type="Boolean" view="dynamic">
-        <div slot="body" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-block-in-flow>
+      <stencila-ui-block-on-demand type="Boolean" view="dynamic">
+        <div slot="content" class=${this.bodyStyles}><slot></slot></div>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -51,9 +46,9 @@ export class Boolean extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-block-in-flow type="Boolean" view="source">
+      <stencila-ui-block-on-demand type="Boolean" view="source">
         <div slot="body" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 }

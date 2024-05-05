@@ -15,8 +15,8 @@ export class ArrayItem extends LitElement {
 
   override render() {
     const indexClasses = apply([
+      'flex items-center',
       'w-full max-w-8',
-      'py-2',
       'font-mono text-ellipsis',
       'overflow-hidden',
     ])
