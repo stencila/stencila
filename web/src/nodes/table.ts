@@ -14,10 +14,22 @@ import '../ui/nodes/properties/authors'
 @customElement('stencila-table')
 @withTwind()
 export class Table extends Entity {
+  /**
+   * render table and any additional content
+   */
   override renderStaticView() {
-    return html`<slot name="content"></slot>`
+    return html`
+      <slot name="content">
+        <slot name="rows"></slot>
+        <slot></slot>
+      </slot>
+    `
   }
 
+  /**
+   * render table and any additional content,
+   * as well as `authors` inside a node card
+   */
   override renderDynamicView() {
     return html`
       <stencila-ui-block-on-demand type="Table" view="dynamic">
@@ -27,7 +39,8 @@ export class Table extends Entity {
           </stencila-ui-node-authors>
         </div>
         <div slot="content">
-          <slot name="content"></slot>
+          <slot name="rows"></slot>
+          <slot></slot>
         </div>
       </stencila-ui-block-on-demand>
     `
