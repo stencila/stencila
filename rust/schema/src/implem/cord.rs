@@ -793,7 +793,13 @@ impl DomCodec for Cord {
         } else {
             let chars = self.string.chars();
 
+            let mut start = 0;
             for run in &self.runs {
+                let text = chars
+                    .clone()
+                    .skip(start)
+                    .take(run.length as usize)
+                    .collect::<String>();
                 context
                     .enter_elem_attrs(
                         "stencila-authorship",
@@ -803,8 +809,9 @@ impl DomCodec for Cord {
                             ("provenance", &display(run.provenance)),
                         ],
                     )
-                    .push_text(&chars.clone().take(run.length as usize).collect::<String>())
+                    .push_text(&text)
                     .exit_elem();
+                start += run.length as usize;
             }
         }
     }
@@ -818,7 +825,11 @@ impl DomCodec for Cord {
         if !self.runs.is_empty() {
             let mut json = "[".to_string();
             let mut start = 0;
+            let mut first = true;
             for run in &self.runs {
+                if !first {
+                    json.push(',');
+                }
                 let end = start + run.length;
 
                 json.push('[');
@@ -833,6 +844,7 @@ impl DomCodec for Cord {
                 json.push_str(&display(run.provenance));
                 json.push_str("\"]");
 
+                first = false;
                 start = end;
             }
             json.push(']');
