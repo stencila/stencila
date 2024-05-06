@@ -1,27 +1,39 @@
 use std::{
     ops::ControlFlow,
     path::PathBuf,
-    sync::atomic::{AtomicI32, Ordering},
-    time::Duration,
+    str::FromStr,
+    sync::{
+        atomic::{AtomicI32, Ordering},
+        Arc,
+    },
 };
 
 use async_lsp::{
     lsp_types::{
-        ExecuteCommandParams, NumberOrString, ProgressParams, ProgressParamsValue,
-        WorkDoneProgress, WorkDoneProgressBegin, WorkDoneProgressCancelParams,
-        WorkDoneProgressCreateParams, WorkDoneProgressEnd, WorkDoneProgressReport,
+        ExecuteCommandParams, MessageType, NumberOrString, Position, ProgressParams,
+        ProgressParamsValue, ShowMessageParams, WorkDoneProgress, WorkDoneProgressBegin,
+        WorkDoneProgressCancelParams, WorkDoneProgressCreateParams, WorkDoneProgressEnd,
+        WorkDoneProgressReport,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
 use common::{
+    eyre::Result,
     once_cell::sync::Lazy,
+    serde_json,
     serde_json::Value,
-    tokio::{self, sync::mpsc},
+    tokio::{
+        self,
+        sync::{mpsc, RwLock},
+    },
     tracing,
 };
+use document::{Command, CommandNodes, Document};
+use node_execute::ExecuteOptions;
+use schema::NodeId;
 
-use crate::ServerState;
+use crate::{text_document::TextNode, ServerState};
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
@@ -38,9 +50,10 @@ pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 pub(super) const ACCEPT_NODE: &str = "stencila.accept_node";
 pub(super) const REJECT_NODE: &str = "stencila.reject_node";
 
-// This command is implemented on the client but included here
+// These commands are implemented on the client but included here
 // for us in the construction of code lenses
-pub(super) const INSPECT_NODE: &str = "stencila.inspect_node";
+pub(super) const VIEW_NODE: &str = "stencila.view-node";
+pub(super) const INSPECT_NODE: &str = "stencila.inspect-node";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
@@ -65,54 +78,104 @@ pub(super) fn commands() -> Vec<String> {
 
 /// Execute a command
 pub(super) async fn execute_command(
-    client: ClientSocket,
-    params: ExecuteCommandParams,
+    ExecuteCommandParams {
+        command, arguments, ..
+    }: ExecuteCommandParams,
+    root: Arc<RwLock<TextNode>>,
+    doc: Arc<RwLock<Document>>,
+    mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
-    match params.command.as_str() {
-        RUN_ALL_DOC => run_all_doc(client, params.arguments).await,
-        command => Err(ResponseError::new(
-            ErrorCode::INVALID_REQUEST,
-            format!("Unknown command `{command}`"),
-        )),
-    }
-}
+    let mut args = arguments.into_iter();
+    let uri = uri_arg(args.next())?;
 
-/// Run all nodes in a document
-async fn run_all_doc(
-    client: ClientSocket,
-    args: Vec<Value>,
-) -> Result<Option<Value>, ResponseError> {
-    let path = args
-        .first()
-        .and_then(|value| value.as_str())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "No document path in args".to_string(),
-            )
-        })?;
-
-    let path = PathBuf::from(path);
-
-    let file_name = path
+    let file_name = PathBuf::from(&uri)
         .file_name()
         .map_or_else(String::new, |name| name.to_string_lossy().to_string());
 
-    let progress_sender = create_progress(client, format!("Running {file_name}")).await;
+    let command = match command.as_str() {
+        RUN_NODE => {
+            let node_id = node_id_arg(args.next())?;
+            Command::ExecuteNodes(CommandNodes::new(vec![node_id], None))
+        }
+        RUN_CURR => {
+            let position = position_arg(args.next())?;
+            if let Some(node_id) = root.read().await.node_id_at(position) {
+                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None))
+            } else {
+                tracing::warn!("No node found at position {position:?}");
+                return Ok(None);
+            }
+        }
+        RUN_ALL_DOC => Command::ExecuteDocument(ExecuteOptions::default()),
+        command => {
+            return Err(ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                format!("Unknown command `{command}`"),
+            ))
+        }
+    };
 
-    // TODO: replace this
+    let (command_id, mut status_receiver) = match doc.read().await.command_subscribe(command).await
+    {
+        Ok(receiver) => receiver,
+        Err(error) => {
+            client
+                .show_message(ShowMessageParams {
+                    typ: MessageType::ERROR,
+                    message: format!("While sending command to {uri}: {error}"),
+                })
+                .ok();
+            return Ok(None);
+        }
+    };
+
+    let progress_sender = create_progress(client, format!("Running {file_name}")).await;
     tokio::spawn(async move {
-        let mut percentage = 10;
-        while percentage <= 100 {
-            percentage += 10;
-            if progress_sender.send((percentage, None)).is_err() {
+        while let Ok((id, status)) = status_receiver.recv().await {
+            if id == command_id
+                && status.is_finished()
+                && progress_sender.send((100, None)).is_err()
+            {
                 break;
-            };
-            tokio::time::sleep(Duration::from_secs(1)).await;
+            }
         }
     });
 
     Ok(None)
+}
+
+/// Extract a document URI from a command arg
+pub(super) fn uri_arg(arg: Option<Value>) -> Result<String, ResponseError> {
+    arg.and_then(|value| value.as_str().map(String::from))
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Document URI argument missing or invalid".to_string(),
+            )
+        })
+}
+
+/// Extract a Stencila [`NodeId`] from a command arg
+fn node_id_arg(arg: Option<Value>) -> Result<NodeId, ResponseError> {
+    arg.and_then(|value| value.as_str().map(String::from))
+        .and_then(|node_id| NodeId::from_str(&node_id).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Node id argument missing or invalid".to_string(),
+            )
+        })
+}
+
+/// Extract a position from a command arg
+fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Position argument missing or invalid".to_string(),
+            )
+        })
 }
 
 static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);

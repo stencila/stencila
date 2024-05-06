@@ -1,10 +1,9 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/card'
-
 import { Entity } from './entity'
 
+import '../ui/nodes/node-card/on-demand/block'
 import './datatable-column'
 
 /**
@@ -22,17 +21,17 @@ export class Datatable extends Entity {
   }
 
   /**
-   * In dynamic view, in addition to the table, render a node card.
+   * In dynamic view, render a node card with the table in the content slot.
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Datatable" view="dynamic">
-        <div slot="body">
+      <stencila-ui-block-on-demand type="Datatable" view="dynamic">
+        <div slot="content">
           <div class="overflow-auto">
             <slot></slot>
           </div>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -43,13 +42,13 @@ export class Datatable extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Datatable" view="source">
+      <stencila-ui-block-on-demand type="Datatable" view="source">
         <div slot="body">
           <div class="overflow-auto">
             <slot></slot>
           </div>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 }

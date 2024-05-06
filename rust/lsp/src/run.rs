@@ -8,10 +8,10 @@ use async_lsp::{
 };
 use tower::ServiceBuilder;
 
-use common::tracing;
+use common::{serde_json, tracing};
 
 use crate::{
-    code_lens, commands, completion, document_symbol, lifecycle, text_document, ServerState,
+    code_lens, commands, completion, formatting, lifecycle, symbols, text_document, ServerState,
 };
 
 /// Run the language server
@@ -33,35 +33,38 @@ pub async fn run() {
             .notification::<notification::DidCloseTextDocument>(text_document::did_close);
 
         router.request::<request::DocumentSymbolRequest, _>(|state, params| {
+            let uri = params.text_document.uri;
             let root = state
                 .documents
-                .get(&params.text_document.uri.to_string())
-                .map(|doc| doc.root.clone());
+                .get(&uri)
+                .map(|text_doc| text_doc.root.clone());
             async move {
                 match root {
-                    Some(root) => document_symbol::request(&*root.read().await).await,
+                    Some(root) => symbols::request(root).await,
                     None => Ok(None),
                 }
             }
         });
 
         router.request::<request::Completion, _>(|state, params| {
-            let source_before = state
+            let uri = &params.text_document_position.text_document.uri;
+            let source = state
                 .documents
-                .get(&params.text_document_position.text_document.uri.to_string())
-                .map(|doc| doc.source_before(params.text_document_position.position));
-            async move { completion::request(params, source_before).await }
+                .get(uri)
+                .map(|text_doc| text_doc.source.clone());
+            async move { completion::request(params, source).await }
         });
 
         router
             .request::<request::CodeLensRequest, _>(|state, params| {
+                let uri = params.text_document.uri;
                 let root = state
                     .documents
-                    .get(&params.text_document.uri.to_string())
-                    .map(|doc| doc.root.clone());
+                    .get(&uri)
+                    .map(|text_doc| text_doc.root.clone());
                 async move {
                     match root {
-                        Some(root) => code_lens::request(&*root.read().await).await,
+                        Some(root) => code_lens::request(uri, root).await,
                         None => Ok(None),
                     }
                 }
@@ -70,10 +73,42 @@ pub async fn run() {
 
         router
             .request::<request::ExecuteCommand, _>(|state, params| {
+                let root_doc = params
+                    .arguments
+                    .first()
+                    .and_then(|value| serde_json::from_value(value.clone()).ok())
+                    .and_then(|uri| {
+                        state
+                            .documents
+                            .get(&uri)
+                            .map(|text_doc| (text_doc.root.clone(), text_doc.doc.clone()))
+                    });
                 let client = state.client.clone();
-                async move { commands::execute_command(client, params).await }
+                async move {
+                    match root_doc {
+                        Some((root, doc)) => {
+                            commands::execute_command(params, root, doc, client).await
+                        }
+                        None => Ok(None),
+                    }
+                }
             })
             .notification::<notification::WorkDoneProgressCancel>(commands::cancel_progress);
+
+        router.request::<request::Formatting, _>(|state, params| {
+            let uri = params.text_document.uri;
+            let doc = state
+                .documents
+                .get(&uri)
+                .map(|text_doc| text_doc.doc.clone());
+            let client = state.client.clone();
+            async move {
+                match doc {
+                    Some(doc) => formatting::request(doc, client).await,
+                    None => Ok(None),
+                }
+            }
+        });
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())
@@ -86,7 +121,7 @@ pub async fn run() {
 
     // Setup printing of tracing logs
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
+        .with_max_level(tracing::Level::TRACE)
         .with_ansi(false)
         .with_writer(std::io::stderr)
         .init();

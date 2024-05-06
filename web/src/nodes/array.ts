@@ -8,7 +8,7 @@ import { withTwind } from '../twind'
 import { Entity } from './entity'
 
 import './array-item'
-import '../ui/nodes/node-card/in-flow/block'
+import '../ui/nodes/node-card/on-demand/block'
 
 /**
  * Web component representing a Stencila Schema `Array` node
@@ -29,15 +29,15 @@ export class Array extends Entity {
   }
 
   /**
-   * In dynamic view, in addition to the value, render a node card.
+   * In dynamic view, render a node card with the value in the content slot.
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-in-flow type="Array" view="dynamic">
-        <div slot="body" class="p-2">
+      <stencila-ui-block-on-demand type="Array" view="dynamic">
+        <div slot="content" class="p-2">
           <slot></slot>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -48,11 +48,11 @@ export class Array extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-block-in-flow type="Array" view="source">
+      <stencila-ui-block-on-demand type="Array" view="source">
         <div slot="body" class="p-2">
           <slot></slot>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 }

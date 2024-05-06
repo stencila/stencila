@@ -481,7 +481,7 @@ async fn command_document(
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
-    doc.command(command, false)
+    doc.command(command)
         .await
         .map_err(InternalError::new)?;
 

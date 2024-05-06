@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 
-use async_lsp::ClientSocket;
+use async_lsp::{lsp_types::Url, ClientSocket};
 
 mod code_lens;
 mod commands;
 mod completion;
-mod document_symbol;
+mod diagnostics;
+mod formatting;
 mod inspect;
 mod lifecycle;
 mod run;
+mod symbols;
 mod text_document;
 mod utils;
 
@@ -23,5 +25,5 @@ pub(crate) struct ServerState {
     client: ClientSocket,
 
     /// The documents opened by the client that are handled by this server
-    documents: HashMap<String, TextDocument>,
+    documents: HashMap<Url, TextDocument>,
 }

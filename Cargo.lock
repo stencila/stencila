@@ -3620,6 +3620,7 @@ dependencies = [
  "codecs",
  "common",
  "document",
+ "node-execute",
  "schema",
  "tokio-util",
  "tower",

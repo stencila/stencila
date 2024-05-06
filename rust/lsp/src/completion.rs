@@ -2,6 +2,8 @@
 //!
 //! https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_completion
 
+use std::sync::Arc;
+
 use async_lsp::{
     lsp_types::{
         CompletionItem, CompletionItemKind, CompletionParams, CompletionResponse,
@@ -10,22 +12,44 @@ use async_lsp::{
     ResponseError,
 };
 
-use common::itertools::Itertools;
+use codecs::Positions;
+use common::{itertools::Itertools, tokio::sync::RwLock};
+
+use crate::utils::position_to_position16;
 
 pub(super) async fn request(
     params: CompletionParams,
-    source_before: Option<String>,
+    source: Option<Arc<RwLock<String>>>,
 ) -> Result<Option<CompletionResponse>, ResponseError> {
     // Get the trigger for the completion
     let trigger_kind = params.context.as_ref().map(|context| context.trigger_kind);
     let trigger_character = params.context.and_then(|context| context.trigger_character);
 
+    // Shortcuts that do not require getting the source
     if (Some(CompletionTriggerKind::TRIGGER_CHARACTER), Some("@"))
         == (trigger_kind, trigger_character.as_deref())
-        || source_before
-            .map(|source| source.ends_with('@'))
-            .unwrap_or_default()
     {
+        return assignee_completion().await;
+    }
+
+    // Unable to proceed if no source available
+    let Some(source) = source else {
+        return Ok(None);
+    };
+
+    // Get the source before the cursor
+    let source = source.read().await;
+    let cursor = params.text_document_position.position;
+    let positions = Positions::new(&source);
+    let end = positions
+        .index_at_position16(position_to_position16(cursor))
+        .unwrap_or_else(|| source.chars().count());
+    let start = end.saturating_sub(10);
+    let take = end - start;
+    let source_before: String = source.chars().skip(start).take(take).collect();
+
+    // Dispatch based on source before cursor
+    if source_before.ends_with('@') {
         return assignee_completion().await;
     }
 
