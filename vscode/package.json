@@ -71,7 +71,7 @@
       },
       {
         "command": "stencila.invoke.export-doc",
-        "title": "Stencila: Export the document to another format",
+        "title": "Stencila: Export the document",
         "shortTitle": "Export",
         "icon": "$(export)"
       }
@@ -140,6 +140,12 @@
         },
         {
           "command": "stencila.invoke.run-assist-doc",
+          "when": "editorLangId == smd"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "stencila.invoke.export-doc",
           "when": "editorLangId == smd"
         }
       ]
