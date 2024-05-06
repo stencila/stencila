@@ -68,6 +68,12 @@
         "title": "Stencila: Cancel all running nodes in the document",
         "shortTitle": "Cancel all",
         "icon": "$(stop)"
+      },
+      {
+        "command": "stencila.invoke.export-doc",
+        "title": "Stencila: Export the document to another format",
+        "shortTitle": "Export",
+        "icon": "$(export)"
       }
     ],
     "keybindings": [
@@ -116,6 +122,10 @@
         },
         {
           "command": "stencila.invoke.cancel-all-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.export-doc",
           "when": "editorLangId == smd"
         }
       ],

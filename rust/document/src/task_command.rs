@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use codecs::to_path;
 use common::{
     tokio::{self, task::JoinHandle},
     tracing,
@@ -79,7 +80,7 @@ impl Document {
             }
 
             let home = home.clone();
-            let store = root.clone();
+            let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
             let status_sender = command_status_sender.clone();
@@ -88,7 +89,7 @@ impl Document {
                 CompileDocument => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            compile(home, store, kernels, patch_sender, None, None).await
+                            compile(home, root, kernels, patch_sender, None, None).await
                         {
                             tracing::error!("While compiling document: {error}");
                             CommandStatus::Failed
@@ -103,7 +104,7 @@ impl Document {
                 ExecuteDocument(options) => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            execute(home, store, kernels, patch_sender, None, Some(options)).await
+                            execute(home, root, kernels, patch_sender, None, Some(options)).await
                         {
                             tracing::error!("While executing document: {error}");
                             CommandStatus::Failed
@@ -122,7 +123,7 @@ impl Document {
 
                         let status = if let Err(error) = execute(
                             home,
-                            store,
+                            root,
                             kernels,
                             patch_sender,
                             Some(node_ids),
@@ -143,6 +144,21 @@ impl Document {
                         command_id,
                         task,
                     ));
+                }
+                ExportDocument((path, options)) => {
+                    let task = tokio::spawn(async move {
+                        let root = &*root.read().await;
+                        let status = match to_path(root, &path, Some(options)).await {
+                            Ok(..) => CommandStatus::Succeeded,
+                            Err(error) => {
+                                // TODO: This and (other errors) should go back in failed status
+                                tracing::error!("While encoding to path: {error}");
+                                CommandStatus::Failed
+                            }
+                        };
+                        status_sender.send((command_id, status)).ok();
+                    });
+                    current = Some((command, command_id, task));
                 }
                 _ => {
                     tracing::warn!("Document command `{command}` not handled yet");

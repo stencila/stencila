@@ -20,7 +20,7 @@ use async_lsp::{
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use codecs::Format;
+use codecs::{EncodeOptions, Format};
 use common::{
     eyre::Result,
     once_cell::sync::Lazy,
@@ -50,8 +50,10 @@ pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
 pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
 pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 
-pub(super) const ACCEPT_NODE: &str = "stencila.accept_node";
-pub(super) const REJECT_NODE: &str = "stencila.reject_node";
+pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
+pub(super) const REJECT_NODE: &str = "stencila.reject-node";
+
+pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
 // These commands are implemented on the client but included here
 // for us in the construction of code lenses
@@ -73,6 +75,7 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_ALL_DOC,
         ACCEPT_NODE,
         REJECT_NODE,
+        EXPORT_DOC,
     ]
     .into_iter()
     .map(String::from)
@@ -120,6 +123,13 @@ pub(super) async fn execute_command(
             }
         }
         RUN_ALL_DOC => (Command::ExecuteDocument(ExecuteOptions::default()), false),
+        EXPORT_DOC => {
+            let path = path_buf_arg(args.next())?;
+            (
+                Command::ExportDocument((path, EncodeOptions::default())),
+                false,
+            )
+        }
         command => {
             return Err(ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
@@ -180,7 +190,7 @@ pub(super) async fn execute_command(
                                 ])),
                                 ..Default::default()
                             },
-                            label: Some(format!("Update after completion")),
+                            label: Some("Update after completion".to_string()),
                         })
                         .await
                         .ok();
@@ -246,6 +256,17 @@ fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
             ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
                 "Position argument missing or invalid".to_string(),
+            )
+        })
+}
+
+/// Extract a `PathBuf` from a command arg
+fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Path argument missing or invalid".to_string(),
             )
         })
 }

@@ -77,6 +77,9 @@ pub enum Command {
     /// Save the document
     SaveDocument,
 
+    /// Export the document
+    ExportDocument((PathBuf, EncodeOptions)),
+
     /// Compile the entire document
     CompileDocument,
 

@@ -12,7 +12,7 @@ use common::{
 use format::Format;
 
 /// The response to take when there are losses in decoding or encoding
-#[derive(Debug, Clone, Display, Serialize, Deserialize)]
+#[derive(Debug, Clone, Display, PartialEq, Eq, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum LossesResponse {
