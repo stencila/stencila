@@ -44,13 +44,11 @@ impl Document {
                     match (&command, current_command) {
                         (CompileDocument | ExecuteDocument(..), ExecuteDocument(..)) => {
                             tracing::debug!("Ignoring document command: already executing");
-
                             send_status(command_id, CommandStatus::Ignored);
                             continue;
                         }
-                        (InterruptDocument, ExecuteDocument(..)) => {
+                        (InterruptDocument, ExecuteDocument(..) | ExecuteNodes(..)) => {
                             tracing::debug!("Interrupting document execution");
-
                             send_status(command_id, CommandStatus::Running);
 
                             current_task.abort();
@@ -65,6 +63,37 @@ impl Document {
                             .await
                             {
                                 tracing::error!("While interrupting document: {error}");
+                                CommandStatus::Failed
+                            } else {
+                                send_status(*current_command_id, CommandStatus::Interrupted);
+                                CommandStatus::Succeeded
+                            };
+
+                            send_status(command_id, status);
+                            continue;
+                        }
+                        (
+                            InterruptNodes(CommandNodes { node_ids, .. }),
+                            ExecuteDocument(..) | ExecuteNodes(..),
+                        ) => {
+                            tracing::debug!("Interrupting node execution");
+                            send_status(command_id, CommandStatus::Running);
+
+                            // Abort the current task if it has the same node_ids and scope
+                            if &command == current_command {
+                                current_task.abort();
+                            }
+
+                            let status = if let Err(error) = interrupt(
+                                home.clone(),
+                                root.clone(),
+                                kernels.clone(),
+                                patch_sender.clone(),
+                                Some(node_ids.clone()),
+                            )
+                            .await
+                            {
+                                tracing::error!("While interrupting nodes: {error}");
                                 CommandStatus::Failed
                             } else {
                                 send_status(*current_command_id, CommandStatus::Interrupted);
@@ -160,8 +189,16 @@ impl Document {
                     });
                     current = Some((command, command_id, task));
                 }
+                InterruptDocument | InterruptNodes(..) => {
+                    // If these have fallen down to here it means that no execution was happening at the time
+                    // so just ignore them
+                    status_sender
+                        .send((command_id, CommandStatus::Ignored))
+                        .ok();
+                }
                 _ => {
                     tracing::warn!("Document command `{command}` not handled yet");
+                    status_sender.send((command_id, CommandStatus::Failed)).ok();
                 }
             }
         }
