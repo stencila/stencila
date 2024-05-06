@@ -24,7 +24,6 @@ pub enum NodeProperty {
     AvailableLanguages,
     Bitrate,
     Brands,
-    Candidates,
     Caption,
     CellType,
     Cells,

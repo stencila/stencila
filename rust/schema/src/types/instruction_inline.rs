@@ -90,6 +90,13 @@ pub struct InstructionInline {
     #[dom(elem = "span")]
     pub content: Option<Vec<Inline>>,
 
+    /// A suggestion for the instruction
+    #[walk]
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub suggestion: Option<SuggestionInlineType>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
@@ -199,21 +206,6 @@ pub struct InstructionInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// A list of candidates for the assignee property.
-    #[serde(alias = "candidate")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec(r"[a-zA-Z][a-zA-Z\-_/.@]", size_range(1..5)))"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec(String::arbitrary(), size_range(1..10)))"#))]
-    pub candidates: Option<Vec<String>>,
-
-    /// A suggestion for the instruction
-    #[walk]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
-    pub suggestion: Option<SuggestionInlineType>,
 }
 
 impl InstructionInline {

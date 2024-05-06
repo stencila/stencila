@@ -32,7 +32,7 @@ impl MarkdownCodec for InstructionInline {
 
         context.push_str("]]");
 
-        if let Some(suggestion) = &self.options.suggestion {
+        if let Some(suggestion) = &self.suggestion {
             context.push_prop_fn(NodeProperty::Suggestion, |context| {
                 suggestion.to_markdown(context)
             });

@@ -214,18 +214,6 @@
       }
     },
     {
-      "@id": "stencila:candidates",
-      "@type": "rdfs:Property",
-      "rdfs:label": "candidates",
-      "rdfs:comment": "A list of candidates for the assignee property.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "stencila:assignee",
       "@type": "rdfs:Property",
       "rdfs:label": "assignee",

@@ -91,6 +91,13 @@
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx assignee=insert-code-chunk>
+      <div slot=messages>
+        <stencila-instruction-message id=xxx>
+          <div slot=parts>
+            <stencila-text id=xxx>analyze data</stencila-text>
+          </div>
+        </stencila-instruction-message>
+      </div>
       <div slot=suggestion>
         <stencila-insert-block id=xxx>
           <div slot=content>
@@ -99,13 +106,6 @@
           </div>
         </stencila-insert-block>
       </div>
-      <div slot=messages>
-        <stencila-instruction-message id=xxx>
-          <div slot=parts>
-            <stencila-text id=xxx>analyze data</stencila-text>
-          </div>
-        </stencila-instruction-message>
-      </div>
     </stencila-instruction-block>
     <stencila-paragraph id=xxx>
       <p slot=content>
@@ -113,17 +113,6 @@
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx>
-      <div slot=suggestion>
-        <stencila-replace-block id=xxx>
-          <div slot=replacement>
-            <stencila-paragraph id=xxx>
-              <p slot=content>
-                <stencila-text id=xxx>A paragraph.</stencila-text>
-              </p>
-            </stencila-paragraph>
-          </div>
-        </stencila-replace-block>
-      </div>
       <div slot=messages>
         <stencila-instruction-message id=xxx>
           <div slot=parts>
@@ -137,6 +126,17 @@
             <stencila-text id=xxx>A rather long winded paragraph.</stencila-text>
           </p>
         </stencila-paragraph>
+      </div>
+      <div slot=suggestion>
+        <stencila-replace-block id=xxx>
+          <div slot=replacement>
+            <stencila-paragraph id=xxx>
+              <p slot=content>
+                <stencila-text id=xxx>A paragraph.</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-replace-block>
       </div>
     </stencila-instruction-block>
   </section>

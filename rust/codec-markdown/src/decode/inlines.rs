@@ -153,7 +153,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                         };
                         if let Some(Inline::InstructionInline(instruct)) = inlines.last_mut() {
                             // Associate the suggestion with the instruction
-                            instruct.options.suggestion = Some(suggestion);
+                            instruct.suggestion = Some(suggestion);
 
                             // Extend the instruction to the end of the suggestion
                             context.map_extend(instruct.node_id(), node_id);
