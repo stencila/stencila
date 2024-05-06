@@ -60,13 +60,31 @@ export class IfBlockClause extends CodeExecutable {
 
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="IfBlockClause">
+      <stencila-ui-block-on-demand type="IfBlockClause" view="dynamic">
         <div slot="body" class="h-full">
-          <slot name="code"></slot>
-          <slot name="execution-messages"></slot>
-          <slot name="authors"></slot>
+          <stencila-ui-node-authors type="IfBlockClause">
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
+          <stencila-ui-node-code
+            type="IfBlockClause"
+            code=${this.code}
+            language=${this.programmingLanguage}
+            read-only
+          >
+          </stencila-ui-node-code>
+          <stencila-ui-node-execution-messages
+            type="IfBlockClause"
+            message-count=${this.messageCount}
+            warning-count=${this.warningCount}
+            error-count=${this.errorCount}
+          >
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
         </div>
-      </stencila-ui-node-card>
+        <div slot="content">
+          <slot name="content"></slot>
+        </div>
+      </stencila-ui-block-on-demand>
     `
   }
 

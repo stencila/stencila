@@ -177,20 +177,20 @@ impl MarkdownEncodeContext {
     }
 
     /// Push a string with authorship info onto the Markdown content
-    pub fn push_authored_str(&mut self, runs: &[(u8, u64, u32)], value: &str) -> &mut Self {
+    pub fn push_authored_str(&mut self, runs: &[(u8, u64, u8, u32)], value: &str) -> &mut Self {
         let mut start = self.char_index();
 
         self.push_str(value);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
-            for &(count, authors, length) in runs {
+            for &(count, authors, mii, length) in runs {
                 self.mapping.add(
                     start,
                     start + (length as usize),
                     *node_type,
                     node_id.clone(),
                     None,
-                    Some((count, authors)),
+                    Some((count, authors, mii)),
                 );
                 start += length as usize
             }

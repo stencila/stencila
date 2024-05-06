@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,8 +11,25 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 32
+      characterPercent: 100
   content:
     - type: Claim
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 32
+          characterPercent: 100
       claimType: Theorem
       content:
         - type: Paragraph
@@ -23,6 +40,7 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 23
           authors:
             - type: AuthorRole
@@ -31,11 +49,17 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 23
+              characterPercent: 100
         - type: MathBlock
           code:
             string: e = m*c^2
             authorship:
               - - 1
+                - 0
                 - 0
                 - 9
           mathLanguage: latex
@@ -46,13 +70,11 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 9
+              characterPercent: 100
 new:
   type: Article
   content:
@@ -85,57 +107,13 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 44
+      characterPercent: 100
   content:
     - type: Claim
-      claimType: Theorem
-      content:
-        - type: Paragraph
-          content:
-            - type: Text
-              value:
-                string: Relatively interesting.
-                authorship:
-                  - - 1
-                    - 0
-                    - 23
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
-        - type: MathBlock
-          code:
-            string: e = m*c^2
-            authorship:
-              - - 1
-                - 0
-                - 9
-          mathLanguage: latex
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
-        - type: Paragraph
-          content:
-            - type: Text
-              value:
-                string: May be true.
-                authorship:
-                  - - 1
-                    - 0
-                    - 12
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Bob
-              roleName: Writer
       authors:
         - type: AuthorRole
           author:
@@ -149,6 +127,78 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 44
+          characterPercent: 100
+      claimType: Theorem
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: Relatively interesting.
+                authorship:
+                  - - 1
+                    - 0
+                    - 0
+                    - 23
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 23
+              characterPercent: 100
+        - type: MathBlock
+          code:
+            string: e = m*c^2
+            authorship:
+              - - 1
+                - 0
+                - 0
+                - 9
+          mathLanguage: latex
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 9
+              characterPercent: 100
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: May be true.
+                authorship:
+                  - - 1
+                    - 0
+                    - 0
+                    - 12
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 12
+              characterPercent: 100
 ops:
   - - - content
       - 0

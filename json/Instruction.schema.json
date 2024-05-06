@@ -16,7 +16,9 @@
   "core": [
     "id",
     "autoExec",
-    "assignee"
+    "assignee",
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {
@@ -351,11 +353,25 @@
         "authors"
       ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the messages and content within the instruction.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     }
   }

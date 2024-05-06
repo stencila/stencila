@@ -41,23 +41,23 @@ impl Document {
         let node = match direction {
             SyncDirection::In => {
                 let node = codecs::from_path(path, decode_options.clone()).await?;
-                self.dump(&node).await?;
+                *self.root.write().await = node.clone();
                 node
             }
             SyncDirection::Out => {
-                let node = self.load().await?;
+                let node = self.root.read().await;
                 codecs::to_path(&node, path, encode_options.clone()).await?;
-                node
+                node.clone()
             }
             SyncDirection::InOut => {
                 if path.exists() {
                     let node = codecs::from_path(path, decode_options.clone()).await?;
-                    self.dump(&node).await?;
+                    *self.root.write().await = node.clone();
                     node
                 } else {
-                    let node = self.load().await?;
+                    let node = self.root.read().await;
                     codecs::to_path(&node, path, encode_options.clone()).await?;
-                    node
+                    node.clone()
                 }
             }
         };

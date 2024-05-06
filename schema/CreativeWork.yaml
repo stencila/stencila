@@ -40,6 +40,15 @@ properties:
       deserializeWith: option_one_or_many_string_or_object
     dom:
       elem: section
+  provenance:
+    '@id': stencila:provenance
+    description: A summary of the provenance of the content within the work.
+    type: array
+    items:
+      $ref: ProvenanceCount
+    strip: [provenance]
+    dom:
+      elem: div
   contributors:
     '@id': schema:contributor
     description: A secondary contributor to the `CreativeWork`.

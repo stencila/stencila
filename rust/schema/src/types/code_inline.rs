@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::cord::Cord;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// Inline code.
@@ -14,7 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "CodeInline")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(elem = "code")]
 #[jats(elem = "code")]
 pub struct CodeInline {
@@ -48,24 +49,6 @@ pub struct CodeInline {
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<CodeInlineOptions>,
-
-    /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[serde(skip)]
-    pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct CodeInlineOptions {
     /// The authors of the code.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
@@ -73,6 +56,18 @@ pub struct CodeInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the code.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl CodeInline {

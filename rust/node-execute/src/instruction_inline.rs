@@ -1,5 +1,5 @@
 use assistants::assistant::GenerateOptions;
-use schema::{InstructionInline, SuggestionInlineType};
+use schema::{authorship, InstructionInline};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -31,11 +31,11 @@ impl Executable for InstructionInline {
 
         tracing::trace!("Executing InstructionInline {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -43,7 +43,7 @@ impl Executable for InstructionInline {
             let started = Timestamp::now();
 
             // Get the `assistants` crate to execute this instruction
-            let (suggestion, mut messages) = match assistants::execute_instruction(
+            let (authors, suggestion, mut messages) = match assistants::execute_instruction(
                 self.clone(),
                 executor.context().await,
                 GenerateOptions {
@@ -54,32 +54,47 @@ impl Executable for InstructionInline {
             .await
             {
                 Ok(output) => (
+                    Some(output.authors.clone()),
                     Some(output.to_suggestion_inline(self.content.is_none())),
                     Vec::new(),
                 ),
                 Err(error) => (
                     None,
-                    vec![error_to_message("While performing instruction", error)],
+                    None,
+                    vec![error_to_execution_message(
+                        "While performing instruction",
+                        error,
+                    )],
                 ),
             };
 
-            // Insert the suggestion into the store, so that it can be executed in
-            // the next step (if so configured) and update the instruction status
-            let mut suggestion: Option<SuggestionInlineType> = match executor
-                .swap_property(&node_id, Property::Suggestion, suggestion.into())
-                .await
-            {
-                Ok(suggestion) => suggestion,
-                Err(error) => {
-                    messages.push(error_to_message("While loading content", error));
-                    None
+            if let Some(mut suggestion) = suggestion {
+                // Apply authorship to the suggestion.
+                // Do this here, rather than by adding the authors to the patch
+                // so that the authors are not added to the instruction itself
+                if let Some(authors) = authors {
+                    if let Err(error) = authorship(&mut suggestion, authors) {
+                        messages.push(error_to_execution_message(
+                            "Unable to assign authorship to suggestion",
+                            error,
+                        ));
+                    }
                 }
-            };
 
-            // Execute the suggestion
-            // TODO: This requires configurable rules around when, if at all, suggestions are executed.
-            if let Err(error) = suggestion.walk_async(executor).await {
-                messages.push(error_to_message("While executing suggestion", error));
+                // Set the suggestion
+                executor.patch(
+                    &node_id,
+                    [set(NodeProperty::Suggestion, suggestion.clone())],
+                );
+
+                // Execute the suggestion
+                // TODO: This requires configurable rules around when, if at all, suggestions are executed.
+                if let Err(error) = suggestion.walk_async(executor).await {
+                    messages.push(error_to_execution_message(
+                        "While executing suggestion",
+                        error,
+                    ));
+                }
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
@@ -91,25 +106,25 @@ impl Executable for InstructionInline {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, status.into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
                 ],
             );
         }

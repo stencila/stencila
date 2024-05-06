@@ -25,6 +25,9 @@ pub enum StripScope {
     /// Strip authorship properties of nodes
     Authors,
 
+    /// Strip provenance properties of nodes
+    Provenance,
+
     /// Strip metadata properties of nodes
     Metadata,
 

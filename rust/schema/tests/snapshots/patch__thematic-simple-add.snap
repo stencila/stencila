@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 37
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -20,6 +25,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 18
       authors:
         - type: AuthorRole
@@ -28,6 +34,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 18
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -35,6 +46,7 @@ old:
             string: And something else.
             authorship:
               - - 1
+                - 0
                 - 0
                 - 19
       authors:
@@ -44,6 +56,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 19
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -71,6 +88,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 37
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -80,6 +102,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 18
       authors:
         - type: AuthorRole
@@ -88,6 +111,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 18
+          characterPercent: 100
     - type: ThematicBreak
     - type: Paragraph
       content:
@@ -97,6 +125,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 19
       authors:
         - type: AuthorRole
@@ -105,6 +134,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 19
+          characterPercent: 100
 ops:
   - - - content
     - Insert:

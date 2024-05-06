@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 8
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -20,6 +25,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -28,6 +34,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: ImageObject
@@ -75,8 +86,25 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 8
+      characterPercent: 100
   content:
     - type: Figure
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -105,6 +133,7 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 8
           authors:
             - type: AuthorRole
@@ -113,13 +142,11 @@ merged:
                 givenNames:
                   - Bob
               roleName: Writer
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 8
+              characterPercent: 100
 ops:
   - - - content
     - Remove:

@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 73
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -19,6 +24,7 @@ old:
             string: "The area of a cube is: "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 23
         - type: InstructionInline
@@ -31,6 +37,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 33
           assignee: insert-inline-math
           authors:
@@ -40,11 +47,17 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 33
+              characterPercent: 100
         - type: Text
           value:
             string: "."
             authorship:
               - - 1
+                - 0
                 - 0
                 - 1
         - type: Note
@@ -58,6 +71,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 16
               authors:
                 - type: AuthorRole
@@ -66,6 +80,11 @@ old:
                     givenNames:
                       - Alice
                   roleName: Importer
+              provenance:
+                - type: ProvenanceCount
+                  provenanceCategory: Hw
+                  characterCount: 16
+                  characterPercent: 100
       authors:
         - type: AuthorRole
           author:
@@ -73,6 +92,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 73
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -111,6 +135,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 77
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -119,6 +148,7 @@ merged:
             string: "The area of a cube is: "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 23
         - type: InstructionInline
@@ -131,6 +161,7 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 33
           assignee: insert-inline-math
           authors:
@@ -140,11 +171,17 @@ merged:
                 givenNames:
                   - Alice
               roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 33
+              characterPercent: 100
         - type: Text
           value:
             string: "."
             authorship:
               - - 1
+                - 0
                 - 0
                 - 1
         - type: Note
@@ -158,11 +195,14 @@ merged:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 13
                       - - 1
                         - 1
+                        - 0
                         - 4
                       - - 1
+                        - 0
                         - 0
                         - 3
               authors:
@@ -178,6 +218,11 @@ merged:
                     givenNames:
                       - Bob
                   roleName: Writer
+              provenance:
+                - type: ProvenanceCount
+                  provenanceCategory: Hw
+                  characterCount: 20
+                  characterPercent: 100
       authors:
         - type: AuthorRole
           author:
@@ -191,6 +236,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 77
+          characterPercent: 100
 ops:
   - - - content
       - 0

@@ -11,17 +11,21 @@ use common::{
     serde::{de::DeserializeOwned, Serialize},
     serde_json::{self, Value as JsonValue},
 };
+use node_id::NodeId;
 use node_type::NodeProperty;
 
-use crate::{Author, AuthorRole, Block, CordOp, Inline, Node};
+use crate::{
+    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, Block, CordOp, Inline,
+    Node, ProvenanceCount, SuggestionBlockType, SuggestionInlineType,
+};
 
 /// Assign authorship to a node
 ///
 /// Intended to be used only to initialize authorship information
 /// on an node that has none. Will overwrite and existing authorship.
-pub fn authorship<T: PatchNode>(node: &mut T, author_roles: Vec<AuthorRole>) -> Result<()> {
+pub fn authorship<T: PatchNode>(node: &mut T, authors: Vec<AuthorRole>) -> Result<()> {
     let mut context = PatchContext {
-        author_roles,
+        authors: Some(authors),
         ..Default::default()
     };
     node.authorship(&mut context)
@@ -30,31 +34,38 @@ pub fn authorship<T: PatchNode>(node: &mut T, author_roles: Vec<AuthorRole>) -> 
 /// Merge `new` node into `old` node and record authorship of changes
 ///
 /// This function simply combines calls to [`diff`] and [`patch`].
-pub fn merge<T: PatchNode>(old: &mut T, new: &T, author_roles: Vec<AuthorRole>) -> Result<()> {
-    let ops = diff(old, new)?;
-    patch(old, ops, author_roles)
+pub fn merge<T: PatchNode + Debug>(
+    old: &mut T,
+    new: &T,
+    authors: Option<Vec<AuthorRole>>,
+) -> Result<()> {
+    let ops = diff(old, new, authors)?;
+    patch(old, ops)
 }
 
 /// Generate the operations needed to patch `old` node into `new` node
-pub fn diff<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
+pub fn diff<T: PatchNode>(old: &T, new: &T, authors: Option<Vec<AuthorRole>>) -> Result<Patch> {
     let mut context = PatchContext::default();
     old.diff(new, &mut context)?;
-    Ok(context.ops)
+    Ok(Patch {
+        ops: context.ops,
+        authors,
+        ..Default::default()
+    })
 }
 
 /// Apply patch operations to a node and record authorship of changes
-pub fn patch<T: PatchNode>(
-    old: &mut T,
-    ops: Vec<(PatchPath, PatchOp)>,
-    author_roles: Vec<AuthorRole>,
-) -> Result<()> {
+pub fn patch<T: PatchNode + Debug>(node: &mut T, mut patch: Patch) -> Result<()> {
     let mut context = PatchContext {
-        author_roles,
+        authors: patch.authors.clone(),
         ..Default::default()
     };
-    for (mut path, op) in ops {
-        old.patch(&mut path, op, &mut context)?
+
+    let applied = node.patch(&mut patch, &mut context)?;
+    if !applied {
+        bail!("Patch was not applied:\n\n{patch:?}\n\n{node:?}")
     }
+
     Ok(())
 }
 
@@ -69,7 +80,7 @@ pub struct PatchContext {
     ops: Vec<(PatchPath, PatchOp)>,
 
     /// The authors to which authorship of changes will be assigned during a call to `patch`.
-    author_roles: Vec<AuthorRole>,
+    authors: Option<Vec<AuthorRole>>,
 
     /// Whether authorship has been "taken" already in the current application of an operation
     /// during a call to `patch`.
@@ -77,7 +88,7 @@ pub struct PatchContext {
 
     /// The author (0-based index) which should be using when making changes to the
     /// authorship of `Cord` nodes during a call to `patch`.
-    author_index: u8,
+    author_index: Option<u8>,
 }
 
 impl PatchContext {
@@ -88,6 +99,50 @@ impl PatchContext {
         let n = values.len() as f32;
         let sum = values.into_iter().fold(0., |sum, v| sum + v);
         Ok(sum / n)
+    }
+
+    /// Update the provenance of a node
+    pub fn update_provenance(
+        provenance: &mut Option<Vec<ProvenanceCount>>,
+        children: Vec<Option<Vec<ProvenanceCount>>>,
+    ) {
+        // Aggregate counts from children
+        let mut new: Vec<ProvenanceCount> = Vec::new();
+        let mut sum: u64 = 0;
+        for child in children.into_iter().flatten().flatten() {
+            sum += child.character_count;
+            if let Some(entry) = new
+                .iter_mut()
+                .find(|count| count.provenance_category == child.provenance_category)
+            {
+                entry.character_count += child.character_count;
+            } else {
+                new.push(child);
+            }
+        }
+
+        // Calculate percentages
+        if sum > 0 {
+            for entry in new.iter_mut() {
+                entry.character_percent = Some(((entry.character_count * 100) / sum).min(100));
+            }
+        }
+
+        // Set the provenance if any. If no characters e.g. empty code chunk
+        // then return None
+        *provenance = if new.is_empty() || sum == 0 {
+            None
+        } else {
+            Some(new)
+        };
+    }
+
+    /// Flatten the results from calling provenance on several fields
+    pub fn flatten_provenance(
+        children: Vec<Option<Vec<ProvenanceCount>>>,
+    ) -> Option<Vec<ProvenanceCount>> {
+        let prov: Vec<ProvenanceCount> = children.into_iter().flatten().flatten().collect();
+        (!prov.is_empty()).then_some(prov)
     }
 
     /// Enter a property during the walk
@@ -185,6 +240,11 @@ impl PatchContext {
         take: bool,
         overwrite: bool,
     ) -> bool {
+        // Return early if context has no authors
+        let Some(context_authors) = &self.authors else {
+            return false;
+        };
+
         // Return early if context authors already taken.
         if self.authors_taken {
             return false;
@@ -193,7 +253,7 @@ impl PatchContext {
         if overwrite || authors.is_none() {
             // Setting authorship or the node has no existing authors so set to the context's authors
             *authors = Some(
-                self.author_roles
+                context_authors
                     .clone()
                     .into_iter()
                     .map(Author::AuthorRole)
@@ -201,12 +261,12 @@ impl PatchContext {
             );
 
             // Set the author id to the first author and mark authors as "taken"
-            self.author_index = 0u8;
+            self.author_index = Some(0u8);
         } else if let Some(existing_authors) = authors {
             // The node has existing authors: if an author role is already present
             // update `last_modified`, otherwise add the author role.
             let mut author_id = None;
-            for new_author_role in self.author_roles.iter() {
+            for new_author_role in context_authors.iter() {
                 let mut present = false;
 
                 for (existing_index, mut existing_author) in existing_authors.iter_mut().enumerate()
@@ -239,7 +299,7 @@ impl PatchContext {
             }
 
             // Set the author id to the index of the first in self.authors
-            self.author_index = author_id.unwrap_or(0) as u8;
+            self.author_index = Some(author_id.unwrap_or(0) as u8);
         }
 
         if take {
@@ -255,13 +315,56 @@ impl PatchContext {
     }
 
     /// Get the current author index for the context
-    pub fn author_index(&self) -> u8 {
+    pub fn author_index(&self) -> Option<u8> {
         self.author_index
+    }
+
+    /// Get the current author type for the context
+    pub fn author_type(&self) -> Option<AuthorType> {
+        if let (Some(authors), Some(index)) = (&self.authors, self.author_index) {
+            authors
+                .get(index as usize)
+                .map(|author_role| match author_role.author {
+                    AuthorRoleAuthor::SoftwareApplication(..) => AuthorType::Machine,
+                    _ => AuthorType::Human,
+                })
+        } else {
+            None
+        }
     }
 
     /// Take the operations from the context
     pub fn ops(self) -> Vec<(PatchPath, PatchOp)> {
         self.ops
+    }
+}
+
+/// A patch for a node
+#[derive(Debug, Default, Clone, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct Patch {
+    /// The id of the node to which the `ops` should be applied
+    pub node_id: Option<NodeId>,
+
+    /// The operations which should be applied for the patch
+    pub ops: Vec<(PatchPath, PatchOp)>,
+
+    /// The authors of the patch
+    pub authors: Option<Vec<AuthorRole>>,
+}
+
+impl Patch {
+    /// Apply the operations in the patch to a node
+    ///
+    /// Note that this `drain`s the ops to avoid cloning ops.
+    pub fn apply<T>(&mut self, node: &mut T, context: &mut PatchContext) -> Result<bool>
+    where
+        T: PatchNode,
+    {
+        for (mut path, op) in self.ops.drain(..) {
+            node.apply(&mut path, op, context)?;
+        }
+        Ok(true)
     }
 }
 
@@ -299,7 +402,7 @@ pub enum PatchOp {
     /// Remove items from a vector
     Remove(Vec<usize>),
 
-    /// Clear a vector or `Option` (set to `None`)
+    /// Clear a vector
     Clear,
 }
 
@@ -307,16 +410,26 @@ pub enum PatchOp {
 ///
 /// This enum allows use to store values in a patch operation so that
 /// they can be used when applying that operation. It has variants for
-/// the main union types in the Stencila Schema with a fallback
+/// the main union types in the Stencila Schema, and for those that are
+/// often involved in patches for execution with a fallback
 /// variant of a [`serde_json::Value`].
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged, crate = "common::serde")]
 pub enum PatchValue {
     Inline(Inline),
     Block(Block),
+    SuggestionInlineType(SuggestionInlineType),
+    SuggestionBlockType(SuggestionBlockType),
     Node(Node),
     String(String),
     Json(JsonValue),
+    None,
+}
+
+impl Default for PatchValue {
+    fn default() -> Self {
+        Self::Json(JsonValue::Null)
+    }
 }
 
 /// A slot in a node path: either a property identifier or the index of a vector.
@@ -362,6 +475,12 @@ impl PatchPath {
     }
 }
 
+impl From<NodeProperty> for PatchPath {
+    fn from(value: NodeProperty) -> Self {
+        Self(VecDeque::from([PatchSlot::Property(value)]))
+    }
+}
+
 impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
     fn from(value: [PatchSlot; N]) -> Self {
         Self(value.into())
@@ -390,6 +509,13 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
     #[allow(unused_variables)]
     fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
         Ok(())
+    }
+
+    /// Get the provenance information for the node, if any
+    ///
+    /// This default returns nothing.
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        None
     }
 
     /// Convert the node to a [`PatchValue`]
@@ -440,9 +566,19 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
         Ok(())
     }
 
+    /// Patch a node, or one of it's children
+    ///
+    /// If the `patch` has a `node_id` this method should apply the operations
+    /// if the node has the same id and return `true`. Otherwise this should
+    /// return false
+    #[allow(unused_variables)]
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        Ok(false)
+    }
+
     /// Apply a [`PatchOp`] to a node at a path
     #[allow(unused_variables)]
-    fn patch(
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,
@@ -467,8 +603,7 @@ macro_rules! atom {
                 }
             }
 
-            #[allow(unused_variables)]
-            fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+            fn similarity(&self, other: &Self, _context: &mut PatchContext) -> Result<f32> {
                 // Note non-zero similarity if unequal because types are
                 // the same. At present it does not seem to be necessary to do
                 // anything more sophisticated (e.g. proportional difference for numbers)
@@ -486,19 +621,26 @@ macro_rules! atom {
                 Ok(())
             }
 
-            #[allow(unused_variables)]
-            fn patch(
+            fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+                if patch.node_id.is_some() {
+                    return Ok(false);
+                }
+
+                patch.apply(self, context)
+            }
+
+            fn apply(
                 &mut self,
                 path: &mut PatchPath,
                 op: PatchOp,
-                context: &mut PatchContext,
+                _context: &mut PatchContext,
             ) -> Result<()> {
                 let PatchOp::Set(value) = op else {
                     bail!("Invalid op for `{}`", type_name::<Self>());
                 };
 
                 if !path.is_empty() {
-                    bail!("Invalid path `{path:?}` for atom");
+                    bail!("Invalid path `{path:?}` for an atom primitive");
                 }
 
                 *self = Self::from_value(value)?;
@@ -523,12 +665,12 @@ impl PatchNode for String {
     fn from_value(value: PatchValue) -> Result<Self> {
         match value {
             PatchValue::String(value) => Ok(value),
+            PatchValue::Node(Node::String(value)) => Ok(value),
             _ => bail!("Invalid value `{value:?}` for `{}`", type_name::<Self>()),
         }
     }
 
-    #[allow(unused_variables)]
-    fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+    fn similarity(&self, other: &Self, _context: &mut PatchContext) -> Result<f32> {
         Ok(if other == self {
             self.maximum_similarity()
         } else {
@@ -543,12 +685,19 @@ impl PatchNode for String {
         Ok(())
     }
 
-    #[allow(unused_variables)]
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        if patch.node_id.is_some() {
+            return Ok(false);
+        }
+
+        patch.apply(self, context)
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,
-        context: &mut PatchContext,
+        _context: &mut PatchContext,
     ) -> Result<()> {
         let PatchOp::Set(value) = op else {
             bail!("Invalid op for `String`");
@@ -573,6 +722,10 @@ where
         self.as_mut().authorship(context)
     }
 
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        self.as_ref().provenance()
+    }
+
     fn to_value(&self) -> Result<PatchValue> {
         self.as_ref().to_value()
     }
@@ -589,13 +742,17 @@ where
         self.as_ref().diff(other, context)
     }
 
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        self.as_mut().patch(patch, context)
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
-        self.as_mut().patch(path, op, context)
+        self.as_mut().apply(path, op, context)
     }
 }
 
@@ -604,11 +761,29 @@ impl<T> PatchNode for Option<T>
 where
     T: PatchNode + Serialize + DeserializeOwned,
 {
+    fn to_value(&self) -> Result<PatchValue> {
+        match self {
+            Some(value) => value.to_value(),
+            None => Ok(PatchValue::None),
+        }
+    }
+
+    fn from_value(value: PatchValue) -> Result<Self> {
+        match value {
+            PatchValue::None => Ok(None),
+            _ => T::from_value(value).map(Some),
+        }
+    }
+
     fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
         match self {
             Some(value) => value.authorship(context),
             None => Ok(()),
         }
+    }
+
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        self.as_ref().and_then(|value| value.provenance())
     }
 
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
@@ -628,7 +803,7 @@ where
                 context.op_set(other.to_value()?);
             }
             (Some(..), None) => {
-                context.op_clear();
+                context.op_set(PatchValue::None);
             }
             _ => {}
         };
@@ -636,28 +811,28 @@ where
         Ok(())
     }
 
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        match self {
+            Some(value) => value.patch(patch, context),
+            None => Ok(false), // Patch was not applied
+        }
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
         if path.is_empty() {
-            match op {
-                PatchOp::Set(value) => {
-                    *self = Some(T::from_value(value)?);
-                    return Ok(());
-                }
-                PatchOp::Clear => {
-                    *self = None;
-                    return Ok(());
-                }
-                _ => {}
+            if let PatchOp::Set(value) = op {
+                *self = Self::from_value(value)?;
+                return Ok(());
             }
         }
 
         if let Some(value) = self {
-            value.patch(path, op, context)?;
+            value.apply(path, op, context)?;
         } else {
             bail!("Invalid op for option: {op:?}");
         }
@@ -677,6 +852,14 @@ where
         }
 
         Ok(())
+    }
+
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        let provenance: Vec<ProvenanceCount> = self
+            .iter()
+            .flat_map(|item| item.provenance().into_iter().flatten())
+            .collect();
+        (!provenance.is_empty()).then_some(provenance)
     }
 
     #[allow(unused_variables)]
@@ -1004,7 +1187,23 @@ where
         Ok(())
     }
 
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        if patch.node_id.is_none() {
+            // Apply patch here
+            return patch.apply(self, context);
+        }
+
+        // Try to apply patches to children
+        for child in self {
+            if child.patch(patch, context)? {
+                return Ok(true); // Patch was applied
+            }
+        }
+
+        Ok(false) // Patch was not applied
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,
@@ -1019,7 +1218,7 @@ where
                 bail!("Invalid index for Vec: {index}")
             };
 
-            return child.patch(path, op, context);
+            return child.apply(path, op, context);
         }
 
         let mut from_value = |value: PatchValue| -> Result<T> {
@@ -1055,10 +1254,11 @@ where
                 for (from, tos) in indices {
                     let item = self[from].clone();
                     for to in tos {
+                        let replica = replicate(&item)?;
                         if to < self.len() {
-                            self.insert(to, item.clone());
+                            self.insert(to, replica);
                         } else {
-                            self.push(item.clone());
+                            self.push(replica);
                         }
                     }
                 }

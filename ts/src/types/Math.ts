@@ -5,6 +5,7 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationMessage } from "./CompilationMessage.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * Abstract base type for a mathematical variable or equation.
@@ -27,6 +28,11 @@ export class Math extends Entity {
    * The authors of the math.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the math.
+   */
+  provenance?: ProvenanceCount[];
 
   /**
    * A digest of the `code` and `mathLanguage`.

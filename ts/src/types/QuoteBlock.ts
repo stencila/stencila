@@ -4,6 +4,7 @@ import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { CiteOrText } from "./CiteOrText.js";
 import { Entity } from "./Entity.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * A section quoted from somewhere else.
@@ -26,6 +27,11 @@ export class QuoteBlock extends Entity {
    * The authors of the quote.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the content within the section.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(content: Block[], options?: Partial<QuoteBlock>) {
     super();

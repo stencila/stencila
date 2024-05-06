@@ -6,21 +6,29 @@
     {
       "type": "CodeChunk",
       "code": "console.log(\"Hello world!\")",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
       "outputs": [
         "Hello world!"
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17140629186260891636
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17140629186260891636
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299940551,
+        "value": 1714644289526,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 349,
+        "value": 168,
         "timeUnit": "Millisecond"
       }
     }
@@ -30,12 +38,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710299940551,
+    "value": 1714644289526,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 349,
+    "value": 168,
     "timeUnit": "Millisecond"
   }
 }

@@ -13,7 +13,6 @@ pub use codec::{
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, PoshMap, Position16, Position8,
     Positions, Range16, Range8,
 };
-use node_id::NodeUid;
 use node_strip::{StripNode, StripTargets};
 
 /// Get a list of all codecs
@@ -109,8 +108,6 @@ pub async fn from_str_with_info(
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
-    NodeUid::testing_only_reset();
-
     codec
         .from_str(
             str,
@@ -180,8 +177,6 @@ pub async fn from_path_with_info(
     };
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
-
-    NodeUid::testing_only_reset();
 
     codec
         .from_path(

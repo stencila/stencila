@@ -85,9 +85,12 @@ properties:
   iterations:
     '@id': stencila:iterations
     description: The content repeated for each iteration
+    $comment: |
+      Usually each item in `iterations` will be a `Section` with `SectionType: Iteration`
+      but it could be another `Block` type depending upon the implementation.
     type: array
     items:
-      $ref: Section
+      $ref: Block
     strip: [output]
     walk: true
     dom:

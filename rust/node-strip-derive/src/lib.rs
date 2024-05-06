@@ -25,6 +25,9 @@ struct FieldAttr {
     authors: bool,
 
     #[darling(default)]
+    provenance: bool,
+
+    #[darling(default)]
     metadata: bool,
 
     #[darling(default)]
@@ -105,6 +108,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             if field.authors {
                 fields.extend(quote! {
                     if targets.scopes.contains(&StripScope::Authors) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.provenance {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&StripScope::Provenance) {
                         self.#field_name #strip;
                     }
                 })

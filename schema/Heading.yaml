@@ -21,6 +21,9 @@ proptest: {}
 required:
   - level
   - content
+core:
+  - authors
+  - provenance
 properties:
   level:
     '@id': stencila:level
@@ -72,3 +75,14 @@ properties:
     strip: [authors]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: span
+  provenance:
+    '@id': stencila:provenance
+    description: A summary of the provenance of the content within the heading.
+    type: array
+    items:
+      $ref: ProvenanceCount
+    strip: [provenance]
+    dom:
+      elem: span

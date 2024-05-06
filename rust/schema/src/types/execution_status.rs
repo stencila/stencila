@@ -7,26 +7,37 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum ExecutionStatus {
+    /// Execution of the node has been scheduled for some time in the future.
     #[default]
     Scheduled,
 
+    /// Execution of the node is pending.
     Pending,
 
+    /// Execution of the node has been skipped because it is unnecessary.
     Skipped,
 
+    /// Execution of the node has been skipped because it has code, or other property, that is empty.
     Empty,
 
+    /// The node is currently being executed.
     Running,
 
+    /// Execution of the node completed without warning, error, or exception messages.
     Succeeded,
 
+    /// Execution of the node completed but with warning messages.
     Warnings,
 
+    /// Execution of the node completed but with error messages.
     Errors,
 
+    /// Execution of the node did not complete because there was an exception message.
     Exceptions,
 
+    /// Execution of the node was pending but was cancelled.
     Cancelled,
 
+    /// Execution of the node was running but was interrupted.
     Interrupted,
 }

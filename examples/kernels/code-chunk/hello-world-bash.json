@@ -10,17 +10,25 @@
       "outputs": [
         "Hello world!\n"
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6792336827816215704
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6792336827816215704
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299933644,
+        "value": 1714644288575,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 35,
+        "value": 20,
         "timeUnit": "Millisecond"
       }
     }
@@ -30,12 +38,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710299933644,
+    "value": 1714644288575,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 35,
+    "value": 20,
     "timeUnit": "Millisecond"
   }
 }

@@ -19,11 +19,7 @@ pub mod cli;
 
 /// Get a list of available assistants in descending preference rank
 pub async fn list(all: bool) -> Vec<Arc<dyn Assistant>> {
-    let range = if all {
-        0..=6
-    } else {
-        5..=6
-    };
+    let range = if all { 0..=6 } else { 5..=6 };
 
     let futures = range.map(|provider| async move {
         let (provider, result) = match provider {

@@ -1,0 +1,23 @@
+title: ProvenanceCount
+'@id': stencila:ProvenanceCount
+nick: prc
+extends: Entity
+description: The count of the number of characters in a `ProvenanceCategory` within an entity.
+required:
+  - provenanceCategory
+  - characterCount
+core:
+  - characterPercent
+properties:
+  provenanceCategory:
+    '@id': stencila:provenanceCategory
+    description: The provenance category that the character count applies to.
+    $ref: ProvenanceCategory
+  characterCount:
+    '@id': stencila:characterCount
+    description: The number of characters in the provenance category.
+    $ref: UnsignedInteger
+  characterPercent:
+    '@id': stencila:characterPercent
+    description: The percentage of characters in the provenance category.
+    $ref: UnsignedInteger

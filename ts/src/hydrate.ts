@@ -219,6 +219,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Product.prototype);
     case "PropertyValue":
       return Object.setPrototypeOf(value, types.PropertyValue.prototype);
+    case "ProvenanceCount":
+      return Object.setPrototypeOf(value, types.ProvenanceCount.prototype);
     case "PublicationIssue":
       return Object.setPrototypeOf(value, types.PublicationIssue.prototype);
     case "PublicationVolume":

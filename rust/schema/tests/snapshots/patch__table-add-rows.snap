@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,8 +11,25 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 43
+      characterPercent: 100
   content:
     - type: Table
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 43
+          characterPercent: 100
       rows:
         - type: TableRow
           cells:
@@ -26,7 +43,13 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 7
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 7
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -37,7 +60,13 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 7
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 7
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -48,7 +77,13 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 21
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 21
+                      characterPercent: 100
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -62,7 +97,13 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -73,7 +114,13 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 2
+                      characterPercent: 100
             - type: TableCell
               content:
                 - type: Paragraph
@@ -84,14 +131,13 @@ old:
                         authorship:
                           - - 1
                             - 0
+                            - 0
                             - 3
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
 new:
   type: Article
   content:
@@ -193,150 +239,13 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 77
+      characterPercent: 100
   content:
     - type: Table
-      rows:
-        - type: TableRow
-          cells:
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Country
-                        authorship:
-                          - - 1
-                            - 0
-                            - 7
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Capital
-                        authorship:
-                          - - 1
-                            - 0
-                            - 7
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Population (millions)
-                        authorship:
-                          - - 1
-                            - 0
-                            - 21
-          rowType: HeaderRow
-        - type: TableRow
-          cells:
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: USA
-                        authorship:
-                          - - 1
-                            - 0
-                            - 3
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: DC
-                        authorship:
-                          - - 1
-                            - 0
-                            - 2
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: "328"
-                        authorship:
-                          - - 1
-                            - 0
-                            - 3
-        - type: TableRow
-          cells:
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Canada
-                        authorship:
-                          - - 1
-                            - 1
-                            - 6
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Ottawa
-                        authorship:
-                          - - 1
-                            - 1
-                            - 6
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: "38"
-                        authorship:
-                          - - 1
-                            - 1
-                            - 2
-        - type: TableRow
-          cells:
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Mexico
-                        authorship:
-                          - - 1
-                            - 1
-                            - 6
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: Mexico City
-                        authorship:
-                          - - 1
-                            - 1
-                            - 11
-            - type: TableCell
-              content:
-                - type: Paragraph
-                  content:
-                    - type: Text
-                      value:
-                        string: "129"
-                        authorship:
-                          - - 1
-                            - 1
-                            - 3
       authors:
         - type: AuthorRole
           author:
@@ -350,6 +259,225 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 77
+          characterPercent: 100
+      rows:
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Country
+                        authorship:
+                          - - 1
+                            - 0
+                            - 0
+                            - 7
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 7
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Capital
+                        authorship:
+                          - - 1
+                            - 0
+                            - 0
+                            - 7
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 7
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Population (millions)
+                        authorship:
+                          - - 1
+                            - 0
+                            - 0
+                            - 21
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 21
+                      characterPercent: 100
+          rowType: HeaderRow
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: USA
+                        authorship:
+                          - - 1
+                            - 0
+                            - 0
+                            - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: DC
+                        authorship:
+                          - - 1
+                            - 0
+                            - 0
+                            - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 2
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "328"
+                        authorship:
+                          - - 1
+                            - 0
+                            - 0
+                            - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Canada
+                        authorship:
+                          - - 1
+                            - 1
+                            - 0
+                            - 6
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 6
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Ottawa
+                        authorship:
+                          - - 1
+                            - 1
+                            - 0
+                            - 6
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 6
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "38"
+                        authorship:
+                          - - 1
+                            - 1
+                            - 0
+                            - 2
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 2
+                      characterPercent: 100
+        - type: TableRow
+          cells:
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Mexico
+                        authorship:
+                          - - 1
+                            - 1
+                            - 0
+                            - 6
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 6
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: Mexico City
+                        authorship:
+                          - - 1
+                            - 1
+                            - 0
+                            - 11
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 11
+                      characterPercent: 100
+            - type: TableCell
+              content:
+                - type: Paragraph
+                  content:
+                    - type: Text
+                      value:
+                        string: "129"
+                        authorship:
+                          - - 1
+                            - 1
+                            - 0
+                            - 3
+                  provenance:
+                    - type: ProvenanceCount
+                      provenanceCategory: Hw
+                      characterCount: 3
+                      characterPercent: 100
 ops:
   - - - content
       - 0

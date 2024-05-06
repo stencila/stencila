@@ -7,7 +7,13 @@ use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
 };
 
-use crate::{prelude::*, Cord, CordOp};
+use crate::{
+    cord_provenance::{
+        category, display, human_edited, human_written, machine_edited, machine_written,
+    },
+    prelude::*,
+    Cord, CordOp, CordRun, ProvenanceCount,
+};
 
 impl Cord {
     /// Get the number of authorship runs in the cord
@@ -17,33 +23,51 @@ impl Cord {
 
     /// Get the count of authors for an authorship run
     pub fn run_count(&self, run: usize) -> u8 {
-        self.runs[run].0
+        self.runs[run].count
     }
 
     /// Get the list of authors for an authorship run
     pub fn run_authors(&self, run: usize) -> Vec<u8> {
-        let (count, value, ..) = self.runs[run];
-        Self::extract_authors(count, value)
+        let CordRun { count, authors, .. } = self.runs[run];
+        Self::extract_authors(count, authors)
     }
 
     /// Get the length of an authorship run
     pub fn run_length(&self, run: usize) -> u32 {
-        self.runs[run].2
+        self.runs[run].length
     }
 
     /// Update the authors in an authorship run in the cord
-    pub fn update_authors(count: u8, mut authors: u64, author: u8) -> Option<(u8, u64)> {
+    ///
+    /// Return `None` if there is no update. Otherwise return updated
+    /// count, authors and mi.
+    pub fn update_authors(
+        count: u8,
+        mut authors: u64,
+        prov: u8,
+        author: u8,
+        author_type: AuthorType,
+    ) -> Option<(u8, u64, u8)> {
+        // Check if update is needed
         let last_author = (authors & 0xFF) as u8;
         if count != 0 && last_author == author {
             return None;
         }
 
+        // Shift authors along
         authors <<= 8;
         authors |= author as u64;
 
+        // Increment the count of authors
         let count = count.saturating_add(1);
 
-        Some((count, authors))
+        // Update the provenance byte
+        let prov = match author_type {
+            AuthorType::Human => human_edited(prov),
+            AuthorType::Machine => machine_edited(prov),
+        };
+
+        Some((count, authors, prov))
     }
 
     /// Get the list of authors for an authorship run
@@ -57,25 +81,45 @@ impl Cord {
         authors
     }
 
+    /// Create a JSON array of the authors
+    pub fn json_authors(count: u8, value: u64) -> String {
+        let mut json = "[".to_string();
+        let mut first = true;
+        for author in Self::extract_authors(count, value) {
+            if !first {
+                json.push(',')
+            }
+            json.push_str(&author.to_string());
+            first = false;
+        }
+        json.push(']');
+        json
+    }
+
     /// Set the run of the cord to indicate unknown authorship
     ///
     /// Should normally only be used when `runs` is empty but `string` is not.
-    fn unknown_author(&mut self, run_length: u32) {
-        self.runs = vec![(1, u8::MAX as u64, run_length)];
+    fn unknown_author(&mut self, length: u32) {
+        self.runs = vec![CordRun {
+            count: 1,
+            authors: u8::MAX as u64,
+            provenance: 0,
+            length,
+        }];
     }
 
     /// Coalesce runs where possible
     fn coalesce_runs(&mut self) {
         if self.runs.len() > 1 {
-            let mut coalesced: Vec<(u8, u64, u32)> = Vec::with_capacity(1);
+            let mut coalesced: Vec<CordRun> = Vec::with_capacity(1);
             for run in self.runs.iter() {
                 if let Some(last) = coalesced.last_mut() {
-                    if (run.0, run.1) == (last.0, last.1) {
-                        last.2 += run.2;
+                    if (run.count, run.authors) == (last.count, last.authors) {
+                        last.length += run.length;
                         continue;
                     }
                 }
-                coalesced.push(*run)
+                coalesced.push(run.clone())
             }
             self.runs = coalesced;
         }
@@ -87,8 +131,8 @@ impl Cord {
     fn check_runs(&self) {
         let mut runs = 0usize;
         for run in self.runs.iter() {
-            assert!(run.2 > 0, "run length is zero: {:?}", self.runs);
-            runs += run.2 as usize;
+            assert!(run.length > 0, "run length is zero: {:?}", self.runs);
+            runs += run.length as usize;
         }
 
         let chars = self.string.chars().count();
@@ -143,7 +187,13 @@ impl Cord {
     }
 
     /// Apply an insert operation
-    pub fn apply_insert(&mut self, position: usize, value: &str, author: u8) {
+    pub fn apply_insert(
+        &mut self,
+        position: usize,
+        value: &str,
+        author: Option<u8>,
+        author_type: Option<AuthorType>,
+    ) {
         let old_length = self.chars().count();
 
         // Check for out of bounds pos  or empty value
@@ -158,11 +208,24 @@ impl Cord {
             self.push_str(value);
         }
 
+        // If was empty and no author supplied then can return early
+        if old_length == 0 && author.is_none() {
+            return;
+        }
+
+        // Otherwise, we need to add some authorship so if author
+        // not supplied then add as unknown author
+        let author = author.unwrap_or(u8::MAX);
+        let prov = match author_type {
+            Some(AuthorType::Machine) => machine_written(),
+            Some(AuthorType::Human) | None => human_written(),
+        };
+
         let value_length = value.chars().count() as u32;
 
         // Shortcut for updating authorship if was empty
         if old_length == 0 {
-            self.runs = vec![(1, author as u64, value_length)];
+            self.runs = vec![CordRun::new(1, author as u64, prov, value_length)];
             return;
         }
 
@@ -176,7 +239,12 @@ impl Cord {
         let mut run_start = 0usize;
         let mut inserted = false;
         for run in 0..self.runs.len() {
-            let (run_count, run_authors, run_length) = self.runs[run];
+            let CordRun {
+                count: run_count,
+                authors: run_authors,
+                provenance: run_prov,
+                length: run_length,
+            } = self.runs[run];
             let run_history = (run_count, run_authors);
             let run_length = run_length as usize;
             let run_end = run_start + run_length;
@@ -187,10 +255,11 @@ impl Cord {
                 // Position is before run
                 if run_history == history {
                     // Same history: extend the existing run
-                    self.runs[run].2 += value_length;
+                    self.runs[run].length += value_length;
                 } else {
                     // Different author: insert before
-                    self.runs.insert(run, (history.0, history.1, value_length));
+                    self.runs
+                        .insert(run, CordRun::new(history.0, history.1, prov, value_length));
                 }
 
                 inserted = true;
@@ -199,20 +268,23 @@ impl Cord {
                 // Position is within run
                 if run_history == history {
                     // Same history: extend the existing run
-                    self.runs[run].2 += value_length;
+                    self.runs[run].length += value_length;
                 } else {
                     // Split the run and insert after
-                    self.runs[run].2 = (position - run_start) as u32;
+                    self.runs[run].length = (position - run_start) as u32;
                     self.runs.insert(
                         run + 1,
-                        (
-                            run_history.0,
-                            run_history.1,
+                        CordRun::new(
+                            run_count,
+                            run_authors,
+                            run_prov,
                             (run_length - (position - run_start)) as u32,
                         ),
                     );
-                    self.runs
-                        .insert(run + 1, (history.0, history.1, value_length));
+                    self.runs.insert(
+                        run + 1,
+                        CordRun::new(history.0, history.1, prov, value_length),
+                    );
                 }
 
                 inserted = true;
@@ -226,13 +298,14 @@ impl Cord {
             let same_as_last = self
                 .runs
                 .last()
-                .map(|&(run_count, run_authors, ..)| (run_count, run_authors) == history)
+                .map(|run| (run.count, run.authors) == history)
                 .unwrap_or_default();
             if same_as_last {
                 let last = self.runs.len() - 1;
-                self.runs[last].2 += value_length;
+                self.runs[last].length += value_length;
             } else {
-                self.runs.push((history.0, history.1, value_length));
+                self.runs
+                    .push(CordRun::new(history.0, history.1, prov, value_length));
             }
         }
 
@@ -276,7 +349,9 @@ impl Cord {
         let mut run = 0;
         let mut run_start = 0usize;
         while run < self.runs.len() {
-            let (.., run_length) = self.runs[run];
+            let &CordRun {
+                length: run_length, ..
+            } = &self.runs[run];
             let run_length = run_length as usize;
             let run_end = run_start + run_length;
 
@@ -292,12 +367,12 @@ impl Cord {
                 break;
             } else if run_start <= range.start && run_end >= range.end {
                 // Delete within a single run: update length and finish
-                self.runs[run].2 = (run_length - range.len()) as u32;
+                self.runs[run].length = (run_length - range.len()) as u32;
                 break;
             } else if run_start < range.start {
                 // Delete spans multiple runs and starts midway through this one:
                 // update length and continue
-                self.runs[run].2 = (range.start - run_start) as u32;
+                self.runs[run].length = (range.start - run_start) as u32;
                 run += 1;
             } else if run_start >= range.start && run_end <= range.end {
                 // Delete spans multiple runs and spans this one completely:
@@ -311,7 +386,7 @@ impl Cord {
             } else if run_end > range.end {
                 // Delete spans multiple run and ends midway through this one:
                 // update length and finish
-                self.runs[run].2 = (run_end - range.end) as u32;
+                self.runs[run].length = (run_end - range.end) as u32;
                 break;
             }
 
@@ -325,7 +400,13 @@ impl Cord {
     }
 
     // Replace a range in the string with new content and update authorship
-    pub fn apply_replace(&mut self, range: Range<usize>, value: &str, author: u8) {
+    pub fn apply_replace(
+        &mut self,
+        range: Range<usize>,
+        value: &str,
+        author_index: Option<u8>,
+        author_type: Option<AuthorType>,
+    ) {
         let old_length = self.chars().count();
 
         // Check for out of bounds range or nothing to do
@@ -345,6 +426,16 @@ impl Cord {
             (None, None) => self.replace_range(.., value),
         }
 
+        // If was empty and no author supplied then can return early
+        if old_length == 0 && author_index.is_none() {
+            return;
+        }
+
+        // Otherwise, need to add some authorship, so if author
+        // not supplied then add as unknown author
+        let author = author_index.unwrap_or(u8::MAX);
+        let author_type = author_type.unwrap_or(AuthorType::Human);
+
         // If runs is empty then add a single "unknown author" run for the old_length
         if self.runs.is_empty() && !self.is_empty() {
             self.unknown_author(old_length as u32);
@@ -356,7 +447,12 @@ impl Cord {
         let mut run_start = 0usize;
         let mut multi_run_length = 0;
         while run < self.runs.len() {
-            let (run_count, run_authors, run_length) = self.runs[run];
+            let &CordRun {
+                count: run_count,
+                authors: run_authors,
+                provenance: run_prov,
+                length: run_length,
+            } = &self.runs[run];
             let run_length = run_length as usize;
             let run_end = run_start + run_length;
 
@@ -368,60 +464,76 @@ impl Cord {
                 break;
             } else if run_start == range.start && run_end == range.end {
                 // Replace of entire run: update authorship and finish
-                if let Some((new_count, new_authors)) =
-                    Self::update_authors(run_count, run_authors, author)
+                if let Some((new_count, new_authors, new_prov)) =
+                    Self::update_authors(run_count, run_authors, run_prov, author, author_type)
                 {
-                    self.runs[run].0 = new_count;
-                    self.runs[run].1 = new_authors;
+                    let run = &mut self.runs[run];
+                    run.count = new_count;
+                    run.authors = new_authors;
+                    run.provenance = new_prov;
                 }
-                self.runs[run].2 = value_length as u32;
+                self.runs[run].length = value_length as u32;
                 break;
             } else if run_start == range.start && run_end > range.end
                 || run_start < range.start && run_end == range.end
             {
                 // Replace at start or end of run and enclosed within it: update length of this run,
                 // create a new run if necessary, and finish
-                if let Some((new_count, new_authors)) =
-                    Self::update_authors(run_count, run_authors, author)
+                if let Some((new_count, new_authors, new_prov)) =
+                    Self::update_authors(run_count, run_authors, run_prov, author, author_type)
                 {
-                    self.runs[run].2 = (run_length - range.len()) as u32;
+                    self.runs[run].length = (run_length - range.len()) as u32;
 
                     let new_run = if run_end == range.end { run + 1 } else { run };
-                    self.runs
-                        .insert(new_run, (new_count, new_authors, value_length as u32))
+                    self.runs.insert(
+                        new_run,
+                        CordRun::new(new_count, new_authors, new_prov, value_length as u32),
+                    )
                 } else {
-                    self.runs[run].2 = (run_length + value_length - range.len()) as u32;
+                    self.runs[run].length = (run_length + value_length - range.len()) as u32;
                 }
                 break;
             } else if run_start < range.start && run_end > range.end {
                 // Replace within a single run but not at either end: update length of this run,
                 // create two new runs if necessary, and finish
-                if let Some((new_count, new_authors)) =
-                    Self::update_authors(run_count, run_authors, author)
+                if let Some((new_count, new_authors, new_prov)) =
+                    Self::update_authors(run_count, run_authors, run_prov, author, author_type)
                 {
-                    self.runs[run].2 = (range.start - run_start) as u32;
+                    self.runs[run].length = (range.start - run_start) as u32;
 
-                    self.runs
-                        .insert(run + 1, (new_count, new_authors, value_length as u32));
-                    self.runs.insert(
-                        run + 2,
-                        (run_count, run_authors, (run_end - range.end) as u32),
-                    );
-                } else {
-                    self.runs[run].2 = (run_length + value_length - range.len()) as u32;
-                }
-                break;
-            } else if run_start < range.start {
-                // Replace spans multiple runs and starts midway through this one:
-                // split this run into two if necessary and accumulate remaining run length
-                if let Some((new_count, new_authors)) =
-                    Self::update_authors(run_count, run_authors, author)
-                {
-                    let new_length = range.start - run_start;
-                    self.runs[run].2 = new_length as u32;
                     self.runs.insert(
                         run + 1,
-                        (new_count, new_authors, (run_length - new_length) as u32),
+                        CordRun::new(new_count, new_authors, new_prov, value_length as u32),
+                    );
+                    self.runs.insert(
+                        run + 2,
+                        CordRun::new(
+                            run_count,
+                            run_authors,
+                            run_prov,
+                            (run_end - range.end) as u32,
+                        ),
+                    );
+                } else {
+                    self.runs[run].length = (run_length + value_length - range.len()) as u32;
+                }
+                break;
+            } else if run_start < range.start && run_end > range.start {
+                // Replace spans multiple runs and starts midway through this one:
+                // split this run into two if necessary and accumulate remaining run length
+                if let Some((new_count, new_authors, new_prov)) =
+                    Self::update_authors(run_count, run_authors, run_prov, author, author_type)
+                {
+                    let new_length = range.start - run_start;
+                    self.runs[run].length = new_length as u32;
+                    self.runs.insert(
+                        run + 1,
+                        CordRun::new(
+                            new_count,
+                            new_authors,
+                            new_prov,
+                            (run_length - new_length) as u32,
+                        ),
                     );
 
                     run += 2;
@@ -436,11 +548,13 @@ impl Cord {
                 if multi_run_length >= value_length {
                     self.runs.remove(run);
                 } else {
-                    if let Some((new_count, new_authors)) =
-                        Self::update_authors(run_count, run_authors, author)
+                    if let Some((new_count, new_authors, new_prov)) =
+                        Self::update_authors(run_count, run_authors, run_prov, author, author_type)
                     {
-                        self.runs[run].0 = new_count;
-                        self.runs[run].1 = new_authors;
+                        let run = &mut self.runs[run];
+                        run.count = new_count;
+                        run.authors = new_authors;
+                        run.provenance = new_prov;
                     }
                     multi_run_length += run_length;
                     run += 1;
@@ -451,11 +565,13 @@ impl Cord {
                 // this run can be deleted. Otherwise, update authors if necessary and finish.
                 if multi_run_length >= value_length {
                     self.runs.remove(run);
-                } else if let Some((new_count, new_authors)) =
-                    Self::update_authors(run_count, run_authors, author)
+                } else if let Some((new_count, new_authors, new_prov)) =
+                    Self::update_authors(run_count, run_authors, run_prov, author, author_type)
                 {
-                    self.runs[run].0 = new_count;
-                    self.runs[run].1 = new_authors;
+                    let run = &mut self.runs[run];
+                    run.count = new_count;
+                    run.authors = new_authors;
+                    run.provenance = new_prov;
                 }
                 break;
             } else if run_end > range.end {
@@ -463,12 +579,17 @@ impl Cord {
                 // split this run into two if necessary, adjust for accumulated length
                 // and then finish
                 let new_length = run_end - range.end;
-                self.runs[run].2 = new_length as u32;
+                self.runs[run].length = new_length as u32;
 
                 // If necessary insert a new run before this one for remaining new bytes
                 let remaining = (value_length - multi_run_length) as u32;
                 if remaining > 0 {
-                    self.runs.insert(run, (1, author as u64, remaining))
+                    let prov = match author_type {
+                        AuthorType::Human => human_written(),
+                        AuthorType::Machine => machine_written(),
+                    };
+                    self.runs
+                        .insert(run, CordRun::new(1, author as u64, prov, remaining))
                 }
 
                 break;
@@ -484,12 +605,21 @@ impl Cord {
     }
 
     // Apply operations
-    pub fn apply_ops(&mut self, ops: Vec<CordOp>, author_id: u8) {
+    pub fn apply_ops(
+        &mut self,
+        ops: Vec<CordOp>,
+        author_id: Option<u8>,
+        author_type: Option<AuthorType>,
+    ) {
         for op in ops {
             match op {
-                CordOp::Insert(pos, value) => self.apply_insert(pos, &value, author_id),
+                CordOp::Insert(pos, value) => {
+                    self.apply_insert(pos, &value, author_id, author_type)
+                }
                 CordOp::Delete(range) => self.apply_delete(range),
-                CordOp::Replace(range, value) => self.apply_replace(range, &value, author_id),
+                CordOp::Replace(range, value) => {
+                    self.apply_replace(range, &value, author_id, author_type)
+                }
             }
         }
     }
@@ -499,10 +629,29 @@ impl StripNode for Cord {}
 
 impl PatchNode for Cord {
     fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
-        let author_index = context.author_index();
-        self.runs = vec![(1, author_index as u64, self.len() as u32)];
+        if let Some(author_index) = context.author_index() {
+            let mi = match context.author_type() {
+                Some(AuthorType::Machine) => machine_written(),
+                _ => human_written(),
+            };
+
+            self.runs = vec![CordRun::new(1, author_index as u64, mi, self.len() as u32)];
+        }
 
         Ok(())
+    }
+
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        if self.runs.is_empty() {
+            None
+        } else {
+            Some(
+                self.runs
+                    .iter()
+                    .map(|run| ProvenanceCount::new(category(run.provenance), run.length as u64))
+                    .collect(),
+            )
+        }
     }
 
     fn to_value(&self) -> Result<PatchValue> {
@@ -516,8 +665,7 @@ impl PatchNode for Cord {
         }
     }
 
-    #[allow(unused_variables)]
-    fn similarity(&self, other: &Cord, context: &mut PatchContext) -> Result<f32> {
+    fn similarity(&self, other: &Cord, _context: &mut PatchContext) -> Result<f32> {
         // Calculate a difference ratio using chars as we do for generating diffs
         let diff = TextDiffConfig::default()
             .algorithm(Algorithm::Patience)
@@ -539,8 +687,15 @@ impl PatchNode for Cord {
         Ok(())
     }
 
-    #[allow(unused_variables)]
-    fn patch(
+    fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
+        if patch.node_id.is_some() {
+            return Ok(false);
+        }
+
+        patch.apply(self, context)
+    }
+
+    fn apply(
         &mut self,
         path: &mut PatchPath,
         op: PatchOp,
@@ -554,7 +709,7 @@ impl PatchNode for Cord {
             bail!("Invalid op for Cord");
         };
 
-        self.apply_ops(ops, context.author_index());
+        self.apply_ops(ops, context.author_index(), context.author_type());
 
         Ok(())
     }
@@ -628,6 +783,64 @@ impl WriteNode for Cord {
     }
 }
 
+impl DomCodec for Cord {
+    /// Encode a cord to DOM HTML as a series of <stencila-authorship> elements
+    ///
+    /// For use when the cord is a `Text::value`.
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        if self.runs.is_empty() {
+            context.push_text(&self.string);
+        } else {
+            let chars = self.string.chars();
+
+            for run in &self.runs {
+                context
+                    .enter_elem_attrs(
+                        "stencila-authorship",
+                        [
+                            ("count", &run.count.to_string()),
+                            ("authors", &Self::json_authors(run.count, run.authors)),
+                            ("provenance", &display(run.provenance)),
+                        ],
+                    )
+                    .push_text(&chars.clone().take(run.length as usize).collect::<String>())
+                    .exit_elem();
+            }
+        }
+    }
+
+    /// Encode a cord to DOM HTML as a HTML attribute
+    ///
+    /// For use when the cord is a `CodeChunk::code`, `MathBlock::code` etc.
+    fn to_dom_attr(&self, name: &str, context: &mut DomEncodeContext) {
+        context.push_attr(name, &self.string);
+
+        if !self.runs.is_empty() {
+            let mut json = "[".to_string();
+            let mut start = 0;
+            for run in &self.runs {
+                let end = start + run.length;
+
+                json.push('[');
+                json.push_str(&start.to_string());
+                json.push(',');
+                json.push_str(&end.to_string());
+                json.push(',');
+                json.push_str(&run.count.to_string());
+                json.push(',');
+                json.push_str(&Self::json_authors(run.count, run.authors));
+                json.push_str(",\"");
+                json.push_str(&display(run.provenance));
+                json.push_str("\"]");
+
+                start = end;
+            }
+            json.push(']');
+            context.push_attr(&[name, "-authorship"].concat(), &json);
+        }
+    }
+}
+
 impl HtmlCodec for Cord {
     fn to_html(&self, _context: &mut HtmlEncodeContext) -> String {
         text(self)
@@ -647,7 +860,8 @@ impl MarkdownCodec for Cord {
         if self.runs.is_empty() {
             context.push_str(self.as_str());
         } else {
-            context.push_authored_str(&self.runs, self.as_str());
+            let runs = self.runs.iter().map(CordRun::as_tuple).collect_vec();
+            context.push_authored_str(&runs, self.as_str());
         }
     }
 }

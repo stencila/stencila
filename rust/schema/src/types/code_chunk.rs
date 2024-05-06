@@ -19,6 +19,7 @@ use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
 use super::label_type::LabelType;
 use super::node::Node;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -30,7 +31,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "CodeChunk")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[jats(elem = "code", attribs(executable = "yes"))]
 pub struct CodeChunk {
     /// The type of this item.
@@ -70,6 +71,21 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The authors of the executable code.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the code.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// The type of the label for the chunk.
     #[serde(alias = "label-type", alias = "label_type")]
@@ -216,14 +232,6 @@ pub struct CodeChunkOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The authors of the executable code.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
-    pub authors: Option<Vec<Author>>,
 
     /// Whether the code should be treated as side-effect free when executed.
     #[serde(alias = "execution-pure", alias = "execution_pure")]

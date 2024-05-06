@@ -12,6 +12,7 @@ use common::{
     serde::{Deserialize, Serialize},
     tokio::sync::Mutex,
 };
+use kernel::schema::AuthorRoleName;
 
 use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 
@@ -184,8 +185,9 @@ impl Assistant for PluginAssistant {
 
         // If the assistant provides a system prompt then make a request for it
         // providing the task and options in case the assistant wants to use those for generating
-        // the system prompt
-        let system_prompt = if self.system_prompt {
+        // the system prompt.
+        // Also create a prompter author rile with timestamp now, before generation.
+        let (system_prompt, prompter_role) = if self.system_prompt {
             // Call the plugin assistant's `system_prompt` method
             #[derive(Serialize)]
             #[serde(crate = "common::serde")]
@@ -204,9 +206,12 @@ impl Assistant for PluginAssistant {
                     },
                 )
                 .await?;
-            Some(system_prompt)
+
+            let prompter_role = self.to_author_role(AuthorRoleName::Prompter);
+
+            (Some(system_prompt), Some(prompter_role))
         } else {
-            None
+            (None, None)
         };
 
         // If the assistant has delegates choose one for the task
@@ -261,9 +266,10 @@ impl Assistant for PluginAssistant {
         let mut output =
             GenerateOutput::from_plugin(output, self, &format, task.instruction(), options).await?;
 
-        // If this assistant had a system prompt then assign it as the prompter
-        if system_prompt.is_some() {
-            output.assign_prompter(self);
+        // Add the prompter role, if any. Intentionally appended, not prepended, so that
+        // the generator is the primary author
+        if let Some(prompter_role) = prompter_role {
+            output.authors.push(prompter_role);
         }
 
         Ok(output)

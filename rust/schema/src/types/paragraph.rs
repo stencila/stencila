@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::inline::Inline;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// A paragraph.
@@ -14,7 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Paragraph")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(elem = "p")]
 #[jats(elem = "p")]
 #[markdown(template = "{{content}}\n\n")]
@@ -40,24 +41,6 @@ pub struct Paragraph {
     #[dom(elem = "p")]
     pub content: Vec<Inline>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<ParagraphOptions>,
-
-    /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[serde(skip)]
-    pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct ParagraphOptions {
     /// The authors of the paragraph.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
@@ -65,6 +48,18 @@ pub struct ParagraphOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of content within the paragraph.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Paragraph {

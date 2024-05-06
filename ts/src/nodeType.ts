@@ -94,6 +94,7 @@ export type NodeType =
   | "PostalAddress"
   | "Product"
   | "PropertyValue"
+  | "ProvenanceCount"
   | "PublicationIssue"
   | "PublicationVolume"
   | "QuoteBlock"
@@ -225,6 +226,7 @@ export const NodeTypeList = [
   "PostalAddress",
   "Product",
   "PropertyValue",
+  "ProvenanceCount",
   "PublicationIssue",
   "PublicationVolume",
   "QuoteBlock",

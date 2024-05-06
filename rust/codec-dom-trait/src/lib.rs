@@ -143,16 +143,22 @@ impl DomEncodeContext {
         self
     }
 
-    /// Enter an element with an attribute
+    /// Enter an element with one or more attributes
     ///
-    /// Optimized equivalent of `enter_elem(name).push(attr, value)`
-    pub fn enter_elem_with(&mut self, name: &str, attr: &str, value: &str) -> &mut Self {
+    /// Optimized equivalent of `enter_elem(name).push(attr, value).push(...)`
+    pub fn enter_elem_attrs<const N: usize>(
+        &mut self,
+        name: &str,
+        attrs: [(&str, &str); N],
+    ) -> &mut Self {
         self.content.push('<');
         self.content.push_str(name);
-        self.content.push(' ');
-        self.content.push_str(attr);
-        self.content.push('=');
-        self.push_attr_value(value);
+        for (attr, value) in attrs {
+            self.content.push(' ');
+            self.content.push_str(attr);
+            self.content.push('=');
+            self.push_attr_value(value);
+        }
         self.content.push('>');
 
         self.elements.push(name.to_string());
@@ -163,7 +169,7 @@ impl DomEncodeContext {
     /// Enter a node
     pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
         let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
-        self.enter_elem_with(&name, "id", &node_id.to_string())
+        self.enter_elem_attrs(&name, [("id", &node_id.to_string())])
     }
 
     /// Push an attribute onto the current element
@@ -238,7 +244,7 @@ impl DomEncodeContext {
 
     /// Enter a slot child element
     pub fn enter_slot(&mut self, tag: &str, name: &str) -> &mut Self {
-        self.enter_elem_with(tag, "slot", &name.to_kebab_case())
+        self.enter_elem_attrs(tag, [("slot", &name.to_kebab_case())])
     }
 
     /// Exit a slot child element

@@ -14,6 +14,8 @@ required:
   - code
 core:
   - styleLanguage
+  - authors
+  - provenance
 properties:
   code:
     '@id': stencila:code
@@ -60,13 +62,24 @@ properties:
         strategy: option::of(String::arbitrary())
   authors:
     '@id': schema:author
-    description: The authors of the styling code.
+    description: The authors of the code and content in the styled node.
     type: array
     items:
       $ref: Author
     strip: [authors]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: span
+  provenance:
+    '@id': stencila:provenance
+    description: A summary of the provenance of the code and content in the styed node.
+    type: array
+    items:
+      $ref: ProvenanceCount
+    strip: [provenance]
+    dom:
+      elem: span
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the `code` and `styleLanguage`.

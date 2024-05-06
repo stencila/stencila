@@ -15,6 +15,7 @@ use super::inline::Inline;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -104,6 +105,11 @@ pub struct DatatableOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the work.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]

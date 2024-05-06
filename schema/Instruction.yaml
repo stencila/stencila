@@ -8,6 +8,8 @@ required:
   - messages
 core:
   - assignee
+  - authors
+  - provenance
 properties:
   messages:
     '@id': stencila:messages
@@ -69,4 +71,13 @@ properties:
       $ref: Author
     strip: [authors]
     dom:
-      elem: div
+      elem: span
+  provenance:
+    '@id': stencila:provenance
+    description: A summary of the provenance of the messages and content within the instruction.
+    type: array
+    items:
+      $ref: ProvenanceCount
+    strip: [provenance]
+    dom:
+      elem: span

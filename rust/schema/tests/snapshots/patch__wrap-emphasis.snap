@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 12
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -20,6 +25,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 12
       authors:
         - type: AuthorRole
@@ -28,6 +34,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 12
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -54,6 +65,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 12
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -62,6 +78,7 @@ merged:
             string: "grass "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 6
         - type: Emphasis
@@ -72,6 +89,7 @@ merged:
                 authorship:
                   - - 1
                     - 1
+                    - 0
                     - 6
       authors:
         - type: AuthorRole
@@ -86,6 +104,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 12
+          characterPercent: 100
 ops:
   - - - content
       - 0

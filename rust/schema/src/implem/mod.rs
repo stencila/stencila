@@ -67,3 +67,5 @@ mod text;
 mod time;
 mod timestamp;
 mod validators;
+
+pub use author::AuthorType;

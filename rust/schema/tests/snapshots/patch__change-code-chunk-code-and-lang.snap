@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,12 +11,18 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 5
+      characterPercent: 100
   content:
     - type: CodeChunk
       code:
         string: 1 + 2
         authorship:
           - - 1
+            - 0
             - 0
             - 5
       programmingLanguage: python
@@ -27,6 +33,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -48,6 +59,15 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 4
+      characterPercent: 80
+    - type: ProvenanceCount
+      provenanceCategory: HwHe
+      characterCount: 1
+      characterPercent: 20
   content:
     - type: CodeChunk
       code:
@@ -55,9 +75,11 @@ merged:
         authorship:
           - - 1
             - 0
+            - 0
             - 4
           - - 2
             - 1
+            - 2
             - 1
       programmingLanguage: r
       authors:
@@ -73,6 +95,15 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 4
+          characterPercent: 80
+        - type: ProvenanceCount
+          provenanceCategory: HwHe
+          characterCount: 1
+          characterPercent: 20
 ops:
   - - - content
       - 0

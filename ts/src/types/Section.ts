@@ -3,6 +3,7 @@
 import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 import { SectionType } from "./SectionType.js";
 
 /**
@@ -26,6 +27,11 @@ export class Section extends Entity {
    * The authors of the section.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the content within the section.
+   */
+  provenance?: ProvenanceCount[];
 
   constructor(content: Block[], options?: Partial<Section>) {
     super();

@@ -10,6 +10,7 @@ import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
 import { Inline } from "./Inline.js";
 import { Person } from "./Person.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 import { StringOrNumber } from "./StringOrNumber.js";
 import { Text } from "./Text.js";
 import { Thing } from "./Thing.js";
@@ -36,6 +37,11 @@ export class CreativeWork extends Thing {
    * The authors of the `CreativeWork`.
    */
   authors?: Author[];
+
+  /**
+   * A summary of the provenance of the content within the work.
+   */
+  provenance?: ProvenanceCount[];
 
   /**
    * A secondary contributor to the `CreativeWork`.

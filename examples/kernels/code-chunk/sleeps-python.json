@@ -7,17 +7,25 @@
       "type": "CodeChunk",
       "code": "from time import sleep\n\nsleep(1)",
       "programmingLanguage": "python",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12854196754629141021
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 12854196754629141021
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299993099,
+        "value": 1714644331757,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 2720,
+        "value": 1542,
         "timeUnit": "Millisecond"
       }
     },
@@ -25,17 +33,25 @@
       "type": "CodeChunk",
       "code": "sleep(2)",
       "programmingLanguage": "python",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6402216155334393052
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6402216155334393052
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299995101,
+        "value": 1714644333759,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 2002,
+        "value": 2001,
         "timeUnit": "Millisecond"
       }
     },
@@ -43,17 +59,25 @@
       "type": "CodeChunk",
       "code": "sleep(4)",
       "programmingLanguage": "python",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 3505773282956480655
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 3505773282956480655
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710299999103,
+        "value": 1714644337760,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 4002,
+        "value": 4001,
         "timeUnit": "Millisecond"
       }
     },
@@ -61,12 +85,20 @@
       "type": "CodeChunk",
       "code": "sleep(8)",
       "programmingLanguage": "python",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 18202662095228680142
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 18202662095228680142
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300007104,
+        "value": 1714644345761,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
@@ -81,12 +113,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300007105,
+    "value": 1714644345762,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 16726,
+    "value": 15547,
     "timeUnit": "Millisecond"
   }
 }

@@ -16,7 +16,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
-use super::section::Section;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -28,7 +28,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ForBlock")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 pub struct ForBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -67,6 +67,21 @@ pub struct ForBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The authors of the executable code.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the code.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// The name to give to the variable representing each item in the iterated array
     #[strip(code)]
@@ -108,7 +123,7 @@ pub struct ForBlock {
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
-    pub iterations: Option<Vec<Section>>,
+    pub iterations: Option<Vec<Block>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -219,14 +234,6 @@ pub struct ForBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The authors of the executable code.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
-    pub authors: Option<Vec<Author>>,
 }
 
 impl ForBlock {

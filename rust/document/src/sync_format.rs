@@ -205,7 +205,7 @@ impl Document {
         tracing::trace!("Syncing string");
 
         // Create initial encoding of the root node
-        let node = self.load().await?;
+        let node = self.root.read().await;
         let (
             initial_content,
             EncodeInfo {
@@ -467,9 +467,8 @@ mod tests {
     use common::{eyre::Report, tokio::sync::mpsc::channel};
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use format::Format;
+    use node_strip::StripScope;
     use schema::shortcuts::{art, p, t};
-
-    use crate::DocumentType;
 
     use super::*;
 
@@ -482,7 +481,7 @@ mod tests {
     #[timeout(1000)]
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(DocumentType::Article)?;
+        let document = Document::new()?;
         let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
             .sync_format(
@@ -510,6 +509,7 @@ mod tests {
                     None,
                     Some(EncodeOptions {
                         format: Some(Format::Markdown),
+                        strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                         ..Default::default()
                     }),
                 )
@@ -557,7 +557,7 @@ mod tests {
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(DocumentType::Article)?;
+        let document = Document::new()?;
         let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document
             .sync_format(
@@ -565,10 +565,12 @@ mod tests {
                 Some(patch_sender),
                 Some(DecodeOptions {
                     format: Some(Format::Markdown),
+                    strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                     ..Default::default()
                 }),
                 Some(EncodeOptions {
                     format: Some(Format::Markdown),
+                    strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                     ..Default::default()
                 }),
             )

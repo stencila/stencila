@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 88
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -20,6 +25,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 39
       authors:
         - type: AuthorRole
@@ -28,6 +34,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 39
+          characterPercent: 100
     - type: InstructionBlock
       messages:
         - type: InstructionMessage
@@ -38,6 +49,7 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 49
       assignee: insert-table
       authors:
@@ -47,6 +59,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 49
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -76,6 +93,15 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 84
+      characterPercent: 97
+    - type: ProvenanceCount
+      provenanceCategory: HwHe
+      characterCount: 2
+      characterPercent: 2
   content:
     - type: Paragraph
       content:
@@ -85,6 +111,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 39
       authors:
         - type: AuthorRole
@@ -93,6 +120,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 39
+          characterPercent: 100
     - type: InstructionBlock
       messages:
         - type: InstructionMessage
@@ -103,11 +135,14 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 43
                   - - 2
                     - 1
                     - 2
+                    - 2
                   - - 1
+                    - 0
                     - 0
                     - 2
       assignee: insert-table
@@ -124,6 +159,15 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 45
+          characterPercent: 95
+        - type: ProvenanceCount
+          provenanceCategory: HwHe
+          characterCount: 2
+          characterPercent: 4
 ops:
   - - - content
       - 1

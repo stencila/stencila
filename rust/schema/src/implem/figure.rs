@@ -1,4 +1,4 @@
-use codec_info::{lost_options, lost_work_options};
+use codec_info::lost_options;
 
 use crate::{prelude::*, Figure};
 
@@ -6,8 +6,7 @@ impl MarkdownCodec for Figure {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id))
-            .merge_losses(lost_work_options!(self))
+            .merge_losses(lost_options!(self, id, authors, provenance))
             .push_semis()
             .push_str(" figure");
 

@@ -212,62 +212,6 @@
       "schema:rangeIncludes": {
         "@id": "stencila:IfBlockClause"
       }
-    },
-    {
-      "@id": "schema:author",
-      "@type": "rdfs:Property",
-      "rdfs:label": "authors",
-      "rdfs:comment": "The authors of the if block.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "schema:ItemList"
-        },
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfBlock"
-        },
-        {
-          "@id": "stencila:Instruction"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
-        },
-        {
-          "@id": "stencila:Math"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:Styled"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Author"
-      }
     }
   ]
 }

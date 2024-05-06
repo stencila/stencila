@@ -23,10 +23,9 @@ where
 
 impl DomCodec for Text {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .push_text(self.value.as_str())
-            .exit_elem();
+        context.enter_node(self.node_type(), self.node_id());
+        self.value.to_dom(context);
+        context.exit_elem();
     }
 }
 

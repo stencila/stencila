@@ -29,7 +29,9 @@
     "content"
   ],
   "core": [
-    "id"
+    "id",
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {
@@ -119,9 +121,26 @@
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the heading.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     }
   }

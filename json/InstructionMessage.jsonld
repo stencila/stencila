@@ -139,9 +139,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Table"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -152,9 +149,6 @@
         },
         {
           "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfBlock"
         },
         {
           "@id": "stencila:Instruction"

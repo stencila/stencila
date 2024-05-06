@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 75
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -19,6 +24,7 @@ old:
             string: "The area of a cube is: "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 23
         - type: InstructionInline
@@ -31,6 +37,7 @@ old:
                     authorship:
                       - - 1
                         - 0
+                        - 0
                         - 33
           assignee: insert-inline-math
           authors:
@@ -40,11 +47,17 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 33
+              characterPercent: 100
         - type: Text
           value:
             string: ".\nFollowed by "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 14
         - type: Emphasis
@@ -55,6 +68,7 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 5
       authors:
         - type: AuthorRole
@@ -63,6 +77,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 75
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -97,6 +116,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 82
+      characterPercent: 100
   content:
     - type: Paragraph
       content:
@@ -105,6 +129,7 @@ merged:
             string: "The area of a cube is: "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 23
         - type: InstructionInline
@@ -117,8 +142,10 @@ merged:
                     authorship:
                       - - 1
                         - 1
+                        - 0
                         - 7
                       - - 1
+                        - 0
                         - 0
                         - 33
           authors:
@@ -134,11 +161,17 @@ merged:
                 givenNames:
                   - Bob
               roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 40
+              characterPercent: 100
         - type: Text
           value:
             string: ".\nFollowed by "
             authorship:
               - - 1
+                - 0
                 - 0
                 - 14
         - type: Emphasis
@@ -148,6 +181,7 @@ merged:
                 string: text.
                 authorship:
                   - - 1
+                    - 0
                     - 0
                     - 5
       authors:
@@ -163,6 +197,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 82
+          characterPercent: 100
 ops:
   - - - content
       - 0
@@ -182,4 +221,4 @@ ops:
       - content
       - 1
       - assignee
-    - Clear
+    - Set: ~

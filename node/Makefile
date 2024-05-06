@@ -12,6 +12,9 @@ fix:
 audit:
 	make -C stencila-node audit
 
+pubcheck:
+	make -C stencila-node pubcheck
+
 test:
 	make -C stencila-node test
 

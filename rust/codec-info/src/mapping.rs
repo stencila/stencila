@@ -37,8 +37,8 @@ pub struct MappingEntry {
     /// The node property for property entries
     pub property: Option<NodeProperty>,
 
-    /// The authorship (author count and history) for `Cord` runs
-    pub authorship: Option<(u8, u64)>,
+    /// The authorship (`count`, `authors`, and `provenance`) for `Cord` runs
+    pub authorship: Option<(u8, u64, u8)>,
 }
 
 impl Mapping {
@@ -58,7 +58,7 @@ impl Mapping {
         node_type: NodeType,
         node_id: NodeId,
         property: Option<NodeProperty>,
-        authorship: Option<(u8, u64)>,
+        authorship: Option<(u8, u64, u8)>,
     ) {
         let last = match self.entries.last() {
             Some(entry) => &entry.range,
@@ -159,7 +159,7 @@ impl Mapping {
     }
 
     /// Get the authorship of the `Cord` run, if any, at a UTF-8 character index
-    pub fn authorship_at(&self, index: usize) -> Option<&(u8, u64)> {
+    pub fn authorship_at(&self, index: usize) -> Option<&(u8, u64, u8)> {
         self.entry_at(index)
             .and_then(|entry| entry.authorship.as_ref())
     }

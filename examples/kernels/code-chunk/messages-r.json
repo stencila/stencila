@@ -7,17 +7,25 @@
       "type": "CodeChunk",
       "code": "warning('a warning')\nstop('an error')",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 16339334101103122313
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 16339334101103122313
+      },
       "executionCount": 1,
       "executionRequired": "ExecutionFailed",
       "executionStatus": "Exceptions",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300999723,
+        "value": 1714644294854,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 1013,
+        "value": 275,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -38,17 +46,25 @@
       "type": "CodeChunk",
       "code": "if # This is a syntax error",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 5654209351285914488
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 5654209351285914488
+      },
       "executionCount": 1,
       "executionRequired": "ExecutionFailed",
       "executionStatus": "Exceptions",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300999768,
+        "value": 1714644294864,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 45,
+        "value": 9,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -64,17 +80,25 @@
       "type": "CodeChunk",
       "code": "foo # This is a runtime error",
       "programmingLanguage": "r",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 3399545167262736070
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 3399545167262736070
+      },
       "executionCount": 1,
       "executionRequired": "ExecutionFailed",
       "executionStatus": "Exceptions",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300999797,
+        "value": 1714644294870,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 28,
+        "value": 6,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -92,12 +116,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300999797,
+    "value": 1714644294870,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 1087,
+    "value": 291,
     "timeUnit": "Millisecond"
   }
 }

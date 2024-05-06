@@ -13,10 +13,12 @@ impl Executable for CodeExpression {
             self.programming_language.as_deref().unwrap_or_default(),
         );
 
-        executor.replace_property(
+        executor.patch(
             &node_id,
-            Property::CompilationDigest,
-            info.compilation_digest.into(),
+            [set(
+                NodeProperty::CompilationDigest,
+                info.compilation_digest,
+            )],
         );
 
         WalkControl::Continue
@@ -49,11 +51,11 @@ impl Executable for CodeExpression {
 
         tracing::trace!("Executing CodeExpression {node_id}");
 
-        executor.replace_properties(
+        executor.patch(
             &node_id,
             [
-                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
-                (Property::ExecutionMessages, Value::None),
+                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                none(NodeProperty::ExecutionMessages),
             ],
         );
 
@@ -72,7 +74,10 @@ impl Executable for CodeExpression {
                 .unwrap_or_else(|error| {
                     (
                         Node::Null(Null),
-                        vec![error_to_message("While evaluating expression", error)],
+                        vec![error_to_execution_message(
+                            "While evaluating expression",
+                            error,
+                        )],
                     )
                 });
 
@@ -85,29 +90,29 @@ impl Executable for CodeExpression {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::Output, output.into()),
-                    (Property::ExecutionStatus, status.clone().into()),
-                    (Property::ExecutionRequired, required.into()),
-                    (Property::ExecutionMessages, messages.into()),
-                    (Property::ExecutionDuration, duration.into()),
-                    (Property::ExecutionEnded, ended.into()),
-                    (Property::ExecutionCount, count.into()),
-                    (Property::ExecutionDigest, compilation_digest.into()),
+                    set(NodeProperty::Output, output),
+                    set(NodeProperty::ExecutionStatus, status.clone()),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         } else {
-            executor.replace_properties(
+            executor.patch(
                 &node_id,
                 [
-                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
-                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
-                    (Property::ExecutionMessages, Value::None),
-                    (Property::ExecutionDuration, Value::None),
-                    (Property::ExecutionEnded, Value::None),
-                    (Property::ExecutionDigest, compilation_digest.into()),
+                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
+                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
+                    none(NodeProperty::ExecutionMessages),
+                    none(NodeProperty::ExecutionDuration),
+                    none(NodeProperty::ExecutionEnded),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         };

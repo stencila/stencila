@@ -7,7 +7,7 @@
 
 use std::{fs::read_to_string, sync::Arc};
 
-use assistant::{common::serde::Serializer, AssistantType};
+use assistant::{common::serde::Serializer, schema::AuthorRoleName, AssistantType};
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
 use rust_embed::RustEmbed;
@@ -520,7 +520,10 @@ impl Assistant for SpecializedAssistant {
             .or(self.format.clone())
             .or(Some(FORMAT));
 
-        let output = if options.dry_run {
+        // Create the prompter role now so it has a timestamp before the generator timestamp
+        let prompter_role = self.to_author_role(AuthorRoleName::Prompter);
+
+        let mut output = if options.dry_run {
             // Dry run so just prepare the task but return an empty output
             task.prepare(None, content_format.as_ref(), self.system_prompt.as_ref())
                 .await?;
@@ -549,16 +552,14 @@ impl Assistant for SpecializedAssistant {
             .await?;
 
             // Try once, and then up to `max_retries`, breaking early if successful
+            let mut output = None;
             let max_retries = self.max_retries.unwrap_or(MAX_RETRIES);
             for retry in 0..=max_retries {
                 let result: Result<GenerateOutput> = delegate.perform_task(&task, &options).await;
                 match result {
-                    Ok(mut output) => {
-                        // Assign this assistant as the prompter for the output so it can be recorded
-                        // in messages and output nodes
-                        output.assign_prompter(self);
-
-                        return Ok(output);
+                    Ok(out) => {
+                        output = Some(out);
+                        break;
                     }
                     Err(error) => {
                         if retry >= max_retries {
@@ -581,9 +582,16 @@ impl Assistant for SpecializedAssistant {
                 }
             }
 
-            // Should not be reached but in case it is...
-            bail!("Maximum number of retries reached")
+            match output {
+                Some(output) => output,
+                // Should not be reached but in case it is...
+                None => bail!("Maximum number of retries reached"),
+            }
         };
+
+        // Add the prompter role. Intentionally appended, not prepended, so that
+        // the generator is the primary author
+        output.authors.push(prompter_role);
 
         Ok(output)
     }

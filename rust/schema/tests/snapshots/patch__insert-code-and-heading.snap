@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 31
+      characterPercent: 100
   content:
     - type: Heading
       level: 1
@@ -21,6 +26,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -29,6 +35,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -37,21 +48,6 @@ old:
             authorship:
               - - 1
                 - 0
-                - 5
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-    - type: Paragraph
-      content:
-        - type: Text
-          value:
-            string: para2
-            authorship:
-              - - 1
                 - 0
                 - 5
       authors:
@@ -61,6 +57,33 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
+    - type: Paragraph
+      content:
+        - type: Text
+          value:
+            string: para2
+            authorship:
+              - - 1
+                - 0
+                - 0
+                - 5
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -70,6 +93,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -78,6 +102,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -85,6 +114,7 @@ old:
             string: para3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -94,6 +124,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -142,6 +177,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 39
+      characterPercent: 100
   content:
     - type: Heading
       level: 1
@@ -152,6 +192,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -160,6 +201,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -167,6 +213,7 @@ merged:
             string: para1
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -176,11 +223,17 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: CodeBlock
       code:
         string: ""
         authorship:
           - - 1
+            - 0
             - 0
             - 0
       programmingLanguage: python
@@ -199,6 +252,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -207,6 +261,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -216,6 +275,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -224,6 +284,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -233,6 +298,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -241,6 +307,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Paragraph
       content:
         - type: Text
@@ -248,6 +319,7 @@ merged:
             string: para3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 5
       authors:
@@ -257,6 +329,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 5
+          characterPercent: 100
 ops:
   - - - content
     - Insert:

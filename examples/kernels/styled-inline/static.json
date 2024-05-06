@@ -19,7 +19,11 @@
               "value": "static style"
             }
           ],
-          "css": ".styled{& .bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity))}& .rounded{border-radius:.25rem}& .border{border-width:1px}& .border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248/var(--tw-border-opacity))}& .p-3{padding:.75rem}& .text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163/var(--tw-text-opacity))}}",
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 7767130646580272329
+          },
+          "css": ".bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity))}.rounded{border-radius:.25rem}.border{border-width:1px}.border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248/var(--tw-border-opacity))}.p-3{padding:.75rem}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163/var(--tw-text-opacity))}",
           "classList": "bg-indigo-100 rounded border border-indigo-400 p-3 text-indigo-800"
         },
         {
@@ -44,8 +48,12 @@
               "value": "static style"
             }
           ],
-          "css": ".styled{background-color:#fce7f3;color:#9d174d;padding:.75rem}",
-          "classList": ""
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 1651259217306275657
+          },
+          "css": ".s9vNpD4Tm8dG{background-color:#fce7f3;color:#9d174d;padding:.75rem}",
+          "classList": "s9vNpD4Tm8dG"
         },
         {
           "type": "Text",
@@ -69,8 +77,19 @@
               "value": "style"
             }
           ],
-          "css": ".styled{background-color:}",
-          "classList": ""
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 17227670532186656073
+          },
+          "compilationMessages": [
+            {
+              "type": "CompilationMessage",
+              "level": "Warning",
+              "message": "Warning on Line: 1, Col: 1 in file: ''; Could not match state at class 'background-color:', 'background-color' is not a valid state"
+            }
+          ],
+          "css": "",
+          "classList": "background-color:"
         },
         {
           "type": "Text",
@@ -84,12 +103,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1711242598488,
+    "value": 1714644401468,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 30,
+    "value": 3,
     "timeUnit": "Millisecond"
   }
 }

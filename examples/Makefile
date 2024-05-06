@@ -17,7 +17,7 @@ codecs:
 
 # Execute a particular kernel example and save as JSON
 kernels/%.json: kernels/%.md
-	cargo run -p cli execute $< $@
+	cargo run -p cli --quiet execute $< $@
 
 # Execute all kernel examples
 kernels: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard kernels/**/*.md)))

@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 44
+      characterPercent: 100
   content:
     - type: InstructionBlock
       messages:
@@ -22,7 +27,20 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 13
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 44
+          characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -32,6 +50,7 @@ old:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 31
           authors:
             - type: AuthorRole
@@ -40,13 +59,11 @@ old:
                 givenNames:
                   - Alice
               roleName: Importer
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 31
+              characterPercent: 100
 new:
   type: Article
   content:
@@ -76,6 +93,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 64
+      characterPercent: 100
   content:
     - type: InstructionBlock
       messages:
@@ -87,7 +109,26 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 13
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Bob
+          roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 64
+          characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -97,11 +138,14 @@ merged:
                 authorship:
                   - - 1
                     - 0
+                    - 0
                     - 30
                   - - 1
                     - 1
+                    - 0
                     - 20
                   - - 1
+                    - 0
                     - 0
                     - 1
           authors:
@@ -117,19 +161,11 @@ merged:
                 givenNames:
                   - Bob
               roleName: Writer
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 51
+              characterPercent: 100
 ops:
   - - - content
       - 0

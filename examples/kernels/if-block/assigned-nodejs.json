@@ -6,18 +6,26 @@
     {
       "type": "CodeChunk",
       "code": "const x = 3",
-      "programmingLanguage": "node",
+      "programmingLanguage": "nodejs",
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6617147425683201197
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 6617147425683201197
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300054280,
+        "value": 1714644390105,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 299,
+        "value": 166,
         "timeUnit": "Millisecond"
       }
     },
@@ -38,7 +46,11 @@
                 },
                 {
                   "type": "CodeExpression",
-                  "code": " x "
+                  "code": " x ",
+                  "compilationDigest": {
+                    "type": "CompilationDigest",
+                    "stateDigest": 11004962792487161716
+                  }
                 }
               ]
             }
@@ -48,12 +60,12 @@
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300054284,
+            "value": 1714644390105,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 4,
+            "value": 0,
             "timeUnit": "Millisecond"
           }
         },
@@ -71,7 +83,11 @@
                 },
                 {
                   "type": "CodeExpression",
-                  "code": " x "
+                  "code": " x ",
+                  "compilationDigest": {
+                    "type": "CompilationDigest",
+                    "stateDigest": 11004962792487161716
+                  }
                 }
               ]
             }
@@ -81,12 +97,12 @@
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300054287,
+            "value": 1714644390106,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 3,
+            "value": 1,
             "timeUnit": "Millisecond"
           }
         },
@@ -106,17 +122,25 @@
                   "type": "CodeExpression",
                   "code": " x ",
                   "output": 3,
+                  "compilationDigest": {
+                    "type": "CompilationDigest",
+                    "stateDigest": 11004962792487161716
+                  },
+                  "executionDigest": {
+                    "type": "CompilationDigest",
+                    "stateDigest": 11004962792487161716
+                  },
                   "executionCount": 1,
                   "executionRequired": "No",
                   "executionStatus": "Succeeded",
                   "executionEnded": {
                     "type": "Timestamp",
-                    "value": 1710300054292,
+                    "value": 1714644390106,
                     "timeUnit": "Millisecond"
                   },
                   "executionDuration": {
                     "type": "Duration",
-                    "value": 5,
+                    "value": 0,
                     "timeUnit": "Millisecond"
                   }
                 }
@@ -128,12 +152,12 @@
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1710300054292,
+            "value": 1714644390106,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 5,
+            "value": 0,
             "timeUnit": "Millisecond"
           }
         }
@@ -143,12 +167,12 @@
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300054292,
+        "value": 1714644390106,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 12,
+        "value": 1,
         "timeUnit": "Millisecond"
       }
     }
@@ -158,12 +182,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300054292,
+    "value": 1714644390106,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 311,
+    "value": 167,
     "timeUnit": "Millisecond"
   }
 }

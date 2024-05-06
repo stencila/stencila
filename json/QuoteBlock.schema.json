@@ -25,7 +25,9 @@
   ],
   "core": [
     "id",
-    "cite"
+    "cite",
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {
@@ -105,6 +107,20 @@
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the section.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     }
   }

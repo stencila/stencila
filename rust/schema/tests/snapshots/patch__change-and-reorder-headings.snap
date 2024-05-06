@@ -1,6 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
-expression: "Fixture { old, new, ops, merged }"
+expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
   type: Article
@@ -11,6 +11,11 @@ old:
         givenNames:
           - Alice
       roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 32
+      characterPercent: 100
   content:
     - type: Heading
       level: 1
@@ -21,6 +26,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -29,6 +35,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Heading
       level: 2
       content:
@@ -38,6 +49,7 @@ old:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -46,6 +58,11 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Heading
       level: 3
       content:
@@ -55,22 +72,6 @@ old:
             authorship:
               - - 1
                 - 0
-                - 8
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-    - type: Heading
-      level: 4
-      content:
-        - type: Text
-          value:
-            string: heading4
-            authorship:
-              - - 1
                 - 0
                 - 8
       authors:
@@ -80,6 +81,34 @@ old:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
+    - type: Heading
+      level: 4
+      content:
+        - type: Text
+          value:
+            string: heading4
+            authorship:
+              - - 1
+                - 0
+                - 0
+                - 8
+      authors:
+        - type: AuthorRole
+          author:
+            type: Person
+            givenNames:
+              - Alice
+          roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
 new:
   type: Article
   content:
@@ -118,6 +147,11 @@ merged:
         givenNames:
           - Bob
       roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 37
+      characterPercent: 100
   content:
     - type: Heading
       level: 2
@@ -128,6 +162,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -136,6 +171,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Heading
       level: 1
       content:
@@ -145,6 +185,7 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
       authors:
         - type: AuthorRole
@@ -153,6 +194,11 @@ merged:
             givenNames:
               - Alice
           roleName: Importer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
     - type: Heading
       level: 4
       content:
@@ -162,9 +208,11 @@ merged:
             authorship:
               - - 1
                 - 0
+                - 0
                 - 8
               - - 1
                 - 1
+                - 0
                 - 5
       authors:
         - type: AuthorRole
@@ -179,6 +227,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 13
+          characterPercent: 100
     - type: Heading
       level: 1
       content:
@@ -187,6 +240,7 @@ merged:
             string: heading3
             authorship:
               - - 1
+                - 0
                 - 0
                 - 8
       authors:
@@ -202,6 +256,11 @@ merged:
             givenNames:
               - Bob
           roleName: Writer
+      provenance:
+        - type: ProvenanceCount
+          provenanceCategory: Hw
+          characterCount: 8
+          characterPercent: 100
 ops:
   - - - content
     - Move:

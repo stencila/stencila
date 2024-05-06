@@ -32,6 +32,7 @@
     "autoExec",
     "title",
     "authors",
+    "provenance",
     "keywords",
     "abstract",
     "dateCreated",
@@ -186,6 +187,20 @@
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the work.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
       }
     },
     "contributors": {

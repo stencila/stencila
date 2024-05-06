@@ -131,6 +131,8 @@ export * from "./Primitive.js";
 export * from "./Product.js";
 export * from "./PropertyValue.js";
 export * from "./PropertyValueOrString.js";
+export * from "./ProvenanceCategory.js";
+export * from "./ProvenanceCount.js";
 export * from "./PublicationIssue.js";
 export * from "./PublicationVolume.js";
 export * from "./QuoteBlock.js";

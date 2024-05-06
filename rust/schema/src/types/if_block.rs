@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::author::Author;
 use super::automatic_execution::AutomaticExecution;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
@@ -26,7 +25,6 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "IfBlock")]
-#[patch(authors_on = "options")]
 pub struct IfBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -168,13 +166,6 @@ pub struct IfBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The authors of the if block.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(authors)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<Author>>,
 }
 
 impl IfBlock {

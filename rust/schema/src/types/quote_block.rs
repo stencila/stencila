@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::block::Block;
 use super::cite_or_text::CiteOrText;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// A section quoted from somewhere else.
@@ -15,7 +16,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "QuoteBlock")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "self")]
 #[html(elem = "blockquote")]
 #[jats(elem = "disp-quote")]
 pub struct QuoteBlock {
@@ -44,24 +45,6 @@ pub struct QuoteBlock {
     #[dom(elem = "blockquote")]
     pub content: Vec<Block>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<QuoteBlockOptions>,
-
-    /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[serde(skip)]
-    pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct QuoteBlockOptions {
     /// The authors of the quote.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
@@ -69,6 +52,18 @@ pub struct QuoteBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the section.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl QuoteBlock {
