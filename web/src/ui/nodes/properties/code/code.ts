@@ -14,9 +14,12 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
-import { nodeUi } from '../icons-and-colours'
-import '../../buttons/chevron'
+import { withTwind } from '../../../../twind'
+import { nodeUi } from '../../icons-and-colours'
+import '../../../buttons/chevron'
+import { ExecutionMessage } from '../execution-message'
+
+import { executionMessageLinter } from './utils'
 
 /**
  * A component for rendering the `code` property of `CodeStatic`, `CodeExecutable`
@@ -133,13 +136,14 @@ export class UINodeCode extends LitElement {
       this.language,
       true
     )
-
     let languageExtension: LanguageSupport[]
     if (languageDescription) {
       languageExtension = [await languageDescription.load()]
     } else {
       languageExtension = []
     }
+
+    const executionMessages = this.getExecutionMessages()
 
     return [
       EditorView.editable.of(!this.readOnly),
@@ -148,6 +152,7 @@ export class UINodeCode extends LitElement {
       lineNumbers(),
       foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      executionMessages ? executionMessageLinter(executionMessages) : [],
     ]
   }
 
@@ -184,6 +189,33 @@ export class UINodeCode extends LitElement {
       default:
         return this.language
     }
+  }
+
+  /**
+   * Looks for the `<span slot="execution-messages">` element within the
+   * hidden #messages element, returns `undefined` if messsages our not found
+   */
+  private getExecutionMessages(): ExecutionMessage[] | undefined {
+    const messageParentNode = this.shadowRoot
+      .querySelector('div#messages slot')
+      // @ts-expect-error "assignedElements method will will not detected"
+      .assignedElements({ flatten: true })
+      .find((el: HTMLElement) => el.slot === 'execution-messages') as
+      | HTMLElement
+      | undefined
+
+    if (messageParentNode) {
+      const messageObjects: ExecutionMessage[] = []
+      messageParentNode.childNodes.forEach((node) => {
+        if (node.nodeName.toLowerCase() === 'stencila-execution-message') {
+          messageObjects.push(node as ExecutionMessage)
+        }
+      })
+      if (messageObjects.length > 0) {
+        return messageObjects
+      }
+    }
+    return undefined
   }
 
   override update(changedProperties: Map<string, string | boolean>) {
@@ -232,26 +264,28 @@ export class UINodeCode extends LitElement {
 
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`
-    return html`<div class="overflow-hidden">
-      <div
-        class=${headerClasses}
-        @click=${() => (this.collapsed = !this.collapsed)}
-      >
-        <div class="flex items-center">
-          <sl-icon name="code-square" class="text-base"></sl-icon>
-          <span class="ml-4 text-sm">Code</span>
+    return html`
+      <div class="relative z-10">
+        <div
+          class=${headerClasses}
+          @click=${() => (this.collapsed = !this.collapsed)}
+        >
+          <div class="flex items-center">
+            <sl-icon name="code-square" class="text-base"></sl-icon>
+            <span class="ml-4 text-sm">Code</span>
+          </div>
+          <div class="flex items-center">
+            <stencila-chevron-button
+              position=${this.collapsed ? 'left' : 'down'}
+            ></stencila-chevron-button>
+          </div>
         </div>
-        <div class="flex items-center">
-          <stencila-chevron-button
-            position=${this.collapsed ? 'left' : 'down'}
-          ></stencila-chevron-button>
-        </div>
-      </div>
 
-      <div class=${contentClasses}>
-        <div hidden><slot></slot></div>
-        <div id="codemirror" class=${`bg-gray-50`}></div>
+        <div class=${contentClasses}>
+          <div hidden id="messages"><slot></slot></div>
+          <div id="codemirror" class=${`bg-gray-50`}></div>
+        </div>
       </div>
-    </div>`
+    `
   }
 }

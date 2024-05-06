@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators'
 
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/code/code'
 
 import { CodeStatic } from './code-static'
 

@@ -7,7 +7,7 @@ import { withTwind } from '../twind'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/label-and-caption'
@@ -91,16 +91,8 @@ export class CodeChunk extends CodeExecutable {
           language=${this.programmingLanguage}
           read-only
         >
-        </stencila-ui-node-code>
-
-        <stencila-ui-node-execution-messages
-          type="CodeChunk"
-          message-count=${this.messageCount}
-          warning-count=${this.warningCount}
-          error-count=${this.errorCount}
-        >
           <slot name="execution-messages"></slot>
-        </stencila-ui-node-execution-messages>
+        </stencila-ui-node-code>
       </div>
       <div slot="content">
         <slot name="outputs"></slot>
