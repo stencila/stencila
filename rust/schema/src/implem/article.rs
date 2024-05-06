@@ -1,5 +1,7 @@
 use common::serde_yaml;
 
+use node_strip::{StripNode, StripTargets};
+
 use crate::{prelude::*, Article};
 
 impl Article {
@@ -35,15 +37,30 @@ impl MarkdownCodec for Article {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
-        let mut yaml = serde_yaml::to_value(Self {
+        // Create a header version of self that has no content and can be stripped
+        let mut header = Self {
             //Avoid serializing content unnecessarily
             content: Vec::new(),
             ..self.clone()
-        })
-        .unwrap_or_default();
+        };
 
+        // Strip properties from header that are designated as not supported by Markdown.
+        // This would be better to do based on the "patch formats" declaration in the
+        // schema but that is not accessible from here. So we have to do it "manually"
+        header.strip(&StripTargets {
+            scopes: vec![
+                StripScope::Provenance,
+                StripScope::Execution,
+                StripScope::Code,
+                StripScope::Output,
+            ],
+            types: vec![],
+            properties: vec![],
+        });
+
+        let mut yaml = serde_yaml::to_value(header).unwrap_or_default();
         if let Some(yaml) = yaml.as_mapping_mut() {
-            // Remove the type and (empty array) content
+            // Remove the type and (the now empty) content array
             yaml.remove("type");
             yaml.remove("content");
 
