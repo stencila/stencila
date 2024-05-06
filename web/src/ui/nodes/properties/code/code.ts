@@ -15,11 +15,10 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
-import { nodeUi } from '../../icons-and-colours'
 import '../../../buttons/chevron'
 import { ExecutionMessage } from '../execution-message'
 
-import { executionMessageLinter } from './utils'
+import { executionMessageLinter, messagesTheme } from './utils'
 
 /**
  * A component for rendering the `code` property of `CodeStatic`, `CodeExecutable`
@@ -152,7 +151,9 @@ export class UINodeCode extends LitElement {
       lineNumbers(),
       foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      executionMessages ? executionMessageLinter(executionMessages) : [],
+      executionMessages
+        ? [executionMessageLinter(executionMessages), messagesTheme]
+        : [],
     ]
   }
 
@@ -248,15 +249,6 @@ export class UINodeCode extends LitElement {
   }
 
   override render() {
-    const { borderColour } = nodeUi(this.type)
-
-    const headerClasses = apply([
-      'flex flex-row justify-between items-center',
-      'px-4 py-1.5',
-      `bg-[${borderColour}]`,
-      'cursor-pointer',
-    ])
-
     const contentClasses = apply([
       this.collapsed ? 'max-h-0' : 'max-h-full',
       'transition-max-h duration-200',
@@ -266,21 +258,6 @@ export class UINodeCode extends LitElement {
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`
     return html`
       <div class="relative z-10">
-        <div
-          class=${headerClasses}
-          @click=${() => (this.collapsed = !this.collapsed)}
-        >
-          <div class="flex items-center">
-            <sl-icon name="code-square" class="text-base"></sl-icon>
-            <span class="ml-4 text-sm">Code</span>
-          </div>
-          <div class="flex items-center">
-            <stencila-chevron-button
-              position=${this.collapsed ? 'left' : 'down'}
-            ></stencila-chevron-button>
-          </div>
-        </div>
-
         <div class=${contentClasses}>
           <div hidden id="messages"><slot></slot></div>
           <div id="codemirror" class=${`bg-gray-50`}></div>

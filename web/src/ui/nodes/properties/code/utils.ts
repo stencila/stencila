@@ -44,4 +44,16 @@ const executionMessageLinter = (messages: ExecutionMessage[]): Extension =>
     return diagnostics
   })
 
-export { executionMessageLinter }
+const messagesTheme = EditorView.theme({
+  '.cm-diagnostic': {
+    fontFamily: 'mono',
+    paddingLeft: '16px',
+    paddingRight: '16px',
+    borderBottom: '1px solid #dedede', // grey-200
+  },
+  '.cm-diagnostic:last-child': {
+    borderBottom: '0px',
+  },
+})
+
+export { executionMessageLinter, messagesTheme }

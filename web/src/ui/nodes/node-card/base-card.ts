@@ -79,11 +79,9 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
   private renderIcon() {
     const [library, icon] = this.getIcon()
 
-    return html`<sl-icon
-      library=${library}
-      name=${icon}
-      class="text-2xl"
-    ></sl-icon>`
+    return html`
+      <sl-icon library=${library} name=${icon} class="text-2xl"></sl-icon>
+    `
   }
 
   /**
