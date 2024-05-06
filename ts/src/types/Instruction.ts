@@ -18,11 +18,6 @@ export class Instruction extends Executable {
   messages: InstructionMessage[];
 
   /**
-   * A list of candidates for the assignee property.
-   */
-  candidates?: string[];
-
-  /**
    * An identifier for the agent assigned to perform the instruction
    */
   assignee?: string;

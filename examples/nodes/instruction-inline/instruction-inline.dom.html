@@ -76,6 +76,13 @@
       <p slot=content>
         <stencila-text id=xxx>Instructions with a suggestion:</stencila-text>
         <stencila-instruction-inline id=xxx assignee=insert-inline-math>
+          <div slot=messages>
+            <stencila-instruction-message id=xxx>
+              <div slot=parts>
+                <stencila-text id=xxx>area of circle</stencila-text>
+              </div>
+            </stencila-instruction-message>
+          </div>
           <span slot=suggestion>
             <stencila-insert-inline id=xxx>
               <span slot=content>
@@ -84,23 +91,9 @@
               </span>
             </stencila-insert-inline>
           </span>
-          <div slot=messages>
-            <stencila-instruction-message id=xxx>
-              <div slot=parts>
-                <stencila-text id=xxx>area of circle</stencila-text>
-              </div>
-            </stencila-instruction-message>
-          </div>
         </stencila-instruction-inline>
         <stencila-text id=xxx>and</stencila-text>
         <stencila-instruction-inline id=xxx>
-          <span slot=suggestion>
-            <stencila-replace-inline id=xxx>
-              <span slot=replacement>
-                <stencila-text id=xxx>improved content</stencila-text>
-              </span>
-            </stencila-replace-inline>
-          </span>
           <div slot=messages>
             <stencila-instruction-message id=xxx>
               <div slot=parts>
@@ -110,6 +103,13 @@
           </div>
           <span slot=content>
             <stencila-text id=xxx>existing content</stencila-text>
+          </span>
+          <span slot=suggestion>
+            <stencila-replace-inline id=xxx>
+              <span slot=replacement>
+                <stencila-text id=xxx>improved content</stencila-text>
+              </span>
+            </stencila-replace-inline>
           </span>
         </stencila-instruction-inline>
         <stencila-text id=xxx>.</stencila-text>

@@ -360,7 +360,7 @@ impl Executor {
             }
         }
 
-        let suggestion = &instruction.options.suggestion;
+        let suggestion = &instruction.suggestion;
 
         // Respect `skip_instructions`
         if self.options.skip_instructions {
@@ -399,7 +399,7 @@ impl Executor {
             }
         }
 
-        let suggestion = &instruction.options.suggestion;
+        let suggestion = &instruction.suggestion;
 
         // Respect `skip_instructions`
         if self.options.skip_instructions {

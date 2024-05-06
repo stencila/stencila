@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use codecs::to_path;
 use common::{
     tokio::{self, task::JoinHandle},
     tracing,
@@ -43,13 +44,11 @@ impl Document {
                     match (&command, current_command) {
                         (CompileDocument | ExecuteDocument(..), ExecuteDocument(..)) => {
                             tracing::debug!("Ignoring document command: already executing");
-
                             send_status(command_id, CommandStatus::Ignored);
                             continue;
                         }
-                        (InterruptDocument, ExecuteDocument(..)) => {
+                        (InterruptDocument, ExecuteDocument(..) | ExecuteNodes(..)) => {
                             tracing::debug!("Interrupting document execution");
-
                             send_status(command_id, CommandStatus::Running);
 
                             current_task.abort();
@@ -73,22 +72,62 @@ impl Document {
                             send_status(command_id, status);
                             continue;
                         }
+                        (
+                            InterruptNodes(CommandNodes { node_ids, .. }),
+                            ExecuteDocument(..) | ExecuteNodes(..),
+                        ) => {
+                            tracing::debug!("Interrupting node execution");
+                            send_status(command_id, CommandStatus::Running);
+
+                            // Abort the current task if it has the same node_ids and scope
+                            if &command == current_command {
+                                current_task.abort();
+                            }
+
+                            let status = if let Err(error) = interrupt(
+                                home.clone(),
+                                root.clone(),
+                                kernels.clone(),
+                                patch_sender.clone(),
+                                Some(node_ids.clone()),
+                            )
+                            .await
+                            {
+                                tracing::error!("While interrupting nodes: {error}");
+                                CommandStatus::Failed
+                            } else {
+                                send_status(*current_command_id, CommandStatus::Interrupted);
+                                CommandStatus::Succeeded
+                            };
+
+                            send_status(command_id, status);
+                            continue;
+                        }
                         _ => {}
                     }
                 }
             }
 
             let home = home.clone();
-            let store = root.clone();
+            let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
             let status_sender = command_status_sender.clone();
 
             match command.clone() {
+                PatchNode(patch) => {
+                    let status = if let Err(error) = patch_sender.send(patch) {
+                        tracing::error!("While sending patch: {error}");
+                        CommandStatus::Failed
+                    } else {
+                        CommandStatus::Succeeded
+                    };
+                    send_status(command_id, status);
+                }
                 CompileDocument => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            compile(home, store, kernels, patch_sender, None, None).await
+                            compile(home, root, kernels, patch_sender, None, None).await
                         {
                             tracing::error!("While compiling document: {error}");
                             CommandStatus::Failed
@@ -103,7 +142,7 @@ impl Document {
                 ExecuteDocument(options) => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            execute(home, store, kernels, patch_sender, None, Some(options)).await
+                            execute(home, root, kernels, patch_sender, None, Some(options)).await
                         {
                             tracing::error!("While executing document: {error}");
                             CommandStatus::Failed
@@ -122,7 +161,7 @@ impl Document {
 
                         let status = if let Err(error) = execute(
                             home,
-                            store,
+                            root,
                             kernels,
                             patch_sender,
                             Some(node_ids),
@@ -144,8 +183,31 @@ impl Document {
                         task,
                     ));
                 }
+                ExportDocument((path, options)) => {
+                    let task = tokio::spawn(async move {
+                        let root = &*root.read().await;
+                        let status = match to_path(root, &path, Some(options)).await {
+                            Ok(..) => CommandStatus::Succeeded,
+                            Err(error) => {
+                                // TODO: This and (other errors) should go back in failed status
+                                tracing::error!("While encoding to path: {error}");
+                                CommandStatus::Failed
+                            }
+                        };
+                        status_sender.send((command_id, status)).ok();
+                    });
+                    current = Some((command, command_id, task));
+                }
+                InterruptDocument | InterruptNodes(..) => {
+                    // If these have fallen down to here it means that no execution was happening at the time
+                    // so just ignore them
+                    status_sender
+                        .send((command_id, CommandStatus::Ignored))
+                        .ok();
+                }
                 _ => {
                     tracing::warn!("Document command `{command}` not handled yet");
+                    status_sender.send((command_id, CommandStatus::Failed)).ok();
                 }
             }
         }

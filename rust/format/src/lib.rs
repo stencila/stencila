@@ -28,8 +28,6 @@ use common::{
 #[serde_with(crate = "common::serde_with")]
 pub enum Format {
     // Grouped and ordered as most appropriate for documentation
-    // CRDTs
-    Article,
     // Markup formats
     Dom,
     Html,
@@ -94,7 +92,6 @@ impl Format {
         use Format::*;
         match self {
             Aac => "AAC",
-            Article => "Stencila Article",
             AsciiMath => "AsciiMath",
             Avi => "AVI",
             Bash => "Bash",
@@ -160,8 +157,7 @@ impl Format {
 
     /// Is this a document store format?
     pub fn is_store(&self) -> bool {
-        use Format::*;
-        matches!(self, Article)
+        false
     }
 
     /// Is this an image format?
@@ -218,7 +214,7 @@ impl Format {
             "r" => R,
             "rhai" => Rhai,
             "shell" | "sh" => Shell,
-            "sta" => Article,
+            "smd" => Markdown,
             "svg" => Svg,
             "tailwind" => Tailwind,
             "tex" => Tex,
@@ -342,7 +338,6 @@ impl Display for Format {
         use Format::*;
         f.write_str(match self {
             Aac => "aac",
-            Article => "sta",
             AsciiMath => "asciimath",
             Avi => "avi",
             Bash => "bash",

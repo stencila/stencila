@@ -79,6 +79,28 @@ function registerCommands(context: vscode.ExtensionContext) {
     );
   }
 
+  // Export document command which require user entered file path
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.invoke.export-doc", async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      const filePath = await vscode.window.showInputBox({
+        prompt: "File path to export to",
+        placeHolder: "e.g. report.json",
+      });
+
+      vscode.commands.executeCommand(
+        `stencila.export-doc`,
+        editor.document.uri.toString(),
+        filePath
+      );
+    })
+  );
+
   // Commands that are handled entirely by the client
   context.subscriptions.push(
     vscode.commands.registerCommand(`stencila.view-node`, (uri, nodeId) => {
