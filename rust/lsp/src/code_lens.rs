@@ -51,7 +51,12 @@ pub(crate) async fn request(
                     | NodeType::IfBlock
                     | NodeType::IncludeBlock
                     | NodeType::InstructionBlock => {
-                        vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(VIEW_NODE)]
+                        // It would be nice to show/hide the run and cancel buttons
+                        // based on the execution status of the node but doing this
+                        // while avoiding race conditions is difficult.
+                        // TODO: A cancel lens is not provided because this is currently
+                        // not fully implemented
+                        vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     // Block suggestions
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {

@@ -11,11 +11,11 @@ use std::{
 
 use async_lsp::{
     lsp_types::{
-        ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
-        NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
-        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
-        WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
-        WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
+        request::CodeLensRefresh, ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams,
+        MessageType, NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position,
+        ProgressParams, ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url,
+        WorkDoneProgress, WorkDoneProgressBegin, WorkDoneProgressCancelParams,
+        WorkDoneProgressCreateParams, WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
@@ -98,12 +98,14 @@ pub(super) async fn execute_command(
         .file_name()
         .map_or_else(String::new, |name| name.to_string_lossy().to_string());
 
-    let (command, update) = match command.as_str() {
+    let (title, command, cancellable, update_after) = match command.as_str() {
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
             (
+                "Running node".to_string(),
                 Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                true,
                 matches!(
                     node_type,
                     NodeType::InstructionBlock | NodeType::InstructionInline
@@ -114,7 +116,9 @@ pub(super) async fn execute_command(
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_at(position) {
                 (
+                    "Running current node".to_string(),
                     Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                    true,
                     false,
                 )
             } else {
@@ -122,11 +126,28 @@ pub(super) async fn execute_command(
                 return Ok(None);
             }
         }
-        RUN_ALL_DOC => (Command::ExecuteDocument(ExecuteOptions::default()), false),
+        RUN_ALL_DOC => (
+            format!("Running {file_name}"),
+            Command::ExecuteDocument(ExecuteOptions::default()),
+            true,
+            false,
+        ),
+        CANCEL_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Cancelling node".to_string(),
+                Command::InterruptNodes(CommandNodes::new(vec![node_id], None)),
+                false,
+                false,
+            )
+        }
         EXPORT_DOC => {
             let path = path_buf_arg(args.next())?;
             (
+                "Exporting document".to_string(),
                 Command::ExportDocument((path, EncodeOptions::default())),
+                false,
                 false,
             )
         }
@@ -158,7 +179,7 @@ pub(super) async fn execute_command(
     // the whole document is run, and because it has to hackily wait for the final patch to be
     // applied. Instead need to set up a patch watcher that allows us to watch for
     // the node types and ids to which a patch was applied.
-    if update {
+    if update_after {
         let mut status_receiver = status_receiver.resubscribe();
         let mut client = client.clone();
         tokio::spawn(async move {
@@ -194,6 +215,7 @@ pub(super) async fn execute_command(
                         })
                         .await
                         .ok();
+                    client.code_lens_refresh(()).await.ok();
                     break;
                 }
             }
@@ -201,7 +223,7 @@ pub(super) async fn execute_command(
     }
 
     // Create a progress notification and spawn a task to update it
-    let progress_sender = create_progress(client, format!("Running {file_name}")).await;
+    let progress_sender = create_progress(client, title, cancellable).await;
     tokio::spawn(async move {
         while let Ok((id, status)) = status_receiver.recv().await {
             if id == command_id && status.is_finished() {
@@ -277,6 +299,7 @@ static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);
 async fn create_progress(
     mut client: ClientSocket,
     title: String,
+    cancellable: bool,
 ) -> mpsc::UnboundedSender<(u32, Option<String>)> {
     // Create the token for the progress
     let token = NumberOrString::Number(PROGRESS_TOKEN.fetch_add(1, Ordering::Relaxed));
@@ -295,7 +318,7 @@ async fn create_progress(
             token: token.clone(),
             value: ProgressParamsValue::WorkDone(WorkDoneProgress::Begin(WorkDoneProgressBegin {
                 title,
-                cancellable: Some(true),
+                cancellable: Some(cancellable),
                 ..Default::default()
             })),
         })
