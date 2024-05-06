@@ -440,7 +440,6 @@ pub enum PatchSlot {
     Index(usize),
 }
 
-
 /// A path to reach a node from the root: a vector of [`PatchSlot`]s
 ///
 /// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in

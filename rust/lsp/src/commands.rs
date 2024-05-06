@@ -11,11 +11,11 @@ use std::{
 
 use async_lsp::{
     lsp_types::{
-        request::CodeLensRefresh, ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams,
-        MessageType, NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position,
-        ProgressParams, ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url,
-        WorkDoneProgress, WorkDoneProgressBegin, WorkDoneProgressCancelParams,
-        WorkDoneProgressCreateParams, WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
+        ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
+        NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
+        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
+        WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
+        WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
@@ -35,8 +35,7 @@ use common::{
 use document::{Command, CommandNodes, Document};
 use node_execute::ExecuteOptions;
 use schema::{
-    Author, AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
-    PatchPath, Person, SuggestionStatus,
+    NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, SuggestionStatus,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};

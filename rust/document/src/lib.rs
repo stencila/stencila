@@ -96,7 +96,7 @@ pub enum Command {
     InterruptNodes(CommandNodes),
 
     /// Patch a node in the document
-    PatchNode(Patch)
+    PatchNode(Patch),
 }
 
 /// The node ids for commands that require them
