@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
-use common::{serde::Serialize, strum::Display};
+use common::{serde::{Serialize, Deserialize}, strum::Display};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[strum(serialize_all = "camelCase", crate = "common::strum")]
 pub enum NodeProperty {

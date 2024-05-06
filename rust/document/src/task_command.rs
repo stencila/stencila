@@ -115,6 +115,15 @@ impl Document {
             let status_sender = command_status_sender.clone();
 
             match command.clone() {
+                PatchNode(patch) => {
+                    let status = if let Err(error) = patch_sender.send(patch) {
+                        tracing::error!("While sending patch: {error}");
+                        CommandStatus::Failed
+                    } else {
+                        CommandStatus::Succeeded
+                    };
+                    send_status(command_id, status);
+                }
                 CompileDocument => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =

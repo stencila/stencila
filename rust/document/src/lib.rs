@@ -70,7 +70,7 @@ pub struct LogEntry {
 }
 
 /// A command on a document, or nodes within it
-#[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
 pub enum Command {
@@ -94,10 +94,13 @@ pub enum Command {
 
     /// Interrupt specific nodes within the document
     InterruptNodes(CommandNodes),
+
+    /// Patch a node in the document
+    PatchNode(Patch)
 }
 
 /// The node ids for commands that require them
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(crate = "common::serde")]
 pub struct CommandNodes {
     /// The list of nodes involved in a command
@@ -114,7 +117,7 @@ impl CommandNodes {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case", crate = "common::serde")]
 pub enum CommandScope {
     /// Only listed nodes
