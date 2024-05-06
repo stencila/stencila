@@ -38,8 +38,10 @@ export class Table extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div slot="content">
-          <slot name="rows"></slot>
+        <div class="content" slot="content">
+          <div class="overflow-x-scroll">
+            <slot name="rows"></slot>
+          </div>
           <slot></slot>
         </div>
       </stencila-ui-block-on-demand>

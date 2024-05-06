@@ -34,10 +34,12 @@ figure {
 }
 
 [root] {
-  @apply text-black prose lg:prose-lg;
+  @apply text-black;
+  /* prose lg:prose-lg; */
 
   > section {
-    @apply min-w-80 max-w-prose mx-auto;
+    @apply min-w-80;
+    /* max-w-prose mx-auto; */
   }
 
   h1,
@@ -47,7 +49,6 @@ figure {
   h5,
   h6 {
     font-weight: 500;
-    /* background: green; */
   }
 
   h2,
@@ -76,7 +77,6 @@ figure {
 
   stencila-heading {
     display: block;
-    /* background: blue; */
     border: 1px solid transparent;
 
     + stencila-paragraph {
@@ -143,22 +143,45 @@ figure {
     }
 
     table {
-      @apply my-4;
+      @apply my-4 mx-10 border border-red-500;
 
       tr:first-child {
-        @apply font-bold;
-        @apply border-b border-black;
+        stencila-text {
+          font-weight: bold !important;
+        }
 
         td {
+          @apply pb-3;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+        }
+      }
+
+      tr:nth-child(2) {
+        td {
+          @apply pt-3;
         }
       }
 
       td {
-        @apply p-0;
+        @apply p-0 w-fit;
       }
 
       p {
         @apply m-0;
+      }
+
+      stencila-paragraph {
+        display: contents;
+      }
+
+      stencila-paragraph *,
+      stencila-ui-block-on-demand,
+      stencila-ui-block-on-demand * {
+        max-width: fit-content;
+      }
+
+      div:not(.chip) {
+        display: contents;
       }
     }
 
