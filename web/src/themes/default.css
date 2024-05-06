@@ -1,10 +1,6 @@
-/*
+/**
  * The default theme for document content
- * 
- * TODO: Refine. Currently a very minimal draft based on Tailwind's prose plugin
- * and with placeholders illustrating the used of styles targeting
- * print mode.
-*/
+ */
 
 @import './shared.css';
 
@@ -34,12 +30,10 @@ figure {
 }
 
 [root] {
-  @apply text-black;
-  /* prose lg:prose-lg; */
+  @apply text-black prose lg:prose-lg;
 
   > section {
-    @apply min-w-80;
-    /* max-w-prose mx-auto; */
+    @apply min-w-80 max-w-prose mx-auto;
   }
 
   h1,
@@ -127,8 +121,8 @@ figure {
 
 [view='dynamic'] {
   > [root] {
-    /* @apply max-w-prose; */
-    /* max-width: 100%; */
+    @apply max-w-prose;
+    max-width: 100%;
 
     h1 {
       margin-top: 2rem;
@@ -143,14 +137,16 @@ figure {
     }
 
     table {
-      @apply my-4 mx-10 border border-red-500;
+      @apply my-4 mx-10 border-collapse border-spacing-0 table-auto;
 
-      tr:first-child {
+      tr:first-child,
+      thead {
         stencila-text {
           font-weight: bold !important;
         }
 
-        td {
+        td,
+        th {
           @apply pb-3;
           border-bottom: 1px solid rgba(0, 0, 0, 0.3);
         }
@@ -162,8 +158,9 @@ figure {
         }
       }
 
-      td {
-        @apply p-0 w-fit;
+      td,
+      th {
+        @apply p-0 w-fit pr-3 text-nowrap;
       }
 
       p {
@@ -201,6 +198,25 @@ figure {
     stencila-table {
       [slot='authors'] {
         @apply mt-3;
+      }
+    }
+
+    stencila-datatable {
+      table {
+        @apply mx-0;
+      }
+
+      tr:first-child {
+        td {
+          @apply pt-3 pb-0;
+          border: unset;
+        }
+      }
+
+      tr:nth-child(2) {
+        td {
+          @apply pt-0;
+        }
       }
     }
   }
