@@ -9,7 +9,8 @@ use node_store::{
 
 use crate::{
     cord_provenance::{
-        category, display, human_edited, human_written, machine_edited, machine_written,
+        category, display, human_edited, human_written, machine_edited, machine_influence,
+        machine_written,
     },
     prelude::*,
     Cord, CordOp, CordRun, ProvenanceCount,
@@ -807,6 +808,7 @@ impl DomCodec for Cord {
                             ("count", &run.count.to_string()),
                             ("authors", &Self::json_authors(run.count, run.authors)),
                             ("provenance", &display(run.provenance)),
+                            ("mi", &machine_influence(run.provenance).to_string()),
                         ],
                     )
                     .push_text(&text)
@@ -842,7 +844,9 @@ impl DomCodec for Cord {
                 json.push_str(&Self::json_authors(run.count, run.authors));
                 json.push_str(",\"");
                 json.push_str(&display(run.provenance));
-                json.push_str("\"]");
+                json.push_str("\",");
+                json.push_str(&machine_influence(run.provenance).to_string());
+                json.push(']');
 
                 first = false;
                 start = end;
