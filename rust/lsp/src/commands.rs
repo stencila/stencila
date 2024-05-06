@@ -34,7 +34,10 @@ use common::{
 };
 use document::{Command, CommandNodes, Document};
 use node_execute::ExecuteOptions;
-use schema::{NodeId, NodeType};
+use schema::{
+    Author, AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
+    PatchPath, Person, SuggestionStatus,
+};
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
@@ -140,6 +143,40 @@ pub(super) async fn execute_command(
                 Command::InterruptNodes(CommandNodes::new(vec![node_id], None)),
                 false,
                 false,
+            )
+        }
+        ACCEPT_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Accepting suggestion".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::SuggestionStatus),
+                        PatchOp::Set(SuggestionStatus::Accepted.to_value().unwrap_or_default()),
+                    )],
+                    authors: None,
+                }),
+                false,
+                true,
+            )
+        }
+        REJECT_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Rejecting suggestion".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::SuggestionStatus),
+                        PatchOp::Set(SuggestionStatus::Rejected.to_value().unwrap_or_default()),
+                    )],
+                    authors: None,
+                }),
+                false,
+                true,
             )
         }
         EXPORT_DOC => {

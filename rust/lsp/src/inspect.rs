@@ -9,9 +9,9 @@ use schema::{
     Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, Link, List, ListItem,
     MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note,
     Paragraph, Parameter, ProvenanceCount, QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline,
-    Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, Superscript, Table,
-    TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor,
-    WalkControl,
+    Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlockType,
+    SuggestionInlineType, Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time,
+    Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -173,6 +173,30 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         WalkControl::Break
     }
 
+    fn visit_suggestion_block(&mut self, block: &SuggestionBlockType) -> WalkControl {
+        use SuggestionBlockType::*;
+        match block {
+            InsertBlock(node) => node.inspect(self),
+            DeleteBlock(node) => node.inspect(self),
+            ModifyBlock(node) => node.inspect(self),
+            ReplaceBlock(node) => node.inspect(self),
+        };
+
+        WalkControl::Break
+    }
+
+    fn visit_suggestion_inline(&mut self, inline: &SuggestionInlineType) -> WalkControl {
+        use SuggestionInlineType::*;
+        match inline {
+            InsertInline(node) => node.inspect(self),
+            DeleteInline(node) => node.inspect(self),
+            ModifyInline(node) => node.inspect(self),
+            ReplaceInline(node) => node.inspect(self),
+        };
+
+        WalkControl::Continue
+    }
+
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         self.enter_node(clause.node_type(), clause.node_id(), None, None, None);
         self.visit(&clause.content);
@@ -241,7 +265,7 @@ macro_rules! default {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                //eprintln!("INSPECT DEFAULT {}", self.node_id());
+                eprintln!("INSPECT DEFAULT {}", self.node_id());
 
                 inspector.enter_node(self.node_type(), self.node_id(), None, None, None);
                 inspector.visit(self);
@@ -306,7 +330,7 @@ macro_rules! contented {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                //eprintln!("INSPECT CONT {}", self.node_id());
+                eprintln!("INSPECT CONT {}", self.node_id());
 
                 let detail = self.content.first().map(|first| first.to_text().0);
                 let provenance = self.provenance.clone();
@@ -326,7 +350,7 @@ macro_rules! executable {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                //eprintln!("INSPECT EXEC {}", self.node_id());
+                eprintln!("INSPECT EXEC {}", self.node_id());
 
                 let execution = if let Some(execution_status) = &self.options.execution_status {
                     Some(TextNodeExecution{
@@ -354,7 +378,7 @@ macro_rules! executable_with_provenance {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                //eprintln!("INSPECT EXEC PROV {}", self.node_id());
+                eprintln!("INSPECT EXEC PROV {}", self.node_id());
 
                 let execution = if let Some(execution_status) = &self.options.execution_status {
                     Some(TextNodeExecution{
