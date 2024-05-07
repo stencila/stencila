@@ -3,18 +3,19 @@
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_synchronization
 
 use core::time;
-use std::{ops::ControlFlow, sync::Arc};
+use std::{ops::ControlFlow, path::PathBuf, sync::Arc};
 
 use async_lsp::{
     lsp_types::{
         DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
         DidSaveTextDocumentParams, Position, Range, Url,
     },
-    ClientSocket, Error, LanguageClient,
+    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
 use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format};
 use common::{
+    eyre::{bail, Report},
     tokio::{
         self,
         sync::{mpsc, watch, RwLock},
@@ -160,8 +161,12 @@ pub(super) struct TextDocument {
 
 impl TextDocument {
     /// Create a new text document with an initial source
-    fn new(uri: Url, source: String, client: ClientSocket) -> Self {
-        let doc = Document::new().unwrap(); // TODO: no unwrap
+    fn new(uri: Url, source: String, client: ClientSocket) -> Result<Self, Report> {
+        let path = PathBuf::from(uri.path());
+        let Some(home) = path.parent() else {
+            bail!("File does not have a parent dir")
+        };
+        let doc = Document::init(home.into(), None)?;
 
         let watch_receiver = doc.watch();
 
@@ -188,12 +193,12 @@ impl TextDocument {
             tracing::error!("While sending initial source: {error}");
         }
 
-        TextDocument {
+        Ok(TextDocument {
             source,
             root,
             doc,
             update_sender,
-        }
+        })
     }
 
     /// An async background task which updates the source and
@@ -323,10 +328,18 @@ pub(super) fn did_open(
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
     let source = params.text_document.text;
-    state.documents.insert(
-        uri.clone(),
-        TextDocument::new(uri, source, state.client.clone()),
-    );
+
+    let doc = match TextDocument::new(uri.clone(), source, state.client.clone()) {
+        Ok(doc) => doc,
+        Err(error) => {
+            return ControlFlow::Break(Err(Error::Response(ResponseError::new(
+                ErrorCode::INTERNAL_ERROR,
+                format!("While creating new document: {error}"),
+            ))))
+        }
+    };
+
+    state.documents.insert(uri, doc);
 
     ControlFlow::Continue(())
 }
