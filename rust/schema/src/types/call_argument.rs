@@ -62,10 +62,10 @@ pub struct CallArgument {
     /// The code to be evaluated for the parameter.
     #[strip(code)]
     #[patch(format = "md")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::from)"#))]
     pub code: Cord,
 
     /// The programming language of the code.
