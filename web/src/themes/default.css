@@ -1,20 +1,297 @@
-/*
+/**
  * The default theme for document content
- * 
- * TODO: Refine. Currently a very minimal draft based on Tailwind's prose plugin
- * and with placeholders illustrating the used of styles targeting
- * print mode.
-*/
+ */
+
+@import './shared.css';
+
+body {
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
 
 :root {
-  @apply mx-auto prose max-w-none lg:prose-xl;
+  @apply mx-auto;
   font-family: Georgia, 'Times New Roman', Times, serif;
   padding: 3rem;
 }
 
-@media print {}
+figure {
+  @apply mx-0;
+}
+
+@media print {
+}
 
 @page {
   size: 21cm 29.7cm;
   margin: 1cm;
+}
+
+[root] {
+  @apply text-black prose lg:prose-lg;
+
+  > section {
+    @apply min-w-80 max-w-prose mx-auto;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply mb-1.5;
+  }
+
+  p {
+    @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
+  }
+
+  figure {
+    @apply my-4 mx-0;
+  }
+
+  figcaption {
+    @apply text-black;
+
+    p {
+      @apply italic;
+    }
+  }
+
+  table {
+    @apply my-4 border-collapse border-spacing-0 table-auto;
+
+    tr:first-child,
+    thead {
+      stencila-text {
+        font-weight: bold !important;
+      }
+
+      td,
+      th {
+        @apply pb-3;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    tr:nth-child(2) {
+      td {
+        @apply pt-3;
+      }
+    }
+
+    td,
+    th {
+      @apply p-0 w-fit pr-3 text-nowrap;
+    }
+
+    p {
+      @apply m-0;
+    }
+
+    stencila-paragraph {
+      display: contents;
+    }
+
+    stencila-paragraph *,
+    stencila-ui-block-on-demand,
+    stencila-ui-block-on-demand * {
+      max-width: fit-content;
+    }
+
+    div:not(.chip) {
+      display: contents;
+    }
+  }
+
+  stencila-code-chunk {
+    [slot='outputs'] {
+      @apply my-4;
+
+      stencila-boolean,
+      stencila-integer,
+      stencila-number,
+      stencila-string,
+      stencila-array,
+      stencila-object {
+        @apply font-mono prose;
+      }
+    }
+
+    + stencila-paragraph {
+      p {
+        @apply mt-0;
+      }
+    }
+  }
+
+  stencila-heading {
+    display: block;
+    border: 1px solid transparent;
+
+    + stencila-paragraph {
+      p {
+        margin-top: 0;
+      }
+    }
+  }
+
+  stencila-paragraph {
+    display: block;
+    /* background: orange; */
+    border: 1px solid transparent;
+
+    &:has(+ stencila-heading) {
+      p {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  stencila-instruction-block {
+    &:has(+ stencila-heading) {
+      ol {
+        @apply mb-0;
+      }
+    }
+
+    &:has(+ stencila-paragraph) {
+      table {
+        @apply mb-0;
+      }
+    }
+
+    [slot='messages'] {
+      @apply hidden;
+    }
+  }
+
+  stencila-list-item {
+    stencila-paragraph {
+      margin: 0;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  stencila-ui-node-code {
+    max-width: 100%;
+  }
+
+  stencila-ui-block-on-demand {
+    div {
+      /* background: goldenrod; */
+    }
+  }
+
+  stencila-code-chunk {
+    [slot='caption'] {
+      @apply hidden;
+    }
+  }
+
+  stencila-datatable {
+    table {
+      @apply mx-0;
+    }
+
+    tr:first-child {
+      td {
+        @apply pt-3 pb-0;
+        border: unset;
+      }
+    }
+
+    tr:nth-child(2) {
+      td {
+        @apply pt-0;
+      }
+    }
+  }
+
+  stencila-code-chunk {
+    [slot='outputs'] {
+      stencila-boolean,
+      stencila-integer,
+      stencila-number,
+      stencila-string,
+      stencila-array,
+      stencila-object {
+        @apply block;
+      }
+    }
+  }
+}
+
+[view='dynamic'] {
+  > [root] {
+    @apply max-w-prose;
+    max-width: 100%;
+
+    h1 {
+      margin-top: 2rem;
+    }
+
+    figure {
+      @apply m-0;
+    }
+
+    li {
+      @apply m-0 list-item w-full;
+    }
+
+    table {
+      @apply mx-10;
+    }
+
+    stencila-datatable {
+      table {
+        @apply mx-0;
+      }
+    }
+
+    stencila-figure,
+    stencila-ui-block-on-demand {
+      figure {
+        @apply my-3 mx-0 max-w-full;
+      }
+    }
+
+    stencila-instruction-block {
+      [slot='messages'] {
+        display: block;
+      }
+
+      &:has(+ stencila-paragraph) {
+        table {
+          @apply mb-4;
+        }
+      }
+    }
+
+    stencila-table {
+      [slot='authors'] {
+        @apply mt-3;
+      }
+    }
+
+    stencila-code-chunk {
+      [slot='caption'] {
+        @apply block;
+      }
+    }
+  }
 }

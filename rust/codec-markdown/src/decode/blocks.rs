@@ -184,7 +184,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                         blocks.last_mut()
                                     {
                                         // Associate the suggestion with the instruction
-                                        instruct.options.suggestion = Some(suggestion);
+                                        instruct.suggestion = Some(suggestion);
 
                                         // Extend the instruction to the end of the suggestion
                                         context.map_extend(instruct.node_id(), node_id);

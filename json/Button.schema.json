@@ -294,19 +294,19 @@
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of code.",
-          "value": "Cord::new(\"code\")"
+          "value": "Cord::from(\"code\")"
         },
         "low": {
           "description": "Generate a random string of up to 10 alphanumeric characters (excludes whitespace which\ncan be problematic in Markdown).\n",
-          "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::new)"
+          "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::from)"
         },
         "high": {
           "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
-          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::new)"
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::from)"
         },
         "max": {
           "description": "Generate an arbitrary string.",
-          "strategy": "String::arbitrary().prop_map(Cord::new)"
+          "strategy": "String::arbitrary().prop_map(Cord::from)"
         }
       },
       "$ref": "Cord.schema.json"

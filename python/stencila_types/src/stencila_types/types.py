@@ -709,9 +709,6 @@ class Instruction(Executable):
     messages: list[InstructionMessage]
     """Messages involved in the instruction."""
 
-    candidates: list[str] | None = None
-    """A list of candidates for the assignee property."""
-
     assignee: str | None = None
     """An identifier for the agent assigned to perform the instruction"""
 

@@ -129,15 +129,6 @@ async fn paragraph() -> Result<()> {
 
     assert_snapshot!(md, @r###"
     ---
-    provenance:
-    - type: ProvenanceCount
-      provenanceCategory: Hw
-      characterCount: 2
-      characterPercent: 15
-    - type: ProvenanceCount
-      provenanceCategory: HwHe
-      characterCount: 11
-      characterPercent: 84
     authors:
     - type: AuthorRole
       author:
@@ -158,15 +149,15 @@ async fn paragraph() -> Result<()> {
 
     assert_snapshot!(mapping, @r###"
     start     end        offsets   node_type+property                   authorship
-       401    402     (401, 402)   Text                                 (1, 0, 0)
-       402    413        (1, 11)   Text                                 (2, 1, 2)
-       413    414        (11, 1)   Text                                 (1, 0, 0)
-       401    414       (-12, 0)   Text.value
-       401    414         (0, 0)   Text
-       401    414         (0, 0)   Paragraph.content
-       401    415         (0, 1)   Paragraph
-       401    416         (0, 1)   Article.content
-         0    416      (-401, 0)   Article
+       202    203     (202, 203)   Text                                 (1, 0, 0)
+       203    214        (1, 11)   Text                                 (2, 1, 2)
+       214    215        (11, 1)   Text                                 (1, 0, 0)
+       202    215       (-12, 0)   Text.value
+       202    215         (0, 0)   Text
+       202    215         (0, 0)   Paragraph.content
+       202    216         (0, 1)   Paragraph
+       202    217         (0, 1)   Article.content
+         0    217      (-202, 0)   Article
     "###);
 
     Ok(())
@@ -287,15 +278,6 @@ print('Hello, world!')
 
     assert_snapshot!(md, @r###"
     ---
-    provenance:
-    - type: ProvenanceCount
-      provenanceCategory: Hw
-      characterCount: 11
-      characterPercent: 50
-    - type: ProvenanceCount
-      provenanceCategory: HwHe
-      characterCount: 11
-      characterPercent: 50
     authors:
     - type: AuthorRole
       author:
@@ -318,14 +300,14 @@ print('Hello, world!')
 
     assert_snapshot!(mapping, @r###"
     start     end        offsets   node_type+property                   authorship
-       405    411     (405, 411)   CodeChunk.programmingLanguage
-       417    425       (12, 14)   CodeChunk                            (1, 0, 0)
-       425    436        (8, 11)   CodeChunk                            (2, 1, 2)
-       436    439        (11, 3)   CodeChunk                            (1, 0, 0)
-       417    439       (-19, 0)   CodeChunk.code
-       402    444       (-15, 5)   CodeChunk
-       402    445         (0, 1)   Article.content
-         0    445      (-402, 0)   Article
+       205    211     (205, 211)   CodeChunk.programmingLanguage
+       217    225       (12, 14)   CodeChunk                            (1, 0, 0)
+       225    236        (8, 11)   CodeChunk                            (2, 1, 2)
+       236    239        (11, 3)   CodeChunk                            (1, 0, 0)
+       217    239       (-19, 0)   CodeChunk.code
+       202    244       (-15, 5)   CodeChunk
+       202    245         (0, 1)   Article.content
+         0    245      (-202, 0)   Article
     "###);
 
     Ok(())

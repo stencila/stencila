@@ -120,6 +120,8 @@ pub trait Microkernel: Sync + Send + Kernel {
 
     /// An implementation of `Kernel::create_instance` for microkernels
     fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
+        tracing::debug!("Creating microkernel instance");
+
         // Assign an id for the instance using the index, if necessary, to ensure it is unique
         let id = if index == 0 {
             self.name()
@@ -128,7 +130,13 @@ pub trait Microkernel: Sync + Send + Kernel {
         };
 
         // Get the path to the executable, failing early if it can not be found
-        let executable_path = which(self.executable_name())?;
+        let executable_name = self.executable_name();
+        let executable_path = which(&executable_name).map_err(|error| {
+            eyre!(
+                "While searching for '{executable_name}' on PATH '{}': {error}",
+                std::env::var("PATH").unwrap_or_default()
+            )
+        })?;
 
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
@@ -334,8 +342,16 @@ impl KernelInstance for MicrokernelInstance {
             return Ok(());
         };
 
+        tracing::info!("Starting {command:?}");
+
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
-        let mut child = command.current_dir(directory).spawn()?;
+        let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {
+            format!(
+                "unable to start microkernel {}: {:?}",
+                self.name(),
+                self.command
+            )
+        })?;
 
         let pid = child
             .id()

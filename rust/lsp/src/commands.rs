@@ -6,18 +6,21 @@ use std::{
         atomic::{AtomicI32, Ordering},
         Arc,
     },
+    time::Duration,
 };
 
 use async_lsp::{
     lsp_types::{
-        ExecuteCommandParams, MessageType, NumberOrString, Position, ProgressParams,
-        ProgressParamsValue, ShowMessageParams, WorkDoneProgress, WorkDoneProgressBegin,
-        WorkDoneProgressCancelParams, WorkDoneProgressCreateParams, WorkDoneProgressEnd,
-        WorkDoneProgressReport,
+        ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
+        NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
+        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
+        WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
+        WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
+use codecs::{EncodeOptions, Format};
 use common::{
     eyre::Result,
     once_cell::sync::Lazy,
@@ -31,9 +34,11 @@ use common::{
 };
 use document::{Command, CommandNodes, Document};
 use node_execute::ExecuteOptions;
-use schema::NodeId;
+use schema::{
+    NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, SuggestionStatus,
+};
 
-use crate::{text_document::TextNode, ServerState};
+use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
@@ -47,8 +52,10 @@ pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
 pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
 pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 
-pub(super) const ACCEPT_NODE: &str = "stencila.accept_node";
-pub(super) const REJECT_NODE: &str = "stencila.reject_node";
+pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
+pub(super) const REJECT_NODE: &str = "stencila.reject-node";
+
+pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
 // These commands are implemented on the client but included here
 // for us in the construction of code lenses
@@ -70,6 +77,7 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_ALL_DOC,
         ACCEPT_NODE,
         REJECT_NODE,
+        EXPORT_DOC,
     ]
     .into_iter()
     .map(String::from)
@@ -88,25 +96,97 @@ pub(super) async fn execute_command(
     let mut args = arguments.into_iter();
     let uri = uri_arg(args.next())?;
 
-    let file_name = PathBuf::from(&uri)
+    let file_name = PathBuf::from(&uri.to_string())
         .file_name()
         .map_or_else(String::new, |name| name.to_string_lossy().to_string());
 
-    let command = match command.as_str() {
+    let (title, command, cancellable, update_after) = match command.as_str() {
         RUN_NODE => {
+            let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
-            Command::ExecuteNodes(CommandNodes::new(vec![node_id], None))
+            (
+                "Running node".to_string(),
+                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                true,
+                matches!(
+                    node_type,
+                    NodeType::InstructionBlock | NodeType::InstructionInline
+                ),
+            )
         }
         RUN_CURR => {
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_at(position) {
-                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None))
+                (
+                    "Running current node".to_string(),
+                    Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                    true,
+                    false,
+                )
             } else {
                 tracing::warn!("No node found at position {position:?}");
                 return Ok(None);
             }
         }
-        RUN_ALL_DOC => Command::ExecuteDocument(ExecuteOptions::default()),
+        RUN_ALL_DOC => (
+            format!("Running {file_name}"),
+            Command::ExecuteDocument(ExecuteOptions::default()),
+            true,
+            false,
+        ),
+        CANCEL_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Cancelling node".to_string(),
+                Command::InterruptNodes(CommandNodes::new(vec![node_id], None)),
+                false,
+                false,
+            )
+        }
+        ACCEPT_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Accepting suggestion".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::SuggestionStatus),
+                        PatchOp::Set(SuggestionStatus::Accepted.to_value().unwrap_or_default()),
+                    )],
+                    authors: None,
+                }),
+                false,
+                true,
+            )
+        }
+        REJECT_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Rejecting suggestion".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::SuggestionStatus),
+                        PatchOp::Set(SuggestionStatus::Rejected.to_value().unwrap_or_default()),
+                    )],
+                    authors: None,
+                }),
+                false,
+                true,
+            )
+        }
+        EXPORT_DOC => {
+            let path = path_buf_arg(args.next())?;
+            (
+                "Exporting document".to_string(),
+                Command::ExportDocument((path, EncodeOptions::default())),
+                false,
+                false,
+            )
+        }
         command => {
             return Err(ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
@@ -115,6 +195,7 @@ pub(super) async fn execute_command(
         }
     };
 
+    // Send the command to the document with a subscription to receive status updates
     let (command_id, mut status_receiver) = match doc.read().await.command_subscribe(command).await
     {
         Ok(receiver) => receiver,
@@ -129,13 +210,60 @@ pub(super) async fn execute_command(
         }
     };
 
-    let progress_sender = create_progress(client, format!("Running {file_name}")).await;
+    // If necessary, create a task to update the text for the node when the command is finished
+    // TODO: this is not ideal because it does not handle case where nodes need to be updated after
+    // the whole document is run, and because it has to hackily wait for the final patch to be
+    // applied. Instead need to set up a patch watcher that allows us to watch for
+    // the node types and ids to which a patch was applied.
+    if update_after {
+        let mut status_receiver = status_receiver.resubscribe();
+        let mut client = client.clone();
+        tokio::spawn(async move {
+            while let Ok((id, status)) = status_receiver.recv().await {
+                if id == command_id && status.is_finished() {
+                    // Wait an arbitrary amount of time
+                    tokio::time::sleep(Duration::from_millis(100)).await;
+
+                    // Currently this applies a whole document formatting.
+                    // TODO: In the future this should be refined to only update the specific node.
+                    let edit = match format_doc(doc.clone(), Format::Markdown).await {
+                        Ok(edit) => edit,
+                        Err(error) => {
+                            tracing::error!("While formatting doc after command: {error}");
+                            continue;
+                        }
+                    };
+                    client
+                        .apply_edit(ApplyWorkspaceEditParams {
+                            edit: WorkspaceEdit {
+                                document_changes: Some(DocumentChanges::Edits(vec![
+                                    TextDocumentEdit {
+                                        text_document: OptionalVersionedTextDocumentIdentifier {
+                                            uri,
+                                            version: None,
+                                        },
+                                        edits: vec![OneOf::Left(edit)],
+                                    },
+                                ])),
+                                ..Default::default()
+                            },
+                            label: Some("Update after completion".to_string()),
+                        })
+                        .await
+                        .ok();
+                    client.code_lens_refresh(()).await.ok();
+                    break;
+                }
+            }
+        });
+    }
+
+    // Create a progress notification and spawn a task to update it
+    let progress_sender = create_progress(client, title, cancellable).await;
     tokio::spawn(async move {
         while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id
-                && status.is_finished()
-                && progress_sender.send((100, None)).is_err()
-            {
+            if id == command_id && status.is_finished() {
+                progress_sender.send((100, None)).ok();
                 break;
             }
         }
@@ -145,12 +273,24 @@ pub(super) async fn execute_command(
 }
 
 /// Extract a document URI from a command arg
-pub(super) fn uri_arg(arg: Option<Value>) -> Result<String, ResponseError> {
-    arg.and_then(|value| value.as_str().map(String::from))
+pub(super) fn uri_arg(arg: Option<Value>) -> Result<Url, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| {
             ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
                 "Document URI argument missing or invalid".to_string(),
+            )
+        })
+}
+
+/// Extract a Stencila [`NodeType`] from a command arg
+fn node_type_arg(arg: Option<Value>) -> Result<NodeType, ResponseError> {
+    arg.and_then(|value| value.as_str().map(String::from))
+        .and_then(|node_id| NodeType::from_str(&node_id).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Node id argument missing or invalid".to_string(),
             )
         })
 }
@@ -178,12 +318,24 @@ fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
         })
 }
 
+/// Extract a `PathBuf` from a command arg
+fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Path argument missing or invalid".to_string(),
+            )
+        })
+}
+
 static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);
 
 /// Create and begin a progress notification
 async fn create_progress(
     mut client: ClientSocket,
     title: String,
+    cancellable: bool,
 ) -> mpsc::UnboundedSender<(u32, Option<String>)> {
     // Create the token for the progress
     let token = NumberOrString::Number(PROGRESS_TOKEN.fetch_add(1, Ordering::Relaxed));
@@ -202,7 +354,7 @@ async fn create_progress(
             token: token.clone(),
             value: ProgressParamsValue::WorkDone(WorkDoneProgress::Begin(WorkDoneProgressBegin {
                 title,
-                cancellable: Some(true),
+                cancellable: Some(cancellable),
                 ..Default::default()
             })),
         })

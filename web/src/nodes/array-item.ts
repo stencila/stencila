@@ -17,7 +17,7 @@ export class ArrayItem extends LitElement {
     const indexClasses = apply([
       'flex items-center',
       'w-full max-w-8',
-      'font-mono text-ellipsis',
+      'text-ellipsis',
       'overflow-hidden',
     ])
 

@@ -49,6 +49,10 @@ const NO_READ_NODE: &[&str] = &[
     "StringPatchOrPrimitive",
 ];
 
+/// Unit variant enums for which PartialOrd, Ord should not be implement
+/// (usually because it is manually implemented)
+const NO_ORD: &[&str] = &["ExecutionStatus"];
+
 /// Properties that need to be boxed to avoid recursive types
 ///
 /// Note that properties that are not "core" do not be boxed because they
@@ -225,9 +229,9 @@ pub enum NodeType {{
             format!(
                 r#"{GENERATED_COMMENT}
 
-use common::{{serde::Serialize, strum::Display}};
+use common::{{serde::{{Serialize, Deserialize}}, strum::Display}};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[strum(serialize_all = "camelCase", crate = "common::strum")]
 pub enum NodeProperty {{
@@ -1065,6 +1069,11 @@ impl {title} {{
         };
 
         let title = name.as_str();
+
+        if unit_variants && !NO_ORD.contains(&title) {
+            derives.push("Eq, PartialOrd, Ord");
+        }
+
         if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
         }

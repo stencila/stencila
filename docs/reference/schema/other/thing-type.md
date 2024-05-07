@@ -44,6 +44,7 @@ The `ThingType` type has these members:
 - [`PostalAddress`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal-address.md)
 - [`Product`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)
 - [`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md)
+- [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-category.md)
 - [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)
 - [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-volume.md)
 - [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)

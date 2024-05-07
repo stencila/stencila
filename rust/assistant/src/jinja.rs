@@ -223,7 +223,7 @@ where
                 });
 
             // Get accepted inserted block
-            let block = instruction.options.suggestion.and_then(|suggestion| {
+            let block = instruction.suggestion.and_then(|suggestion| {
                 if let SuggestionBlockType::InsertBlock(InsertBlock {
                     suggestion_status,
                     mut content,

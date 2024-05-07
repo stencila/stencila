@@ -54,10 +54,12 @@ export const ToggleChipMixin = <T extends Constructor<LitElement>>(
         'cursor-pointer',
         `fill-black text-black`,
         `hover:bg-[${borderColour}] hover:border-[${colour}]`,
+        'absolute',
+        'top-0',
       ])
 
       return html`
-        <div class=${`-ml-[40px] pr-[6px] ${this.toggleChipPosition}`}>
+        <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
           <div class=${`${styles}`} @click=${this.toggleChip}>
             <sl-icon
               library=${library}

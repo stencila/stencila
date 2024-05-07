@@ -9,8 +9,6 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila import`↴](#stencila-import)
 * [`stencila export`↴](#stencila-export)
 * [`stencila sync`↴](#stencila-sync)
-* [`stencila log`↴](#stencila-log)
-* [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila compile`↴](#stencila-compile)
 * [`stencila execute`↴](#stencila-execute)
@@ -23,6 +21,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila kernels info`↴](#stencila-kernels-info)
 * [`stencila kernels packages`↴](#stencila-kernels-packages)
 * [`stencila kernels execute`↴](#stencila-kernels-execute)
+* [`stencila kernels evaluate`↴](#stencila-kernels-evaluate)
 * [`stencila plugins`↴](#stencila-plugins)
 * [`stencila plugins list`↴](#stencila-plugins-list)
 * [`stencila plugins install`↴](#stencila-plugins-install)
@@ -52,8 +51,6 @@ CLI subcommands and global options
 * `import` — Import a file in another format into a new or existing document
 * `export` — Export a document to a file in another format
 * `sync` — Synchronize a document with one of more other files in other formats
-* `log` — Display the history of commits to the document
-* `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
 * `compile` — Compile a document
 * `execute` — Execute a document
@@ -97,15 +94,9 @@ CLI subcommands and global options
 
 Create a new document
 
-**Usage:** `stencila new [OPTIONS] [TYPE] [PATH]`
+**Usage:** `stencila new [OPTIONS] <PATH>`
 
 ###### **Arguments:**
-
-* `<TYPE>` — The type of document to create
-
-  Default value: `article`
-
-  Possible values: `article`
 
 * `<PATH>` — The path of the document to create
 
@@ -135,16 +126,16 @@ Import a file in another format into a new or existing document
 ###### **Options:**
 
 * `-f`, `--from <FROM>` — The format of the source file
-* `-t`, `--type <TYPE>` — The type of document to import
-
-  Possible values: `article`
-
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when decoding
 
   Default value: `warn`
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
   - `metadata`:
     Strip metadata properties of nodes
   - `content`:
@@ -197,6 +188,10 @@ Export a document to a file in another format
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
   - `metadata`:
     Strip metadata properties of nodes
   - `content`:
@@ -249,6 +244,10 @@ Synchronize a document with one of more other files in other formats
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
   - `metadata`:
     Strip metadata properties of nodes
   - `content`:
@@ -262,32 +261,6 @@ Synchronize a document with one of more other files in other formats
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-
-
-
-## `stencila log`
-
-Display the history of commits to the document
-
-**Usage:** `stencila log <DOC>`
-
-###### **Arguments:**
-
-* `<DOC>` — The path of the document to display the history for
-
-
-
-## `stencila inspect`
-
-Inspect a document as JSON
-
-This command is mostly intended for debugging issues with loading a document from file storage.
-
-**Usage:** `stencila inspect <DOC>`
-
-###### **Arguments:**
-
-* `<DOC>` — The path of the document to inspect
 
 
 
@@ -331,6 +304,10 @@ Convert a document between formats
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
   - `metadata`:
     Strip metadata properties of nodes
   - `content`:
@@ -471,11 +448,11 @@ Execute an instruction with an assistant
 
 Mainly intended for quick testing of assistants during development.
 
-**Usage:** `stencila assistants execute <ID> <INSTRUCTION>`
+**Usage:** `stencila assistants execute <NAME> <INSTRUCTION>`
 
 ###### **Arguments:**
 
-* `<ID>` — The id of the assistant to execute the instruction
+* `<NAME>` — The name of the assistant to execute the instruction
 * `<INSTRUCTION>` — The instruction to execute
 
 
@@ -491,7 +468,8 @@ Manage execution kernels
 * `list` — List the kernels available
 * `info` — Get information about a kernel
 * `packages` — List packages available to a kernel
-* `execute` — Execute some code in a kernel
+* `execute` — Execute code in a kernel
+* `evaluate` — Evaluate a code expression in a kernel
 
 
 
@@ -534,9 +512,9 @@ Mainly used to check libraries available to a kernel for debugging purpose.
 
 ## `stencila kernels execute`
 
-Execute some code in a kernel
+Execute code in a kernel
 
-Creates a temporary kernel instance, executes one or more lines of code, and returns any decoded outputs and execution messages.
+Creates a temporary kernel instance, executes one or more lines of code, and returns any outputs and execution messages.
 
 Mainly intended for quick testing of kernels during development.
 
@@ -546,6 +524,23 @@ Mainly intended for quick testing of kernels during development.
 
 * `<NAME>` — The name of the kernel to execute code in
 * `<CODE>` — The code to execute
+
+
+
+## `stencila kernels evaluate`
+
+Evaluate a code expression in a kernel
+
+Creates a temporary kernel instance, evaluates the expression in it, and returns the output and any execution messages.
+
+Mainly intended for quick testing of kernels during development.
+
+**Usage:** `stencila kernels evaluate <NAME> <CODE>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the kernel to evaluate code in
+* `<CODE>` — The code expression to evaluate
 
 
 

@@ -7,7 +7,7 @@ import type { DocumentId, DocumentAccess } from '../types'
 
 import '../nodes'
 import '../shoelace.css'
-import '../shoelace.ts'
+import '../shoelace'
 
 import { outputCSS } from './styles/global-styles'
 

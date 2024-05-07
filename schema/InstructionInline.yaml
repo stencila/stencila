@@ -9,6 +9,7 @@ markdown:
 proptest: {}
 core:
   - content
+  - suggestion
 properties:
   content:
     '@id': stencila:content
@@ -37,5 +38,7 @@ properties:
     description: A suggestion for the instruction
     $ref: SuggestionInlineType
     walk: true
+    patch:
+      formats: [md]
     dom:
       elem: span

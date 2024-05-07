@@ -32,7 +32,7 @@ export class Object extends Entity {
   override renderDynamicView() {
     return html`
       <stencila-ui-block-on-demand type="Object" view="dynamic">
-        <div slot="content" class="p-2">
+        <div slot="content">
           <slot></slot>
         </div>
       </stencila-ui-block-on-demand>
@@ -47,7 +47,7 @@ export class Object extends Entity {
   override renderSourceView() {
     return html`
       <stencila-ui-block-on-demand type="Object" view="source">
-        <div slot="body" class="p-2">
+        <div slot="body">
           <slot></slot>
         </div>
       </stencila-ui-block-on-demand>

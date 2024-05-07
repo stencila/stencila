@@ -189,6 +189,11 @@ impl Kernels {
         &mut self,
         language: Option<&str>,
     ) -> Result<Arc<Mutex<Box<dyn KernelInstance>>>> {
+        tracing::debug!(
+            "Creating kernel instance for language {}",
+            language.unwrap_or_default()
+        );
+
         let kernel = match language {
             Some(language) => 'block: {
                 let format = Format::from_name(language);

@@ -153,7 +153,9 @@ Support and degree of loss for node types:
 | [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | 🔷 Low loss   |            | Encoded as [`<address>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/address.html)                                      |
 | [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | 🔷 Low loss   |            | Encoded as [`<product>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/product.html)                                      |
 | [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             |              |            |                                                                                                                                               |
+| [ProvenanceCount](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance_count.md)         |              |            |                                                                                                                                               |
 | [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              |              |            |                                                                                                                                               |
+
 
 <!-- CODEC-DOCS:STOP -->
 <!-- prettier-ignore-end -->

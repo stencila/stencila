@@ -19,13 +19,13 @@ import { Entity } from './entity'
 @customElement('stencila-string')
 @withTwind()
 export class String extends Entity {
-  private bodyStyles = apply(['w-full', 'p-2'])
+  private bodyStyles = apply(['w-full'])
 
   /**
    * In static view just render the value
    */
   override renderStaticView() {
-    return html`<slot></slot>`
+    return html`<q><slot></slot></q>`
   }
 
   /**

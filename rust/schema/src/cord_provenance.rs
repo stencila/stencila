@@ -50,7 +50,7 @@ pub fn display(prov: u8) -> String {
     display
 }
 
-/// Get the category of Machine Influence
+/// Get the category of provenance
 pub fn category(prov: u8) -> ProvenanceCategory {
     let hw = prov & 0b00000001 == 0;
 
@@ -107,6 +107,27 @@ pub fn category(prov: u8) -> ProvenanceCategory {
         MwMv
     } else {
         Mw
+    }
+}
+
+/// Get a rank of machine influence in the provenance (0 = none, lowest)
+pub fn machine_influence(prov: u8) -> u8 {
+    let category = category(prov);
+
+    use ProvenanceCategory::*;
+    match category {
+        // Human only
+        HwHeHv | HwHe | HwHv | Hw => 0,
+        // Human written, machine verified
+        HwMv => 1,
+        // Machine written, human edited
+        MwHeHv | MwHe | MwHeMv => 2,
+        // Human written, machine edited
+        HwMeHv | HwMe | HwMeMv => 3,
+        // Machine written, human verified
+        MwHv | MwMeHv => 4,
+        // Machine only
+        Mw | MwMv | MwMe | MwMeMv => 5,
     }
 }
 

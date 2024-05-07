@@ -40,7 +40,7 @@ use crate::{Command, Document};
 /// Similar to a `StringPatch` in the Stencila Schema which is used for in-document
 /// modifications to a string but which lacks the `version` property and
 /// used different, longer, names for properties.
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, crate = "common::serde")]
 pub struct FormatPatch {
     /// The version of the patch
@@ -51,7 +51,7 @@ pub struct FormatPatch {
 }
 
 /// An operation on either the content or mapping
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(untagged, crate = "common::serde")]
 pub enum FormatOperation {
     Content(ContentOperation),

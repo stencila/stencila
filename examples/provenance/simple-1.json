@@ -1,0 +1,343 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "provenance": [
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Mw",
+      "characterCount": 259,
+      "characterPercent": 95
+    },
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Hw",
+      "characterCount": 7,
+      "characterPercent": 2
+    },
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "MwHe",
+      "characterCount": 5,
+      "characterPercent": 1
+    }
+  ],
+  "content": [
+    {
+      "type": "InstructionBlock",
+      "messages": [
+        {
+          "type": "InstructionMessage",
+          "parts": [
+            {
+              "type": "Text",
+              "value": "a single 10 word paragraph about cats"
+            }
+          ]
+        }
+      ],
+      "assignee": "insert-blocks",
+      "provenance": [
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Mw",
+          "characterCount": 70,
+          "characterPercent": 95
+        },
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Hw",
+          "characterCount": 1,
+          "characterPercent": 1
+        },
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "MwHe",
+          "characterCount": 2,
+          "characterPercent": 2
+        }
+      ],
+      "suggestion": {
+        "type": "InsertBlock",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "Cats are independent, furry animals, often loved for their companionship.",
+                  "authorship": [
+                    [
+                      1,
+                      0,
+                      1,
+                      22
+                    ],
+                    [
+                      1,
+                      255,
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0,
+                      1,
+                      2
+                    ],
+                    [
+                      2,
+                      255,
+                      3,
+                      2
+                    ],
+                    [
+                      1,
+                      0,
+                      1,
+                      46
+                    ]
+                  ]
+                }
+              }
+            ],
+            "authors": [
+              {
+                "type": "AuthorRole",
+                "author": {
+                  "type": "SoftwareApplication",
+                  "id": "openai/gpt-4-0125-preview",
+                  "name": "GPT",
+                  "version": "4-0125-preview"
+                },
+                "roleName": "Generator",
+                "lastModified": {
+                  "type": "Timestamp",
+                  "value": 1714962037409,
+                  "timeUnit": "Millisecond"
+                }
+              },
+              {
+                "type": "AuthorRole",
+                "author": {
+                  "type": "SoftwareApplication",
+                  "id": "stencila/insert-blocks",
+                  "name": "Insert Blocks",
+                  "version": "0.1.0"
+                },
+                "roleName": "Prompter",
+                "lastModified": {
+                  "type": "Timestamp",
+                  "value": 1714962036247,
+                  "timeUnit": "Millisecond"
+                }
+              }
+            ],
+            "provenance": [
+              {
+                "type": "ProvenanceCount",
+                "provenanceCategory": "Mw",
+                "characterCount": 70,
+                "characterPercent": 95
+              },
+              {
+                "type": "ProvenanceCount",
+                "provenanceCategory": "Hw",
+                "characterCount": 1,
+                "characterPercent": 1
+              },
+              {
+                "type": "ProvenanceCount",
+                "provenanceCategory": "MwHe",
+                "characterCount": 2,
+                "characterPercent": 2
+              }
+            ]
+          }
+        ]
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1714962037410,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2808,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "InstructionBlock",
+      "messages": [
+        {
+          "type": "InstructionMessage",
+          "parts": [
+            {
+              "type": "Text",
+              "value": "to plot data"
+            }
+          ]
+        }
+      ],
+      "assignee": "insert-code-chunk",
+      "provenance": [
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Mw",
+          "characterCount": 189,
+          "characterPercent": 95
+        },
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "MwHe",
+          "characterCount": 3,
+          "characterPercent": 1
+        },
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Hw",
+          "characterCount": 6,
+          "characterPercent": 3
+        }
+      ],
+      "suggestion": {
+        "type": "InsertBlock",
+        "content": [
+          {
+            "type": "CodeChunk",
+            "code": {
+              "string": "import matplotlib.pyplot as plt\n\n# Some data\nx = [1, 2, 3, 4, 5]\ny = [2, 3, 5, 7, 11]\n\n# And more data\nplt.plot(x, y)\nplt.xlabel('X axis')\nplt.ylabel('Y axis')\nplt.title('Plot of X vs Y')\nplt.show()",
+              "authorship": [
+                [
+                  1,
+                  0,
+                  1,
+                  36
+                ],
+                [
+                  2,
+                  255,
+                  3,
+                  1
+                ],
+                [
+                  1,
+                  0,
+                  1,
+                  52
+                ],
+                [
+                  1,
+                  255,
+                  0,
+                  4
+                ],
+                [
+                  1,
+                  255,
+                  0,
+                  1
+                ],
+                [
+                  2,
+                  255,
+                  3,
+                  1
+                ],
+                [
+                  1,
+                  255,
+                  0,
+                  1
+                ],
+                [
+                  2,
+                  255,
+                  3,
+                  1
+                ],
+                [
+                  1,
+                  0,
+                  1,
+                  101
+                ]
+              ]
+            },
+            "programmingLanguage": "python",
+            "authors": [
+              {
+                "type": "AuthorRole",
+                "author": {
+                  "type": "SoftwareApplication",
+                  "id": "openai/gpt-4-0125-preview",
+                  "name": "GPT",
+                  "version": "4-0125-preview"
+                },
+                "roleName": "Generator",
+                "lastModified": {
+                  "type": "Timestamp",
+                  "value": 1714962063985,
+                  "timeUnit": "Millisecond"
+                }
+              },
+              {
+                "type": "AuthorRole",
+                "author": {
+                  "type": "SoftwareApplication",
+                  "id": "stencila/insert-code-chunk",
+                  "name": "Insert Code Chunk",
+                  "version": "0.1.0"
+                },
+                "roleName": "Prompter",
+                "lastModified": {
+                  "type": "Timestamp",
+                  "value": 1714962059825,
+                  "timeUnit": "Millisecond"
+                }
+              }
+            ],
+            "provenance": [
+              {
+                "type": "ProvenanceCount",
+                "provenanceCategory": "Mw",
+                "characterCount": 189,
+                "characterPercent": 95
+              },
+              {
+                "type": "ProvenanceCount",
+                "provenanceCategory": "MwHe",
+                "characterCount": 3,
+                "characterPercent": 1
+              },
+              {
+                "type": "ProvenanceCount",
+                "provenanceCategory": "Hw",
+                "characterCount": 6,
+                "characterPercent": 3
+              }
+            ]
+          }
+        ]
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1714962063986,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 4262,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ]
+}

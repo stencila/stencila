@@ -10,7 +10,7 @@ use super::string::String;
 /// A code block.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -31,10 +31,10 @@ pub struct CodeBlock {
 
     /// The code.
     #[patch(format = "md")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::from)"#))]
     #[html(content)]
     #[jats(content)]
     pub code: Cord,
@@ -54,14 +54,12 @@ pub struct CodeBlock {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,
 
     /// A summary of the provenance of the code.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(provenance)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// A unique identifier for a node within a document

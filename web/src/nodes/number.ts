@@ -19,7 +19,7 @@ import { Entity } from './entity'
 @customElement('stencila-number')
 @withTwind()
 export class Number extends Entity {
-  private bodyStyles = apply(['w-full', 'p-2', 'font-mono'])
+  private bodyStyles = apply(['w-full'])
 
   /**
    * In static view just render the value

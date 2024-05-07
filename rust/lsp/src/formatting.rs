@@ -5,8 +5,8 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{MessageType, Position, Range, ShowMessageParams, TextEdit},
-    ClientSocket, LanguageClient, ResponseError,
+    lsp_types::{Position, Range, TextEdit},
+    ErrorCode, ResponseError,
 };
 
 use codecs::{EncodeOptions, Format};
@@ -17,10 +17,15 @@ use document::Document;
 #[tracing::instrument(skip(doc))]
 pub(crate) async fn request(
     doc: Arc<RwLock<Document>>,
-    mut client: ClientSocket,
 ) -> Result<Option<Vec<TextEdit>>, ResponseError> {
-    let format = Format::Markdown;
+    Ok(Some(vec![format_doc(doc, Format::Markdown).await?]))
+}
 
+// Create a text edit to replace the whole text document
+pub(crate) async fn format_doc(
+    doc: Arc<RwLock<Document>>,
+    format: Format,
+) -> Result<TextEdit, ResponseError> {
     let formatted = match doc
         .read()
         .await
@@ -37,21 +42,14 @@ pub(crate) async fn request(
         Err(error) => {
             let message = format!("When encoding document to {format}: {error}");
             tracing::error!("{message}");
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::ERROR,
-                    message,
-                })
-                .ok();
-            return Ok(None);
+            return Err(ResponseError::new(ErrorCode::INTERNAL_ERROR, message));
         }
     };
 
-    // Create a text edit to replace the whole document
     let edit = TextEdit::new(
         Range::new(Position::new(0, 0), Position::new(u32::MAX, 0)),
         formatted,
     );
 
-    Ok(Some(vec![edit]))
+    Ok(edit)
 }
