@@ -23,7 +23,8 @@
     "assignee",
     "authors",
     "provenance",
-    "content"
+    "content",
+    "suggestion"
   ],
   "properties": {
     "type": {
@@ -297,32 +298,6 @@
         "$ref": "InstructionMessage.schema.json"
       }
     },
-    "candidates": {
-      "@id": "stencila:candidates",
-      "description": "A list of candidates for the assignee property.",
-      "$comment": "This property is populated by Stencila to give the user a choice of potential assignees.\n",
-      "aliases": [
-        "candidate"
-      ],
-      "proptest": {
-        "min": {
-          "description": "No candidates",
-          "value": "None"
-        },
-        "high": {
-          "description": "Generate a list of arbitrary ids using expected characters",
-          "strategy": "option::of(vec(r\"[a-zA-Z][a-zA-Z\\-_/.@]\", size_range(1..5)))"
-        },
-        "max": {
-          "description": "Generate a list of arbitrary assignee ids using any characters",
-          "strategy": "option::of(vec(String::arbitrary(), size_range(1..10)))"
-        }
-      },
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "assignee": {
       "@id": "stencila:assignee",
       "description": "An identifier for the agent assigned to perform the instruction",
@@ -412,6 +387,11 @@
     "suggestion": {
       "@id": "stencila:suggestion",
       "description": "A suggestion for the instruction",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "walk": true,
       "dom": {
         "elem": "div"

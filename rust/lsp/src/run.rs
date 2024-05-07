@@ -101,10 +101,9 @@ pub async fn run() {
                 .documents
                 .get(&uri)
                 .map(|text_doc| text_doc.doc.clone());
-            let client = state.client.clone();
             async move {
                 match doc {
-                    Some(doc) => formatting::request(doc, client).await,
+                    Some(doc) => formatting::request(doc).await,
                     None => Ok(None),
                 }
             }

@@ -8,7 +8,7 @@ use common::{
     derive_more::{Deref, DerefMut},
     eyre::{bail, Report, Result},
     itertools::Itertools,
-    serde::{de::DeserializeOwned, Serialize},
+    serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, Value as JsonValue},
 };
 use node_id::NodeId;
@@ -340,7 +340,7 @@ impl PatchContext {
 }
 
 /// A patch for a node
-#[derive(Debug, Default, Clone, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct Patch {
     /// The id of the node to which the `ops` should be applied
@@ -372,7 +372,7 @@ impl Patch {
 ///
 /// These are generated during a call to `diff` and applied in a
 /// call to `patch`.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub enum PatchOp {
     /// Set the value of a leaf node (e.g. a `String`) or `Option`
@@ -413,7 +413,7 @@ pub enum PatchOp {
 /// the main union types in the Stencila Schema, and for those that are
 /// often involved in patches for execution with a fallback
 /// variant of a [`serde_json::Value`].
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 pub enum PatchValue {
     Inline(Inline),
@@ -433,38 +433,18 @@ impl Default for PatchValue {
 }
 
 /// A slot in a node path: either a property identifier or the index of a vector.
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(untagged, crate = "common::serde")]
 pub enum PatchSlot {
     Property(NodeProperty),
     Index(usize),
-}
-
-impl Debug for PatchSlot {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            PatchSlot::Property(prop) => Debug::fmt(prop, f),
-            PatchSlot::Index(index) => Debug::fmt(index, f),
-        }
-    }
-}
-
-impl Serialize for PatchSlot {
-    fn serialize<S>(&self, serializer: S) -> std::prelude::v1::Result<S::Ok, S::Error>
-    where
-        S: common::serde::Serializer,
-    {
-        match self {
-            PatchSlot::Property(prop) => prop.to_string().serialize(serializer),
-            PatchSlot::Index(index) => index.serialize(serializer),
-        }
-    }
 }
 
 /// A path to reach a node from the root: a vector of [`PatchSlot`]s
 ///
 /// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in
 /// a call to `patch` the front of the path can be popped off.
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut, Serialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 #[derive(Default)]
 pub struct PatchPath(VecDeque<PatchSlot>);

@@ -201,7 +201,6 @@
     "availableLanguages": "schema:availableLanguage",
     "bitrate": "schema:bitrate",
     "brands": "schema:brand",
-    "candidates": "stencila:candidates",
     "caption": "schema:caption",
     "cellType": "stencila:cellType",
     "cells": "stencila:cells",

@@ -6,7 +6,8 @@ use node_type::{NodeProperty, NodeType};
 
 use crate::{
     Array, Block, Boolean, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem, Node, Null,
-    Number, Object, TableCell, TableRow, UnsignedInteger,
+    Number, Object, SuggestionBlockType, SuggestionInlineType, TableCell, TableRow,
+    UnsignedInteger,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -64,6 +65,16 @@ pub trait Visitor: Sized {
 
     /// Visit an `Inline` node type
     fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `SuggestionBlockType` node type
+    fn visit_suggestion_block(&mut self, block: &SuggestionBlockType) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `SuggestionInlineType` node type
+    fn visit_suggestion_inline(&mut self, inline: &SuggestionInlineType) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -137,23 +148,33 @@ pub trait VisitorMut: Sized {
         WalkControl::Continue
     }
 
-    /// Visit an `IfBlockClause` node
-    fn visit_if_block_clause(&mut self, inline: &IfBlockClause) -> WalkControl {
+    /// Visit, and potentially mutate, a `SuggestionBlockType` node type
+    fn visit_suggestion_block(&mut self, block: &mut SuggestionBlockType) -> WalkControl {
         WalkControl::Continue
     }
 
-    /// Visit a `ListItem` node
-    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
+    /// Visit, and potentially mutate, a `SuggestionInlineType` node type
+    fn visit_suggestion_inline(&mut self, inline: &mut SuggestionInlineType) -> WalkControl {
         WalkControl::Continue
     }
 
-    /// Visit a `TableRow` node
-    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
+    /// Visit, and potentially mutate, an `IfBlockClause` node
+    fn visit_if_block_clause(&mut self, inline: &mut IfBlockClause) -> WalkControl {
         WalkControl::Continue
     }
 
-    /// Visit a `TableCell` node
-    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
+    /// Visit, and potentially mutate, a `ListItem` node
+    fn visit_list_item(&mut self, list_item: &mut ListItem) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit, and potentially mutate, a `TableRow` node
+    fn visit_table_row(&mut self, table_row: &mut TableRow) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit, and potentially mutate, a `TableCell` node
+    fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -210,34 +231,50 @@ pub trait VisitorAsync: Send + Sync {
         async { Ok(WalkControl::Continue) }
     }
 
-    /// Visit an `IfBlockClause` node
+    /// Visit, and potentially mutate, a `SuggestionBlockType` node type
+    fn visit_suggestion_block(
+        &mut self,
+        block: &mut SuggestionBlockType,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, a `SuggestionInlineType` node type
+    fn visit_suggestion_inline(
+        &mut self,
+        inline: &mut SuggestionInlineType,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, an `IfBlockClause` node
     fn visit_if_block_clause(
         &mut self,
-        inline: &IfBlockClause,
+        inline: &mut IfBlockClause,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
 
-    /// Visit a `ListItem` node
+    /// Visit, and potentially mutate, a `ListItem` node
     fn visit_list_item(
         &mut self,
-        list_item: &ListItem,
+        list_item: &mut ListItem,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
 
-    /// Visit a `TableRow` node
+    /// Visit, and potentially mutate, a `TableRow` node
     fn visit_table_row(
         &mut self,
-        table_row: &TableRow,
+        table_row: &mut TableRow,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
 
-    /// Visit a `TableCell` node
+    /// Visit, and potentially mutate, a `TableCell` node
     fn visit_table_cell(
         &mut self,
-        table_cell: &TableCell,
+        table_cell: &mut TableCell,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }

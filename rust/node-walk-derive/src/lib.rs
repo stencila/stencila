@@ -160,12 +160,19 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
     let (visit, visit_mut, visit_async) = match enum_name.to_string().as_str() {
-        name @ ("Node" | "CreativeWorkType" | "Block" | "Inline") => {
+        name @ ("Node"
+        | "CreativeWorkType"
+        | "Block"
+        | "Inline"
+        | "SuggestionBlockType"
+        | "SuggestionInlineType") => {
             let method = match name {
                 "Node" => quote!(visit_node),
                 "CreativeWorkType" => quote!(visit_work),
                 "Block" => quote!(visit_block),
                 "Inline" => quote!(visit_inline),
+                "SuggestionBlockType" => quote!(visit_suggestion_block),
+                "SuggestionInlineType" => quote!(visit_suggestion_inline),
                 _ => unreachable!(),
             };
 

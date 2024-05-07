@@ -8,7 +8,7 @@ use async_lsp::{
     lsp_types::{CodeLens, Command, Url},
     ErrorCode, ResponseError,
 };
-use common::{itertools::Itertools, serde_json::json, tokio::sync::RwLock};
+use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
 use schema::NodeType;
 
 use crate::{
@@ -40,7 +40,7 @@ pub(crate) async fn request(
                 let lens = |command: &str| CodeLens {
                     range: *range,
                     command: None,
-                    data: Some(json!([command, uri, node_id])),
+                    data: Some(json!([command, uri, node_type, node_id])),
                 };
 
                 let mut lenses = match node_type {
@@ -51,7 +51,12 @@ pub(crate) async fn request(
                     | NodeType::IfBlock
                     | NodeType::IncludeBlock
                     | NodeType::InstructionBlock => {
-                        vec![lens(RUN_NODE), lens(CANCEL_NODE), lens(VIEW_NODE)]
+                        // It would be nice to show/hide the run and cancel buttons
+                        // based on the execution status of the node but doing this
+                        // while avoiding race conditions is difficult.
+                        // TODO: A cancel lens is not provided because this is currently
+                        // not fully implemented
+                        vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     // Block suggestions
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
@@ -72,7 +77,7 @@ pub(crate) async fn request(
                     lenses.push(CodeLens {
                         range: *range,
                         command: None,
-                        data: Some(json!([INSPECT_NODE, uri, node_id, desc])),
+                        data: Some(json!([INSPECT_NODE, uri, node_type, node_id, desc])),
                     });
                 }
 
@@ -99,52 +104,32 @@ pub(crate) async fn resolve(
         ));
     };
 
-    let Some((command, uri, node_id)) = data.next_tuple() else {
+    let Some((command, uri, node_type, node_id)) = data.next_tuple() else {
         return Err(ResponseError::new(
             ErrorCode::INVALID_REQUEST,
             "Expected three items in code lens data",
         ));
     };
 
-    let arguments = Some(vec![json!(uri), json!(node_id)]);
+    let command = command.to_string();
+    let arguments = Some(vec![json!(uri), json!(node_type), json!(node_id)]);
 
-    let command = match command {
-        RUN_NODE => Command::new(
-            "$(run) Run".to_string(),
-            "stencila.run-node".to_string(),
-            arguments,
-        ),
-        CANCEL_NODE => Command::new(
-            "$(stop-circle) Cancel".to_string(),
-            "stencila.cancel-node".to_string(),
-            arguments,
-        ),
-        ACCEPT_NODE => Command::new(
-            "$(thumbsup) Accept".to_string(),
-            "stencila.accept-node".to_string(),
-            arguments,
-        ),
-        REJECT_NODE => Command::new(
-            "$(thumbsdown) Reject".to_string(),
-            "stencila.reject-node".to_string(),
-            arguments,
-        ),
-        VIEW_NODE => Command::new(
-            "$(eye) View".to_string(),
-            "stencila.view-node".to_string(),
-            arguments,
-        ),
+    let command = match command.as_str() {
+        RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
+        CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
+        ACCEPT_NODE => Command::new("$(thumbsup) Accept".to_string(), command, arguments),
+        REJECT_NODE => Command::new("$(thumbsdown) Reject".to_string(), command, arguments),
+        VIEW_NODE => Command::new("$(eye) View".to_string(), command, arguments),
         INSPECT_NODE => Command::new(
             format!("$(search) {prov}", prov = data.next().unwrap_or_default()),
-            "stencila.inspect-node".to_string(),
+            command,
             arguments,
         ),
-        _ => {
-            return Err(ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Unknown command for code lens",
-            ));
-        }
+        _ => Command::new(
+            command.replace("stencila.", "").to_title_case(),
+            command,
+            arguments,
+        ),
     };
 
     Ok(CodeLens {

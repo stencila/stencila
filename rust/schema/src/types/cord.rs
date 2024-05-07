@@ -181,7 +181,7 @@ impl<'de> Deserialize<'de> for CordRun {
 }
 
 // An operation on a `Cord`
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub enum CordOp {
     Insert(usize, String),

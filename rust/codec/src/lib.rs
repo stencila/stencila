@@ -367,7 +367,7 @@ pub struct DecodeOptions {
 
 /// Encoding options
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case", crate = "common::serde")]
 pub struct EncodeOptions {
     /// The name of the codec to use for encoding
