@@ -23,7 +23,6 @@ import {
   executionMessageLinter,
   messagesTheme,
   createProvenanceDecorations,
-  provTheme,
 } from './utils'
 
 /**
@@ -170,7 +169,6 @@ export class UINodeCode extends LitElement {
       lineNumbers(),
       foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      provTheme,
       executionMessages
         ? [executionMessageLinter(executionMessages), messagesTheme]
         : [],

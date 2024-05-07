@@ -3,6 +3,10 @@ import { Extension } from '@codemirror/state'
 import { EditorView, Decoration } from '@codemirror/view'
 import { MessageLevel } from '@stencila/types'
 
+import {
+  ProvenanceHighlightLvl,
+  getProvHighlight,
+} from '../../icons-and-colours'
 import { ExecutionMessage } from '../execution-message'
 
 import type { ProvenanceMarker } from './types'
@@ -70,34 +74,14 @@ const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
       return Decoration.mark({
         tagName: 'span',
         class: `prov-lvl-${mark.mi}`,
+        attributes: {
+          style:
+            mark.mi >= 0 && mark.mi <= 5
+              ? `background-color: ${getProvHighlight(mark.mi as ProvenanceHighlightLvl)}`
+              : '',
+        },
       }).range(mark.from, mark.to)
     })
   )
 
-const provTheme = EditorView.theme({
-  '.prov-lvl-0': {
-    backgroundColor: 'transparent',
-  },
-  '.prov-lvl-1': {
-    backgroundColor: '#f1f5fe', // blue-50
-  },
-  '.prov-lvl-2': {
-    backgroundColor: '#dbeafe', // blue-100
-  },
-  '.prov-lvl-3': {
-    backgroundColor: '#bfdbfe', // blue-200
-  },
-  '.prov-lvl-4': {
-    backgroundColor: '#93c5fd', // blue-300
-  },
-  '.prov-lvl-5': {
-    backgroundColor: '#60a5fa', // blue-400
-  },
-})
-
-export {
-  executionMessageLinter,
-  messagesTheme,
-  createProvenanceDecorations,
-  provTheme,
-}
+export { executionMessageLinter, messagesTheme, createProvenanceDecorations }

@@ -138,6 +138,7 @@ export const executionMessageUI = (
     case 'Error':
       return { colour: 'pink-900', icon: 'x-circle' }
     case 'Warning':
+    case 'Warn':
       return { colour: 'orange-500', icon: 'exclamation-circle' }
     case 'Info':
       return { colour: 'green-900', icon: 'info-circle' }
@@ -148,6 +149,25 @@ export const executionMessageUI = (
     default:
       return { colour: 'gray-900', icon: 'circle' }
   }
+}
+
+// ---------------------------------------------------------
+
+// Provenance Highlight Colours ----------------------------
+
+export const provenanceHighlights = {
+  0: 'transparent',
+  1: '#f5f7ff',
+  2: '#e4f0ff',
+  3: '#d3e3ff',
+  4: '#c2d6ff',
+  5: '#b1c9fa',
+}
+
+export type ProvenanceHighlightLvl = keyof typeof provenanceHighlights
+
+export const getProvHighlight = (miLvl: ProvenanceHighlightLvl) => {
+  return provenanceHighlights[miLvl]
 }
 
 // ---------------------------------------------------------
