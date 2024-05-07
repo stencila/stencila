@@ -8,6 +8,7 @@
 
 The `AuthorRoleName` type has these members:
 
+- `Importer`
 - `Writer`
 - `Verifier`
 - `Instructor`
