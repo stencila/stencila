@@ -115,6 +115,27 @@ figure {
     }
   }
 
+  stencila-code-chunk {
+    [slot='outputs'] {
+      @apply my-4;
+
+      stencila-boolean,
+      stencila-integer,
+      stencila-number,
+      stencila-string,
+      stencila-array,
+      stencila-object {
+        @apply font-mono prose;
+      }
+    }
+
+    + stencila-paragraph {
+      p {
+        @apply mt-0;
+      }
+    }
+  }
+
   stencila-heading {
     display: block;
     border: 1px solid transparent;
