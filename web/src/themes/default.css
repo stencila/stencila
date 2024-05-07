@@ -69,6 +69,52 @@ figure {
     }
   }
 
+  table {
+    @apply my-4 border-collapse border-spacing-0 table-auto;
+
+    tr:first-child,
+    thead {
+      stencila-text {
+        font-weight: bold !important;
+      }
+
+      td,
+      th {
+        @apply pb-3;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    tr:nth-child(2) {
+      td {
+        @apply pt-3;
+      }
+    }
+
+    td,
+    th {
+      @apply p-0 w-fit pr-3 text-nowrap;
+    }
+
+    p {
+      @apply m-0;
+    }
+
+    stencila-paragraph {
+      display: contents;
+    }
+
+    stencila-paragraph *,
+    stencila-ui-block-on-demand,
+    stencila-ui-block-on-demand * {
+      max-width: fit-content;
+    }
+
+    div:not(.chip) {
+      display: contents;
+    }
+  }
+
   stencila-heading {
     display: block;
     border: 1px solid transparent;
@@ -93,8 +139,20 @@ figure {
   }
 
   stencila-instruction-block {
+    &:has(+ stencila-heading) {
+      ol {
+        @apply mb-0;
+      }
+    }
+
+    &:has(+ stencila-paragraph) {
+      table {
+        @apply mb-0;
+      }
+    }
+
     [slot='messages'] {
-      display: none;
+      @apply hidden;
     }
   }
 
@@ -117,6 +175,44 @@ figure {
       /* background: goldenrod; */
     }
   }
+
+  stencila-code-chunk {
+    [slot='caption'] {
+      @apply hidden;
+    }
+  }
+
+  stencila-datatable {
+    table {
+      @apply mx-0;
+    }
+
+    tr:first-child {
+      td {
+        @apply pt-3 pb-0;
+        border: unset;
+      }
+    }
+
+    tr:nth-child(2) {
+      td {
+        @apply pt-0;
+      }
+    }
+  }
+
+  stencila-code-chunk {
+    [slot='outputs'] {
+      stencila-boolean,
+      stencila-integer,
+      stencila-number,
+      stencila-string,
+      stencila-array,
+      stencila-object {
+        @apply block;
+      }
+    }
+  }
 }
 
 [view='dynamic'] {
@@ -137,48 +233,12 @@ figure {
     }
 
     table {
-      @apply my-4 mx-10 border-collapse border-spacing-0 table-auto;
+      @apply mx-10;
+    }
 
-      tr:first-child,
-      thead {
-        stencila-text {
-          font-weight: bold !important;
-        }
-
-        td,
-        th {
-          @apply pb-3;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-        }
-      }
-
-      tr:nth-child(2) {
-        td {
-          @apply pt-3;
-        }
-      }
-
-      td,
-      th {
-        @apply p-0 w-fit pr-3 text-nowrap;
-      }
-
-      p {
-        @apply m-0;
-      }
-
-      stencila-paragraph {
-        display: contents;
-      }
-
-      stencila-paragraph *,
-      stencila-ui-block-on-demand,
-      stencila-ui-block-on-demand * {
-        max-width: fit-content;
-      }
-
-      div:not(.chip) {
-        display: contents;
+    stencila-datatable {
+      table {
+        @apply mx-0;
       }
     }
 
@@ -193,6 +253,12 @@ figure {
       [slot='messages'] {
         display: block;
       }
+
+      &:has(+ stencila-paragraph) {
+        table {
+          @apply mb-4;
+        }
+      }
     }
 
     stencila-table {
@@ -201,22 +267,9 @@ figure {
       }
     }
 
-    stencila-datatable {
-      table {
-        @apply mx-0;
-      }
-
-      tr:first-child {
-        td {
-          @apply pt-3 pb-0;
-          border: unset;
-        }
-      }
-
-      tr:nth-child(2) {
-        td {
-          @apply pt-0;
-        }
+    stencila-code-chunk {
+      [slot='caption'] {
+        @apply block;
       }
     }
   }

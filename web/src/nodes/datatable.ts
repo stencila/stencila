@@ -20,7 +20,9 @@ export class Datatable extends Entity {
    * In static view just render the table
    */
   override renderStaticView() {
-    return html`<slot></slot>`
+    return html` <div class="overflow-x-scroll data-table" slot="content">
+      <slot></slot>
+    </div>`
   }
 
   /**

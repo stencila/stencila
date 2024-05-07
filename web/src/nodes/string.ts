@@ -25,7 +25,7 @@ export class String extends Entity {
    * In static view just render the value
    */
   override renderStaticView() {
-    return html`<slot></slot>`
+    return html`<q><slot></slot></q>`
   }
 
   /**
