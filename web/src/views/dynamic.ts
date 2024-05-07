@@ -9,8 +9,6 @@ import '../nodes'
 import '../shoelace.css'
 import '../shoelace'
 
-import '../nodes/insert-block'
-
 import { outputCSS } from './styles/global-styles'
 
 /**
