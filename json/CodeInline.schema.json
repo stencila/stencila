@@ -9,6 +9,9 @@
   ],
   "category": "code",
   "description": "Inline code.",
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "code"
   },
