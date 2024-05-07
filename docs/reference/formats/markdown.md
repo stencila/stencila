@@ -194,7 +194,9 @@ Support and degree of loss for node types:
 | [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | ⚠️ High loss |            |                                                       |
 | [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | ⚠️ High loss |            |                                                       |
 | [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | ⚠️ High loss |            |                                                       |
+| [ProvenanceCount](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance_count.md)         | ⚠️ High loss |            |                                                       |
 | [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | ⚠️ High loss |            |                                                       |
+
 
 <!-- CODEC-DOCS:STOP -->
 <!-- prettier-ignore-end -->

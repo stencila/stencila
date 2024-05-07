@@ -63,12 +63,12 @@ The `Text` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Text` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property | Complexity | Description                                                                                                                    | Strategy                                                       |
-| -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| `value`  | Min+       | Generate a fixed string of text.                                                                                               | `Cord::new("text")`                                            |
-|          | Low+       | Generate a random string of up to 10 alphanumeric characters.                                                                  | `r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)`                     |
-|          | High+      | Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace. | `r"[a-zA-Z0-9 \t\-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::new)` |
-|          | Max        | Generate an arbitrary string.                                                                                                  | `String::arbitrary().prop_map(Cord::new)`                      |
+| Property | Complexity | Description                                                                                                                    | Strategy                                                        |
+| -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| `value`  | Min+       | Generate a fixed string of text.                                                                                               | `Cord::from("text")`                                            |
+|          | Low+       | Generate a random string of up to 10 alphanumeric characters.                                                                  | `r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)`                     |
+|          | High+      | Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace. | `r"[a-zA-Z0-9 \t\-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::from)` |
+|          | Max        | Generate an arbitrary string.                                                                                                  | `String::arbitrary().prop_map(Cord::from)`                      |
 
 ## Source
 

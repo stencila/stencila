@@ -4,6 +4,8 @@ nick: cdb
 extends: CodeStatic
 category: code
 description: A code block.
+dom:
+  derive: false
 html:
   elem: pre
 jats:

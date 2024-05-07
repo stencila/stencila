@@ -28,10 +28,10 @@ pub struct Text {
 
     /// The value of the text content
     #[patch(format = "md")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("text")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[a-zA-Z0-9 \t\-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::new)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("text")"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[a-zA-Z0-9 \t\-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::from)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::from)"#))]
     #[html(content)]
     pub value: Cord,
 

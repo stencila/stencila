@@ -19,7 +19,7 @@ import '../ui/nodes/node-card/on-demand/block'
 @customElement('stencila-boolean')
 @withTwind()
 export class Boolean extends Entity {
-  private bodyStyles = apply(['w-full', 'p-2', 'font-bold font-mono'])
+  private bodyStyles = apply(['w-full'])
 
   /**
    * In static view just render the value

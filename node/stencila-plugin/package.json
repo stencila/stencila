@@ -79,9 +79,6 @@
     "sourcemap": true,
     "clean": true
   },
-  "devDependencies": {
-    "@napi-rs/cli": "2.18.0"
-  },
   "dependencies": {
     "@stencila/types": "2.0.0-alpha.25"
   }

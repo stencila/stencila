@@ -83,31 +83,38 @@ export class UINodeAuthor extends LitElement {
   details?: string
 
   override render() {
-    return html`<div class="flex flex-row gap-x-2 font-sans">
-      <div class="flex items-center justify-center">
-        <div class="w-6 h-6 flex items-center justify-center grow-0 stretch-0">
-          ${this.renderIconOrAvatar()}
+    return html`<div class="@container">
+      <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
+        <div class="flex flex-col flex-grow @xs:flex-row">
+          <div class="flex items-center justify-center mr-2">
+            <div
+              class="w-6 h-6 flex items-center justify-center grow-0 stretch-0 mb-4 @xs:mb-0"
+            >
+              ${this.renderIconOrAvatar()}
+            </div>
+          </div>
+          <div class="grow flex flex-col justify-center">
+            <span
+              class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
+              >${this.roleName}</span
+            >
+            <span
+              class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
+              >${this.name}</span
+            >
+            <span
+              class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block ${this.details ? '' : 'hidden'}`}
+              >${this.details}</span
+            >
+          </div>
         </div>
-      </div>
-      <div class="grow flex flex-col justify-center">
-        <span class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
-          >${this.roleName}</span
+        <div
+          class=${`grow-0 shrink-0 text-2xs @xs:text-right ${this.roleName ? 'pt-3' : 'pt-1'}`}
         >
-        <span
-          class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
-          >${this.name}</span
-        >
-        <span
-          class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block ${this.details ? '' : 'hidden'}`}
-          >${this.details}</span
-        >
-      </div>
-      <div
-        class=${`grow-0 shrink-0 text-2xs text-right ${this.roleName ? 'pt-3' : 'pt-1'}`}
-      >
-        <stencila-ui-node-last-modified
-          value=${this.timestamp}
-        ></stencila-ui-node-last-modified>
+          <stencila-ui-node-last-modified
+            value=${this.timestamp}
+          ></stencila-ui-node-last-modified>
+        </div>
       </div>
     </div>`
   }

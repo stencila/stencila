@@ -36,7 +36,7 @@ export class UINodeCollapsibleProperty extends LitElement {
     return html`
       <div class=${`${this.wrapperCSS ?? ''}`}>
         <div
-          class=${`flex flex-row items-center px-4 py-1.5 cursor-pointer font-sans ${headerBg ? `bg-[${headerBg}]` : ''}`}
+          class=${`flex flex-row items-center px-4 py-1.5 cursor-pointer font-sans not-italic ${headerBg ? `bg-[${headerBg}]` : ''}`}
           @click=${() => (this.collapsed = !this.collapsed)}
         >
           ${this.iconName &&

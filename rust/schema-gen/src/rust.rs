@@ -49,6 +49,10 @@ const NO_READ_NODE: &[&str] = &[
     "StringPatchOrPrimitive",
 ];
 
+/// Unit variant enums for which PartialOrd, Ord should not be implement
+/// (usually because it is manually implemented)
+const NO_ORD: &[&str] = &["ExecutionStatus"];
+
 /// Properties that need to be boxed to avoid recursive types
 ///
 /// Note that properties that are not "core" do not be boxed because they
@@ -1065,6 +1069,11 @@ impl {title} {{
         };
 
         let title = name.as_str();
+
+        if unit_variants && !NO_ORD.contains(&title) {
+            derives.push("Eq, PartialOrd, Ord");
+        }
+
         if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
         }

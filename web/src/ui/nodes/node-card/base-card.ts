@@ -109,6 +109,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
     const headerTitle = (this.title && this.title) || title
 
     const headerStyles = apply([
+      'font-sans not-italic',
       'flex items-center',
       'w-full',
       'px-4 py-2',
@@ -142,7 +143,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
             title=${headerTitle}
           >
             <span
-              class="font-bold inline-block overflow-hidden text-ellipsis whitespace-nowrap"
+              class="font-semibold text-sm inline-block overflow-hidden text-ellipsis whitespace-nowrap"
               >${headerTitle}</span
             >
           </div>

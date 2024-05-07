@@ -26,7 +26,7 @@ export class UINodeSuggestion extends LitElement {
         <div slot="title">
           <span>Suggestion</span>
         </div>
-        <div class="p-3" slot="content">
+        <div class="p-3 bg-white theme-content" slot="content">
           <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>

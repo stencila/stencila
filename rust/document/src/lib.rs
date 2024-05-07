@@ -222,7 +222,7 @@ impl Document {
     /// This initializes the document's "watch", "update", and "command" channels, and
     /// starts its background tasks.
     #[tracing::instrument]
-    fn init(home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
+    pub fn init(home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
         // Create the document's kernels with the same home directory

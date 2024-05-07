@@ -26,18 +26,18 @@ properties:
     proptest:
       min:
         description: Generate a simple fixed string of code.
-        value: Cord::new("code")
+        value: Cord::from("code")
       low:
         description: |
           Generate a random string of up to 10 alphanumeric characters.
-        strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)
+        strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)
       high:
         description: |
           Generate a random string of up to 100 characters (excluding control characters).
-        strategy: r"[^\p{C}]{1,100}".prop_map(Cord::new)
+        strategy: r"[^\p{C}]{1,100}".prop_map(Cord::from)
       max:
         description: Generate an arbitrary string.
-        strategy: String::arbitrary().prop_map(Cord::new)
+        strategy: String::arbitrary().prop_map(Cord::from)
   value:
     '@id': schema:value
     description: The current value of the argument.
