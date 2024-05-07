@@ -4,6 +4,8 @@ nick: cdi
 extends: CodeStatic
 category: code
 description: Inline code.
+dom:
+  derive: false
 html:
   elem: code
 jats:

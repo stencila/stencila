@@ -2,6 +2,7 @@
 //!
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_synchronization
 
+use core::time;
 use std::{ops::ControlFlow, sync::Arc};
 
 use async_lsp::{
@@ -9,7 +10,7 @@ use async_lsp::{
         DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
         DidSaveTextDocumentParams, Position, Range, Url,
     },
-    ClientSocket, Error,
+    ClientSocket, Error, LanguageClient,
 };
 
 use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format};
@@ -196,13 +197,49 @@ impl TextDocument {
     }
 
     /// An async background task which updates the source and
-    /// the Stencila document
+    /// the Stencila document when there change in the editor
+    ///
+    /// Uses debouncing for two reasons:
+    ///
+    /// - so that edits to the document end up being applied a replace patches
+    ///   rather than a series of single character additions and deletions, there
+    ///   is a tradeoff here between granularity and latency
+    ///
+    /// - to avoid excessive compute decoding the document on each keypress
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<String>,
         source: Arc<RwLock<String>>,
         doc: Arc<RwLock<Document>>,
     ) {
-        while let Some(new_source) = receiver.recv().await {
+        // As a guide, average typing speed is around 200 chars per minute which means
+        // 60000 / 200 = 300 milliseconds per character.
+        const DEBOUNCE_DELAY_MILLIS: u64 = 500;
+        let debounce = time::Duration::from_millis(DEBOUNCE_DELAY_MILLIS);
+
+        let mut latest_source = None;
+        loop {
+            // Debounce updates
+            let new_source = match tokio::time::timeout(debounce, receiver.recv()).await {
+                Ok(None) => {
+                    // Received nothing: sender has dropped so stop
+                    break;
+                }
+                Ok(Some(source)) => {
+                    // Received new source: update the latest source
+                    latest_source = Some(source);
+                    continue;
+                }
+                Err(..) => {
+                    // Timeout: if no new source since last timeout then continue
+                    // otherwise proceed with below. Note that `take()` will `None`ify
+                    // the `latest_source`
+                    let Some(source) = latest_source.take() else {
+                        continue;
+                    };
+                    source
+                }
+            };
+
             // Update the source
             *source.write().await = new_source.clone();
 
@@ -270,6 +307,11 @@ impl TextDocument {
                 diagnostics::publish(&uri, &text_node, &mut client);
                 *root.write().await = text_node;
             }
+
+            // Ask the client to refresh code lenses. This is important for things
+            // like provenance statistics code lenses which should be updated on each
+            // update to the document
+            client.code_lens_refresh(()).await.ok();
         }
     }
 }
