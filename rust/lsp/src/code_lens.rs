@@ -9,7 +9,7 @@ use async_lsp::{
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
-use schema::NodeType;
+use schema::{NodeType, ProvenanceCategory};
 
 use crate::{
     commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE, VIEW_NODE},
@@ -66,19 +66,27 @@ pub(crate) async fn request(
                 };
 
                 if let Some(provenance) = provenance {
-                    let desc = provenance
-                        .iter()
-                        .filter_map(|count| {
-                            count.character_percent.map(|percent| {
-                                format!("{}:{}%", count.provenance_category, percent)
+                    // Only show code lens if not 100% human written
+                    if !provenance.iter().any(|prov| {
+                        prov.provenance_category == ProvenanceCategory::Hw
+                            && prov.character_percent == Some(100)
+                    }) {
+                        let desc = provenance
+                            .iter()
+                            .sorted_by(|a, b| a.provenance_category.cmp(&b.provenance_category))
+                            .filter_map(|count| {
+                                count.character_percent.map(|percent| {
+                                    format!("{}:{}%", count.provenance_category, percent.max(1))
+                                })
                             })
-                        })
-                        .join(" ");
-                    lenses.push(CodeLens {
-                        range: *range,
-                        command: None,
-                        data: Some(json!([INSPECT_NODE, uri, node_type, node_id, desc])),
-                    });
+                            .join(" ");
+
+                        lenses.push(CodeLens {
+                            range: *range,
+                            command: None,
+                            data: Some(json!([INSPECT_NODE, uri, node_type, node_id, desc])),
+                        });
+                    }
                 }
 
                 lenses
