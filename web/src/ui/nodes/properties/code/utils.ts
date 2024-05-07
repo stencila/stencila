@@ -1,9 +1,11 @@
 import { linter, Diagnostic } from '@codemirror/lint'
 import { Extension } from '@codemirror/state'
-import { EditorView } from '@codemirror/view'
+import { EditorView, Decoration } from '@codemirror/view'
 import { MessageLevel } from '@stencila/types'
 
 import { ExecutionMessage } from '../execution-message'
+
+import type { ProvenanceMarker } from './types'
 
 /**
  * Convert the `ExecutionMessage.level` value into a @codemirror/lint `Severity` string
@@ -56,4 +58,46 @@ const messagesTheme = EditorView.theme({
   },
 })
 
-export { executionMessageLinter, messagesTheme }
+/**
+ * Creates a set of codemirror mark type decorations from the
+ * array of `ProvenanceMarkers`
+ * @param marks `PorvenanceMarker[]`
+ * @returns `DecorationSet`
+ */
+const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
+  Decoration.set(
+    marks.map((mark) => {
+      return Decoration.mark({
+        tagName: 'span',
+        class: `prov-lvl-${mark.mi}`,
+      }).range(mark.from, mark.to)
+    })
+  )
+
+const provTheme = EditorView.theme({
+  '.prov-lvl-0': {
+    backgroundColor: 'transparent',
+  },
+  '.prov-lvl-1': {
+    backgroundColor: '#f1f5fe', // blue-50
+  },
+  '.prov-lvl-2': {
+    backgroundColor: '#dbeafe', // blue-100
+  },
+  '.prov-lvl-3': {
+    backgroundColor: '#bfdbfe', // blue-200
+  },
+  '.prov-lvl-4': {
+    backgroundColor: '#93c5fd', // blue-300
+  },
+  '.prov-lvl-5': {
+    backgroundColor: '#60a5fa', // blue-400
+  },
+})
+
+export {
+  executionMessageLinter,
+  messagesTheme,
+  createProvenanceDecorations,
+  provTheme,
+}
