@@ -2,7 +2,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/node-card/in-flow/block'
+import '../ui/nodes/node-card/on-demand/block'
 
 import { withTwind } from '../twind'
 
@@ -19,25 +19,25 @@ import { Entity } from './entity'
 @customElement('stencila-string')
 @withTwind()
 export class String extends Entity {
-  private bodyStyles = apply(['flex justify-center', 'w-full', 'py-2 px-6'])
+  private bodyStyles = apply(['w-full'])
 
   /**
    * In static view just render the value
    */
   override renderStaticView() {
-    return html`<slot></slot>`
+    return html`<q><slot></slot></q>`
   }
 
   /**
-   * In dynamic view, in addition to the value, render a node card.
+   * In dynamic view, render a node card with the value in the content slot.
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-in-flow type="String" view="dynamic">
-        <div slot="body" class=${this.bodyStyles}>
+      <stencila-ui-block-on-demand type="String" view="dynamic">
+        <div slot="content" class=${this.bodyStyles}>
           <q><slot></slot></q>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -48,11 +48,11 @@ export class String extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-block-in-flow type="String" view="source">
+      <stencila-ui-block-on-demand type="String" view="source">
         <div slot="body" class=${this.bodyStyles}>
           <q><slot></slot></q>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 }

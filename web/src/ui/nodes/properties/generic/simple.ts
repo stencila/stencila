@@ -24,7 +24,7 @@ export class UINodeSimpleProperty extends LitElement {
     const content = html`<slot></slot>`
 
     return html`<div
-      class="flex flex-row w-full h-full items-center gap-x-2 shrink-0"
+      class="flex flex-row w-full h-full items-center gap-x-2 shrink-0 not-italic"
     >
       <div class="flex items-center justify-center">
         <sl-icon

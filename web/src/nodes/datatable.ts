@@ -1,10 +1,11 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/card'
+import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/node-card/on-demand/block'
 import './datatable-column'
 
 /**
@@ -13,26 +14,29 @@ import './datatable-column'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md
  */
 @customElement('stencila-datatable')
+@withTwind()
 export class Datatable extends Entity {
   /**
    * In static view just render the table
    */
   override renderStaticView() {
-    return html`<slot></slot>`
+    return html` <div class="overflow-x-scroll data-table" slot="content">
+      <slot></slot>
+    </div>`
   }
 
   /**
-   * In dynamic view, in addition to the table, render a node card.
+   * In dynamic view, render a node card with the table in the content slot.
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-node-card type="Datatable" view="dynamic">
-        <div slot="body">
-          <div class="overflow-auto">
+      <stencila-ui-block-on-demand type="Datatable" view="dynamic">
+        <div class="content" slot="content">
+          <div class="overflow-x-scroll data-table">
             <slot></slot>
           </div>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -43,13 +47,13 @@ export class Datatable extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-node-card type="Datatable" view="source">
+      <stencila-ui-block-on-demand type="Datatable" view="source">
         <div slot="body">
           <div class="overflow-auto">
             <slot></slot>
           </div>
         </div>
-      </stencila-ui-node-card>
+      </stencila-ui-block-on-demand>
     `
   }
 }

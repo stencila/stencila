@@ -27,15 +27,15 @@ export class Object extends Entity {
   }
 
   /**
-   * In dynamic view, in addition to the value, render a node card.
+   * In dynamic view, render a node card with the value in the content slot.
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-in-flow type="Object" view="dynamic">
-        <div slot="body" class="p-2">
+      <stencila-ui-block-on-demand type="Object" view="dynamic">
+        <div slot="content">
           <slot></slot>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 
@@ -46,11 +46,11 @@ export class Object extends Entity {
    */
   override renderSourceView() {
     return html`
-      <stencila-ui-block-in-flow type="Object" view="source">
-        <div slot="body" class="p-2">
+      <stencila-ui-block-on-demand type="Object" view="source">
+        <div slot="body">
           <slot></slot>
         </div>
-      </stencila-ui-block-in-flow>
+      </stencila-ui-block-on-demand>
     `
   }
 }

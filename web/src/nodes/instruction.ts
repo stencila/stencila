@@ -74,7 +74,7 @@ export abstract class Instruction extends Executable {
           <slot name="messages"></slot>
         </stencila-ui-node-instruction-messages>
       </div>
-      <div slot="content">
+      <div slot="content" class="w-full">
         <slot name="suggestion"></slot>
       </div>
     </stencila-ui-block-on-demand>`

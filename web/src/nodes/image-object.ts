@@ -1,3 +1,4 @@
+import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -22,6 +23,12 @@ export class ImageObject extends Entity {
     return html`<slot></slot>`
   }
 
+  private imgStyles = css`
+    & img {
+      width: 100%;
+    }
+  `
+
   /**
    * In dynamic view, in addition to the image, render a node card.
    */
@@ -29,7 +36,7 @@ export class ImageObject extends Entity {
     return html`
       <stencila-ui-block-on-demand type="ImageObject" view="dynamic">
         <div slot="body"></div>
-        <div slot="content">
+        <div slot="content" class=${this.imgStyles}>
           <slot></slot>
         </div>
       </stencila-ui-block-on-demand>
@@ -46,9 +53,11 @@ export class ImageObject extends Entity {
         type="ImageObject"
         view="source"
         collapsible=${true}
-        ><div slot="body">
-          <slot></slot></div
-      ></stencila-ui-node-card>
+      >
+        <div slot="body">
+          <slot></slot>
+        </div>
+      </stencila-ui-node-card>
     `
   }
 }

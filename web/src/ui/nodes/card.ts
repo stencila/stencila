@@ -149,7 +149,7 @@ export class UINodeCard extends LitElement {
           ></sl-icon>
         </span>
         <div class="flex justify-between items-center gap-x-2 grow">
-          <span class="font-bold grow">${title}</span>
+          <span class="font-semibold font-sans text-sm grow">${title}</span>
           <div class="">
             <slot name="header-right"></slot>
           </div>

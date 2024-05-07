@@ -17,24 +17,26 @@ import { UIBaseCard } from '../base-card'
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
 export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
-  protected override toggleChipPosition: string = 'mt-2'
+  protected override toggleChipPosition: string = ''
 
   override render() {
     const cardStyles = apply([
+      'fit-contents',
       'group',
       'transition duration-400',
       'border border-[transparent]',
       'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
-      this.toggle && `border-[${this.ui.borderColour}]`,
+      'font-normal',
+      this.view === 'source' ? 'flex flex-col h-full' : '',
+      this.toggle && `border-[${this.ui.borderColour}] my-2 mx-auto`,
     ])
 
-    return html`<div class=${`${cardStyles}`}>
+    return html`<div class=${`ui-block-on-demand ${cardStyles}`}>
       <div class="relative">
         <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
           ${this.renderHeader()} ${this.renderBody()}
         </stencila-ui-collapsible-animation>
-        ${this.renderContent()}
+        <div class=${`animated-content`}>${this.renderContent()}</div>
       </div>
     </div>`
   }
@@ -55,16 +57,18 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override renderContent() {
     const contentStyles = apply([
-      !this.displayContent && this.toggle ? 'hidden' : 'flex',
+      !this.displayContent && this.toggle ? 'hidden' : 'block',
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       'px-0',
-      this.toggle && 'px-3',
+      this.toggle && 'p-3',
     ])
 
-    return html` <div class=${contentStyles}>
+    return html` <div class=${`${contentStyles}`}>
       ${this.renderChip(this.getIcon(), this.ui)}
-      <slot name="content"></slot>
+      <div class="content-block">
+        <slot name="content" class="w-full"></slot>
+      </div>
     </div>`
   }
 
