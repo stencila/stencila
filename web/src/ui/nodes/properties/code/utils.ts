@@ -12,7 +12,7 @@ import { ExecutionMessage } from '../execution-message'
  * @returns 'Severity'
  */
 const getMessageSeverity = (lvl: MessageLevel) =>
-  lvl === 'Error'
+  lvl === 'Error' || lvl === "Exception"
     ? 'error'
     : // @ts-expect-error "Warning is not declared in the `MessageLevel` type, yet is sometimes used"
       lvl === 'Warning' || lvl === 'Warn'
