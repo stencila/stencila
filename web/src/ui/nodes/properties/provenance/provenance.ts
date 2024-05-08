@@ -82,7 +82,9 @@ export class UINodeProvenance extends LitElement {
       }
     }
 
-    this.categories = categories
+    this.categories = categories.sort((a, b) => {
+      return b.percentage - a.percentage
+    })
   }
 
   override render() {
