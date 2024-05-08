@@ -3,7 +3,7 @@
 import { Codec, type DecodeInfo, Plugin } from "@stencila/plugin";
 import type { Node } from "@stencila/types";
 
-import { decode } from "./decode";
+import { decode } from "./decode/index.js";
 
 /**
  * An codec for decoding from MyST to Stencila Schema nodes

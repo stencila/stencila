@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2016",
     "module": "Node16",
-    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
