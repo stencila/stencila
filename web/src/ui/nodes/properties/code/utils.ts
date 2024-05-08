@@ -14,15 +14,14 @@ import type { ProvenanceMarker } from './types'
 /**
  * Convert the `ExecutionMessage.level` value into a @codemirror/lint `Severity` string
  * for the linting extension
+ * 
  * @param lvl `MessageLevel`
  * @returns 'Severity'
  */
 const getMessageSeverity = (lvl: MessageLevel) =>
-  // @ts-expect-error "Exception is not declared in the `MessageLevel` type, yet is sometimes used"
   lvl === 'Error' || lvl === 'Exception'
     ? 'error'
-    : // @ts-expect-error "Warning is not declared in the `MessageLevel` type, yet is sometimes used"
-      lvl === 'Warning' || lvl === 'Warn'
+    : lvl === 'Warning'
       ? 'warning'
       : 'info'
 
