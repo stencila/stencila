@@ -6,6 +6,7 @@ import '../ui/nodes/card'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/provenance'
 
 import { Styled } from './styled'
 
@@ -46,6 +47,9 @@ export class StyledBlock extends Styled {
         <stencila-ui-node-authors type="StyledBlock">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
+        <stencila-ui-node-provenance type="StyledBlock">
+          <slot name="provenance"></slot>
+        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="StyledBlock"

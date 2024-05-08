@@ -6,6 +6,7 @@ import { withTwind } from '../twind'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/provenance'
 
 import { Math } from './math'
 
@@ -30,6 +31,9 @@ export class MathBlock extends Math {
           <stencila-ui-node-authors type="MathBlock">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="MathBlock">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
 
           <stencila-ui-node-code
             type="MathBlock"

@@ -42,3 +42,9 @@ registerIconLibrary('lucide', {
   resolver: (name) =>
     `https://cdn.jsdelivr.net/npm/lucide-static@0.365.0/icons/${name}.svg`,
 })
+
+export type ShoelaceIconLibraries =
+  | 'default'
+  | 'stencila'
+  | 'boxicons'
+  | 'lucide'

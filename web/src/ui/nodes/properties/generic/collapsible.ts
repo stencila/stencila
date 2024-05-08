@@ -4,6 +4,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import '../../../buttons/chevron'
+import { ShoelaceIconLibraries } from '../../../../shoelace'
 import { withTwind } from '../../../../twind'
 import { nodeUi } from '../../icons-and-colours'
 
@@ -17,7 +18,7 @@ export class UINodeCollapsibleProperty extends LitElement {
   iconName: string
 
   @property({ attribute: 'icon-library' })
-  iconLibrary: 'stencila' | 'default' = 'stencila'
+  iconLibrary: ShoelaceIconLibraries = 'stencila'
 
   @property({ type: Boolean })
   collapsed: boolean = false
