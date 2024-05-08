@@ -1,5 +1,5 @@
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-// import { ProvenanceCategory } from '@stencila/types'
+import { ProvenanceCategory } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -10,7 +10,7 @@ import { withTwind } from '../../../../twind'
 import schema from './ProvenanceCategory.schema.json'
 
 type CategoryDefinitions = {
-  [index: string]: string
+  [Property in ProvenanceCategory]: string
 }
 
 /**
@@ -18,7 +18,7 @@ type CategoryDefinitions = {
  * the schema. We then use the description as tooltip text.
  */
 const provenanceCategories = schema.anyOf.reduce((acc, current) => {
-  acc[current.const] = current.description
+  acc[current.const as ProvenanceCategory] = current.description
   return acc
 }, {} as CategoryDefinitions)
 
@@ -31,7 +31,7 @@ const provenanceCategories = schema.anyOf.reduce((acc, current) => {
 @withTwind()
 export class UIProvenanceCategory extends LitElement {
   @property()
-  category: string | undefined
+  category: ProvenanceCategory | undefined
 
   /**
    * The refs used by this element.
