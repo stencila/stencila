@@ -23,8 +23,8 @@
   "dependencies": {
     "@stencila/plugin": "^2.0.0-alpha.1",
     "@stencila/types": "^2.0.0-alpha.25",
-    "mdast": "^3.0.0",
-    "myst-parser": "^1.4.2"
+    "myst-parser": "^1.4.2",
+    "myst-spec": "^0.0.5"
   },
   "devDependencies": {
     "vitest": "^1.6.0"
