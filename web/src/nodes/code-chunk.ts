@@ -85,6 +85,7 @@ export class CodeChunk extends CodeExecutable {
           type="CodeChunk"
           code=${this.code}
           language=${this.programmingLanguage}
+          code-authorship=${this.codeAuthorship}
           read-only
         >
           <slot name="execution-messages"></slot>

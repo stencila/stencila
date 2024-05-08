@@ -18,7 +18,12 @@ import { withTwind } from '../../../../twind'
 import '../../../buttons/chevron'
 import { ExecutionMessage } from '../execution-message'
 
-import { executionMessageLinter, messagesTheme } from './utils'
+import { CodeAuthorElement, ProvenanceMarker } from './types'
+import {
+  executionMessageLinter,
+  messagesTheme,
+  createProvenanceDecorations,
+} from './utils'
 
 /**
  * A component for rendering the `code` property of `CodeStatic`, `CodeExecutable`
@@ -47,6 +52,13 @@ export class UINodeCode extends LitElement {
    */
   @property({ type: Boolean, attribute: 'read-only' })
   readOnly: boolean = false
+
+  /**
+   * 'Stringified' array of the author provenance, containing positions,
+   * author info and level of machine contribution
+   */
+  @property({ attribute: 'code-authorship' })
+  codeAuthorship?: string
 
   /**
    * Whether the code shown be collapsed by default or not
@@ -144,9 +156,15 @@ export class UINodeCode extends LitElement {
 
     const executionMessages = this.getExecutionMessages()
 
+    const provenanceMarkers = this.getAuthorProvenanceMarkers()
     return [
       EditorView.editable.of(!this.readOnly),
       EditorState.readOnly.of(this.readOnly),
+      provenanceMarkers
+        ? EditorView.decorations.of(
+            createProvenanceDecorations(provenanceMarkers)
+          )
+        : [],
       ...languageExtension,
       lineNumbers(),
       foldGutter(),
@@ -217,6 +235,34 @@ export class UINodeCode extends LitElement {
       }
     }
     return undefined
+  }
+
+  /**
+   * Takes the string value of the `code-authorship` property and attempts to
+   * parse it into JS, if successful will convert the elements in `ProvenanceMarker` objects
+   *
+   * Return `null` if value is falsy, or parsing fails
+   * @returns `ProvenanceMarker[] | null`
+   */
+  private getAuthorProvenanceMarkers = (): ProvenanceMarker[] | null => {
+    if (this.codeAuthorship) {
+      try {
+        const data = JSON.parse(this.codeAuthorship) as CodeAuthorElement[]
+        const provenanceMarkers: ProvenanceMarker[] = []
+        data.forEach((tuple) => {
+          provenanceMarkers.push({
+            from: tuple[0],
+            to: tuple[1],
+            mi: tuple[5],
+          })
+        })
+        return provenanceMarkers
+      } catch (_) {
+        // return null if the string is unable to be parsed successfully
+        return null
+      }
+    }
+    return null
   }
 
   override update(changedProperties: Map<string, string | boolean>) {
