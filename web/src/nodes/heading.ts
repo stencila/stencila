@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators'
 
 import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { Entity } from './entity'
 

@@ -4,6 +4,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import '../../../buttons/chevron'
+import '../../node-card/section-header'
 import { ShoelaceIconLibraries } from '../../../../shoelace'
 import { withTwind } from '../../../../twind'
 import { nodeUi } from '../../icons-and-colours'
@@ -36,24 +37,22 @@ export class UINodeCollapsibleProperty extends LitElement {
 
     return html`
       <div class=${`${this.wrapperCSS ?? ''}`}>
-        <div
-          class=${`flex flex-row items-center px-4 py-1.5 cursor-pointer font-sans not-italic ${headerBg ? `bg-[${headerBg}]` : ''}`}
-          @click=${() => (this.collapsed = !this.collapsed)}
+        <stencila-ui-node-card-section-header
+          .clickEvent=${() => {
+            this.collapsed = !this.collapsed
+          }}
+          icon-name=${this.iconName}
+          icon-library=${this.iconLibrary}
+          headerBg=${headerBg}
         >
-          ${this.iconName &&
-          html`<sl-icon
-            name=${this.iconName}
-            library=${this.iconLibrary}
-            class="text-base"
-          ></sl-icon>`}
-
-          <div class=${`grow select-none text-sm ${this.iconName && 'ml-4'}`}>
+          <div slot="title">
             <slot name="title"></slot>
           </div>
           <stencila-chevron-button
             .position=${this.collapsed ? 'left' : 'down'}
+            slot="right-side"
           ></stencila-chevron-button>
-        </div>
+        </stencila-ui-node-card-section-header>
         <div class=${contentClasses}>
           <slot name="content"></slot>
         </div>

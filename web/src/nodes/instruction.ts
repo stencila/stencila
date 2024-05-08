@@ -8,7 +8,7 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/instruction-messages'
-import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/provenance/provenance'
 import '../ui/nodes/properties/suggestion'
 
 import { Executable } from './executable'

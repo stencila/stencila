@@ -5,7 +5,7 @@ import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code'
-import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { Styled } from './styled'
 

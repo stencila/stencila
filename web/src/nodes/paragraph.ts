@@ -9,7 +9,7 @@ import '../ui/nodes/properties/authorship'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/provenance/provenance'
 /**
  * Web component representing a Stencila Schema `Paragraph` node
  *

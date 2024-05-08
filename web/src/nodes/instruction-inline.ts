@@ -9,7 +9,7 @@ import { Instruction } from './instruction'
 import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-messages'
-import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/provenance/provenance'
 
 /**
  * Web component representing a Stencila Schema `InstructionInline` node
