@@ -42,13 +42,13 @@ export class UIProvenanceCategory extends LitElement {
   protected override render(): unknown {
     const styles = apply([
       'inline-block',
-      'cursor-pointer',
-      'bg-black bg-blend-multiply',
-      'text-white text-2xs leading-none',
+      'cursor-default',
+      'bg-white bg-blend-multiply',
+      'text-black text-2xs leading-none',
       'px-2 py-1',
-      'border border-black rounded',
+      'border border-white rounded-full',
       'transition-all duration-200 ease-in',
-      'hover:bg-black/0 hover:text-black',
+      'hover:bg-white/0 hover:border-black',
     ])
     return html`<sl-tooltip
       content=${this.tooltipText()}
