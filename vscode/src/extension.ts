@@ -39,8 +39,8 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   await client.start();
 
-  // Register commands & notifications
-  registerCommands(context);
+  // Register commands, notifications
+  registerCommands(context, client);
   registerNotifications(client);
 
   // Define the default theme for this extension.
