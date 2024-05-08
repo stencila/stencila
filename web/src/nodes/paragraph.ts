@@ -5,6 +5,7 @@ import { withTwind } from '../twind'
 
 import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/authorship'
 
 import { Entity } from './entity'
 
