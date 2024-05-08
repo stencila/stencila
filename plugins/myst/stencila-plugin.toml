@@ -1,0 +1,11 @@
+name = "myst"
+version = "0.1.0"
+description = "Conversion to/from MyST Markdown"
+home = "https://github.com/stencila/stencila/tree/plugins/myst"
+install = "https://github.com/stencila/stencila/plugins/myst"
+runtime = "node>=16"
+transports = ["stdio", "http"]
+command = "npx run"
+
+[[codecs]]
+name = "myst"
