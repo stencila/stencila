@@ -32,6 +32,27 @@
         },
         {
           "type": "Text",
+          "value": " and "
+        },
+        {
+          "type": "CodeInline",
+          "code": "code"
+        },
+        {
+          "type": "Text",
+          "value": " and "
+        },
+        {
+          "type": "Underline",
+          "content": [
+            {
+              "type": "Text",
+              "value": "underlined"
+            }
+          ]
+        },
+        {
+          "type": "Text",
           "value": "."
         }
       ]
