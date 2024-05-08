@@ -12,9 +12,15 @@ use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio
 use schema::{NodeType, ProvenanceCategory};
 
 use crate::{
-    commands::{ACCEPT_NODE, CANCEL_NODE, INSPECT_NODE, REJECT_NODE, RUN_NODE, VIEW_NODE},
+    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, RUN_NODE},
     text_document::TextNode,
 };
+
+// Preview node. Command implemented on the client
+pub(super) const VIEW_NODE: &str = "stencila.view-doc";
+
+// Do not run a command, just display provenance
+pub(super) const PROV_NODE: &str = "";
 
 /// Handle a request for code lenses for a document
 ///
@@ -84,7 +90,7 @@ pub(crate) async fn request(
                         lenses.push(CodeLens {
                             range: *range,
                             command: None,
-                            data: Some(json!([INSPECT_NODE, uri, node_type, node_id, desc])),
+                            data: Some(json!([PROV_NODE, uri, node_type, node_id, desc])),
                         });
                     }
                 }
@@ -127,9 +133,9 @@ pub(crate) async fn resolve(
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
         ACCEPT_NODE => Command::new("$(thumbsup) Accept".to_string(), command, arguments),
         REJECT_NODE => Command::new("$(thumbsdown) Reject".to_string(), command, arguments),
-        VIEW_NODE => Command::new("$(eye) View".to_string(), command, arguments),
-        INSPECT_NODE => Command::new(
-            format!("$(search) {prov}", prov = data.next().unwrap_or_default()),
+        VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
+        PROV_NODE => Command::new(
+            format!("{prov}", prov = data.next().unwrap_or_default()),
             command,
             arguments,
         ),

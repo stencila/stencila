@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { createDocumentViewPanel } from "./webviews";
 
 /**
  * Register commands provided by the extension
@@ -58,34 +59,22 @@ export function registerCommands(context: vscode.ExtensionContext) {
 
   // Document preview panel
   context.subscriptions.push(
-    vscode.commands.registerCommand("stencila.view-node", (uri) => {
-      const panel = vscode.window.createWebviewPanel(
-        "view-node",
-        uri,
-        vscode.ViewColumn.Beside,
-        { enableScripts: true }
-      );
-      panel.iconPath; // TODO: Set this icon
-      panel.webview.html = `<!DOCTYPE html>
-        <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Stencila: Document Preview</title>
-          </head>
-          <body style="background: white;">
-
-          </body>
-        </html>`;
-    })
-  );
-
-  // Document preview panel with a specific node expanded
-  context.subscriptions.push(
     vscode.commands.registerCommand(
-      "stencila.inspect-node",
-      async (uri, nodeId) => {
-        // TODO: open webview with authors and provenance shown
+      "stencila.view-doc",
+      // docUri and nodeType are not used but are in the arguments
+      // that we pass to all commands form code lenses so need to be here
+      (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        createDocumentViewPanel(
+          context.extensionUri,
+          editor.document.uri,
+          nodeId
+        );
       }
     )
   );
