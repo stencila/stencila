@@ -135,7 +135,7 @@ pub(crate) async fn resolve(
         REJECT_NODE => Command::new("$(thumbsdown) Reject".to_string(), command, arguments),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
         PROV_NODE => Command::new(
-            format!("{prov}", prov = data.next().unwrap_or_default()),
+            data.next().unwrap_or_default().to_string(),
             command,
             arguments,
         ),
