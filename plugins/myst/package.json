@@ -8,7 +8,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "build": "tsc"
   },
   "keywords": [
@@ -22,6 +23,7 @@
   "dependencies": {
     "@stencila/plugin": "^2.0.0-alpha.1",
     "@stencila/types": "^2.0.0-alpha.25",
+    "mdast": "^3.0.0",
     "myst-parser": "^1.4.2"
   },
   "devDependencies": {

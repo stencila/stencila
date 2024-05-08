@@ -13,10 +13,10 @@ import { mdsToInlines } from "./inlines.js";
  * https://github.com/stencila/encoda/blob/master/src/codecs/md/index.ts.
  */
 export function mdsToBlocks(mds: BlockContent[]): Block[] {
-  return mds.map((block) => {
-    switch (block.type) {
+  return mds.map((md) => {
+    switch (md.type) {
       case "paragraph":
-        return new Paragraph(mdsToInlines(block.children));
+        return new Paragraph(mdsToInlines(md.children));
       case "heading":
       case "thematicBreak":
       case "blockquote":
@@ -24,7 +24,8 @@ export function mdsToBlocks(mds: BlockContent[]): Block[] {
       case "table":
       case "html":
       case "code":
-        throw new Error(`Not yet implemented: ${block.type}`);
+      default:
+        throw new Error(`Not yet implemented: ${md.type}`);
     }
   });
 }
