@@ -1,0 +1,30 @@
+{
+  "name": "@stencila/plugin-myst",
+  "version": "0.1.0",
+  "description": "A Stencila plugin for converting to/from MyST Markdown",
+  "main": "index.js",
+  "bin": {
+    "run": "index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc"
+  },
+  "keywords": [
+    "myst",
+    "markdown",
+    "jupyter",
+    "stencila",
+    "plugin"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@stencila/plugin": "^2.0.0-alpha.1",
+    "@stencila/types": "^2.0.0-alpha.25",
+    "myst-parser": "^1.4.2"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}

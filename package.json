@@ -2,6 +2,7 @@
   "workspaces": [
     "node/stencila-node",
     "node/stencila-plugin",
+    "plugins/myst",
     "ts",
     "web"
   ],
