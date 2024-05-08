@@ -138,6 +138,7 @@ export const executionMessageUI = (
     case 'Error':
       return { colour: 'pink-900', icon: 'x-circle' }
     case 'Warning':
+    case 'Warn':
       return { colour: 'orange-500', icon: 'exclamation-circle' }
     case 'Info':
       return { colour: 'green-900', icon: 'info-circle' }

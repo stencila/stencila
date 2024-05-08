@@ -5,7 +5,7 @@ import { customElement } from 'lit/decorators.js'
 import '../ui/nodes/card'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance/provenance'
 
 import { Styled } from './styled'
