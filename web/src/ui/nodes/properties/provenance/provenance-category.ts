@@ -31,7 +31,10 @@ const provenanceCategories = schema.anyOf.reduce((acc, current) => {
 @withTwind()
 export class UIProvenanceCategory extends LitElement {
   @property()
-  category: ProvenanceCategory | undefined
+  category: ProvenanceCategory
+
+  @property({ type: Number })
+  percentage: number | undefined
 
   /**
    * The refs used by this element.
@@ -53,8 +56,13 @@ export class UIProvenanceCategory extends LitElement {
     return html`<sl-tooltip
       content=${this.tooltipText()}
       ${ref(this.tooltipRef)}
-      ><span class=${styles} ${ref(this.buttonRef)}
-        >${this.category}</span
+      ><strong class=${styles} ${ref(this.buttonRef)}
+        >${this.category}
+        ${this.percentage
+          ? html`<span class="font-normal pointer-events-none"
+              >${this.percentage}%</span
+            >`
+          : ''}</strong
       ></sl-tooltip
     >`
   }

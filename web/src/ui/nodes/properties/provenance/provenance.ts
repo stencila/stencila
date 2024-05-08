@@ -7,7 +7,17 @@ import { withTwind } from '../../../../twind'
 import '../../node-card/section-header'
 import '../generic/collapsible-details'
 import { nodeUi } from '../../icons-and-colours'
+
 import './provenance-category'
+
+/**
+ * Object to hold attributes found while examining the slot nodes.
+ */
+type ProvenanceCategoryPayload = {
+  category: ProvenanceCategory
+  percentage: number
+  count: number
+}
 
 /**
  * A component for displaying the `provenance` property of a node.
@@ -38,12 +48,12 @@ export class UINodeProvenance extends LitElement {
    * accordingly.
    */
   @state()
-  categories: ProvenanceCategory[]
+  categories: ProvenanceCategoryPayload[]
 
   protected override firstUpdated(changedProperties: PropertyValues): void {
     super.firstUpdated(changedProperties)
 
-    const categories: ProvenanceCategory[] = []
+    const categories: ProvenanceCategoryPayload[] = []
 
     const slot = this.shadowRoot.querySelector('slot')
     let assignedNodes: Element[] | undefined = undefined
@@ -56,9 +66,18 @@ export class UINodeProvenance extends LitElement {
     for (const node of assignedNodes ?? []) {
       for (const child of node.children) {
         const category = child.getAttribute('provenance-category')
+        const count = child.getAttribute('character-count')
+        const percentage = child.getAttribute('character-percent')
 
         if (category) {
-          categories.push(category as ProvenanceCategory)
+          categories.push({
+            category: category as ProvenanceCategory,
+            count: count ? (count as unknown as number) : undefined,
+            percentage:
+              percentage != null
+                ? (percentage as unknown as number)
+                : undefined,
+          })
         }
       }
     }
@@ -78,9 +97,10 @@ export class UINodeProvenance extends LitElement {
       >
         <div slot="title" class="not-italic">Provenance</div>
         <div slot="right-side" class="flex gap-x-2">
-          ${this.categories?.map((category) => {
+          ${this.categories?.map(({ category, percentage }) => {
             return html`<stencila-ui-node-provenance-category
               category=${category}
+              percentage=${percentage}
             ></stencila-ui-node-provenance-category>`
           })}
         </div>
