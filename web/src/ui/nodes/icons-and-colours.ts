@@ -163,9 +163,9 @@ export const provenanceHighlights = {
   5: '#77a0f5', // blue-400
 }
 
-export type ProvenanceHighlightLvl = keyof typeof provenanceHighlights
+export type ProvenanceHighlightLevel = keyof typeof provenanceHighlights
 
-export const getProvHighlight = (miLvl: ProvenanceHighlightLvl) => {
+export const getProvenanceHighlight = (miLvl: ProvenanceHighlightLevel) => {
   return provenanceHighlights[miLvl]
 }
 

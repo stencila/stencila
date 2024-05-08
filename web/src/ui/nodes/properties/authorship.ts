@@ -3,7 +3,10 @@ import { LitElement, html } from 'lit'
 import { property, customElement } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
-import { ProvenanceHighlightLvl, getProvHighlight } from '../icons-and-colours'
+import {
+  ProvenanceHighlightLevel,
+  getProvenanceHighlight,
+} from '../icons-and-colours'
 
 /**
  * Renders the author provenance highlighting of document text.
@@ -38,7 +41,7 @@ export class StencilaAuthorship extends LitElement {
   mi: number
 
   override render() {
-    const bgColour = getProvHighlight(this.mi as ProvenanceHighlightLvl)
+    const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
 
     return html`
       <sl-tooltip
