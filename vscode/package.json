@@ -23,6 +23,12 @@
     ],
     "commands": [
       {
+        "command": "stencila.view-doc",
+        "title": "Stencila: Preview document",
+        "shortTitle": "Preview document",
+        "icon": "$(preview)"
+      },
+      {
         "command": "stencila.invoke.run-curr",
         "title": "Stencila: Run the current node",
         "shortTitle": "Run current",
@@ -89,6 +95,10 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "stencila.view-doc",
+          "when": "editorLangId == smd"
+        },
+        {
           "command": "stencila.invoke.run-curr",
           "when": "editorLangId == smd"
         },
@@ -130,6 +140,10 @@
         }
       ],
       "editor/title/run": [
+        {
+          "command": "stencila.view-doc",
+          "when": "editorLangId == smd"
+        },
         {
           "command": "stencila.invoke.run-all-doc",
           "when": "editorLangId == smd"
@@ -217,7 +231,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
-    "@types/node": "18.x",
+    "@types/node": "20.x",
     "@types/vscode": "^1.88.0",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",

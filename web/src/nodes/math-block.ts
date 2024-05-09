@@ -5,7 +5,7 @@ import { withTwind } from '../twind'
 
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/code'
+import '../ui/nodes/properties/code/code'
 
 import { Math } from './math'
 

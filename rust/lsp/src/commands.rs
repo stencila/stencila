@@ -57,11 +57,6 @@ pub(super) const REJECT_NODE: &str = "stencila.reject-node";
 
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
-// These commands are implemented on the client but included here
-// for us in the construction of code lenses
-pub(super) const VIEW_NODE: &str = "stencila.view-node";
-pub(super) const INSPECT_NODE: &str = "stencila.inspect-node";
-
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
     [
