@@ -1,7 +1,22 @@
+import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+
+/**
+ * Replaces the placeholder VSCODE_BASE_URL with the actual WebView URL
+ *
+ * This is necessary to load Shoelace and Stencila icons from the right place.
+ */
+export function patchWebViewJs(extensionUri: vscode.Uri) {
+  const filePath = path.join(extensionUri.fsPath, "dist", "views", "vscode.js");
+  const content = readFileSync(filePath, "utf8").replace(
+    "VSCODE_BASE_URL",
+    `https://file+.vscode-resource.vscode-cdn.net${extensionUri.fsPath}/dist`
+  );
+  writeFileSync(filePath, content, "utf8");
+}
 
 /**
  * A map of document view panels used to ensure that only one
@@ -33,12 +48,7 @@ export async function createDocumentViewPanel(
 
   // TODO: For deployment we will need to pull the web dist into the extension
   // folder rather than reaching out and getting it!
-  const webDist = vscode.Uri.joinPath(
-    context.extensionUri,
-    "..",
-    "web",
-    "dist"
-  );
+  const webDist = vscode.Uri.joinPath(context.extensionUri, "dist");
 
   const panel = vscode.window.createWebviewPanel(
     "document-view",
@@ -62,18 +72,20 @@ export async function createDocumentViewPanel(
       vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
     );
     const viewCss = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(webDist, "views", "dynamic.css")
+      vscode.Uri.joinPath(webDist, "views", "vscode.css")
     );
     const viewJs = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(webDist, "views", "dynamic.js")
+      vscode.Uri.joinPath(webDist, "views", "vscode.js")
     );
 
+    // Note that that attribute view="dynamic" is used to
+    // trigger Web Component to render as if they are in dynamic view
     return `<!DOCTYPE html>
 <html lang="en">
   <head>
+      <title>Stencila: Document Preview</title>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Stencila: Document Preview</title>
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
@@ -82,9 +94,9 @@ export async function createDocumentViewPanel(
       <script type="text/javascript" src="${viewJs}"></script>
   </head>
   <body style="background: white;">
-    <stencila-dynamic-view view="dynamic">
+    <stencila-vscode-view view="dynamic" theme="default">
       ${content}
-    </stencila-dynamic-view>
+    </stencila-vscode-view>
   </body>
 </html>`;
   };
