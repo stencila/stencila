@@ -8,6 +8,8 @@ import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/properties/provenance/provenance'
+
 /**
  * Web component representing a Stencila Schema `QuoteBlock` node
  *
@@ -36,6 +38,9 @@ export class QuoteBlock extends Entity {
           <stencila-ui-node-authors type="QuoteBlock">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="QuoteBlock">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <slot name="content"></slot>

@@ -8,6 +8,8 @@ import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/properties/provenance/provenance'
+
 /**
  * Web component representing a Stencila Schema `Claim` node
  *
@@ -42,6 +44,9 @@ export class Claim extends Entity {
           <stencila-ui-node-authors type="Claim">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="Claim">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <slot name="content"></slot>
