@@ -6,7 +6,7 @@
  * `src/twind.ts`.
  */
 export default {
-  content: ["nothing, but this can't be empty"],
+  content: ['./src/**/*.ts'],
   plugins: [
     require('@tailwindcss/typography'),
     require('@tailwindcss/container-queries'),

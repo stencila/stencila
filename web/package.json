@@ -25,6 +25,7 @@
     "src/images/favicon.png",
     "src/themes/default.css",
     "src/themes/latex.css",
+    "src/themes/shared.css",
     "src/themes/tufte.css",
     "src/views/dynamic.ts",
     "src/views/live.ts",
