@@ -3,6 +3,7 @@ import { customElement } from 'lit/decorators'
 
 import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { Entity } from './entity'
 
@@ -33,6 +34,9 @@ export class List extends Entity {
           <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="List">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
         <slot name="items" slot="content"></slot>
       </stencila-ui-block-on-demand>
@@ -52,6 +56,9 @@ export class List extends Entity {
           <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="List">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
       </stencila-ui-node-card>
     `

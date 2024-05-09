@@ -35,5 +35,8 @@
     "tsup": "8.0.2",
     "typescript": "5.4.5",
     "wrangler": "3.49.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.17.2"
   }
 }

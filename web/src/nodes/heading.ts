@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators'
 
 import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { Entity } from './entity'
 
@@ -36,6 +37,9 @@ export class Heading extends Entity {
           <stencila-ui-node-authors type="Heading">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="Heading">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
         <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>

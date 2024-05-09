@@ -7,6 +7,7 @@ import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { Math } from './math'
 
@@ -31,6 +32,9 @@ export class MathInline extends Math {
           <stencila-ui-node-authors type="MathInline">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="MathInline">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
 
           <stencila-ui-node-code
             type="MathInline"
