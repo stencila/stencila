@@ -4,8 +4,8 @@ import { EditorView, Decoration } from '@codemirror/view'
 import { MessageLevel } from '@stencila/types'
 
 import {
-  ProvenanceHighlightLvl,
-  getProvHighlight,
+  ProvenanceHighlightLevel,
+  getProvenanceHighlight,
 } from '../../icons-and-colours'
 import { ExecutionMessage } from '../execution-message'
 
@@ -14,7 +14,7 @@ import type { ProvenanceMarker } from './types'
 /**
  * Convert the `ExecutionMessage.level` value into a @codemirror/lint `Severity` string
  * for the linting extension
- * 
+ *
  * @param lvl `MessageLevel`
  * @returns 'Severity'
  */
@@ -77,7 +77,7 @@ const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
         attributes: {
           style:
             mark.mi >= 0 && mark.mi <= 5
-              ? `background-color: ${getProvHighlight(mark.mi as ProvenanceHighlightLvl)}`
+              ? `background-color: ${getProvenanceHighlight(mark.mi as ProvenanceHighlightLevel)}`
               : '',
         },
       }).range(mark.from, mark.to)
