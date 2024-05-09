@@ -32,7 +32,11 @@ export class Paragraph extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand type="Paragraph" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Paragraph"
+        view="dynamic"
+        node-id=${this.id}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>

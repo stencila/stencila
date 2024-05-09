@@ -48,7 +48,6 @@ export class StencilaAuthorship extends LitElement {
 
   override render() {
     const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
-
     if (this.context.cardOpen) {
       return html`
         <sl-tooltip

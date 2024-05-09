@@ -129,14 +129,13 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override toggleCardDisplay() {
     this.toggle = !this.toggle
-    if (this.type === 'InstructionInline') {
-      this.shadowRoot.dispatchEvent(
-        new CustomEvent('collapsible-nodecard-toggle', {
-          bubbles: true,
-          composed: true,
-          detail: { cardOpen: this.toggle, nodeId: this.nodeId },
-        })
-      )
-    }
+
+    this.shadowRoot.dispatchEvent(
+      new CustomEvent(`toggle-${this.id}`, {
+        bubbles: true,
+        composed: true,
+        detail: { cardOpen: this.toggle, nodeId: this.nodeId },
+      })
+    )
   }
 }
