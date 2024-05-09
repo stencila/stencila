@@ -1,8 +1,10 @@
+import { consume } from '@lit/context'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
-import { property, customElement } from 'lit/decorators'
+import { property, customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
+import { InstructionContext, instructionContext } from '../context'
 import {
   ProvenanceHighlightLevel,
   getProvenanceHighlight,
@@ -14,6 +16,10 @@ import {
 @customElement('stencila-authorship')
 @withTwind()
 export class StencilaAuthorship extends LitElement {
+  @consume({ context: instructionContext, subscribe: true })
+  @state()
+  context: InstructionContext
+
   /**
    * Number of authors who have edited this content.
    */
@@ -43,22 +49,26 @@ export class StencilaAuthorship extends LitElement {
   override render() {
     const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
 
-    return html`
-      <sl-tooltip
-        style="--show-delay: 1000ms; background-color: white;"
-        placement="bottom-start"
-      >
-        <!-- tooltip content -->
-        <div slot="content">
-          ${this.renderTooltipContent('Author count', this.count)}
-          ${this.renderTooltipContent('Provenance', this.provenance)}
-        </div>
-        <!-- -->
-        <span style="background-color: ${bgColour};">
-          <slot></slot>
-        </span>
-      </sl-tooltip>
-    `
+    if (this.context.cardOpen) {
+      return html`
+        <sl-tooltip
+          style="--show-delay: 1000ms; background-color: white;"
+          placement="bottom-start"
+        >
+          <!-- tooltip content -->
+          <div slot="content">
+            ${this.renderTooltipContent('Author count', this.count)}
+            ${this.renderTooltipContent('Provenance', this.provenance)}
+          </div>
+          <!-- -->
+          <span style="background-color: ${bgColour};">
+            <slot></slot>
+          </span>
+        </sl-tooltip>
+      `
+    } else {
+      return html`<slot></slot>`
+    }
   }
 
   renderTooltipContent(property: string, value: string | number) {

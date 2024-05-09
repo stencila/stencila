@@ -64,15 +64,29 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       this.toggle && 'p-3',
     ])
 
-    return html` <div class=${`${contentStyles}`}>
-      ${this.renderChip(this.getIcon(), this.ui)}
-      <div class="content-block">
-        <slot name="content" class="w-full"></slot>
+    return html`
+      <div class=${`${contentStyles}`}>
+        ${this.renderChip(this.getIcon(), this.ui)}
+        <div class="content-block">
+          <slot name="content" class="w-full"></slot>
+        </div>
       </div>
-    </div>`
+    `
   }
 
   protected override toggleCardDisplay() {
     this.toggle = !this.toggle
+    if (this.type === 'InstructionBlock') {
+      this.shadowRoot.dispatchEvent(
+        new CustomEvent('collapsible-nodecard-toggle', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            cardOpen: this.toggle,
+            nodeId: this.nodeId,
+          },
+        })
+      )
+    }
   }
 }

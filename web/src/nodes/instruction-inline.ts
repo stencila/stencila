@@ -24,6 +24,7 @@ export class InstructionInline extends Instruction {
     return html` <stencila-ui-inline-on-demand
       type="InstructionInline"
       view="dynamic"
+      node-id=${this.id}
     >
       <div slot="body">
         <stencila-ui-node-execution-details
