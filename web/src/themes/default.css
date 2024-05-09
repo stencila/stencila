@@ -116,7 +116,7 @@ figure {
   }
 
   blockquote {
-    @apply border-solid border-y-0 border-l-2 border-r-0 border-black/40 py-4 pl-3 m-6;
+    @apply border-solid border-y-0 border-l-2 border-r-0 border-black/20 bg-black/5 py-4 pl-3 m-6;
 
     p {
       @apply m-0 pb-0;
