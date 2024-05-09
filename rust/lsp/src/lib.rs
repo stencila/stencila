@@ -5,6 +5,7 @@ use async_lsp::{lsp_types::Url, ClientSocket};
 mod code_lens;
 mod commands;
 mod completion;
+mod content;
 mod diagnostics;
 mod formatting;
 mod inspect;

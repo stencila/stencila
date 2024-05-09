@@ -11,7 +11,8 @@ use tower::ServiceBuilder;
 use common::{serde_json, tracing};
 
 use crate::{
-    code_lens, commands, completion, formatting, lifecycle, symbols, text_document, ServerState,
+    code_lens, commands, completion, content, formatting, lifecycle, symbols, text_document,
+    ServerState,
 };
 
 /// Run the language server
@@ -105,6 +106,21 @@ pub async fn run() {
                 match doc {
                     Some(doc) => formatting::request(doc).await,
                     None => Ok(None),
+                }
+            }
+        });
+
+        router.request::<content::SubscribeContent, _>(|state, params| {
+            let uri = &params.uri;
+            let doc = state
+                .documents
+                .get(uri)
+                .map(|text_doc| text_doc.doc.clone());
+            let client = state.client.clone();
+            async move {
+                match doc {
+                    Some(doc) => content::subscribe(doc, params, client).await,
+                    None => Ok(String::new()),
                 }
             }
         });

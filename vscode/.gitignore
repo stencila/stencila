@@ -1,4 +1,5 @@
 .vscode-test
+dist
 node_modules
 out
 .DS_Store
