@@ -4,7 +4,7 @@ import { LitElement, html } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
-import { InstructionContext, instructionContext } from '../context'
+import { entityContext, EntityContext } from '../context'
 import {
   ProvenanceHighlightLevel,
   getProvenanceHighlight,
@@ -16,9 +16,9 @@ import {
 @customElement('stencila-authorship')
 @withTwind()
 export class StencilaAuthorship extends LitElement {
-  @consume({ context: instructionContext, subscribe: true })
+  @consume({ context: entityContext, subscribe: true })
   @state()
-  context: InstructionContext
+  context: EntityContext
 
   /**
    * Number of authors who have edited this content.

@@ -6,7 +6,7 @@ import { property, state } from 'lit/decorators'
 import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
-import { InstructionContext, instructionContext } from '../ui/nodes/context'
+import { EntityContext, entityContext } from '../ui/nodes/context'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -28,9 +28,9 @@ export abstract class Entity extends LitElement {
   @property({ type: String, attribute: 'active-child' })
   activeChild: NodeId
 
-  @provide({ context: instructionContext })
+  @provide({ context: entityContext })
   @state()
-  protected context: InstructionContext = {
+  protected context: EntityContext = {
     nodeId: this.id,
     cardOpen: false,
   }
@@ -39,7 +39,7 @@ export abstract class Entity extends LitElement {
     super.connectedCallback()
     this.shadowRoot.addEventListener(
       `toggle-${this.id}`,
-      (e: Event & { detail: InstructionContext }) => {
+      (e: Event & { detail: EntityContext }) => {
         // only update the context for the relevant node
         if (e.detail.nodeId === this.id) {
           this.context = {

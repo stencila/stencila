@@ -3,7 +3,7 @@ import { createContext } from '@lit/context'
 /**
  * Context object to be used for the state of any Entity
  */
-export type InstructionContext = {
+export interface EntityContext {
   readonly nodeId?: string
 
   /**
@@ -15,4 +15,12 @@ export type InstructionContext = {
 /**
  * Context object for state of Entity
  */
-export const instructionContext = createContext<InstructionContext>('node-card')
+export const entityContext = createContext<EntityContext>('entity-node-card')
+
+export interface InstructionContext extends EntityContext {
+  childEntitys: string[]
+}
+
+export const instructionContext = createContext<InstructionContext>(
+  'instruction-node-card'
+)
