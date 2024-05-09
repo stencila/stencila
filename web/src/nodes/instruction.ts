@@ -30,30 +30,6 @@ export abstract class Instruction extends Executable {
   @property()
   assignee?: string
 
-  // @provide({ context: instructionContext })
-  // @state()
-  // protected context: InstructionContext = {
-  //   nodeId: this.id,
-  //   cardOpen: false,
-  // }
-
-  // override connectedCallback(): void {
-  //   super.connectedCallback()
-  //   this.shadowRoot.addEventListener(
-  //     'collapsible-nodecard-toggle',
-  //     (e: Event & { detail: InstructionContext }) => {
-  //       this.context
-  //       // only update the context for the relevant node
-  //       if (e.detail.nodeId === this.id) {
-  //         this.context = {
-  //           ...this.context,
-  //           cardOpen: e.detail.cardOpen,
-  //         }
-  //       }
-  //     }
-  //   )
-  // }
-
   /**
    * In dynamic view, in addition to what is in static view, render a node card
    * with execution actions and details and code read-only and collapsed.
