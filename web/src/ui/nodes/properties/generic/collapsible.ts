@@ -32,7 +32,7 @@ export class UINodeCollapsibleProperty extends LitElement {
 
     const contentClasses = apply([
       this.collapsed ? 'max-h-0 overflow-hidden' : 'max-h-[150000px]',
-      'transition-max-h duration-200',
+      'transition-max-h duration-200 bg-white',
     ])
 
     return html`
@@ -48,10 +48,11 @@ export class UINodeCollapsibleProperty extends LitElement {
           <div slot="title">
             <slot name="title"></slot>
           </div>
-          <stencila-chevron-button
-            .position=${this.collapsed ? 'left' : 'down'}
-            slot="right-side"
-          ></stencila-chevron-button>
+          <div class="pl-4" slot="right-side">
+            <stencila-chevron-button
+              .position=${this.collapsed ? 'left' : 'down'}
+            ></stencila-chevron-button>
+          </div>
         </stencila-ui-node-card-section-header>
         <div class=${contentClasses}>
           <slot name="content"></slot>

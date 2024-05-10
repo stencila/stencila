@@ -57,17 +57,28 @@ export class UINodeExecutionDetails extends LitElement {
   @property({ attribute: 'header-bg' })
   headerBg: string | undefined = undefined
 
+  @property()
+  display: 'inline' | 'block' = 'block'
+
   override render() {
     const { borderColour } = nodeUi(this.type)
 
-    const classes = apply([
+    const baseClasses = [
       'flex flex-col gap-3',
       'text-xs leading-tight',
-      'py-1.5 px-4',
-      `bg-[${borderColour}]`,
-      'border-t border-b border-black/20',
       'font-sans',
-    ])
+    ]
+
+    const blockClasses =
+      this.display === 'block'
+        ? [
+            'py-1.5 px-4',
+            `bg-[${borderColour}]`,
+            'border-t border-b border-black/20',
+          ]
+        : []
+
+    const classes = apply([...baseClasses, ...blockClasses])
 
     return html`
       <div class="@container">

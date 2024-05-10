@@ -3,12 +3,13 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/commands/execution-commands'
+import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/generic/collapsible-details'
 import '../ui/nodes/properties/outputs'
 
 import { CodeExecutable } from './code-executable'
@@ -47,19 +48,26 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
-        <stencila-ui-node-execution-details
+        <stencila-ui-node-collapsible-details
           type="CodeExpression"
-          auto-exec=${this.autoExec}
-          .tags=${this.executionTags}
-          status=${this.executionStatus}
-          required=${this.executionRequired}
-          count=${this.executionCount}
-          ended=${this.executionEnded}
-          duration=${this.executionDuration}
+          title="Execution Details"
+          collapsed
         >
-          <slot name="execution-dependencies"></slot>
-          <slot name="execution-dependants"></slot>
-        </stencila-ui-node-execution-details>
+          <stencila-ui-node-execution-details
+            type="CodeExpression"
+            auto-exec=${this.autoExec}
+            .tags=${this.executionTags}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
+            count=${this.executionCount}
+            ended=${this.executionEnded}
+            duration=${this.executionDuration}
+            display="inline"
+          >
+            <slot name="execution-dependencies"></slot>
+            <slot name="execution-dependants"></slot>
+          </stencila-ui-node-execution-details>
+        </stencila-ui-node-collapsible-details>
 
         <stencila-ui-node-authors type="CodeExpression">
           <slot name="authors"></slot>
@@ -87,6 +95,7 @@ export class CodeExpression extends CodeExecutable {
       </div>
 
       <span slot="content">${this.code}</span>
+      <slot name="output"></slot>
     </stencila-ui-inline-on-demand>`
   }
 

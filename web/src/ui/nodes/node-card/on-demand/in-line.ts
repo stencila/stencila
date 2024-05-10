@@ -23,7 +23,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   protected override restrictTitleWidth: boolean = true
 
   protected override toggleChipPosition: string =
-    'top-1/2 -translate-y-1/2 absolute'
+    'absolute -top-2 -translate-x-9 z-1'
 
   private tw: Twind
 
@@ -47,13 +47,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
-    const bodyStyles = apply([
-      'relative',
-      'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
-    ])
+    // const { colour, borderColour } = this.ui
+    const bodyStyles = apply(['relative', 'w-full h-full'])
 
     return html`<div class=${bodyStyles}>
       <slot name="body"></slot>
@@ -98,12 +93,11 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const contentStyles = apply([
       'inline-block',
-      `bg-[${this.ui.borderColour}]`,
       'rounded-md',
       'cursor-default',
-      `not-italic text-black leading-5`,
-      'mb-auto mx-1 -mt-[0.125rem]',
-      'py-[0.125rem] px-1.5',
+      'font-mono text-sm not-italic text-black leading-5',
+      'mb-auto mx-0',
+      'px-1',
     ])
 
     return html` <div
@@ -116,6 +110,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         class=${`${toolTipStyles}`}
         .open=${this.toggle}
         placement="bottom"
+        style="--max-width: 24rem;"
       >
         <div slot="content">
           ${this.renderHeader()} ${this.renderAnimatedContent()}

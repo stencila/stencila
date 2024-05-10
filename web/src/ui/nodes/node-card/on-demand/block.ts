@@ -17,8 +17,6 @@ import { UIBaseCard } from '../base-card'
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
 export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
-  protected override toggleChipPosition: string = ''
-
   override render() {
     const cardStyles = apply([
       'fit-contents',
