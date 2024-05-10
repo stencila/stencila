@@ -12,6 +12,7 @@ import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/label-and-caption'
 import '../ui/nodes/properties/outputs'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { CodeExecutable } from './code-executable'
 
@@ -80,6 +81,10 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-authors type="CodeChunk">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
+
+        <stencila-ui-node-provenance type="CodeChunk">
+          <slot name="provenance"></slot>
+        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="CodeChunk"

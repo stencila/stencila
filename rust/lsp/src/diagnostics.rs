@@ -45,15 +45,14 @@ impl Notification for PublishStatus {
 
 /// Publish diagnostics
 pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket) {
-    // Publish status notifications
+    // Publish status notifications. As for diagnostics intentionally publishes an
+    // empty set so as to clear existing decorations.
     let statuses = statuses(text_node);
-    if !statuses.is_empty() {
-        if let Err(error) = client.notify::<PublishStatus>(PublishStatusParams {
-            uri: uri.clone(),
-            statuses,
-        }) {
-            tracing::error!("While publishing status notifications: {error}");
-        }
+    if let Err(error) = client.notify::<PublishStatus>(PublishStatusParams {
+        uri: uri.clone(),
+        statuses,
+    }) {
+        tracing::error!("While publishing status notifications: {error}");
     }
 
     // Publish diagnostics. This intentionally publishes an empty set so as to clear

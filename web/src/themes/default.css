@@ -236,7 +236,8 @@ figure {
   }
 }
 
-[view='dynamic'] {
+[view='dynamic'],
+[view='vscode'] {
   > [root] {
     @apply max-w-prose;
     max-width: 100%;

@@ -21,28 +21,37 @@
     "documents"
   ],
   "type": "module",
-  "source": [
-    "src/images/favicon.png",
-    "src/themes/default.css",
-    "src/themes/latex.css",
-    "src/themes/tufte.css",
-    "src/views/dynamic.ts",
-    "src/views/live.ts",
-    "src/views/print.ts",
-    "src/views/static.ts"
-  ],
+  "targets": {
+    "default": {
+      "source": [
+        "src/images/favicon.png",
+        "src/themes/default.css",
+        "src/themes/latex.css",
+        "src/themes/tufte.css",
+        "src/views/dynamic.ts",
+        "src/views/live.ts",
+        "src/views/print.ts",
+        "src/views/static.ts",
+        "src/themes/shared.css"
+      ],
+      "distDir": "./dist"
+    },
+    "vscode": {
+      "source": [
+        "src/themes/default.css",
+        "src/views/vscode.ts"
+      ],
+      "distDir": "../vscode/dist"
+    }
+  },
   "staticFiles": [
     {
       "staticPath": "../node_modules/@shoelace-style/shoelace/dist/assets/",
-      "staticOutPath": "shoelace-style/assets"
-    },
-    {
-      "staticPath": "../node_modules/@shoelace-style/shoelace/dist/themes/",
-      "staticOutPath": "shoelace-style/themes"
+      "staticOutPath": "shoelace/assets"
     },
     {
       "staticPath": "./src/assets/",
-      "staticOutPath": "app-assets"
+      "staticOutPath": "stencila/assets"
     }
   ],
   "browserslist": [
@@ -54,6 +63,7 @@
     "test": "tsc --skipLibCheck --noEmit",
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --no-scope-hoist --log-level verbose",
+    "build:vscode": "cross-env STENCILA_VIEW=vscode NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {

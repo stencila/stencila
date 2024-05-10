@@ -5,6 +5,7 @@ import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { Styled } from './styled'
 
@@ -43,6 +44,9 @@ export class StyledInline extends Styled {
         <stencila-ui-node-authors type="StyledInline">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
+        <stencila-ui-node-provenance type="StyledInline">
+          <slot name="provenance"></slot>
+        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="StyledInline"

@@ -8,6 +8,7 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/instruction-messages'
+import '../ui/nodes/properties/provenance/provenance'
 import '../ui/nodes/properties/suggestion'
 
 import { Executable } from './executable'
@@ -65,6 +66,10 @@ export abstract class Instruction extends Executable {
         <stencila-ui-node-authors type=${this.type}>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
+
+        <stencila-ui-node-provenance type=${this.type}>
+          <slot name="provenance"></slot>
+        </stencila-ui-node-provenance>
 
         <stencila-ui-node-execution-messages
           type=${this.type}
