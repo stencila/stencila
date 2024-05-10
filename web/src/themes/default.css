@@ -13,7 +13,6 @@ body {
 
 :root {
   @apply mx-auto;
-  font-family: Georgia, 'Times New Roman', Times, serif;
   padding: 3rem;
 }
 
@@ -30,6 +29,9 @@ figure {
 }
 
 [root] {
+  --vscode-font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: var(--vscode-font-family);
+
   @apply text-black prose lg:prose-lg;
 
   > section {

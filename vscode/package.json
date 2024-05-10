@@ -213,6 +213,42 @@
         "label": "Stencila Icons",
         "path": "./icons/stencila-icon-theme.json"
       }
+    ],
+    "walkthroughs": [
+      {
+        "title": "The title of the demo",
+        "description": "A description of the demo",
+        "id": "demo1",
+        "steps": [
+          {
+            "title": "A title for step 1",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\nThe text for each step supports a limited subset of Markdown including __emphasis__, **bold**, and ``code`` (note specific syntax). Also don't forget emoji 🦄!\n\nUse the special ``type`` link to insert a source fragment at the end of ``empty.smd``. Links on their own line are rendered as a button. e.g.\n\n- Let's type a [heading](command:stencila.walkthroughType?%22%5Cn%23%20Introduction%5Cn%22)\n\n- Create an [instruction](command:stencila.walkthroughType?%22%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20R%20code%20to%20read%20in%20data.csv%5Cn%22)\n\n[Write a code chunk](command:stencila.walkthroughType?%22%5Cn%60%60%60python%20exec%5Cn%23%20A%20code%20chunk%20to%20type%5Cn%60%60%60%5Cn%22)\n\n"
+          },
+          {
+            "title": "A title for step 2",
+            "id": "step2",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\nOccaecat non laborum ipsum Lorem et ullamco nostrud sit. Sint nostrud voluptate dolore cillum mollit. Sint nisi elit sunt id nulla sint enim. Est exercitation.\n\nSit irure occaecat adipisicing irure reprehenderit cupidatat cillum fugiat cillum culpa qui. Non exercitation proident ex tempor labore ea magna.\n"
+          },
+          {
+            "title": "A title for step 3",
+            "id": "step3",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\nOccaecat non laborum ipsum Lorem et ullamco nostrud sit. Sint nostrud voluptate dolore cillum mollit. Sint nisi elit sunt id nulla sint enim. Est exercitation.\n\nSit irure occaecat adipisicing irure reprehenderit cupidatat cillum fugiat cillum culpa qui. Non exercitation proident ex tempor labore ea magna.\n"
+          }
+        ]
+      }
     ]
   },
   "scripts": {
