@@ -115,6 +115,18 @@ figure {
     }
   }
 
+  blockquote {
+    @apply border-solid border-y-0 border-l-2 border-r-0 border-black/20 bg-black/5 py-4 pl-3 m-6;
+
+    p {
+      @apply m-0 pb-0;
+    }
+
+    blockquote {
+      @apply m-0 mt-2 ml-3 border-black/20;
+    }
+  }
+
   stencila-code-chunk {
     [slot='outputs'] {
       @apply my-4;
@@ -189,12 +201,6 @@ figure {
 
   stencila-ui-node-code {
     max-width: 100%;
-  }
-
-  stencila-ui-block-on-demand {
-    div {
-      /* background: goldenrod; */
-    }
   }
 
   stencila-code-chunk {
