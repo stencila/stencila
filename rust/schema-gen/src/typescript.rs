@@ -225,6 +225,50 @@ export const {name}TypeList = [
 
         fs::write(hydrate, content).await?;
 
+        // Generate a description map of provenance categories
+        if let Some(categories) = self
+            .schemas
+            .get("ProvenanceCategory")
+            .and_then(|schema| schema.any_of.as_ref())
+        {
+            let categories = categories
+                .iter()
+                .map(|schema| {
+                    format!(
+                        r#"  "{}": "{}""#,
+                        schema
+                            .r#const
+                            .as_ref()
+                            .map(|value| value.to_string())
+                            .unwrap_or_default(),
+                        schema
+                            .description
+                            .as_ref()
+                            .map(|value| value.to_string())
+                            .unwrap_or_default()
+                    )
+                })
+                .join(",\n");
+
+            write(
+                dest.join("provenanceCategories.ts"),
+                format!(
+                    r#"{GENERATED_COMMENT}
+
+import {{ ProvenanceCategory }} from "./types/ProvenanceCategory.js";
+
+/**
+ * Description of provenance categories
+ */
+export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }} = {{
+{categories}
+}};
+"#
+                ),
+            )
+            .await?;
+        }
+
         Ok(())
     }
 

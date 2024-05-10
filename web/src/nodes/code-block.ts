@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
+import '../ui/nodes/properties/provenance/provenance'
 
 import { CodeStatic } from './code-static'
 
@@ -26,9 +27,12 @@ export class CodeBlock extends CodeStatic {
     return html`
       <stencila-ui-block-on-demand type="CodeBlock" view="dynamic">
         <div slot="body">
-          <stencila-ui-node-authors>
+          <stencila-ui-node-authors type="CodeBlock">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="CodeBlock">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <stencila-ui-node-code

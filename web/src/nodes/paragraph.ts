@@ -5,9 +5,11 @@ import { withTwind } from '../twind'
 
 import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/authorship'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/properties/provenance/provenance'
 /**
  * Web component representing a Stencila Schema `Paragraph` node
  *
@@ -36,6 +38,9 @@ export class Paragraph extends Entity {
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+          <stencila-ui-node-provenance type="Paragraph">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <slot name="content"></slot>

@@ -31,7 +31,8 @@
         "src/views/dynamic.ts",
         "src/views/live.ts",
         "src/views/print.ts",
-        "src/views/static.ts"
+        "src/views/static.ts",
+        "src/themes/shared.css"
       ],
       "distDir": "./dist"
     },

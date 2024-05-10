@@ -9,6 +9,7 @@ import { Instruction } from './instruction'
 import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/provenance/provenance'
 
 /**
  * Web component representing a Stencila Schema `InstructionInline` node
@@ -43,6 +44,9 @@ export class InstructionInline extends Instruction {
         <stencila-ui-node-authors type="InstructionInline">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
+        <stencila-ui-node-provenance type="InstructionInline">
+          <slot name="provenance"></slot>
+        </stencila-ui-node-provenance>
         <stencila-ui-node-execution-messages
           type=${this.type}
           warning-count=${this.warningCount}
