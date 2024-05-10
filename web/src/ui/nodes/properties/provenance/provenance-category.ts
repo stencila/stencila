@@ -1,26 +1,11 @@
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import { ProvenanceCategory } from '@stencila/types'
+import { ProvenanceCategory, provenanceCategories } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../../twind'
-
-import schema from './ProvenanceCategory.schema.json'
-
-type CategoryDefinitions = {
-  [Property in ProvenanceCategory]: string
-}
-
-/**
- * Make a mappable type from the const & description keys of the anyOf value in
- * the schema. We then use the description as tooltip text.
- */
-const provenanceCategories = schema.anyOf.reduce((acc, current) => {
-  acc[current.const as ProvenanceCategory] = current.description
-  return acc
-}, {} as CategoryDefinitions)
 
 /**
  * UI Provenance Category
