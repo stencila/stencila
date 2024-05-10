@@ -48,6 +48,7 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
+        <!-- <slot name="output"></slot> -->
         <stencila-ui-node-collapsible-details
           type="CodeExpression"
           title="Execution Details"
@@ -94,8 +95,7 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-outputs>
       </div>
 
-      <span slot="content">${this.code}</span>
-      <slot name="output"></slot>
+      <span slot="content"> ${this.code} </span>
     </stencila-ui-inline-on-demand>`
   }
 

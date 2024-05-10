@@ -59,6 +59,10 @@ figure {
     @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
   }
 
+  code {
+    @apply font-mono text-sm bg-black/5 font-[500];
+  }
+
   figure {
     @apply my-4 mx-0;
   }
