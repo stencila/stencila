@@ -3304,6 +3304,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-graphviz"
+version = "0.0.0"
+dependencies = [
+ "common-dev",
+ "kernel",
+ "layout-rs",
+]
+
+[[package]]
 name = "kernel-jinja"
 version = "0.0.0"
 dependencies = [
@@ -3397,6 +3406,7 @@ dependencies = [
  "kernel",
  "kernel-asciimath",
  "kernel-bash",
+ "kernel-graphviz",
  "kernel-jinja",
  "kernel-nodejs",
  "kernel-python",
@@ -3448,6 +3458,11 @@ name = "latex2mathml"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "678cf5bdb3ba63a264e6e0c9eee36538ca1d2da0afa4dd801c1f96309e710765"
+
+[[package]]
+name = "layout-rs"
+version = "0.1.2"
+source = "git+https://github.com/nokome/layout?rev=ba5f060f703e05529d83dc6ea21bb1d1a247a39f#ba5f060f703e05529d83dc6ea21bb1d1a247a39f"
 
 [[package]]
 name = "lazy_static"

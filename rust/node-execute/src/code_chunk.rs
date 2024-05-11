@@ -8,6 +8,19 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::debug!("Compiling CodeChunk {node_id}");
 
+        // Some code chunks should be executed during "compile" to 
+        // enable live updates (e.g. Graphviz, Mermaid)
+        // TODO: consider having a way to specify which code chunks and/or
+        // which kernels should execute at compile time (e.g. could have
+        // a compile method on kernels)
+        let lang = self
+            .programming_language
+            .as_ref()
+            .map_or_else(|| String::new(), |lang| lang.trim().to_lowercase());
+        if lang == "dot" || lang == "graphviz" {
+            return self.execute(executor).await;
+        }
+
         let info = parsers::parse(
             &self.code,
             self.programming_language.as_deref().unwrap_or_default(),

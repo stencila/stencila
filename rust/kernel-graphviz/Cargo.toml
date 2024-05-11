@@ -1,0 +1,11 @@
+[package]
+name = "kernel-graphviz"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+layout-rs = { git = "https://github.com/nokome/layout", rev = "ba5f060f703e05529d83dc6ea21bb1d1a247a39f" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
