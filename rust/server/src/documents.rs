@@ -686,9 +686,18 @@ async fn websocket_format_protocol(
         ..Default::default()
     };
 
+    // For some formats, specifically DOM HTML, use the format's default
+    // for compact. For most formats (e.g. JSON) turn off compact. for prettier,
+    // indented encodings.
+    let compact = if matches!(format, Some(Format::Dom)) {
+        None
+    } else {
+        Some(false)
+    };
+
     let encode_options = EncodeOptions {
         format,
-        compact: Some(false),
+        compact,
         ..Default::default()
     };
 
