@@ -52,7 +52,11 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .map(|ident| ident.to_string())
             .unwrap_or_default();
 
-        if field_name == "r#type" || field_name == "uid" {
+        if field_name == "r#type"
+            || field_name == "uid"
+            || field_name == "authors"
+            || field_name == "provenance"
+        {
             continue;
         }
 
