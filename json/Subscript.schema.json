@@ -8,6 +8,9 @@
   ],
   "category": "prose",
   "description": "Subscripted content.",
+  "dom": {
+    "elem": "sub"
+  },
   "html": {
     "elem": "sub"
   },

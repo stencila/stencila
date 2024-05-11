@@ -17,6 +17,9 @@ use common::{
 struct TypeAttr {
     ident: Ident,
     data: darling::ast::Data<darling::util::Ignored, FieldAttr>,
+
+    #[darling(default)]
+    elem: Option<String>,
 }
 
 #[derive(FromField)]
@@ -68,11 +71,22 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let (enter, exit) = if struct_name.to_string().ends_with("Options") {
         (TokenStream::new(), TokenStream::new())
     } else {
+        let (enter_elem, exit_elem) = if let Some(elem) = type_attr.elem {
+            (
+                quote! {context.enter_elem(#elem);},
+                quote! {context.exit_elem();},
+            )
+        } else {
+            (TokenStream::new(), TokenStream::new())
+        };
+
         (
             quote!(
                 context.enter_node(self.node_type(), self.node_id());
+                #enter_elem
             ),
             quote!(
+                #exit_elem
                 context.exit_node();
             ),
         )

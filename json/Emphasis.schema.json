@@ -9,6 +9,9 @@
   "category": "prose",
   "description": "Emphasized content.",
   "$comment": "Analogues of `Delete` in other schema include:\n  - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)\n  - JATS XML [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)\n  - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)\n  - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)\n",
+  "dom": {
+    "elem": "em"
+  },
   "html": {
     "elem": "em"
   },

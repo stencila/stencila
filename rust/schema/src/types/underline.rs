@@ -13,6 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Underline")]
+#[dom(elem = "u")]
 #[html(elem = "u")]
 #[jats(elem = "underline")]
 #[markdown(template = "<u>{{content}}</u>")]

@@ -9,6 +9,9 @@
   "category": "prose",
   "description": "Inline text that is underlined.",
   "$comment": "Analogues of `Underline` in other schema include:\n- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)\n",
+  "dom": {
+    "elem": "u"
+  },
   "html": {
     "elem": "u"
   },

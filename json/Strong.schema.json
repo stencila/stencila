@@ -8,6 +8,9 @@
   ],
   "category": "prose",
   "description": "Strongly emphasized content.",
+  "dom": {
+    "elem": "strong"
+  },
   "html": {
     "elem": "strong"
   },

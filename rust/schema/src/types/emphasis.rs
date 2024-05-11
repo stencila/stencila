@@ -13,6 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Emphasis")]
+#[dom(elem = "em")]
 #[html(elem = "em")]
 #[jats(elem = "italic")]
 #[markdown(template = "_{{content}}_", escape = "_")]

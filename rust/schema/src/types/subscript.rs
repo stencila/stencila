@@ -13,6 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Subscript")]
+#[dom(elem = "sub")]
 #[html(elem = "sub")]
 #[jats(elem = "sub")]
 #[markdown(template = "~{{content}}~", escape = "~")]
