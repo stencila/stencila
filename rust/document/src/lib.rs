@@ -23,7 +23,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use schema::{Article, Node, NodeId, Patch};
+use schema::{Article, AuthorRole, Node, NodeId, Patch};
 
 mod sync_directory;
 mod sync_file;
@@ -149,6 +149,22 @@ impl CommandStatus {
     }
 }
 
+/// An update to the root node of the document
+#[derive(Debug, Default)]
+pub(crate) struct Update {
+    /// The new value of the node (at present always the `root` of the document)
+    pub node: Node,
+
+    /// The authors of the update
+    pub authors: Option<Vec<AuthorRole>>,
+}
+
+impl Update {
+    pub fn new(node: Node, authors: Option<Vec<AuthorRole>>) -> Self {
+        Self { node, authors }
+    }
+}
+
 type DocumentKernels = Arc<RwLock<Kernels>>;
 
 type DocumentRoot = Arc<RwLock<Node>>;
@@ -156,8 +172,8 @@ type DocumentRoot = Arc<RwLock<Node>>;
 type DocumentWatchSender = watch::Sender<Node>;
 type DocumentWatchReceiver = watch::Receiver<Node>;
 
-type DocumentUpdateSender = mpsc::Sender<Node>;
-type DocumentUpdateReceiver = mpsc::Receiver<Node>;
+type DocumentUpdateSender = mpsc::Sender<Update>;
+type DocumentUpdateReceiver = mpsc::Receiver<Update>;
 
 type DocumentPatchSender = mpsc::UnboundedSender<Patch>;
 type DocumentPatchReceiver = mpsc::UnboundedReceiver<Patch>;
@@ -233,35 +249,48 @@ impl Document {
         let (watch_sender, watch_receiver) = watch::channel(root.clone());
         let root = Arc::new(RwLock::new(root));
 
-        // Start the update task
         let (update_sender, update_receiver) = mpsc::channel(8);
         let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
-        let root_clone = root.clone();
-        tokio::spawn(async move {
-            Self::update_task(update_receiver, patch_receiver, root_clone, watch_sender).await
-        });
+        let (command_sender, command_receiver) = mpsc::channel(256);
+        let (command_status_sender, command_status_receiver) = broadcast::channel(256);
 
-        // Start counter at one, so tasks that do not wait can use zero
+        // Start the update task
+        {
+            let root = root.clone();
+            let command_sender = command_sender.clone();
+            tokio::spawn(async move {
+                Self::update_task(
+                    update_receiver,
+                    patch_receiver,
+                    root,
+                    watch_sender,
+                    command_sender,
+                )
+                .await
+            });
+        }
+
+        // Start command counter at one, so tasks that do not wait can use zero
         let command_counter = AtomicU64::new(1);
 
         // Start the command task
-        let (command_sender, command_receiver) = mpsc::channel(256);
-        let (command_status_sender, command_status_receiver) = broadcast::channel(256);
-        let home_clone = home.clone();
-        let root_clone = root.clone();
-        let kernels_clone = kernels.clone();
-        let patch_sender_clone = patch_sender.clone();
-        tokio::spawn(async move {
-            Self::command_task(
-                command_receiver,
-                command_status_sender,
-                home_clone,
-                root_clone,
-                kernels_clone,
-                patch_sender_clone,
-            )
-            .await
-        });
+        {
+            let home = home.clone();
+            let root = root.clone();
+            let kernels = kernels.clone();
+            let patch_sender = patch_sender.clone();
+            tokio::spawn(async move {
+                Self::command_task(
+                    command_receiver,
+                    command_status_sender,
+                    home,
+                    root,
+                    kernels,
+                    patch_sender,
+                )
+                .await
+            });
+        }
 
         Ok(Self {
             id,
@@ -378,8 +407,8 @@ impl Document {
     }
 
     /// Update the root node of the document
-    pub async fn update(&self, node: Node) -> Result<()> {
-        Ok(self.update_sender.send(node).await?)
+    pub async fn update(&self, node: Node, authors: Option<Vec<AuthorRole>>) -> Result<()> {
+        Ok(self.update_sender.send(Update::new(node, authors)).await?)
     }
 
     /// Perform a command on the document

@@ -24,8 +24,8 @@ use common::{
 };
 use document::Document;
 use schema::{
-    Duration, ExecutionMessage, ExecutionStatus, Node, NodeId, NodeType, ProvenanceCount,
-    Timestamp, Visitor,
+    AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionStatus, Node, NodeId,
+    NodeType, Person, ProvenanceCount, Timestamp, Visitor,
 };
 
 use crate::{diagnostics, inspect::Inspector, ServerState};
@@ -267,7 +267,16 @@ impl TextDocument {
 
             // Update the Stencila document with the new node
             let doc = doc.write().await;
-            if let Err(error) = doc.update(node.clone()).await {
+            if let Err(error) = doc
+                .update(
+                    node.clone(),
+                    Some(vec![AuthorRole::person(
+                        Person::new(),
+                        AuthorRoleName::Writer,
+                    )]),
+                )
+                .await
+            {
                 tracing::error!("While updating node: {error}");
             }
         }

@@ -26,7 +26,7 @@ use common::{
     tracing,
 };
 
-use crate::{Command, Document};
+use crate::{Command, Document, Update};
 
 /// A patch to apply to a string representing the document in a particular format
 ///
@@ -345,7 +345,7 @@ impl Document {
                         if let Ok(node) =
                             codecs::from_str(current_content, decode_options.clone()).await
                         {
-                            if let Err(error) = update_sender.send(node).await {
+                            if let Err(error) = update_sender.send(Update::new(node, None)).await {
                                 tracing::error!("While sending root update: {error}");
                             }
                         }
@@ -582,10 +582,7 @@ mod tests {
         assert_eq!(patch.ops[0], FormatOperation::reset_content(""));
 
         // Test inserting content
-        document
-            .update_sender
-            .send(art([p([t("Hello world")])]))
-            .await?;
+        document.update(art([p([t("Hello world")])]), None).await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
         assert_eq!(
@@ -594,19 +591,13 @@ mod tests {
         );
 
         // Test deleting content
-        document
-            .update_sender
-            .send(art([p([t("Hello ld")])]))
-            .await?;
+        document.update(art([p([t("Hello ld")])]), None).await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
         assert_eq!(patch.ops[0], FormatOperation::delete_content(6, 9));
 
         // Test replacing content
-        document
-            .update_sender
-            .send(art([p([t("Hello friend")])]))
-            .await?;
+        document.update(art([p([t("Hello friend")])]), None).await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
         assert_eq!(
