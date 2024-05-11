@@ -39,6 +39,12 @@ pub(super) struct TextNode {
     /// The range in the document that the node occurs
     pub range: Range,
 
+    /// The type of the parent of the node
+    pub parent_type: NodeType,
+
+    /// The id of the parent of the node
+    pub parent_id: NodeId,
+
     /// The type of the node
     pub node_type: NodeType,
 
@@ -78,7 +84,9 @@ impl Default for TextNode {
     fn default() -> Self {
         Self {
             range: Range::default(),
-            node_type: NodeType::Article,
+            parent_type: NodeType::Null,
+            parent_id: NodeId::null(),
+            node_type: NodeType::Null,
             node_id: NodeId::null(),
             detail: None,
             execution: None,
@@ -116,7 +124,7 @@ impl<'a> Iterator for TextNodeIterator<'a> {
 }
 
 impl TextNode {
-    /// Get the node a position (if any)
+    /// Get the node id at a position (if any)
     pub fn node_id_at(&self, position: Position) -> Option<NodeId> {
         if position >= self.range.start && position < self.range.end {
             return Some(self.node_id.clone());

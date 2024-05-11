@@ -68,8 +68,16 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
                 Range::default()
             }
         };
+
+        let (parent_type, parent_id) = self.stack.last().map_or_else(
+            || (NodeType::Null, NodeId::null()),
+            |node| (node.node_type, node.node_id.clone()),
+        );
+
         self.stack.push(TextNode {
             range,
+            parent_type,
+            parent_id,
             node_type,
             node_id,
             detail,
@@ -260,6 +268,8 @@ impl Inspect for Article {
         // Set this as the root node that others will become children of
         inspector.stack.push(TextNode {
             range: Range::default(),
+            parent_type: NodeType::Null,
+            parent_id: NodeId::null(),
             node_type: self.node_type(),
             node_id: self.node_id(),
             detail: None,

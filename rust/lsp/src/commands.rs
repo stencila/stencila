@@ -52,6 +52,7 @@ pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
 pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
 pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 
+pub(super) const RETRY_NODE: &str = "stencila.retry-node";
 pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
 pub(super) const REJECT_NODE: &str = "stencila.reject-node";
 
@@ -70,6 +71,7 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_NODE,
         CANCEL_CURR,
         CANCEL_ALL_DOC,
+        RETRY_NODE,
         ACCEPT_NODE,
         REJECT_NODE,
         EXPORT_DOC,
@@ -137,6 +139,16 @@ pub(super) async fn execute_command(
                 Command::InterruptNodes(CommandNodes::new(vec![node_id], None)),
                 false,
                 false,
+            )
+        }
+        RETRY_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Retrying instruction".to_string(),
+                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                true,
+                true
             )
         }
         ACCEPT_NODE => {
