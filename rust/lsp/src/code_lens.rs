@@ -82,7 +82,27 @@ pub(crate) async fn request(
                             .sorted_by(|a, b| a.provenance_category.cmp(&b.provenance_category))
                             .filter_map(|count| {
                                 count.character_percent.map(|percent| {
-                                    format!("{}:{}%", count.provenance_category, percent.max(1))
+                                    use ProvenanceCategory::*;
+                                    let label = match count.provenance_category {
+                                        HwHeHv => "$(person)$(person}$(pass-filled)",
+                                        HwHe => "$(person)$(person}",
+                                        HwHv => "$(person)$(pass-filled)",
+                                        Hw => "$(person)",
+                                        HwMv => "$(person)$(pass)",
+                                        MwHeHv => "$(hubot)$(person)$(pass-filled)",
+                                        MwHe => "$(hubot)$(person)",
+                                        MwHeMv => "$(hubot)$(person)$(pass)",
+                                        HwMeHv => "$(person)$(hubot)$(pass-filled)",
+                                        HwMe => "$(person)$(hubot)",
+                                        HwMeMv => "$(person)$(hubot)$(pass)",
+                                        MwHv => "$(hubot)$(pass-filled)",
+                                        MwMeHv => "$(hubot)$(hubot)$(pass-filled)",
+                                        Mw => "$(hubot)",
+                                        MwMv => "$(hubot)$(pass)",
+                                        MwMe => "$(hubot)$(hubot)",
+                                        MwMeMv => "$(hubot)$(hubot)$(pass)",
+                                    };
+                                    format!("{} {}%", label, percent.max(1))
                                 })
                             })
                             .join(" ");
