@@ -100,28 +100,28 @@ pub(crate) async fn request(
                                 count.character_percent.map(|percent| {
                                     use ProvenanceCategory::*;
                                     let label = match count.provenance_category {
-                                        HwHeHv => "$(person)$(person}$(pass-filled)",
-                                        HwHe => "$(person)$(person}",
+                                        HwHeHv => "$(person)+$(person}$(pass-filled)",
+                                        HwHe => "$(person)+$(person}",
                                         HwHv => "$(person)$(pass-filled)",
                                         Hw => "$(person)",
                                         HwMv => "$(person)$(pass)",
-                                        MwHeHv => "$(hubot)$(person)$(pass-filled)",
-                                        MwHe => "$(hubot)$(person)",
-                                        MwHeMv => "$(hubot)$(person)$(pass)",
-                                        HwMeHv => "$(person)$(hubot)$(pass-filled)",
-                                        HwMe => "$(person)$(hubot)",
-                                        HwMeMv => "$(person)$(hubot)$(pass)",
+                                        MwHeHv => "$(hubot)+$(person)$(pass-filled)",
+                                        MwHe => "$(hubot)+$(person)",
+                                        MwHeMv => "$(hubot)+$(person)$(pass)",
+                                        HwMeHv => "$(person)+$(hubot)$(pass-filled)",
+                                        HwMe => "$(person)+$(hubot)",
+                                        HwMeMv => "$(person)+$(hubot)$(pass)",
                                         MwHv => "$(hubot)$(pass-filled)",
-                                        MwMeHv => "$(hubot)$(hubot)$(pass-filled)",
+                                        MwMeHv => "$(hubot)+$(hubot)$(pass-filled)",
                                         Mw => "$(hubot)",
-                                        MwMv => "$(hubot)$(pass)",
-                                        MwMe => "$(hubot)$(hubot)",
-                                        MwMeMv => "$(hubot)$(hubot)$(pass)",
+                                        MwMv => "$(hubot)+$(pass)",
+                                        MwMe => "$(hubot)+$(hubot)",
+                                        MwMeMv => "$(hubot)+$(hubot)$(pass)",
                                     };
-                                    format!("{} {}%", label, percent.max(1))
+                                    format!("{}% {}", percent.max(1), label)
                                 })
                             })
-                            .join(" ");
+                            .join(" • ");
 
                         lenses.push(CodeLens {
                             range: *range,
