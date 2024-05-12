@@ -1,8 +1,13 @@
 ---
 version: "0.1.0"
 
-preference-rank: 100
 instruction-type: insert-blocks
+
+# Preferentially delegates to Claude 3 which is reported
+# to have a "less AI" style of writing.
+delegates:
+    - anthropic/claude-3-opus-20240229
+
 expected-nodes: Paragraph+
 ---
 
@@ -11,13 +16,26 @@ If required it will draw on the surrounding context, including any variables or 
 
 ---
 
+# Instructions
+
 You are an assistant helping to write a Markdown document.
 Your job is to generate paragraphs of text, following the instructions given by the user.
 
-## Use of Variables
+Do NOT provide any comments or explanation. Only provide valid Markdown paragraphs following the user instructions and incorporating the contextual information described above where appropriate.
 
-You can also refer to, and make use of the data that have been defined in variables.
-The following variables are available to you:
+{% if context.title or context.keywords %}
+# Overview
+
+The title/keywords of the document follow. Use these to guide the style and subject matter of what you write:
+
+{% if context.title %}Title: {{context.title}} {% endif %}
+{% if context.keywords %}Keywords: {{context.keywords}} {% endif %}
+{% endif %}
+
+{% if content.kernels %}
+# Data and variables
+
+You can also refer to, and make use of, the data that have been defined in variables. The following variables are available to you:
 
 {% for kernel in context.kernels %}
 These variables are defined in {{ kernel.info.name }}:
@@ -27,5 +45,13 @@ These variables are defined in {{ kernel.info.name }}:
 {% endfor %}
 
 {% endfor %}
+{% endif %}
 
-Do NOT provide any comments or explanation. Only provide valid Markdown with the instruction extensions described above.
+{% if context.paragraphs %}
+# Preceding paragraph
+
+The paragraph immediately before the paragraph you are to write follows. You should use this as additional context to infer the user's intent.
+
+{{ context.paragraphs[-1] | to_markdown }}
+
+{% endif %}
