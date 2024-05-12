@@ -26,51 +26,68 @@ function folderToWalkthrough(folder) {
   const walkthrough = yaml.load(readFileSync(path.join(folder, "main.yaml")));
   walkthrough.id = path.basename(folder);
 
+  // Generate a demoFile for the walkthrough to use
+  function generateRandomLetters(length) {
+    let result = "";
+    const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+  const demoFile = `wt-${generateRandomLetters(6)}.smd`;
+
   // Parse step Markdown files and add to it
   walkthrough.steps = readdirSync(folder)
     .filter((file) => path.extname(file) === ".md")
-    .map((file) => markdownToStep(path.join(folder, file)));
+    .map((file) => markdownToStep(path.join(folder, file), demoFile));
 
   return walkthrough;
 }
 
 /// Create a walkthrough step from a Markdown file
-function markdownToStep(file) {
-  const md = readFileSync(file, "utf8");
+function markdownToStep(stepFile, demoFile) {
+  const md = readFileSync(stepFile, "utf8");
   const [ignore, header, description, ...sources] = md.split("---");
 
   const step = yaml.load(header);
-  step.id = path.basename(file, ".md");
+  step.id = path.basename(stepFile, ".md");
 
   if (step.media === undefined) {
     // Each step has to define `media` to show on right.
     step.media = { image: "walkthroughs/blank.svg", altText: "" };
   }
 
-  step.description = description.replace(/\(type\:(\d+)\)/g, (match, index) => {
-    const source = sources[index];
-    if (source === undefined) {
-      throw new Error(`Invalid source index '${index}' in ${file}`);
-    }
+  step.description = description
+    .replace(/\(file\:open\)/g, () => {
+      const arg = encodeURIComponent(JSON.stringify(demoFile));
+      return `(command:stencila.walkthrough-file-open?${arg})`;
+    })
+    .replace(/\(type\:(\d+)\)/g, (match, index) => {
+      const source = sources[index];
+      if (source === undefined) {
+        throw new Error(`Invalid source index '${index}' in ${stepFile}`);
+      }
 
-    // Remove the first and last newlines
-    const trimmed = source.replace(/^\n|\n$/g, "");
+      // Remove the first and last newlines
+      const trimmed = source.replace(/^\n|\n$/g, "");
 
-    // JSONify and URI encode the arguments
-    let arg = encodeURIComponent(JSON.stringify(trimmed));
-    // There are not encoded by the above function but need to
-    // be because we don't want them to 'escape' the Markdown link
-    // we are about to create.
-    const charMap = {
-      "[": "%5B",
-      "]": "%5D",
-      "(": "%28",
-      ")": "%29",
-    };
-    arg = arg.replace(/[\[\]()]/g, (match) => charMap[match]);
+      // JSONify and URI encode the arguments
+      let arg = encodeURIComponent(JSON.stringify([demoFile, trimmed]));
+      // These chars are not encoded by the above function but need to
+      // be because if they are in source we don't want them to 'escape' the Markdown link
+      // we are about to create.
+      const charMap = {
+        "[": "%5B",
+        "]": "%5D",
+        "(": "%28",
+        ")": "%29",
+      };
+      arg = arg.replace(/[\[\]()]/g, (match) => charMap[match]);
 
-    return `(command:stencila.walkthroughType?${arg})`;
-  });
+      return `(command:stencila.walkthrough-file-type?${arg})`;
+    });
 
   return step;
 }

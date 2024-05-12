@@ -6,6 +6,8 @@ The text for each step supports a limited subset of Markdown including __emphasi
 
 Use the special ``type`` link to insert a source fragment at the end of ``empty.smd``. Links on their own line are rendered as a button. e.g.
 
+- Create a new Stencila Markdown [file](file:open)
+
 - Let's type a [heading](type:0)
 
 - Create an [instruction](type:1)

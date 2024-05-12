@@ -34,8 +34,13 @@ description: A description of the demo
 
 Each step in the walkthrough is written as a Markdown file with a specific format:
 
-* A YAML header with the `title` of the step.
+* A YAML header with the `title` of the step
 
-* The `description` of the step which supports a limited subset of Markdown including __emphasis__, **bold**, and ``code`` (note specific syntax). Also don't forget emoji 🦄! Use the special ``type:X`` link to insert the source fragment (see below) with index X at the end of ``empty.smd``. Links on their own line are rendered as a button.
+* The `description` of the step which supports a limited subset of Markdown including __emphasis__, **bold**, and ``code`` (note specific syntax). Links on their own line (including special command links) are rendered as a button. Also don't forget emoji 🦄! 
+
+* The description can use the following special command links:
+
+    - `file:open` to open a demonstration file with to be typed into with a name unique to the walkthrough
+    - `type:X` to insert the source fragment (see below) with index X at the end of the file
 
 * One or more `source` sections which define the source to be inserted into the document when `type:X` links are clicked. Source sections are separated from the description and each other by three hyphens `---`.
