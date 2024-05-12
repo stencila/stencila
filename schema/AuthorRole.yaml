@@ -3,6 +3,8 @@ title: AuthorRole
 extends: Role
 category: works
 description: An author and their role.
+dom:
+  derive: false
 required:
   - author
   - roleName
@@ -14,8 +16,6 @@ properties:
     '@id': schema:author
     description: The entity acting as an author.
     $ref: AuthorRoleAuthor
-    dom:
-      elem: none
   roleName:
     '@id': schema:roleName
     description: The role played by the author.
@@ -28,5 +28,3 @@ properties:
     '@id': stencila:lastModified
     description: Timestamp of most recent modification, by the author, in the role.
     $ref: Timestamp
-    dom:
-      with: Timestamp::to_dom_attr
