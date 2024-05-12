@@ -56,7 +56,19 @@ function markdownToStep(file) {
     // Remove the first and last newlines
     const trimmed = source.replace(/^\n|\n$/g, "");
 
-    const arg = encodeURIComponent(JSON.stringify(trimmed));
+    // JSONify and URI encode the arguments
+    let arg = encodeURIComponent(JSON.stringify(trimmed));
+    // There are not encoded by the above function but need to
+    // be because we don't want them to 'escape' the Markdown link
+    // we are about to create.
+    const charMap = {
+      "[": "%5B",
+      "]": "%5D",
+      "(": "%28",
+      ")": "%29",
+    };
+    arg = arg.replace(/[\[\]()]/g, (match) => charMap[match]);
+
     return `(command:stencila.walkthroughType?${arg})`;
   });
 
