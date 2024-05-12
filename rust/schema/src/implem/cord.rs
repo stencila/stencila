@@ -583,7 +583,7 @@ impl Cord {
                 self.runs[run].length = new_length as u32;
 
                 // If necessary insert a new run before this one for remaining new bytes
-                let remaining = (value_length - multi_run_length) as u32;
+                let remaining = (value_length.saturating_sub(multi_run_length)) as u32;
                 if remaining > 0 {
                     let prov = match author_type {
                         AuthorType::Human => human_written(),
