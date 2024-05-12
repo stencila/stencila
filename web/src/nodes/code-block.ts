@@ -25,7 +25,11 @@ export class CodeBlock extends CodeStatic {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-on-demand type="CodeBlock" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="CodeBlock"
+        view="dynamic"
+        programming-language=${this.programmingLanguage}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">
             <slot name="authors"></slot>
