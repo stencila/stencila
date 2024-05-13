@@ -55,16 +55,19 @@ export function mdToInline(md: PhrasingContent): Inline {
       case "delete":
         return new Strikeout(mdsToInlines(md.children), md.value);
       case "mystRole":
-        throw new Error(
-          "mystRole should not exist after basicTransformations()"
-        );
+        // Technically Roles should not exist after basicTransformations() in index.ts
+        throw new Error(`mdast inline type not yet implemented: ${md.type}`);
+      case "underline":
+        return new Underline(mdsToInlines(md.children));
       case "abbreviation":
       case "html":
       case "crossReference":
       case "footnoteReference":
       case "imageReference":
       case "linkReference":
+      case "subscript":
+      case "superscript":
         throw new Error(`mdast inline type not yet implemented: ${md.type}`);
     }
-  }
+  });
 }
