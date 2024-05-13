@@ -7,20 +7,37 @@ use std::ops::ControlFlow;
 use async_lsp::{
     lsp_types::{
         CodeLensOptions, CompletionOptions, DocumentSymbolOptions, ExecuteCommandOptions,
-        InitializeParams, InitializeResult, InitializedParams, OneOf, ServerCapabilities,
-        ServerInfo, TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+        InitializeParams, InitializeResult, InitializedParams, MessageType, OneOf,
+        ServerCapabilities, ServerInfo, ShowMessageParams, TextDocumentSyncCapability,
+        TextDocumentSyncKind, WorkDoneProgressOptions,
     },
-    Error, ResponseError,
+    Error, LanguageClient, ResponseError,
 };
+
+use common::serde_json;
 
 use crate::{commands, ServerState};
 
 pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// Initialize options
+pub(super) fn initialize_options(state: &mut ServerState, options: serde_json::Value) {
+    match serde_json::from_value(options) {
+        Ok(options) => state.options = Some(options),
+        Err(error) => {
+            state
+                .client
+                .show_message(ShowMessageParams {
+                    typ: MessageType::ERROR,
+                    message: format!("Error parsing config options: {error}"),
+                })
+                .ok();
+        }
+    }
+}
+
 /// Initialize the language server and respond with its capabilities
-pub(super) async fn initialize(
-    _params: InitializeParams,
-) -> Result<InitializeResult, ResponseError> {
+pub(super) async fn initialize() -> Result<InitializeResult, ResponseError> {
     Ok(InitializeResult {
         server_info: Some(ServerInfo {
             name: "Stencila Language Server".to_string(),

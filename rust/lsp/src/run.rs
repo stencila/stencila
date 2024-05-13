@@ -21,10 +21,16 @@ pub async fn run() {
         let mut router = Router::new(ServerState {
             client: client.clone(),
             documents: HashMap::new(),
+            options: None,
         });
 
         router
-            .request::<request::Initialize, _>(|_, params| lifecycle::initialize(params))
+            .request::<request::Initialize, _>(|state, params| {
+                if let Some(options) = params.initialization_options {
+                    lifecycle::initialize_options(state, options);
+                }
+                async move { lifecycle::initialize().await }
+            })
             .notification::<notification::Initialized>(lifecycle::initialized);
 
         router
