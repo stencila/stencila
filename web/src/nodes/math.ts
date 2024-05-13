@@ -9,7 +9,7 @@ import { Entity } from './entity'
  */
 export abstract class Math extends Entity {
   @property({ type: String, attribute: 'math-language' })
-  mathLanguage: string
+  mathLanguage: string = 'tex'
 
   @property({ type: String })
   code: string
