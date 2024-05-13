@@ -147,6 +147,10 @@ figure {
       }
     }
 
+    [slot='caption'] {
+      @apply hidden;
+    }
+
     + stencila-paragraph {
       p {
         @apply mt-0;
@@ -163,11 +167,18 @@ figure {
         margin-top: 0;
       }
     }
+
+    &:has(h1) {
+      + stencila-heading {
+        h2 {
+          @apply mt-4;
+        }
+      }
+    }
   }
 
   stencila-paragraph {
     display: block;
-    /* background: orange; */
     border: 1px solid transparent;
 
     &:has(+ stencila-heading) {
@@ -207,12 +218,6 @@ figure {
 
   stencila-ui-node-code {
     max-width: 100%;
-  }
-
-  stencila-code-chunk {
-    [slot='caption'] {
-      @apply hidden;
-    }
   }
 
   stencila-datatable {
