@@ -17,8 +17,18 @@ let client: LanguageClient;
  * Activate the extension
  */
 export async function activate(context: vscode.ExtensionContext) {
-  // Make necessary patch 
+  // Make necessary patch
   patchWebViewJs(context.extensionUri);
+
+  // Get the config
+  const config = vscode.workspace.getConfiguration("stencila");
+
+  // Add type to user for successful deserialization on server
+  const user = config.get("user") as any;
+  user.type = "Person";
+  for (const aff of user.affiliations ?? []) {
+    aff.type = "Organization";
+  }
 
   // Start the language server client
   const serverOptions: ServerOptions = {
@@ -29,6 +39,7 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   };
   const clientOptions: LanguageClientOptions = {
+    initializationOptions: { user },
     documentSelector: [{ scheme: "file", language: "smd" }],
     markdown: {
       isTrusted: true,

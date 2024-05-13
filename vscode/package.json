@@ -27,6 +27,37 @@
       "workspaceContains:**/*.smd",
       "*"
     ],
+    "configuration": {
+      "title": "Stencila Configuration",
+      "properties": {
+        "stencila.user": {
+          "description": "Your details to use as author information.",
+          "type": "object",
+          "properties": {
+            "givenNames": {
+              "type": "string"
+            },
+            "familyNames": {
+              "type": "string"
+            },
+            "affiliations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "commands": [
       {
         "command": "stencila.view-doc",
@@ -221,6 +252,22 @@
       }
     ],
     "walkthroughs": [
+      {
+        "title": "Getting help writing code",
+        "description": "Generating and running code.\n",
+        "id": "code-chunks-and-text",
+        "steps": [
+          {
+            "title": "Generating Code and Text",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22code-chunks-and-text.smd%22).\n\n• We're going to write about modeling [Predator Prey interactions](command:stencila.walkthrough-file-type?%5B%22code-chunks-and-text.smd%22%2C%22---%5Cntitle%3A%20Predator%20Prey%20Systems%5Cnkeywords%3A%20%5B%5C%22predator%5C%22%2C%20%5C%22prey%5C%22%2C%20%5C%22population%20dynamics%5C%22%5D%5Cn---%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22code-chunks-and-text.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20brief%20history%20of%20lotka-volterra%20equations%5Cn-%20explain%20the%20model%20and%20its%20relevance.%5Cn-%20A%20puzzle%3B%20but%20turns%20out%20explicable%20just%20by%20equations%5Cn-%20fox%20and%20rabbit%20example%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• A graph will help show what is going on. So let's generate [some relevant code](command:stencila.walkthrough-file-type?%5B%22code-chunks-and-text.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20of%20the%20population%20dynamics%20of%20foxes%20and%20rabbits%2C%20showing%20a%20few%20cycles%2C%20put%20the%20parameters%20and%20initial%20conditions%20in%20the%20caption.%5Cn%22%5D).\n\n• The assistant will generate a code snippet that plots the population dynamics of foxes and rabbits.\n\n• You can then run that code to see the actual plot. Press the view button to open the document.\n\n"
+          }
+        ]
+      },
       {
         "title": "Writing with the `insert-paras` assistant",
         "description": "The ``insert-paras`` specialized assistant uses context from your document to make generic AI more relevant and accurate.\n",
