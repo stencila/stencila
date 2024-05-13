@@ -32,7 +32,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
      * Used to allow clients to override css classes (tailwind) to change the
      * positioning of the chip.
      */
-    protected toggleChipPosition: string = ''
+    protected toggleChipPosition: string = '-ml-[40px] -top-2 absolute z-1'
 
     protected toggleChip() {
       this.toggle = !this.toggle
@@ -68,7 +68,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       ])
 
       return html`
-        <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
+        <div class=${`chip ${this.toggleChipPosition}`}>
           <div class=${`${styles}`} @click=${this.toggleChip}>
             <sl-icon
               library=${library}

@@ -85,7 +85,6 @@
     "@lezer/common": "1.2.1",
     "@lezer/highlight": "1.2.0",
     "@lezer/markdown": "1.2.0",
-    "@lit-labs/observers": "2.0.2",
     "@lit/context": "1.1.0",
     "@shoelace-style/shoelace": "2.15.0",
     "@stencila/types": "2.0.0-alpha.25",
