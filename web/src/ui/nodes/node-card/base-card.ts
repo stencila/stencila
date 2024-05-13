@@ -25,6 +25,12 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
   collapsed?: boolean = false
 
   /**
+   * Optional programming
+   */
+  @property({ type: String, attribute: 'programming-language' })
+  programmingLanguage?: string
+
+  /**
    * Allows us to switch the animation on/off.
    */
   @property({ type: Boolean, attribute: 'can-animate' })
@@ -65,10 +71,10 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
     let lang: ProgrammingLanguage | undefined = this.languages['default']
     let library = this.ui.iconLibrary
     let icon = this.ui.icon
-    const hasTitle = this.title && this.title
+    const hasLang = this.programmingLanguage && this.programmingLanguage
 
-    if (hasTitle && this.title in this.languages) {
-      lang = this.languages[this.title as AvailableLanguages]
+    if (hasLang && this.programmingLanguage in this.languages) {
+      lang = this.languages[this.programmingLanguage as AvailableLanguages]
       icon = lang.icon[0]
       library = lang.icon[1]
     }

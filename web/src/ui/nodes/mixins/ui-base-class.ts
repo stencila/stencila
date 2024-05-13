@@ -2,7 +2,7 @@ import { NodeType } from '@stencila/types'
 import { LitElement } from 'lit'
 import { property } from 'lit/decorators'
 
-import { DocumentView } from '../../../types'
+import { DocumentView, NodeId } from '../../../types'
 import { nodeUi } from '../icons-and-colours'
 
 /**
@@ -21,7 +21,7 @@ export class UIBaseClass extends LitElement {
    * The `id` of the cards parent node element
    */
   @property({ attribute: 'node-id' })
-  nodeId: string
+  nodeId: NodeId
 
   /**
    * The view that this card is within
