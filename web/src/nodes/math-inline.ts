@@ -39,7 +39,7 @@ export class MathInline extends Math {
           <stencila-ui-node-code
             type="MathInline"
             code=${this.code}
-            language=${this.mathLanguage}
+            language=${this.mathLanguage ?? 'tex'}
             read-only
           >
           </stencila-ui-node-code>

@@ -7,6 +7,7 @@ import {
   ProvenanceHighlightLevel,
   getProvenanceHighlight,
 } from '../../icons-and-colours'
+import { getTooltipContent } from '../authorship/utils'
 import { ExecutionMessage } from '../execution-message'
 
 import type { ProvenanceMarker } from './types'
@@ -63,11 +64,12 @@ const stencilaTheme = EditorView.theme({
   '.cm-diagnostic:last-child': {
     borderBottom: '0px',
   },
-  '.cm-tooltip': {
+  '.cm-tooltip:has(> .cm-provenance-tooltip)': {
     minWidth: '30px',
     border: 'none',
-    backgroundColor: getProvenanceHighlight(2),
+    color: '#ffffff',
     // use sl tooltip variables for consistancy
+    backgroundColor: 'var(--sl-tooltip-background-color)',
     fontFamily: 'var(--sl-tooltip-font-family)',
     borderRadius: 'var(--sl-tooltip-border-radius)',
     fontSize: 'var(--sl-tooltip-font-size)',
@@ -76,10 +78,10 @@ const stencilaTheme = EditorView.theme({
     padding: 'var(--sl-tooltip-padding)',
   },
   'div.cm-tooltip-arrow::after': {
-    borderBottomColor: `${getProvenanceHighlight(2)} !important`,
+    borderBottomColor: `var(--sl-tooltip-background-color) !important`,
   },
   'div.cm-tooltip-arrow::before': {
-    borderBottomColor: `${getProvenanceHighlight(2)} !important`,
+    borderBottomColor: `var(--sl-tooltip-background-color) !important`,
   },
 })
 
@@ -105,12 +107,6 @@ const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
     })
   )
 
-const addTooltipContent = (dom: HTMLDivElement, content: string) => {
-  const el = document.createElement('div')
-  el.textContent = content
-  dom.appendChild(el)
-}
-
 /**
  * Create a hover tooltip to display the authorship provenance information
  * @param marks `PorvenanceMarker[]`
@@ -128,11 +124,7 @@ const provenanceTooltip = (marks: ProvenanceMarker[]) =>
             const dom = document.createElement('div')
             dom.className = 'cm-provenance-tooltip'
 
-            addTooltipContent(
-              dom,
-              `${mark.count} Author${mark.count > 1 ? 's' : ''}`
-            )
-            addTooltipContent(dom, mark.provenance)
+            dom.textContent = getTooltipContent(mark.count, mark.provenance)
 
             return { dom, offset: { x: 0, y: 10 } }
           },

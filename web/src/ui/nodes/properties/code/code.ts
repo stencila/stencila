@@ -137,6 +137,13 @@ export class UINodeCode extends LitElement {
         return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
+    LanguageDescription.of({
+      name: 'dot',
+      alias: ['dotlang', 'graphviz'],
+      load: async () => {
+        return import('@viz-js/lang-dot').then((obj) => obj.dot())
+      },
+    }),
   ]
 
   /**

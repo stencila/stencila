@@ -6,7 +6,7 @@ import '../shoelace'
 
 /**
  * A view for a VSCode WebView preview panel
- * 
+ *
  * This will use message passing and `morphdom` to update the content.
  */
 @customElement('stencila-vscode-view')

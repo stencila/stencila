@@ -28,13 +28,13 @@ Following the user's instructions, write math using LaTeX. The LaTeX should be e
 
 Examples of user instructions and valid assistant responses follow.
 
-{% for user, assistant in context.instruction_blocks | insert_math_block_shots([
+{% for user, assistant in [
   ['area of a circle', 'A = \\pi r^2' ],
   ['ideal gas equation', 'PV = nRT'],
   ['Stefan-Boltzmann law', 'P = e\\sigma AT^4'],
   ['poisson distribution', 'P\\left( x \\right) = \\frac{{e^{ - \\lambda } \\lambda ^x }}{{x!}}'],
   ['integral of cosine', '\\int {\\cos (ax)} dx = \\frac{1}{a}\\sin (ax) + c']
-]) %}
+] %}
 User:
 
 {{ user }}

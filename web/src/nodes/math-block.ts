@@ -38,7 +38,7 @@ export class MathBlock extends Math {
           <stencila-ui-node-code
             type="MathBlock"
             code=${this.code}
-            language=${this.mathLanguage}
+            language=${this.mathLanguage ?? 'tex'}
             read-only
           >
           </stencila-ui-node-code>

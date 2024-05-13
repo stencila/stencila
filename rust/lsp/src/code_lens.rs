@@ -88,46 +88,31 @@ pub(crate) async fn request(
                 };
 
                 if let Some(provenance) = provenance {
-                    // Only show code lens if not 100% human written
-                    if !provenance.iter().any(|prov| {
-                        prov.provenance_category == ProvenanceCategory::Hw
-                            && prov.character_percent == Some(100)
-                    }) {
-                        let desc = provenance
-                            .iter()
-                            .sorted_by(|a, b| a.provenance_category.cmp(&b.provenance_category))
-                            .filter_map(|count| {
-                                count.character_percent.map(|percent| {
-                                    use ProvenanceCategory::*;
-                                    let label = match count.provenance_category {
-                                        HwHeHv => "$(person)+$(person}$(pass-filled)",
-                                        HwHe => "$(person)+$(person}",
-                                        HwHv => "$(person)$(pass-filled)",
-                                        Hw => "$(person)",
-                                        HwMv => "$(person)$(pass)",
-                                        MwHeHv => "$(hubot)+$(person)$(pass-filled)",
-                                        MwHe => "$(hubot)+$(person)",
-                                        MwHeMv => "$(hubot)+$(person)$(pass)",
-                                        HwMeHv => "$(person)+$(hubot)$(pass-filled)",
-                                        HwMe => "$(person)+$(hubot)",
-                                        HwMeMv => "$(person)+$(hubot)$(pass)",
-                                        MwHv => "$(hubot)$(pass-filled)",
-                                        MwMeHv => "$(hubot)+$(hubot)$(pass-filled)",
-                                        Mw => "$(hubot)",
-                                        MwMv => "$(hubot)+$(pass)",
-                                        MwMe => "$(hubot)+$(hubot)",
-                                        MwMeMv => "$(hubot)+$(hubot)$(pass)",
-                                    };
-                                    format!("{}% {}", percent.max(1), label)
-                                })
-                            })
-                            .join(" • ");
-
-                        lenses.push(CodeLens {
-                            range: *range,
-                            command: None,
-                            data: Some(json!([PROV_NODE, uri, node_type, node_id, desc])),
+                    // Only show provenance code lens for certain node types and for the
+                    // machine written and not human edited categories (summed)
+                    if !matches!(node_type, NodeType::InstructionBlock) {
+                        let percent = provenance.iter().fold(0u64, |sum, prov| {
+                            use ProvenanceCategory::*;
+                            if matches!(prov.provenance_category, Mw | MwMe | MwMv | MwMeMv) {
+                                sum + prov.character_percent.unwrap_or_default()
+                            } else {
+                                sum
+                            }
                         });
+
+                        if percent > 0 {
+                            lenses.push(CodeLens {
+                                range: *range,
+                                command: None,
+                                data: Some(json!([
+                                    PROV_NODE,
+                                    uri,
+                                    node_type,
+                                    node_id,
+                                    format!("$(hubot) {percent}%")
+                                ])),
+                            });
+                        }
                     }
                 }
 
