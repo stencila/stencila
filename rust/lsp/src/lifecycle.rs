@@ -7,9 +7,9 @@ use std::ops::ControlFlow;
 use async_lsp::{
     lsp_types::{
         CodeLensOptions, CompletionOptions, DocumentSymbolOptions, ExecuteCommandOptions,
-        InitializeParams, InitializeResult, InitializedParams, MessageType, OneOf,
-        ServerCapabilities, ServerInfo, ShowMessageParams, TextDocumentSyncCapability,
-        TextDocumentSyncKind, WorkDoneProgressOptions,
+        InitializeResult, InitializedParams, MessageType, OneOf, ServerCapabilities, ServerInfo,
+        ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+        WorkDoneProgressOptions,
     },
     Error, LanguageClient, ResponseError,
 };
