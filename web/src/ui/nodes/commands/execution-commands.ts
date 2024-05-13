@@ -2,7 +2,7 @@ import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement } from 'lit/decorators'
 
 import {
   DocumentCommand,
@@ -19,7 +19,7 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 export class UINodeExecutionCommands extends UIBaseClass {
   /**
    * Emit a custom event to execute the document with this
-   * node id a command scope
+   * node id and command scope
    */
   private emitEvent(e: Event, scope: DocumentCommand['scope']) {
     e.stopImmediatePropagation()
