@@ -66,7 +66,7 @@ impl DomCodec for AuthorRole {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         // Custom implementation to normalize with the
         // other types of authors: Person, Organization and SoftwareApplication
-        // to each front-end implementation
+        // to ease front-end implementation of display
 
         context
             .enter_node(self.node_type(), self.node_id())
@@ -78,12 +78,19 @@ impl DomCodec for AuthorRole {
 
         let (node_type, name) = match &self.author {
             AuthorRoleAuthor::Person(person) => {
-                let mut name = person.given_names.iter().flatten().cloned().join(" ")
-                    + &person.family_names.iter().flatten().cloned().join(" ");
+                let mut name = person
+                    .given_names
+                    .iter()
+                    .flatten()
+                    .chain(person.family_names.iter().flatten())
+                    .join(" ");
                 if name.is_empty() {
                     if let Some(opt_name) = &person.options.name {
                         name = opt_name.clone();
                     }
+                }
+                if name.is_empty() {
+                    name = "Anonymous".to_string();
                 }
 
                 (person.node_type(), name)
@@ -102,7 +109,15 @@ impl DomCodec for AuthorRole {
             .push_attr("type", &node_type.to_string())
             .push_attr("name", &name);
 
-        if let AuthorRoleAuthor::SoftwareApplication(app) = &self.author {
+        if let AuthorRoleAuthor::Person(person) = &self.author {
+            if let Some(affs) = &person.affiliations.as_ref() {
+                let details = affs
+                    .iter()
+                    .filter_map(|org| org.options.name.clone())
+                    .join(", ");
+                context.push_attr("details", &details);
+            }
+        } else if let AuthorRoleAuthor::SoftwareApplication(app) = &self.author {
             if let Some(id) = &app.id {
                 context.push_attr("_id", id);
             }
