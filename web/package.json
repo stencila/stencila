@@ -97,6 +97,7 @@
     "@twind/preset-tailwind": "1.1.4",
     "@twind/preset-typography": "1.0.7",
     "@twind/with-web-components": "1.1.3",
+    "@viz-js/lang-dot": "^1.0.4",
     "codemirror-json5": "1.0.3",
     "codemirror-lang-r": "0.1.0-2",
     "just-diff-apply": "5.5.0",
