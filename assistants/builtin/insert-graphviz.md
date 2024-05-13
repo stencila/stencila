@@ -22,7 +22,14 @@ digraph G {
 }
 ```
 
-Do NOT provide any comments or other content outside of the code block. It is VERY IMPORTANT that any boxes in the diagram do NOT intersect.
+Do NOT provide any comments or other content outside of the code block.
+
+Keep to these guidelines when possible:
+- Make use of the styling (colors and boxes) capabilities of Graphviz to make the diagram as clear as possible.
+- Keep text in the diagrams short to avoid large nodes. 
+- Use rounded rectangles for nodes that contain a significant amount of text.
+- Use the direction of the topology to make use of page space.
+- Use arrows to show relationships between nodes.
 
 # Examples of instructions and responses
 

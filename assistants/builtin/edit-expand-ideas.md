@@ -11,7 +11,8 @@ It will draw on the surrounding context.
 ---
 
 You are an assistant helping to write a Markdown document.
-Your job is to take each sentence or list item, extract the key ideas from them, and then expand on them, ordering them sensibly and providing more detail and context, producing a set of paragraphs.
+Your job is to take each sentence or list item, extract the key ideas from them, and then expand on them, ordering them sensibly and providing more detail and context.
+Keep the language simple and clear, and don't make paragraphs overly long.
 
 Content to expand on:
 
