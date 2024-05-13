@@ -156,11 +156,12 @@ export const executionMessageUI = (
 
 export const provenanceHighlights = {
   0: 'transparent',
-  1: '#f1f5fe', // blue-50
-  2: '#cfdefc', // blue-100
-  3: '#b1c9fa', // blue-200
-  4: '#92b3f7', // blue-300
-  5: '#77a0f5', // blue-400
+  1: '#f0f6ff',
+  2: '#f1f5fe', // blue-50
+  3: '#cfdefc', // blue-100
+  4: '#b1c9fa', // blue-200
+  5: '#92b3f7', // blue-300
+  // 5: '#77a0f5', // blue-400
 }
 
 export type ProvenanceHighlightLevel = keyof typeof provenanceHighlights
