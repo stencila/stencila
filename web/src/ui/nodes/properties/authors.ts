@@ -34,7 +34,7 @@ export class UINodeAuthors extends LitElement {
 
     const slot: HTMLSlotElement = this.shadowRoot.querySelector('slot')
     if (slot) {
-      this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
+      this.hasItems = slot.assignedElements().length !== 0
     }
   }
 

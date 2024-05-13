@@ -1,8 +1,10 @@
 import { apply } from '@twind/core'
-import { html, LitElement } from 'lit'
+import { html } from 'lit'
 import { state } from 'lit/decorators'
 
 import { nodeUi } from '../icons-and-colours'
+
+import { UIBaseClass } from './ui-base-class'
 
 export declare class ChipToggleInterface {
   protected renderChip: (icons: [string, string], colours: NodeColours) => void
@@ -19,7 +21,7 @@ type NodeColours = Pick<ReturnType<typeof nodeUi>, 'borderColour' | 'colour'>
  * A Mixin that provides a "chip" to allow for a card to have its visibility
  * toggled on and off.
  */
-export const ToggleChipMixin = <T extends Constructor<LitElement>>(
+export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
   superClass: T
 ) => {
   class ToggleMixin extends superClass {
@@ -34,6 +36,13 @@ export const ToggleChipMixin = <T extends Constructor<LitElement>>(
 
     protected toggleChip() {
       this.toggle = !this.toggle
+      this.shadowRoot.dispatchEvent(
+        new CustomEvent(`toggle-${this.nodeId}`, {
+          bubbles: true,
+          composed: true,
+          detail: { cardOpen: this.toggle, nodeId: this.nodeId },
+        })
+      )
     }
 
     protected renderChip(icons: [string, string], colours: NodeColours) {

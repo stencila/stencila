@@ -2,6 +2,7 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
+use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
@@ -31,6 +32,12 @@ where
 
     /// The stack of nodes
     pub stack: Vec<TextNode>,
+
+    /// Whether in a table cell
+    ///
+    /// Used to determine whether to collect provenance for paragraphs
+    /// (we don't collect that for paragraphs in tables, to avoid noise)
+    in_table_cell: bool,
 }
 
 impl<'source, 'generated> Inspector<'source, 'generated> {
@@ -38,6 +45,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         Self {
             poshmap: PoshMap::new(source, generated, mapping),
             stack: Vec::new(),
+            in_table_cell: false,
         }
     }
 
@@ -53,17 +61,30 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         execution: Option<TextNodeExecution>,
         provenance: Option<Vec<ProvenanceCount>>,
     ) {
-        if let Some(range) = self.poshmap.node_id_to_range16(&node_id) {
-            self.stack.push(TextNode {
-                range: range16_to_range(range),
-                node_type,
-                node_id,
-                detail,
-                execution,
-                provenance,
-                children: Vec::new(),
-            })
-        }
+        let range = match self.poshmap.node_id_to_range16(&node_id) {
+            Some(range) => range16_to_range(range),
+            None => {
+                tracing::warn!("No range for {node_id}");
+                Range::default()
+            }
+        };
+
+        let (parent_type, parent_id) = self.stack.last().map_or_else(
+            || (NodeType::Null, NodeId::null()),
+            |node| (node.node_type, node.node_id.clone()),
+        );
+
+        self.stack.push(TextNode {
+            range,
+            parent_type,
+            parent_id,
+            node_type,
+            node_id,
+            detail,
+            execution,
+            provenance,
+            children: Vec::new(),
+        })
     }
 
     fn exit_node(&mut self) {
@@ -229,7 +250,9 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             None,
             None,
         );
+        self.in_table_cell = true;
         self.visit(&table_cell.content);
+        self.in_table_cell = false;
         self.exit_node();
 
         WalkControl::Break
@@ -245,6 +268,8 @@ impl Inspect for Article {
         // Set this as the root node that others will become children of
         inspector.stack.push(TextNode {
             range: Range::default(),
+            parent_type: NodeType::Null,
+            parent_id: NodeId::null(),
             node_type: self.node_type(),
             node_id: self.node_id(),
             detail: None,
@@ -281,7 +306,6 @@ default!(
     Claim,
     CodeBlock,
     DeleteBlock,
-    Figure,
     Form,
     InsertBlock,
     List,
@@ -291,7 +315,6 @@ default!(
     ReplaceBlock,
     Section,
     StyledBlock,
-    Table,
     ThematicBreak,
     // Inlines
     AudioObject,
@@ -332,8 +355,14 @@ macro_rules! contented {
             fn inspect(&self, inspector: &mut Inspector) {
                 // eprintln!("INSPECT CONT {}", self.node_id());
 
-                let detail = self.content.first().map(|first| first.to_text().0);
-                let provenance = self.provenance.clone();
+                let (detail, provenance) = if !inspector.in_table_cell {
+                    (
+                        self.content.first().map(|first| first.to_text().0),
+                        self.provenance.clone()
+                    )
+                } else{
+                    (None, None)
+                };
 
                 inspector.enter_node(self.node_type(), self.node_id(), detail, None, provenance);
                 inspector.visit(self);
@@ -344,6 +373,46 @@ macro_rules! contented {
 }
 
 contented!(Paragraph, Heading);
+
+/// Implementation for tables and figures which have a label and caption to used for details
+macro_rules! captioned {
+    ($( $type:ident ),*) => {
+        $(impl Inspect for $type {
+            fn inspect(&self, inspector: &mut Inspector) {
+                // eprintln!("INSPECT CAPTIONED {}", self.node_id());
+
+                let mut detail = String::new();
+                if let Some(label) = &self.label {
+                    detail.push_str(label);
+                };
+                if let Some(caption) = &self
+                    .caption
+                    .as_ref()
+                    .and_then(|caption| caption.first())
+                    .map(|first| first.to_text().0)
+                {
+                    if !detail.is_empty() {
+                        detail.push_str(". ");
+                    }
+                    detail.push_str(caption);
+                }
+                let detail = if detail.is_empty() {
+                    None
+                } else {
+                    Some(detail)
+                };
+
+                let provenance = self.provenance.clone();
+
+                inspector.enter_node(self.node_type(), self.node_id(), detail, None, provenance);
+                inspector.visit(self);
+                inspector.exit_node();
+            }
+        })*
+    };
+}
+
+captioned!(Table, Figure);
 
 /// Implementation for executable nodes
 macro_rules! executable {

@@ -451,6 +451,15 @@ pub enum NodeProperty {{
             }
         }
 
+        // Add #[dom] attribute for main struct if necessary
+        if let Some(spec) = &schema.dom {
+            if spec.derive {
+                if let Some(elem) = &spec.elem {
+                    attrs.push(format!(r#"#[dom(elem = "{elem}")]"#));
+                }
+            }
+        }
+
         // Add #[html] attribute for main struct if necessary
         if let Some(html) = &schema.html {
             let mut args = Vec::new();

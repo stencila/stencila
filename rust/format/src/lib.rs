@@ -47,6 +47,8 @@ pub enum Format {
     Python,
     R,
     Rhai,
+    // Diagramming languages
+    Dot,
     // Styling languages
     Tailwind,
     Css,
@@ -101,6 +103,7 @@ impl Format {
             Debug => "Debug",
             Directory => "Directory",
             Dom => "DOM HTML",
+            Dot => "Graphviz DOT",
             Flac => "FLAC",
             Gif => "GIF",
             Html => "HTML",
@@ -192,6 +195,7 @@ impl Format {
             "debug" => Debug,
             "directory" | "dir" => Directory,
             "dom" | "dom.html" => Dom,
+            "dot" => Dot,
             "flac" => Flac,
             "gif" => Gif,
             "html" => Html,
@@ -347,6 +351,7 @@ impl Display for Format {
             Debug => "debug",
             Directory => "directory",
             Dom => "dom.html",
+            Dot => "dot",
             Flac => "flac",
             Gif => "gif",
             Html => "html",

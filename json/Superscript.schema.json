@@ -8,6 +8,9 @@
   ],
   "category": "prose",
   "description": "Superscripted content.",
+  "dom": {
+    "elem": "sup"
+  },
   "html": {
     "elem": "sup"
   },

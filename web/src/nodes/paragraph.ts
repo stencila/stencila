@@ -9,7 +9,7 @@ import '../ui/nodes/properties/authorship'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 /**
  * Web component representing a Stencila Schema `Paragraph` node
  *
@@ -33,7 +33,11 @@ export class Paragraph extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand type="Paragraph" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Paragraph"
+        view="dynamic"
+        node-id=${this.id}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <slot name="authors"></slot>

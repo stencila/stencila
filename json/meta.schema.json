@@ -341,7 +341,7 @@
           "type": "boolean"
         },
         "elem": {
-          "description": "The HTML element name for a property\n\nIf not supplied the property will be encoded as an attribute on the parent element.",
+          "description": "The HTML element name to wrap the children or for a specific property\n\nIf supplied for a struct, the elem will be used to wrap the children of the node.\n\nIf not supplied for a property it will be encoded as an attribute on the parent element.",
           "type": "string"
         },
         "skip": {

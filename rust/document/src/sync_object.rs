@@ -204,10 +204,7 @@ mod tests {
         }
 
         // Test inserting content
-        document
-            .update_sender
-            .send(art([p([t("Hello world")])]))
-            .await?;
+        document.update(art([p([t("Hello world")])]), None).await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
         if let Some(PatchOperation::Add(AddOperation { path, .. })) = &patch.ops.last() {
@@ -217,7 +214,7 @@ mod tests {
         }
 
         // Test replacing content
-        document.update_sender.send(art([p([t("Hello!")])])).await?;
+        document.update(art([p([t("Hello!")])]), None).await?;
         let mut patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
         patch.ops.pop();
@@ -229,7 +226,7 @@ mod tests {
         }
 
         // Test removing content
-        document.update_sender.send(art([p([])])).await?;
+        document.update(art([p([])]), None).await?;
         let mut patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
         patch.ops.pop();

@@ -8,7 +8,7 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/instruction-messages'
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 import '../ui/nodes/properties/suggestion'
 
 import { Executable } from './executable'
@@ -36,7 +36,11 @@ export abstract class Instruction extends Executable {
    * with execution actions and details and code read-only and collapsed.
    */
   override renderDynamicView() {
-    return html`<stencila-ui-block-on-demand type=${this.type} view="dynamic">
+    return html`<stencila-ui-block-on-demand
+      type=${this.type}
+      view="dynamic"
+      node-id=${this.id}
+    >
       <span slot="header-right">
         <stencila-ui-node-execution-commands
           node-id=${this.id}

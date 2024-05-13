@@ -21,8 +21,9 @@ import { ExecutionMessage } from '../execution-message'
 import { CodeAuthorElement, ProvenanceMarker } from './types'
 import {
   executionMessageLinter,
-  messagesTheme,
   createProvenanceDecorations,
+  provenanceTooltip,
+  stencilaTheme,
 } from './utils'
 
 /**
@@ -161,17 +162,19 @@ export class UINodeCode extends LitElement {
       EditorView.editable.of(!this.readOnly),
       EditorState.readOnly.of(this.readOnly),
       provenanceMarkers
-        ? EditorView.decorations.of(
-            createProvenanceDecorations(provenanceMarkers)
-          )
+        ? [
+            EditorView.decorations.of(
+              createProvenanceDecorations(provenanceMarkers)
+            ),
+            provenanceTooltip(provenanceMarkers),
+          ]
         : [],
       ...languageExtension,
       lineNumbers(),
       foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      executionMessages
-        ? [executionMessageLinter(executionMessages), messagesTheme]
-        : [],
+      executionMessages ? executionMessageLinter(executionMessages) : [],
+      stencilaTheme,
     ]
   }
 
@@ -254,6 +257,8 @@ export class UINodeCode extends LitElement {
             from: tuple[0],
             to: tuple[1],
             mi: tuple[5],
+            count: tuple[2],
+            provenance: tuple[4],
           })
         })
         return provenanceMarkers

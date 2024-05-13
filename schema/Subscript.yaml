@@ -3,6 +3,8 @@ title: Subscript
 extends: Mark
 category: prose
 description: Subscripted content.
+dom:
+  elem: sub
 html:
   elem: sub
 jats:

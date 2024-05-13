@@ -59,6 +59,7 @@
         "emax",
         "emin",
         "fastembed",
+        "Graphviz",
         "hasher",
         "haspopup",
         "implem",

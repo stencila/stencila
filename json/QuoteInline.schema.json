@@ -9,6 +9,9 @@
   ],
   "category": "prose",
   "description": "Inline, quoted content.",
+  "dom": {
+    "elem": "q"
+  },
   "html": {
     "elem": "q"
   },

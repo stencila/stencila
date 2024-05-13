@@ -10,7 +10,7 @@ use super::timestamp::Timestamp;
 /// An author and their role.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "AuthorRole")]
@@ -24,7 +24,6 @@ pub struct AuthorRole {
     pub id: Option<String>,
 
     /// The entity acting as an author.
-    #[dom(elem = "none")]
     pub author: AuthorRoleAuthor,
 
     /// The role played by the author.
@@ -36,7 +35,6 @@ pub struct AuthorRole {
 
     /// Timestamp of most recent modification, by the author, in the role.
     #[serde(alias = "last-modified", alias = "last_modified")]
-    #[dom(with = "Timestamp::to_dom_attr")]
     pub last_modified: Option<Timestamp>,
 
     /// A unique identifier for a node within a document

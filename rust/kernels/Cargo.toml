@@ -9,6 +9,7 @@ context = { path = "../context" }
 kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
+kernel-graphviz = { path = "../kernel-graphviz" }
 kernel-jinja = { path = "../kernel-jinja" }
 kernel-nodejs = { path = "../kernel-nodejs" }
 kernel-python = { path = "../kernel-python" }

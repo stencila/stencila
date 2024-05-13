@@ -6,6 +6,8 @@ description: Inline text that is underlined.
 $comment: |
   Analogues of `Underline` in other schema include:
   - Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)
+dom:
+  elem: u
 html:
   elem: u
 jats:

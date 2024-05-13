@@ -3,6 +3,8 @@ title: Strong
 extends: Mark
 category: prose
 description: Strongly emphasized content.
+dom:
+  elem: strong
 html:
   elem: strong
 jats:

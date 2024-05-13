@@ -10,6 +10,8 @@ jats:
   # because it can result in two adjacent text nodes which are concatenated
   # on the decode of the encode-decode roundtrip).
   elem: inline-quote
+dom:
+  elem: q
 html:
   elem: q
 markdown:

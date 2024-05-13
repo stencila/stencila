@@ -4,7 +4,8 @@ use common::{
 };
 
 use crate::{
-    Document, DocumentPatchReceiver, DocumentRoot, DocumentUpdateReceiver, DocumentWatchSender,
+    Command, Document, DocumentCommandSender, DocumentPatchReceiver, DocumentRoot,
+    DocumentUpdateReceiver, DocumentWatchSender,
 };
 
 impl Document {
@@ -24,18 +25,21 @@ impl Document {
         mut patch_receiver: DocumentPatchReceiver,
         root: DocumentRoot,
         watch_sender: DocumentWatchSender,
+        command_sender: DocumentCommandSender,
     ) {
         tracing::debug!("Document update task started");
 
         loop {
-            tokio::select! {
-                Some(node) = update_receiver.recv() => {
+            let compile = tokio::select! {
+                Some(update) = update_receiver.recv() => {
                     tracing::trace!("Document root node update received");
 
                     let root = &mut *root.write().await;
-                    if let Err(error) = schema::merge(root, &node, None) { // TODO: supply authors
+                    if let Err(error) = schema::merge(root, &update.node, update.authors) {
                         tracing::error!("While merging update into root: {error}");
                     }
+
+                    true
                 },
                 Some(patch) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
@@ -44,12 +48,14 @@ impl Document {
                     if let Err(error) = schema::patch(root, patch) {
                         tracing::error!("While applying patch to root: {error}");
                     }
+
+                    false
                 },
                 else => {
                     tracing::debug!("Both update and patch channels closed");
                     break;
                 },
-            }
+            };
 
             // Send the node to watchers
             if watch_sender.receiver_count() > 0 {
@@ -57,6 +63,18 @@ impl Document {
 
                 if let Err(error) = watch_sender.send(root) {
                     tracing::error!("While notifying watchers: {error}");
+                }
+            }
+
+            // Recompile the document
+            // TODO: consider recompiling on patches as well but with care taken
+            // to ignore patches that are from the compilation of execution already
+            // (will require an additional patch field to indicate this).
+            // TODO: consider throttling or debouncing this (although note that if the document is already
+            // compiling or executing then the command will be ignored anyway)
+            if compile {
+                if let Err(error) = command_sender.send((Command::CompileDocument, 0)).await {
+                    tracing::error!("While sending command to document: {error}");
                 }
             }
         }

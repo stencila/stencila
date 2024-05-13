@@ -13,6 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Strikeout")]
+#[dom(elem = "s")]
 #[html(elem = "s")]
 #[jats(elem = "strike")]
 #[markdown(template = "~~{{content}}~~", escape = "~")]

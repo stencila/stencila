@@ -11,6 +11,8 @@ $comment: |
     - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)
     - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
   Supersedes the `Delete` inline content type (the name "Strikeout" is less ambiguous than "Delete").
+dom:
+  elem: s
 html:
   elem: s
 jats:

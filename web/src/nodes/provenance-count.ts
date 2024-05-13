@@ -1,25 +1,28 @@
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { ProvenanceCategory, provenanceCategories } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-import { createRef, ref, Ref } from 'lit/directives/ref'
+import { html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
-import { withTwind } from '../../../../twind'
+import { withTwind } from '../twind'
+
+import { Entity } from './entity'
 
 /**
- * UI Provenance Category
- *
- * A token element that displays a ProvenanceCategory and an associated tooltip
+ * Web component representing a Stencila Schema `ProvenanceCount` node
  */
-@customElement('stencila-ui-node-provenance-category')
+@customElement('stencila-provenance-count')
 @withTwind()
-export class UIProvenanceCategory extends LitElement {
-  @property()
-  category: ProvenanceCategory
+export class ProvenanceCount extends Entity {
+  @property({ attribute: 'provenance-category' })
+  provenanceCategory: ProvenanceCategory
 
-  @property({ type: Number })
-  percentage: number | undefined
+  @property({ type: Number, attribute: 'character-count' })
+  characterCount: number
+
+  @property({ type: Number, attribute: 'character-percent' })
+  characterPercent: number
 
   /**
    * The refs used by this element.
@@ -27,7 +30,7 @@ export class UIProvenanceCategory extends LitElement {
   private tooltipRef: Ref<SlTooltip> = createRef()
   private buttonRef: Ref<HTMLSpanElement> = createRef()
 
-  protected override render(): unknown {
+  override render() {
     const styles = apply([
       'inline-block',
       'cursor-default',
@@ -42,10 +45,10 @@ export class UIProvenanceCategory extends LitElement {
       content=${this.tooltipText()}
       ${ref(this.tooltipRef)}
       ><strong class=${styles} ${ref(this.buttonRef)}
-        >${this.category}
-        ${this.percentage
+        >${this.provenanceCategory}
+        ${this.characterPercent
           ? html`<span class="font-normal pointer-events-none"
-              >${this.percentage}%</span
+              >${this.characterPercent}%</span
             >`
           : ''}</strong
       ></sl-tooltip
@@ -65,6 +68,6 @@ export class UIProvenanceCategory extends LitElement {
   }
 
   private tooltipText() {
-    return provenanceCategories[this.category]
+    return provenanceCategories[this.provenanceCategory]
   }
 }

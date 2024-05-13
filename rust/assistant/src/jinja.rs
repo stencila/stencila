@@ -50,7 +50,10 @@ pub fn render_template(prompt: &str, task: &GenerateTask) -> Result<String> {
 /// A template environment for rendering system prompts
 static ENV: Lazy<Mutex<Environment>> = Lazy::new(|| {
     let mut env = Environment::new();
-    env.set_undefined_behavior(UndefinedBehavior::Strict);
+
+    // Set the most lenient undefined behavior to avoid errors
+    // rendering templates for users
+    env.set_undefined_behavior(UndefinedBehavior::Chainable);
 
     // Serialization filters
     env.add_filter("to_json", to_json);

@@ -1,11 +1,15 @@
 import * as vscode from "vscode";
 import { createDocumentViewPanel } from "./webviews";
 import { LanguageClient } from "vscode-languageclient/node";
+import { existsSync, writeFileSync } from "fs";
 
 /**
  * Register commands provided by the extension
  */
-export function registerCommands(context: vscode.ExtensionContext, client: LanguageClient) {
+export function registerCommands(
+  context: vscode.ExtensionContext,
+  client: LanguageClient
+) {
   // Commands executed by the server but which are invoked on the client
   // and which use are passed the document URI and selection (position) as arguments
   for (const command of [
@@ -81,14 +85,42 @@ export function registerCommands(context: vscode.ExtensionContext, client: Langu
     )
   );
 
-  /// Command to insert text into a Stencila Markdown file during walkthroughs
+  /// Command to open an empty file (usually Stencila Markdown) during walkthroughs
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "stencila.walkthroughType",
-      async (source) => {
-        const uri = vscode.Uri.file(
-          context.asAbsolutePath("walkthroughs/empty.smd")
-        );
+      "stencila.walkthrough-file-open",
+      async (fileName) => {
+        // This ensures the file exists and is empty
+        // Using an untitled: file scheme instead has the disadvantage that
+        // the extension does not get activated until the file is saved.
+        const filePath = context.asAbsolutePath(fileName);
+        writeFileSync(filePath, "", "utf8");
+
+        const uri = vscode.Uri.parse(filePath);
+
+        try {
+          const document = await vscode.workspace.openTextDocument(uri);
+          await vscode.window.showTextDocument(document, {
+            viewColumn: vscode.ViewColumn.Beside,
+            preview: false,
+            preserveFocus: true,
+          });
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `Failed to open document: ${error.message}`
+          );
+        }
+      }
+    )
+  );
+
+  /// Command to insert text into a file during walkthroughs
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.walkthrough-file-type",
+      async (fileName, source) => {
+        const filePath = context.asAbsolutePath(fileName);
+        const uri = vscode.Uri.parse(filePath);
 
         // Get the document editor
         let editor;

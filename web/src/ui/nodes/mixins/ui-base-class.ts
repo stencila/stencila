@@ -18,6 +18,12 @@ export class UIBaseClass extends LitElement {
   type: NodeType
 
   /**
+   * The `id` of the cards parent node element
+   */
+  @property({ attribute: 'node-id' })
+  nodeId: string
+
+  /**
    * The view that this card is within
    *
    * Used for adapting styling for the view.

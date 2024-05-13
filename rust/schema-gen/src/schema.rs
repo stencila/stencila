@@ -611,9 +611,12 @@ pub struct DomOptions {
     #[default = false]
     pub skip: bool,
 
-    /// The HTML element name for a property
+    /// The HTML element name to wrap the children or for a specific property
     ///
-    /// If not supplied the property will be encoded as an attribute
+    /// If supplied for a struct, the elem will be used to wrap the children
+    /// of the node.
+    /// 
+    /// If not supplied for a property it will be encoded as an attribute
     /// on the parent element.
     pub elem: Option<String>,
 

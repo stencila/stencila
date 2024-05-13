@@ -1,15 +1,25 @@
 use std::sync::Arc;
 
-use anthropic::{
-    client::Client, config::AnthropicConfig, types::CompleteRequestBuilder, AI_PROMPT, HUMAN_PROMPT,
-};
-
 use assistant::{
-    common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+        itertools::Itertools,
+        reqwest::Client,
+        serde::{Deserialize, Serialize},
+        serde_with::skip_serializing_none,
+        tracing,
+    },
     schema::MessagePart,
     secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
     IsAssistantMessage,
 };
+
+/// The base URL for the Anthropic API
+const BASE_URL: &str = "https://api.anthropic.com/v1";
+
+/// The version of the Anthropic API used
+const API_VERSION: &str = "2023-06-01";
 
 /// The name of the env var or secret for the API key
 const API_KEY: &str = "ANTHROPIC_API_KEY";
@@ -21,6 +31,9 @@ pub struct AnthropicAssistant {
 
     /// The context length of the model
     context_length: usize,
+
+    /// The HTTP client for accessing the Anthropic API
+    client: Client,
 }
 
 impl AnthropicAssistant {
@@ -29,6 +42,7 @@ impl AnthropicAssistant {
         Self {
             model,
             context_length,
+            client: Client::new(),
         }
     }
 }
@@ -60,27 +74,28 @@ impl Assistant for AnthropicAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        // TODO: This does not use the new Messages API and instead concatenates messages into a chat string
-        // https://docs.anthropic.com/claude/reference/messages_post
-
-        let system_prompt = match &task.system_prompt() {
+        let system = match &task.system_prompt() {
             Some(prompt) => prompt.clone(),
             None => String::new(),
         };
 
-        let chat = task
+        let messages = task
             .instruction_messages()
             .map(|message| {
-                let prompt = match message.is_assistant() {
-                    true => AI_PROMPT,
-                    false => HUMAN_PROMPT,
-                };
+                let role = match message.is_assistant() {
+                    true => "assistant",
+                    false => "user",
+                }
+                .to_string();
 
                 let content = message
                     .parts
                     .iter()
                     .filter_map(|part| match part {
-                        MessagePart::Text(text) => Some(text.to_value_string()),
+                        MessagePart::Text(text) => Some(ContentPart {
+                            r#type: "text".to_string(),
+                            text: text.to_value_string(),
+                        }),
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by assistant `{}`",
@@ -89,47 +104,45 @@ impl Assistant for AnthropicAssistant {
                             None
                         }
                     })
-                    .join("");
+                    .collect_vec();
 
-                format!("{prompt}{content}")
+                Message { role, content }
             })
-            .join("\n\n");
+            .collect_vec();
 
-        // With the Completions API system prompts are just put before the chat
-        // https://docs.anthropic.com/claude/docs/how-to-use-system-prompts
-        let prompt = format!("{system_prompt}{chat}{AI_PROMPT}");
-
-        // Build completion request from `options`
-        // TODO: We need to add the following which are not in the CompleteRequest (maybe by PR).
-        // https://docs.anthropic.com/claude/reference/complete_post
-        // temperature
-        // top_k
-        // top_p
-        let complete_request = CompleteRequestBuilder::default()
-            .model(&self.model)
-            .prompt(prompt)
-            // Not sure the best way to do this, but 256 is the default.
-            .max_tokens_to_sample(options.max_tokens.unwrap_or(256) as usize)
-            .stop_sequences(vec![HUMAN_PROMPT.to_string()])
-            .build()?;
-
-        let cfg = AnthropicConfig {
-            api_key: secrets::env_or_get(API_KEY)?,
-            api_base: None,
-            default_model: None,
+        let request = MessagesRequest {
+            model: self.model.clone(),
+            system,
+            max_tokens: options.max_tokens.unwrap_or(1024),
+            temperature: options.temperature,
+            messages,
         };
-        let client = Client::try_from(cfg)?;
 
         if options.dry_run {
             return GenerateOutput::empty(self);
         }
 
-        let text = client
-            .complete(complete_request)
-            .await?
-            .completion
-            .trim_start()
-            .to_string();
+        let response = self
+            .client
+            .post(format!("{BASE_URL}/messages/"))
+            .header("x-api-key", secrets::env_or_get(API_KEY)?)
+            .header("anthropic-version", API_VERSION)
+            .json(&request)
+            .send()
+            .await?;
+
+        if let Err(error) = response.error_for_status_ref() {
+            let message = response.text().await?;
+            bail!("{error}: {message}");
+        }
+
+        let response: MessagesResponse = response.json().await?;
+
+        let text = response
+            .content
+            .into_iter()
+            .map(|part| part.text)
+            .join("\n\n");
 
         GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
     }
@@ -149,6 +162,9 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     }
 
     let assistants = [
+        ("claude-3-opus-20240229", 200_000),
+        ("claude-3-sonnet-20240229", 200_000),
+        ("claude-3-haiku-20240307", 200_000),
         ("claude-2.1", 200_000),
         ("claude-2.0", 100_000),
         ("claude-instant-1.2", 100_000),
@@ -160,6 +176,52 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     .collect();
 
     Ok(assistants)
+}
+
+/// A part within the content of a message in the Messages API
+///
+/// Note: at present only `text` type is handled
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(crate = "assistant::common::serde")]
+struct ContentPart {
+    r#type: String,
+    text: String,
+}
+
+/// A Messages API message
+///
+/// Note: at present only text content is handled
+#[derive(Debug, Serialize)]
+#[serde(crate = "assistant::common::serde")]
+struct Message {
+    role: String,
+    content: Vec<ContentPart>,
+}
+
+/// A Messages API request body
+///
+/// Based on https://docs.anthropic.com/en/api/messages.
+/// Note: at present several fields are ignored.
+#[skip_serializing_none]
+#[derive(Serialize)]
+#[serde(crate = "assistant::common::serde")]
+struct MessagesRequest {
+    model: String,
+    system: String,
+    max_tokens: u16,
+    temperature: Option<f32>,
+    messages: Vec<Message>,
+}
+
+/// A Messages API response body
+///
+/// Based on https://docs.anthropic.com/en/api/messages.
+/// Note: at present several fields are ignored.
+#[skip_serializing_none]
+#[derive(Deserialize)]
+#[serde(crate = "assistant::common::serde")]
+struct MessagesResponse {
+    content: Vec<ContentPart>,
 }
 
 #[cfg(test)]

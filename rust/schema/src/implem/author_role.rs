@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
 use crate::{
-    AuthorRole, AuthorRoleAuthor, AuthorRoleName, Organization, Person, SoftwareApplication, Thing,
-    ThingOptions, Timestamp,
+    prelude::*, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Organization, Person,
+    SoftwareApplication, StringOrNumber, Thing, ThingOptions, Timestamp,
 };
 
 impl AuthorRole {
@@ -59,5 +59,66 @@ impl AuthorRole {
     /// Set the last modified timestamp of the author role to now
     pub fn now(&mut self) {
         self.last_modified = Some(Timestamp::now());
+    }
+}
+
+impl DomCodec for AuthorRole {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        // Custom implementation to normalize with the
+        // other types of authors: Person, Organization and SoftwareApplication
+        // to each front-end implementation
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_attr("role-name", &self.role_name.to_string());
+
+        if let Some(last_modified) = &self.last_modified {
+            Timestamp::to_dom_attr("last-modified", last_modified, context);
+        }
+
+        let (node_type, name) = match &self.author {
+            AuthorRoleAuthor::Person(person) => {
+                let mut name = person.given_names.iter().flatten().cloned().join(" ")
+                    + &person.family_names.iter().flatten().cloned().join(" ");
+                if name.is_empty() {
+                    if let Some(opt_name) = &person.options.name {
+                        name = opt_name.clone();
+                    }
+                }
+
+                (person.node_type(), name)
+            }
+            AuthorRoleAuthor::Organization(org) => (
+                org.node_type(),
+                org.options.name.clone().unwrap_or_default(),
+            ),
+            AuthorRoleAuthor::SoftwareApplication(app) => (app.node_type(), app.name.clone()),
+            AuthorRoleAuthor::Thing(thing) => (
+                thing.node_type(),
+                thing.options.name.clone().unwrap_or_default(),
+            ),
+        };
+        context
+            .push_attr("type", &node_type.to_string())
+            .push_attr("name", &name);
+
+        if let AuthorRoleAuthor::SoftwareApplication(app) = &self.author {
+            if let Some(id) = &app.id {
+                context.push_attr("_id", id);
+            }
+
+            if let Some(version) = &app.options.software_version.clone().or_else(|| {
+                app.options.version.as_ref().map(|version| match version {
+                    StringOrNumber::String(string) => string.clone(),
+                    StringOrNumber::Number(number) => number.to_string(),
+                })
+            }) {
+                context.push_attr("details", &["v", version].concat());
+            }
+        }
+
+        context
+            .push_slot_fn("div", "author", |context| self.author.to_dom(context))
+            .exit_node();
     }
 }

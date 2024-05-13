@@ -12,7 +12,7 @@ use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio
 use schema::{NodeType, ProvenanceCategory};
 
 use crate::{
-    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, RUN_NODE},
+    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, RETRY_NODE, RUN_NODE},
     text_document::TextNode,
 };
 
@@ -38,6 +38,8 @@ pub(crate) async fn request(
         .flat_map(
             |TextNode {
                  range,
+                 parent_type,
+                 parent_id,
                  node_type,
                  node_id,
                  provenance,
@@ -66,7 +68,21 @@ pub(crate) async fn request(
                     }
                     // Block suggestions
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
-                        vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(VIEW_NODE)]
+                        let mut lenses = Vec::with_capacity(4);
+                        if matches!(parent_type, NodeType::InstructionBlock) {
+                            lenses.push(CodeLens {
+                                range: *range,
+                                command: None,
+                                // Note that retry is actually a run of the parent instruction
+                                data: Some(json!([RETRY_NODE, uri, parent_type, parent_id])),
+                            });
+                        }
+                        lenses.append(&mut vec![
+                            lens(ACCEPT_NODE),
+                            lens(REJECT_NODE),
+                            lens(VIEW_NODE),
+                        ]);
+                        lenses
                     }
                     _ => vec![],
                 };
@@ -82,10 +98,30 @@ pub(crate) async fn request(
                             .sorted_by(|a, b| a.provenance_category.cmp(&b.provenance_category))
                             .filter_map(|count| {
                                 count.character_percent.map(|percent| {
-                                    format!("{}:{}%", count.provenance_category, percent.max(1))
+                                    use ProvenanceCategory::*;
+                                    let label = match count.provenance_category {
+                                        HwHeHv => "$(person)+$(person}$(pass-filled)",
+                                        HwHe => "$(person)+$(person}",
+                                        HwHv => "$(person)$(pass-filled)",
+                                        Hw => "$(person)",
+                                        HwMv => "$(person)$(pass)",
+                                        MwHeHv => "$(hubot)+$(person)$(pass-filled)",
+                                        MwHe => "$(hubot)+$(person)",
+                                        MwHeMv => "$(hubot)+$(person)$(pass)",
+                                        HwMeHv => "$(person)+$(hubot)$(pass-filled)",
+                                        HwMe => "$(person)+$(hubot)",
+                                        HwMeMv => "$(person)+$(hubot)$(pass)",
+                                        MwHv => "$(hubot)$(pass-filled)",
+                                        MwMeHv => "$(hubot)+$(hubot)$(pass-filled)",
+                                        Mw => "$(hubot)",
+                                        MwMv => "$(hubot)+$(pass)",
+                                        MwMe => "$(hubot)+$(hubot)",
+                                        MwMeMv => "$(hubot)+$(hubot)$(pass)",
+                                    };
+                                    format!("{}% {}", percent.max(1), label)
                                 })
                             })
-                            .join(" ");
+                            .join(" • ");
 
                         lenses.push(CodeLens {
                             range: *range,
@@ -131,6 +167,7 @@ pub(crate) async fn resolve(
     let command = match command.as_str() {
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
+        RETRY_NODE => Command::new("$(refresh) Retry".to_string(), command, arguments),
         ACCEPT_NODE => Command::new("$(thumbsup) Accept".to_string(), command, arguments),
         REJECT_NODE => Command::new("$(thumbsdown) Reject".to_string(), command, arguments),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),

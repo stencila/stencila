@@ -3,6 +3,8 @@ title: Superscript
 extends: Mark
 category: prose
 description: Superscripted content.
+dom:
+  elem: sup
 html:
   elem: sup
 jats:

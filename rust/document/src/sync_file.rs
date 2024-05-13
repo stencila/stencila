@@ -17,7 +17,7 @@ use common::{
 };
 use schema::Node;
 
-use crate::{Document, SyncDirection};
+use crate::{Document, SyncDirection, Update};
 
 impl Document {
     /// Synchronize the document with a file (e.g. an `Article` root node)
@@ -166,7 +166,10 @@ impl Document {
 
                     match codecs::from_path(&path_buf, decode_options.clone()).await {
                         Ok(node) => {
-                            if let Err(error) = update_sender.send(node).await {
+                            if let Err(error) = update_sender
+                                .send(Update::new(node, None))
+                                .await
+                            {
                                 tracing::error!("While sending node update: {error}");
                             }
                         }

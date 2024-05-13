@@ -20,6 +20,7 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
+use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
 use kernel_nodejs::NodeJsKernel;
 use kernel_python::PythonKernel;
@@ -38,6 +39,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
         Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
         Box::<BashKernel>::default() as Box<dyn Kernel>,
+        Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
         Box::<JinjaKernel>::default() as Box<dyn Kernel>,
         Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,

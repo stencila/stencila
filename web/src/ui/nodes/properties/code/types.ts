@@ -11,7 +11,8 @@ type ProvenanceMarker = {
   from: number
   to: number
   mi: number
-  info?: string
+  count: number
+  provenance: string
 }
 
 export type { ProvenanceMarker, CodeAuthorElement }

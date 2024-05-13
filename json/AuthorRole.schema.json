@@ -8,6 +8,9 @@
   ],
   "category": "works",
   "description": "An author and their role.",
+  "dom": {
+    "derive": false
+  },
   "required": [
     "type",
     "author",
@@ -40,9 +43,6 @@
     "author": {
       "@id": "schema:author",
       "description": "The entity acting as an author.",
-      "dom": {
-        "elem": "none"
-      },
       "$ref": "AuthorRoleAuthor.schema.json"
     },
     "roleName": {
@@ -66,9 +66,6 @@
         "last-modified",
         "last_modified"
       ],
-      "dom": {
-        "with": "Timestamp::to_dom_attr"
-      },
       "$ref": "Timestamp.schema.json"
     }
   }

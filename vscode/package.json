@@ -21,6 +21,12 @@
       "Visualization",
       "Notebooks"
     ],
+    "activationEvents": [
+      "onLanguage:smd",
+      "onCommand:stencila.walkthrough-file-open",
+      "workspaceContains:**/*.smd",
+      "*"
+    ],
     "commands": [
       {
         "command": "stencila.view-doc",
@@ -216,36 +222,43 @@
     ],
     "walkthroughs": [
       {
-        "title": "The title of the demo",
-        "description": "A description of the demo",
-        "id": "demo1",
+        "title": "Writing with the `insert-paras` assistant",
+        "description": "The ``insert-paras`` specialized assistant uses context from your document to make generic AI more relevant and accurate.\n",
+        "id": "demo-insert-paras",
         "steps": [
           {
-            "title": "A title for step 1",
+            "title": "Getting started",
             "id": "step1",
             "media": {
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\nThe text for each step supports a limited subset of Markdown including __emphasis__, **bold**, and ``code`` (note specific syntax). Also don't forget emoji 🦄!\n\nUse the special ``type`` link to insert a source fragment at the end of ``empty.smd``. Links on their own line are rendered as a button. e.g.\n\n- Let's type a [heading](command:stencila.walkthroughType?%22%5Cn%23%20Introduction%5Cn%22)\n\n- Create an [instruction](command:stencila.walkthroughType?%22%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20R%20code%20to%20read%20in%20data.csv%5Cn%22)\n\n[Write a code chunk](command:stencila.walkthroughType?%22%5Cn%60%60%60python%20exec%5Cn%23%20A%20code%20chunk%20to%20type%5Cn%60%60%60%5Cn%22)\n\n"
+            "description": "\n\n• The ``insert-paras`` is one of Stencila's specialized AI assistants. It summarizes context from your document, including metadata and content, and passes it to generic LLMs.\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough-file-open?%22demo-insert-paras.smd%22)\n\n• Then add some metadata to the document with [title and keywords](command:stencila.walkthrough-file-type?%5B%22demo-insert-paras.smd%22%2C%22---%5Cntitle%3A%20An%20analysis%20of%20impact%20of%20environmental%20variables%20on%20tree%20height%5Cnkeywords%3A%20%5B%5C%22tree%5C%22%2C%20%5C%22height%5C%22%2C%20%5C%22environmental%20variables%5C%22%5D%5Cn---%22%5D)\n\n• Next, get started by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%5B%22demo-insert-paras.smd%22%2C%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%2040-60%20word%20introductory%20paragraph%5Cn%5Cn%22%5D), assigned to ``insert-paras``\n\n• Run the instruction.\n\n"
           },
           {
-            "title": "A title for step 2",
+            "title": "Refining suggestions",
             "id": "step2",
             "media": {
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\nOccaecat non laborum ipsum Lorem et ullamco nostrud sit. Sint nostrud voluptate dolore cillum mollit. Sint nisi elit sunt id nulla sint enim. Est exercitation.\n\nSit irure occaecat adipisicing irure reprehenderit cupidatat cillum fugiat cillum culpa qui. Non exercitation proident ex tempor labore ea magna.\n"
-          },
+            "description": "\n\n• If you are happy with the suggestion from ``insert-paras``, you can accept it. This will stop the instruction from being executed again (unless you explicitly do so).\n\n• If you are __not__ happy with the suggestion you can request a retry, modify the instruction, or edit the suggestion.\n\n• You can click on the ```View`` button to inspect the instruction.\n"
+          }
+        ]
+      },
+      {
+        "title": "Frictionless AI Integration",
+        "description": "Getting started with Stencila's AI Assistants",
+        "id": "walkthru-1",
+        "steps": [
           {
-            "title": "A title for step 3",
-            "id": "step3",
+            "title": "Stencila uses Markdown",
+            "id": "step1",
             "media": {
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\nOccaecat non laborum ipsum Lorem et ullamco nostrud sit. Sint nostrud voluptate dolore cillum mollit. Sint nisi elit sunt id nulla sint enim. Est exercitation.\n\nSit irure occaecat adipisicing irure reprehenderit cupidatat cillum fugiat cillum culpa qui. Non exercitation proident ex tempor labore ea magna.\n"
+            "description": "\n\nLet's create some basic markdown.\n\nStarting with [a title](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%5Cn%23%20A%20simple%20document%5Cn%22%5D)\n\nAnd then some [formatted text](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%5CnWe%20can%20write%20some%20text%20with%20__formatting__%20and%20%5Blinks%5D%28https%3A%2F%2Fstencila.com%29.%5Cn%22%5D)\n\nNow we can [add some code](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%5Cn%60%60%60python%20exec%5Cnprint%28%5C%22Hello%20world!%5C%22%29%5Cn%60%60%60%5Cn%22%5D)\n\nLet's run that code. It is kinda like a notebook.\n\nWe can get assistance in [writing code](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%20%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20draw%20a%20sine%20wave%22%5D)\n\nAnd now we can run that too.\n\nThat is just the beginning.\n\n"
           }
         ]
       }

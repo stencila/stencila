@@ -39,14 +39,14 @@ impl Codec for DomCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let EncodeOptions {
-            compact,
-            standalone,
-            ..
-        } = options.unwrap_or_default();
+        let standalone = options
+            .as_ref()
+            .and_then(|options| options.standalone)
+            .unwrap_or(false);
+        let compact = options.and_then(|options| options.compact).unwrap_or(true);
 
         // Encode to DOM HTML
-        let mut context = DomEncodeContext::new(standalone.unwrap_or_default());
+        let mut context = DomEncodeContext::new(standalone);
         node.to_dom(&mut context);
 
         // Add the root attribute to the root node
@@ -56,7 +56,7 @@ impl Codec for DomCodec {
             dom.insert_str(pos, " root");
         }
 
-        let html = if standalone == Some(true) {
+        let html = if standalone {
             let style = context.style();
             format!(
                 r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title>{style}</head><body>{dom}</body></html>"#
@@ -66,8 +66,8 @@ impl Codec for DomCodec {
         };
 
         let html = match compact {
-            Some(true) | None => html,
-            Some(false) => indent(&html)?,
+            true => html,
+            false => indent(&html)?,
         };
 
         Ok((html, EncodeInfo::none()))

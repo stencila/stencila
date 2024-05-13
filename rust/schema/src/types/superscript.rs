@@ -13,6 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Superscript")]
+#[dom(elem = "sup")]
 #[html(elem = "sup")]
 #[jats(elem = "sup")]
 #[markdown(template = "^{{content}}^", escape = "^")]

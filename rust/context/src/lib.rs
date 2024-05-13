@@ -26,6 +26,12 @@ use schema::{
 #[derive(Debug, SmartDefault, Clone, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct Context {
+    /// The title of the document
+    pub title: Option<String>,
+
+    /// The keywords of the document
+    pub keywords: Vec<String>,
+
     /// The code chunks in the document prior to the current node
     pub code_chunks: Vec<CodeChunk>,
 
@@ -65,6 +71,14 @@ pub struct Context {
 }
 
 impl Context {
+    pub fn set_title(&mut self, title: &str) {
+        self.title = Some(title.to_string());
+    }
+
+    pub fn set_keywords(&mut self, keywords: &Vec<String>) {
+        self.keywords = keywords.clone();
+    }
+
     pub fn push_code_chunk(&mut self, code_chunk: &CodeChunk) {
         self.code_chunks.push(code_chunk.clone());
     }

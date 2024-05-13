@@ -14,6 +14,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "QuoteInline")]
+#[dom(elem = "q")]
 #[html(elem = "q")]
 #[jats(elem = "inline-quote")]
 #[markdown(template = "<q>{{content}}</q>")]
