@@ -94,6 +94,9 @@ export class DynamicView extends LitElement {
   }
 
   override render() {
-    return html`<stencila-article root></stencila-article>`
+    return html`
+      <div>THISDFASDFASDFASDF</div>
+      <stencila-article root></stencila-article>
+    `
   }
 }
