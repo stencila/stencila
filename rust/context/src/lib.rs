@@ -29,6 +29,9 @@ pub struct Context {
     /// The title of the document
     pub title: Option<String>,
 
+    /// The genre of the document
+    pub genre: Option<String>,
+
     /// The keywords of the document
     pub keywords: Vec<String>,
 
@@ -73,6 +76,10 @@ pub struct Context {
 impl Context {
     pub fn set_title(&mut self, title: &str) {
         self.title = Some(title.to_string());
+    }
+
+    pub fn set_genre(&mut self, genre: &str) {
+        self.genre = Some(genre.to_string());
     }
 
     pub fn set_keywords(&mut self, keywords: &Vec<String>) {

@@ -483,6 +483,9 @@ impl VisitorAsync for Executor {
                 if let Some(title) = &article.title {
                     self.context.set_title(&title.to_text().0);
                 }
+                if let Some(genre) = &article.genre {
+                    self.context.set_genre(&genre.to_text().0);
+                }
                 if let Some(keywords) = &article.keywords {
                     self.context.set_keywords(keywords);
                 }
