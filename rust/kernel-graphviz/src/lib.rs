@@ -47,12 +47,11 @@ impl KernelInstance for GraphvizKernelInstance {
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        tracing::info!("Compiling Graphviz DOT to SVG");
+        tracing::debug!("Compiling Graphviz DOT to SVG");
 
         let mut parser = DotParser::new(code);
         match parser.process() {
             Ok(graph) => {
-                tracing::info!("OK");
                 let svg = if graph.list.list.is_empty() {
                     // Avoid panic if graph is empty by returning empty SVG
                     r#"<svg xmlns="http://www.w3.org/2000/svg"></svg>"#.to_string()
