@@ -6,7 +6,7 @@ import {
   Text,
   Underline,
 } from "@stencila/types";
-import type { PhrasingContent, Role } from "myst-spec";
+import type { PhrasingContent } from "myst-spec";
 
 /**
  * Transform MyST `PhrasingContent` to Stencila Schema `Inline` nodes
@@ -29,7 +29,10 @@ export function mdsToInlines(mds: PhrasingContent[]): Inline[] {
       case "inlineCode":
         return new CodeInline(md.value);
       case "mystRole":
-        return roleToInline(md);
+        // Technically Roles should not exist after basicTransformations() in index.ts
+        throw new Error(`mdast inline type not yet implemented: ${md.type}`);
+      case "underline":
+        return new Underline(mdsToInlines(md.children));
       case "abbreviation":
       case "break":
       case "crossReference":
@@ -43,32 +46,7 @@ export function mdsToInlines(mds: PhrasingContent[]): Inline[] {
       case "linkReference":
       case "subscript":
       case "superscript":
-      case "underline":
         throw new Error(`mdast inline type not yet implemented: ${md.type}`);
     }
   });
-}
-
-/**
- * Transform a MyST `Role` into a Stencila `Inline` node
- */
-function roleToInline(role: Role): Inline {
-  switch (role.name) {
-    case "u":
-    case "underline":
-      return underlineRoleToUnderline(role);
-    default:
-      throw new Error(`mystRole not yet implemented: ${role.name}`);
-  }
-}
-
-/**
- * Transform a MyST `Role` for underline into a Stencila `Underline` node
- */
-function underlineRoleToUnderline(role: Role): Underline {
-  if (role.children) {
-    return new Underline(mdsToInlines(role.children));
-  } else {
-    return new Underline([new Text(role.value ?? "")]);
-  }
 }

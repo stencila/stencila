@@ -1,0 +1,26 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Here is some inline "
+        },
+        {
+          "type": "CodeInline",
+          "code": "code"
+        },
+        {
+          "type": "Text",
+          "value": ", and below is a code block:"
+        }
+      ]
+    },
+    {
+      "type": "CodeBlock",
+      "code": "if(did.something) {\n    throw Ball();\n}"
+    }
+  ]
+}
