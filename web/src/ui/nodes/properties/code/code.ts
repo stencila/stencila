@@ -139,7 +139,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'dot',
-      alias: ['dotlang'],
+      alias: ['dotlang', 'graphviz'],
       load: async () => {
         return import('@viz-js/lang-dot').then((obj) => obj.dot())
       },
