@@ -2,14 +2,13 @@ import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement } from 'lit/decorators'
 
 import {
   DocumentCommand,
   documentCommandEvent,
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
-import { NodeId } from '../../../types'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
 /**
@@ -19,14 +18,8 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 @withTwind()
 export class UINodeExecutionCommands extends UIBaseClass {
   /**
-   * The id of the node that these commands apply to
-   */
-  @property({ attribute: 'node-id' })
-  nodeId: NodeId
-
-  /**
    * Emit a custom event to execute the document with this
-   * node id a command scope
+   * node id and command scope
    */
   private emitEvent(e: Event, scope: DocumentCommand['scope']) {
     e.stopImmediatePropagation()

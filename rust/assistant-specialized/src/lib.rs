@@ -46,7 +46,8 @@ const PREFERENCE_RANK: u8 = 50;
 /// that will usually be preferred.
 const DELEGATES: &[&str] = &[
     // Text-to-text
-    "openai/gpt-4-0125-preview",
+    "openai/gpt-4-turbo-2024-04-09",
+    "anthropic/claude-3-sonnet-20240229",
     "openai/gpt-4-1106-preview",
     "google/gemini-1.0-pro-latest",
     "openai/gpt-4-0613",

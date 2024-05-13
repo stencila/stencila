@@ -2,7 +2,7 @@ use common::serde_yaml;
 
 use node_strip::{StripNode, StripTargets};
 
-use crate::{prelude::*, Article};
+use crate::{prelude::*, Article, Author, Inline};
 
 impl Article {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -58,11 +58,39 @@ impl MarkdownCodec for Article {
             properties: vec![],
         });
 
+        // If the title is a single text node then simplify it to a YAML string
+        let mut title_string: Option<String> = None;
+        if let Some(title) = &header.title {
+            if title.len() == 1 {
+                if let Some(Inline::Text(text)) = title.first() {
+                    title_string = Some(text.value.to_string())
+                }
+            }
+        }
+
+        // Unwrap `AuthorRoles`. These can be added when the document is authored
+        // in some tools but have too many/unnecessary details for a YAML header.
+        if let Some(authors) = &mut header.authors {
+            for author in authors {
+                if let Author::AuthorRole(role) = author {
+                    if let Some(inner) = role.to_author() {
+                        *author = inner;
+                    }
+                }
+            }
+        }
+
         let mut yaml = serde_yaml::to_value(header).unwrap_or_default();
         if let Some(yaml) = yaml.as_mapping_mut() {
             // Remove the type and (the now empty) content array
             yaml.remove("type");
             yaml.remove("content");
+
+            // Set title string if any
+            use serde_yaml::Value;
+            if let Some(title) = title_string {
+                yaml.insert(Value::from("title"), Value::from(title));
+            }
 
             // Only add a YAML header if there are remaining keys
             if !yaml.is_empty() {

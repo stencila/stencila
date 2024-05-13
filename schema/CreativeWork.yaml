@@ -187,6 +187,8 @@ properties:
     items:
       type: string
     strip: [metadata]
+    patch:
+      formats: [md]
     serde:
       deserializeWith: option_csv_or_array
   keywords:
@@ -198,6 +200,8 @@ properties:
     items:
       type: string
     strip: [metadata]
+    patch:
+      formats: [md]
     serde:
       deserializeWith: option_csv_or_array
   isPartOf:

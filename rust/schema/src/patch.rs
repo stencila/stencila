@@ -16,7 +16,7 @@ use node_type::NodeProperty;
 
 use crate::{
     prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, Block, CordOp, Inline,
-    Node, ProvenanceCount, SuggestionBlockType, SuggestionInlineType,
+    Node, ProvenanceCount, SuggestionBlockType, SuggestionInlineType, Timestamp,
 };
 
 /// Assign authorship to a node
@@ -44,7 +44,16 @@ pub fn merge<T: PatchNode + Debug>(
 }
 
 /// Generate the operations needed to patch `old` node into `new` node
-pub fn diff<T: PatchNode>(old: &T, new: &T, authors: Option<Vec<AuthorRole>>) -> Result<Patch> {
+pub fn diff<T: PatchNode>(old: &T, new: &T, mut authors: Option<Vec<AuthorRole>>) -> Result<Patch> {
+    // Ensure that each author role has a last_modified timestamp
+    if let Some(roles) = authors.as_mut() {
+        for role in roles {
+            if role.last_modified.is_none() {
+                role.last_modified = Some(Timestamp::now());
+            }
+        }
+    }
+
     let mut context = PatchContext::default();
     old.diff(new, &mut context)?;
     Ok(Patch {

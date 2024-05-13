@@ -169,12 +169,31 @@ pub(super) struct TextDocument {
 
 impl TextDocument {
     /// Create a new text document with an initial source
-    fn new(uri: Url, source: String, client: ClientSocket) -> Result<Self, Report> {
+    fn new(
+        uri: Url,
+        source: String,
+        client: ClientSocket,
+        user: Option<Person>,
+    ) -> Result<Self, Report> {
         let path = PathBuf::from(uri.path());
+        let format = path
+            .extension()
+            .map(|ext| ext.to_string_lossy().to_string());
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
         let doc = Document::init(home.into(), None)?;
+
+        let person = user.unwrap_or_else(|| Person {
+            given_names: Some(vec!["Anonymous".to_string()]),
+            ..Default::default()
+        });
+        let author_role = AuthorRole {
+            author: schema::AuthorRoleAuthor::Person(person),
+            role_name: AuthorRoleName::Writer,
+            format,
+            ..Default::default()
+        };
 
         let watch_receiver = doc.watch();
 
@@ -188,7 +207,7 @@ impl TextDocument {
         let source_clone = source.clone();
         let doc_clone = doc.clone();
         tokio::spawn(async {
-            Self::update_task(update_receiver, source_clone, doc_clone).await;
+            Self::update_task(update_receiver, source_clone, doc_clone, author_role).await;
         });
 
         let source_clone = source.clone();
@@ -223,6 +242,7 @@ impl TextDocument {
         mut receiver: mpsc::UnboundedReceiver<String>,
         source: Arc<RwLock<String>>,
         doc: Arc<RwLock<Document>>,
+        author_role: AuthorRole,
     ) {
         // As a guide, average typing speed is around 200 chars per minute which means
         // 60000 / 200 = 300 milliseconds per character.
@@ -276,13 +296,7 @@ impl TextDocument {
             // Update the Stencila document with the new node
             let doc = doc.write().await;
             if let Err(error) = doc
-                .update(
-                    node.clone(),
-                    Some(vec![AuthorRole::person(
-                        Person::new(),
-                        AuthorRoleName::Writer,
-                    )]),
-                )
+                .update(node.clone(), Some(vec![author_role.clone()]))
                 .await
             {
                 tracing::error!("While updating node: {error}");
@@ -346,7 +360,13 @@ pub(super) fn did_open(
     let uri = params.text_document.uri;
     let source = params.text_document.text;
 
-    let doc = match TextDocument::new(uri.clone(), source, state.client.clone()) {
+    let client = state.client.clone();
+    let user = state
+        .options
+        .as_ref()
+        .and_then(|options| options.user.clone());
+
+    let doc = match TextDocument::new(uri.clone(), source, client, user) {
         Ok(doc) => doc,
         Err(error) => {
             return ControlFlow::Break(Err(Error::Response(ResponseError::new(

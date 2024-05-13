@@ -112,10 +112,18 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_published: Option<Date>,
 
+    /// Genre of the creative work, broadcast channel or group.
+    #[serde(default, deserialize_with = "option_csv_or_array")]
+    #[strip(metadata)]
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub genre: Option<Vec<String>>,
+
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,
 
@@ -262,12 +270,6 @@ pub struct ArticleOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "section")]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
-
-    /// Genre of the creative work, broadcast channel or group.
-    #[serde(default, deserialize_with = "option_csv_or_array")]
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub genre: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]

@@ -410,6 +410,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "serde": {
         "deserializeWith": "option_csv_or_array"
       },
@@ -427,6 +432,11 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
       "serde": {
         "deserializeWith": "option_csv_or_array"
       },

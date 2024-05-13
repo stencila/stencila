@@ -29,7 +29,7 @@ export class CodeInline extends CodeStatic {
       <stencila-ui-inline-on-demand
         type="CodeInline"
         view="dynamic"
-        title=${this.programmingLanguage}
+        programming-language=${this.programmingLanguage}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeInline">

@@ -342,7 +342,7 @@ impl KernelInstance for MicrokernelInstance {
             return Ok(());
         };
 
-        tracing::info!("Starting {command:?}");
+        tracing::debug!("Starting {command:?}");
 
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
         let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {

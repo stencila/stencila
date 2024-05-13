@@ -240,6 +240,7 @@ pub struct FigureOptions {
     /// Genre of the creative work, broadcast channel or group.
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub genre: Option<Vec<String>>,
 
@@ -247,6 +248,7 @@ pub struct FigureOptions {
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,
 

@@ -183,12 +183,14 @@ pub struct SoftwareApplicationOptions {
     /// Genre of the creative work, broadcast channel or group.
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
+    #[patch(format = "md")]
     pub genre: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
+    #[patch(format = "md")]
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.

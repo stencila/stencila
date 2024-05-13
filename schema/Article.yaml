@@ -22,6 +22,7 @@ core:
   - title
   - authors
   - provenance
+  - genre
   - keywords
   - abstract
   - dateCreated

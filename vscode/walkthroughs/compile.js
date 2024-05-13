@@ -26,22 +26,12 @@ function folderToWalkthrough(folder) {
   const walkthrough = yaml.load(readFileSync(path.join(folder, "main.yaml")));
   walkthrough.id = path.basename(folder);
 
-  // Generate a demoFile for the walkthrough to use
-  function generateRandomLetters(length) {
-    let result = "";
-    const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
-  const demoFile = `wt-${generateRandomLetters(6)}.smd`;
-
   // Parse step Markdown files and add to it
   walkthrough.steps = readdirSync(folder)
     .filter((file) => path.extname(file) === ".md")
-    .map((file) => markdownToStep(path.join(folder, file), demoFile));
+    .map((file) =>
+      markdownToStep(path.join(folder, file), `${walkthrough.id}.smd`)
+    );
 
   return walkthrough;
 }
@@ -70,8 +60,8 @@ function markdownToStep(stepFile, demoFile) {
         throw new Error(`Invalid source index '${index}' in ${stepFile}`);
       }
 
-      // Remove the first and last newlines
-      const trimmed = source.replace(/^\n|\n$/g, "");
+      // Remove the first and last newlines and replace `===` with `---
+      const trimmed = source.replace(/^\n|\n$/g, "").replace(/===/g, "---");
 
       // JSONify and URI encode the arguments
       let arg = encodeURIComponent(JSON.stringify([demoFile, trimmed]));
