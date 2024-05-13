@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::{
-    prelude::*, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Organization, Person,
+    prelude::*, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Organization, Person,
     SoftwareApplication, StringOrNumber, Thing, ThingOptions, Timestamp,
 };
 
@@ -46,6 +46,18 @@ impl AuthorRole {
             role_name,
             ..Default::default()
         }
+    }
+
+    /// Create an `Author` from this author role if possible
+    pub fn to_author(&self) -> Option<Author> {
+        Some(match &self.author {
+            AuthorRoleAuthor::Person(author) => Author::Person(author.clone()),
+            AuthorRoleAuthor::Organization(author) => Author::Organization(author.clone()),
+            AuthorRoleAuthor::SoftwareApplication(author) => {
+                Author::SoftwareApplication(author.clone())
+            }
+            AuthorRoleAuthor::Thing(..) => return None,
+        })
     }
 
     /// Set the format of the author role
