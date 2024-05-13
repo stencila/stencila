@@ -1,8 +1,13 @@
+import { provide } from '@lit/context'
 import { CSSResultGroup, LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
+import {
+  DocViewContext,
+  documentViewContext,
+} from '../contexts/article-context'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import '../nodes'
@@ -18,6 +23,12 @@ import { outputCSS } from './styles/global-styles'
  */
 @customElement('stencila-dynamic-view')
 export class DynamicView extends LitElement {
+  @provide({ context: documentViewContext })
+  @state()
+  protected context: DocViewContext = {
+    showAllToggleChips: false,
+  }
+
   /**
    * The id of the document
    */
