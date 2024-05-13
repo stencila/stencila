@@ -116,7 +116,6 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
           ${this.renderHeader()} ${this.renderAnimatedContent()}
         </div>
         <div class=${contentStyles}>
-          <slot name="output"></slot>
           <slot name="content"></slot>
         </div>
       </sl-tooltip>

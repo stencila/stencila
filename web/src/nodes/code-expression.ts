@@ -10,7 +10,6 @@ import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/generic/collapsible-details'
-import '../ui/nodes/properties/outputs'
 
 import { CodeExecutable } from './code-executable'
 
@@ -48,7 +47,6 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
-        <!-- <slot name="output"></slot> -->
         <stencila-ui-node-collapsible-details
           type="CodeExpression"
           title="Execution Details"
@@ -90,12 +88,12 @@ export class CodeExpression extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
-        <stencila-ui-node-outputs type="CodeExpression">
-          <slot name="output"></slot>
-        </stencila-ui-node-outputs>
       </div>
 
-      <span slot="content"> ${this.code} </span>
+      <div slot="content">
+        ${this.code}
+        <slot name="output"></slot>
+      </div>
     </stencila-ui-inline-on-demand>`
   }
 
