@@ -5,13 +5,14 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
 import {
-  DocViewContext,
-  documentViewContext,
-} from '../contexts/article-context'
+  DocPreviewContext,
+  documentPreviewContext,
+} from '../contexts/preview-context'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import '../nodes'
 import '../shoelace'
+import '../ui/preview-menu'
 
 import { outputCSS } from './styles/global-styles'
 
@@ -23,12 +24,14 @@ import { outputCSS } from './styles/global-styles'
  */
 @customElement('stencila-dynamic-view')
 export class DynamicView extends LitElement {
-  @provide({ context: documentViewContext })
+  @provide({ context: documentPreviewContext })
   @state()
-  protected context: DocViewContext = {
-    showAllToggleChips: false,
+  protected context: DocPreviewContext = {
+    showToggleChips: true,
   }
 
+  @state()
+  private showMenu: boolean = false
   /**
    * The id of the document
    */
@@ -69,6 +72,20 @@ export class DynamicView extends LitElement {
    * theme styles apply to it.
    */
   protected override createRenderRoot() {
+    this.addEventListener('mouseenter', () => {
+      this.showMenu = true
+    })
+
+    this.addEventListener('mouseleave', () => {
+      this.showMenu = false
+    })
+
+    this.addEventListener('toggle-card-chips', () => {
+      this.context = {
+        ...this.context,
+        showToggleChips: !this.context.showToggleChips,
+      }
+    })
     return this
   }
 
@@ -95,8 +112,11 @@ export class DynamicView extends LitElement {
 
   override render() {
     return html`
-      <div>THISDFASDFASDFASDF</div>
       <stencila-article root></stencila-article>
+      <preview-menu
+        ?visible=${this.showMenu}
+        ?show-toggle-chips=${this.context.showToggleChips}
+      ></preview-menu>
     `
   }
 }

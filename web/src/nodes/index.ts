@@ -1,5 +1,4 @@
 import './array'
-import './article'
 import './author-role'
 import './boolean'
 import './claim'

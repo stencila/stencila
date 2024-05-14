@@ -4,9 +4,9 @@ import { html } from 'lit'
 import { state } from 'lit/decorators'
 
 import {
-  DocViewContext,
-  documentViewContext,
-} from '../../../contexts/article-context'
+  DocPreviewContext,
+  documentPreviewContext,
+} from '../../../contexts/preview-context'
 import { nodeUi } from '../icons-and-colours'
 
 import { UIBaseClass } from './ui-base-class'
@@ -30,9 +30,9 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
   superClass: T
 ) => {
   class ToggleMixin extends superClass {
-    @consume({ context: documentViewContext })
+    @consume({ context: documentPreviewContext, subscribe: true })
     @state()
-    protected docViewContext: DocViewContext | undefined
+    protected docViewContext: DocPreviewContext | undefined
 
     @state()
     protected toggle: boolean = false
@@ -59,13 +59,12 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       const [library, icon] = icons
 
       const styles = apply([
-        this.toggle && 'pointer-events-none',
-        !this.toggle && 'group-hover:opacity-100',
-        this.docViewContext?.showAllToggleChips
-          ? this.toggle
-            ? 'opacity-0'
-            : 'opacity-100'
-          : 'opacity-0',
+        (this.toggle || !this.docViewContext.showToggleChips) &&
+          'pointer-events-none',
+        this.docViewContext.showToggleChips &&
+          !this.toggle &&
+          'group-hover:opacity-100',
+        'opacity-0',
         'h-8',
         'flex items-center',
         'transition duration-200',
