@@ -25,11 +25,12 @@ digraph G {
 Do NOT provide any comments or other content outside of the code block.
 
 Keep to these guidelines when possible:
-- Make use of the styling (colors and boxes) capabilities of Graphviz to make the diagram as clear as possible.
-- Keep text in the diagrams short to avoid large nodes. 
-- Use rounded rectangles for nodes that contain a significant amount of text.
-- Use the direction of the topology to make use of page space.
+
+- Keep text in the diagrams short to avoid large nodes.
+- Use rectangles for nodes that contain a significant amount of text.
+- Use different styles and colors to differentiate the types of relationships.
 - Use arrows to show relationships between nodes.
+- Prefer rankdir=TB for graphs with chains of nodes.
 
 # Examples of instructions and responses
 
@@ -37,139 +38,67 @@ Examples of user instructions and valid assistant responses follow (from https:/
 
 User:
 
-a diagram of basic git concepts and operations
+a diagram of the unix family tree
 
 Assistant:
 
 ```dot exec
-digraph git_basics {
-	graph [
-		label = "Basic git concepts and operations\n\n"
-		labelloc = t
-		fontname = "Helvetica,Arial,sans-serif"
-		fontsize = 20
-		layout = dot
-		rankdir = LR
-		newrank = true
-	]
-	node [
-		style=filled
-		shape=rect
-		pencolor="#00000044" // frames color
-		fontname="Helvetica,Arial,sans-serif"
-		shape=plaintext
-	]
-	edge [
-		arrowsize=0.5
-		fontname="Helvetica,Arial,sans-serif"
-		labeldistance=3
-		labelfontcolor="#00000080"
-		penwidth=2
-		style=dotted // dotted style symbolizes data transfer
-	]
-	changes [
-		color="#88000022"
-		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-			<tr> <td> <b>changes</b><br/>in the working tree </td> </tr>
-			<tr> <td align="left"><i>To view: </i><br align="left"/>
-			git diff
-			<br align="left"/></td> </tr>
-		</table>>
-		shape=plain
-	]
-	staging [
-		fillcolor="#ff880022"
-		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-			<tr> <td> <b>staging area</b><br/>(cache, index)</td> </tr>
-			<tr> <td align="left"><i>To view: </i><br align="left"/>
-			git diff --staged
-			<br align="left"/></td> </tr>
-		</table>>
-		shape=plain
-	]
-	staging -> HEAD:push [label="git commit" weight=1000 color="#88000088"]
-	stash [
-		fillcolor="#0044ff22"
-		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-			<tr> <td> <b>stash</b></td> </tr>
-			<tr> <td align="left"><i>To view:</i><br align="left"/>
-			git stash list
-			<br align="left"/></td> </tr>
-		</table>>
-		shape=plain
-	]
-	stash_push [
-		label="git stash [push]"
-		style=""
-		shape=plain
-		color="#00008844"
-	]
-	{
-		edge [arrowhead=none color="#00008844"]
-		changes ->  stash_push
-		stash_push -> staging
-	}
-	changes -> stash [
-		dir=back
-		xlabel="git stash pop"
-		color="#00000088" weight=0]
-	stash_push -> stash [xdir=back color="#00008844" minlen=0]
-	HEAD [
-		fillcolor="#88ff0022"
-		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="3">
-			<tr> <td port="push" sides="ltr"> <b>HEAD </b>of</td> </tr>
-			<tr> <td port="pull" sides="lbr"> the current branch</td> </tr>
-			<tr> <td port="switch" align="left">
-				<i>To view:</i>
-				<br align="left"/>
-				git show<br align="left"/>
-				git log
-				<br align="left"/>
-			</td> </tr>
-			<tr> <td align="left">
-				<i>To change branch:</i><br align="left"/>
-				git switch ...
-				<br align="left"/>
-				git checkout ...
-				<br align="left"/>
-			</td> </tr>
-		</table>>
-		shape=plain
-	]
-	remote [
-		label="remote branch"
-		shape=box
-		color="#00000022"
-		fillcolor="#00ff0022"
-	]
-
-	HEAD:push -> remote [label="git push" color="#88000088"]
-	HEAD:pull -> remote [dir=back label="git pull" color="#00440088"]
-	branches [
-		fillcolor="#00888822"
-		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-			<tr> <td> <b>local branches</b> </td> </tr>
-			<tr> <td align="left"><i>To view:</i><br align="left"/>
-			git branch [--list]
-			<br align="left"/></td> </tr>
-			</table>>
-		shape=plain
-	]
-	changes -> staging [label="git add ...    \ngit reset      " color="#88000088"]
-	discard [shape=plaintext style=""]
-	changes -> discard [label="git restore ..." color="#88000088"]
-	{rank=same changes discard}
-	// UML style aggregation
-	HEAD:switch -> branches [
-		dir=back
-		style=""
-		penwidth=1
-		arrowtail=odiamond
-		arrowhead=none
-		color="#00000088"
-	]
-
-    // © 2022 Costa Shulyupin, licensed under EPL
+/* courtesy Ian Darwin and Geoff Collyer, Softquad Inc. */
+digraph unix {
+	fontname="Helvetica,Arial,sans-serif"
+	rankdir=TB
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	node [color=lightblue2, style=filled];
+	"5th Edition" -> "6th Edition";
+	"5th Edition" -> "PWB 1.0";
+	"6th Edition" -> "LSX";
+	"6th Edition" -> "1 BSD";
+	"6th Edition" -> "Mini Unix";
+	"6th Edition" -> "Wollongong";
+	"6th Edition" -> "Interdata";
+	"Interdata" -> "Unix/TS 3.0";
+	"Interdata" -> "PWB 2.0";
+	"Interdata" -> "7th Edition";
+	"7th Edition" -> "8th Edition";
+	"7th Edition" -> "32V";
+	"7th Edition" -> "V7M";
+	"7th Edition" -> "Ultrix-11";
+	"7th Edition" -> "Xenix";
+	"7th Edition" -> "UniPlus+";
+	"V7M" -> "Ultrix-11";
+	"8th Edition" -> "9th Edition";
+	"1 BSD" -> "2 BSD";
+	"2 BSD" -> "2.8 BSD";
+	"2.8 BSD" -> "Ultrix-11";
+	"2.8 BSD" -> "2.9 BSD";
+	"32V" -> "3 BSD";
+	"3 BSD" -> "4 BSD";
+	"4 BSD" -> "4.1 BSD";
+	"4.1 BSD" -> "4.2 BSD";
+	"4.1 BSD" -> "2.8 BSD";
+	"4.1 BSD" -> "8th Edition";
+	"4.2 BSD" -> "4.3 BSD";
+	"4.2 BSD" -> "Ultrix-32";
+	"PWB 1.0" -> "PWB 1.2";
+	"PWB 1.0" -> "USG 1.0";
+	"PWB 1.2" -> "PWB 2.0";
+	"USG 1.0" -> "CB Unix 1";
+	"USG 1.0" -> "USG 2.0";
+	"CB Unix 1" -> "CB Unix 2";
+	"CB Unix 2" -> "CB Unix 3";
+	"CB Unix 3" -> "Unix/TS++";
+	"CB Unix 3" -> "PDP-11 Sys V";
+	"USG 2.0" -> "USG 3.0";
+	"USG 3.0" -> "Unix/TS 3.0";
+	"PWB 2.0" -> "Unix/TS 3.0";
+	"Unix/TS 1.0" -> "Unix/TS 3.0";
+	"Unix/TS 3.0" -> "TS 4.0";
+	"Unix/TS++" -> "TS 4.0";
+	"CB Unix 3" -> "TS 4.0";
+	"TS 4.0" -> "System V.0";
+	"System V.0" -> "System V.2";
+	"System V.2" -> "System V.3";
 }
 ```
 
