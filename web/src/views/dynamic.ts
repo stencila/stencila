@@ -1,20 +1,16 @@
-import { provide } from '@lit/context'
-import { CSSResultGroup, LitElement, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { CSSResultGroup, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
 import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
-import {
-  DocPreviewContext,
-  documentPreviewContext,
-} from '../contexts/preview-context'
 import type { DocumentId, DocumentAccess } from '../types'
+import { DocumentPreviewBase } from '../ui/nodes/mixins/preview-base'
+
+import { outputCSS } from './styles/global-styles'
 
 import '../nodes'
 import '../shoelace'
 import '../ui/preview-menu'
-
-import { outputCSS } from './styles/global-styles'
 
 /**
  * Dynamic view of a document
@@ -23,15 +19,7 @@ import { outputCSS } from './styles/global-styles'
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
 @customElement('stencila-dynamic-view')
-export class DynamicView extends LitElement {
-  @provide({ context: documentPreviewContext })
-  @state()
-  protected context: DocPreviewContext = {
-    showAllToggleChips: false,
-  }
-
-  @state()
-  private showMenu: boolean = false
+export class DynamicView extends DocumentPreviewBase {
   /**
    * The id of the document
    */
@@ -66,28 +54,6 @@ export class DynamicView extends LitElement {
 
   // Add outputCSS to view
   static override styles?: CSSResultGroup = [outputCSS]
-
-  /**
-   * Override so that this component has a Light DOM so that
-   * theme styles apply to it.
-   */
-  protected override createRenderRoot() {
-    this.addEventListener('mouseenter', () => {
-      this.showMenu = true
-    })
-
-    this.addEventListener('mouseleave', () => {
-      this.showMenu = false
-    })
-
-    this.addEventListener('toggle-card-chips', () => {
-      this.context = {
-        ...this.context,
-        showAllToggleChips: !this.context.showAllToggleChips,
-      }
-    })
-    return this
-  }
 
   /**
    * Override so that clients are instantiated _after_ this
