@@ -47,7 +47,6 @@ export abstract class DocumentPreviewBase extends LitElement {
     })
 
     this.addEventListener('toggle-authorship-highlight', () => {
-      console.log('event captured')
       this.context = {
         ...this.context,
         showAllAuthorshipHighlight: !this.context.showAllAuthorshipHighlight,
