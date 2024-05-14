@@ -70,13 +70,42 @@ impl MarkdownCodec for Article {
 
         // Unwrap `AuthorRoles`. These can be added when the document is authored
         // in some tools but have too many/unnecessary details for a YAML header.
+        // Also remove any un-named authors.
         if let Some(authors) = &mut header.authors {
-            for author in authors {
+            for author in authors.iter_mut() {
                 if let Author::AuthorRole(role) = author {
                     if let Some(inner) = role.to_author() {
                         *author = inner;
                     }
                 }
+            }
+            authors.retain(|author| match author {
+                Author::Person(person) => {
+                    let has_given_names = person
+                        .given_names
+                        .as_ref()
+                        .map(|names| !names.is_empty())
+                        .unwrap_or_default();
+
+                    let has_family_names = person
+                        .family_names
+                        .as_ref()
+                        .map(|names| !names.is_empty())
+                        .unwrap_or_default();
+
+                    let has_name = person
+                        .options
+                        .name
+                        .as_ref()
+                        .map(|names| !names.is_empty())
+                        .unwrap_or_default();
+
+                    has_given_names || has_family_names || has_name
+                }
+                _ => true,
+            });
+            if authors.is_empty() {
+                header.authors = None;
             }
         }
 
