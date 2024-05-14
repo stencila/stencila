@@ -3,10 +3,10 @@ import { NodeType } from '@stencila/types'
 import { html, LitElement, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
-import '../node-card/section-header'
-import './generic/collapsible-details'
-import { nodeUi } from '../icons-and-colours'
+import { withTwind } from '../../../../twind'
+import '../../node-card/section-header'
+import '../generic/collapsible-details'
+import { nodeUi } from '../../icons-and-colours'
 
 /**
  * A component for displaying the `provenance` property of a node.

@@ -13,8 +13,12 @@ export class StencilaArticle extends LitElement {
       <aside class="min-w-80 max-w-prose mx-auto">
         <stencila-ui-authors-provenance>
           <div class="flex flex-col gap-y-4">
-            <slot name="authors"></slot>
-            <slot name="provenance"></slot>
+            <div slot="authors">
+              <slot name="authors"></slot>
+            </div>
+            <div slot="provenance">
+              <slot name="provenance"></slot>
+            </div>
           </div>
         </stencila-ui-authors-provenance>
       </aside>

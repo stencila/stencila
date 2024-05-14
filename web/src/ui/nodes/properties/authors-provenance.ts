@@ -1,6 +1,7 @@
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../twind'
 
@@ -18,23 +19,21 @@ export class UIAuthorsProvenance extends LitElement {
   @state()
   collapsed: boolean = true
 
+  /**
+   * ref used to manage mouse events.
+   */
+  private buttonRef: Ref<HTMLDivElement> = createRef()
+
   protected override render() {
     return html`
       <div
-        @click=${() => {
-          this.collapsed = !this.collapsed
-        }}
-        class=${`${!this.collapsed ? 'mb-8' : 'mb-0'} transition-[margin] duration-200 ease-in`}
+        class=${`${!this.collapsed ? 'mb-8' : 'mb-0'} transition-all ease-in duration-200 group pointer-events-none`}
       >
         ${this.renderHeader()}
         <stencila-ui-collapsible-animation
-          class=${!this.collapsed ? 'opened' : ''}
+          class=${`pointer-events-auto ${!this.collapsed ? 'opened' : ''}`}
         >
-          <div
-            class="p-4 border border-black/20 rounded-tl-none rounded-b rounded-tr"
-          >
-            <slot></slot>
-          </div>
+          ${this.renderBody()}
         </stencila-ui-collapsible-animation>
       </div>
     `
@@ -45,32 +44,54 @@ export class UIAuthorsProvenance extends LitElement {
    */
   private renderHeader() {
     const collapsedClasses = this.collapsed
-      ? ['text-black/50']
+      ? [
+          'text-black/50',
+          'border-t-black/20 border-l-black/0 border-r-black/0 rounded-t-none',
+        ]
       : [
-          'border-l border-l-black/20 border-r border-r-black/20 rounded-t',
+          'text-black/20',
+          'border-l-black/0 border-t-black/0 border-r-black/0 rounded-t',
           'hover:bg-[rgba(0,0,0,0.025)] hover:contrast-[105%]',
-          'text-black',
+          'group-hover:border-l-black group-hover:border-r-black',
         ]
     const containerClasses = apply([
       ...collapsedClasses,
       [
         'relative z-[1]',
         'flex gap-x-2 items-center',
-        'border-t border-t-black/20 border-b border-b-white',
+        'border border-b-white group-hover:border-t-black',
+        'group-hover:text-black',
         'p-2 -mb-px',
         'max-w-fit',
-        'transition-all',
-        'cursor-pointer',
-        'after:content-[""] after:block after:absolute after:w-[calc(100%-2px)] after:h-px after:bg-white after:bottom-0 after:left-[1px]',
+        'transform-gpu',
+        'transition-all duration-200',
+        'cursor-pointer pointer-events-auto',
+        'after:content-[""] after:block',
+        'after:w-[calc(100%-2px)] after:h-px',
+        'after:bg-white',
+        'after:absolute after:bottom-0 after:left-[1px]',
       ],
     ])
 
-    return html`<div class=${containerClasses}>
+    return html`<div class=${containerClasses} ${ref(this.buttonRef)}>
       <sl-icon library="stencila" name="authors" class="text-xs"></sl-icon
       ><span class="font-sans text-2xs leading-none block"
         >Authors and Provenance</span
       >
       ${this.renderCollapse()}
+    </div>`
+  }
+
+  private renderBody() {
+    const classes = apply([
+      'p-4',
+      'border border-black/0 rounded-tl-none rounded-b rounded-tr',
+      'group-hover:border-black',
+      'transition-all ease-in duration-200',
+    ])
+
+    return html`<div class=${classes}>
+      <slot></slot>
     </div>`
   }
 
@@ -90,5 +111,13 @@ export class UIAuthorsProvenance extends LitElement {
         class="inline-flex text-xs"
       ></stencila-chevron-button>
     </div>`
+  }
+
+  protected override firstUpdated(changedProperties: PropertyValues): void {
+    super.firstUpdated(changedProperties)
+
+    this.buttonRef.value.addEventListener('click', () => {
+      this.collapsed = !this.collapsed
+    })
   }
 }
