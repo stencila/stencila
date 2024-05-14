@@ -57,9 +57,8 @@ export abstract class DocumentPreviewBase extends LitElement {
     return this
   }
 
-  override render() {
+  protected renderPreviewMenu() {
     return html`
-      <slot></slot>
       <preview-menu
         ?visible=${this.showMenu}
         ?show-toggle-chips=${this.context.showAllToggleChips}

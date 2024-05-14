@@ -79,11 +79,7 @@ export class DynamicView extends DocumentPreviewBase {
   override render() {
     return html`
       <stencila-article root></stencila-article>
-      <preview-menu
-        ?visible=${this.showMenu}
-        ?show-toggle-chips=${this.context.showAllToggleChips}
-        ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
-      ></preview-menu>
+      ${this.renderPreviewMenu()}
     `
   }
 }
