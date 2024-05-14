@@ -82,6 +82,7 @@ export class DynamicView extends DocumentPreviewBase {
       <preview-menu
         ?visible=${this.showMenu}
         ?show-toggle-chips=${this.context.showAllToggleChips}
+        ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
       ></preview-menu>
     `
   }

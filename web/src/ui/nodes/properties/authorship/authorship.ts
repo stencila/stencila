@@ -3,6 +3,10 @@ import { ProvenanceCategory } from '@stencila/types'
 import { LitElement, html, css } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
 
+import {
+  documentPreviewContext,
+  DocPreviewContext,
+} from '../../../../contexts/preview-context'
 import { withTwind } from '../../../../twind'
 import { entityContext, EntityContext } from '../../context'
 import {
@@ -20,7 +24,11 @@ import { getTooltipContent } from './utils'
 export class StencilaAuthorship extends LitElement {
   @consume({ context: entityContext, subscribe: true })
   @state()
-  context: EntityContext
+  entityContext: EntityContext
+
+  @consume({ context: documentPreviewContext, subscribe: true })
+  @state()
+  previewContext: DocPreviewContext
 
   /**
    * Number of authors who have ever edited this content.
@@ -64,7 +72,10 @@ export class StencilaAuthorship extends LitElement {
   override render() {
     const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
 
-    if (this.context.cardOpen) {
+    if (
+      this.previewContext.showAllAuthorshipHighlight ||
+      this.entityContext.cardOpen
+    ) {
       return html`
         <sl-tooltip
           style="--show-delay: 1000ms; background-color: white; display:inline;"

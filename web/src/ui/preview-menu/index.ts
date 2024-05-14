@@ -18,6 +18,9 @@ export class DocumentViewMenu extends LitElement {
   @property({ type: Boolean, attribute: 'show-toggle-chips' })
   showToggleChips: boolean
 
+  @property({ type: Boolean, attribute: 'show-authorship-highlight' })
+  showAuthorshipHighlight: boolean
+
   private eventDispatch = (eventName: string) =>
     this.shadowRoot.dispatchEvent(
       new CustomEvent(eventName, {
@@ -76,13 +79,18 @@ export class DocumentViewMenu extends LitElement {
           'toggle-card-chips',
           this.showToggleChips
         )}
+        ${this.renderMenuItem(
+          'Show authorship highlighting',
+          'toggle-authorship-highlight',
+          this.showAuthorshipHighlight
+        )}
       </div>
     `
   }
 
   renderMenuItem(text: string, event: string, active: boolean) {
     const styles = apply([
-      'flex items-center justify-center',
+      'flex items-center justify-between',
       'px-4 py-1',
       'cursor-pointer',
       'hover:bg-gray-300',

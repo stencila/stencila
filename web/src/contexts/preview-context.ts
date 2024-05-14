@@ -6,6 +6,12 @@ export type DocPreviewContext = {
    * or only visible when user hovers on node.
    */
   showAllToggleChips: boolean
+
+  /**
+   * Toggles the visibility of the provenance highlighting
+   * on the entire document
+   */
+  showAllAuthorshipHighlight: boolean
 }
 
 /**

@@ -12,6 +12,7 @@ export abstract class DocumentPreviewBase extends LitElement {
   @state()
   protected context: DocPreviewContext = {
     showAllToggleChips: false,
+    showAllAuthorshipHighlight: false,
   }
 
   /**
@@ -26,6 +27,8 @@ export abstract class DocumentPreviewBase extends LitElement {
    * Apply menu related event listeners to the root
    */
   protected override createRenderRoot() {
+    // event listeners for toggle menu visibility
+
     this.addEventListener('mouseenter', () => {
       this.showMenu = true
     })
@@ -34,12 +37,23 @@ export abstract class DocumentPreviewBase extends LitElement {
       this.showMenu = false
     })
 
+    // event listeners for preview context `CustomEvent`
+
     this.addEventListener('toggle-card-chips', () => {
       this.context = {
         ...this.context,
         showAllToggleChips: !this.context.showAllToggleChips,
       }
     })
+
+    this.addEventListener('toggle-authorship-highlight', () => {
+      console.log('event captured')
+      this.context = {
+        ...this.context,
+        showAllAuthorshipHighlight: !this.context.showAllAuthorshipHighlight,
+      }
+    })
+
     return this
   }
 
@@ -49,6 +63,7 @@ export abstract class DocumentPreviewBase extends LitElement {
       <preview-menu
         ?visible=${this.showMenu}
         ?show-toggle-chips=${this.context.showAllToggleChips}
+        ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
       ></preview-menu>
     `
   }
