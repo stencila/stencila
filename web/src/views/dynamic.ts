@@ -27,7 +27,7 @@ export class DynamicView extends LitElement {
   @provide({ context: documentPreviewContext })
   @state()
   protected context: DocPreviewContext = {
-    showToggleChips: true,
+    showAllToggleChips: false,
   }
 
   @state()
@@ -83,7 +83,7 @@ export class DynamicView extends LitElement {
     this.addEventListener('toggle-card-chips', () => {
       this.context = {
         ...this.context,
-        showToggleChips: !this.context.showToggleChips,
+        showAllToggleChips: !this.context.showAllToggleChips,
       }
     })
     return this
@@ -115,7 +115,7 @@ export class DynamicView extends LitElement {
       <stencila-article root></stencila-article>
       <preview-menu
         ?visible=${this.showMenu}
-        ?show-toggle-chips=${this.context.showToggleChips}
+        ?show-toggle-chips=${this.context.showAllToggleChips}
       ></preview-menu>
     `
   }

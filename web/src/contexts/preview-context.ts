@@ -5,7 +5,7 @@ export type DocPreviewContext = {
    * Whether the 'chip' for each node is always visible,
    * or only visible when user hovers on node.
    */
-  showToggleChips: boolean
+  showAllToggleChips: boolean
 }
 
 /**

@@ -59,12 +59,11 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       const [library, icon] = icons
 
       const styles = apply([
-        (this.toggle || !this.docViewContext.showToggleChips) &&
-          'pointer-events-none',
-        this.docViewContext.showToggleChips &&
-          !this.toggle &&
-          'group-hover:opacity-100',
-        'opacity-0',
+        this.toggle && 'pointer-events-none',
+        !this.toggle && 'group-hover:opacity-100',
+        this.docViewContext.showAllToggleChips && !this.toggle
+          ? 'opacity-100'
+          : 'opacity-0',
         'h-8',
         'flex items-center',
         'transition duration-200',

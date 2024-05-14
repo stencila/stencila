@@ -72,7 +72,7 @@ export class DocumentViewMenu extends LitElement {
     return html`
       <div class=${styles}>
         ${this.renderMenuItem(
-          'Show node info',
+          'Show all nodes',
           'toggle-card-chips',
           this.showToggleChips
         )}
