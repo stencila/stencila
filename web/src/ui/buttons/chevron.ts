@@ -6,7 +6,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
-type ChevronPosition = 'left' | 'down' | 'right'
+type ChevronPosition = 'left' | 'down' | 'right' | 'up'
 
 /**
  * A chevron style button used for collapsing and expanding elements,
@@ -23,7 +23,7 @@ export class Chevron extends LitElement {
   clickEvent?: (e: Event) => void
 
   @property({ type: String, attribute: 'default-pos' })
-  direction: Exclude<ChevronPosition, 'down'> = 'left'
+  direction: ChevronPosition = 'left'
 
   @property()
   position: ChevronPosition
@@ -48,12 +48,24 @@ export class Chevron extends LitElement {
       this.position = this.direction
     }
 
-    const rotation = this.direction === 'left' ? '-rotate-90' : 'rotate-90'
+    let rotation = ''
 
-    const styles = apply([
-      this.position === 'down' ? rotation : '',
-      'transition-transform duration-100',
-    ])
+    switch (this.direction) {
+      case 'left':
+        rotation = '-rotate-90'
+        break
+      case 'up':
+        rotation = 'rotate-0'
+        break
+      case 'down':
+        rotation = 'rotate-0'
+        break
+      default:
+        rotation = 'rotate-90'
+        break
+    }
+
+    const styles = apply([rotation, 'transition-transform duration-100'])
 
     const icon = `chevron-${this.direction}`
 
@@ -69,11 +81,7 @@ export class Chevron extends LitElement {
           this.clickEvent && this.clickEvent(e)
         }}
       >
-        <sl-icon
-          class="text-${this.colour} ${styles}"
-          name=${icon}
-          library="default"
-        ></sl-icon>
+        <sl-icon class="${styles}" name=${icon} library="default"></sl-icon>
       </button>
     `
   }

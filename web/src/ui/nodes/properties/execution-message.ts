@@ -72,7 +72,7 @@ export class ExecutionMessage extends LitElement {
           <sl-icon class="text-xs text-green-100" name=${icon}></sl-icon>
           <stencila-chevron-button
             default-pos="right"
-            position=${this.messageCollapsed ? 'right' : 'down'}
+            position=${this.messageCollapsed ? 'up' : 'down'}
             custom-class="text-xs"
             colour="green-100"
             .clickEvent=${() => this.toggleCollapse()}
