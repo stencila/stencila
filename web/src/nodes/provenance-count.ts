@@ -44,20 +44,20 @@ export class ProvenanceCount extends Entity {
       'hover:bg-black/0 hover:border-black hover:text-black',
     ])
 
+    // A percentage of 0 means <1%
+    const percent = this.characterPercent === 0 ? '<1' : this.characterPercent
+
     return html`<div class="relative">
       <sl-tooltip
         content=${this.tooltipText()}
         trigger="manual"
         ${ref(this.tooltipRef)}
         ><strong class=${styles} ${ref(this.buttonRef)}>
-          ${this.characterPercent
-            ? html`<div
-                class="font-normal pointer-events-none inline-flex items-center gap-x-1"
-              >
-                ${renderProvenanceStatus(this.provenanceCategory, 'xs')}${this
-                  .characterPercent}%
-              </div>`
-            : ''}</strong
+          <div
+            class="font-normal pointer-events-none inline-flex items-center gap-x-1"
+          >
+            ${renderProvenanceStatus(this.provenanceCategory, 'xs')}${percent}%
+          </div></strong
         ></sl-tooltip
       >
     </div>`
