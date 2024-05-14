@@ -6,6 +6,7 @@ import { customElement, property } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../twind'
+import { renderProvenanceStatus } from '../ui/nodes/properties/provenance/icons'
 
 import { Entity } from './entity'
 
@@ -28,31 +29,38 @@ export class ProvenanceCount extends Entity {
    * The refs used by this element.
    */
   private tooltipRef: Ref<SlTooltip> = createRef()
-  private buttonRef: Ref<HTMLSpanElement> = createRef()
+  private buttonRef: Ref<HTMLElement> = createRef()
 
   override render() {
     const styles = apply([
+      'relative',
       'inline-block',
       'cursor-default',
-      'bg-white bg-blend-multiply',
-      'text-black text-2xs leading-none',
+      'bg-black',
+      'text-white text-2xs leading-none',
       'px-2 py-1',
-      'border border-white rounded-full',
+      'border border-black/0 rounded-full',
       'transition-all duration-200 ease-in',
-      'hover:bg-white/0 hover:border-black',
+      'hover:bg-black/0 hover:border-black hover:text-black',
     ])
-    return html`<sl-tooltip
-      content=${this.tooltipText()}
-      ${ref(this.tooltipRef)}
-      ><strong class=${styles} ${ref(this.buttonRef)}
-        >${this.provenanceCategory}
-        ${this.characterPercent
-          ? html`<span class="font-normal pointer-events-none"
-              >${this.characterPercent}%</span
-            >`
-          : ''}</strong
-      ></sl-tooltip
-    >`
+
+    return html`<div class="relative">
+      <sl-tooltip
+        content=${this.tooltipText()}
+        trigger="manual"
+        ${ref(this.tooltipRef)}
+        ><strong class=${styles} ${ref(this.buttonRef)}>
+          ${this.characterPercent
+            ? html`<div
+                class="font-normal pointer-events-none inline-flex items-center gap-x-1"
+              >
+                ${renderProvenanceStatus(this.provenanceCategory, 'xs')}${this
+                  .characterPercent}%
+              </div>`
+            : ''}</strong
+        ></sl-tooltip
+      >
+    </div>`
   }
 
   override firstUpdated() {

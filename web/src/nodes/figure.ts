@@ -5,7 +5,7 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/provenance/provenance'
 
 /**
  * Figure

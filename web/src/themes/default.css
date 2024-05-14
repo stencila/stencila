@@ -33,7 +33,7 @@ figure {
   @apply text-black prose lg:prose-lg;
 
   > section {
-    @apply min-w-80 max-w-prose mx-auto;
+    @apply min-w-80 w-full max-w-prose mx-auto;
   }
 
   h1,

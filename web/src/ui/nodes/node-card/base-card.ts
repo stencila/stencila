@@ -103,7 +103,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
 
     return html`<div class=${classes}>
       <stencila-chevron-button
-        position=${this.collapsed ? 'left' : 'down'}
+        default-pos=${this.collapsed ? 'up' : 'down'}
         .disableEvents=${true}
         class="inline-flex"
       ></stencila-chevron-button>
