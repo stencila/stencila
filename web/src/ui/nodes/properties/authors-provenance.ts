@@ -84,7 +84,7 @@ export class UIAuthorsProvenance extends LitElement {
 
   private renderBody() {
     const classes = apply([
-      'p-4',
+      'p-4 text-sans',
       'border border-black/0 rounded-tl-none rounded-b rounded-tr',
       'group-hover:border-black',
       'transition-all ease-in duration-200',
