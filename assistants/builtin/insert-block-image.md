@@ -6,7 +6,9 @@ instruction-type: insert-blocks
 instruction-examples:
   - insert an inline image
   - insert a inline picture
-delegates: [none]
+
+# Does not delegate to generic assistant, only renders the following system prompt
+delegates: false
 ---
 
 An assistant specialized for inserting a new `Paragraph` containing a single inline `ImageObject`. Intended for when a user wants to insert a block level image that is not encapsulated within a `Figure`.

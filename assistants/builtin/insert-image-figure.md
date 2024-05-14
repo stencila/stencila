@@ -6,7 +6,8 @@ instruction-type: insert-blocks
 instruction-examples:
   - figure with image
 
-delegates: [none]
+# Does not delegate to generic assistant, only renders the following system prompt
+delegates: false
 ---
 
 An assistant specialized for inserting a new `Figure` containing a `ImageObject` and a caption.
