@@ -1,11 +1,15 @@
 import { createContext } from '@lit/context'
 
+/**
+ * Different states for the view of the node chips
+ */
+export type NodeChipState = 'hidden' | 'hover-only' | 'show-all' | 'expand-all'
+
 export type DocPreviewContext = {
   /**
-   * Whether the 'chip' for each node is always visible,
-   * or only visible when user hovers on node.
+   * Hold the value for the current node-card state
    */
-  showAllToggleChips: boolean
+  nodeChipState: NodeChipState
 
   /**
    * Toggles the visibility of the provenance highlighting

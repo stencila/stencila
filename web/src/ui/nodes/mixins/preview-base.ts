@@ -4,6 +4,7 @@ import { state } from 'lit/decorators'
 
 import {
   DocPreviewContext,
+  NodeChipState,
   documentPreviewContext,
 } from '../../../contexts/preview-context'
 
@@ -11,8 +12,8 @@ export abstract class DocumentPreviewBase extends LitElement {
   @provide({ context: documentPreviewContext })
   @state()
   protected context: DocPreviewContext = {
-    showAllToggleChips: false,
     showAllAuthorshipHighlight: false,
+    nodeChipState: 'hover-only',
   }
 
   /**
@@ -37,14 +38,7 @@ export abstract class DocumentPreviewBase extends LitElement {
       this.showMenu = false
     })
 
-    // event listeners for preview context `CustomEvent`
-
-    this.addEventListener('toggle-card-chips', () => {
-      this.context = {
-        ...this.context,
-        showAllToggleChips: !this.context.showAllToggleChips,
-      }
-    })
+    // event listeners for preview context `CustomEvent`s
 
     this.addEventListener('toggle-authorship-highlight', () => {
       this.context = {
@@ -53,6 +47,16 @@ export abstract class DocumentPreviewBase extends LitElement {
       }
     })
 
+    this.addEventListener(
+      'update-nodecard-state',
+      (e: Event & { detail: NodeChipState }) => {
+        this.context = {
+          ...this.context,
+          nodeChipState: e.detail,
+        }
+      }
+    )
+
     return this
   }
 
@@ -60,8 +64,8 @@ export abstract class DocumentPreviewBase extends LitElement {
     return html`
       <preview-menu
         ?visible=${this.showMenu}
-        ?show-toggle-chips=${this.context.showAllToggleChips}
         ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
+        node-chip-state=${this.context.nodeChipState}
       ></preview-menu>
     `
   }

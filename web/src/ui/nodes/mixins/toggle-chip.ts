@@ -1,6 +1,6 @@
 import { consume } from '@lit/context'
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { PropertyValueMap, html } from 'lit'
 import { state } from 'lit/decorators'
 
 import {
@@ -12,6 +12,7 @@ import { nodeUi } from '../icons-and-colours'
 import { UIBaseClass } from './ui-base-class'
 
 export declare class ChipToggleInterface {
+  protected docViewContext: DocPreviewContext
   protected renderChip: (icons: [string, string], colours: NodeColours) => void
   protected toggle: boolean
   protected toggleChipPosition: string
@@ -32,7 +33,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
   class ToggleMixin extends superClass {
     @consume({ context: documentPreviewContext, subscribe: true })
     @state()
-    protected docViewContext: DocPreviewContext | undefined
+    protected docViewContext: DocPreviewContext
 
     @state()
     protected toggle: boolean = false
@@ -59,9 +60,12 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       const [library, icon] = icons
 
       const styles = apply([
-        this.toggle && 'pointer-events-none',
-        !this.toggle && 'group-hover:opacity-100',
-        this.docViewContext.showAllToggleChips && !this.toggle
+        (this.toggle || this.docViewContext.nodeChipState === 'hidden') &&
+          'pointer-events-none',
+        !this.toggle &&
+          this.docViewContext.nodeChipState !== 'hidden' &&
+          'group-hover:opacity-100',
+        this.docViewContext.nodeChipState === 'show-all' && !this.toggle
           ? 'opacity-100'
           : 'opacity-0',
         'h-8',
@@ -89,6 +93,20 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
           </div>
         </div>
       `
+    }
+
+    protected override update(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+    ): void {
+      super.update(changedProperties)
+
+      // collapse open container if `nodeChipState` changes to 'hidden'
+      if (changedProperties.has('docViewContext')) {
+        if (this.docViewContext.nodeChipState === 'hidden' && this.toggle) {
+          this.toggleChip()
+        }
+      }
     }
   }
 

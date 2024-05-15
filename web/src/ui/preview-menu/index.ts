@@ -2,6 +2,7 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
+import { NodeChipState } from '../../contexts/preview-context'
 import { withTwind } from '../../twind'
 
 import '../buttons/icon'
@@ -21,11 +22,15 @@ export class DocumentViewMenu extends LitElement {
   @property({ type: Boolean, attribute: 'show-authorship-highlight' })
   showAuthorshipHighlight: boolean
 
-  private eventDispatch = (eventName: string) =>
+  @property({ type: String, attribute: 'node-chip-state' })
+  nodeChipState: NodeChipState
+
+  private eventDispatch = (eventName: string, detail?: unknown) =>
     this.shadowRoot.dispatchEvent(
       new CustomEvent(eventName, {
         bubbles: true,
         composed: true,
+        detail,
       })
     )
 
@@ -75,20 +80,21 @@ export class DocumentViewMenu extends LitElement {
     return html`
       <div class=${styles}>
         ${this.renderMenuItem(
-          'Show all nodes',
-          'toggle-card-chips',
-          this.showToggleChips
-        )}
-        ${this.renderMenuItem(
           'Show authorship highlighting',
           'toggle-authorship-highlight',
           this.showAuthorshipHighlight
         )}
+        ${this.renderChipOptions()}
       </div>
     `
   }
 
-  renderMenuItem(text: string, event: string, active: boolean) {
+  renderMenuItem(
+    text: string,
+    event: string,
+    active: boolean,
+    eventDetail?: unknown
+  ) {
     const styles = apply([
       'flex items-center justify-between',
       'px-4 py-1',
@@ -99,10 +105,36 @@ export class DocumentViewMenu extends LitElement {
     return html`
       <div
         class=${styles}
-        @click=${() => this.eventDispatch(event)}
+        @click=${() => this.eventDispatch(event, eventDetail)}
       >
         <span class="leading-none text-sm mr-2">${text}</span>
         <sl-icon name="check" class="text-sm ${active ? 'opacity-100' : 'opacity-0'}">
+      </div>
+    `
+  }
+
+  renderChipOptions() {
+    return html`
+      <div class="py-1">
+        <div class="font-bold text-sm mb-1 px-4">Display Node Info</div>
+        ${this.renderMenuItem(
+          'Hide All',
+          'update-nodecard-state',
+          this.nodeChipState === 'hidden',
+          'hidden'
+        )}
+        ${this.renderMenuItem(
+          'Show on hover',
+          'update-nodecard-state',
+          this.nodeChipState === 'hover-only',
+          'hover-only'
+        )}
+        ${this.renderMenuItem(
+          'Show all',
+          'update-nodecard-state',
+          this.nodeChipState === 'show-all',
+          'show-all'
+        )}
       </div>
     `
   }
