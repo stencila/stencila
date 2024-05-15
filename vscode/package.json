@@ -253,22 +253,6 @@
     ],
     "walkthroughs": [
       {
-        "title": "Getting help writing code",
-        "description": "Generating and running code.\n",
-        "id": "code-chunks-and-text",
-        "steps": [
-          {
-            "title": "Generating Code and Text",
-            "id": "step1",
-            "media": {
-              "image": "walkthroughs/blank.svg",
-              "altText": ""
-            },
-            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22code-chunks-and-text.smd%22).\n\n• We're going to write about modeling [Predator Prey interactions](command:stencila.walkthrough-file-type?%5B%22code-chunks-and-text.smd%22%2C%22---%5Cntitle%3A%20Predator%20Prey%20Systems%5Cnkeywords%3A%20%5B%5C%22predator%5C%22%2C%20%5C%22prey%5C%22%2C%20%5C%22population%20dynamics%5C%22%5D%5Cn---%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22code-chunks-and-text.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20brief%20history%20of%20lotka-volterra%20equations%5Cn-%20explain%20the%20model%20and%20its%20relevance.%5Cn-%20A%20puzzle%3B%20but%20turns%20out%20explicable%20just%20by%20equations%5Cn-%20fox%20and%20rabbit%20example%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• A graph will help show what is going on. So let's generate [some relevant code](command:stencila.walkthrough-file-type?%5B%22code-chunks-and-text.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20of%20the%20population%20dynamics%20of%20foxes%20and%20rabbits%2C%20showing%20a%20few%20cycles%2C%20put%20the%20parameters%20and%20initial%20conditions%20in%20the%20caption.%5Cn%22%5D).\n\n• The assistant will generate a code snippet that plots the population dynamics of foxes and rabbits.\n\n• You can then run that code to see the actual plot. Press the view button to open the document.\n\n"
-          }
-        ]
-      },
-      {
         "title": "Writing with the `insert-paras` assistant",
         "description": "The ``insert-paras`` specialized assistant uses context from your document to make generic AI more relevant and accurate.\n",
         "id": "demo-insert-paras",
@@ -294,18 +278,50 @@
         ]
       },
       {
-        "title": "Frictionless AI Integration",
-        "description": "Getting started with Stencila's AI Assistants",
-        "id": "walkthru-1",
+        "title": "Writing documents: The Krebs Cycle",
+        "description": "Generating related text and figures.\n",
+        "id": "krebs",
         "steps": [
           {
-            "title": "Stencila uses Markdown",
+            "title": "Generating Diagrams and Code",
             "id": "step1",
             "media": {
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\nLet's create some basic markdown.\n\nStarting with [a title](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%5Cn%23%20A%20simple%20document%5Cn%22%5D)\n\nAnd then some [formatted text](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%5CnWe%20can%20write%20some%20text%20with%20__formatting__%20and%20%5Blinks%5D%28https%3A%2F%2Fstencila.com%29.%5Cn%22%5D)\n\nNow we can [add some code](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%5Cn%60%60%60python%20exec%5Cnprint%28%5C%22Hello%20world!%5C%22%29%5Cn%60%60%60%5Cn%22%5D)\n\nLet's run that code. It is kinda like a notebook.\n\nWe can get assistance in [writing code](command:stencila.walkthrough-file-type?%5B%22walkthru-1.smd%22%2C%22%20%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20draw%20a%20sine%20wave%22%5D)\n\nAnd now we can run that too.\n\nThat is just the beginning.\n\n"
+            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22krebs.smd%22).\n\n• We're going to write about modeling [The Krebs Cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%23%20The%20Krebs%20Cycle%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%20%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20krebs%20cycle%2C%20background%20and%20history%5Cn-%20krebs%20cycle%2C%20the%20process%5Cn-%20krebs%20cycle%2C%20the%20significance%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• We can use Graphviz to make create a diagram showing the [reactions and products in the cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz-figure%20the%20krebs%20cycle%2C%20showing%20the%20sequence%20of%20reactions%2C%20products%20and%20cycle.%5Cn%22%5D)\n\n• The diagram generated can be tweaked. For example, the default is often orientation is often left-right (LR). If so, try changing it to TB (top-bottom). Re-run it.\n\n• We can also generate code to plot a [time series](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20plot%20times%20series%20of%20elements%20for%20the%20krebs%20cycle%20using%20scipy%5Cn%22%5D) of concentrations of elements in the Krebs cycle.\n\n"
+          }
+        ]
+      },
+      {
+        "title": "Writing documents: Macbeth",
+        "description": "Generating related text and figures.\n",
+        "id": "macbeth",
+        "steps": [
+          {
+            "title": "Generating Diagrams and Tables",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's write a short summary of [macbeth](command:stencila.walkthrough-file-open?%22macbeth.smd%22).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22macbeth.smd%22%2C%22%5Cn%23%20Macbeth%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%20brief%20plot%20overview%20of%20macbeth%20in%20one%20paragraph%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• It would be nice to have [character list](command:stencila.walkthrough-file-type?%5B%22macbeth.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-filled-table%20fill%20out%20the%20Dramatis%20Personae%20for%20macbeth.%5Cn%22%5D).\n\n• We can use Graphviz to make create a diagram showing the [relationships in the story](command:stencila.walkthrough-file-type?%5B%22macbeth.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz-figure%20the%20relationships%20between%20characters%20in%20macbeth.%5Cn%22%5D)\n\n\n"
+          }
+        ]
+      },
+      {
+        "title": "Writing scientific documents: Predator Prey",
+        "description": "Generating and running code to make figures.\n",
+        "id": "predator-prey",
+        "steps": [
+          {
+            "title": "Generating Code and Text",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22predator-prey.smd%22).\n\n• We're going to write about modeling [Predator Prey interactions](command:stencila.walkthrough-file-type?%5B%22predator-prey.smd%22%2C%22---%5Cntitle%3A%20Predator%20Prey%20Systems%5Cnkeywords%3A%20%5B%5C%22predator%5C%22%2C%20%5C%22prey%5C%22%2C%20%5C%22population%20dynamics%5C%22%5D%5Cn---%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22predator-prey.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20brief%20history%20of%20lotka-volterra%20equations%5Cn-%20explain%20the%20model%20and%20its%20relevance.%5Cn-%20A%20puzzle%3B%20but%20turns%20out%20explicable%20just%20by%20equations%5Cn-%20fox%20and%20rabbit%20example%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• A graph will help show what is going on. So let's generate [some relevant code](command:stencila.walkthrough-file-type?%5B%22predator-prey.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20of%20the%20population%20dynamics%20of%20foxes%20and%20rabbits%2C%20showing%20a%20few%20cycles%2C%20put%20the%20parameters%20and%20initial%20conditions%20in%20the%20caption.%5Cn%22%5D).\n\n• The assistant will generate a code snippet that plots the population dynamics of foxes and rabbits.\n\n• You can then run that code to see the actual plot. Press the view button to open the document.\n\n"
           }
         ]
       }
