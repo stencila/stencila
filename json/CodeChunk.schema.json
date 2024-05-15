@@ -32,7 +32,8 @@
     "labelType",
     "label",
     "caption",
-    "outputs"
+    "outputs",
+    "isInvisible"
   ],
   "properties": {
     "type": {
@@ -487,6 +488,20 @@
       "items": {
         "$ref": "Node.schema.json"
       }
+    },
+    "isInvisible": {
+      "@id": "stencila:isInvisible",
+      "description": "Whether the outputs of the code chunk should be invisible to the reader.",
+      "aliases": [
+        "is-invisible",
+        "is_invisible"
+      ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "type": "boolean"
     },
     "executionPure": {
       "@id": "stencila:executionPure",

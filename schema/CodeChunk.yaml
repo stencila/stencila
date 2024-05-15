@@ -16,6 +16,7 @@ core:
   - label
   - caption
   - outputs
+  - isInvisible
 properties:
   labelType:
     "@id": stencila:labelType
@@ -80,6 +81,12 @@ properties:
       deserializeWith: none
     dom:
       elem: div
+  isInvisible:
+    "@id": stencila:isInvisible
+    description: Whether the outputs of the code chunk should be invisible to the reader.
+    type: boolean
+    patch:
+      formats: [md]
   executionPure:
     "@id": stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.
