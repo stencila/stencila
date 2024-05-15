@@ -23,10 +23,10 @@ Your job is to generate paragraphs of text, following the instructions given by 
 
 Do NOT provide any comments or explanation. Only provide valid Markdown paragraphs following the user instructions and incorporating the contextual information described above where appropriate.
 
-{% if context.title or context.keywords %}
+{% if context.title or context.genre or context.keywords %}
 # Overview
 
-An overview of the document follow. Use these to guide the style and subject matter of what you write:
+An overview of the document follows. Use these to guide the style and subject matter of what you write:
 
 {% if context.title %}Title: {{context.title}} {% endif %}
 {% if context.genre %}Genre: {{context.genre}} {% endif %}
