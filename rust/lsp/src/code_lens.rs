@@ -90,7 +90,9 @@ pub(crate) async fn request(
                 if let Some(provenance) = provenance {
                     // Only show provenance code lens for certain node types and for the
                     // machine written and not human edited categories (summed)
-                    if !matches!(node_type, NodeType::InstructionBlock) {
+                    if !matches!(node_type, NodeType::InstructionBlock)
+                        && !matches!(parent_type, NodeType::ListItem)
+                    {
                         let percent = provenance.iter().fold(0u64, |sum, prov| {
                             use ProvenanceCategory::*;
                             if matches!(prov.provenance_category, Mw | MwMe | MwMv | MwMeMv) {
