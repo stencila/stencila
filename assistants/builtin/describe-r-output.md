@@ -57,49 +57,18 @@ The output of the code chunk, that you are to describe:
 
 The mean miles per gallon was 20.09 (10.40-33.90), the mean horsepower was 146.7 (52.0-335.0), the mean weight was 3.217 (1.513-5.424).
 
-## Task
-
-The R code chunk used to generate the output:
-
-```r exec
-summary(lm(Petal.Width~Petal.Length, data = iris))
-```
-
-The output of the code chunk, that you are to describe:
-
-Call:
-lm(formula = Petal.Width ~ Petal.Length, data = iris)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.56515 -0.12358 -0.01898  0.13288  0.64272 
-
-Coefficients:
-              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  -0.363076   0.039762  -9.131  4.7e-16 ***
-Petal.Length  0.415755   0.009582  43.387  < 2e-16 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 0.2065 on 148 degrees of freedom
-Multiple R-squared:  0.9271,    Adjusted R-squared:  0.9266 
-F-statistic:  1882 on 1 and 148 DF,  p-value: < 2.2e-16
-
-## Assistant
-
-There was a significant correlation between petal length and petal width (adjusted R-squared 0.9266).
-
-
-# Task
 
 {% if context.code_chunks %}
+# Task
 
 The R code chunk used to generate the output:
 
-{{ context.code_chunks[-1] | to_markdown }}
+{{ context.code_chunks[-1].code.string }}
 
-The output of the code chunk, that you are to describe:
+The output of the code chunk, that you are to describe follows:
 
-{{ context.code_chunks[-1].outputs | to_markdown }}
+{{ context.code_chunks[-1].outputs }}
+
+Describe this output as accurately and succinctly as possible whilst following the user's instruction.
 
 {% endif %}
