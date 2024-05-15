@@ -32,21 +32,29 @@
         <stencila-text id=xxx>Paragraph four has four author roles. These provide additional information for each author such as role and time.</stencila-text>
       </p>
       <div slot=authors>
-        <stencila-author-role id=xxx role-name=Instructor last-modified=1710370000000>
-          <stencila-person id=xxx family-names='["Coyote"]' given-names='["Carol"]'>
-          </stencila-person>
+        <stencila-author-role id=xxx role-name=Instructor last-modified=1710370000000 type=Person name='Carol Coyote'>
+          <div slot=author>
+            <stencila-person id=xxx family-names='["Coyote"]' given-names='["Carol"]'>
+            </stencila-person>
+          </div>
         </stencila-author-role>
-        <stencila-author-role id=xxx role-name=Prompter last-modified=1710370005000>
-          <stencila-software-application id=xxx @id=stencila/insert-blocks name='Insert Blocks'>
-          </stencila-software-application>
+        <stencila-author-role id=xxx role-name=Prompter last-modified=1710370005000 type=SoftwareApplication name='Insert Blocks' _id=stencila/insert-blocks>
+          <div slot=author>
+            <stencila-software-application id=xxx @id=stencila/insert-blocks name='Insert Blocks'>
+            </stencila-software-application>
+          </div>
         </stencila-author-role>
-        <stencila-author-role id=xxx role-name=Generator last-modified=1710370006000>
-          <stencila-software-application id=xxx @id=mistral/mistral-medium name=Mistral>
-          </stencila-software-application>
+        <stencila-author-role id=xxx role-name=Generator last-modified=1710370006000 type=SoftwareApplication name=Mistral _id=mistral/mistral-medium>
+          <div slot=author>
+            <stencila-software-application id=xxx @id=mistral/mistral-medium name=Mistral>
+            </stencila-software-application>
+          </div>
         </stencila-author-role>
-        <stencila-author-role id=xxx role-name=Verifier last-modified=1710371000000>
-          <stencila-person id=xxx family-names='["Duck"]' given-names='["Daphne"]'>
-          </stencila-person>
+        <stencila-author-role id=xxx role-name=Verifier last-modified=1710371000000 type=Person name='Daphne Duck'>
+          <div slot=author>
+            <stencila-person id=xxx family-names='["Duck"]' given-names='["Daphne"]'>
+            </stencila-person>
+          </div>
         </stencila-author-role>
       </div>
     </stencila-paragraph>
