@@ -58,6 +58,7 @@ static ENV: Lazy<Mutex<Environment>> = Lazy::new(|| {
     // Serialization filters
     env.add_filter("to_json", to_json);
     env.add_filter("to_markdown", to_markdown);
+    env.add_filter("to_text", to_text);
     env.add_filter("to_yaml", to_yaml);
 
     // Trimming content filters
@@ -93,6 +94,11 @@ fn to_json(node: ViaDeserialize<Node>) -> String {
 /// Generate a Markdown representation of a Stencila node
 fn to_markdown(node: ViaDeserialize<Node>) -> String {
     codec_markdown_trait::to_markdown(&node.0)
+}
+
+/// Generate a plain text representation of a Stencila node
+fn to_text(node: ViaDeserialize<Node>) -> String {
+    codec_text_trait::to_text(&node.0)
 }
 
 /// Generate a YAML representation of a Stencila node

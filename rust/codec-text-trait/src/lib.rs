@@ -4,6 +4,14 @@ use codec_info::Losses;
 
 pub use codec_text_derive::TextCodec;
 
+/// Encode a node that implements `TextCodec` to plain text
+pub fn to_text<T>(node: &T) -> String
+where
+    T: TextCodec,
+{
+    node.to_text().0
+}
+
 pub trait TextCodec {
     /// Encode a node as a UTF8 string of text
     fn to_text(&self) -> (String, Losses);
