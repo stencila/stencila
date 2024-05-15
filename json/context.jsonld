@@ -291,6 +291,7 @@
     "isDisabled": "stencila:isDisabled",
     "isFolded": "stencila:isFolded",
     "isGlobal": "stencila:isGlobal",
+    "isInvisible": "stencila:isInvisible",
     "isPartOf": "schema:isPartOf",
     "issns": "schema:issn",
     "issueNumber": "schema:issueNumber",

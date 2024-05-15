@@ -30,6 +30,9 @@ export class CodeChunk extends CodeExecutable {
   @property()
   label?: string
 
+  @property({ attribute: 'is-invisible', type: Boolean })
+  isInvisible?: boolean = false
+
   /**
    * In static view just render the outputs, label and caption
    */
@@ -101,7 +104,7 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-code>
       </div>
       <div slot="content">
-        <slot name="outputs"></slot>
+        ${this.isInvisible ? '' : html`<slot name="outputs"></slot>`}
         <stencila-ui-node-label-and-caption
           type="CodeChunk"
           label-type=${this.labelType}

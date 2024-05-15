@@ -895,6 +895,8 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
 
             let block = if is_exec {
+                let is_invisible = value.contains("@invisible").then_some(true);
+
                 Block::CodeChunk(CodeChunk {
                     code: value.into(),
                     programming_language: if lang.as_deref() == Some("exec") {
@@ -903,6 +905,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
                         lang
                     },
                     auto_exec: parse_auto_exec(&mut meta).ok(),
+                    is_invisible,
                     ..Default::default()
                 })
             } else if matches!(

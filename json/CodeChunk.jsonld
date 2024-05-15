@@ -433,6 +433,18 @@
       }
     },
     {
+      "@id": "stencila:isInvisible",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isInvisible",
+      "rdfs:comment": "Whether the outputs of the code chunk should be invisible to the reader.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeChunk"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
       "@id": "stencila:executionPure",
       "@type": "rdfs:Property",
       "rdfs:label": "executionPure",

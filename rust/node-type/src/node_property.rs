@@ -115,6 +115,7 @@ pub enum NodeProperty {
     IsDisabled,
     IsFolded,
     IsGlobal,
+    IsInvisible,
     IsPartOf,
     Issns,
     IssueNumber,

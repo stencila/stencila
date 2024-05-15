@@ -123,6 +123,12 @@ pub struct CodeChunk {
     #[dom(elem = "div")]
     pub outputs: Option<Vec<Node>>,
 
+    /// Whether the outputs of the code chunk should be invisible to the reader.
+    #[serde(alias = "is-invisible", alias = "is_invisible")]
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub is_invisible: Option<Boolean>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
