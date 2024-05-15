@@ -14,6 +14,7 @@ export abstract class DocumentPreviewBase extends LitElement {
   protected context: DocPreviewContext = {
     showAllAuthorshipHighlight: false,
     nodeChipState: 'hover-only',
+    showAuthorProvenance: false,
   }
 
   /**
@@ -47,6 +48,13 @@ export abstract class DocumentPreviewBase extends LitElement {
       }
     })
 
+    this.addEventListener('toggle-author-provenance', () => {
+      this.context = {
+        ...this.context,
+        showAuthorProvenance: !this.context.showAuthorProvenance,
+      }
+    })
+
     this.addEventListener(
       'update-nodecard-state',
       (e: Event & { detail: NodeChipState }) => {
@@ -65,6 +73,7 @@ export abstract class DocumentPreviewBase extends LitElement {
       <preview-menu
         ?visible=${this.showMenu}
         ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
+        ?show-author-provenance=${this.context.showAuthorProvenance}
         node-chip-state=${this.context.nodeChipState}
       ></preview-menu>
     `

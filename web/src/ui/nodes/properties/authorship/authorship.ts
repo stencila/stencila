@@ -78,11 +78,13 @@ export class StencilaAuthorship extends LitElement {
     ) {
       return html`
         <sl-tooltip
-          style="--show-delay: 1000ms; background-color: white; display:inline;"
+          style="--show-delay: 1000ms; display: inline-block;"
           placement="bottom-start"
           content=${getTooltipContent(this.count, this.provenance)}
         >
-          <span style="background-color: ${bgColour};"><slot></slot></span>
+          <span style="background-color: ${bgColour}; display: inline-block;"
+            ><slot></slot
+          ></span>
         </sl-tooltip>
       `
     } else {

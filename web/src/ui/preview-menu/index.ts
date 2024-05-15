@@ -16,14 +16,14 @@ export class DocumentViewMenu extends LitElement {
   @property({ type: Boolean })
   visible: boolean = false
 
-  @property({ type: Boolean, attribute: 'show-toggle-chips' })
-  showToggleChips: boolean
-
   @property({ type: Boolean, attribute: 'show-authorship-highlight' })
   showAuthorshipHighlight: boolean
 
   @property({ type: String, attribute: 'node-chip-state' })
   nodeChipState: NodeChipState
+
+  @property({ type: Boolean, attribute: 'show-author-provenance' })
+  showAuthorProvenance: boolean
 
   private eventDispatch = (eventName: string, detail?: unknown) =>
     this.shadowRoot.dispatchEvent(
@@ -79,6 +79,11 @@ export class DocumentViewMenu extends LitElement {
 
     return html`
       <div class=${styles}>
+        ${this.renderMenuItem(
+          'Show article authors and provenance',
+          'toggle-author-provenance',
+          this.showAuthorProvenance
+        )}
         ${this.renderMenuItem(
           'Show authorship highlighting',
           'toggle-authorship-highlight',

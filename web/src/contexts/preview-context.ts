@@ -16,6 +16,11 @@ export type DocPreviewContext = {
    * on the entire document
    */
   showAllAuthorshipHighlight: boolean
+
+  /**
+   * Toggles the display of the `<stencila-article>` level author and provenance info
+   */
+  showAuthorProvenance: boolean
 }
 
 /**

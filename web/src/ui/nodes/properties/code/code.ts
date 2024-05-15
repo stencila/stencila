@@ -173,7 +173,7 @@ export class UINodeCode extends LitElement {
             EditorView.decorations.of(
               createProvenanceDecorations(provenanceMarkers)
             ),
-            provenanceTooltip(provenanceMarkers),
+            // provenanceTooltip(provenanceMarkers),
           ]
         : [],
       ...languageExtension,
