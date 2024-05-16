@@ -346,11 +346,15 @@ impl Executor {
     }
 
     /// Should the executor execute an `InstructionBlock`
+    #[allow(unreachable_code, unused_variables)]
     pub fn should_execute_instruction_block(
         &self,
         node_id: &NodeId,
         instruction: &InstructionBlock,
     ) -> bool {
+        // TODO: reinstate the logic of this function
+        return true;
+
         if self.options.force_all {
             return true;
         }

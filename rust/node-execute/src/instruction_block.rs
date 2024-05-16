@@ -88,7 +88,6 @@ impl Executable for InstructionBlock {
                 );
 
                 // Execute the suggestion
-                // TODO: This requires configurable rules around when, if at all, suggestions are executed.
                 if let Err(error) = suggestion.walk_async(executor).await {
                     messages.push(error_to_execution_message(
                         "While executing suggestion",
@@ -129,7 +128,7 @@ impl Executable for InstructionBlock {
             );
         }
 
-        WalkControl::Break
+        WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]
