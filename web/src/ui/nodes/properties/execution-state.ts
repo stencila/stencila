@@ -23,14 +23,14 @@ export class UINodeExecutionState extends LitElement {
 
   override render() {
     // TODO: Decided how best to coalesce (or not) `status` and `required` including
-    // labels and iconography
+    // labels and iconography. Currently, only status is being shown.
     return html`
       <stencila-ui-node-simple-property
         icon-name="lightning"
         icon-library="default"
-        tooltip-content="The status of the last execution | Whether execution is required"
+        tooltip-content="The status of the last execution"
       >
-        <span>${this.status}</span> | <span>${this.required}</span>
+        <span>${this.status}</span>
       </stencila-ui-node-simple-property>
     `
   }
