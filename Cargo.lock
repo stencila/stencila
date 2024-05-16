@@ -185,6 +185,7 @@ version = "0.0.0"
 dependencies = [
  "app",
  "codec-markdown-trait",
+ "codec-text-trait",
  "codecs",
  "common",
  "context",
