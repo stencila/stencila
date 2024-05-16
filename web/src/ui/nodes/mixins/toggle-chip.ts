@@ -101,9 +101,15 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     ): void {
       super.update(changedProperties)
 
-      // collapse open container if `nodeChipState` changes to 'hidden'
       if (changedProperties.has('docViewContext')) {
         if (this.docViewContext.nodeChipState === 'hidden' && this.toggle) {
+          // collapse open container if `nodeChipState` changes to 'hidden'
+          this.toggleChip()
+        } else if (
+          this.docViewContext.nodeChipState === 'expand-all' &&
+          !this.toggle
+        ) {
+          // expand container `nodeChipState` changes to 'expand-all'
           this.toggleChip()
         }
       }

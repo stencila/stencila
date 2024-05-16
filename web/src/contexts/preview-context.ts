@@ -2,6 +2,10 @@ import { createContext } from '@lit/context'
 
 /**
  * Different states for the view of the node chips
+ *
+ *  TODO: When in 'expand-all' state
+ *    - edit block functionality to stop the cards from being collapsible
+ *    - collapse all the cards again when state changes from 'expand-all' to another
  */
 export type NodeChipState = 'hidden' | 'hover-only' | 'show-all' | 'expand-all'
 
