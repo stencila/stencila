@@ -142,7 +142,7 @@ pub async fn run() {
 
     // Setup printing of tracing logs
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::TRACE)
+        .with_max_level(tracing::Level::DEBUG)
         .with_ansi(false)
         .with_writer(std::io::stderr)
         .init();
