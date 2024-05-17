@@ -1,5 +1,6 @@
 import { consume } from '@lit/context'
 import { ProvenanceCategory } from '@stencila/types'
+import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
 
@@ -54,28 +55,60 @@ export class StencilaAuthorship extends LitElement {
   @property({ type: Number })
   mi: number
 
+  @state()
+  protected toggleTooltip: boolean = true
+
   // Ensure that <stencila-authorship> element is inline
   static override styles = css`
     :host {
       display: inline;
+      position: relative;
     }
   `
 
   override render() {
-    const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
-
     if (this.context.cardOpen) {
-      return html`
-        <sl-tooltip
-          style="--show-delay: 1000ms; background-color: white; display:inline;"
-          placement="bottom-start"
-          content=${getTooltipContent(this.count, this.provenance)}
-        >
-          <span style="background-color: ${bgColour};"><slot></slot></span>
-        </sl-tooltip>
-      `
+      return this.renderHighlights()
     } else {
       return html`<slot></slot>`
     }
+  }
+
+  renderHighlights() {
+    const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
+
+    const tooltipStyle = apply([
+      'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
+      'group-hover:opacity-100',
+      'w-32',
+      'opacity-0',
+      'rounded',
+      'p-2',
+      'transition-all delay-200 duration-300',
+      'text-white text-sm',
+      'bg-black',
+      'transform -translate-x-1/2',
+      'pointer-events-none',
+      'after:content[""]',
+      'after:absolute after:-bottom-1 after:left-1/2',
+      'after:w-2 after:h-2',
+      'after:bg-black',
+      'after:transform after:-translate-x-1/2 after:rotate-45',
+    ])
+
+    /*
+      Do not change the formatting of this template,
+      line breaks between tags will introduce 
+      whitespace into the text in the document preview.
+    */
+    // prettier-ignore
+    const htmlTemplate = html`<span
+          class="group"
+          style="background-color: ${bgColour}; position: relative;"
+        ><div class=${tooltipStyle}>${getTooltipContent(this.count, this.provenance)}</div
+        ><slot></slot
+      ></span>`
+
+    return htmlTemplate
   }
 }
