@@ -85,7 +85,7 @@
     "@lezer/common": "1.2.1",
     "@lezer/highlight": "1.2.0",
     "@lezer/markdown": "1.2.0",
-    "@lit/context": "1.1.0",
+    "@lit/context": "1.1.1",
     "@shoelace-style/shoelace": "2.15.0",
     "@stencila/types": "2.0.0-alpha.25",
     "@tailwindcss/container-queries": "0.1.1",
