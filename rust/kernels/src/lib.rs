@@ -1,5 +1,5 @@
 use std::{
-    fmt,
+    env, fmt,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -117,8 +117,20 @@ impl Kernels {
             .await
         });
 
+        let home = if home.to_string_lossy() == "" {
+            match env::current_dir() {
+                Ok(dir) => dir,
+                Err(error) => {
+                    tracing::error!("Unable to get current working dir: {error}");
+                    home.to_path_buf()
+                }
+            }
+        } else {
+            home.to_path_buf()
+        };
+
         Self {
-            home: home.to_path_buf(),
+            home,
             instances,
             variable_request_sender,
             variable_response_sender,

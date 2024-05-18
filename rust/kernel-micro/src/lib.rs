@@ -342,14 +342,27 @@ impl KernelInstance for MicrokernelInstance {
             return Ok(());
         };
 
-        tracing::debug!("Starting {command:?}");
+        if !directory.exists() {
+            bail!(
+                "Directory to start kernel in does not exist: {}",
+                directory.display()
+            );
+        }
+
+        tracing::debug!(
+            "Starting {command:?} in directory `{}`",
+            directory.display()
+        );
 
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
         let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {
             format!(
-                "unable to start microkernel {}: {:?}",
+                "unable to start microkernel {}: {}",
                 self.name(),
                 self.command
+                    .as_ref()
+                    .map(|command| format!("{:?}", command))
+                    .unwrap_or_default()
             )
         })?;
 
