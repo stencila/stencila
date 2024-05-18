@@ -112,26 +112,32 @@ const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
  * @param marks `PorvenanceMarker[]`
  * @returns `Extension`
  */
-const provenanceTooltip = (marks: ProvenanceMarker[]) =>
+const provenanceTooltip = (
+  marks: ProvenanceMarker[],
+  messages: ExecutionMessage[] | null
+) =>
   hoverTooltip((_, pos) => {
-    for (const mark of marks) {
-      if (pos >= mark.from && pos <= mark.to) {
-        return {
-          pos,
-          above: false,
-          arrow: true,
-          create: () => {
-            const dom = document.createElement('div')
-            dom.className = 'cm-provenance-tooltip'
+    // disable tooltip if execution messages are active, to avoid a merged tooltip
+    const hasMessages = messages !== null && messages.length > 0
+    if (!hasMessages) {
+      for (const mark of marks) {
+        if (pos >= mark.from && pos <= mark.to) {
+          return {
+            pos,
+            above: false,
+            arrow: true,
+            create: () => {
+              const dom = document.createElement('div')
+              dom.className = 'cm-provenance-tooltip'
 
-            dom.textContent = getTooltipContent(mark.count, mark.provenance)
+              dom.textContent = getTooltipContent(mark.count, mark.provenance)
 
-            return { dom, offset: { x: 0, y: 10 } }
-          },
+              return { dom, offset: { x: 0, y: 10 } }
+            },
+          }
         }
       }
     }
-
     return null
   })
 

@@ -173,7 +173,7 @@ export class UINodeCode extends LitElement {
             EditorView.decorations.of(
               createProvenanceDecorations(provenanceMarkers)
             ),
-            provenanceTooltip(provenanceMarkers),
+            provenanceTooltip(provenanceMarkers, executionMessages),
           ]
         : [],
       ...languageExtension,
@@ -224,14 +224,14 @@ export class UINodeCode extends LitElement {
    * Looks for the `<span slot="execution-messages">` element within the
    * hidden #messages element, returns `undefined` if messsages our not found
    */
-  private getExecutionMessages(): ExecutionMessage[] | undefined {
+  private getExecutionMessages(): ExecutionMessage[] | null {
     const messageParentNode = this.shadowRoot
       .querySelector('div#messages slot')
       // @ts-expect-error "assignedElements method will will not detected"
       .assignedElements({ flatten: true })
-      .find((el: HTMLElement) => el.slot === 'execution-messages') as
-      | HTMLElement
-      | undefined
+      .find(
+        (el: HTMLElement) => el.slot === 'execution-messages'
+      ) as HTMLElement
 
     if (messageParentNode) {
       const messageObjects: ExecutionMessage[] = []
@@ -244,7 +244,7 @@ export class UINodeCode extends LitElement {
         return messageObjects
       }
     }
-    return undefined
+    return null
   }
 
   /**
