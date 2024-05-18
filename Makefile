@@ -10,6 +10,7 @@ install:
 	make -C node -B install
 	make -C python -B install
 	make -C web -B install
+	make -C vscode -B install
 
 # Make formatting and linting fixes
 fix:
@@ -18,6 +19,7 @@ fix:
 	make -C node fix
 	make -C python/stencila fix
 	make -C web fix
+	make -C vscode fix
 
 # Run linting checks
 lint:
@@ -26,6 +28,7 @@ lint:
 	make -C node lint
 	make -C python/stencila lint
 	make -C web lint
+	make -C vscode lint
 
 # Run tests
 test:
@@ -33,6 +36,7 @@ test:
 	make -C ts test
 	make -C node test
 	make -C python/stencila test
+	make -C test test
 
 # Run tests with coverage
 cover:
@@ -80,6 +84,7 @@ build:
 	make -C node build
 	make -C python/stencila build
 	make -C web build
+	make -C vscode build
 
 # Build Docker image
 docker:
@@ -101,3 +106,4 @@ clean:
 	make -C node clean
 	make -C python/stencila clean
 	make -C web clean
+	make -C vscode clean

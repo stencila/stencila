@@ -328,6 +328,8 @@
     ]
   },
   "scripts": {
+    "fix": "eslint src --ext ts --fix",
+    "lint": "eslint src --ext ts",
     "vscode:prepublish": "npm run compile",
     "compile-dist": "cd ../web/ && npm run build:vscode",
     "compile-syntaxes": "node syntaxes/smd/compile.js",
@@ -336,7 +338,6 @@
     "compile": "npm run compile-dist && npm run compile-syntaxes && npm run compile-walkthroughs && npm run compile-ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
   "dependencies": {

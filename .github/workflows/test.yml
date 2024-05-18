@@ -194,17 +194,17 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
-        run: npm install
+        run: make -C vscode install
 
       - name: Lint
-        run: npm run lint
+        run: make -C vscode lint
 
       - name: Test
-        run: npm test
+        run: make -C vscode test
         if: runner.os != 'Linux'
 
       - name: Test with xvfb
-        run: xvfb-run -a npm test
+        run: xvfb-run -a make -C vscode test
         if: runner.os == 'Linux'
 
   web:
