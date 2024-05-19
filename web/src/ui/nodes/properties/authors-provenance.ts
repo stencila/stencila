@@ -50,6 +50,7 @@ export class UIAuthorsProvenance extends LitElement {
   /**
    * Output the header element which acts as a event handler for click events.
    */
+  // @ts-expect-error TODO determine if this unused function is still needed
   private renderHeader() {
     const collapsedClasses = !this.context.showAuthorProvenance
       ? [
