@@ -61,7 +61,7 @@ export class InstructionInline extends Instruction {
         </stencila-ui-node-instruction-messages>
       </div>
       <span slot="content">
-        <slot name="cha"></slot>
+        <slot name="suggestion"></slot>
       </span>
     </stencila-ui-inline-on-demand>`
   }
