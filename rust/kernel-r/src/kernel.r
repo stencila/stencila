@@ -69,7 +69,7 @@ message <- function(msg, level, error_type = NULL) {
   message <- list(
     type = "ExecutionMessage",
     level = level,
-    message = as.character(ifelse(is.list(msg) && "message" %in% names(msg), msg$message, msg)),
+    message = trimws(as.character(ifelse(is.list(msg) && "message" %in% names(msg), msg$message, msg))),
     errorType = error_type
   )
 
@@ -311,6 +311,25 @@ unbox <- jsonlite::unbox
 envir <- new.env()
 
 # Execute lines of code
+#
+# An alternative to most of the code in this function would be to use the
+# `evaluate` package as follows. Currently, we don't do this to avoid
+# adding another dependency to the microkernel.
+#
+#    evaluate::evaluate(
+#      code,
+#      envir,
+#      .GlobalEnv,
+#      output_handler = new_output_handler(
+#        text = print,
+#        graphics = print,
+#        message = info,
+#        warning = warning,
+#        error = exception,
+#        value = print
+#      )
+#    )
+#
 execute <- function(lines) {
   code <- paste0(lines, collapse = "\n")
   compiled <- tryCatch(parse(text = code), error = identity)
@@ -333,7 +352,6 @@ execute <- function(lines) {
     # Execute the code
     value <- tryCatch(
       eval(compiled, envir, .GlobalEnv),
-      message = info,
       warning = warning,
       error = exception,
       interrupt = interrupt
@@ -370,7 +388,6 @@ evaluate <- function(expression) {
   } else {
     value <- tryCatch(
       eval(compiled, envir, .GlobalEnv),
-      message = info,
       warning = warning,
       error = exception,
       interrupt = interrupt
@@ -545,7 +562,6 @@ while (!is.null(stdin)) {
     else if (task_type == FORK) fork(lines[2:length(lines)])
     else exception(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
   },
-  message = info,
   warning = warning,
   error = exception,
   interrupt = function(condition) {

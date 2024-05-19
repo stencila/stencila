@@ -1,8 +1,8 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
+    common::eyre::Result, format::Format, schema::MessageLevel, Kernel, KernelAvailability,
+    KernelForks, KernelInstance, KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing R code
@@ -54,6 +54,10 @@ impl Microkernel for RKernel {
     fn microkernel_script(&self) -> String {
         include_str!("kernel.r").to_string()
     }
+
+    fn default_message_level(&self) -> MessageLevel {
+        MessageLevel::Info
+    }
 }
 
 #[cfg(test)]
@@ -67,9 +71,9 @@ mod tests {
         },
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
-            DatatableColumnHint, DatatableHint, EnumValidator, Hint, IntegerValidator, Node, Null,
-            NumberValidator, Object, ObjectHint, Primitive, StringHint, StringValidator, Validator,
-            Variable,
+            DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint,
+            IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
+            StringHint, StringValidator, Validator, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -636,6 +640,60 @@ df1 = data.frame(
         assert_eq!(messages, []);
         assert_eq!(outputs.len(), 1);
 
+        if let Some(Node::ImageObject(image)) = outputs.first() {
+            assert!(image.content_url.starts_with("data:image/png;base64"));
+        } else {
+            bail!("Expected an image, got: {outputs:?}")
+        }
+
+        Ok(())
+    }
+
+    /// `RKernel` specific test for getting a `ggplot` as output
+    #[test_log::test(tokio::test)]
+    async fn ggplot() -> Result<()> {
+        skip_on_ci!();
+
+        let Some(mut instance) = start_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        instance.execute("library(ggplot2)").await?;
+
+        for code in [
+            // Single line
+            "ggplot(mtcars, aes(x=cyl, y=mpg)) + geom_point()",
+            // Multi-line
+            "ggplot(mtcars, aes(x=cyl, y=mpg)) +
+                geom_point() +
+                theme_minimal()",
+        ] {
+            let (outputs, messages) = instance.execute(code).await?;
+            assert_eq!(messages, []);
+            assert_eq!(outputs.len(), 1);
+            if let Some(Node::ImageObject(image)) = outputs.first() {
+                assert!(image.content_url.starts_with("data:image/png;base64"));
+            } else {
+                bail!("Expected an image, got: {outputs:?}")
+            }
+        }
+
+        // With a preceding message (e.g. caused by importing a package)
+        let (outputs, messages) = instance
+            .execute(
+                "
+        library(dplyr)
+        ggplot(mtcars, aes(x=cyl, y=mpg)) + geom_point()",
+            )
+            .await?;
+        assert_eq!(messages.len(), 1);
+        if let Some(ExecutionMessage { level, .. }) = messages.first() {
+            assert_eq!(level, &MessageLevel::Info);
+        } else {
+            bail!("Expected an image, got: {outputs:?}")
+        }
+
+        assert_eq!(outputs.len(), 1);
         if let Some(Node::ImageObject(image)) = outputs.first() {
             assert!(image.content_url.starts_with("data:image/png;base64"));
         } else {
