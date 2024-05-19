@@ -1,8 +1,13 @@
+import { consume } from '@lit/context'
 import { apply } from '@twind/core'
-import { LitElement, PropertyValues, html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
+import {
+  DocPreviewContext,
+  documentPreviewContext,
+} from '../../../contexts/preview-context'
 import { withTwind } from '../../../twind'
 
 import '../../animation/collapsible'
@@ -16,6 +21,10 @@ import '../../animation/collapsible'
 @customElement('stencila-ui-authors-provenance')
 @withTwind()
 export class UIAuthorsProvenance extends LitElement {
+  @consume({ context: documentPreviewContext, subscribe: true })
+  @state()
+  context: DocPreviewContext
+
   @state()
   collapsed: boolean = true
 
@@ -27,11 +36,10 @@ export class UIAuthorsProvenance extends LitElement {
   protected override render() {
     return html`
       <div
-        class=${`${!this.collapsed ? 'mb-8' : 'mb-0'} transition-all ease-in duration-200 group pointer-events-none`}
+        class=${`${this.context.showAuthorProvenance ? 'mb-8' : 'mb-0'} transition-all ease-in duration-200 group pointer-events-none`}
       >
-        ${this.renderHeader()}
         <stencila-ui-collapsible-animation
-          class=${`pointer-events-auto ${!this.collapsed ? 'opened' : ''}`}
+          class=${`pointer-events-auto ${this.context.showAuthorProvenance ? 'opened' : ''}`}
         >
           ${this.renderBody()}
         </stencila-ui-collapsible-animation>
@@ -43,7 +51,7 @@ export class UIAuthorsProvenance extends LitElement {
    * Output the header element which acts as a event handler for click events.
    */
   private renderHeader() {
-    const collapsedClasses = this.collapsed
+    const collapsedClasses = !this.context.showAuthorProvenance
       ? [
           'text-black/50',
           'border-t-black/20 border-l-black/0 border-r-black/0 rounded-t-none',
@@ -86,7 +94,7 @@ export class UIAuthorsProvenance extends LitElement {
     const classes = apply([
       'p-4 text-sans',
       'border border-black/0 rounded-tl-none rounded-b rounded-tr',
-      'group-hover:border-black',
+      // 'group-hover:border-black',
       'transition-all ease-in duration-200',
     ])
 
@@ -106,18 +114,18 @@ export class UIAuthorsProvenance extends LitElement {
 
     return html`<div class=${classes}>
       <stencila-chevron-button
-        default-pos=${this.collapsed ? 'up' : 'down'}
+        default-pos=${this.context.showAuthorProvenance ? 'up' : 'down'}
         .disableEvents=${true}
         class="inline-flex text-xs"
       ></stencila-chevron-button>
     </div>`
   }
 
-  protected override firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties)
+  // protected override firstUpdated(changedProperties: PropertyValues): void {
+  //   super.firstUpdated(changedProperties)
 
-    this.buttonRef.value.addEventListener('click', () => {
-      this.collapsed = !this.collapsed
-    })
-  }
+  //   this.buttonRef.value.addEventListener('click', () => {
+  //     this.collapsed = !this.collapsed
+  //   })
+  // }
 }

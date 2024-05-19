@@ -1,14 +1,16 @@
-import { CSSResultGroup, LitElement, html } from 'lit'
+import { CSSResultGroup, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
 import type { DocumentId, DocumentAccess } from '../types'
+import { DocumentPreviewBase } from '../ui/nodes/mixins/preview-base'
+
+import { outputCSS } from './styles/global-styles'
 
 import '../nodes'
 import '../shoelace'
-
-import { outputCSS } from './styles/global-styles'
+import '../ui/preview-menu'
 
 /**
  * Dynamic view of a document
@@ -17,7 +19,7 @@ import { outputCSS } from './styles/global-styles'
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
 @customElement('stencila-dynamic-view')
-export class DynamicView extends LitElement {
+export class DynamicView extends DocumentPreviewBase {
   /**
    * The id of the document
    */
@@ -54,14 +56,6 @@ export class DynamicView extends LitElement {
   static override styles?: CSSResultGroup = [outputCSS]
 
   /**
-   * Override so that this component has a Light DOM so that
-   * theme styles apply to it.
-   */
-  protected override createRenderRoot() {
-    return this
-  }
-
-  /**
    * Override so that clients are instantiated _after_ this
    * element has a document `[data-root]` element in its `renderRoot`.
    */
@@ -83,6 +77,9 @@ export class DynamicView extends LitElement {
   }
 
   override render() {
-    return html`<stencila-article root></stencila-article>`
+    return html`
+      <stencila-article root></stencila-article>
+      ${this.renderPreviewMenu()}
+    `
   }
 }

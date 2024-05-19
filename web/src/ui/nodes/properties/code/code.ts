@@ -22,7 +22,6 @@ import { CodeAuthorElement, ProvenanceMarker } from './types'
 import {
   executionMessageLinter,
   createProvenanceDecorations,
-  provenanceTooltip,
   stencilaTheme,
 } from './utils'
 
