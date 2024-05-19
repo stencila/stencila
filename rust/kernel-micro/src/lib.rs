@@ -52,6 +52,16 @@ pub trait Microkernel: Sync + Send + Kernel {
         vec!["{{script}}".to_string()]
     }
 
+    /// The default message level to use for messages received on stderr
+    ///
+    /// Most microkernels have implementations that emit messages with
+    /// appropriate levels set (e.g. [`MessageLevel::Warning`] for `console.warn` in
+    /// JavaScript. However, sometime messages will be emitted to stderr which
+    /// a plain text and have no level set. This level will be used in those instances.
+    fn default_message_level(&self) -> MessageLevel {
+        MessageLevel::Error
+    }
+
     /// Get the script to run for the microkernel
     ///
     /// For most microkernels the script will be written in an external file
@@ -165,6 +175,8 @@ pub trait Microkernel: Sync + Send + Kernel {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
+        let default_message_level = self.default_message_level();
+
         // Set up status and status channel
         let status = KernelStatus::Pending;
         let status_sender = MicrokernelInstance::setup_status_channel(status);
@@ -172,6 +184,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         Ok(Box::new(MicrokernelInstance {
             id,
             command: Some(command),
+            default_message_level,
             child: None,
             pid: 0,
             status,
@@ -193,6 +206,9 @@ pub struct MicrokernelInstance {
 
     /// The command used to start the microkernel instance (for main processes only, not forks)
     command: Option<Command>,
+
+    /// The default level for execution messages
+    default_message_level: MessageLevel,
 
     /// The child process (for main processes only, not forks)
     child: Option<Child>,
@@ -388,7 +404,12 @@ impl KernelInstance for MicrokernelInstance {
         let mut stderr_reader = BufReader::new(stderr);
 
         // Emit any startup warnings and clear streams
-        startup_warnings(&mut stdout_reader, &mut stderr_reader).await;
+        startup_warnings(
+            &mut stdout_reader,
+            &mut stderr_reader,
+            &self.default_message_level,
+        )
+        .await;
 
         self.input = Some(MicrokernelInput::Standard(stdin_writer));
         self.output = Some(MicrokernelOutput::Standard(stdout_reader));
@@ -586,8 +607,15 @@ impl KernelInstance for MicrokernelInstance {
             let mut stdout_reader = BufReader::new(stdout_file);
             let mut stderr_reader = BufReader::new(stderr_file);
 
+            let default_message_level = self.default_message_level.clone();
+
             // Emit any startup warnings and clear streams
-            startup_warnings(&mut stdout_reader, &mut stderr_reader).await;
+            startup_warnings(
+                &mut stdout_reader,
+                &mut stderr_reader,
+                &default_message_level,
+            )
+            .await;
 
             // Create stream readers and writers
             let input = Some(MicrokernelInput::Pipe(stdin_writer));
@@ -609,6 +637,7 @@ impl KernelInstance for MicrokernelInstance {
             Ok(Box::new(Self {
                 id,
                 command: None,
+                default_message_level,
                 child: None,
                 pid,
                 status,
@@ -805,10 +834,10 @@ impl MicrokernelInstance {
 
         match (output, errors) {
             (MicrokernelOutput::Standard(output), MicrokernelErrors::Standard(errors)) => {
-                receive_results(output, errors).await
+                receive_results(output, errors, &self.default_message_level).await
             }
             (MicrokernelOutput::Pipe(output), MicrokernelErrors::Pipe(errors)) => {
-                receive_results(output, errors).await
+                receive_results(output, errors, &self.default_message_level).await
             }
             _ => unreachable!(),
         }
@@ -834,8 +863,9 @@ impl MicrokernelInstance {
 async fn startup_warnings<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     stdout: &mut R1,
     stderr: &mut R2,
+    default_message_level: &MessageLevel,
 ) {
-    match receive_results(stdout, stderr).await {
+    match receive_results(stdout, stderr, default_message_level).await {
         Ok((.., messages)) => {
             if !messages.is_empty() {
                 let messages = messages
@@ -882,6 +912,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
 async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     output_stream: &mut R1,
     message_stream: &mut R2,
+    default_message_level: &MessageLevel,
 ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
     tracing::trace!("Receiving results from microkernel");
 
@@ -937,7 +968,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
         .map(|message| -> ExecutionMessage {
             match serde_json::from_str(&message) {
                 Ok(message) => message,
-                Err(..) => ExecutionMessage::new(MessageLevel::Error, message),
+                Err(..) => ExecutionMessage::new(default_message_level.clone(), message),
             }
         })
         .collect_vec();
