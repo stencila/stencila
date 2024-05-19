@@ -23,6 +23,7 @@ import {
   executionMessageLinter,
   createProvenanceDecorations,
   stencilaTheme,
+  provenanceTooltip,
 } from './utils'
 
 /**
