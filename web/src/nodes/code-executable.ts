@@ -1,7 +1,5 @@
 import { property } from 'lit/decorators.js'
 
-import { AuthorshipRun } from '../ui/nodes/properties/code/types'
-
 import { Executable } from './executable'
 
 /**
@@ -13,8 +11,8 @@ export abstract class CodeExecutable extends Executable {
   @property()
   code: string
 
-  @property({ attribute: 'code-authorship', type: Array })
-  codeAuthorship?: AuthorshipRun[]
+  @property({ attribute: 'code-authorship' })
+  codeAuthorship?: string
 
   @property({ attribute: 'programming-language' })
   programmingLanguage?: string
