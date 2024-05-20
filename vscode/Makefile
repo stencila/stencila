@@ -3,9 +3,9 @@ all: fix test build
 # Install dependencies
 install:
 ifdef CI
-	cd ../.. && npm ci --ignore-scripts
+	cd .. && npm ci --ignore-scripts
 else
-	cd ../.. && npm install --ignore-scripts
+	cd .. && npm install --ignore-scripts
 endif
 
 # Make formatting and linting fixes
