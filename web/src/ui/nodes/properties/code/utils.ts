@@ -56,7 +56,7 @@ const executionMessageLinter = (messages: ExecutionMessage[]): Extension =>
  */
 const stencilaTheme = EditorView.theme({
   '.cm-diagnostic': {
-    fontFamily: 'mono',
+    fontFamily: 'Inter, mono',
     paddingLeft: '16px',
     paddingRight: '16px',
     borderBottom: '1px solid #dedede', // grey-200
