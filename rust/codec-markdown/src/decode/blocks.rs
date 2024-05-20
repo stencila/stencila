@@ -452,6 +452,7 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
                 }
             }),
             label: label.map(|label| label.to_string()),
+            label_automatically: label.is_some().then_some(false),
             ..Default::default()
         })
     })
@@ -470,6 +471,7 @@ fn figure(input: &mut Located<&str>) -> PResult<Block> {
     .map(|label: Option<&str>| {
         Block::Figure(Figure {
             label: label.and_then(|label| (!label.is_empty()).then_some(label.to_string())),
+            label_automatically: label.is_some().then_some(false),
             ..Default::default()
         })
     })
@@ -705,6 +707,7 @@ fn table(input: &mut Located<&str>) -> PResult<Block> {
     .map(|label: Option<&str>| {
         Block::Table(Table {
             label: label.map(|label| label.to_string()),
+            label_automatically: label.is_some().then_some(false),
             ..Default::default()
         })
     })
@@ -784,6 +787,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 
             chunk.label_type = Some(LabelType::FigureLabel);
             chunk.label = figure.label.clone();
+            chunk.label_automatically = figure.label_automatically.clone();
             chunk.caption = (!children.is_empty()).then_some(children);
 
             // Replace the mapping entry for figure, with one for chunk
@@ -852,6 +856,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 
             chunk.label_type = Some(LabelType::TableLabel);
             chunk.label = table.label.clone();
+            chunk.label_automatically = table.label_automatically.clone();
             chunk.caption = (!children.is_empty()).then_some(children);
 
             // Replace the mapping entry for figure, with one for chunk
