@@ -11,6 +11,9 @@ export abstract class Styled extends Entity {
   @property()
   code: string
 
+  @property({ attribute: 'code-authorship' })
+  codeAuthorship?: string
+
   @property({ attribute: 'style-language' })
   styleLanguage?: string
 

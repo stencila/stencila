@@ -11,6 +11,9 @@ export abstract class CodeStatic extends Entity {
   @property()
   code: string
 
+  @property({ attribute: 'code-authorship' })
+  codeAuthorship?: string
+
   @property({ attribute: 'programming-language' })
   programmingLanguage?: string
 }

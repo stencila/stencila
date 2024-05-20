@@ -33,6 +33,10 @@ impl DomCodec for StyledInline {
             context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
         }
 
+        if let Some(provenance) = &self.provenance {
+            context.push_slot_fn("span", "provenance", |context| provenance.to_dom(context));
+        }
+
         context.push_slot_fn("span", "content", |context| {
             if let Some(class) = &self.options.class_list {
                 context.push_attr("class", class);

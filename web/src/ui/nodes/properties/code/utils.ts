@@ -10,7 +10,7 @@ import {
 import { getTooltipContent } from '../authorship/utils'
 import { ExecutionMessage } from '../execution-message'
 
-import type { ProvenanceMarker } from './types'
+import type { AuthorshipMarker } from './types'
 
 /**
  * Convert the `ExecutionMessage.level` value into a @codemirror/lint `Severity` string
@@ -68,7 +68,7 @@ const stencilaTheme = EditorView.theme({
     minWidth: '30px',
     border: 'none',
     color: '#ffffff',
-    // use sl tooltip variables for consistancy
+    // use sl tooltip variables for consistency
     backgroundColor: 'var(--sl-tooltip-background-color)',
     fontFamily: 'var(--sl-tooltip-font-family)',
     borderRadius: 'var(--sl-tooltip-border-radius)',
@@ -87,11 +87,12 @@ const stencilaTheme = EditorView.theme({
 
 /**
  * Creates a set of codemirror mark type decorations from the
- * array of `ProvenanceMarkers`
- * @param marks `PorvenanceMarker[]`
+ * array of `AuthorshipMarkers`
+ *
+ * @param marks `AuthorshipMarker[]`
  * @returns `DecorationSet`
  */
-const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
+const createAuthorshipDecorations = (marks: AuthorshipMarker[]) =>
   Decoration.set(
     marks.map((mark) => {
       return Decoration.mark({
@@ -109,11 +110,12 @@ const createProvenanceDecorations = (marks: ProvenanceMarker[]) =>
 
 /**
  * Create a hover tooltip to display the authorship provenance information
- * @param marks `PorvenanceMarker[]`
+ *
+ * @param marks `AuthorshipMarker[]`
  * @returns `Extension`
  */
-const provenanceTooltip = (
-  marks: ProvenanceMarker[],
+const authorshipTooltip = (
+  marks: AuthorshipMarker[],
   messages: ExecutionMessage[] | null
 ) =>
   hoverTooltip((_, pos) => {
@@ -144,6 +146,6 @@ const provenanceTooltip = (
 export {
   executionMessageLinter,
   stencilaTheme,
-  createProvenanceDecorations,
-  provenanceTooltip,
+  createAuthorshipDecorations as createProvenanceDecorations,
+  authorshipTooltip as provenanceTooltip,
 }

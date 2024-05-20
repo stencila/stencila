@@ -51,6 +51,7 @@ export class StyledInline extends Styled {
         <stencila-ui-node-code
           type="StyledInline"
           code=${this.code}
+          code-authorship=${this.codeAuthorship}
           language=${this.styleLanguage}
           read-only
         >

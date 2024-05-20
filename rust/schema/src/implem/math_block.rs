@@ -57,6 +57,10 @@ impl DomCodec for MathBlock {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
 
+        if let Some(provenance) = &self.provenance {
+            context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
+        }
+
         if let Some(mathml) = &self.options.mathml {
             context.push_slot_fn("div", "mathml", |context| {
                 context.push_html(mathml);

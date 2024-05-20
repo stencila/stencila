@@ -18,7 +18,7 @@ import { withTwind } from '../../../../twind'
 import '../../../buttons/chevron'
 import { ExecutionMessage } from '../execution-message'
 
-import { CodeAuthorElement, ProvenanceMarker } from './types'
+import { AuthorshipRun, AuthorshipMarker as AuthorshipMarker } from './types'
 import {
   executionMessageLinter,
   createProvenanceDecorations,
@@ -55,11 +55,10 @@ export class UINodeCode extends LitElement {
   readOnly: boolean = false
 
   /**
-   * 'Stringified' array of the author provenance, containing positions,
-   * author info and level of machine contribution
+   * The runs of authorship of the code
    */
-  @property({ attribute: 'code-authorship' })
-  codeAuthorship?: string
+  @property({ attribute: 'code-authorship', type: Array })
+  codeAuthorship?: AuthorshipRun[]
 
   /**
    * Whether the code shown be collapsed by default or not
@@ -163,17 +162,17 @@ export class UINodeCode extends LitElement {
     }
 
     const executionMessages = this.getExecutionMessages()
+    const authorshipMarkers = this.getAuthorshipMarkers()
 
-    const provenanceMarkers = this.getAuthorProvenanceMarkers()
     return [
       EditorView.editable.of(!this.readOnly),
       EditorState.readOnly.of(this.readOnly),
-      provenanceMarkers
+      authorshipMarkers
         ? [
             EditorView.decorations.of(
-              createProvenanceDecorations(provenanceMarkers)
+              createProvenanceDecorations(authorshipMarkers)
             ),
-            provenanceTooltip(provenanceMarkers, executionMessages),
+            provenanceTooltip(authorshipMarkers, executionMessages),
           ]
         : [],
       ...languageExtension,
@@ -249,32 +248,21 @@ export class UINodeCode extends LitElement {
 
   /**
    * Takes the string value of the `code-authorship` property and attempts to
-   * parse it into JS, if successful will convert the elements in `ProvenanceMarker` objects
+   * parse it into JS, if successful will convert the elements in `CodeAuthorshipMarker` objects
    *
    * Return `null` if value is falsy, or parsing fails
-   * @returns `ProvenanceMarker[] | null`
+   * @returns `CodeAuthorshipMarker[] | null`
    */
-  private getAuthorProvenanceMarkers = (): ProvenanceMarker[] | null => {
-    if (this.codeAuthorship) {
-      try {
-        const data = JSON.parse(this.codeAuthorship) as CodeAuthorElement[]
-        const provenanceMarkers: ProvenanceMarker[] = []
-        data.forEach((tuple) => {
-          provenanceMarkers.push({
-            from: tuple[0],
-            to: tuple[1],
-            mi: tuple[5],
-            count: tuple[2],
-            provenance: tuple[4],
-          })
-        })
-        return provenanceMarkers
-      } catch (_) {
-        // return null if the string is unable to be parsed successfully
-        return null
-      }
-    }
-    return null
+  private getAuthorshipMarkers = (): AuthorshipMarker[] | null => {
+    return this.codeAuthorship
+      ? this.codeAuthorship.map((run) => ({
+          from: run[0],
+          to: run[1],
+          count: run[2],
+          provenance: run[4],
+          mi: run[5],
+        }))
+      : null
   }
 
   override update(changedProperties: Map<string, string | boolean>) {
