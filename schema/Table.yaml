@@ -15,6 +15,7 @@ required:
   - rows
 core:
   - label
+  - labelAutomatically
   - caption
   - notes
   - authors
@@ -24,6 +25,12 @@ properties:
     '@id': stencila:label
     description: A short label for the table.
     type: string
+    patch:
+      formats: [md]
+  labelAutomatically:
+    '@id': stencila:labelAutomatically
+    description: Whether the label should be automatically updated.
+    type: boolean
     patch:
       formats: [md]
   caption:

@@ -17,6 +17,11 @@ export class Table extends CreativeWork {
   label?: string;
 
   /**
+   * Whether the label should be automatically updated.
+   */
+  labelAutomatically?: boolean;
+
+  /**
    * A caption for the table.
    */
   caption?: Block[];

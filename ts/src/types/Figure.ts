@@ -21,6 +21,11 @@ export class Figure extends CreativeWork {
   label?: string;
 
   /**
+   * Whether the label should be automatically updated.
+   */
+  labelAutomatically?: boolean;
+
+  /**
    * A caption for the figure.
    */
   caption?: Block[];

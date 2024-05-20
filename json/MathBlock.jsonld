@@ -235,6 +235,29 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "stencila:labelAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelAutomatically",
+      "rdfs:comment": "Whether the label should be automatically updated.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
     }
   ]
 }

@@ -1198,6 +1198,9 @@ class CodeChunk(CodeExecutable):
     label: str | None = None
     """A short label for the chunk."""
 
+    label_automatically: bool | None = None
+    """Whether the label should be automatically updated."""
+
     caption: list[Block] | None = None
     """A caption for the chunk."""
 
@@ -1666,6 +1669,9 @@ class Figure(CreativeWork):
     label: str | None = None
     """A short label for the figure."""
 
+    label_automatically: bool | None = None
+    """Whether the label should be automatically updated."""
+
     caption: list[Block] | None = None
     """A caption for the figure."""
 
@@ -1962,6 +1968,9 @@ class MathBlock(Math):
 
     label: str | None = None
     """A short label for the math block."""
+
+    label_automatically: bool | None = None
+    """Whether the label should be automatically updated."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2562,6 +2571,9 @@ class Table(CreativeWork):
 
     label: str | None = None
     """A short label for the table."""
+
+    label_automatically: bool | None = None
+    """Whether the label should be automatically updated."""
 
     caption: list[Block] | None = None
     """A caption for the table."""

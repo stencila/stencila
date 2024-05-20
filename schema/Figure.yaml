@@ -14,6 +14,7 @@ required:
   - content
 core:
   - label
+  - labelAutomatically
   - caption
   - authors
   - provenance
@@ -52,6 +53,12 @@ properties:
       max:
         description: Generate an arbitrary string
         strategy: option::of(String::arbitrary())
+  labelAutomatically:
+    '@id': stencila:labelAutomatically
+    description: Whether the label should be automatically updated.
+    type: boolean
+    patch:
+      formats: [md]
   caption:
     '@id': schema:caption
     description: A caption for the figure.

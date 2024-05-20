@@ -10,9 +10,11 @@ impl MarkdownCodec for Figure {
             .push_semis()
             .push_str(" figure");
 
-        if let Some(label) = &self.label {
-            context.push_str(" ");
-            context.push_prop_str(NodeProperty::Label, label);
+        if !self.label_automatically.unwrap_or(true) {
+            if let Some(label) = &self.label {
+                context.push_str(" ");
+                context.push_prop_str(NodeProperty::Label, label);
+            }
         }
 
         context.push_str("\n\n").increase_depth();

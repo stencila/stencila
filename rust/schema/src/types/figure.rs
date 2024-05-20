@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::block::Block;
+use super::boolean::Boolean;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
@@ -75,6 +76,12 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub label: Option<String>,
+
+    /// Whether the label should be automatically updated.
+    #[serde(alias = "label-automatically", alias = "label_automatically")]
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub label_automatically: Option<Boolean>,
 
     /// A caption for the figure.
     #[serde(default, deserialize_with = "option_one_or_many")]

@@ -32,7 +32,8 @@
     "mathLanguage",
     "authors",
     "provenance",
-    "label"
+    "label",
+    "labelAutomatically"
   ],
   "properties": {
     "type": {
@@ -201,6 +202,20 @@
       "@id": "stencila:label",
       "description": "A short label for the math block.",
       "type": "string"
+    },
+    "labelAutomatically": {
+      "@id": "stencila:labelAutomatically",
+      "description": "Whether the label should be automatically updated.",
+      "aliases": [
+        "label-automatically",
+        "label_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "type": "boolean"
     }
   }
 }

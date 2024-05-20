@@ -104,6 +104,12 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub label: Option<String>,
 
+    /// Whether the label should be automatically updated.
+    #[serde(alias = "label-automatically", alias = "label_automatically")]
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub label_automatically: Option<Boolean>,
+
     /// A caption for the chunk.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]

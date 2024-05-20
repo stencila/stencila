@@ -26,6 +26,7 @@
   "core": [
     "id",
     "label",
+    "labelAutomatically",
     "caption",
     "notes",
     "authors",
@@ -604,6 +605,20 @@
         ]
       },
       "type": "string"
+    },
+    "labelAutomatically": {
+      "@id": "stencila:labelAutomatically",
+      "description": "Whether the label should be automatically updated.",
+      "aliases": [
+        "label-automatically",
+        "label_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "type": "boolean"
     },
     "caption": {
       "@id": "schema:caption",

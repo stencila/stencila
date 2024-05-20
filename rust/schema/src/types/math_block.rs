@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
@@ -66,6 +67,12 @@ pub struct MathBlock {
     /// A short label for the math block.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label: Option<String>,
+
+    /// Whether the label should be automatically updated.
+    #[serde(alias = "label-automatically", alias = "label_automatically")]
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub label_automatically: Option<Boolean>,
 
     /// Non-core optional fields
     #[serde(flatten)]

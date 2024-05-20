@@ -24,6 +24,11 @@ export class CodeChunk extends CodeExecutable {
   label?: string;
 
   /**
+   * Whether the label should be automatically updated.
+   */
+  labelAutomatically?: boolean;
+
+  /**
    * A caption for the chunk.
    */
   caption?: Block[];

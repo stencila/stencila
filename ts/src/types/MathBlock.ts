@@ -15,6 +15,11 @@ export class MathBlock extends Math {
    */
   label?: string;
 
+  /**
+   * Whether the label should be automatically updated.
+   */
+  labelAutomatically?: boolean;
+
   constructor(code: Cord, options?: Partial<MathBlock>) {
     super(code);
     this.type = "MathBlock";

@@ -307,6 +307,7 @@
     "keys": "stencila:keys",
     "keywords": "schema:keywords",
     "label": "stencila:label",
+    "labelAutomatically": "stencila:labelAutomatically",
     "labelType": "stencila:labelType",
     "lastModified": "stencila:lastModified",
     "legalName": "schema:legalName",
