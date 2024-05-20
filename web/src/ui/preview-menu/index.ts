@@ -36,7 +36,7 @@ export class DocumentViewMenu extends LitElement {
 
   protected override render() {
     const styles = apply([
-      'fixed right-8 top-8',
+      'fixed right-8 top-8 z-50',
       !this.visible && 'opacity-0',
       !this.visible && 'pointer-events-none',
     ])
