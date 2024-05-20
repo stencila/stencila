@@ -51,6 +51,12 @@ pub(super) struct TextNode {
     /// The id of the node
     pub node_id: NodeId,
 
+    /// A string name of the node
+    ///
+    /// Used when creating a document symbol for the node.
+    /// Defaults to the stringified node type.
+    pub name: String,
+
     /// A string detail of the node
     ///
     /// Used when creating a document symbol for the node.
@@ -88,6 +94,7 @@ impl Default for TextNode {
             parent_id: NodeId::null(),
             node_type: NodeType::Null,
             node_id: NodeId::null(),
+            name: String::new(),
             detail: None,
             execution: None,
             provenance: None,

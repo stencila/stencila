@@ -44,9 +44,11 @@ fn symbol(node: &TextNode) -> Option<DocumentSymbol> {
         Parameter => SymbolKind::VARIABLE,
 
         // Non-executable node types
+        Heading => SymbolKind::KEY,
         Paragraph => SymbolKind::STRING,
         CodeBlock | CodeInline => SymbolKind::OBJECT,
         MathBlock | MathInline => SymbolKind::OPERATOR,
+        StyledBlock | StyledInline => SymbolKind::CONSTANT,
         Table => SymbolKind::STRUCT,
 
         // Skip generating symbols for table cells and text nodes
@@ -55,6 +57,8 @@ fn symbol(node: &TextNode) -> Option<DocumentSymbol> {
 
         _ => SymbolKind::CONSTRUCTOR,
     };
+
+    let name = node.name.clone();
 
     let detail = if let Some(detail) = &node.detail {
         const MAX_LEN: usize = 24;
@@ -79,7 +83,7 @@ fn symbol(node: &TextNode) -> Option<DocumentSymbol> {
 
     #[allow(deprecated)]
     Some(DocumentSymbol {
-        name: node.node_type.to_string(),
+        name,
         kind,
         detail,
         tags: None,
