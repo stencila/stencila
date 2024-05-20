@@ -85,10 +85,10 @@ export class UINodeAuthor extends LitElement {
   override render() {
     return html`<div class="@container">
       <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
-        <div class="flex flex-col flex-grow @xs:flex-row">
+        <div class="flex flex-row flex-grow">
           <div class="flex items-center justify-center mr-2">
             <div
-              class="w-6 h-6 flex items-center justify-center grow-0 stretch-0 mb-4 @xs:mb-0"
+              class="w-6 h-6 flex items-center justify-center grow-0 stretch-0"
             >
               ${this.renderIconOrAvatar()}
             </div>
