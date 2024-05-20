@@ -48,6 +48,15 @@ These variables are defined in {{ kernel.info.name }}:
 {% endfor %}
 {% endif %}
 
+{% if context.headings %}
+# Preceding heading
+
+The last heading before the paragraph you are to write follows. You should use this as additional context to infer the user's intent.
+
+{{ context.headings[-1] | to_markdown }}
+
+{% endif %}
+
 {% if context.paragraphs %}
 # Preceding paragraph
 

@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use common::{serde::Serialize, smart_default::SmartDefault};
 use schema::{
-    CodeChunk, CodeExpression, InstructionBlock, InstructionInline, MathBlock, MathInline,
+    CodeChunk, CodeExpression, Heading, InstructionBlock, InstructionInline, MathBlock, MathInline,
     Paragraph, SoftwareApplication, SoftwareSourceCode, StyledBlock, StyledInline, Text, Variable,
 };
 
@@ -52,6 +52,9 @@ pub struct Context {
 
     /// The math inlines in the document prior to the current node
     pub math_inlines: Vec<MathInline>,
+
+    /// The headings in the document prior to the current node
+    pub headings: Vec<Heading>,
 
     /// The paragraphs in the document prior to the current node
     pub paragraphs: Vec<Paragraph>,
@@ -108,6 +111,10 @@ impl Context {
 
     pub fn push_math_inline(&mut self, math_inline: &MathInline) {
         self.math_inlines.push(math_inline.clone());
+    }
+
+    pub fn push_heading(&mut self, heading: &Heading) {
+        self.headings.push(heading.clone());
     }
 
     pub fn push_paragraph(&mut self, paragraph: &Paragraph) {

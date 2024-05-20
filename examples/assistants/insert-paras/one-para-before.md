@@ -9,4 +9,4 @@ keywords: tree, height, analysis
 
 In this study we examined the relationship between tree height and several environmental and biogeographic variables across four continents.
 
-::: do @insert-paras another two introductory and methodological  paragraphs
+::: do @insert-paras another two introductory and methodological paragraphs

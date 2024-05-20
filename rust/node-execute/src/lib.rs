@@ -538,6 +538,7 @@ impl VisitorAsync for Executor {
             CodeChunk(node) => self.context.push_code_chunk(node),
             InstructionBlock(node) => self.context.push_instruction_block(node),
             MathBlock(node) => self.context.push_math_block(node),
+            Heading(node) => self.context.push_heading(node),
             Paragraph(node) => self.context.push_paragraph(node),
             _ => {}
         }
