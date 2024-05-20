@@ -61,7 +61,7 @@ export class UINodeExecutionDetails extends LitElement {
     const { borderColour } = nodeUi(this.type)
 
     const classes = apply([
-      'flex flex-col gap-3',
+      'flex flex-row flex-wrap gap-3',
       'text-xs leading-tight',
       'py-1.5 px-4',
       `bg-[${borderColour}]`,
@@ -70,8 +70,8 @@ export class UINodeExecutionDetails extends LitElement {
     ])
 
     return html`
-      <div class="@container">
-        <div class=${`${classes} @[30rem]:flex-row`}>
+      <div>
+        <div class=${`${classes}`}>
           <stencila-ui-node-execution-state
             status=${this.status}
             required=${this.required}

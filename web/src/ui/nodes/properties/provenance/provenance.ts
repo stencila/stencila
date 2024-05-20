@@ -1,12 +1,14 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { NodeType } from '@stencila/types'
+import { css } from '@twind/core'
 import { html, LitElement, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
+import { nodeUi } from '../../icons-and-colours'
+
 import '../../node-card/section-header'
 import '../generic/collapsible-details'
-import { nodeUi } from '../../icons-and-colours'
 
 /**
  * A component for displaying the `provenance` property of a node.
@@ -42,15 +44,23 @@ export class UINodeProvenance extends LitElement {
   override render() {
     const { borderColour: headerBg } = nodeUi(this.type)
 
-    return html`<div>
+    // apply flex to the slotted container
+    const countStyles = css`
+      & ::slotted([slot='provenance']) {
+        display: flex;
+        column-gap: 0.5rem;
+      }
+    `
+
+    return html`<div class="border-b border-black/20">
       <stencila-ui-node-card-section-header
         icon-name="handshake"
         icon-library="lucide"
         headerBg=${headerBg}
-        wrapper-css=${this.hasItems ? '' : 'hidden'}
+        wrapper-css="flex-wrap gap-y-2 ${this.hasItems ? '' : 'hidden'}"
       >
         <div slot="title" class="not-italic">Provenance</div>
-        <div slot="right-side" class="flex gap-x-2">
+        <div slot="right-side" class="${countStyles}">
           <slot></slot>
         </div>
       </stencila-ui-node-card-section-header>
