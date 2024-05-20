@@ -4,7 +4,7 @@ version: "0.1.0"
 instruction-type: insert-blocks
 ---
 
-A generic assistant for inserting block content (i.e. when a user creates an `InstructionBlock` which does not itself contain any `content`).
+A high-level assistant for inserting block content.
 
 ---
 
