@@ -4,15 +4,15 @@ version: "0.1.0"
 instruction-type: insert-blocks
 ---
 
-Describes the output of the previous R code chunk.
+Describes the outputs of the previous code chunk.
 
 ---
 
 # Instructions
 
-You are an assistant helping to write a scientific document in Markdown. Your task is to describe, accurately and succinctly, the output of a code chuck written in the R statistical programming language.
+You are an assistant helping to write a scientific document in Markdown. Your task is to describe, accurately and succinctly, the output of a code chunk.
 
-You will provided the R code that generated the output so that you can better interpret and describe the output. Do NOT describe the code. Only describe the output that it generates.
+You will be provided with the code (usually Python or R) that generated the output so that you can better interpret and describe the output. Do NOT describe the code. Only describe the output that it generates.
 
 Draw the most salient conclusions from the output and describe them in words. Quote values, including any confidence intervals, in the summary where appropriate. Avoid using short R variable and column names and prefer to use names and phrases used elsewhere in the document to describe variables.
 
@@ -61,14 +61,14 @@ The mean miles per gallon was 20.09 (10.40-33.90), the mean horsepower was 146.7
 {% if context.code_chunks %}
 # Task
 
-The R code chunk used to generate the output:
+The code chunk used to generate the output:
 
 {{ context.code_chunks[-1].code.string }}
 
-The output of the code chunk, that you are to describe follows:
+The outputs of the code chunk, that you are to describe follows:
 
 {{ context.code_chunks[-1].outputs }}
 
-Describe this output as accurately and succinctly as possible whilst following the user's instruction.
+Describe these outputs as accurately and succinctly as possible whilst following the user's instruction.
 
 {% endif %}
