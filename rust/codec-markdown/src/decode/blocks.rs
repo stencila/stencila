@@ -48,7 +48,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         'fenced: {
             if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
                 if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
-                    if !value.starts_with(":::") {
+                    if !(value.starts_with(":::") || value.starts_with("/")) {
                         // Not a "fenced div" so ignore rest of this block
                         break 'fenced;
                     };
@@ -300,27 +300,30 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
 /// Parse a "div": a paragraph starting with at least three semicolons
 fn block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        (take_while(3.., ':'), space0),
-        alt((
-            call_block,
-            include_block,
-            code_chunk,
-            figure,
-            table,
-            for_block,
-            instruction_block,
-            delete_block,
-            insert_block,
-            replace_block,
-            modify_block,
-            claim,
-            styled_block,
-            // Section parser is permissive of label so needs to
-            // come last to avoid prematurely matching others above
-            div_section,
-        )),
-    )
+    alt((
+        instruction_block_shortcut,
+        preceded(
+            (take_while(3.., ':'), space0),
+            alt((
+                call_block,
+                include_block,
+                code_chunk,
+                figure,
+                table,
+                for_block,
+                instruction_block,
+                delete_block,
+                insert_block,
+                replace_block,
+                modify_block,
+                claim,
+                styled_block,
+                // Section parser is permissive of label so needs to
+                // come last to avoid prematurely matching others above
+                div_section,
+            )),
+        ),
+    ))
     .parse_next(input)
 }
 
@@ -537,6 +540,35 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
             )
         })
         .parse_next(input)
+}
+
+/// Shortcut for an [`InstructionBlock`]
+fn instruction_block_shortcut(input: &mut Located<&str>) -> PResult<Block> {
+    preceded(
+        ("/", multispace0),
+        (
+            opt(delimited('@', assignee, multispace0)),
+            opt(alt((
+                (
+                    take_until(0.., ':'),
+                    (take_while(3.., ':'), multispace0, opt("with")).value(true),
+                ),
+                (take_while(0.., |_| true), "".value(false)),
+            ))),
+        ),
+    )
+    .map(
+        |(assignee, message): (Option<&str>, Option<(&str, bool)>)| {
+            let (text, content) = message.unwrap_or_default();
+            Block::InstructionBlock(InstructionBlock {
+                messages: vec![InstructionMessage::from(text.trim())],
+                content: if content { Some(Vec::new()) } else { None },
+                assignee: assignee.map(String::from),
+                ..Default::default()
+            })
+        },
+    )
+    .parse_next(input)
 }
 
 /// Start an [`InstructionBlock`]
@@ -1422,6 +1454,14 @@ mod tests {
                     ..Default::default()
                 }
             )
+        );
+    }
+
+    #[test]
+    fn test_instruction_block_shortcut() {
+        assert_eq!(
+            block(&mut Located::new("/ @insert-code-chunk summarise")).unwrap(),
+            block(&mut Located::new("::: do @insert-code-chunk summarise")).unwrap(),
         );
     }
 
