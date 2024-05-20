@@ -21,6 +21,15 @@ impl Executable for MathBlock {
 
         tracing::trace!("Compiling MathBlock {node_id}");
 
+        executor.equation_count += 1;
+
+        if self.label_automatically.unwrap_or(true) {
+            let label = executor.equation_count.to_string();
+            if Some(&label) != self.label.as_ref() {
+                executor.patch(&node_id, [set(NodeProperty::Label, label)]);
+            }
+        }
+
         let code = self.code.trim();
         if !code.is_empty() {
             let lang = self

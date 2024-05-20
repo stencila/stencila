@@ -29,6 +29,7 @@ mod article;
 mod call_block;
 mod code_chunk;
 mod code_expression;
+mod figure;
 mod for_block;
 mod if_block;
 mod include_block;
@@ -38,6 +39,7 @@ mod math_block;
 mod math_inline;
 mod styled_block;
 mod styled_inline;
+mod table;
 
 /// Walk over a root node and compile it and child nodes
 pub async fn compile(
@@ -122,9 +124,6 @@ pub struct Executor {
     /// Used to resolve relative file paths in `IncludeBlock` and `CallBlock` nodes.
     home: PathBuf,
 
-    /// The root node
-    //root: Arc<RwLock<Node>>,
-
     /// The kernels that will be used for execution
     kernels: Arc<RwLock<Kernels>>,
 
@@ -144,6 +143,15 @@ pub struct Executor {
 
     /// The document context
     context: Context,
+
+    /// The count of `Table`s and `CodeChunk`s with a table `labelType`
+    table_count: u32,
+
+    /// The count of `Figure`s and `CodeChunk`s with a figure `labelType`
+    figure_count: u32,
+
+    /// The count of `MathBlock`s
+    equation_count: u32,
 
     /// Whether the current node is the last in a set
     ///
@@ -233,6 +241,9 @@ impl Executor {
             node_ids,
             phase: Phase::Pending,
             context: Context::default(),
+            table_count: 0,
+            figure_count: 0,
+            equation_count: 0,
             is_last: false,
             options: options.unwrap_or_default(),
         }
@@ -241,6 +252,9 @@ impl Executor {
     /// Run [`Phase::Compile`]
     async fn compile(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Compile;
+        self.table_count = 0;
+        self.figure_count = 0;
+        self.equation_count = 0;
         root.walk_async(self).await
     }
 
@@ -541,12 +555,14 @@ impl VisitorAsync for Executor {
         let control = match block {
             // TODO: CallBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
+            Figure(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,
             IfBlock(node) => self.visit_executable(node).await,
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
+            Table(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };
 

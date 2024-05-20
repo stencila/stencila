@@ -1,4 +1,4 @@
-use schema::{CodeChunk, NodeProperty};
+use schema::{CodeChunk, LabelType, NodeProperty};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -8,7 +8,7 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::debug!("Compiling CodeChunk {node_id}");
 
-        // Some code chunks should be executed during "compile" to 
+        // Some code chunks should be executed during "compile" to
         // enable live updates (e.g. Graphviz, Mermaid)
         // TODO: consider having a way to specify which code chunks and/or
         // which kernels should execute at compile time (e.g. could have
@@ -33,6 +33,24 @@ impl Executable for CodeChunk {
                 set(NodeProperty::ExecutionTags, info.execution_tags),
             ],
         );
+
+        if let Some(label_type) = &self.label_type {
+            let label = match label_type {
+                LabelType::FigureLabel => {
+                    executor.figure_count += 1;
+                    executor.figure_count.to_string()
+                }
+                LabelType::TableLabel => {
+                    executor.table_count += 1;
+                    executor.table_count.to_string()
+                }
+            };
+            if self.label_automatically.unwrap_or(true) {
+                if Some(&label) != self.label.as_ref() {
+                    executor.patch(&node_id, [set(NodeProperty::Label, label)]);
+                }
+            }
+        }
 
         WalkControl::Continue
     }
