@@ -26,6 +26,8 @@ The code
 
 Provide comments in the code but do NOT provide any comments or other content outside of the code block.
 
+If the code produces outputs, such as summary data frames, you should use the `print` function (or `console.log` in JavaScript) to ensure those are written to stdout. This is not necessary if the output is the last statement / line.
+
 # Programming languages
 
 The following language runtimes are available.
@@ -64,10 +66,11 @@ You can also assume that any functions and variables defined in these code chunk
 {{ chunk.code }}
 ```
 {% endfor %}
-{% else %}
-# Example
+{% endif %}
 
-Here is an example of a user instruction and a response.
+# Examples
+
+Here are examples of user instructions and a appropriate assistants responses.
 
 User:
 
@@ -79,5 +82,33 @@ Assistant:
 plot(x, y)
 ```
 
-{% endif %}
+User:
 
+a summary overview of the data
+
+Assistant:
+
+```r exec
+# Print a summary of the data to get an overview
+print(summary(data))
+
+# Print the structure of the data frame
+print(str(data))
+
+# Use dplyr for more detailed summary statistics
+library(dplyr)
+
+# Summarize the data for some key statistics
+data_summary <- data %>%
+  summarise(
+    total_count = n(),
+    total_area = sum(area, na.rm = TRUE),
+    average_area = mean(area, na.rm = TRUE),
+    median_area = median(area, na.rm = TRUE),
+    min_area = min(area, na.rm = TRUE),
+    max_area = max(area, na.rm = TRUE)
+  )
+
+# Output the data summary
+data_summary
+```
