@@ -64,8 +64,8 @@ mod tests {
     use kernel_micro::{
         common::{indexmap::IndexMap, tokio},
         schema::{
-            Array, ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, Null, Object, ObjectHint,
-            Primitive, StringHint, Variable,
+            Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, Null,
+            Object, ObjectHint, Primitive, StringHint, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -221,6 +221,13 @@ console.log(a, b, c, d)",
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
         assert_eq!(messages[0].message, "Invalid or unexpected token");
         assert!(messages[0].stack_trace.is_some());
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(1),
+                ..Default::default()
+            })
+        );
         assert_eq!(outputs, vec![]);
 
         // Runtime error
@@ -228,6 +235,28 @@ console.log(a, b, c, d)",
         assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
         assert_eq!(messages[0].message, "foo is not defined");
         assert!(messages[0].stack_trace.is_some());
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(1),
+                start_column: Some(1),
+                ..Default::default()
+            })
+        );
+        assert_eq!(outputs, vec![]);
+
+        let (outputs, messages) = kernel.execute("const a = 1\na + bar").await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
+        assert_eq!(messages[0].message, "bar is not defined");
+        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(2),
+                start_column: Some(5),
+                ..Default::default()
+            })
+        );
         assert_eq!(outputs, vec![]);
 
         // Console methods
