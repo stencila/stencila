@@ -69,6 +69,7 @@ pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket
 
 /// Create status notifications
 fn statuses(node: &TextNode) -> Vec<Status> {
+    // TODO: consider periodic updates to update times ended
     let mut items = node
         .execution
         .as_ref()
@@ -77,8 +78,21 @@ fn statuses(node: &TextNode) -> Vec<Status> {
             let details = match &execution.status {
                 Pending | Running => execution.status.to_string(),
                 Succeeded => {
-                    // TODO: Add humanized time and duration
-                    "Succeeded".to_string()
+                    let mut status = "Succeeded".to_string();
+                    if let Some(duration) = &execution.duration {
+                        status.push_str(" in ");
+                        status.push_str(&duration.humanize(true));
+                    }
+                    if let Some(ended) = &execution.ended {
+                        let ended = ended.humanize(false);
+                        if ended == "now ago" {
+                            status.push_str(", just now");
+                        } else {
+                            status.push_str(", ");
+                            status.push_str(&ended);
+                        }
+                    }
+                    status
                 }
                 // Ignore other statuses: warning, errors, and exceptions are
                 // published as diagnostics
