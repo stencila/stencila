@@ -29,6 +29,7 @@
         }
       ],
       label: "2",
+      labelAutomatically: false,
       caption: [
         {
           type: "Paragraph",

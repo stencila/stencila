@@ -13,6 +13,7 @@ content:
     - type: ImageObject
       contentUrl: https://example.org/dog.jpg
   label: '2'
+  labelAutomatically: false
   caption:
   - type: Paragraph
     content:

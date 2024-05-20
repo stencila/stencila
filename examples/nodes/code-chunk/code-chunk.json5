@@ -55,7 +55,8 @@
     {
       type: "CodeChunk",
       code: "# Chunk 1A",
-      label: "1A"
+      label: "1A",
+      labelAutomatically: false
     },
     {
       type: "Paragraph",
@@ -72,6 +73,7 @@
       programmingLanguage: "r",
       labelType: "FigureLabel",
       label: "1",
+      labelAutomatically: false,
       caption: [
         {
           type: "Paragraph",
@@ -99,6 +101,7 @@
       programmingLanguage: "r",
       labelType: "TableLabel",
       label: "1",
+      labelAutomatically: false,
       caption: [
         {
           type: "Paragraph",

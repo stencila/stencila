@@ -36,7 +36,8 @@
     {
       "type": "CodeChunk",
       "code": "# Chunk 1A",
-      "label": "1A"
+      "label": "1A",
+      "labelAutomatically": false
     },
     {
       "type": "Paragraph",
@@ -48,6 +49,7 @@
       "code": "plot(y~x)",
       "labelType": "FigureLabel",
       "label": "1",
+      "labelAutomatically": false,
       "caption":[{
         "type": "Paragraph",
         "content": [{"type": "Text", "value": "Y against X."}]
@@ -63,6 +65,7 @@
       "code": "head(mtcars)",
       "labelType": "TableLabel",
       "label": "1",
+      "labelAutomatically": false,
       "caption":[{
         "type": "Paragraph",
         "content": [{"type": "Text", "value": "Some cars."}]

@@ -59,7 +59,8 @@
     {
       "@type": "stencila:CodeChunk",
       "stencila:code": "# Chunk 1A",
-      "stencila:label": "1A"
+      "stencila:label": "1A",
+      "stencila:labelAutomatically": false
     },
     {
       "@type": "stencila:Paragraph",
@@ -76,6 +77,7 @@
       "programmingLanguage": "r",
       "stencila:labelType": "FigureLabel",
       "stencila:label": "1",
+      "stencila:labelAutomatically": false,
       "caption": [
         {
           "@type": "stencila:Paragraph",
@@ -103,6 +105,7 @@
       "programmingLanguage": "r",
       "stencila:labelType": "TableLabel",
       "stencila:label": "1",
+      "stencila:labelAutomatically": false,
       "caption": [
         {
           "@type": "stencila:Paragraph",

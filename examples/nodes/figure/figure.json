@@ -19,6 +19,7 @@
     {
       "type": "Figure",
       "label": "2",
+      "labelAutomatically": false,
       "content": [
         {
           "type": "Paragraph",

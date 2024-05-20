@@ -114,6 +114,7 @@ content:
     value: Table with label, caption & notes
 - type: Table
   label: '3'
+  labelAutomatically: false
   caption:
   - type: Paragraph
     content:

@@ -6,154 +6,39 @@
       content: [
         {
           type: "Text",
-          value: "Regular table"
-        }
-      ]
-    },
-    {
-      type: "Table",
-      rows: [
-        {
-          type: "TableRow",
-          cells: [
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "A"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "B"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "C"
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          rowType: "HeaderRow"
+          value: "An example of an article with automatic numbering (setting the "
         },
         {
-          type: "TableRow",
-          cells: [
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "1"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "2"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "3"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          type: "CodeInline",
+          code: "label"
         },
         {
-          type: "TableRow",
-          cells: [
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "4"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "5"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "6"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          type: "Text",
+          value: " property) for "
+        },
+        {
+          type: "CodeInline",
+          code: "Table"
+        },
+        {
+          type: "Text",
+          value: ", "
+        },
+        {
+          type: "CodeInline",
+          code: "Figure"
+        },
+        {
+          type: "Text",
+          value: " and "
+        },
+        {
+          type: "CodeInline",
+          code: "CodeChunk"
+        },
+        {
+          type: "Text",
+          value: " nodes."
         }
       ]
     },
@@ -162,115 +47,88 @@
       content: [
         {
           type: "Text",
-          value: "Table with empty cells"
+          value: "A figure, it should be labelled as Figure one."
         }
       ]
     },
     {
-      type: "Table",
-      rows: [
-        {
-          type: "TableRow",
-          cells: [
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "D"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "E"
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          rowType: "HeaderRow"
-        },
-        {
-          type: "TableRow",
-          cells: [
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "1"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "TableCell",
-              content: []
-            }
-          ]
-        },
-        {
-          type: "TableRow",
-          cells: [
-            {
-              type: "TableCell",
-              content: []
-            },
-            {
-              type: "TableCell",
-              content: [
-                {
-                  type: "Paragraph",
-                  content: [
-                    {
-                      type: "Text",
-                      value: "2"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      type: "Paragraph",
+      type: "Figure",
       content: [
         {
-          type: "Text",
-          value: "Table with label, caption & notes"
+          type: "Paragraph",
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https:\/\/placehold.co\/300x200\/orange\/white"
+            }
+          ]
         }
-      ]
-    },
-    {
-      type: "Table",
-      label: "3",
-      labelAutomatically: false,
+      ],
       caption: [
         {
           type: "Paragraph",
           content: [
             {
               type: "Text",
-              value: "The caption."
+              value: "Some white text on orange an background."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Another figure that is actually a code chunk that produces a plot:"
+        }
+      ]
+    },
+    {
+      type: "CodeChunk",
+      code: "plot(1:10)",
+      programmingLanguage: "r",
+      labelType: "FigureLabel",
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "A plot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A table:"
+        }
+      ]
+    },
+    {
+      type: "Table",
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "A little table about fish."
+            }
+          ]
+        },
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This caption has two paragraphs."
             }
           ]
         }
@@ -287,7 +145,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "A"
+                      value: "Species"
                     }
                   ]
                 }
@@ -301,7 +159,21 @@
                   content: [
                     {
                       type: "Text",
-                      value: "B"
+                      value: "Average Length (cm)"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "Average Weight (kg)"
                     }
                   ]
                 }
@@ -321,7 +193,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "1"
+                      value: "Goldfish"
                     }
                   ]
                 }
@@ -335,7 +207,115 @@
                   content: [
                     {
                       type: "Text",
-                      value: "2"
+                      value: "20.0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "0.45"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "TableRow",
+          cells: [
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "Clownfish"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "10.0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "0.25"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "TableRow",
+          cells: [
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "Trout"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "40.0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "1.50"
                     }
                   ]
                 }
@@ -343,14 +323,29 @@
             }
           ]
         }
-      ],
-      notes: [
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Another table with a caption generated by code:"
+        }
+      ]
+    },
+    {
+      type: "CodeChunk",
+      code: "head(mtcars)",
+      programmingLanguage: "r",
+      labelType: "TableLabel",
+      caption: [
         {
           type: "Paragraph",
           content: [
             {
               type: "Text",
-              value: "Some notes."
+              value: "Some cars"
             }
           ]
         }

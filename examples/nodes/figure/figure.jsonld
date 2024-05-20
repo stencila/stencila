@@ -33,6 +33,7 @@
         }
       ],
       "stencila:label": "2",
+      "stencila:labelAutomatically": false,
       "caption": [
         {
           "@type": "stencila:Paragraph",

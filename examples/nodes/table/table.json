@@ -186,6 +186,7 @@
     {
       "type": "Table",
       "label": "3",
+      "labelAutomatically": false,
       "caption": [
         {
           "type": "Paragraph",
