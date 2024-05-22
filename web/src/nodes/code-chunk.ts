@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { createCaptionLabel } from '../ui/nodes/properties/captions'
 
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/commands/execution-commands'
@@ -10,7 +11,6 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
-import '../ui/nodes/properties/label-and-caption'
 import '../ui/nodes/properties/outputs'
 import '../ui/nodes/properties/provenance/provenance'
 
@@ -32,6 +32,12 @@ export class CodeChunk extends CodeExecutable {
 
   @property({ attribute: 'is-invisible', type: Boolean })
   isInvisible?: boolean = false
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    createCaptionLabel(this, 'CodeChunk')
+  }
 
   /**
    * In static view just render the outputs, label and caption
@@ -104,16 +110,21 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-code>
       </div>
       <div slot="content">
+        ${this.labelType === 'TableLabel'
+          ? html`<caption>
+              ${this.renderCaption()}
+            </caption>`
+          : ''}
         ${this.isInvisible ? '' : html`<slot name="outputs"></slot>`}
-        <stencila-ui-node-label-and-caption
-          type="CodeChunk"
-          label-type=${this.labelType}
-          label=${this.label}
-        >
-          <slot name="caption" slot="caption"></slot>
-        </stencila-ui-node-label-and-caption>
+        ${this.labelType === 'FigureLabel'
+          ? html`<figcaption>${this.renderCaption()}</figcaption>`
+          : ''}
       </div>
     </stencila-ui-block-on-demand>`
+  }
+
+  private renderCaption() {
+    return html`<slot name="caption"></slot>`
   }
 
   /**

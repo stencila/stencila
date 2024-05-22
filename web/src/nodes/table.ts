@@ -1,7 +1,8 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
+import { createCaptionLabel } from '../ui/nodes/properties/captions'
 
 import { Entity } from './entity'
 
@@ -15,6 +16,15 @@ import '../ui/nodes/properties/provenance/provenance'
 @customElement('stencila-table')
 @withTwind()
 export class Table extends Entity {
+  @property()
+  label: string
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    createCaptionLabel(this, 'Table')
+  }
+
   /**
    * render table and any additional content
    */
@@ -43,10 +53,12 @@ export class Table extends Entity {
           </stencila-ui-node-provenance>
         </div>
         <div class="content" slot="content">
+          <caption>
+            <slot slot="caption"></slot>
+          </caption>
           <div class="overflow-x-scroll">
             <slot name="rows"></slot>
           </div>
-          <slot></slot>
         </div>
       </stencila-ui-block-on-demand>
     `

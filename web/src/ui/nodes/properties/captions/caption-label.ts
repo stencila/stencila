@@ -2,15 +2,15 @@ import { LabelType, NodeType } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
+import { withTwind } from '../../../../twind'
 
-import './generic/simple'
+import '../generic/simple'
 
 /**
  * A component for displaying the `label` and `caption`
  * properties of `Table`, `Figure` and `CodeChunk` nodes
  */
-@customElement('stencila-ui-node-label-and-caption')
+@customElement('stencila-ui-node-caption-label')
 @withTwind()
 export class UINodeExecutionDuration extends LitElement {
   @property()
@@ -35,12 +35,11 @@ export class UINodeExecutionDuration extends LitElement {
           : this.labelType === 'TableLabel'
             ? 'Table'
             : this.type
-      text += ` ${this.label} `
+      text += ` ${this.label}: `
     }
 
-    return html`<div>
+    return html`
       ${text !== '' ? html`<span class="font-bold">${text}</span>` : ''}
-      <slot name="caption"></slot>
-    </div>`
+    `
   }
 }

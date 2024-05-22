@@ -1,10 +1,12 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { createCaptionLabel } from '../ui/nodes/properties/captions'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/properties/captions/caption-label'
 import '../ui/nodes/properties/provenance/provenance'
 
 /**
@@ -15,6 +17,15 @@ import '../ui/nodes/properties/provenance/provenance'
 @customElement('stencila-figure')
 @withTwind()
 export class Figure extends Entity {
+  @property()
+  label: string
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    createCaptionLabel(this, 'Figure')
+  }
+
   /**
    * In static view just render the figure
    */
@@ -39,9 +50,12 @@ export class Figure extends Entity {
             <slot name="provenance"></slot>
           </stencila-ui-node-provenance>
         </div>
-        <figure slot="content" class="m-0">
+        <div slot="content" class="m-0">
           <slot name="content"></slot>
-        </figure>
+          <figcaption>
+            <slot name="caption" slot="caption"></slot>
+          </figcaption>
+        </div>
       </stencila-ui-block-on-demand>
     `
   }
