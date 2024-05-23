@@ -1,8 +1,13 @@
 import {
   CodeInline,
   Emphasis,
+  ImageObject,
   Inline,
+  Link,
+  MathInline,
   Strong,
+  Subscript,
+  Superscript,
   Text,
   Underline,
 } from "@stencila/types";
@@ -18,7 +23,11 @@ import type { PhrasingContent } from "myst-spec";
  * https://github.com/stencila/encoda/blob/master/src/codecs/md/index.ts.
  */
 export function mdsToInlines(mds: PhrasingContent[]): Inline[] {
-  return mds.map((md) => {
+  return mds.map((md) => mdToInline(md));
+}
+
+export function mdToInline(md: PhrasingContent): Inline {
+  {
     switch (md.type) {
       case "text":
         return new Text(md.value);
@@ -28,25 +37,28 @@ export function mdsToInlines(mds: PhrasingContent[]): Inline[] {
         return new Strong(mdsToInlines(md.children));
       case "inlineCode":
         return new CodeInline(md.value);
-      case "mystRole":
-        // Technically Roles should not exist after basicTransformations() in index.ts
-        throw new Error(`mdast inline type not yet implemented: ${md.type}`);
       case "underline":
         return new Underline(mdsToInlines(md.children));
+      case "image":
+        return new ImageObject(md.url);
+      case "link":
+        return new Link(mdsToInlines(md.children), md.url);
+      case "inlineMath":
+        return new MathInline(md.value);
+      case "subscript":
+        return new Subscript(mdsToInlines(md.children));
+      case "superscript":
+        return new Superscript(mdsToInlines(md.children));
+      case "mystRole":
+      // Roles should not exist after basicTransformations() in index.ts
       case "abbreviation":
       case "break":
+      case "html":
       case "crossReference":
       case "footnoteReference":
-      case "html":
-      case "image":
       case "imageReference":
-      case "inlineCode":
-      case "inlineMath":
-      case "link":
       case "linkReference":
-      case "subscript":
-      case "superscript":
         throw new Error(`mdast inline type not yet implemented: ${md.type}`);
     }
-  });
+  }
 }

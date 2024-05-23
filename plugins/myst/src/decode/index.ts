@@ -14,7 +14,7 @@ export function decode(content: string): [Node, DecodeInfo] {
   const root = mystParse(content);
   // Unpack and convert various MyST containers etc to a simpler tree
   basicTransformations(root, new VFile());
-  // TODO: we currently assume only one top-level Block exists after transform
+  // We currently assume only one top-level Block exists after transform
   const blocks = root.children[0]
     ? mdsToBlocks(root.children[0].children as FlowContent[])
     : [];

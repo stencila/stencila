@@ -40,7 +40,7 @@
         },
         {
           "type": "Text",
-          "value": " and "
+          "value": ", "
         },
         {
           "type": "Underline",
@@ -53,7 +53,7 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": ", and *escaped symbols*"
         }
       ]
     }
