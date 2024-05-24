@@ -22,6 +22,6 @@ data = read.csv("fires.csv")
 
 ---
 
-::: do @describe-outputs in 1 or 2 paragraphs
+::: do @describe-outputs in one paragraphs
 
 ---
