@@ -53,14 +53,14 @@ distribution = false
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "coverage>=7.5.0",
+    "coverage>=7.5.1",
     "maturin>=1.5.1",
     "pip-audit>=2.7.2",
-    "pyright>=1.1.360",
-    "pytest-asyncio>=0.23.6",
+    "pyright>=1.1.364",
+    "pytest-asyncio>=0.23.7",
     "pytest-benchmark>=4.0.0",
-    "pytest>=8.2.0",
-    "ruff>=0.4.2",
+    "pytest>=8.2.1",
+    "ruff>=0.4.5",
 ]
 
 [tool.pytest.ini_options]
