@@ -57,73 +57,10 @@ async fn paragraph() -> Result<()> {
     let (edited, ..) = codec.from_str("Hello, world!", None).await?;
     merge(&mut node, &edited, Some(vec![bob]))?;
 
-    assert_yaml_snapshot!(node, @r###"
-    ---
-    type: Article
-    authors:
-      - type: AuthorRole
-        author:
-          type: Person
-          givenNames:
-            - Alice
-        roleName: Writer
-      - type: AuthorRole
-        author:
-          type: Person
-          givenNames:
-            - Bob
-        roleName: Writer
-    provenance:
-      - type: ProvenanceCount
-        provenanceCategory: Hw
-        characterCount: 2
-        characterPercent: 15
-      - type: ProvenanceCount
-        provenanceCategory: HwHe
-        characterCount: 11
-        characterPercent: 84
-    content:
-      - type: Paragraph
-        content:
-          - type: Text
-            value:
-              string: "Hello, world!"
-              authorship:
-                - - 1
-                  - 0
-                  - 0
-                  - 1
-                - - 2
-                  - 1
-                  - 2
-                  - 11
-                - - 1
-                  - 0
-                  - 0
-                  - 1
-        authors:
-          - type: AuthorRole
-            author:
-              type: Person
-              givenNames:
-                - Alice
-            roleName: Writer
-          - type: AuthorRole
-            author:
-              type: Person
-              givenNames:
-                - Bob
-            roleName: Writer
-        provenance:
-          - type: ProvenanceCount
-            provenanceCategory: Hw
-            characterCount: 2
-            characterPercent: 15
-          - type: ProvenanceCount
-            provenanceCategory: HwHe
-            characterCount: 11
-            characterPercent: 84
-    "###);
+    assert_yaml_snapshot!(node, {
+      ".authors[].lastModified.value" => "redacted",
+      ".content[].authors[].lastModified.value" => "redacted"
+    });
 
     let (md, EncodeInfo { mapping, .. }) = codec.to_string(&node, None).await?;
 
@@ -207,72 +144,10 @@ print('Hello, world!')
         .await?;
     merge(&mut node, &edited, Some(vec![bob]))?;
 
-    assert_yaml_snapshot!(node, @r###"
-    ---
-    type: Article
-    authors:
-      - type: AuthorRole
-        author:
-          type: Person
-          givenNames:
-            - Alice
-        roleName: Writer
-      - type: AuthorRole
-        author:
-          type: Person
-          givenNames:
-            - Bob
-        roleName: Writer
-    provenance:
-      - type: ProvenanceCount
-        provenanceCategory: Hw
-        characterCount: 11
-        characterPercent: 50
-      - type: ProvenanceCount
-        provenanceCategory: HwHe
-        characterCount: 11
-        characterPercent: 50
-    content:
-      - type: CodeChunk
-        code:
-          string: "print('Hello, world!')"
-          authorship:
-            - - 1
-              - 0
-              - 0
-              - 8
-            - - 2
-              - 1
-              - 2
-              - 11
-            - - 1
-              - 0
-              - 0
-              - 3
-        programmingLanguage: python
-        authors:
-          - type: AuthorRole
-            author:
-              type: Person
-              givenNames:
-                - Alice
-            roleName: Writer
-          - type: AuthorRole
-            author:
-              type: Person
-              givenNames:
-                - Bob
-            roleName: Writer
-        provenance:
-          - type: ProvenanceCount
-            provenanceCategory: Hw
-            characterCount: 11
-            characterPercent: 50
-          - type: ProvenanceCount
-            provenanceCategory: HwHe
-            characterCount: 11
-            characterPercent: 50
-    "###);
+    assert_yaml_snapshot!(node, {
+      ".authors[].lastModified.value" => "redacted",
+      ".content[].authors[].lastModified.value" => "redacted"
+    });
 
     let (md, EncodeInfo { mapping, .. }) = codec.to_string(&node, None).await?;
 
