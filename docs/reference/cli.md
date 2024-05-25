@@ -146,6 +146,8 @@ Import a file in another format into a new or existing document
     Strip execution related properties of executable nodes
   - `output`:
     Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
@@ -202,6 +204,8 @@ Export a document to a file in another format
     Strip execution related properties of executable nodes
   - `output`:
     Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
@@ -258,6 +262,8 @@ Synchronize a document with one of more other files in other formats
     Strip execution related properties of executable nodes
   - `output`:
     Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
@@ -318,6 +324,8 @@ Convert a document between formats
     Strip execution related properties of executable nodes
   - `output`:
     Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
