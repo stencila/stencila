@@ -94,7 +94,7 @@ properties:
   executionEnded:
     '@id': stencila:executionEnded
     description: The timestamp when the last execution ended.
-    strip: [execution]
+    strip: [execution, timestamps]
     $ref: Timestamp
     dom:
       with: Timestamp::to_dom_attr

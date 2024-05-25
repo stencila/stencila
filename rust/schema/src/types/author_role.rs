@@ -35,6 +35,7 @@ pub struct AuthorRole {
 
     /// Timestamp of most recent modification, by the author, in the role.
     #[serde(alias = "last-modified", alias = "last_modified")]
+    #[strip(timestamps)]
     pub last_modified: Option<Timestamp>,
 
     /// A unique identifier for a node within a document

@@ -225,7 +225,8 @@
         "execution_ended"
       ],
       "strip": [
-        "execution"
+        "execution",
+        "timestamps"
       ],
       "dom": {
         "with": "Timestamp::to_dom_attr"

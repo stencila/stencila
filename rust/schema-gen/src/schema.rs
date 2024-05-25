@@ -475,6 +475,7 @@ pub enum StripScopes {
     Code,
     Execution,
     Output,
+    Timestamps,
 }
 
 /// Options for property testing
@@ -615,7 +616,7 @@ pub struct DomOptions {
     ///
     /// If supplied for a struct, the elem will be used to wrap the children
     /// of the node.
-    /// 
+    ///
     /// If not supplied for a property it will be encoded as an attribute
     /// on the parent element.
     pub elem: Option<String>,

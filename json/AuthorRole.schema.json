@@ -66,6 +66,9 @@
         "last-modified",
         "last_modified"
       ],
+      "strip": [
+        "timestamps"
+      ],
       "$ref": "Timestamp.schema.json"
     }
   }

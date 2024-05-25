@@ -845,7 +845,8 @@
         "content",
         "code",
         "execution",
-        "output"
+        "output",
+        "timestamps"
       ]
     },
     "Type": {

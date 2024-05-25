@@ -149,7 +149,7 @@ pub struct ParameterOptions {
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
-    #[strip(execution)]
+    #[strip(execution, timestamps)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,

@@ -127,7 +127,7 @@ pub struct FormOptions {
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
-    #[strip(execution)]
+    #[strip(execution, timestamps)]
     #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,
 

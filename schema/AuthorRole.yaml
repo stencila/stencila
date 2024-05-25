@@ -28,3 +28,4 @@ properties:
     '@id': stencila:lastModified
     description: Timestamp of most recent modification, by the author, in the role.
     $ref: Timestamp
+    strip: [timestamps]

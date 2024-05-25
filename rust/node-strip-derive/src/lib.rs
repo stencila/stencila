@@ -41,6 +41,9 @@ struct FieldAttr {
 
     #[darling(default)]
     output: bool,
+
+    #[darling(default)]
+    timestamps: bool,
 }
 
 /// Derive the `StripNode` trait for a `struct` or `enum`
@@ -156,6 +159,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             if field.output {
                 fields.extend(quote! {
                     if targets.scopes.contains(&StripScope::Output) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.timestamps {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&StripScope::Timestamps) {
                         self.#field_name #strip;
                     }
                 })

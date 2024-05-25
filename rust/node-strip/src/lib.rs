@@ -57,6 +57,12 @@ pub enum StripScope {
     /// - `output` of a `CodeExpression` node
     /// - `content` of a `Include` or `Call` node
     Output,
+
+    /// Strip timestamp properties
+    ///
+    /// Includes `AuthorRole.lastModified` and the `executionEnded` property
+    /// of executable nodes. Useful for making test snapshots deterministic.
+    Timestamps,
 }
 
 /// The target properties for the strip
