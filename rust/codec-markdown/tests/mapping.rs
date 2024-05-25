@@ -67,18 +67,12 @@ async fn paragraph() -> Result<()> {
     assert_snapshot!(md, @r###"
     ---
     authors:
-    - type: AuthorRole
-      author:
-        type: Person
-        givenNames:
-        - Alice
-      roleName: Writer
-    - type: AuthorRole
-      author:
-        type: Person
-        givenNames:
-        - Bob
-      roleName: Writer
+    - type: Person
+      givenNames:
+      - Alice
+    - type: Person
+      givenNames:
+      - Bob
     ---
 
     Hello, world!
@@ -86,15 +80,15 @@ async fn paragraph() -> Result<()> {
 
     assert_snapshot!(mapping, @r###"
     start     end        offsets   node_type+property                   authorship
-       202    203     (202, 203)   Text                                 (1, 0, 0)
-       203    214        (1, 11)   Text                                 (2, 1, 2)
-       214    215        (11, 1)   Text                                 (1, 0, 0)
-       202    215       (-12, 0)   Text.value
-       202    215         (0, 0)   Text
-       202    215         (0, 0)   Paragraph.content
-       202    216         (0, 1)   Paragraph
-       202    217         (0, 1)   Article.content
-         0    217      (-202, 0)   Article
+        94     95       (94, 95)   Text                                 (1, 0, 0)
+        95    106        (1, 11)   Text                                 (2, 1, 2)
+       106    107        (11, 1)   Text                                 (1, 0, 0)
+        94    107       (-12, 0)   Text.value
+        94    107         (0, 0)   Text
+        94    107         (0, 0)   Paragraph.content
+        94    108         (0, 1)   Paragraph
+        94    109         (0, 1)   Article.content
+         0    109       (-94, 0)   Article
     "###);
 
     Ok(())
@@ -154,18 +148,12 @@ print('Hello, world!')
     assert_snapshot!(md, @r###"
     ---
     authors:
-    - type: AuthorRole
-      author:
-        type: Person
-        givenNames:
-        - Alice
-      roleName: Writer
-    - type: AuthorRole
-      author:
-        type: Person
-        givenNames:
-        - Bob
-      roleName: Writer
+    - type: Person
+      givenNames:
+      - Alice
+    - type: Person
+      givenNames:
+      - Bob
     ---
 
     ```python exec
@@ -175,14 +163,14 @@ print('Hello, world!')
 
     assert_snapshot!(mapping, @r###"
     start     end        offsets   node_type+property                   authorship
-       205    211     (205, 211)   CodeChunk.programmingLanguage
-       217    225       (12, 14)   CodeChunk                            (1, 0, 0)
-       225    236        (8, 11)   CodeChunk                            (2, 1, 2)
-       236    239        (11, 3)   CodeChunk                            (1, 0, 0)
-       217    239       (-19, 0)   CodeChunk.code
-       202    244       (-15, 5)   CodeChunk
-       202    245         (0, 1)   Article.content
-         0    245      (-202, 0)   Article
+        97    103      (97, 103)   CodeChunk.programmingLanguage
+       109    117       (12, 14)   CodeChunk                            (1, 0, 0)
+       117    128        (8, 11)   CodeChunk                            (2, 1, 2)
+       128    131        (11, 3)   CodeChunk                            (1, 0, 0)
+       109    131       (-19, 0)   CodeChunk.code
+        94    136       (-15, 5)   CodeChunk
+        94    137         (0, 1)   Article.content
+         0    137       (-94, 0)   Article
     "###);
 
     Ok(())
