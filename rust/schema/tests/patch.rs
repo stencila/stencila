@@ -117,7 +117,8 @@ async fn fixtures() -> Result<()> {
         strip(&mut new_strip, strip_targets);
         assert_eq!(merged_strip, new_strip, "{name}\n{patch:#?}");
 
-        // Snapshot the fixture
+        // Snapshot the fixture. Strip timestamp for deterministic snapshots
+        strip(&mut merged, StripTargets::scope(StripScope::Timestamps));
         assert_yaml_snapshot!(
             name,
             Fixture {
@@ -591,6 +592,9 @@ fn authors() -> Result<()> {
         }
     }
 
+    // Strip timestamps below, for determinism
+    let strip_targets = StripTargets::scope(StripScope::Timestamps);
+
     // For code chunk, and any thing else with authors, authorship is recorded
     // at that level.
     let mut chunk = CodeChunk::new("a".into());
@@ -603,6 +607,7 @@ fn authors() -> Result<()> {
         &CodeChunk::new("abc".into()),
         Some(vec![alice.clone()]),
     )?;
+    strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "abc".into());
     assert_eq!(chunk.code.runs, vec![CordRun::new(1, 0, 0, 3)]);
     assert_eq!(chunk.authors, Some(vec![Author::AuthorRole(alice.clone())]));
@@ -614,6 +619,7 @@ fn authors() -> Result<()> {
         &CodeChunk::new("abcd".into()),
         Some(vec![bob.clone()]),
     )?;
+    strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "abcd".into());
     assert_eq!(
         chunk.code.runs,
@@ -634,6 +640,7 @@ fn authors() -> Result<()> {
         &CodeChunk::new("abxcd".into()),
         Some(vec![bob.clone()]),
     )?;
+    strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "abxcd".into());
     assert_eq!(
         chunk.code.runs,
@@ -659,6 +666,7 @@ fn authors() -> Result<()> {
         &CodeChunk::new("ad".into()),
         Some(vec![carol.clone()]),
     )?;
+    strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "ad".into());
     assert_eq!(
         chunk.code.runs,
@@ -680,6 +688,7 @@ fn authors() -> Result<()> {
         &CodeChunk::new("and".into()),
         Some(vec![carol.clone()]),
     )?;
+    strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "and".into());
     assert_eq!(
         chunk.code.runs,
