@@ -22,6 +22,24 @@ import { EntityContext, entityContext } from '../ui/nodes/context'
  */
 export abstract class Entity extends LitElement {
   /**
+   * The depth of the node in the node tree
+   *
+   * The root node (e.g. `Article`) will have a depth of zero.
+   */
+  @property({ type: Number })
+  depth: number
+
+  /**
+   * The dot separated list of the types of the ancestors of the node
+   *
+   * The root node will have an empty string for this property.
+   * Other nodes will have a list of ancestor node types e.g. `Article.Paragraph.Emphasis`
+   * for `Text` within an emphasis node in a paragraph of an article.
+   */
+  @property()
+  ancestors: string
+
+  /**
    * The Id of a child node that is/or contains,
    * a currently selected node in the sourceView
    */
