@@ -67,6 +67,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
         this.docViewContext.nodeChipState === 'show-all' || this.toggle
           ? 'opacity-100'
           : 'opacity-0',
+        'hover:z-50',
         'h-8',
         'flex items-center',
         'transition duration-200',
