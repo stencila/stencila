@@ -1,58 +1,58 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This is paragraph one. It has two sentences.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This is paragraph one. It has two sentences.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Paragraph two has one person author.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Paragraph two has one person author.</stencila-text>
       </p>
       <div slot=authors>
-        <stencila-person id=xxx family-names='["Aardvark"]' given-names='["Ann"]'>
+        <stencila-person id=xxx depth=2 ancestors=Article.Paragraph family-names='["Aardvark"]' given-names='["Ann"]'>
         </stencila-person>
       </div>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Paragraph three has three authors of different types: a software application, a person, and organization</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Paragraph three has three authors of different types: a software application, a person, and organization</stencila-text>
       </p>
       <div slot=authors>
-        <stencila-software-application id=xxx @id=super-editor name=Super-editor>
+        <stencila-software-application id=xxx depth=2 ancestors=Article.Paragraph @id=super-editor name=Super-editor>
         </stencila-software-application>
-        <stencila-person id=xxx family-names='["Baboon"]' given-names='["Bob"]'>
+        <stencila-person id=xxx depth=2 ancestors=Article.Paragraph family-names='["Baboon"]' given-names='["Bob"]'>
         </stencila-person>
-        <stencila-organization id=xxx name='Acme Corp'>
+        <stencila-organization id=xxx depth=2 ancestors=Article.Paragraph name='Acme Corp'>
         </stencila-organization>
       </div>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Paragraph four has four author roles. These provide additional information for each author such as role and time.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Paragraph four has four author roles. These provide additional information for each author such as role and time.</stencila-text>
       </p>
       <div slot=authors>
-        <stencila-author-role id=xxx role-name=Instructor last-modified=1710370000000 type=Person name='Carol Coyote'>
+        <stencila-author-role id=xxx depth=2 ancestors=Article.Paragraph role-name=Instructor last-modified=1710370000000 type=Person name='Carol Coyote'>
           <div slot=author>
-            <stencila-person id=xxx family-names='["Coyote"]' given-names='["Carol"]'>
+            <stencila-person id=xxx depth=3 ancestors=Article.Paragraph.AuthorRole family-names='["Coyote"]' given-names='["Carol"]'>
             </stencila-person>
           </div>
         </stencila-author-role>
-        <stencila-author-role id=xxx role-name=Prompter last-modified=1710370005000 type=SoftwareApplication name='Insert Blocks' _id=stencila/insert-blocks>
+        <stencila-author-role id=xxx depth=2 ancestors=Article.Paragraph role-name=Prompter last-modified=1710370005000 type=SoftwareApplication name='Insert Blocks' _id=stencila/insert-blocks>
           <div slot=author>
-            <stencila-software-application id=xxx @id=stencila/insert-blocks name='Insert Blocks'>
+            <stencila-software-application id=xxx depth=3 ancestors=Article.Paragraph.AuthorRole @id=stencila/insert-blocks name='Insert Blocks'>
             </stencila-software-application>
           </div>
         </stencila-author-role>
-        <stencila-author-role id=xxx role-name=Generator last-modified=1710370006000 type=SoftwareApplication name=Mistral _id=mistral/mistral-medium>
+        <stencila-author-role id=xxx depth=2 ancestors=Article.Paragraph role-name=Generator last-modified=1710370006000 type=SoftwareApplication name=Mistral _id=mistral/mistral-medium>
           <div slot=author>
-            <stencila-software-application id=xxx @id=mistral/mistral-medium name=Mistral>
+            <stencila-software-application id=xxx depth=3 ancestors=Article.Paragraph.AuthorRole @id=mistral/mistral-medium name=Mistral>
             </stencila-software-application>
           </div>
         </stencila-author-role>
-        <stencila-author-role id=xxx role-name=Verifier last-modified=1710371000000 type=Person name='Daphne Duck'>
+        <stencila-author-role id=xxx depth=2 ancestors=Article.Paragraph role-name=Verifier last-modified=1710371000000 type=Person name='Daphne Duck'>
           <div slot=author>
-            <stencila-person id=xxx family-names='["Duck"]' given-names='["Daphne"]'>
+            <stencila-person id=xxx depth=3 ancestors=Article.Paragraph.AuthorRole family-names='["Duck"]' given-names='["Daphne"]'>
             </stencila-person>
           </div>
         </stencila-author-role>

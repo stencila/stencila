@@ -1,19 +1,19 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-claim id=xxx claim-type=Theorem>
+    <stencila-claim id=xxx depth=1 ancestors=Article claim-type=Theorem>
       <aside slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Claim>
           <p slot=content>
-            <stencila-text id=xxx>A theorem</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Claim.Paragraph>A theorem</stencila-text>
           </p>
         </stencila-paragraph>
       </aside>
     </stencila-claim>
-    <stencila-claim id=xxx claim-type=Proposition label='Proposition 1'>
+    <stencila-claim id=xxx depth=1 ancestors=Article claim-type=Proposition label='Proposition 1'>
       <aside slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Claim>
           <p slot=content>
-            <stencila-text id=xxx>A proposition with a label</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Claim.Paragraph>A proposition with a label</stencila-text>
           </p>
         </stencila-paragraph>
       </aside>

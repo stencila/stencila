@@ -1,44 +1,44 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A code block</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A code block</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-block id=xxx code='# Some python code
+    <stencila-code-block id=xxx depth=1 ancestors=Article code='# Some python code
 a = 3' programming-language=python>
       <pre>
         <code># Some python code
 a = 3</code>
       </pre>
     </stencila-code-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A code block with no language</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A code block with no language</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-block id=xxx code='No language'>
+    <stencila-code-block id=xxx depth=1 ancestors=Article code='No language'>
       <pre>
         <code>No language</code>
       </pre>
     </stencila-code-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An empty code block</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An empty code block</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-block id=xxx code=''>
+    <stencila-code-block id=xxx depth=1 ancestors=Article code=''>
       <pre>
         <code>
         </code>
       </pre>
     </stencila-code-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A code block with only whitespace</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A code block with only whitespace</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-block id=xxx code=' 	
+    <stencila-code-block id=xxx depth=1 ancestors=Article code=' 	
  '>
       <pre>
         <code>

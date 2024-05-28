@@ -1,102 +1,102 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Simple lists</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Simple lists</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>apple</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>apple</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>pear</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>pear</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>orange</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>orange</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
       </ul>
     </stencila-list>
-    <stencila-list id=xxx order=Ascending>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Ascending>
       <ol slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>first</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>first</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>second</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>second</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>third</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>third</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
       </ol>
     </stencila-list>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Nested lists</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Nested lists</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>1</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>1</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-list id=xxx order=Unordered>
+            <stencila-list id=xxx depth=3 ancestors=Article.List.ListItem order=Unordered>
               <ul slot=items>
-                <stencila-list-item id=xxx>
+                <stencila-list-item id=xxx depth=4 ancestors=Article.List.ListItem.List>
                   <li slot=content>
-                    <stencila-paragraph id=xxx>
+                    <stencila-paragraph id=xxx depth=5 ancestors=Article.List.ListItem.List.ListItem>
                       <p slot=content>
-                        <stencila-text id=xxx>2a</stencila-text>
+                        <stencila-text id=xxx depth=6 ancestors=Article.List.ListItem.List.ListItem.Paragraph>2a</stencila-text>
                       </p>
                     </stencila-paragraph>
-                    <stencila-list id=xxx order=Unordered>
+                    <stencila-list id=xxx depth=5 ancestors=Article.List.ListItem.List.ListItem order=Unordered>
                       <ul slot=items>
-                        <stencila-list-item id=xxx>
+                        <stencila-list-item id=xxx depth=6 ancestors=Article.List.ListItem.List.ListItem.List>
                           <li slot=content>
-                            <stencila-paragraph id=xxx>
+                            <stencila-paragraph id=xxx depth=7 ancestors=Article.List.ListItem.List.ListItem.List.ListItem>
                               <p slot=content>
-                                <stencila-text id=xxx>3a</stencila-text>
+                                <stencila-text id=xxx depth=8 ancestors=Article.List.ListItem.List.ListItem.List.ListItem.Paragraph>3a</stencila-text>
                               </p>
                             </stencila-paragraph>
                           </li>
@@ -105,38 +105,38 @@
                     </stencila-list>
                   </li>
                 </stencila-list-item>
-                <stencila-list-item id=xxx>
+                <stencila-list-item id=xxx depth=4 ancestors=Article.List.ListItem.List>
                   <li slot=content>
-                    <stencila-paragraph id=xxx>
+                    <stencila-paragraph id=xxx depth=5 ancestors=Article.List.ListItem.List.ListItem>
                       <p slot=content>
-                        <stencila-text id=xxx>2b</stencila-text>
+                        <stencila-text id=xxx depth=6 ancestors=Article.List.ListItem.List.ListItem.Paragraph>2b</stencila-text>
                       </p>
                     </stencila-paragraph>
                   </li>
                 </stencila-list-item>
-                <stencila-list-item id=xxx>
+                <stencila-list-item id=xxx depth=4 ancestors=Article.List.ListItem.List>
                   <li slot=content>
-                    <stencila-paragraph id=xxx>
+                    <stencila-paragraph id=xxx depth=5 ancestors=Article.List.ListItem.List.ListItem>
                       <p slot=content>
-                        <stencila-text id=xxx>2c</stencila-text>
+                        <stencila-text id=xxx depth=6 ancestors=Article.List.ListItem.List.ListItem.Paragraph>2c</stencila-text>
                       </p>
                     </stencila-paragraph>
-                    <stencila-list id=xxx order=Unordered>
+                    <stencila-list id=xxx depth=5 ancestors=Article.List.ListItem.List.ListItem order=Unordered>
                       <ul slot=items>
-                        <stencila-list-item id=xxx>
+                        <stencila-list-item id=xxx depth=6 ancestors=Article.List.ListItem.List.ListItem.List>
                           <li slot=content>
-                            <stencila-paragraph id=xxx>
+                            <stencila-paragraph id=xxx depth=7 ancestors=Article.List.ListItem.List.ListItem.List.ListItem>
                               <p slot=content>
-                                <stencila-text id=xxx>3b</stencila-text>
+                                <stencila-text id=xxx depth=8 ancestors=Article.List.ListItem.List.ListItem.List.ListItem.Paragraph>3b</stencila-text>
                               </p>
                             </stencila-paragraph>
-                            <stencila-list id=xxx order=Unordered>
+                            <stencila-list id=xxx depth=7 ancestors=Article.List.ListItem.List.ListItem.List.ListItem order=Unordered>
                               <ul slot=items>
-                                <stencila-list-item id=xxx>
+                                <stencila-list-item id=xxx depth=8 ancestors=Article.List.ListItem.List.ListItem.List.ListItem.List>
                                   <li slot=content>
-                                    <stencila-paragraph id=xxx>
+                                    <stencila-paragraph id=xxx depth=9 ancestors=Article.List.ListItem.List.ListItem.List.ListItem.List.ListItem>
                                       <p slot=content>
-                                        <stencila-text id=xxx>4a</stencila-text>
+                                        <stencila-text id=xxx depth=10 ancestors=Article.List.ListItem.List.ListItem.List.ListItem.List.ListItem.Paragraph>4a</stencila-text>
                                       </p>
                                     </stencila-paragraph>
                                   </li>
@@ -155,116 +155,116 @@
         </stencila-list-item>
       </ul>
     </stencila-list>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Lists with check boxes</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Lists with check boxes</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-list id=xxx order=Ascending>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Ascending>
       <ol slot=items>
-        <stencila-list-item id=xxx is-checked=false>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List is-checked=false>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>first</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>first</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx is-checked=true>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List is-checked=true>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>second</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>second</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx is-checked=false>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List is-checked=false>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>third</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>third</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
       </ol>
     </stencila-list>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx is-checked=true>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List is-checked=true>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>done</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>done</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx is-checked=false>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List is-checked=false>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>todo</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>todo</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx is-checked=false>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List is-checked=false>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>still todo</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>still todo</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
       </ul>
     </stencila-list>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A paragraph to keep the previous and following lists separate (otherwise they get merged).</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph to keep the previous and following lists separate (otherwise they get merged).</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>an item with an image</stencila-text>
-                <stencila-image-object id=xxx>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>an item with an image</stencila-text>
+                <stencila-image-object id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>
                   <img src=image.png>
                   </img>
                 </stencila-image-object>
-                <stencila-text id=xxx>, see!</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>, see!</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>an item with</stencila-text>
-                <stencila-emphasis id=xxx>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>an item with</stencila-text>
+                <stencila-emphasis id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>
                   <em>
-                    <stencila-text id=xxx>emphasis</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.List.ListItem.Paragraph.Emphasis>emphasis</stencila-text>
                   </em>
                 </stencila-emphasis>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>an item with HTML</stencila-text>
-                <stencila-underline id=xxx>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>an item with HTML</stencila-text>
+                <stencila-underline id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>
                   <u>
-                    <stencila-text id=xxx>underlined</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.List.ListItem.Paragraph.Underline>underlined</stencila-text>
                   </u>
                 </stencila-underline>
               </p>
@@ -273,102 +273,102 @@
         </stencila-list-item>
       </ul>
     </stencila-list>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A list with multiple paragraphs in each item</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A list with multiple paragraphs in each item</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>para 1a</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>para 1a</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>para 1b</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>para 1b</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>para 1c</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>para 1c</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>para 2a</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>para 2a</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>para 2b</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>para 2b</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>para 3</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>para 3</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
       </ul>
     </stencila-list>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A list with it, and some of it&#x27;s items, having authors</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A list with it, and some of it&#x27;s items, having authors</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>With two authors</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>With two authors</stencila-text>
               </p>
               <div slot=authors>
-                <stencila-person id=xxx given-names='["Roger"]'>
+                <stencila-person id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph given-names='["Roger"]'>
                 </stencila-person>
-                <stencila-software-application id=xxx name=Super-list-maker>
+                <stencila-software-application id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph name=Super-list-maker>
                 </stencila-software-application>
               </div>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>No authors</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>No authors</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>With three authors</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>With three authors</stencila-text>
               </p>
               <div slot=authors>
-                <stencila-person id=xxx given-names='["Alice"]'>
+                <stencila-person id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph given-names='["Alice"]'>
                 </stencila-person>
-                <stencila-person id=xxx given-names='["Zoe"]'>
+                <stencila-person id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph given-names='["Zoe"]'>
                 </stencila-person>
-                <stencila-author-role id=xxx role-name=Generator type=SoftwareApplication name=GPT>
+                <stencila-author-role id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph role-name=Generator type=SoftwareApplication name=GPT>
                   <div slot=author>
-                    <stencila-software-application id=xxx name=GPT>
+                    <stencila-software-application id=xxx depth=5 ancestors=Article.List.ListItem.Paragraph.AuthorRole name=GPT>
                     </stencila-software-application>
                   </div>
                 </stencila-author-role>
@@ -378,11 +378,11 @@
         </stencila-list-item>
       </ul>
       <div slot=authors>
-        <stencila-person id=xxx given-names='["Patricia"]'>
+        <stencila-person id=xxx depth=2 ancestors=Article.List given-names='["Patricia"]'>
         </stencila-person>
-        <stencila-person id=xxx given-names='["Roger"]'>
+        <stencila-person id=xxx depth=2 ancestors=Article.List given-names='["Roger"]'>
         </stencila-person>
-        <stencila-software-application id=xxx name=Super-list-maker>
+        <stencila-software-application id=xxx depth=2 ancestors=Article.List name=Super-list-maker>
         </stencila-software-application>
       </div>
     </stencila-list>

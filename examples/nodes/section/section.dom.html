@@ -1,57 +1,57 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-section id=xxx>
+    <stencila-section id=xxx depth=1 ancestors=Article>
       <section slot=content>
-        <stencila-heading id=xxx level=1>
+        <stencila-heading id=xxx depth=2 ancestors=Article.Section level=1>
           <h1 slot=content>
-            <stencila-text id=xxx>Introduction</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Heading>Introduction</stencila-text>
           </h1>
         </stencila-heading>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>
           <p slot=content>
-            <stencila-text id=xxx>Sections will usually start with a header.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Paragraph>Sections will usually start with a header.</stencila-text>
           </p>
         </stencila-paragraph>
       </section>
     </stencila-section>
-    <stencila-section id=xxx>
+    <stencila-section id=xxx depth=1 ancestors=Article>
       <section slot=content>
-        <stencila-heading id=xxx level=1>
+        <stencila-heading id=xxx depth=2 ancestors=Article.Section level=1>
           <h1 slot=content>
-            <stencila-text id=xxx>Nested sections</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Heading>Nested sections</stencila-text>
           </h1>
         </stencila-heading>
-        <stencila-section id=xxx>
+        <stencila-section id=xxx depth=2 ancestors=Article.Section>
           <section slot=content>
-            <stencila-heading id=xxx level=2>
+            <stencila-heading id=xxx depth=3 ancestors=Article.Section.Section level=2>
               <h2 slot=content>
-                <stencila-text id=xxx>Inner section</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Section.Section.Heading>Inner section</stencila-text>
               </h2>
             </stencila-heading>
-            <stencila-section id=xxx>
+            <stencila-section id=xxx depth=3 ancestors=Article.Section.Section>
               <section slot=content>
-                <stencila-heading id=xxx level=3>
+                <stencila-heading id=xxx depth=4 ancestors=Article.Section.Section.Section level=3>
                   <h3 slot=content>
-                    <stencila-text id=xxx>First inner-inner section</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Section.Section.Section.Heading>First inner-inner section</stencila-text>
                   </h3>
                 </stencila-heading>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.Section.Section.Section>
                   <p slot=content>
-                    <stencila-text id=xxx>This is the first inner-inner section</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Section.Section.Section.Paragraph>This is the first inner-inner section</stencila-text>
                   </p>
                 </stencila-paragraph>
               </section>
             </stencila-section>
-            <stencila-section id=xxx>
+            <stencila-section id=xxx depth=3 ancestors=Article.Section.Section>
               <section slot=content>
-                <stencila-heading id=xxx level=3>
+                <stencila-heading id=xxx depth=4 ancestors=Article.Section.Section.Section level=3>
                   <h3 slot=content>
-                    <stencila-text id=xxx>Second inner-inner section</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Section.Section.Section.Heading>Second inner-inner section</stencila-text>
                   </h3>
                 </stencila-heading>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.Section.Section.Section>
                   <p slot=content>
-                    <stencila-text id=xxx>This is the second inner-inner section</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Section.Section.Section.Paragraph>This is the second inner-inner section</stencila-text>
                   </p>
                 </stencila-paragraph>
               </section>
@@ -60,38 +60,38 @@
         </stencila-section>
       </section>
     </stencila-section>
-    <stencila-section id=xxx section-type=Header>
+    <stencila-section id=xxx depth=1 ancestors=Article section-type=Header>
       <section slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>
           <p slot=content>
-            <stencila-text id=xxx>This is the header</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Paragraph>This is the header</stencila-text>
           </p>
         </stencila-paragraph>
       </section>
     </stencila-section>
-    <stencila-section id=xxx section-type=Introduction>
+    <stencila-section id=xxx depth=1 ancestors=Article section-type=Introduction>
       <section slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>
           <p slot=content>
-            <stencila-text id=xxx>This is the introduction</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Paragraph>This is the introduction</stencila-text>
           </p>
         </stencila-paragraph>
       </section>
     </stencila-section>
-    <stencila-section id=xxx section-type=Conclusion>
+    <stencila-section id=xxx depth=1 ancestors=Article section-type=Conclusion>
       <section slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>
           <p slot=content>
-            <stencila-text id=xxx>This is the conclusion</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Paragraph>This is the conclusion</stencila-text>
           </p>
         </stencila-paragraph>
       </section>
     </stencila-section>
-    <stencila-section id=xxx section-type=Footer>
+    <stencila-section id=xxx depth=1 ancestors=Article section-type=Footer>
       <section slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>
           <p slot=content>
-            <stencila-text id=xxx>This is the footer</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Paragraph>This is the footer</stencila-text>
           </p>
         </stencila-paragraph>
       </section>

@@ -1,18 +1,18 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An include of a sibling example:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An include of a sibling example:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-include-block id=xxx source=../heading/heading.md>
+    <stencila-include-block id=xxx depth=1 ancestors=Article source=../heading/heading.md>
     </stencila-include-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An include of a remote document:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An include of a remote document:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-include-block id=xxx source=http://example.org/document.md>
+    <stencila-include-block id=xxx depth=1 ancestors=Article source=http://example.org/document.md>
     </stencila-include-block>
   </section>
 </stencila-article>

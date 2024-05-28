@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 
 use common::{
-    inflector::Inflector, once_cell::sync::Lazy, regex::Regex, serde::Serialize, serde_json,
-    smart_default::SmartDefault,
+    inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
+    serde::Serialize, serde_json, smart_default::SmartDefault,
 };
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 use node_id::NodeId;
@@ -110,6 +110,9 @@ pub struct DomEncodeContext {
     /// The DOM HTML content
     content: String,
 
+    /// The node type of ancestors of the current node
+    node_types: Vec<NodeType>,
+
     /// The names of the current stack of HTML elements
     elements: Vec<String>,
 
@@ -169,7 +172,21 @@ impl DomEncodeContext {
     /// Enter a node
     pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
         let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
-        self.enter_elem_attrs(&name, [("id", &node_id.to_string())])
+        let id = node_id.to_string();
+        let depth = self.node_types.len().to_string();
+        let ancestors = self
+            .node_types
+            .iter()
+            .map(|node_type| node_type.to_string())
+            .join(".");
+
+        self.enter_elem_attrs(
+            &name,
+            [("id", &id), ("depth", &depth), ("ancestors", &ancestors)],
+        );
+        self.node_types.push(node_type);
+
+        self
     }
 
     /// Push an attribute onto the current element
@@ -275,7 +292,10 @@ impl DomEncodeContext {
 
     /// Exit a node
     pub fn exit_node(&mut self) -> &mut Self {
-        self.exit_elem()
+        self.exit_elem();
+        self.node_types.pop();
+
+        self
     }
 
     /// Get the content of the encoding context at completion of encoding

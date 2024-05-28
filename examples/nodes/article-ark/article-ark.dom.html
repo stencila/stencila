@@ -1,278 +1,278 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This is a paragraph with</stencila-text>
-        <stencila-audio-object id=xxx content-url=https://example.org/cat.mp3 caption='[{"type":"Text","value":"audio"}]'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This is a paragraph with</stencila-text>
+        <stencila-audio-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.mp3 caption='[{"type":"Text","value":"audio"}]'>
         </stencila-audio-object>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-code-expression id=xxx code='code expression'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-code-expression id=xxx depth=2 ancestors=Article.Paragraph code='code expression'>
         </stencila-code-expression>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-code-inline id=xxx code='inline code'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-code-inline id=xxx depth=2 ancestors=Article.Paragraph code='inline code'>
           <code>inline code</code>
         </stencila-code-inline>
-        <stencila-delete-inline id=xxx>
+        <stencila-delete-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <span slot=content>
-            <stencila-text id=xxx>, delete</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>, delete</stencila-text>
           </span>
         </stencila-delete-inline>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-emphasis id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-emphasis id=xxx depth=2 ancestors=Article.Paragraph>
           <em>
-            <stencila-text id=xxx>emphasis</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Emphasis>emphasis</stencila-text>
           </em>
         </stencila-emphasis>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-image-object id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-image-object id=xxx depth=2 ancestors=Article.Paragraph>
           <img src=https://example.org/cat.jpg>
           </img>
           <span slot=caption>
-            <stencila-text id=xxx>image</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ImageObject>image</stencila-text>
           </span>
         </stencila-image-object>
-        <stencila-insert-inline id=xxx>
+        <stencila-insert-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <span slot=content>
-            <stencila-text id=xxx>, insert</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.InsertInline>, insert</stencila-text>
           </span>
         </stencila-insert-inline>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-link id=xxx target=https://example.org>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org>
           <span slot=content>
-            <stencila-text id=xxx>link</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>link</stencila-text>
           </span>
         </stencila-link>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-math-inline id=xxx code='inline math'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-math-inline id=xxx depth=2 ancestors=Article.Paragraph code='inline math'>
         </stencila-math-inline>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-note id=xxx note-type=Footnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Footnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A footnote</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A footnote</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-parameter id=xxx name=parameter>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=parameter>
         </stencila-parameter>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-quote-inline id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-quote-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <q>
-            <stencila-text id=xxx>inline quote</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.QuoteInline>inline quote</stencila-text>
           </q>
         </stencila-quote-inline>
-        <stencila-replace-inline id=xxx>
+        <stencila-replace-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <span slot=content>
-            <stencila-text id=xxx>, old</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ReplaceInline>, old</stencila-text>
           </span>
           <span slot=replacement>
-            <stencila-text id=xxx>, new</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ReplaceInline>, new</stencila-text>
           </span>
         </stencila-replace-inline>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-styled-inline id=xxx code=text-blue-400>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code=text-blue-400>
           <span slot=content>
-            <stencila-text id=xxx>styled inline</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>styled inline</stencila-text>
           </span>
         </stencila-styled-inline>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-strikeout id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-strikeout id=xxx depth=2 ancestors=Article.Paragraph>
           <s>
-            <stencila-text id=xxx>strikeout</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Strikeout>strikeout</stencila-text>
           </s>
         </stencila-strikeout>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-strong id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-strong id=xxx depth=2 ancestors=Article.Paragraph>
           <strong>
-            <stencila-text id=xxx>strong emphasis</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Strong>strong emphasis</stencila-text>
           </strong>
         </stencila-strong>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-subscript id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-subscript id=xxx depth=2 ancestors=Article.Paragraph>
           <sub>
-            <stencila-text id=xxx>subscript</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Subscript>subscript</stencila-text>
           </sub>
         </stencila-subscript>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-superscript id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-superscript id=xxx depth=2 ancestors=Article.Paragraph>
           <sup>
-            <stencila-text id=xxx>superscript</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Superscript>superscript</stencila-text>
           </sup>
         </stencila-superscript>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-underline id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-underline id=xxx depth=2 ancestors=Article.Paragraph>
           <u>
-            <stencila-text id=xxx>underline</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Underline>underline</stencila-text>
           </u>
         </stencila-underline>
-        <stencila-text id=xxx>,</stencila-text>
-        <stencila-video-object id=xxx content-url=https://example.org/cat.mp4 caption='[{"type":"Text","value":"video"}]'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
+        <stencila-video-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.mp4 caption='[{"type":"Text","value":"video"}]'>
         </stencila-video-object>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-call-block id=xxx source=this/is/a/call>
+    <stencila-call-block id=xxx depth=1 ancestors=Article source=this/is/a/call>
     </stencila-call-block>
-    <stencila-claim id=xxx claim-type=Statement>
+    <stencila-claim id=xxx depth=1 ancestors=Article claim-type=Statement>
       <aside slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Claim>
           <p slot=content>
-            <stencila-text id=xxx>This is a claim</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Claim.Paragraph>This is a claim</stencila-text>
           </p>
         </stencila-paragraph>
       </aside>
     </stencila-claim>
-    <stencila-code-block id=xxx code='This is a code block'>
+    <stencila-code-block id=xxx depth=1 ancestors=Article code='This is a code block'>
       <pre>
         <code>This is a code block</code>
       </pre>
     </stencila-code-block>
-    <stencila-code-chunk id=xxx code='This is a code chunk'>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code='This is a code chunk'>
     </stencila-code-chunk>
-    <stencila-delete-block id=xxx>
+    <stencila-delete-block id=xxx depth=1 ancestors=Article>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.DeleteBlock>
           <p slot=content>
-            <stencila-text id=xxx>This paragraph is to be deleted</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.DeleteBlock.Paragraph>This paragraph is to be deleted</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-delete-block>
-    <stencila-figure id=xxx>
+    <stencila-figure id=xxx depth=1 ancestors=Article>
       <figure slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
           <p slot=content>
-            <stencila-text id=xxx>This is a figure</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>This is a figure</stencila-text>
           </p>
         </stencila-paragraph>
       </figure>
     </stencila-figure>
-    <stencila-for-block id=xxx code=items variable=item>
+    <stencila-for-block id=xxx depth=1 ancestors=Article code=items variable=item>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ForBlock>
           <p slot=content>
-            <stencila-text id=xxx>This is a for block</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ForBlock.Paragraph>This is a for block</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-for-block>
-    <stencila-heading id=xxx level=1>
+    <stencila-heading id=xxx depth=1 ancestors=Article level=1>
       <h1 slot=content>
-        <stencila-text id=xxx>This is a heading</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Heading>This is a heading</stencila-text>
       </h1>
     </stencila-heading>
-    <stencila-if-block id=xxx>
+    <stencila-if-block id=xxx depth=1 ancestors=Article>
       <div slot=clauses>
-        <stencila-if-block-clause id=xxx code='1 &lt; 2'>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code='1 &lt; 2'>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This is an if block</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This is an if block</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-include-block id=xxx source=this/is/an/include>
+    <stencila-include-block id=xxx depth=1 ancestors=Article source=this/is/an/include>
     </stencila-include-block>
-    <stencila-insert-block id=xxx>
+    <stencila-insert-block id=xxx depth=1 ancestors=Article>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.InsertBlock>
           <p slot=content>
-            <stencila-text id=xxx>This paragraph is to be inserted</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.InsertBlock.Paragraph>This paragraph is to be inserted</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-insert-block>
-    <stencila-list id=xxx order=Unordered>
+    <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
-        <stencila-list-item id=xxx>
+        <stencila-list-item id=xxx depth=2 ancestors=Article.List>
           <li slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.List.ListItem>
               <p slot=content>
-                <stencila-text id=xxx>This is a list</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.List.ListItem.Paragraph>This is a list</stencila-text>
               </p>
             </stencila-paragraph>
           </li>
         </stencila-list-item>
       </ul>
     </stencila-list>
-    <stencila-math-block id=xxx code='This is a math block'>
+    <stencila-math-block id=xxx depth=1 ancestors=Article code='This is a math block'>
     </stencila-math-block>
-    <stencila-quote-block id=xxx>
+    <stencila-quote-block id=xxx depth=1 ancestors=Article>
       <blockquote slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.QuoteBlock>
           <p slot=content>
-            <stencila-text id=xxx>This is a quote block</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.QuoteBlock.Paragraph>This is a quote block</stencila-text>
           </p>
         </stencila-paragraph>
       </blockquote>
     </stencila-quote-block>
-    <stencila-replace-block id=xxx>
+    <stencila-replace-block id=xxx depth=1 ancestors=Article>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Old paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Old paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
       <div slot=replacement>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>New paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>New paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-replace-block>
-    <stencila-section id=xxx>
+    <stencila-section id=xxx depth=1 ancestors=Article>
       <section slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>
           <p slot=content>
-            <stencila-text id=xxx>This is a section</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Section.Paragraph>This is a section</stencila-text>
           </p>
         </stencila-paragraph>
       </section>
     </stencila-section>
-    <stencila-styled-block id=xxx code='text-red-800 bg-indigo-100'>
+    <stencila-styled-block id=xxx depth=1 ancestors=Article code='text-red-800 bg-indigo-100'>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.StyledBlock>
           <p slot=content>
-            <stencila-text id=xxx>This is a styled block</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.StyledBlock.Paragraph>This is a styled block</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-styled-block>
-    <stencila-table id=xxx>
+    <stencila-table id=xxx depth=1 ancestors=Article>
       <table slot=rows>
-        <stencila-table-row id=xxx row-type=HeaderRow>
+        <stencila-table-row id=xxx depth=2 ancestors=Article.Table row-type=HeaderRow>
           <tr slot=cells>
-            <stencila-table-cell id=xxx>
+            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
               <td slot=content>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
                   <p slot=content>
-                    <stencila-text id=xxx>A</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>A</stencila-text>
                   </p>
                 </stencila-paragraph>
               </td>
             </stencila-table-cell>
           </tr>
         </stencila-table-row>
-        <stencila-table-row id=xxx>
+        <stencila-table-row id=xxx depth=2 ancestors=Article.Table>
           <tr slot=cells>
-            <stencila-table-cell id=xxx>
+            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
               <td slot=content>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
                   <p slot=content>
-                    <stencila-text id=xxx>1</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>1</stencila-text>
                   </p>
                 </stencila-paragraph>
               </td>
@@ -281,7 +281,7 @@
         </stencila-table-row>
       </table>
     </stencila-table>
-    <stencila-thematic-break id=xxx>
+    <stencila-thematic-break id=xxx depth=1 ancestors=Article>
     </stencila-thematic-break>
   </section>
 </stencila-article>

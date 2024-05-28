@@ -1,44 +1,44 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An image</stencila-text>
-        <stencila-image-object id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An image</stencila-text>
+        <stencila-image-object id=xxx depth=2 ancestors=Article.Paragraph>
           <img src=https://example.org/cat.jpg>
           </img>
         </stencila-image-object>
-        <stencila-text id=xxx>, with a caption</stencila-text>
-        <stencila-image-object id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with a caption</stencila-text>
+        <stencila-image-object id=xxx depth=2 ancestors=Article.Paragraph>
           <img src=https://example.org/cat.jpg>
           </img>
           <span slot=caption>
-            <stencila-text id=xxx>A cat</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ImageObject>A cat</stencila-text>
           </span>
         </stencila-image-object>
-        <stencila-text id=xxx>, with a caption and title</stencila-text>
-        <stencila-image-object id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with a caption and title</stencila-text>
+        <stencila-image-object id=xxx depth=2 ancestors=Article.Paragraph>
           <img src=https://example.org/cat.jpg>
           </img>
           <span slot=title>
-            <stencila-text id=xxx>The cat</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ImageObject>The cat</stencila-text>
           </span>
           <span slot=caption>
-            <stencila-text id=xxx>A cat</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ImageObject>A cat</stencila-text>
           </span>
         </stencila-image-object>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Some audio</stencila-text>
-        <stencila-audio-object id=xxx content-url=https://example.org/cat.mp3>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Some audio</stencila-text>
+        <stencila-audio-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.mp3>
         </stencila-audio-object>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A video</stencila-text>
-        <stencila-video-object id=xxx content-url=https://example.org/cat.mp4>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A video</stencila-text>
+        <stencila-video-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.mp4>
         </stencila-video-object>
       </p>
     </stencila-paragraph>

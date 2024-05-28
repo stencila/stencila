@@ -1,29 +1,29 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A link</stencila-text>
-        <stencila-link id=xxx target=https://example.org>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A link</stencila-text>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org>
           <span slot=content>
-            <stencila-text id=xxx>example.org</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>example.org</stencila-text>
           </span>
         </stencila-link>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With a title and styled content</stencila-text>
-        <stencila-link id=xxx target=https://example.org title='a title'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With a title and styled content</stencila-text>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org title='a title'>
           <span slot=content>
-            <stencila-strong id=xxx>
+            <stencila-strong id=xxx depth=3 ancestors=Article.Paragraph.Link>
               <strong>
-                <stencila-text id=xxx>example.org</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Link.Strong>example.org</stencila-text>
               </strong>
             </stencila-strong>
           </span>
         </stencila-link>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

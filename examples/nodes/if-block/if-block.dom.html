@@ -1,138 +1,138 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A simple if block</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A simple if block</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-if-block id=xxx>
+    <stencila-if-block id=xxx depth=1 ancestors=Article>
       <div slot=clauses>
-        <stencila-if-block-clause id=xxx code=true>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=true>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This paragraph should be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This paragraph should be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An if block with programming language specified</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An if block with programming language specified</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-if-block id=xxx>
+    <stencila-if-block id=xxx depth=1 ancestors=Article>
       <div slot=clauses>
-        <stencila-if-block-clause id=xxx code=True programming-language=python>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=True programming-language=python>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This paragraph should be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This paragraph should be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With an else clause</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With an else clause</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-if-block id=xxx>
+    <stencila-if-block id=xxx depth=1 ancestors=Article>
       <div slot=clauses>
-        <stencila-if-block-clause id=xxx code=false>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=false>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This paragraph should NOT be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This paragraph should NOT be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
-        <stencila-if-block-clause id=xxx code=''>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=''>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This paragraph should be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This paragraph should be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With multiple clauses</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With multiple clauses</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-if-block id=xxx>
+    <stencila-if-block id=xxx depth=1 ancestors=Article>
       <div slot=clauses>
-        <stencila-if-block-clause id=xxx code=false>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=false>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This first paragraph should NOT be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This first paragraph should NOT be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
-        <stencila-if-block-clause id=xxx code=false>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=false>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This second paragraph should NOT be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This second paragraph should NOT be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
-        <stencila-if-block-clause id=xxx code=true>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=true>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This third paragraph should be shown</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This third paragraph should be shown</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
-        <stencila-if-block-clause id=xxx code=true>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=true>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This fourth paragraph should NOT be shown because above clause is</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This fourth paragraph should NOT be shown because above clause is</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
-        <stencila-if-block-clause id=xxx code=''>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=''>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <p slot=content>
-                <stencila-text id=xxx>This final paragraph should NOT be shown because above clause is</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.Paragraph>This final paragraph should NOT be shown because above clause is</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Nested if blocks</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Nested if blocks</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-if-block id=xxx>
+    <stencila-if-block id=xxx depth=1 ancestors=Article>
       <div slot=clauses>
-        <stencila-if-block-clause id=xxx code=true>
+        <stencila-if-block-clause id=xxx depth=2 ancestors=Article.IfBlock code=true>
           <div slot=content>
-            <stencila-if-block id=xxx>
+            <stencila-if-block id=xxx depth=3 ancestors=Article.IfBlock.IfBlockClause>
               <div slot=clauses>
-                <stencila-if-block-clause id=xxx code=true>
+                <stencila-if-block-clause id=xxx depth=4 ancestors=Article.IfBlock.IfBlockClause.IfBlock code=true>
                   <div slot=content>
-                    <stencila-paragraph id=xxx>
+                    <stencila-paragraph id=xxx depth=5 ancestors=Article.IfBlock.IfBlockClause.IfBlock.IfBlockClause>
                       <p slot=content>
-                        <stencila-text id=xxx>This paragraph should be shown</stencila-text>
+                        <stencila-text id=xxx depth=6 ancestors=Article.IfBlock.IfBlockClause.IfBlock.IfBlockClause.Paragraph>This paragraph should be shown</stencila-text>
                       </p>
                     </stencila-paragraph>
                   </div>

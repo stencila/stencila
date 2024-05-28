@@ -1,21 +1,21 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A code fragment:</stencila-text>
-        <stencila-code-inline id=xxx code='2 * pi * r^2'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A code fragment:</stencila-text>
+        <stencila-code-inline id=xxx depth=2 ancestors=Article.Paragraph code='2 * pi * r^2'>
           <code>2 * pi * r^2</code>
         </stencila-code-inline>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With language:</stencila-text>
-        <stencila-code-inline id=xxx code='6 * 7' programming-language=python>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With language:</stencila-text>
+        <stencila-code-inline id=xxx depth=2 ancestors=Article.Paragraph code='6 * 7' programming-language=python>
           <code>6 * 7</code>
         </stencila-code-inline>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

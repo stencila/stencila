@@ -1,57 +1,57 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions:</stencila-text>
-        <stencila-note id=xxx note-type=Footnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions:</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Footnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A paragraph</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A paragraph</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>, a</stencila-text>
-        <stencila-note id=xxx note-type=Footnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, a</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Footnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>First paragraph.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>First paragraph.</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>Second paragraph.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>Second paragraph.</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>, a</stencila-text>
-        <stencila-note id=xxx note-type=Footnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, a</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Footnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A paragraph.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A paragraph.</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-code-block id=xxx code='A code block'>
+            <stencila-code-block id=xxx depth=3 ancestors=Article.Paragraph.Note code='A code block'>
               <pre>
                 <code>A code block</code>
               </pre>
             </stencila-code-block>
-            <stencila-quote-block id=xxx>
+            <stencila-quote-block id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <blockquote slot=content>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.Paragraph.Note.QuoteBlock>
                   <p slot=content>
-                    <stencila-text id=xxx>A quote block</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Paragraph.Note.QuoteBlock.Paragraph>A quote block</stencila-text>
                   </p>
                 </stencila-paragraph>
               </blockquote>
             </stencila-quote-block>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

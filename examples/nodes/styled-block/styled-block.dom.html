@@ -1,71 +1,71 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A styled block with two paragraphs:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A styled block with two paragraphs:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-styled-block id=xxx code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
+    <stencila-styled-block id=xxx depth=1 ancestors=Article code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.StyledBlock>
           <p slot=content>
-            <stencila-text id=xxx>Styled paragraph one.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.StyledBlock.Paragraph>Styled paragraph one.</stencila-text>
           </p>
         </stencila-paragraph>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.StyledBlock>
           <p slot=content>
-            <stencila-text id=xxx>Styled paragraph two.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.StyledBlock.Paragraph>Styled paragraph two.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-styled-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With style language specified:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With style language specified:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-styled-block id=xxx code=color:red style-language=css>
+    <stencila-styled-block id=xxx depth=1 ancestors=Article code=color:red style-language=css>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.StyledBlock>
           <p slot=content>
-            <stencila-text id=xxx>Styled paragraph.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.StyledBlock.Paragraph>Styled paragraph.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-styled-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Nested styled blocks:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Nested styled blocks:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-styled-block id=xxx code='bg-red-100 p-2'>
+    <stencila-styled-block id=xxx depth=1 ancestors=Article code='bg-red-100 p-2'>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.StyledBlock>
           <p slot=content>
-            <stencila-text id=xxx>Outer paragraph.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.StyledBlock.Paragraph>Outer paragraph.</stencila-text>
           </p>
         </stencila-paragraph>
-        <stencila-styled-block id=xxx code=bg-blue-100>
+        <stencila-styled-block id=xxx depth=2 ancestors=Article.StyledBlock code=bg-blue-100>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.StyledBlock.StyledBlock>
               <p slot=content>
-                <stencila-text id=xxx>Inner paragraph.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.StyledBlock.StyledBlock.Paragraph>Inner paragraph.</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
         </stencila-styled-block>
       </div>
     </stencila-styled-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Containing variable interpolations:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Containing variable interpolations:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-styled-block id=xxx code='bg-red-{{var1}} p-$var2 m-$var3'>
+    <stencila-styled-block id=xxx depth=1 ancestors=Article code='bg-red-{{var1}} p-$var2 m-$var3'>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.StyledBlock>
           <p slot=content>
-            <stencila-text id=xxx>Dynamically styled paragraph.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.StyledBlock.Paragraph>Dynamically styled paragraph.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>

@@ -1,37 +1,37 @@
-<stencila-article id=xxx date-created='{"type":"Date","value":"2001-01-01"}' date-accepted='{"type":"Date","value":"2011-11-11"}' date-published='{"type":"Date","value":"2022-02-22"}' root>
+<stencila-article id=xxx depth=0 ancestors='' date-created='{"type":"Date","value":"2001-01-01"}' date-accepted='{"type":"Date","value":"2011-11-11"}' date-published='{"type":"Date","value":"2022-02-22"}' root>
   <section slot=funders>
-    <stencila-organization id=xxx name='Example Inc'>
+    <stencila-organization id=xxx depth=1 ancestors=Article name='Example Inc'>
     </stencila-organization>
-    <stencila-person id=xxx family-names='["Zenon"]' given-names='["Zorro"]'>
+    <stencila-person id=xxx depth=1 ancestors=Article family-names='["Zenon"]' given-names='["Zorro"]'>
     </stencila-person>
   </section>
   <section slot=authors>
-    <stencila-person id=xxx family-names='["Anderson"]' given-names='["Anne"]' honorific-prefix=Dr.>
+    <stencila-person id=xxx depth=1 ancestors=Article family-names='["Anderson"]' given-names='["Anne"]' honorific-prefix=Dr.>
     </stencila-person>
-    <stencila-organization id=xxx name='Acme Inc'>
+    <stencila-organization id=xxx depth=1 ancestors=Article name='Acme Inc'>
     </stencila-organization>
-    <stencila-person id=xxx family-names='["Andrews"]'>
+    <stencila-person id=xxx depth=1 ancestors=Article family-names='["Andrews"]'>
     </stencila-person>
   </section>
   <h1 slot=title>
-    <stencila-text id=xxx>Adding metadata to articles in Stencila</stencila-text>
+    <stencila-text id=xxx depth=1 ancestors=Article>Adding metadata to articles in Stencila</stencila-text>
   </h1>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An example article for testing metadata encoding in various formats. It illustrates Stencila&#x27;s focus on the</stencila-text>
-        <stencila-link id=xxx target=https://en.wikipedia.org/wiki/Robustness_principle>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An example article for testing metadata encoding in various formats. It illustrates Stencila&#x27;s focus on the</stencila-text>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://en.wikipedia.org/wiki/Robustness_principle>
           <span slot=content>
-            <stencila-text id=xxx>Robustness Principle</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>Robustness Principle</stencila-text>
           </span>
         </stencila-link>
-        <stencila-text id=xxx>:</stencila-text>
-        <stencila-quote-inline id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>:</stencila-text>
+        <stencila-quote-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <q>
-            <stencila-text id=xxx>be conservative in what you do, be liberal in what you accept from others</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.QuoteInline>be conservative in what you do, be liberal in what you accept from others</stencila-text>
           </q>
         </stencila-quote-inline>
-        <stencila-text id=xxx>. Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>. Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

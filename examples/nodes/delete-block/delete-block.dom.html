@@ -1,28 +1,28 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-delete-block id=xxx>
+    <stencila-delete-block id=xxx depth=1 ancestors=Article>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.DeleteBlock>
           <p slot=content>
-            <stencila-text id=xxx>Proposed deleted paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.DeleteBlock.Paragraph>Proposed deleted paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-delete-block>
-    <stencila-delete-block id=xxx suggestion-status=Accepted>
+    <stencila-delete-block id=xxx depth=1 ancestors=Article suggestion-status=Accepted>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.DeleteBlock>
           <p slot=content>
-            <stencila-text id=xxx>Accepted deleted paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.DeleteBlock.Paragraph>Accepted deleted paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-delete-block>
-    <stencila-delete-block id=xxx suggestion-status=Rejected>
+    <stencila-delete-block id=xxx depth=1 ancestors=Article suggestion-status=Rejected>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.DeleteBlock>
           <p slot=content>
-            <stencila-text id=xxx>Rejected deleted paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.DeleteBlock.Paragraph>Rejected deleted paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>

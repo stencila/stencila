@@ -1,10 +1,10 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-figure id=xxx>
+    <stencila-figure id=xxx depth=1 ancestors=Article>
       <figure slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
           <p slot=content>
-            <stencila-image-object id=xxx>
+            <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Paragraph>
               <img src=https://example.org/cat.jpg>
               </img>
             </stencila-image-object>
@@ -12,11 +12,11 @@
         </stencila-paragraph>
       </figure>
     </stencila-figure>
-    <stencila-figure id=xxx label=2 label-automatically=false>
+    <stencila-figure id=xxx depth=1 ancestors=Article label=2 label-automatically=false>
       <figure slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
           <p slot=content>
-            <stencila-image-object id=xxx>
+            <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Paragraph>
               <img src=https://example.org/dog.jpg>
               </img>
             </stencila-image-object>
@@ -24,20 +24,20 @@
         </stencila-paragraph>
       </figure>
       <figcaption slot=caption>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
           <p slot=content>
-            <stencila-text id=xxx>A dog.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A dog.</stencila-text>
           </p>
         </stencila-paragraph>
       </figcaption>
     </stencila-figure>
-    <stencila-section id=xxx>
+    <stencila-section id=xxx depth=1 ancestors=Article>
       <section slot=content>
-        <stencila-figure id=xxx>
+        <stencila-figure id=xxx depth=2 ancestors=Article.Section>
           <figure slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Section.Figure>
               <p slot=content>
-                <stencila-image-object id=xxx>
+                <stencila-image-object id=xxx depth=4 ancestors=Article.Section.Figure.Paragraph>
                   <img src=https://example.org/mouse.jpg>
                   </img>
                 </stencila-image-object>
@@ -45,9 +45,9 @@
             </stencila-paragraph>
           </figure>
           <figcaption slot=caption>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Section.Figure>
               <p slot=content>
-                <stencila-text id=xxx>A figure of a mouse inside a section.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Section.Figure.Paragraph>A figure of a mouse inside a section.</stencila-text>
               </p>
             </stencila-paragraph>
           </figcaption>

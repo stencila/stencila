@@ -1,92 +1,92 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This paragraph has a simple notes:</stencila-text>
-        <stencila-note id=xxx note-type=Footnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This paragraph has a simple notes:</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Footnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A footnote</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A footnote</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>, a</stencila-text>
-        <stencila-note id=xxx note-type=Endnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, a</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Endnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>An endnote</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>An endnote</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>, a</stencila-text>
-        <stencila-note id=xxx note-type=Sidenote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, a</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Sidenote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A side note</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A side note</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This paragraph has a more complex notes:</stencila-text>
-        <stencila-note id=xxx note-type=Footnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This paragraph has a more complex notes:</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Footnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A footnote with...</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A footnote with...</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>Another paragraph</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>Another paragraph</stencila-text>
               </p>
             </stencila-paragraph>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>, a</stencila-text>
-        <stencila-note id=xxx note-type=Endnote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, a</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Endnote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>An endnote with...</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>An endnote with...</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-code-block id=xxx code='A code block'>
+            <stencila-code-block id=xxx depth=3 ancestors=Article.Paragraph.Note code='A code block'>
               <pre>
                 <code>A code block</code>
               </pre>
             </stencila-code-block>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>, a</stencila-text>
-        <stencila-note id=xxx note-type=Sidenote>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, a</stencila-text>
+        <stencila-note id=xxx depth=2 ancestors=Article.Paragraph note-type=Sidenote>
           <aside slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <p slot=content>
-                <stencila-text id=xxx>A sidenote with...</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.Note.Paragraph>A sidenote with...</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-quote-block id=xxx>
+            <stencila-quote-block id=xxx depth=3 ancestors=Article.Paragraph.Note>
               <blockquote slot=content>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.Paragraph.Note.QuoteBlock>
                   <p slot=content>
-                    <stencila-text id=xxx>A quote block</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.Paragraph.Note.QuoteBlock.Paragraph>A quote block</stencila-text>
                   </p>
                 </stencila-paragraph>
               </blockquote>
             </stencila-quote-block>
           </aside>
         </stencila-note>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

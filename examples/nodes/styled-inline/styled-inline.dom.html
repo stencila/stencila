@@ -1,43 +1,43 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A</stencila-text>
-        <stencila-styled-inline id=xxx code=text-green-600>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A</stencila-text>
+        <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code=text-green-600>
           <span slot=content>
-            <stencila-text id=xxx>styled span</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>styled span</stencila-text>
           </span>
         </stencila-styled-inline>
-        <stencila-text id=xxx>, and one with language specified:</stencila-text>
-        <stencila-styled-inline id=xxx code=color:red style-language=css>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, and one with language specified:</stencila-text>
+        <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code=color:red style-language=css>
           <span slot=content>
-            <stencila-text id=xxx>CSS span</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>CSS span</stencila-text>
           </span>
         </stencila-styled-inline>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Containing other spans</stencila-text>
-        <stencila-styled-inline id=xxx code=text-blue-600>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Containing other spans</stencila-text>
+        <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code=text-blue-600>
           <span slot=content>
-            <stencila-text id=xxx>blue</stencila-text>
-            <stencila-styled-inline id=xxx code=text-red-600>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>blue</stencila-text>
+            <stencila-styled-inline id=xxx depth=3 ancestors=Article.Paragraph.StyledInline code=text-red-600>
               <span slot=content>
-                <stencila-text id=xxx>red</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.StyledInline.StyledInline>red</stencila-text>
               </span>
             </stencila-styled-inline>
-            <stencila-text id=xxx>blue</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>blue</stencila-text>
           </span>
         </stencila-styled-inline>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Containing variable interpolations</stencila-text>
-        <stencila-styled-inline id=xxx code='color: {{var1}}; padding: {{var2}}; margin: $var3'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Containing variable interpolations</stencila-text>
+        <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code='color: {{var1}}; padding: {{var2}}; margin: $var3'>
           <span slot=content>
-            <stencila-text id=xxx>styled</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>styled</stencila-text>
           </span>
         </stencila-styled-inline>
       </p>

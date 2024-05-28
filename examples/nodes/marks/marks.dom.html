@@ -1,66 +1,66 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This is</stencila-text>
-        <stencila-emphasis id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This is</stencila-text>
+        <stencila-emphasis id=xxx depth=2 ancestors=Article.Paragraph>
           <em>
-            <stencila-text id=xxx>emphasized</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Emphasis>emphasized</stencila-text>
           </em>
         </stencila-emphasis>
-        <stencila-text id=xxx>, and this is</stencila-text>
-        <stencila-strong id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, and this is</stencila-text>
+        <stencila-strong id=xxx depth=2 ancestors=Article.Paragraph>
           <strong>
-            <stencila-text id=xxx>strongly emphasized</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Strong>strongly emphasized</stencila-text>
           </strong>
         </stencila-strong>
-        <stencila-text id=xxx>, and this is</stencila-text>
-        <stencila-underline id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, and this is</stencila-text>
+        <stencila-underline id=xxx depth=2 ancestors=Article.Paragraph>
           <u>
-            <stencila-text id=xxx>underlined</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Underline>underlined</stencila-text>
           </u>
         </stencila-underline>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This is</stencila-text>
-        <stencila-subscript id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This is</stencila-text>
+        <stencila-subscript id=xxx depth=2 ancestors=Article.Paragraph>
           <sub>
-            <stencila-text id=xxx>subscripted</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Subscript>subscripted</stencila-text>
           </sub>
         </stencila-subscript>
-        <stencila-text id=xxx>, and this is</stencila-text>
-        <stencila-superscript id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, and this is</stencila-text>
+        <stencila-superscript id=xxx depth=2 ancestors=Article.Paragraph>
           <sup>
-            <stencila-text id=xxx>superscripted</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Superscript>superscripted</stencila-text>
           </sup>
         </stencila-superscript>
-        <stencila-text id=xxx>, and this is</stencila-text>
-        <stencila-strikeout id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, and this is</stencila-text>
+        <stencila-strikeout id=xxx depth=2 ancestors=Article.Paragraph>
           <s>
-            <stencila-text id=xxx>struck out</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Strikeout>struck out</stencila-text>
           </s>
         </stencila-strikeout>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>This paragraph tests escaping within marks.</stencila-text>
-        <stencila-emphasis id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This paragraph tests escaping within marks.</stencila-text>
+        <stencila-emphasis id=xxx depth=2 ancestors=Article.Paragraph>
           <em>
-            <stencila-text id=xxx>_ under_scores _</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Emphasis>_ under_scores _</stencila-text>
           </em>
         </stencila-emphasis>
-        <stencila-text id=xxx>, and</stencila-text>
-        <stencila-strong id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, and</stencila-text>
+        <stencila-strong id=xxx depth=2 ancestors=Article.Paragraph>
           <strong>
-            <stencila-text id=xxx>* aster*isks *</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Strong>* aster*isks *</stencila-text>
           </strong>
         </stencila-strong>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

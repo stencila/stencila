@@ -1,58 +1,58 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With no language:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With no language:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-chunk id=xxx code='No language'>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code='No language'>
     </stencila-code-chunk>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With language:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With language:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-chunk id=xxx code='# Some python code
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code='# Some python code
 a = 3' programming-language=python>
     </stencila-code-chunk>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With language and autoExec:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With language and autoExec:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-chunk id=xxx auto-exec=Always code='// Javascript' programming-language=js>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article auto-exec=Always code='// Javascript' programming-language=js>
     </stencila-code-chunk>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With label:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With label:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-chunk id=xxx code='# Chunk 1A' label=1A label-automatically=false>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code='# Chunk 1A' label=1A label-automatically=false>
     </stencila-code-chunk>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Code figure with caption:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Code figure with caption:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-chunk id=xxx code=plot(y~x) programming-language=r label-type=FigureLabel label=1 label-automatically=false>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code=plot(y~x) programming-language=r label-type=FigureLabel label=1 label-automatically=false>
       <div slot=caption>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.CodeChunk>
           <p slot=content>
-            <stencila-text id=xxx>Y against X.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.CodeChunk.Paragraph>Y against X.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-code-chunk>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Code table with caption:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Code table with caption:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-code-chunk id=xxx code=head(mtcars) programming-language=r label-type=TableLabel label=1 label-automatically=false>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code=head(mtcars) programming-language=r label-type=TableLabel label=1 label-automatically=false>
       <div slot=caption>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.CodeChunk>
           <p slot=content>
-            <stencila-text id=xxx>Some cars.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.CodeChunk.Paragraph>Some cars.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>

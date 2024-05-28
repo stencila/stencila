@@ -1,19 +1,19 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A styled inlines containing other compound inline nodes:</stencila-text>
-        <stencila-styled-inline id=xxx code=text-blue-600>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A styled inlines containing other compound inline nodes:</stencila-text>
+        <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code=text-blue-600>
           <span slot=content>
-            <stencila-emphasis id=xxx>
+            <stencila-emphasis id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>
               <em>
-                <stencila-text id=xxx>emphasis</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.StyledInline.Emphasis>emphasis</stencila-text>
               </em>
             </stencila-emphasis>
-            <stencila-text id=xxx>,</stencila-text>
-            <stencila-link id=xxx target=https://example.org>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.StyledInline>,</stencila-text>
+            <stencila-link id=xxx depth=3 ancestors=Article.Paragraph.StyledInline target=https://example.org>
               <span slot=content>
-                <stencila-text id=xxx>link</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.StyledInline.Link>link</stencila-text>
               </span>
             </stencila-link>
           </span>

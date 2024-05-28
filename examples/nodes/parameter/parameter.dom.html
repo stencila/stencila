@@ -1,130 +1,130 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A boolean parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_bool_1>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A boolean parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_bool_1>
           <span slot=validator>
-            <stencila-boolean-validator id=xxx>
+            <stencila-boolean-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter>
             </stencila-boolean-validator>
           </span>
         </stencila-parameter>
-        <stencila-text id=xxx>, with a default</stencila-text>
-        <stencila-parameter id=xxx name=par_bool_2 default=true>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with a default</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_bool_2 default=true>
           <span slot=validator>
-            <stencila-boolean-validator id=xxx>
+            <stencila-boolean-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter>
             </stencila-boolean-validator>
           </span>
         </stencila-parameter>
-        <stencila-text id=xxx>, with a default and value</stencila-text>
-        <stencila-parameter id=xxx name=par_bool_3 value=true default=false>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with a default and value</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_bool_3 value=true default=false>
           <span slot=validator>
-            <stencila-boolean-validator id=xxx>
+            <stencila-boolean-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter>
             </stencila-boolean-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An integer parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_int_1>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An integer parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_int_1>
           <span slot=validator>
-            <stencila-integer-validator id=xxx>
+            <stencila-integer-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter>
             </stencila-integer-validator>
           </span>
         </stencila-parameter>
-        <stencila-text id=xxx>, with a default</stencila-text>
-        <stencila-parameter id=xxx name=par_int_2 default=123>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with a default</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_int_2 default=123>
           <span slot=validator>
-            <stencila-integer-validator id=xxx>
+            <stencila-integer-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter>
             </stencila-integer-validator>
           </span>
         </stencila-parameter>
-        <stencila-text id=xxx>, with a default and value</stencila-text>
-        <stencila-parameter id=xxx name=par_int_3 value=456 default=123>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with a default and value</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_int_3 value=456 default=123>
           <span slot=validator>
-            <stencila-integer-validator id=xxx>
+            <stencila-integer-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter>
             </stencila-integer-validator>
           </span>
         </stencila-parameter>
-        <stencila-text id=xxx>, with min, max and mult options</stencila-text>
-        <stencila-parameter id=xxx name=par_int_4 value=45 default=123>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>, with min, max and mult options</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_int_4 value=45 default=123>
           <span slot=validator>
-            <stencila-integer-validator id=xxx minimum=-100 maximum=100 multiple-of=2>
+            <stencila-integer-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter minimum=-100 maximum=100 multiple-of=2>
             </stencila-integer-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A number parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_num_1 value=4.5 default=1.23>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A number parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_num_1 value=4.5 default=1.23>
           <span slot=validator>
-            <stencila-number-validator id=xxx minimum=-10.1 exclusive-minimum=-10.1 maximum=10.1 exclusive-maximum=10.1 multiple-of=2.2>
+            <stencila-number-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter minimum=-10.1 exclusive-minimum=-10.1 maximum=10.1 exclusive-maximum=10.1 multiple-of=2.2>
             </stencila-number-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A string parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_str_1 value='"hi"' default='"hello"'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A string parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_str_1 value='"hi"' default='"hello"'>
           <span slot=validator>
-            <stencila-string-validator id=xxx min-length=0 max-length=10 pattern=[a-z]+>
+            <stencila-string-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter min-length=0 max-length=10 pattern=[a-z]+>
             </stencila-string-validator>
           </span>
         </stencila-parameter>
-        <stencila-text id=xxx>with quotes in properties</stencila-text>
-        <stencila-parameter id=xxx name=par_str_2 value='"a\"b"' default='"a\"b"'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>with quotes in properties</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_str_2 value='"a\"b"' default='"a\"b"'>
           <span slot=validator>
-            <stencila-string-validator id=xxx pattern='a"b'>
+            <stencila-string-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter pattern='a"b'>
             </stencila-string-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A date parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_date value='"2022-02-23"' default='"2022-02-22"'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A date parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_date value='"2022-02-23"' default='"2022-02-22"'>
           <span slot=validator>
-            <stencila-date-validator id=xxx minimum='{"type":"Date","value":"2022-02-20"}' maximum='{"type":"Date","value":"2022-02-24"}'>
+            <stencila-date-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter minimum='{"type":"Date","value":"2022-02-20"}' maximum='{"type":"Date","value":"2022-02-24"}'>
             </stencila-date-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A time parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_time value='"22:23"' default='"22:22"'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A time parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_time value='"22:23"' default='"22:22"'>
           <span slot=validator>
-            <stencila-time-validator id=xxx minimum='{"type":"Time","value":"22:20"}' maximum='{"type":"Time","value":"22:24"}'>
+            <stencila-time-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter minimum='{"type":"Time","value":"22:20"}' maximum='{"type":"Time","value":"22:24"}'>
             </stencila-time-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A date-time parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_date_time value='"2022-02-22T22:23"' default='"2022-02-22T22:22"'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A date-time parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_date_time value='"2022-02-22T22:23"' default='"2022-02-22T22:22"'>
           <span slot=validator>
-            <stencila-date-time-validator id=xxx minimum='{"type":"DateTime","value":"2022-02-22T22:20"}' maximum='{"type":"DateTime","value":"2022-02-22T22:24"}'>
+            <stencila-date-time-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter minimum='{"type":"DateTime","value":"2022-02-22T22:20"}' maximum='{"type":"DateTime","value":"2022-02-22T22:24"}'>
             </stencila-date-time-validator>
           </span>
         </stencila-parameter>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>An enum parameter</stencila-text>
-        <stencila-parameter id=xxx name=par_enum value='"red"' default='"green"'>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An enum parameter</stencila-text>
+        <stencila-parameter id=xxx depth=2 ancestors=Article.Paragraph name=par_enum value='"red"' default='"green"'>
           <span slot=validator>
-            <stencila-enum-validator id=xxx values='["blue","red","green"]'>
+            <stencila-enum-validator id=xxx depth=3 ancestors=Article.Paragraph.Parameter values='["blue","red","green"]'>
             </stencila-enum-validator>
           </span>
         </stencila-parameter>

@@ -1,47 +1,47 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-quote-block id=xxx>
+    <stencila-quote-block id=xxx depth=1 ancestors=Article>
       <blockquote slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.QuoteBlock>
           <p slot=content>
-            <stencila-text id=xxx>This is a quote block</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.QuoteBlock.Paragraph>This is a quote block</stencila-text>
           </p>
         </stencila-paragraph>
       </blockquote>
     </stencila-quote-block>
-    <stencila-quote-block id=xxx>
+    <stencila-quote-block id=xxx depth=1 ancestors=Article>
       <blockquote slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.QuoteBlock>
           <p slot=content>
-            <stencila-text id=xxx>This quote block...</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.QuoteBlock.Paragraph>This quote block...</stencila-text>
           </p>
         </stencila-paragraph>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.QuoteBlock>
           <p slot=content>
-            <stencila-text id=xxx>Has two paragraphs</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.QuoteBlock.Paragraph>Has two paragraphs</stencila-text>
           </p>
         </stencila-paragraph>
       </blockquote>
     </stencila-quote-block>
-    <stencila-quote-block id=xxx>
+    <stencila-quote-block id=xxx depth=1 ancestors=Article>
       <blockquote slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.QuoteBlock>
           <p slot=content>
-            <stencila-text id=xxx>This quote block...</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.QuoteBlock.Paragraph>This quote block...</stencila-text>
           </p>
         </stencila-paragraph>
-        <stencila-quote-block id=xxx>
+        <stencila-quote-block id=xxx depth=2 ancestors=Article.QuoteBlock>
           <blockquote slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.QuoteBlock.QuoteBlock>
               <p slot=content>
-                <stencila-text id=xxx>Has another inside it.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.QuoteBlock.QuoteBlock.Paragraph>Has another inside it.</stencila-text>
               </p>
             </stencila-paragraph>
-            <stencila-quote-block id=xxx>
+            <stencila-quote-block id=xxx depth=3 ancestors=Article.QuoteBlock.QuoteBlock>
               <blockquote slot=content>
-                <stencila-paragraph id=xxx>
+                <stencila-paragraph id=xxx depth=4 ancestors=Article.QuoteBlock.QuoteBlock.QuoteBlock>
                   <p slot=content>
-                    <stencila-text id=xxx>And another inside that!</stencila-text>
+                    <stencila-text id=xxx depth=5 ancestors=Article.QuoteBlock.QuoteBlock.QuoteBlock.Paragraph>And another inside that!</stencila-text>
                   </p>
                 </stencila-paragraph>
               </blockquote>

@@ -1,38 +1,38 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Some</stencila-text>
-        <stencila-delete-inline id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Some</stencila-text>
+        <stencila-delete-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <span slot=content>
-            <stencila-text id=xxx>deleted</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>deleted</stencila-text>
           </span>
         </stencila-delete-inline>
-        <stencila-text id=xxx>text.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>text.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Several deleted inlines</stencila-text>
-        <stencila-delete-inline id=xxx>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Several deleted inlines</stencila-text>
+        <stencila-delete-inline id=xxx depth=2 ancestors=Article.Paragraph>
           <span slot=content>
-            <stencila-strong id=xxx>
+            <stencila-strong id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>
               <strong>
-                <stencila-text id=xxx>strongly emphasized</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.DeleteInline.Strong>strongly emphasized</stencila-text>
               </strong>
             </stencila-strong>
-            <stencila-text id=xxx>and</stencila-text>
-            <stencila-underline id=xxx>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>and</stencila-text>
+            <stencila-underline id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>
               <u>
-                <stencila-text id=xxx>underlined</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.DeleteInline.Underline>underlined</stencila-text>
               </u>
             </stencila-underline>
-            <stencila-text id=xxx>and</stencila-text>
-            <stencila-code-expression id=xxx code='2 + 2'>
+            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>and</stencila-text>
+            <stencila-code-expression id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline code='2 + 2'>
             </stencila-code-expression>
           </span>
         </stencila-delete-inline>
-        <stencila-text id=xxx>.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>

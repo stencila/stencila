@@ -1,61 +1,61 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-replace-block id=xxx>
+    <stencila-replace-block id=xxx depth=1 ancestors=Article>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Old paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Old paragraph</stencila-text>
           </p>
         </stencila-paragraph>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Another old paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Another old paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
       <div slot=replacement>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>New paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>New paragraph</stencila-text>
           </p>
         </stencila-paragraph>
-        <stencila-code-chunk id=xxx code='A new code chunk'>
+        <stencila-code-chunk id=xxx depth=2 ancestors=Article.ReplaceBlock code='A new code chunk'>
         </stencila-code-chunk>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Another new paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Another new paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-replace-block>
-    <stencila-replace-block id=xxx suggestion-status=Accepted>
+    <stencila-replace-block id=xxx depth=1 ancestors=Article suggestion-status=Accepted>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Old paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Old paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
       <div slot=replacement>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Accepted new paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Accepted new paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-replace-block>
-    <stencila-replace-block id=xxx suggestion-status=Rejected>
+    <stencila-replace-block id=xxx depth=1 ancestors=Article suggestion-status=Rejected>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Old paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Old paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
       <div slot=replacement>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
           <p slot=content>
-            <stencila-text id=xxx>Rejected new paragraph</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Rejected new paragraph</stencila-text>
           </p>
         </stencila-paragraph>
       </div>

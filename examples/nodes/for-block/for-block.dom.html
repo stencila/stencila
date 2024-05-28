@@ -1,48 +1,48 @@
-<stencila-article id=xxx root>
+<stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>A simple for loop</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A simple for loop</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=xxx code=[1,2,3] variable=item>
+    <stencila-for-block id=xxx depth=1 ancestors=Article code=[1,2,3] variable=item>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ForBlock>
           <p slot=content>
-            <stencila-text id=xxx>This paragraph will be repeated with a different value for</stencila-text>
-            <stencila-code-expression id=xxx code=item>
+            <stencila-text id=xxx depth=3 ancestors=Article.ForBlock.Paragraph>This paragraph will be repeated with a different value for</stencila-text>
+            <stencila-code-expression id=xxx depth=3 ancestors=Article.ForBlock.Paragraph code=item>
             </stencila-code-expression>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-for-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With a programming language specified</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With a programming language specified</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=xxx code=[1,2,3] programming-language=python variable=item>
+    <stencila-for-block id=xxx depth=1 ancestors=Article code=[1,2,3] programming-language=python variable=item>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ForBlock>
           <p slot=content>
-            <stencila-text id=xxx>This content is repeated</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ForBlock.Paragraph>This content is repeated</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-for-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>Nested for loops</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Nested for loops</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=xxx code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' variable=outer>
+    <stencila-for-block id=xxx depth=1 ancestors=Article code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' variable=outer>
       <div slot=content>
-        <stencila-for-block id=xxx code=outer variable=inner>
+        <stencila-for-block id=xxx depth=2 ancestors=Article.ForBlock code=outer variable=inner>
           <div slot=content>
-            <stencila-paragraph id=xxx>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.ForBlock.ForBlock>
               <p slot=content>
-                <stencila-text id=xxx>This paragraph will be repeated for each inner item</stencila-text>
-                <stencila-code-expression id=xxx code=inner>
+                <stencila-text id=xxx depth=4 ancestors=Article.ForBlock.ForBlock.Paragraph>This paragraph will be repeated for each inner item</stencila-text>
+                <stencila-code-expression id=xxx depth=4 ancestors=Article.ForBlock.ForBlock.Paragraph code=inner>
                 </stencila-code-expression>
               </p>
             </stencila-paragraph>
@@ -50,33 +50,33 @@
         </stencila-for-block>
       </div>
     </stencila-for-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With an else clause</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With an else clause</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=xxx code=[] variable=item>
+    <stencila-for-block id=xxx depth=1 ancestors=Article code=[] variable=item>
       <div slot=content>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ForBlock>
           <p slot=content>
-            <stencila-text id=xxx>This content is never shown</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ForBlock.Paragraph>This content is never shown</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
       <div slot=otherwise>
-        <stencila-paragraph id=xxx>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.ForBlock>
           <p slot=content>
-            <stencila-text id=xxx>There are no items</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.ForBlock.Paragraph>There are no items</stencila-text>
           </p>
         </stencila-paragraph>
       </div>
     </stencila-for-block>
-    <stencila-paragraph id=xxx>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx>With no content in &#x27;content&#x27; or &#x27;otherwise&#x27;</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With no content in &#x27;content&#x27; or &#x27;otherwise&#x27;</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-for-block id=xxx code=[] variable=item>
+    <stencila-for-block id=xxx depth=1 ancestors=Article code=[] variable=item>
       <div slot=otherwise>
       </div>
     </stencila-for-block>
