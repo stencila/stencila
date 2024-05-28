@@ -22,8 +22,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override restrictTitleWidth: boolean = true
 
-  protected override toggleChipPosition: string =
-    'top-1/2 -translate-y-1/2 absolute'
+  protected override toggleChipPosition: string = '-top-1/2 absolute'
 
   private tw: Twind
 
