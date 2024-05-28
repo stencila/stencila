@@ -87,7 +87,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
           <div class=${`${styles}`} @click=${this.toggleChip}>
             <sl-icon
               library=${this.toggle ? 'default' : library}
-              name=${this.toggle ? 'chevron-up' : icon}
+              name=${this.toggle ? 'chevron-down' : icon}
               class="text-base"
             ></sl-icon>
           </div>

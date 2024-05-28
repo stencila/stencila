@@ -57,6 +57,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override renderContent() {
     const contentStyles = apply([
+      'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       this.toggle && 'p-3',
     ])
