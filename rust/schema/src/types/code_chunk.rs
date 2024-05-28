@@ -26,7 +26,7 @@ use super::timestamp::Timestamp;
 /// A executable chunk of code.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -77,14 +77,12 @@ pub struct CodeChunk {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,
 
     /// A summary of the provenance of the code.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(provenance)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// The type of the label for the chunk.
@@ -118,7 +116,6 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
-    #[dom(elem = "div")]
     pub caption: Option<Vec<Block>>,
 
     /// Outputs from executing the chunk.
@@ -126,7 +123,6 @@ pub struct CodeChunk {
     #[serde(default)]
     #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
     pub outputs: Option<Vec<Node>>,
 
     /// Whether the outputs of the code chunk should be invisible to the reader.
@@ -149,7 +145,7 @@ pub struct CodeChunk {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct CodeChunkOptions {
@@ -157,7 +153,6 @@ pub struct CodeChunkOptions {
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
@@ -165,14 +160,12 @@ pub struct CodeChunkOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
@@ -180,7 +173,6 @@ pub struct CodeChunkOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
@@ -188,7 +180,6 @@ pub struct CodeChunkOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
@@ -196,7 +187,6 @@ pub struct CodeChunkOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -227,14 +217,12 @@ pub struct CodeChunkOptions {
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution, timestamps)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
     #[serde(alias = "execution-duration", alias = "execution_duration")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Duration::to_dom_attr")]
     pub execution_duration: Option<Duration>,
 
     /// Messages emitted while executing the node.
@@ -242,7 +230,6 @@ pub struct CodeChunkOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// Whether the code should be treated as side-effect free when executed.

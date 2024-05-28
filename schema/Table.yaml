@@ -6,6 +6,8 @@ category: works
 description: A table.
 patch:
   takeAuthors: true
+dom:
+  derive: false
 html:
   special: true
 markdown:

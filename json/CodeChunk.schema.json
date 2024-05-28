@@ -9,6 +9,9 @@
   ],
   "category": "code",
   "description": "A executable chunk of code.",
+  "dom": {
+    "derive": false
+  },
   "jats": {
     "elem": "code",
     "attrs": {
