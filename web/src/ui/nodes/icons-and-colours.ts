@@ -154,19 +154,19 @@ export const executionMessageUI = (
 
 // Provenance Highlight Colours ----------------------------
 
-export const provenanceHighlights = {
-  0: 'transparent',
-  1: 'rgb(241, 245, 254, 0.9)', // blue-50
-  2: 'rgb(207, 222, 252, 0.9)', // blue-100
-  3: 'rgb(177, 201, 250, 0.9)', // blue-200
-  4: 'rgb(146, 179, 247, 0.8)', // blue-300 0.8 alpha
-  5: 'rgb(119, 160, 245, 0.8)', // blue-400 0.8 alpha
+export const provenanceOpacity = {
+  0: '1',
+  1: '0.9',
+  2: '0.8',
+  3: '0.7',
+  4: '0.6',
+  5: '0.5',
 }
 
-export type ProvenanceHighlightLevel = keyof typeof provenanceHighlights
+export type ProvenanceHighlightLevel = keyof typeof provenanceOpacity
 
 export const getProvenanceHighlight = (miLvl: ProvenanceHighlightLevel) => {
-  return provenanceHighlights[miLvl]
+  return provenanceOpacity[miLvl]
 }
 
 // ---------------------------------------------------------

@@ -101,7 +101,7 @@ const createAuthorshipDecorations = (marks: AuthorshipMarker[]) =>
         attributes: {
           style:
             mark.mi >= 0 && mark.mi <= 5
-              ? `background-color: ${getProvenanceHighlight(mark.mi as ProvenanceHighlightLevel)}`
+              ? `opacity: ${getProvenanceHighlight(mark.mi as ProvenanceHighlightLevel)}`
               : '',
         },
       }).range(mark.from, mark.to)
