@@ -56,17 +56,16 @@ impl DomCodec for Table {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
-        context.enter_elem("table");
-
+        // Strictly, <caption> should be within <table>, but that causes issues for styling of web component,
+        // so we make it a sibling.
+        // See https://github.com/stencila/stencila/pull/2240#issuecomment-2136358172
         if let Some(caption) = &self.caption {
             context.push_slot_fn("caption", "caption", |context| {
                 caption_to_dom(context, "table-label", "Table", &self.label, caption)
             });
         }
 
-        context.push_slot_fn("tbody", "rows", |context| self.rows.to_dom(context));
-
-        context.exit_elem(); // Exit <table>
+        context.push_slot_fn("table", "rows", |context| self.rows.to_dom(context));
 
         if let Some(notes) = &self.notes {
             context.push_slot_fn("aside", "notes", |context| notes.to_dom(context));
