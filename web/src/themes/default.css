@@ -21,8 +21,7 @@ figure {
   @apply mx-0;
 }
 
-@media print {
-}
+@media print {}
 
 @page {
   size: 21cm 29.7cm;
@@ -32,7 +31,7 @@ figure {
 [root] {
   @apply text-black prose lg:prose-lg;
 
-  > section {
+  >section {
     @apply min-w-80 w-full max-w-prose mx-auto;
   }
 
@@ -141,7 +140,7 @@ figure {
       }
     }
 
-    + stencila-paragraph {
+    +stencila-paragraph {
       p {
         @apply mt-0;
       }
@@ -152,7 +151,7 @@ figure {
     display: block;
     border: 1px solid transparent;
 
-    + stencila-paragraph {
+    +stencila-paragraph {
       p {
         margin-top: 0;
       }
@@ -230,6 +229,7 @@ figure {
 
   stencila-code-chunk {
     [slot='outputs'] {
+
       stencila-boolean,
       stencila-integer,
       stencila-number,
@@ -244,7 +244,7 @@ figure {
 
 [view='dynamic'],
 [view='vscode'] {
-  > [root] {
+  >[root] {
     @apply max-w-prose;
     max-width: 100%;
 
@@ -298,6 +298,46 @@ figure {
     stencila-code-chunk {
       [slot='caption'] {
         @apply block;
+      }
+    }
+
+    stencila-table,
+    stencila-figure,
+    stencila-code-chunk {
+      caption {
+        @apply text-left;
+      }
+
+      [slot="caption"] {
+        @apply block;
+
+        stencila-paragraph {
+
+          .table-label,
+          .figure-label {
+            @apply font-bold after:content-[":"];
+          }
+
+          p {
+            @apply text-sm text-black italic text-left;
+          }
+        }
+      }
+
+      &[label-type="FigureLabel"] {
+        [slot="caption"] {
+          @apply mb-4;
+
+          stencila-paragraph:first-child {
+            p {
+              @apply mt-0;
+            }
+          }
+        }
+      }
+
+      [slot="caption"]+[slot="outputs"] {
+        @apply mt-0;
       }
     }
   }

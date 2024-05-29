@@ -104,14 +104,19 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-code>
       </div>
       <div slot="content">
-        ${this.isInvisible ? '' : html`<slot name="outputs"></slot>`}
-        <stencila-ui-node-label-and-caption
-          type="CodeChunk"
-          label-type=${this.labelType}
-          label=${this.label}
-        >
-          <slot name="caption" slot="caption"></slot>
-        </stencila-ui-node-label-and-caption>
+        ${this.isInvisible
+          ? ''
+          : html`
+              ${this.labelType === 'TableLabel'
+                ? html`<caption>
+                    <slot name="caption"></slot>
+                  </caption>`
+                : ''}
+              <slot name="outputs"></slot>
+              ${this.labelType === 'FigureLabel'
+                ? html`<figcaption><slot name="caption"></slot></figcaption>`
+                : ''}
+            `}
       </div>
     </stencila-ui-block-on-demand>`
   }
