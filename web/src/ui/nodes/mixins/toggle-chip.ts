@@ -60,14 +60,14 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       const [library, icon] = icons
 
       const styles = apply([
-        (this.toggle || this.docViewContext.nodeChipState === 'hidden') &&
-          'pointer-events-none',
+        this.docViewContext.nodeChipState === 'hidden' && 'pointer-events-none',
         !this.toggle &&
           this.docViewContext.nodeChipState !== 'hidden' &&
           'group-hover:opacity-100',
-        this.docViewContext.nodeChipState === 'show-all' && !this.toggle
+        this.docViewContext.nodeChipState === 'show-all' || this.toggle
           ? 'opacity-100'
           : 'opacity-0',
+        'hover:z-50',
         'h-8',
         'flex items-center',
         'transition duration-200',
@@ -86,8 +86,8 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
         <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
           <div class=${`${styles}`} @click=${this.toggleChip}>
             <sl-icon
-              library=${library}
-              name=${icon}
+              library=${this.toggle ? 'default' : library}
+              name=${this.toggle ? 'chevron-down' : icon}
               class="text-base"
             ></sl-icon>
           </div>

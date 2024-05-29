@@ -57,17 +57,15 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override renderContent() {
     const contentStyles = apply([
-      !this.displayContent && this.toggle ? 'hidden' : 'block',
       'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
-      'px-0',
       this.toggle && 'p-3',
     ])
 
     return html`
-      <div class=${`${contentStyles}`}>
+      <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
         ${this.renderChip(this.getIcon(), this.ui)}
-        <div class="content-block">
+        <div class="content-block ${contentStyles}">
           <slot name="content" class="w-full"></slot>
         </div>
       </div>
