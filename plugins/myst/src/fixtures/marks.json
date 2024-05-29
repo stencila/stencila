@@ -1,0 +1,61 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Paragraph with "
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": "emphasis"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " and "
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": "strong"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " and "
+        },
+        {
+          "type": "CodeInline",
+          "code": "code"
+        },
+        {
+          "type": "Text",
+          "value": ", "
+        },
+        {
+          "type": "Underline",
+          "content": [
+            {
+              "type": "Text",
+              "value": "underlined"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": ", and *escaped symbols*"
+        }
+      ]
+    }
+  ]
+}

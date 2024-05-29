@@ -1,25 +1,31 @@
 {
   "type": "Article",
+  "id": "art_1",
   "content": [
     {
       "type": "Paragraph",
+      "id": "pgh_1",
       "content": [
         {
           "type": "Text",
+          "id": "txt_1",
           "value": "Here is some inline "
         },
         {
           "type": "CodeInline",
+          "id": "cod_1",
           "code": "code"
         },
         {
           "type": "Text",
+          "id": "txt_1",
           "value": ", and below is a code block:"
         }
       ]
     },
     {
       "type": "CodeBlock",
+      "id": "cod_1",
       "code": "if(did.something) {\n    throw Ball();\n}",
       "programmingLanguage": "js"
     }

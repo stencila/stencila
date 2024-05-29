@@ -54,22 +54,34 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
     case "heading":
       return new Heading(md.depth, mdsToInlines(md.children));
     case "code":
-      return new CodeBlock(md.value);
+      return new CodeBlock(md.value, { programmingLanguage: md.lang });
     case "blockquote":
       return new QuoteBlock(md.children as Block[]);
     case "list":
       return new List(
         md.children.map((li) => {
+          let previousInlines: Paragraph | null = null;
           return new ListItem(
-            li.children.map((c) => {
-              if (mystBlockTypes.includes(c.type)) {
-                return mdToBlock(c as FlowContent | MySTBlock)!;
-              } else {
-                // If a child is not a Stencila Block compatible type, then assume it's an Inline
-                // so wrap it in a Stencila Paragraph
-                return new Paragraph([mdToInline(c as PhrasingContent)]);
-              }
-            }),
+            li.children
+              .map((c) => {
+                if (mystBlockTypes.includes(c.type)) {
+                  previousInlines = null;
+                  return mdToBlock(c as FlowContent | MySTBlock)!;
+                } else {
+                  // If a child is not a Stencila Block compatible type, then assume it's an Inline
+                  const inlines = mdToInline(c as PhrasingContent);
+                  if (previousInlines === null) {
+                    // so wrap it in a Stencila Paragraph...
+                    previousInlines = new Paragraph([inlines]);
+                    return previousInlines;
+                  } else {
+                    // ...or add adjacent Inline's to the existing Paragraph
+                    previousInlines.content.push(inlines);
+                    return undefined;
+                  }
+                }
+              })
+              .filter((_) => !!_) as Block[],
             // For some reason `checked` is not defined, but actually does exist in the ListItem
             { isChecked: (li as any).checked }
           );

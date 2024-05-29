@@ -3,7 +3,8 @@
   "content": [
     {
       "type": "CodeBlock",
-      "code": "title: Working with MyST Markdown\nsubtitle: A live demo\nauthors:\n  - name: Rowan Cockett\n    orcid: 0000-0002-7859-8394\n    affiliations:\n      - Executable Books\nlicense: CC-BY-4.0"
+      "code": "title: Working with MyST Markdown\nsubtitle: A live demo\nauthors:\n  - name: Rowan Cockett\n    orcid: 0000-0002-7859-8394\n    affiliations:\n      - Executable Books\nlicense: CC-BY-4.0",
+      "programmingLanguage": "yaml"
     },
     {
       "type": "Paragraph",
