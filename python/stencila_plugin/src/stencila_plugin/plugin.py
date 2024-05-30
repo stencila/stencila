@@ -7,9 +7,8 @@ import uuid
 from collections.abc import Sequence
 from typing import Any
 
-import cattrs
 from aiohttp import web
-from beartype import beartype
+from stencila_types import types as T
 from stencila_types.types import (
     ExecutionMessage,
     MessageLevel,
@@ -18,7 +17,15 @@ from stencila_types.types import (
     SoftwareSourceCode,
     Variable,
 )
+from stencila_types.utilities import from_value, make_stencila_converter
 
+from .assistant import (
+    Assistant,
+    AssistantId,
+    GenerateOptions,
+    GenerateOutput,
+    GenerateTask,
+)
 from .kernel import Kernel, KernelId, KernelInstance, KernelName
 
 # https://github.com/kevinheavey/jsonalias
@@ -28,6 +35,25 @@ JsonDict = dict[str, Json]
 # According to the JSON-RPC spec, the id can be a string, integer, or null.
 IdType = str | int | None
 ParamsType = list | dict | None
+
+
+def make_rpc_converter():
+    """
+    Add some additional hooks for local unions that are NOT in the
+    stencila_types module.
+
+    SO AWKWARD!
+    """
+    converter = make_stencila_converter()
+    converter.register_structure_hook(
+        T.InstructionBlock | T.InstructionInline, lambda o, _: from_value(o)
+    )
+    return converter
+
+
+CONVERTER = make_rpc_converter()
+structure = CONVERTER.structure
+unstructure = CONVERTER.unstructure
 
 
 # TODO: We should really raise exceptions in the python code.
@@ -60,19 +86,28 @@ def _error(msg_id: IdType, code: int, message: str) -> Json:  # noqa: A002
     }
 
 
-@beartype
+# @beartype
 class Plugin:
     """A Stencila plugin.
 
     This routes the requests to the Kernel instances (and other APIs that are coming).
     """
 
-    def __init__(self, kernels: list[type[Kernel]] | None = None):
+    def __init__(
+        self,
+        kernels: list[type[Kernel]] | None = None,
+        assistants: list[type[Assistant]] | None = None,
+    ):
         kernels = kernels or []
         self.kernels: dict[KernelName, type[Kernel]] = {
             k.get_name(): k for k in kernels
         }
         self.kernel_instances: dict[KernelId, Kernel] = {}
+
+        # These are created per assistant (unlike kernels).
+        self.assistants: dict[AssistantId, Assistant] = (
+            {cls.get_name(): cls() for cls in assistants} if assistants else {}
+        )
 
     async def health(self) -> Json:
         """Get the health of the plugin.
@@ -158,6 +193,33 @@ class Plugin:
         if kernel:
             await kernel.remove_variable(name)
 
+        kernel = self.kernel_instances.get(instance)
+        if kernel:
+            await kernel.remove_variable(name)
+
+    async def assistant_system_prompt(
+        self, task: GenerateTask, options: GenerateOptions, assistant: AssistantId
+    ) -> str | None:
+        instance = self.assistants.get(assistant)
+        # Error?
+        if instance is None:
+            return None
+        task = structure(task, GenerateTask)
+        options = structure(options, GenerateOptions)
+        return await instance.system_prompt(task, options)
+
+    async def assistant_perform_task(
+        self, task: dict[str, Any], options: dict[str, Any], assistant: AssistantId
+    ) -> GenerateOutput:
+        instance = self.assistants.get(assistant)
+        if instance is None:
+            # TODO: Unclear how errors are handled here.
+            return None
+
+        task = structure(task, GenerateTask)
+        options = structure(options, GenerateOptions)
+        return await instance.perform_task(task, options)
+
     async def run(self) -> None:
         """Invoke the plugin.
 
@@ -206,14 +268,6 @@ async def _handle_json(
     return await _handle_rpc(plugin, method, params=params, msg_id=msg_id)  # type: ignore
 
 
-def _make_jsonable(result: Json):
-    if isinstance(result, bool | int | float | str | None):
-        return result
-
-    dct = cattrs.unstructure(result)
-    return dct
-
-
 async def _handle_rpc(
     plugin: Plugin,
     method: str,
@@ -243,14 +297,14 @@ async def _handle_rpc(
         try:
             result = await func(*args, **kwargs)
             try:
-                dct_result = _make_jsonable(result)
+                json_result = unstructure(result)
             except Exception as e:
                 return _error(
                     msg_id,
                     RPCErrorCodes.INTERNAL_ERROR,
                     f"Cannot convert result to JSON {e}",
                 )
-            return _success(msg_id, dct_result)
+            return _success(msg_id, json_result)
         except Exception as e:
             return _error(msg_id, RPCErrorCodes.INTERNAL_ERROR, f"Internal error: {e}")
     else:

@@ -1,6 +1,7 @@
 //! Generation of Python types from Stencila Schema
 
-use std::path::PathBuf;
+use core::str;
+use std::{collections::HashSet, path::PathBuf};
 
 use topological_sort::TopologicalSort;
 
@@ -146,9 +147,10 @@ impl Schemas {
         // Note: Reverse the order of the dependencies so that base classes come first.
         dep_order.reverse();
 
-        for name in dep_order {
-            let schema = self.schemas.get(&name).expect("Schema not found");
-            sections.push(self.python_class(&name, schema).await?);
+        let mut anon_unions: HashSet<Vec<String>> = HashSet::default();
+        for name in dep_order.iter() {
+            let schema = self.schemas.get(name).expect("Schema not found");
+            sections.push(self.python_class(name, schema, &mut anon_unions).await?);
         }
 
         // Finally, do the unions. These reference all the types already generated.
@@ -161,9 +163,25 @@ impl Schemas {
             sections.push(self.python_union(schema).await?);
         }
 
-        // Create a module for each schema
-        // let futures = schema_order.iter().map(|s| self.python_module(&types, s));
-        // let v: Vec<_> = try_join_all(futures).await?.into_iter().collect();
+        // We create a list of the unions and types at the end. This helps with
+        // reconstructing the schema in Python.
+        let str_types = dep_order
+            .iter()
+            .map(|name| format!("    {name},"))
+            .join("\n");
+        sections.push(format!("TYPES = [\n{str_types}\n]\n"));
+
+        // Unions
+        let str_union = unions.iter().map(|name| format!("    {name},")).join("\n");
+        sections.push(format!("UNIONS = [\n{str_union}\n]\n"));
+
+        // Anonmymous unions
+        let str_anon_union = anon_unions
+            .iter()
+            .map(|names| format!("    {},", names.join(" | ")))
+            .join("\n");
+        sections.push(format!("ANON_UNIONS = [\n{str_anon_union}\n]\n"));
+
         write(dest.join("types.py"), sections.join("\n\n")).await?;
 
         Ok(())
@@ -221,7 +239,12 @@ impl Schemas {
     /// failed seemingly due to cyclic dependencies in types.
     ///
     /// Returns the generated `class` text.
-    async fn python_class(&self, name: &String, schema: &Schema) -> Result<String> {
+    async fn python_class(
+        &self,
+        name: &String,
+        schema: &Schema,
+        anon_unions: &mut HashSet<Vec<String>>,
+    ) -> Result<String> {
         // Add our custom base class to the extends list.
         let base = if name == "Entity" {
             "_Base".to_string()
@@ -242,7 +265,8 @@ impl Schemas {
             }
 
             // Determine Python type of the property
-            let (mut field_type, is_array, ..) = Self::python_type(property).await?;
+            let (mut field_type, is_array, ..) =
+                Self::python_type(property, Some(anon_unions)).await?;
 
             // Is the property an array?
             if is_array {
@@ -304,7 +328,10 @@ class {name}({base}):
     ///  - it is an array
     ///  - it is a type (rather than an enum variant)
     #[async_recursion]
-    async fn python_type(schema: &Schema) -> Result<(String, bool, bool)> {
+    async fn python_type(
+        schema: &Schema,
+        anon_unions: Option<&mut HashSet<Vec<String>>>,
+    ) -> Result<(String, bool, bool)> {
         use Type::*;
 
         // If the Stencila Schema type name corresponds to a Python
@@ -330,14 +357,14 @@ class {name}({base}):
                                 any_of: Some(inner.any_of.clone()),
                                 ..Default::default()
                             };
-                            Self::python_type(&schema).await?.0
+                            Self::python_type(&schema, anon_unions).await?.0
                         }
                         Some(Items::List(inner)) => {
                             let schema = Schema {
                                 any_of: Some(inner.clone()),
                                 ..Default::default()
                             };
-                            Self::python_type(&schema).await?.0
+                            Self::python_type(&schema, anon_unions).await?.0
                         }
                         None => "Unhandled".to_string(),
                     };
@@ -351,11 +378,16 @@ class {name}({base}):
             let name = if let Some(name) = schema.title.clone() {
                 name
             } else {
+                // This is a anonymous Union of Stencila types
+                // We still need to register it.
                 let mut sub_names = Vec::new();
                 for subs in schema.any_of.clone().unwrap().iter() {
-                    let name = Self::python_type(subs).await?.0;
+                    let name = Self::python_type(subs, None).await?.0;
                     sub_names.push(name);
                 }
+                anon_unions
+                    .expect("No anonymous union!")
+                    .insert(sub_names.clone());
                 sub_names.join(" | ")
             };
             (name, false, true)
@@ -380,7 +412,7 @@ class {name}({base}):
 
         let (alternatives, are_types): (Vec<_>, Vec<_>) =
             try_join_all(any_of.iter().map(|schema| async {
-                let (typ, is_array, is_type) = Self::python_type(schema).await?;
+                let (typ, is_array, is_type) = Self::python_type(schema, None).await?;
                 let typ = if is_array {
                     Self::python_array_of(&typ).await?
                 } else {

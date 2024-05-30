@@ -1,6 +1,6 @@
 [project]
 name = "stencila_types"
-version = "2.0.0a28"
+version = "2.0.0a30"
 description = "Python types for Stencila"
 readme = "README.md"
 authors = [
@@ -54,6 +54,9 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
+addopts = [
+    "-s",
+]
 markers = [
     "skip_relaxed_json: avoid testing JSON that is not strict",
 ]
