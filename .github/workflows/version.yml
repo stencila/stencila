@@ -1,6 +1,4 @@
-# Workflow for triggering the `release.yml` workflow when a version tag is created
-#
-# See the `release.yml` for details on why we decouple releases from tag creation.
+# Workflow for triggering the `release-cli.yml` workflow when a version tag is created
 
 name: Version
 
@@ -22,4 +20,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Trigger release workflow
-        run: gh workflow run release.yml -f tag=${{ github.ref_name }}
+        run: gh workflow run release-cli.yml -f tag=${{ github.ref_name }}

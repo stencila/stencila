@@ -1,0 +1,50 @@
+# Workflow for testing installation of various products
+#
+# Triggered after a release and performed on separate VMs to the
+# build so as to test independence from repo checkout and build dependencies.
+#
+# The intent of this workflow is to quickly identify any issues with
+# releases so that a new release can be made if necessary.
+
+name: Install CLI
+
+on:
+  # Allow this workflow to be triggered by the `release-cli.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/install-cli.yml
+  workflow_dispatch:
+    inputs:
+      cli:
+        description: Install CLI
+        type: boolean
+        default: true
+      docker:
+        description: Run Docker image
+        type: boolean
+        default: true
+
+jobs:
+  cli:
+    if: ${{ inputs.cli }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install CLI
+        run: curl --proto '=https' --tlsv1.2 -sSf https://stencila.dev/install.sh | sh
+
+      - name: Run CLI
+        run: stencila --help
+
+  docker:
+    if: ${{ inputs.docker }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull image
+        run: docker pull stencila/stencila
+
+      - name: Run image
+        run: docker run --rm stencila/stencila --help

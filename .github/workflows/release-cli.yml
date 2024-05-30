@@ -1,0 +1,170 @@
+# Workflow for creating a release of the CLI
+
+name: Release CLI
+
+on:
+  # Allow this workflow to be triggered by the `version.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/release-cli.yml
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to create the release for e.g. v2.1.0
+        type: string
+        required: true
+      create-release:
+        description: Create release
+        type: boolean
+        default: true
+      build-cli:
+        description: Build CLI
+        type: boolean
+        default: true
+      publish-docker:
+        description: Build and Push Docker image
+        type: boolean
+        default: true
+      publish-release:
+        description: Publish release
+        type: boolean
+        default: true
+
+env:
+  RUST_VERSION: "1.76.0"
+
+jobs:
+  # Create a draft release
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Create release
+        # Put `if` here (and not at higher level) because all subsequent jobs `need` 
+        # this one and so will not run if this one does not run
+        if: ${{ inputs.create-release }}
+        run: gh release create ${{ inputs.tag }} --title ${{ inputs.tag }} --draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build and upload CLI
+  build-cli:
+    if: ${{ inputs.build-cli }}
+    needs: [create-release]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            ext: tar.xz
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            ext: tar.xz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            ext: tar.xz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            ext: zip
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build and archive CLI
+        run: make -C rust build archive -e TARGET=${{ matrix.target }}
+
+      - name: Upload archive
+        run: gh release upload ${{ inputs.tag }} target/cli-${{ inputs.tag }}-${{ matrix.target }}.${{ matrix.ext }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build and push Docker image
+  # Based on https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
+  publish-docker:
+    if: ${{ inputs.publish-docker }}
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to the GitHub container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            stencila/stencila
+            ghcr.io/${{ github.repository }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            stencila/stencila:latest
+            stencila/stencila:${{ inputs.tag }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # Publish the draft release
+  # Wait for all packages to be published so that the `install.yml` workflow
+  # that this triggers tests this release and not a previous version
+  publish-release:
+    if: ${{ inputs.publish-release }}
+    needs: [build-cli, publish-docker]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Mark release as non-draft
+        run: gh release edit ${{ inputs.tag }} --draft=false
+
+      - name: Trigger installation test workflow
+        run: sleep 90 && gh workflow run install-cli.yml
