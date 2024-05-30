@@ -1,0 +1,51 @@
+# Workflow for testing installation of Python packages
+#
+# Triggered after a release and performed on separate VMs to the
+# build so as to test independence from repo checkout and build dependencies.
+#
+# The intent of this workflow is to quickly identify any issues with
+# releases so that a new release can be made if necessary.
+
+name: Install Python packages
+
+on:
+  # Allow this workflow to be triggered by the `release.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/install-python.yml
+  workflow_dispatch:
+
+jobs:
+  python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-20.04
+          - ubuntu-latest
+          - macos-latest # x64
+          - macos-latest-xlarge # arm64
+          - windows-latest
+        version:
+          # These must be strings to avoid rounding down e.g. 3.10 -> 3.1
+          - "3.10"
+          - "3.11"
+          - "3.12"
+        exclude:
+          # These combinations are not supported by GitHub Actions
+          # For versions supported see: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+          - os: macos-latest-xlarge
+            version: "3.10"
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.version }}
+
+      - name: Install package
+        run: python3 -m pip install stencila_types stencila_plugin stencila
+
+      - name: Use stencila package
+        # Use outer double quotes to avoid issues within inner double quotes on Windows
+        # Imports everything from main modules to check from import errors (e.g. missing dependencies)
+        run: python3 -c "from stencila.convert import *"

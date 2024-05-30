@@ -1,0 +1,199 @@
+# Workflow for creating a release of Python packages
+
+name: Release Python packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish-types:
+        description: Publish stencila_types on PyPI
+        type: boolean
+        default: true
+      publish-plugin:
+        description: Publish stencila_plugin on PyPI
+        type: boolean
+        default: true
+      update-sdk:
+        description: Update Python SDK pdm.lock
+        type: boolean
+        default: true
+      build-sdk:
+        description: Build Python SDK wheels
+        type: boolean
+        default: true
+      publish-sdk:
+        description: Publish Python SDK
+        type: boolean
+        default: true
+      trigger-install:
+        description: Trigger the `install-python.yml` workflow
+        type: boolean
+        default: true
+
+env:
+  RUST_VERSION: "1.76.0"
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # Publish stencila_types
+  publish-types:
+    if: ${{ inputs.publish-types }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+
+      - name: Publish package
+        run: cd python/stencila_types && pdm publish
+
+      - name: Wait for publishing to be completed
+        run: sleep 90
+  
+
+  # Publish stencila_plugin
+  # Must be done after stencila_types is published
+  publish-plugin:
+    if: ${{ inputs.publish-plugin }}
+    needs: [publish-types]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+
+      - name: Publish pdm.lock
+        run: cd python/stencila_plugin && pdm sync
+
+      - name: Commit pdm.lock
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'python/stencila_plugin/pdm.lock'
+          commit_message: "chore(python/stencila_plugin): update pdm.lock"
+
+      - name: Publish package
+        run: cd python/stencila_plugin && pdm publish
+
+  # Update python/stencila package (Python SDK)
+  # Must be done after stencila_types is published
+  update-sdk:
+    if: ${{ inputs.publish-plugin }}
+    needs: [publish-types]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+
+      - name: Update pdm.lock
+        run: cd python/stencila && pdm sync
+
+      - name: Commit pdm.lock
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'python/stencila/pdm.lock'
+          commit_message: "chore(python/stencila): update pdm.lock"
+
+  # Build python/stencila package (Python SDK)
+  # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
+  build-sdk:
+    if: ${{ inputs.build-sdk }}
+    needs: [update-sdk]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-20.04
+            architecture: x64
+            target: x64
+            interpreter: 3.8 3.9 3.10 3.11 3.12
+          - os: ubuntu-latest
+            architecture: x64
+            target: x64
+            interpreter: 3.8 3.9 3.10 3.11 3.12
+          - os: macos-latest
+            architecture: x64
+            target: x64
+            interpreter: 3.8 3.9 3.10 3.11 3.12
+          - os: macos-latest-xlarge
+            architecture: arm64
+            target: aarch64
+            interpreter: 3.8 3.9 3.10 3.11 3.12
+          - os: windows-latest
+            architecture: x64
+            target: x64
+            interpreter: 3.8 3.9 3.10 3.11 3.12
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: ${{ matrix.architecture }}
+
+      - name: Build wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          working-directory: python
+          target: ${{ matrix.target }}
+          # Test changes to these args using the `build` recipe in the `python/Makefile`
+          args: --release --out dist --interpreter ${{ matrix.interpreter }}
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: python/dist
+
+  # Publish Python SDK
+  # This action should not checkout the repository because that adds other,
+  # non-wheel files to the upload and thereby causes the upload to fail.
+  publish-sdk:
+    if: ${{ inputs.publish-sdk }}
+    needs: [build-sdk]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels
+
+      - name: Publish to PyPI
+        uses: PyO3/maturin-action@v1
+        env:
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        with:
+          command: upload
+          args: --skip-existing *
+
+  # Trigger the install test workflow
+  trigger-install:
+    if: ${{ inputs.trigger-install }}
+    needs: [publish-types, publish-plugin, publish-sdk]
+    runs-on: ubuntu-latest
+    permissions:
+        actions: write
+    env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+        
+      - name: Trigger installation test workflow
+        # Sleep for a while to allow published Python packages
+        # to be made available on PyPI before attempting to install them
+        run: sleep 90 && gh workflow run install-python.yml

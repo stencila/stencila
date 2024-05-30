@@ -1,6 +1,6 @@
 {
   "name": "@stencila/plugin",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "description": "Build Stencila Plugins using Node.js",
   "license": "Apache-2.0",
   "author": "Nokome Bentley <nokome@stencila.io>",
@@ -80,6 +80,6 @@
     "clean": true
   },
   "dependencies": {
-    "@stencila/types": "2.0.0-alpha.25"
+    "@stencila/types": "2.0.0-alpha.26"
   }
 }
