@@ -41,11 +41,6 @@ sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" web/package.json
 # as yet unavailable binary addons
 npm install --ignore-scripts
 
-# Update the version in the Python SDK
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/Cargo.toml
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/pyproject.toml
-(cd python && poetry install)
-
 # Update the workspace Cargo.lock file so that above version changes
 # are propagated to it 
 cargo generate-lockfile
