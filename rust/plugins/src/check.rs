@@ -1,3 +1,5 @@
+use assistant::schema::{InstructionInline, InstructionMessage, MessagePart};
+use assistant::{GenerateOptions, GenerateTask, Instruction};
 use cli_utils::{message, Message};
 use common::{
     clap::{self, Args},
@@ -54,6 +56,22 @@ pub async fn check(name: &str) -> Result<Message> {
 
         // Stop the kernel instance
         instance.stop().await?;
+    }
+
+    for asst in plugin.assistants() {
+        tracing::info!("Checking plugin `{name}` assistant `{}`", asst.name());
+        let instruction = Instruction::from(InstructionInline {
+            messages: vec![InstructionMessage {
+                parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
+                ..Default::default()
+            }],
+            ..Default::default()
+        });
+        let task = GenerateTask::new(instruction, None);
+        let output = asst
+            .perform_task(&task, &GenerateOptions::default())
+            .await?;
+        // TODO: Do something with output.
     }
 
     Ok(message!(
