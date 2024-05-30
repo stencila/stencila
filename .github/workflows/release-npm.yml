@@ -8,7 +8,7 @@
 # This is useful for fixing parts of the release without creating a new tag, or
 # moving an existing tag.
 
-name: Release
+name: Release NPM packages
 
 on:
   workflow_dispatch:

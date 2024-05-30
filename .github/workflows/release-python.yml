@@ -1,6 +1,6 @@
 # Workflow for creating a release of Python packages
 
-name: Release
+name: Release Python packages
 
 on:
   workflow_dispatch:
