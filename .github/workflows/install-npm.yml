@@ -1,0 +1,93 @@
+# Workflow for testing installation of NPM packages
+#
+# Triggered after a release and performed on separate VMs to the
+# build so as to test independence from repo checkout and build dependencies.
+#
+# The intent of this workflow is to quickly identify any issues with
+# releases so that a new release can be made if necessary.
+
+name: Install NPM packages
+
+on:
+  # Allow this workflow to be triggered by the `release.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/install-npm.yml
+  workflow_dispatch:
+
+jobs:
+  types:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 18
+          - 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.version }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install package using NPM
+        run: npm install @stencila/types && npm rm @stencila/types
+
+      - name: Install package using Yarn
+        run: yarn add @stencila/types
+
+  plugin:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 18
+          - 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.version }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install package using NPM
+        run: npm install @stencila/plugin && npm rm @stencila/plugin
+
+      - name: Install package using Yarn
+        run: yarn add @stencila/plugin
+
+  node:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - buildjet-2vcpu-ubuntu-2204-arm
+          - macos-latest # x64
+          - macos-latest-xlarge # arm64
+          - windows-latest
+        version:
+          - 18
+          - 20
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.version }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install package using NPM
+        run: npm install @stencila/node && npm rm @stencila/node
+
+      - name: Install package using Yarn
+        run: yarn add @stencila/node
+
+      - name: Use package as a CJS module
+        # Use outer double quotes to avoid issues within inner double quotes on Windows
+        run: node -e "const stencila = require('@stencila/node'); console.log(stencila)"
+
+      - name: Use package as a ESM module using `ts-node`
+        run: |
+          echo "import stencila from '@stencila/node'; console.log(stencila)" > test.ts
+          npx ts-node test.ts

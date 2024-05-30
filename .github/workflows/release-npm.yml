@@ -1,0 +1,197 @@
+# Workflow for creating releases
+#
+# This workflow is triggered by the `version.yml` workflow when a version
+# tag is created (one starting with `v`).
+#
+# It also has inputs to allow all, or some jobs, to be triggered manually via
+# https://github.com/stencila/stencila/actions/workflows/release.yml.
+# This is useful for fixing parts of the release without creating a new tag, or
+# moving an existing tag.
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      create-release:
+        description: Create release
+        type: boolean
+        default: true
+      publish-types:
+        description: Publish @stencila/types
+        type: boolean
+        default: true
+      publish-plugin:
+        description: Publish @stencila/plugin
+        type: boolean
+        default: true
+      node-version:
+        description: The version of @stencila/node package
+        type: string
+        required: true
+      build-node:
+        description: Build @stencila/node addons
+        type: boolean
+        default: true
+      publish-node:
+        description: Publish @stencila/node
+        type: boolean
+        default: true
+      trigger-install:
+        description: Trigger the `install-npm.yml` workflow
+        type: boolean
+        default: true
+
+env:
+  RUST_VERSION: "1.76.0"
+  NODE_VERSION: "20"
+
+jobs:
+  # Build and publish @stencila/types package
+  publish-types:
+    if: ${{ inputs.publish-types }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish @stencila/types
+        run: make -C ts -B install publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Build and publish @stencila/plugin package
+  publish-plugin:
+    if: ${{ inputs.publish-plugin }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish @stencila/plugin
+        run: make -C node/stencila-plugin -B install publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Create a release for @stencila/node binary addons to be uploaded to
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+
+      - name: Create release
+        # Put `if` here (and not at higher level) because `build-node` relies on it
+        # so will not run if this job is not run
+        if: ${{ inputs.create-release }}
+        run: gh release create node-v${{ inputs.node-version }} --title "@stencila/node v${{ inputs.node-version }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build and upload Node SDK binary addons
+  build-node:
+    if: ${{ inputs.build-node }}
+    needs: [create-release]
+    strategy:
+      fail-fast: false
+      matrix:
+        # See `node/stencila-node/install.cjs` for the correct target to use
+        include:
+          - os: ubuntu-latest
+            target: linux-x64-gnu
+          - os: buildjet-8vcpu-ubuntu-2204-arm
+            target: linux-arm64-gnu
+          - os: macos-latest
+            target: darwin-x64
+          - os: macos-latest-xlarge
+            target: darwin-arm64
+          - os: windows-latest
+            target: win32-x64-msvc
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Build package
+        # This avoids various issues with doing just `npm install` here by
+        # only installing `napi` (globally, so other deps are not installed).
+        # Here be dragons; change with care.
+        run: |
+          npm install --global @napi-rs/cli
+          cd node && npm run build:addon
+
+      - name: Upload addon
+        # Use `matrix.target` here instead of `*` glob because the latter does not work on Windows
+        run: gh release upload node-v${{ inputs.node-version }} node/stencila.${{ matrix.target }}.node.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Publish @stencila/node package
+  publish-node:
+    if: ${{ inputs.publish-node }}
+    needs: [build-node]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish @stencila/node
+        run: make -C node -B publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Trigger the install test workflow
+  trigger-install:
+    if: ${{ inputs.trigger-install }}
+    needs: [publish-types, publish-plugin, publish-node]
+    runs-on: ubuntu-latest
+    permissions:
+        actions: write
+    env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+        
+      - name: Trigger installation test workflow
+        # Sleep for a while to allow published packages
+        # to be made available on NPM before attempting to install them
+        run: sleep 90 && gh workflow run install-python.yml
