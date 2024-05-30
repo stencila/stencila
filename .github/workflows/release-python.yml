@@ -37,7 +37,6 @@ env:
 jobs:
   # Publish stencila_types
   publish-types:
-    if: ${{ inputs.publish-types }}
     runs-on: ubuntu-latest
     permissions:
       # This permission is required for PyPI trusted publishing
@@ -55,11 +54,10 @@ jobs:
         uses: pdm-project/setup-pdm@v4
 
       - name: Publish package
-        run: cd python/stencila_types && pdm publish
-
-      - name: Wait for publishing to be completed
-        run: sleep 60
-  
+        # Put `if` here so that jobs that `need` this one will still
+        # run even if this is not getting published
+        if: ${{ inputs.publish-types }}
+        run: cd python/stencila_types && pdm publish && sleep 60  
 
   # Publish stencila_plugin
   # Must be done after stencila_types is published
