@@ -32,7 +32,7 @@ on:
 
 env:
   RUST_VERSION: "1.76.0"
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   # Publish stencila_types
@@ -42,6 +42,11 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
@@ -62,6 +67,11 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
@@ -81,12 +91,17 @@ jobs:
   # Update python/stencila package (Python SDK)
   # Must be done after stencila_types is published
   update-sdk:
-    if: ${{ inputs.publish-plugin }}
+    if: ${{ inputs.update-sdk }}
     needs: [publish-types]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
