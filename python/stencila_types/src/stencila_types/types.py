@@ -3296,6 +3296,7 @@ TYPES = [
     PostalAddress,
     Product,
     PropertyValue,
+    ProvenanceCount,
     PublicationIssue,
     PublicationVolume,
     QuoteBlock,
@@ -3335,6 +3336,7 @@ TYPES = [
 
 UNIONS = [
     Author,
+    AuthorRoleAuthor,
     Block,
     CreativeWorkType,
     ExecutionDependantNode,
@@ -3352,16 +3354,16 @@ UNIONS = [
 
 
 ANON_UNIONS = [
-    int | str,
-    StringPatch | Primitive,
     PropertyValue | str,
     Grant | MonetaryGrant,
-    Cite | Text,
-    SoftwareSourceCode | SoftwareApplication | str,
-    File | Directory,
     Person | Organization,
-    CreativeWorkType | Text,
     str | float,
-    PostalAddress | str,
+    int | str,
     Person | Organization | SoftwareApplication,
+    PostalAddress | str,
+    SoftwareSourceCode | SoftwareApplication | str,
+    Cite | Text,
+    CreativeWorkType | Text,
+    StringPatch | Primitive,
+    File | Directory,
 ]
