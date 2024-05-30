@@ -175,7 +175,7 @@ jobs:
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-${{ matrix.os }}
           path: python/stencila/dist
 
   # Publish Python SDK
@@ -185,10 +185,11 @@ jobs:
     if: ${{ inputs.publish-sdk }}
     needs: [build-sdk]
     runs-on: ubuntu-latest
+    permissions:
+      # This permission is required for PyPI trusted publishing
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
-        with:
-          name: wheels
 
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
