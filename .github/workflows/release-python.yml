@@ -52,13 +52,13 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
+        uses: pdm-project/setup-pdm@v4
 
       - name: Publish package
         run: cd python/stencila_types && pdm publish
 
       - name: Wait for publishing to be completed
-        run: sleep 90
+        run: sleep 60
   
 
   # Publish stencila_plugin
@@ -80,7 +80,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
+        uses: pdm-project/setup-pdm@v4
 
       - name: Publish pdm.lock
         run: cd python/stencila_plugin && pdm sync
@@ -110,7 +110,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
+        uses: pdm-project/setup-pdm@v4
 
       - name: Update pdm.lock
         run: cd python/stencila && pdm sync
@@ -169,7 +169,7 @@ jobs:
       - name: Build wheel
         uses: PyO3/maturin-action@v1
         with:
-          working-directory: python
+          working-directory: python/stencila
           target: ${{ matrix.target }}
           # Test changes to these args using the `build` recipe in the `python/Makefile`
           args: --release --out dist --interpreter ${{ matrix.interpreter }}
@@ -178,7 +178,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wheels
-          path: python/dist
+          path: python/stencila/dist
 
   # Publish Python SDK
   # This action should not checkout the repository because that adds other,
