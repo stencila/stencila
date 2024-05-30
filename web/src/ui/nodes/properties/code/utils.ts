@@ -97,11 +97,11 @@ const createAuthorshipDecorations = (marks: AuthorshipMarker[]) =>
     marks.map((mark) => {
       return Decoration.mark({
         tagName: 'span',
-        class: `prov-lvl-${mark.mi}`,
+        class: `cm-authorship prov-lvl-${mark.mi}`,
         attributes: {
           style:
             mark.mi >= 0 && mark.mi <= 5
-              ? `opacity: ${getProvenanceHighlight(mark.mi as ProvenanceHighlightLevel)}`
+              ? `opacity: ${getProvenanceHighlight(mark.mi as ProvenanceHighlightLevel)};`
               : '',
         },
       }).range(mark.from, mark.to)

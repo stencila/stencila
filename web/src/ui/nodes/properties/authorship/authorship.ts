@@ -89,7 +89,6 @@ export class StencilaAuthorship extends LitElement {
     const textOpacity = getProvenanceHighlight(
       this.mi as ProvenanceHighlightLevel
     )
-
     const tooltipStyle = apply([
       'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
       'group-hover:opacity-100',
@@ -116,7 +115,7 @@ export class StencilaAuthorship extends LitElement {
     */
     // prettier-ignore
     const htmlTemplate = html`<span
-          class="group"
+          class="group text-black"
           style="position: relative; --tw-text-opacity: ${textOpacity};"
         ><div class=${tooltipStyle}>${getTooltipContent(this.count, this.provenance)}</div
         ><slot></slot
