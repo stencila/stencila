@@ -81,6 +81,9 @@ class Harness(ABC):
         Returns:
             JSONDict: The result of the RPC call (if successful).
         """
+        if not kwargs:
+            kwargs = None
+
         request = {
             "jsonrpc": "2.0",
             "method": method,

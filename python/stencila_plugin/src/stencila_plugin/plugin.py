@@ -258,11 +258,15 @@ async def _handle_json(
     msg_id: IdType = request.get("id")  # type: ignore
 
     # According to the standard, the params can be an Array or an Object (a dict).
-    # We also handle None.
+    # We handle None as by converting to an empty dict.
     params = request.get("params")
+    if params is None:
+        params = {}
 
     if not isinstance(params, dict):
-        return _error(None, RPCErrorCodes.INVALID_PARAMS, "")
+        return _error(
+            None, RPCErrorCodes.INVALID_PARAMS, "Did not recieve a dict or null"
+        )
 
     # Hm. Still struggling with typing here.
     return await _handle_rpc(plugin, method, params=params, msg_id=msg_id)  # type: ignore
