@@ -3354,16 +3354,16 @@ UNIONS = [
 
 
 ANON_UNIONS = [
+    str | float,
     PropertyValue | str,
     Grant | MonetaryGrant,
-    str | float,
-    Person | Organization | SoftwareApplication,
     Person | Organization,
-    StringPatch | Primitive,
     int | str,
-    CreativeWorkType | Text,
-    PostalAddress | str,
-    Cite | Text,
-    SoftwareSourceCode | SoftwareApplication | str,
     File | Directory,
+    CreativeWorkType | Text,
+    Person | Organization | SoftwareApplication,
+    PostalAddress | str,
+    SoftwareSourceCode | SoftwareApplication | str,
+    Cite | Text,
+    StringPatch | Primitive,
 ]
