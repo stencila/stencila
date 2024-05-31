@@ -94,6 +94,17 @@ impl DomCodec for CodeChunk {
 
 impl MarkdownCodec for CodeChunk {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if context.render {
+            // Encode outputs as separate paragraphs
+            for output in self.outputs.iter().flatten() {
+                output.to_markdown(context);
+                if !context.content.ends_with("\n\n") {
+                    context.push_str("\n\n");
+                }
+            }
+            return;
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, outputs))

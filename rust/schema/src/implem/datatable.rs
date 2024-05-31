@@ -1,3 +1,5 @@
+use codec_info::lost_options;
+
 use crate::{prelude::*, ArrayValidator, Datatable, Primitive};
 
 impl Datatable {
@@ -69,5 +71,99 @@ impl DomCodec for Datatable {
         context.exit_elem();
 
         context.exit_elem().exit_node();
+    }
+}
+
+impl MarkdownCodec for Datatable {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
+
+        // Determine number of columns and rows
+        let cols_num = self.columns.len();
+        let rows_num = self
+            .columns
+            .iter()
+            .fold(0usize, |max, column| max.max(column.values.len()));
+
+        // Trim, replace inner newlines with <br> & ensure cell has no carriage
+        // returns or pipes which will break table
+        fn escape_cell(cell: String) -> (String, usize) {
+            let cell = cell
+                .trim()
+                .replace('\n', "<br><br>")
+                .replace("\r", " ")
+                .replace('|', "\\|");
+            let chars = 3.max(cell.chars().count());
+            (cell, chars)
+        }
+
+        // Do a first iteration over cells to generate the Markdown
+        // for each cell (including headers) and determine column widths
+        let mut column_widths: Vec<usize> = Vec::new();
+        let mut cells: Vec<Vec<String>> = vec![vec![String::new(); cols_num]; rows_num + 1];
+        for (col_index, column) in self.columns.iter().enumerate() {
+            // Set column header and initialize column width
+            let (cell, width) = escape_cell(column.name.clone());
+            cells[0][col_index] = cell;
+
+            column_widths.push(width);
+
+            // Fill in cells for this column
+            for (row_index, value) in column.values.iter().enumerate() {
+                let mut cell_context = MarkdownEncodeContext::default();
+                value.to_markdown(&mut cell_context);
+
+                let (cell, width) = escape_cell(cell_context.content);
+                cells[row_index + 1][col_index] = cell;
+
+                if let Some(column_width) = column_widths.get_mut(col_index) {
+                    if width > *column_width {
+                        *column_width = width
+                    }
+                }
+
+                context.merge_losses(cell_context.losses);
+            }
+        }
+
+        // Now iterate over rows and encode each to Markdown
+        for (row_index, row) in cells.iter().enumerate() {
+            // If there is only one row, header row should be empty
+            if row_index == 0 && cells.len() == 1 {
+                context.push_str("| ");
+                for width in &column_widths {
+                    context.push_str(&" ".repeat(*width)).push_str(" |");
+                }
+            }
+
+            // Separator
+            if (row_index == 0 && cells.len() == 1) || row_index == 1 {
+                context.push_str("|");
+                for width in &column_widths {
+                    context
+                        .push_str(" ")
+                        .push_str(&"-".repeat(*width))
+                        .push_str(" |");
+                }
+                context.newline();
+            }
+
+            // Cell content (including header row)
+            for (col_index, cell) in row.iter().enumerate() {
+                if col_index == 0 {
+                    context.push_str("|");
+                }
+
+                context.push_str(&format!(
+                    " {cell:width$} |",
+                    width = column_widths[col_index]
+                ));
+            }
+            context.newline();
+        }
+
+        context.exit_node().newline();
     }
 }

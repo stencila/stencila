@@ -4,6 +4,17 @@ use crate::{prelude::*, IfBlock, IfBlockClause};
 
 impl MarkdownCodec for IfBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if context.render {
+            // Encode content of the first active clause only
+            for clause in self.clauses.iter() {
+                if clause.is_active == Some(true) {
+                    clause.content.to_markdown(context);
+                    return;
+                }
+            }
+            return;
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self));

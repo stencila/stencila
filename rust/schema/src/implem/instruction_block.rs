@@ -4,6 +4,14 @@ use crate::{prelude::*, InstructionBlock};
 
 impl MarkdownCodec for InstructionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if context.render {
+            // Encode content only
+            if let Some(content) = &self.content {
+                content.to_markdown(context);
+            }
+            return;
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, auto_exec))

@@ -381,6 +381,15 @@ pub struct EncodeOptions {
     /// formats it may be necessary to specify this option.
     pub format: Option<Format>,
 
+    /// Whether to encode only outputs, and no source, for executable nodes
+    /// 
+    /// When this option is `true`, for executable node types such as `CodeChunk`,
+    /// `IncludeBlock`, and `InstructionBlock`, only the outputs from execution
+    /// will be rendered, and not the source.
+    /// 
+    /// This option is only supported by some formats.
+    pub render: Option<bool>,
+
     /// Whether to encode as a standalone document
     ///
     /// Unless specified otherwise, this is the default when encoding to a file
