@@ -12,6 +12,9 @@
   "dom": {
     "derive": false
   },
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "columns"
