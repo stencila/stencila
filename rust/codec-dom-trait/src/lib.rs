@@ -169,9 +169,13 @@ impl DomEncodeContext {
         self
     }
 
-    /// Enter a node
-    pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
-        let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
+    /// Enter an element for a node
+    pub fn enter_node_elem(
+        &mut self,
+        name: &str,
+        node_type: NodeType,
+        node_id: NodeId,
+    ) -> &mut Self {
         let id = node_id.to_string();
         let depth = self.node_types.len().to_string();
         let ancestors = self
@@ -187,6 +191,12 @@ impl DomEncodeContext {
         self.node_types.push(node_type);
 
         self
+    }
+
+    /// Enter a node with the default, custom element for the node type
+    pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
+        let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
+        self.enter_node_elem(&name, node_type, node_id)
     }
 
     /// Push an attribute onto the current element

@@ -1,7 +1,9 @@
 use codec_html_trait::encode::{attr, elem};
 use codec_info::lost_options;
 
-use crate::{prelude::*, Table};
+use crate::{prelude::*, Table, TableCell, TableCellType, TableRow};
+
+use super::utils::caption_to_dom;
 
 impl Table {
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
@@ -31,6 +33,77 @@ impl Table {
         let body = elem("tbody", &[], &[self.rows.to_html(context)]);
 
         elem("table", &[], &[caption, body])
+    }
+}
+
+impl DomCodec for Table {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        if let Some(label) = &self.label {
+            context.push_attr("label", label);
+        }
+
+        if let Some(label_automatically) = &self.label_automatically {
+            context.push_attr("label-automatically", &label_automatically.to_string());
+        }
+
+        if let Some(authors) = &self.authors {
+            context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+        }
+
+        if let Some(provenance) = &self.provenance {
+            context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
+        }
+
+        // Strictly, <caption> should be within <table>, but that causes issues for styling of web component,
+        // so we make it a sibling <div> (because the browser will unwrap a <caption> if not within a <table>)
+        // See https://github.com/stencila/stencila/pull/2240#issuecomment-2136358172
+        if let Some(caption) = &self.caption {
+            context.push_slot_fn("div", "caption", |context| {
+                caption_to_dom(context, "table-label", "Table", &self.label, caption)
+            });
+        }
+
+        context.push_slot_fn("table", "rows", |context| self.rows.to_dom(context));
+
+        if let Some(notes) = &self.notes {
+            context.push_slot_fn("aside", "notes", |context| notes.to_dom(context));
+        }
+
+        context.exit_node();
+    }
+}
+
+impl DomCodec for TableRow {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        // Can not use a custom element (i.e. <stencila-table-row>) because only <tr> elements
+        // are allowed in a <tbody>
+        context.enter_node_elem("tr", self.node_type(), self.node_id());
+        self.cells.to_dom(context);
+        context.exit_node();
+    }
+}
+
+impl DomCodec for TableCell {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        // Can not use a custom element (i.e. <stencila-table-cell>) because only <th> or <td> elements
+        // are allowed in a <tr>.
+        let name = match self.cell_type {
+            Some(TableCellType::HeaderCell) => "th",
+            _ => "td",
+        };
+        context.enter_node_elem(name, self.node_type(), self.node_id());
+
+        if let Some(row_span) = self.options.row_span {
+            context.push_attr("rowspan", &row_span.to_string());
+        }
+        if let Some(column_span) = self.options.column_span {
+            context.push_attr("colspan", &column_span.to_string());
+        }
+
+        self.content.to_dom(context);
+        context.exit_node();
     }
 }
 

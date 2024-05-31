@@ -36,14 +36,15 @@
             </stencila-image-object>
           </p>
         </stencila-paragraph>
+        <figcaption slot=caption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Some white text on orange an background.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
       </figure>
-      <figcaption slot=caption>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Some white text on orange an background.</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </figcaption>
     </stencila-figure>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
@@ -54,6 +55,7 @@
       <div slot=caption>
         <stencila-paragraph id=xxx depth=2 ancestors=Article.CodeChunk>
           <p slot=content>
+            <span class=figure-label>Figure</span>
             <stencila-text id=xxx depth=3 ancestors=Article.CodeChunk.Paragraph>A plot.</stencila-text>
           </p>
         </stencila-paragraph>
@@ -65,9 +67,10 @@
       </p>
     </stencila-paragraph>
     <stencila-table id=xxx depth=1 ancestors=Article>
-      <caption slot=caption>
+      <div slot=caption>
         <stencila-paragraph id=xxx depth=2 ancestors=Article.Table>
           <p slot=content>
+            <span class=table-label>Table</span>
             <stencila-text id=xxx depth=3 ancestors=Article.Table.Paragraph>A little table about fish.</stencila-text>
           </p>
         </stencila-paragraph>
@@ -76,132 +79,100 @@
             <stencila-text id=xxx depth=3 ancestors=Article.Table.Paragraph>This caption has two paragraphs.</stencila-text>
           </p>
         </stencila-paragraph>
-      </caption>
+      </div>
       <table slot=rows>
-        <stencila-table-row id=xxx depth=2 ancestors=Article.Table row-type=HeaderRow>
-          <tr slot=cells>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Species</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Average Length (cm)</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Average Weight (kg)</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-          </tr>
-        </stencila-table-row>
-        <stencila-table-row id=xxx depth=2 ancestors=Article.Table>
-          <tr slot=cells>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Goldfish</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>20.0</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>0.45</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-          </tr>
-        </stencila-table-row>
-        <stencila-table-row id=xxx depth=2 ancestors=Article.Table>
-          <tr slot=cells>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Clownfish</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>10.0</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>0.25</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-          </tr>
-        </stencila-table-row>
-        <stencila-table-row id=xxx depth=2 ancestors=Article.Table>
-          <tr slot=cells>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Trout</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>40.0</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-            <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-              <td slot=content>
-                <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                  <p slot=content>
-                    <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>1.50</stencila-text>
-                  </p>
-                </stencila-paragraph>
-              </td>
-            </stencila-table-cell>
-          </tr>
-        </stencila-table-row>
+        <tr id=xxx depth=2 ancestors=Article.Table>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Species</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Average Length (cm)</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Average Weight (kg)</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+        </tr>
+        <tr id=xxx depth=2 ancestors=Article.Table>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Goldfish</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>20.0</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>0.45</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+        </tr>
+        <tr id=xxx depth=2 ancestors=Article.Table>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Clownfish</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>10.0</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>0.25</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+        </tr>
+        <tr id=xxx depth=2 ancestors=Article.Table>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>Trout</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>40.0</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>1.50</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+        </tr>
       </table>
     </stencila-table>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
@@ -213,6 +184,7 @@
       <div slot=caption>
         <stencila-paragraph id=xxx depth=2 ancestors=Article.CodeChunk>
           <p slot=content>
+            <span class=table-label>Table</span>
             <stencila-text id=xxx depth=3 ancestors=Article.CodeChunk.Paragraph>Some cars</stencila-text>
           </p>
         </stencila-paragraph>
