@@ -86,9 +86,7 @@ export class StencilaAuthorship extends LitElement {
   }
 
   renderHighlights() {
-    const textOpacity = getProvenanceOpacity(
-      this.mi as ProvenanceOpacityLevel
-    )
+    const textOpacity = getProvenanceOpacity(this.mi as ProvenanceOpacityLevel)
     const tooltipStyle = apply([
       'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
       'group-hover:opacity-100',
