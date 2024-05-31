@@ -21,7 +21,8 @@ figure {
   @apply mx-0;
 }
 
-@media print {}
+@media print {
+}
 
 @page {
   size: 21cm 29.7cm;
@@ -31,7 +32,7 @@ figure {
 [root] {
   @apply text-black prose lg:prose-lg;
 
-  >section {
+  > section {
     @apply min-w-80 w-full max-w-prose mx-auto;
   }
 
@@ -132,7 +133,7 @@ figure {
       }
     }
 
-    +stencila-paragraph {
+    + stencila-paragraph {
       p {
         @apply mt-0;
       }
@@ -143,7 +144,7 @@ figure {
     display: block;
     border: 1px solid transparent;
 
-    +stencila-paragraph {
+    + stencila-paragraph {
       p {
         margin-top: 0;
       }
@@ -221,7 +222,6 @@ figure {
 
   stencila-code-chunk {
     [slot='outputs'] {
-
       stencila-boolean,
       stencila-integer,
       stencila-number,
@@ -242,7 +242,7 @@ figure {
       @apply text-left;
     }
 
-    [slot="caption"] {
+    [slot='caption'] {
       @apply block;
 
       stencila-paragraph {
@@ -258,8 +258,8 @@ figure {
       }
     }
 
-    &[label-type="FigureLabel"] {
-      [slot="caption"] {
+    &[label-type='FigureLabel'] {
+      [slot='caption'] {
         @apply mb-4;
 
         stencila-paragraph:first-child {
@@ -270,7 +270,7 @@ figure {
       }
     }
 
-    [slot="caption"]+[slot="outputs"] {
+    [slot='caption'] + [slot='outputs'] {
       @apply mt-0;
     }
   }
@@ -280,7 +280,7 @@ figure {
 
 [view='dynamic'],
 [view='vscode'] {
-  >[root] {
+  > [root] {
     @apply max-w-prose;
     max-width: 100%;
 
