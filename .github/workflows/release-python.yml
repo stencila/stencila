@@ -190,6 +190,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          # Necessary to avoid artifacts being extracted into separate folders
+          merge-multiple: true
 
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
