@@ -1,7 +1,7 @@
 use codec_html_trait::encode::{attr, elem};
 use codec_info::lost_options;
 
-use crate::{prelude::*, Table};
+use crate::{prelude::*, Table, TableCell, TableCellType, TableRow};
 
 use super::utils::caption_to_dom;
 
@@ -57,10 +57,10 @@ impl DomCodec for Table {
         }
 
         // Strictly, <caption> should be within <table>, but that causes issues for styling of web component,
-        // so we make it a sibling.
+        // so we make it a sibling <div> (because the browser will unwrap a <caption> if not within a <table>)
         // See https://github.com/stencila/stencila/pull/2240#issuecomment-2136358172
         if let Some(caption) = &self.caption {
-            context.push_slot_fn("caption", "caption", |context| {
+            context.push_slot_fn("div", "caption", |context| {
                 caption_to_dom(context, "table-label", "Table", &self.label, caption)
             });
         }
@@ -71,6 +71,38 @@ impl DomCodec for Table {
             context.push_slot_fn("aside", "notes", |context| notes.to_dom(context));
         }
 
+        context.exit_node();
+    }
+}
+
+impl DomCodec for TableRow {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        // Can not use a custom element (i.e. <stencila-table-row>) because only <tr> elements
+        // are allowed in a <tbody>
+        context.enter_node_elem("tr", self.node_type(), self.node_id());
+        self.cells.to_dom(context);
+        context.exit_node();
+    }
+}
+
+impl DomCodec for TableCell {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        // Can not use a custom element (i.e. <stencila-table-cell>) because only <th> or <td> elements
+        // are allowed in a <tr>.
+        let name = match self.cell_type {
+            Some(TableCellType::HeaderCell) => "th",
+            _ => "td",
+        };
+        context.enter_node_elem(name, self.node_type(), self.node_id());
+
+        if let Some(row_span) = self.options.row_span {
+            context.push_attr("rowspan", &row_span.to_string());
+        }
+        if let Some(column_span) = self.options.column_span {
+            context.push_attr("colspan", &column_span.to_string());
+        }
+
+        self.content.to_dom(context);
         context.exit_node();
     }
 }

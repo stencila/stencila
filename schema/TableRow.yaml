@@ -4,6 +4,8 @@ nick: tbr
 extends: Entity
 category: works
 description: A row within a Table.
+dom:
+  derive: false
 html:
   elem: tr
 proptest: {}

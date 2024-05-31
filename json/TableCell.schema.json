@@ -9,6 +9,9 @@
   ],
   "category": "works",
   "description": "A cell within a `Table`.",
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "td"
   },

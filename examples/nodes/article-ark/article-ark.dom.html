@@ -252,35 +252,25 @@
       </div>
     </stencila-styled-block>
     <stencila-table id=xxx depth=1 ancestors=Article>
-      <table>
-        <tbody slot=rows>
-          <stencila-table-row id=xxx depth=2 ancestors=Article.Table row-type=HeaderRow>
-            <tr slot=cells>
-              <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-                <td slot=content>
-                  <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                    <p slot=content>
-                      <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>A</stencila-text>
-                    </p>
-                  </stencila-paragraph>
-                </td>
-              </stencila-table-cell>
-            </tr>
-          </stencila-table-row>
-          <stencila-table-row id=xxx depth=2 ancestors=Article.Table>
-            <tr slot=cells>
-              <stencila-table-cell id=xxx depth=3 ancestors=Article.Table.TableRow>
-                <td slot=content>
-                  <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
-                    <p slot=content>
-                      <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>1</stencila-text>
-                    </p>
-                  </stencila-paragraph>
-                </td>
-              </stencila-table-cell>
-            </tr>
-          </stencila-table-row>
-        </tbody>
+      <table slot=rows>
+        <tr id=xxx depth=2 ancestors=Article.Table>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>A</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+        </tr>
+        <tr id=xxx depth=2 ancestors=Article.Table>
+          <td id=xxx depth=3 ancestors=Article.Table.TableRow>
+            <stencila-paragraph id=xxx depth=4 ancestors=Article.Table.TableRow.TableCell>
+              <p slot=content>
+                <stencila-text id=xxx depth=5 ancestors=Article.Table.TableRow.TableCell.Paragraph>1</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </td>
+        </tr>
       </table>
     </stencila-table>
     <stencila-thematic-break id=xxx depth=1 ancestors=Article>
