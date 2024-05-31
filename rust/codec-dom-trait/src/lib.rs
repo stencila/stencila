@@ -185,7 +185,7 @@ impl DomEncodeContext {
             .join(".");
 
         self.enter_elem_attrs(
-            &name,
+            name,
             [("id", &id), ("depth", &depth), ("ancestors", &ancestors)],
         );
         self.node_types.push(node_type);

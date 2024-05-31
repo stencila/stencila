@@ -148,7 +148,7 @@ pub(super) async fn execute_command(
                 "Retrying instruction".to_string(),
                 Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
                 true,
-                true
+                true,
             )
         }
         ACCEPT_NODE => {

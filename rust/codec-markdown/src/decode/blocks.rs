@@ -48,7 +48,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         'fenced: {
             if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
                 if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
-                    if !(value.starts_with(":::") || value.starts_with("/")) {
+                    if !(value.starts_with(":::") || value.starts_with('/')) {
                         // Not a "fenced div" so ignore rest of this block
                         break 'fenced;
                     };
@@ -787,7 +787,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 
             chunk.label_type = Some(LabelType::FigureLabel);
             chunk.label = figure.label.clone();
-            chunk.label_automatically = figure.label_automatically.clone();
+            chunk.label_automatically = figure.label_automatically;
             chunk.caption = (!children.is_empty()).then_some(children);
 
             // Replace the mapping entry for figure, with one for chunk
@@ -856,7 +856,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 
             chunk.label_type = Some(LabelType::TableLabel);
             chunk.label = table.label.clone();
-            chunk.label_automatically = table.label_automatically.clone();
+            chunk.label_automatically = table.label_automatically;
             chunk.caption = (!children.is_empty()).then_some(children);
 
             // Replace the mapping entry for figure, with one for chunk

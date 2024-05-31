@@ -23,7 +23,7 @@ impl DomCodec for Figure {
         if let Some(provenance) = &self.provenance {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
-        
+
         context.enter_elem_attrs("figure", [("slot", "content")]);
 
         self.content.to_dom(context);

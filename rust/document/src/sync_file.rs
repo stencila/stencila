@@ -166,10 +166,7 @@ impl Document {
 
                     match codecs::from_path(&path_buf, decode_options.clone()).await {
                         Ok(node) => {
-                            if let Err(error) = update_sender
-                                .send(Update::new(node, None))
-                                .await
-                            {
+                            if let Err(error) = update_sender.send(Update::new(node, None)).await {
                                 tracing::error!("While sending node update: {error}");
                             }
                         }

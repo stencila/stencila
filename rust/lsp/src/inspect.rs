@@ -335,16 +335,16 @@ impl Inspect for CodeChunk {
             Some(detail)
         };
 
-        let execution = if let Some(execution_status) = &self.options.execution_status {
-            Some(TextNodeExecution {
+        let execution = self
+            .options
+            .execution_status
+            .as_ref()
+            .map(|execution_status| TextNodeExecution {
                 status: execution_status.clone(),
                 duration: self.options.execution_duration.clone(),
                 ended: self.options.execution_ended.clone(),
                 messages: self.options.execution_messages.clone(),
-            })
-        } else {
-            None
-        };
+            });
 
         let provenance = self.provenance.clone();
 

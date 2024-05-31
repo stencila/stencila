@@ -68,7 +68,7 @@ pub async fn check(name: &str) -> Result<Message> {
             ..Default::default()
         });
         let task = GenerateTask::new(instruction, None);
-        let output = asst
+        let _output = asst
             .perform_task(&task, &GenerateOptions::default())
             .await?;
         // TODO: Do something with output.

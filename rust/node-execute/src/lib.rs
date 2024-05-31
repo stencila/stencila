@@ -496,19 +496,16 @@ impl Executor {
 impl VisitorAsync for Executor {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
         // Collect the node into the context if appropriate
-        match node {
-            Node::Article(article) => {
-                if let Some(title) = &article.title {
-                    self.context.set_title(&title.to_text().0);
-                }
-                if let Some(genre) = &article.genre {
-                    self.context.set_genre(&genre.to_text().0);
-                }
-                if let Some(keywords) = &article.keywords {
-                    self.context.set_keywords(keywords);
-                }
+        if let Node::Article(article) = node {
+            if let Some(title) = &article.title {
+                self.context.set_title(&title.to_text().0);
             }
-            _ => {}
+            if let Some(genre) = &article.genre {
+                self.context.set_genre(&genre.to_text().0);
+            }
+            if let Some(keywords) = &article.keywords {
+                self.context.set_keywords(keywords);
+            }
         }
 
         // If the executor has node ids (i.e. is only executing some nodes, not the entire

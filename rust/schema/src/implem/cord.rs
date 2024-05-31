@@ -130,7 +130,6 @@ impl Cord {
     /// are no empty runs
     #[cfg(debug_assertions)]
     fn check_runs(&self) {
-        return
         /*
         TODO: reinstate these checks as part of testing
 

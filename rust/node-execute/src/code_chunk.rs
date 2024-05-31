@@ -16,7 +16,7 @@ impl Executable for CodeChunk {
         let lang = self
             .programming_language
             .as_ref()
-            .map_or_else(|| String::new(), |lang| lang.trim().to_lowercase());
+            .map_or_else(String::new, |lang| lang.trim().to_lowercase());
         if lang == "dot" || lang == "graphviz" {
             return self.execute(executor).await;
         }
@@ -45,10 +45,8 @@ impl Executable for CodeChunk {
                     executor.table_count.to_string()
                 }
             };
-            if self.label_automatically.unwrap_or(true) {
-                if Some(&label) != self.label.as_ref() {
-                    executor.patch(&node_id, [set(NodeProperty::Label, label)]);
-                }
+            if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
+                executor.patch(&node_id, [set(NodeProperty::Label, label)]);
             }
         }
 

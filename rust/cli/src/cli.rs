@@ -426,7 +426,7 @@ impl EncodeOptions {
 
         let format = format_or_codec
             .map_or_else(
-                || output.and_then(|path| Format::from_path(&path).ok()),
+                || output.and_then(|path| Format::from_path(path).ok()),
                 |name| Some(Format::from_name(&name)),
             )
             .or(Some(default_format));
@@ -453,7 +453,6 @@ impl EncodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
-            ..Default::default()
         }
     }
 }

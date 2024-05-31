@@ -93,7 +93,7 @@ impl MarkdownCodec for Datatable {
             let cell = cell
                 .trim()
                 .replace('\n', "<br><br>")
-                .replace("\r", " ")
+                .replace('\r', " ")
                 .replace('|', "\\|");
             let chars = 3.max(cell.chars().count());
             (cell, chars)

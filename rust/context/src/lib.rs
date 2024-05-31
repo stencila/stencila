@@ -85,8 +85,8 @@ impl Context {
         self.genre = Some(genre.to_string());
     }
 
-    pub fn set_keywords(&mut self, keywords: &Vec<String>) {
-        self.keywords = keywords.clone();
+    pub fn set_keywords(&mut self, keywords: &[String]) {
+        self.keywords = keywords.to_vec();
     }
 
     pub fn push_code_chunk(&mut self, code_chunk: &CodeChunk) {
