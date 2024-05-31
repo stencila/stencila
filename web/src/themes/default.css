@@ -233,22 +233,9 @@ figure {
     }
   }
 
-  /* table and fig caption */
+  /* Table and figure captions */
 
-  stencila-table {
-    &>stencila-paragraph {
-      p {
-        @apply mt-4;
-        @apply text-sm text-black text-left;
-      }
-
-      .table-label {
-        @apply font-bold after:content-[":"]
-      }
-    }
-  }
-
-
+  stencila-table,
   stencila-figure,
   stencila-code-chunk {
     caption {

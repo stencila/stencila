@@ -43,7 +43,7 @@ export class Table extends Entity {
           </stencila-ui-node-provenance>
         </div>
         <div class="content" slot="content">
-          <slot></slot>
+          <slot name="caption"></slot>
           <div class="overflow-x-auto">
             <slot name="rows"></slot>
           </div>
