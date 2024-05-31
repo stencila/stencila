@@ -1,9 +1,31 @@
 use codec_info::lost_exec_options;
 
-use crate::{prelude::*, ForBlock};
+use crate::{prelude::*, Block, ForBlock, Section};
 
 impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if context.render {
+            // Encode iterations only (unwrapping the `Section` representing each as is
+            // usually the case) but if none, render any `otherwise`
+            for iteration in self.iterations.iter().flatten() {
+                if let Block::Section(Section { content, .. }) = iteration {
+                    content.to_markdown(context);
+                } else {
+                    iteration.to_markdown(context);
+                }
+            }
+            if let (false, Some(otherwise)) = (
+                self.iterations
+                    .as_ref()
+                    .map(|iterations| !iterations.is_empty())
+                    .unwrap_or_default(),
+                &self.otherwise,
+            ) {
+                otherwise.to_markdown(context)
+            }
+            return;
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self))

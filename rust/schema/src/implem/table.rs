@@ -150,14 +150,13 @@ impl MarkdownCodec for Table {
                 cell.content.to_markdown(&mut cell_context);
 
                 // Trim, replace inner newlines with <br> (because content is blocks, but in
-                // Markdown tables must be a single line), & ensure cell has no newlines or pipes
+                // Markdown tables must be a single line), & ensure cell has no carriage returns or pipes
                 // which will break table
                 let cell_md = cell_context
                     .content
                     .trim()
                     .replace('\n', "<br><br>")
-                    .replace("\r\n", " ")
-                    .replace('\n', " ")
+                    .replace('\r', " ")
                     .replace('|', "\\|");
 
                 let width = cell_md.chars().count();

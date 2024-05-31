@@ -1,7 +1,8 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use app::DirType;
 use cli_utils::{Code, ToStdout};
+use codecs::LossesResponse;
 use common::{
     clap::{self, Args, Parser, Subcommand},
     eyre::Result,
@@ -245,6 +246,12 @@ enum Command {
         /// of the `output`. If no `output` is supplied, defaults to JSON.
         #[arg(long, short)]
         to: Option<String>,
+
+        #[command(flatten)]
+        encode_options: EncodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
     },
 
     /// Execute a document
@@ -268,7 +275,45 @@ enum Command {
         to: Option<String>,
 
         #[clap(flatten)]
-        options: ExecuteOptions,
+        execute_options: ExecuteOptions,
+
+        #[command(flatten)]
+        encode_options: EncodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
+    },
+
+    /// Render a document
+    ///
+    /// Equivalent to the `execute` command with the `--render` flag.
+    #[command()]
+    Render {
+        /// The path of the file to render
+        ///
+        /// If not supplied the input content is read from `stdin`.
+        input: PathBuf,
+
+        /// The path of the file to write the rendered document to
+        ///
+        /// If not supplied the output content is written to `stdout`.
+        output: Option<PathBuf>,
+
+        /// The format to encode to (or codec to use)
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the `output`. If no `output` is supplied, defaults to Markdown.
+        #[arg(long, short)]
+        to: Option<String>,
+
+        #[clap(flatten)]
+        execute_options: ExecuteOptions,
+
+        #[command(flatten)]
+        encode_options: EncodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
     },
 
     /// Serve
@@ -346,6 +391,10 @@ struct EncodeOptions {
     #[arg(long, conflicts_with = "standalone")]
     not_standalone: bool,
 
+    /// For executable nodes, only encode outputs, not source properties
+    #[arg(long, short)]
+    render: bool,
+
     /// Use compact form of encoding if possible
     ///
     /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
@@ -365,14 +414,22 @@ impl EncodeOptions {
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
     fn build(
         &self,
+        output: Option<&Path>,
         format_or_codec: Option<String>,
+        default_format: Format,
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
         let codec = format_or_codec
             .as_ref()
             .and_then(|name| codecs::codec_maybe(name));
-        let format = format_or_codec.map(|name| Format::from_name(&name));
+
+        let format = format_or_codec
+            .map_or_else(
+                || output.and_then(|path| Format::from_path(&path).ok()),
+                |name| Some(Format::from_name(&name)),
+            )
+            .or(Some(default_format));
 
         let compact = self
             .compact
@@ -384,11 +441,14 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.not_standalone.then_some(false));
 
+        let render = self.render.then_some(true);
+
         codecs::EncodeOptions {
             codec,
             format,
             compact,
             standalone,
+            render,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
@@ -448,12 +508,12 @@ impl Cli {
             } => {
                 let doc = Document::open(&doc).await?;
 
-                let options = options.build(to, strip_options, losses);
-                let format = options.format.clone().unwrap_or(Format::Text);
+                let options =
+                    options.build(dest.as_deref(), to, Format::Json, strip_options, losses);
 
-                let content = doc.export(dest.as_deref(), Some(options)).await?;
+                let content = doc.export(dest.as_deref(), Some(options.clone())).await?;
                 if !content.is_empty() {
-                    Code::new(format, &content).to_stdout();
+                    Code::new(options.format.unwrap_or_default(), &content).to_stdout();
                 }
             }
 
@@ -489,7 +549,9 @@ impl Cli {
                         losses.clone(),
                     ));
                     let encode_options = Some(encode_options.build(
+                        None,
                         format_or_codec,
+                        Format::Json,
                         strip_options.clone(),
                         losses.clone(),
                     ));
@@ -513,7 +575,13 @@ impl Cli {
             } => {
                 let decode_options =
                     decode_options.build(from, strip_options.clone(), input_losses);
-                let encode_options = encode_options.build(to, strip_options, output_losses);
+                let encode_options = encode_options.build(
+                    output.as_deref(),
+                    to,
+                    Format::Json,
+                    strip_options,
+                    output_losses,
+                );
 
                 let content = codecs::convert(
                     input.as_deref(),
@@ -522,31 +590,36 @@ impl Cli {
                     Some(encode_options.clone()),
                 )
                 .await?;
+
                 if !content.is_empty() {
-                    let format = encode_options.format.unwrap_or(Format::Json);
-                    Code::new(format, &content).to_stdout();
+                    Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
                 }
             }
 
-            Command::Compile { input, output, to } => {
+            Command::Compile {
+                input,
+                output,
+                to,
+                encode_options,
+                strip_options,
+            } => {
                 let doc = Document::open(&input).await?;
                 doc.compile(true).await?;
 
-                let format = to.map(|to| Format::from_name(&to));
+                let encode_options = encode_options.build(
+                    output.as_deref(),
+                    to,
+                    Format::Json,
+                    strip_options,
+                    LossesResponse::Debug,
+                );
 
                 let content = doc
-                    .export(
-                        output.as_deref(),
-                        Some(codecs::EncodeOptions {
-                            format: format.clone(),
-                            ..Default::default()
-                        }),
-                    )
+                    .export(output.as_deref(), Some(encode_options.clone()))
                     .await?;
 
                 if !content.is_empty() {
-                    let format = format.unwrap_or(Format::Json);
-                    Code::new(format, &content).to_stdout();
+                    Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
                 }
             }
 
@@ -554,27 +627,58 @@ impl Cli {
                 input,
                 output,
                 to,
-                options,
+                execute_options,
+                encode_options,
+                strip_options,
             } => {
                 let doc = Document::open(&input).await?;
                 doc.compile(true).await?;
-                doc.execute(options, true).await?;
+                doc.execute(execute_options, true).await?;
 
-                let format = to.map(|to| Format::from_name(&to));
+                let encode_options = encode_options.build(
+                    output.as_deref(),
+                    to,
+                    Format::Json,
+                    strip_options,
+                    LossesResponse::Debug,
+                );
 
                 let content = doc
-                    .export(
-                        output.as_deref(),
-                        Some(codecs::EncodeOptions {
-                            format: format.clone(),
-                            ..Default::default()
-                        }),
-                    )
+                    .export(output.as_deref(), Some(encode_options.clone()))
                     .await?;
 
                 if !content.is_empty() {
-                    let format = format.unwrap_or(Format::Json);
-                    Code::new(format, &content).to_stdout();
+                    Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
+                }
+            }
+
+            Command::Render {
+                input,
+                output,
+                to,
+                execute_options,
+                encode_options,
+                strip_options,
+            } => {
+                let doc = Document::open(&input).await?;
+                doc.compile(true).await?;
+                doc.execute(execute_options, true).await?;
+
+                let mut encode_options = encode_options.build(
+                    output.as_deref(),
+                    to,
+                    Format::Markdown,
+                    strip_options,
+                    LossesResponse::Debug,
+                );
+                encode_options.render = Some(true);
+
+                let content = doc
+                    .export(output.as_deref(), Some(encode_options.clone()))
+                    .await?;
+
+                if !content.is_empty() {
+                    Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
                 }
             }
 

@@ -102,11 +102,14 @@ impl Codec for MarkdownCodec {
     async fn to_string(
         &self,
         node: &Node,
-        _options: Option<EncodeOptions>,
+        options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let mut context = MarkdownEncodeContext::default();
-        node.to_markdown(&mut context);
+        let options = options.unwrap_or_default();
 
+        let mut context = MarkdownEncodeContext::default();
+        context.render = options.render.unwrap_or_default();
+
+        node.to_markdown(&mut context);
         if context.content.ends_with("\n\n") {
             context.content.pop();
         }

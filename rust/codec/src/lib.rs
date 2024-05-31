@@ -381,6 +381,15 @@ pub struct EncodeOptions {
     /// formats it may be necessary to specify this option.
     pub format: Option<Format>,
 
+    /// Whether to encode only outputs, and no source, for executable nodes
+    /// 
+    /// When this option is `true`, for executable node types such as `CodeChunk`,
+    /// `IncludeBlock`, and `InstructionBlock`, only the outputs from execution
+    /// will be rendered, and not the source.
+    /// 
+    /// This option is only supported by some formats.
+    pub render: Option<bool>,
+
     /// Whether to encode as a standalone document
     ///
     /// Unless specified otherwise, this is the default when encoding to a file
@@ -393,12 +402,6 @@ pub struct EncodeOptions {
     /// or "pretty-printed" (e.g. indented) forms. If not specified, the default
     /// for the format will be used.
     pub compact: Option<bool>,
-
-    /// Whether to encode HTML for use by Stencila's web themes, clients & components
-    ///
-    /// Adds ids and other attributes to HTML which provide compatibility
-    /// with web themes, clients and components which operate on the browser DOM.
-    pub dom: Option<bool>,
 
     /// Scopes defining which properties of nodes should be stripped before encoding
     #[serde(skip_serializing_if = "Vec::is_empty")]

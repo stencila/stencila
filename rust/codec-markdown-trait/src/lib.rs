@@ -23,6 +23,9 @@ where
 
 #[derive(Default)]
 pub struct MarkdownEncodeContext {
+    /// The render option of `codec::EncodeOptions`
+    pub render: bool,
+
     /// The encoded Markdown content
     pub content: String,
 
