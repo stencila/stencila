@@ -2,18 +2,15 @@ use codec::{common::eyre::Result, schema::Node, EncodeInfo, EncodeOptions};
 
 use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
-/// Encode a Stencila Schema [`Node`] to aHTML string
+/// Encode a Stencila Schema [`Node`] to a HTML string
 pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let EncodeOptions {
         compact,
         standalone,
-        dom,
         ..
     } = options.unwrap_or_default();
 
-    let mut context = HtmlEncodeContext {
-        dom: dom.unwrap_or_default(),
-    };
+    let mut context = HtmlEncodeContext {};
 
     let html = node.to_html(&mut context);
     let html = if standalone == Some(true) {

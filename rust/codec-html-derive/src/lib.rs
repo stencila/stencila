@@ -111,7 +111,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return;
         };
 
-        if field_name == "r#type" {
+        if field_name == "r#type" || field_name == "uid" {
             return;
         }
 
@@ -132,12 +132,6 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                         &[attr("slot", stringify!(#field_name))],
                         &[slot_html]
                     ));
-                }
-            }
-        } else if field_name == "uid" {
-            quote! {
-                if context.dom {
-                    attrs.push(attr("id", &self.node_id().to_string()));
                 }
             }
         } else if field_name == "content" || field_attr.content {

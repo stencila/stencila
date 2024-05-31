@@ -499,11 +499,8 @@ async fn export_document(
 
     let format = query.get("format").map(|format| Format::from_name(format));
 
-    let dom = query.get("dom").and_then(|dom| dom.parse().ok());
-
     let options = EncodeOptions {
         format,
-        dom,
         ..Default::default()
     };
 

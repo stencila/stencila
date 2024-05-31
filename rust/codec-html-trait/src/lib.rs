@@ -19,12 +19,7 @@ pub use codec_html_derive::HtmlCodec;
 pub mod encode;
 
 #[derive(Default)]
-pub struct HtmlEncodeContext {
-    /// Whether to encode for use in browser DOM
-    ///
-    /// See `EncodeOptions` for more details.
-    pub dom: bool,
-}
+pub struct HtmlEncodeContext {}
 
 pub trait HtmlCodec {
     /// Encode a Stencila Schema node to HTML
