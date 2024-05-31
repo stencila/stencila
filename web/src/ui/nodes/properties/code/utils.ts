@@ -4,8 +4,8 @@ import { EditorView, Decoration, hoverTooltip } from '@codemirror/view'
 import { MessageLevel } from '@stencila/types'
 
 import {
-  ProvenanceHighlightLevel,
-  getProvenanceHighlight,
+  ProvenanceOpacityLevel,
+  getProvenanceOpacity,
 } from '../../icons-and-colours'
 import { getTooltipContent } from '../authorship/utils'
 import { ExecutionMessage } from '../execution-message'
@@ -101,7 +101,7 @@ const createAuthorshipDecorations = (marks: AuthorshipMarker[]) =>
         attributes: {
           style:
             mark.mi >= 0 && mark.mi <= 5
-              ? `opacity: ${getProvenanceHighlight(mark.mi as ProvenanceHighlightLevel)};`
+              ? `opacity: ${getProvenanceOpacity(mark.mi as ProvenanceOpacityLevel)};`
               : '',
         },
       }).range(mark.from, mark.to)

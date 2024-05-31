@@ -163,10 +163,10 @@ export const provenanceOpacity = {
   5: '0.5',
 }
 
-export type ProvenanceHighlightLevel = keyof typeof provenanceOpacity
+export type ProvenanceOpacityLevel = keyof typeof provenanceOpacity
 
-export const getProvenanceHighlight = (miLvl: ProvenanceHighlightLevel) => {
-  return provenanceOpacity[miLvl]
+export const getProvenanceOpacity = (level: ProvenanceOpacityLevel) => {
+  return provenanceOpacity[level]
 }
 
 // ---------------------------------------------------------

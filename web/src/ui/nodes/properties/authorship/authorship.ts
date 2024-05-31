@@ -11,8 +11,8 @@ import {
 import { withTwind } from '../../../../twind'
 import { entityContext, EntityContext } from '../../context'
 import {
-  ProvenanceHighlightLevel,
-  getProvenanceHighlight,
+  ProvenanceOpacityLevel,
+  getProvenanceOpacity,
 } from '../../icons-and-colours'
 
 import { getTooltipContent } from './utils'
@@ -86,8 +86,8 @@ export class StencilaAuthorship extends LitElement {
   }
 
   renderHighlights() {
-    const textOpacity = getProvenanceHighlight(
-      this.mi as ProvenanceHighlightLevel
+    const textOpacity = getProvenanceOpacity(
+      this.mi as ProvenanceOpacityLevel
     )
     const tooltipStyle = apply([
       'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
