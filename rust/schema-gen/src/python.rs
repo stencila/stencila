@@ -178,6 +178,7 @@ impl Schemas {
         // Anonmymous unions
         let str_anon_union = anon_unions
             .iter()
+            .sorted()
             .map(|names| format!("    {},", names.join(" | ")))
             .join("\n");
         sections.push(format!("ANON_UNIONS = [\n{str_anon_union}\n]\n"));
