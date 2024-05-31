@@ -11,8 +11,8 @@ import {
 import { withTwind } from '../../../../twind'
 import { entityContext, EntityContext } from '../../context'
 import {
-  ProvenanceHighlightLevel,
-  getProvenanceHighlight,
+  ProvenanceOpacityLevel,
+  getProvenanceOpacity,
 } from '../../icons-and-colours'
 
 import { getTooltipContent } from './utils'
@@ -86,8 +86,9 @@ export class StencilaAuthorship extends LitElement {
   }
 
   renderHighlights() {
-    const bgColour = getProvenanceHighlight(this.mi as ProvenanceHighlightLevel)
-
+    const textOpacity = getProvenanceOpacity(
+      this.mi as ProvenanceOpacityLevel
+    )
     const tooltipStyle = apply([
       'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
       'group-hover:opacity-100',
@@ -114,8 +115,8 @@ export class StencilaAuthorship extends LitElement {
     */
     // prettier-ignore
     const htmlTemplate = html`<span
-          class="group"
-          style="background-color: ${bgColour}; position: relative;"
+          class="group text-black"
+          style="position: relative; --tw-text-opacity: ${textOpacity};"
         ><div class=${tooltipStyle}>${getTooltipContent(this.count, this.provenance)}</div
         ><slot></slot
       ></span>`
