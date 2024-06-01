@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Regular table"
+          "value": {
+            "string": "Regular table"
+          }
         }
       ]
     },
@@ -28,7 +30,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "A"
+                      "value": {
+                        "string": "A"
+                      }
                     }
                   ]
                 }
@@ -42,7 +46,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "B"
+                      "value": {
+                        "string": "B"
+                      }
                     }
                   ]
                 }
@@ -56,7 +62,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "C"
+                      "value": {
+                        "string": "C"
+                      }
                     }
                   ]
                 }
@@ -76,7 +84,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "1"
+                      "value": {
+                        "string": "1"
+                      }
                     }
                   ]
                 }
@@ -90,7 +100,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "2"
+                      "value": {
+                        "string": "2"
+                      }
                     }
                   ]
                 }
@@ -104,7 +116,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "3"
+                      "value": {
+                        "string": "3"
+                      }
                     }
                   ]
                 }
@@ -123,7 +137,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "4"
+                      "value": {
+                        "string": "4"
+                      }
                     }
                   ]
                 }
@@ -137,7 +153,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "5"
+                      "value": {
+                        "string": "5"
+                      }
                     }
                   ]
                 }
@@ -151,7 +169,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "6"
+                      "value": {
+                        "string": "6"
+                      }
                     }
                   ]
                 }
@@ -166,7 +186,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Table with empty cells"
+          "value": {
+            "string": "Table with empty cells"
+          }
         }
       ]
     },
@@ -184,7 +206,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "D"
+                      "value": {
+                        "string": "D"
+                      }
                     }
                   ]
                 }
@@ -198,7 +222,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "E"
+                      "value": {
+                        "string": "E"
+                      }
                     }
                   ]
                 }
@@ -218,7 +244,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "1"
+                      "value": {
+                        "string": "1"
+                      }
                     }
                   ]
                 }
@@ -245,7 +273,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "2"
+                      "value": {
+                        "string": "2"
+                      }
                     }
                   ]
                 }
@@ -260,7 +290,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Table with label, caption & notes"
+          "value": {
+            "string": "Table with label, caption & notes"
+          }
         }
       ]
     },
@@ -274,7 +306,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "The caption."
+              "value": {
+                "string": "The caption."
+              }
             }
           ]
         }
@@ -291,7 +325,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "A"
+                      "value": {
+                        "string": "A"
+                      }
                     }
                   ]
                 }
@@ -305,7 +341,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "B"
+                      "value": {
+                        "string": "B"
+                      }
                     }
                   ]
                 }
@@ -325,7 +363,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "1"
+                      "value": {
+                        "string": "1"
+                      }
                     }
                   ]
                 }
@@ -339,7 +379,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "2"
+                      "value": {
+                        "string": "2"
+                      }
                     }
                   ]
                 }
@@ -354,7 +396,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Some notes."
+              "value": {
+                "string": "Some notes."
+              }
             }
           ]
         }

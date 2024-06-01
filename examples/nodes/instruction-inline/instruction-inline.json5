@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "A paragraph with an instruction to insert content "
+          value: { string: "A paragraph with an instruction to insert content " }
         },
         {
           type: "InstructionInline",
@@ -16,7 +16,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: "insert an inline"
+                  value: { string: "insert an inline" }
                 }
               ]
             }
@@ -24,7 +24,7 @@
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     },
@@ -33,7 +33,7 @@
       content: [
         {
           type: "Text",
-          value: "A paragraph with an instruction to edit some existing content: "
+          value: { string: "A paragraph with an instruction to edit some existing content: " }
         },
         {
           type: "InstructionInline",
@@ -43,7 +43,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: "improve this"
+                  value: { string: "improve this" }
                 }
               ]
             }
@@ -51,13 +51,13 @@
           content: [
             {
               type: "Text",
-              value: "existing content"
+              value: { string: "existing content" }
             }
           ]
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     },
@@ -66,7 +66,7 @@
       content: [
         {
           type: "Text",
-          value: "Instructions with an assignee: "
+          value: { string: "Instructions with an assignee: " }
         },
         {
           type: "InstructionInline",
@@ -76,7 +76,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: "equation for surface area of cube"
+                  value: { string: "equation for surface area of cube" }
                 }
               ]
             }
@@ -85,7 +85,7 @@
         },
         {
           type: "Text",
-          value: " with a blank instruction "
+          value: { string: " with a blank instruction " }
         },
         {
           type: "InstructionInline",
@@ -95,7 +95,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: ""
+                  value: { string: "" }
                 }
               ]
             }
@@ -104,7 +104,7 @@
         },
         {
           type: "Text",
-          value: " and "
+          value: { string: " and " }
         },
         {
           type: "InstructionInline",
@@ -114,7 +114,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: "please improve this"
+                  value: { string: "please improve this" }
                 }
               ]
             }
@@ -123,13 +123,13 @@
           content: [
             {
               type: "Text",
-              value: "existing content"
+              value: { string: "existing content" }
             }
           ]
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     },
@@ -138,7 +138,7 @@
       content: [
         {
           type: "Text",
-          value: "Instructions with a suggestion: "
+          value: { string: "Instructions with a suggestion: " }
         },
         {
           type: "InstructionInline",
@@ -148,7 +148,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: "area of circle"
+                  value: { string: "area of circle" }
                 }
               ]
             }
@@ -159,14 +159,14 @@
             content: [
               {
                 type: "MathInline",
-                code: "2 \/pi r^2"
+                code: { string: "2 \/pi r^2" }
               }
             ]
           }
         },
         {
           type: "Text",
-          value: " and "
+          value: { string: " and " }
         },
         {
           type: "InstructionInline",
@@ -176,7 +176,7 @@
               parts: [
                 {
                   type: "Text",
-                  value: "improve"
+                  value: { string: "improve" }
                 }
               ]
             }
@@ -184,7 +184,7 @@
           content: [
             {
               type: "Text",
-              value: "existing content"
+              value: { string: "existing content" }
             }
           ],
           suggestion: {
@@ -193,14 +193,14 @@
             replacement: [
               {
                 type: "Text",
-                value: "improved content"
+                value: { string: "improved content" }
               }
             ]
           }
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     }

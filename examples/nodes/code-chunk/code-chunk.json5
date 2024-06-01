@@ -6,26 +6,26 @@
       content: [
         {
           type: "Text",
-          value: "With no language:"
+          value: { string: "With no language:" }
         }
       ]
     },
     {
       type: "CodeChunk",
-      code: "No language"
+      code: { string: "No language" }
     },
     {
       type: "Paragraph",
       content: [
         {
           type: "Text",
-          value: "With language:"
+          value: { string: "With language:" }
         }
       ]
     },
     {
       type: "CodeChunk",
-      code: "# Some python code\na = 3",
+      code: { string: "# Some python code\na = 3" },
       programmingLanguage: "python"
     },
     {
@@ -33,14 +33,14 @@
       content: [
         {
           type: "Text",
-          value: "With language and autoExec:"
+          value: { string: "With language and autoExec:" }
         }
       ]
     },
     {
       type: "CodeChunk",
       autoExec: "Always",
-      code: "\/\/ Javascript",
+      code: { string: "\/\/ Javascript" },
       programmingLanguage: "js"
     },
     {
@@ -48,13 +48,13 @@
       content: [
         {
           type: "Text",
-          value: "With label:"
+          value: { string: "With label:" }
         }
       ]
     },
     {
       type: "CodeChunk",
-      code: "# Chunk 1A",
+      code: { string: "# Chunk 1A" },
       label: "1A",
       labelAutomatically: false
     },
@@ -63,13 +63,13 @@
       content: [
         {
           type: "Text",
-          value: "Code figure with caption:"
+          value: { string: "Code figure with caption:" }
         }
       ]
     },
     {
       type: "CodeChunk",
-      code: "plot(y~x)",
+      code: { string: "plot(y~x)" },
       programmingLanguage: "r",
       labelType: "FigureLabel",
       label: "1",
@@ -80,7 +80,7 @@
           content: [
             {
               type: "Text",
-              value: "Y against X."
+              value: { string: "Y against X." }
             }
           ]
         }
@@ -91,13 +91,13 @@
       content: [
         {
           type: "Text",
-          value: "Code table with caption:"
+          value: { string: "Code table with caption:" }
         }
       ]
     },
     {
       type: "CodeChunk",
-      code: "head(mtcars)",
+      code: { string: "head(mtcars)" },
       programmingLanguage: "r",
       labelType: "TableLabel",
       label: "1",
@@ -108,7 +108,7 @@
           content: [
             {
               type: "Text",
-              value: "Some cars."
+              value: { string: "Some cars." }
             }
           ]
         }

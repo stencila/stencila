@@ -3,25 +3,31 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'A link '
+    value:
+      string: 'A link '
   - type: Link
     content:
     - type: Text
-      value: example.org
+      value:
+        string: example.org
     target: https://example.org
   - type: Text
-    value: .
+    value:
+      string: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'With a title and styled content '
+    value:
+      string: 'With a title and styled content '
   - type: Link
     content:
     - type: Strong
       content:
       - type: Text
-        value: example.org
+        value:
+          string: example.org
     target: https://example.org
     title: a title
   - type: Text
-    value: .
+    value:
+      string: .

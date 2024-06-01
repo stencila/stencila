@@ -13,7 +13,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a quote block"
+              "value": {
+                "string": "This is a quote block"
+              }
             }
           ]
         }
@@ -27,7 +29,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This quote block..."
+              "value": {
+                "string": "This quote block..."
+              }
             }
           ]
         },
@@ -36,7 +40,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Has two paragraphs"
+              "value": {
+                "string": "Has two paragraphs"
+              }
             }
           ]
         }
@@ -50,7 +56,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This quote block..."
+              "value": {
+                "string": "This quote block..."
+              }
             }
           ]
         },
@@ -62,7 +70,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "Has another inside it."
+                  "value": {
+                    "string": "Has another inside it."
+                  }
                 }
               ]
             },
@@ -74,7 +84,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "And another inside that!"
+                      "value": {
+                        "string": "And another inside that!"
+                      }
                     }
                   ]
                 }

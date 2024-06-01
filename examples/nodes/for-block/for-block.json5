@@ -6,13 +6,13 @@
       content: [
         {
           type: "Text",
-          value: "A simple for loop"
+          value: { string: "A simple for loop" }
         }
       ]
     },
     {
       type: "ForBlock",
-      code: "[1,2,3]",
+      code: { string: "[1,2,3]" },
       variable: "item",
       content: [
         {
@@ -20,11 +20,11 @@
           content: [
             {
               type: "Text",
-              value: "This paragraph will be repeated with a different value for "
+              value: { string: "This paragraph will be repeated with a different value for " }
             },
             {
               type: "CodeExpression",
-              code: "item"
+              code: { string: "item" }
             }
           ]
         }
@@ -35,13 +35,13 @@
       content: [
         {
           type: "Text",
-          value: "With a programming language specified"
+          value: { string: "With a programming language specified" }
         }
       ]
     },
     {
       type: "ForBlock",
-      code: "[1,2,3]",
+      code: { string: "[1,2,3]" },
       programmingLanguage: "python",
       variable: "item",
       content: [
@@ -50,7 +50,7 @@
           content: [
             {
               type: "Text",
-              value: "This content is repeated"
+              value: { string: "This content is repeated" }
             }
           ]
         }
@@ -61,18 +61,18 @@
       content: [
         {
           type: "Text",
-          value: "Nested for loops"
+          value: { string: "Nested for loops" }
         }
       ]
     },
     {
       type: "ForBlock",
-      code: "[['a', 'b'], ['c', 'd']]",
+      code: { string: "[['a', 'b'], ['c', 'd']]" },
       variable: "outer",
       content: [
         {
           type: "ForBlock",
-          code: "outer",
+          code: { string: "outer" },
           variable: "inner",
           content: [
             {
@@ -80,11 +80,11 @@
               content: [
                 {
                   type: "Text",
-                  value: "This paragraph will be repeated for each inner item "
+                  value: { string: "This paragraph will be repeated for each inner item " }
                 },
                 {
                   type: "CodeExpression",
-                  code: "inner"
+                  code: { string: "inner" }
                 }
               ]
             }
@@ -97,13 +97,13 @@
       content: [
         {
           type: "Text",
-          value: "With an else clause"
+          value: { string: "With an else clause" }
         }
       ]
     },
     {
       type: "ForBlock",
-      code: "[]",
+      code: { string: "[]" },
       variable: "item",
       content: [
         {
@@ -111,7 +111,7 @@
           content: [
             {
               type: "Text",
-              value: "This content is never shown"
+              value: { string: "This content is never shown" }
             }
           ]
         }
@@ -122,7 +122,7 @@
           content: [
             {
               type: "Text",
-              value: "There are no items"
+              value: { string: "There are no items" }
             }
           ]
         }
@@ -133,13 +133,13 @@
       content: [
         {
           type: "Text",
-          value: "With no content in 'content' or 'otherwise'"
+          value: { string: "With no content in 'content' or 'otherwise'" }
         }
       ]
     },
     {
       type: "ForBlock",
-      code: "[]",
+      code: { string: "[]" },
       variable: "item",
       content: [],
       otherwise: []

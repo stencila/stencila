@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A call of sibling document"
+          "value": {
+            "string": "A call of sibling document"
+          }
         }
       ]
     },
@@ -24,7 +26,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A call with one value argument"
+          "value": {
+            "string": "A call with one value argument"
+          }
         }
       ]
     },
@@ -36,7 +40,9 @@
           "@type": "stencila:CallArgument",
           "name": "arg1",
           "value": 123,
-          "stencila:code": ""
+          "stencila:code": {
+            "string": ""
+          }
         }
       ]
     },
@@ -45,7 +51,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A call with one code expression argument"
+          "value": {
+            "string": "A call with one code expression argument"
+          }
         }
       ]
     },
@@ -56,7 +64,9 @@
         {
           "@type": "stencila:CallArgument",
           "name": "arg1",
-          "stencila:code": "1 + 2 + 3"
+          "stencila:code": {
+            "string": "1 + 2 + 3"
+          }
         }
       ]
     },
@@ -65,7 +75,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A call with several arguments with mixed naming and types"
+          "value": {
+            "string": "A call with several arguments with mixed naming and types"
+          }
         }
       ]
     },
@@ -76,24 +88,32 @@
         {
           "@type": "stencila:CallArgument",
           "name": "arg1",
-          "stencila:code": "1 + 2 + 3"
+          "stencila:code": {
+            "string": "1 + 2 + 3"
+          }
         },
         {
           "@type": "stencila:CallArgument",
           "name": "argtwo",
           "value": "t w o",
-          "stencila:code": ""
+          "stencila:code": {
+            "string": ""
+          }
         },
         {
           "@type": "stencila:CallArgument",
           "name": "arg_three",
           "value": 1.23,
-          "stencila:code": ""
+          "stencila:code": {
+            "string": ""
+          }
         },
         {
           "@type": "stencila:CallArgument",
           "name": "arg4",
-          "stencila:code": "2 * 2"
+          "stencila:code": {
+            "string": "2 * 2"
+          }
         },
         {
           "@type": "stencila:CallArgument",
@@ -103,7 +123,9 @@
             2,
             3
           ],
-          "stencila:code": ""
+          "stencila:code": {
+            "string": ""
+          }
         }
       ]
     }

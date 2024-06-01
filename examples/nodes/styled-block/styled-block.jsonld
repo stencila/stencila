@@ -10,20 +10,26 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A styled block with two paragraphs:"
+          "value": {
+            "string": "A styled block with two paragraphs:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:StyledBlock",
-      "stencila:code": "rounded border border-solid border-blue-200 bg-blue-100 p-2",
+      "stencila:code": {
+        "string": "rounded border border-solid border-blue-200 bg-blue-100 p-2"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Styled paragraph one."
+              "value": {
+                "string": "Styled paragraph one."
+              }
             }
           ]
         },
@@ -32,7 +38,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Styled paragraph two."
+              "value": {
+                "string": "Styled paragraph two."
+              }
             }
           ]
         }
@@ -43,13 +51,17 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With style language specified:"
+          "value": {
+            "string": "With style language specified:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:StyledBlock",
-      "stencila:code": "color:red",
+      "stencila:code": {
+        "string": "color:red"
+      },
       "stencila:styleLanguage": "css",
       "stencila:content": [
         {
@@ -57,7 +69,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Styled paragraph."
+              "value": {
+                "string": "Styled paragraph."
+              }
             }
           ]
         }
@@ -68,33 +82,43 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Nested styled blocks:"
+          "value": {
+            "string": "Nested styled blocks:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:StyledBlock",
-      "stencila:code": "bg-red-100 p-2",
+      "stencila:code": {
+        "string": "bg-red-100 p-2"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Outer paragraph."
+              "value": {
+                "string": "Outer paragraph."
+              }
             }
           ]
         },
         {
           "@type": "stencila:StyledBlock",
-          "stencila:code": "bg-blue-100",
+          "stencila:code": {
+            "string": "bg-blue-100"
+          },
           "stencila:content": [
             {
               "@type": "stencila:Paragraph",
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "Inner paragraph."
+                  "value": {
+                    "string": "Inner paragraph."
+                  }
                 }
               ]
             }
@@ -107,20 +131,26 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Containing variable interpolations:"
+          "value": {
+            "string": "Containing variable interpolations:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:StyledBlock",
-      "stencila:code": "bg-red-{{var1}} p-$var2 m-$var3",
+      "stencila:code": {
+        "string": "bg-red-{{var1}} p-$var2 m-$var3"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Dynamically styled paragraph."
+              "value": {
+                "string": "Dynamically styled paragraph."
+              }
             }
           ]
         }

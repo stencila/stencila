@@ -10,21 +10,27 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A link "
+          "value": {
+            "string": "A link "
+          }
         },
         {
           "@type": "stencila:Link",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "example.org"
+              "value": {
+                "string": "example.org"
+              }
             }
           ],
           "target": "https://example.org"
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -33,7 +39,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With a title and styled content "
+          "value": {
+            "string": "With a title and styled content "
+          }
         },
         {
           "@type": "stencila:Link",
@@ -43,7 +51,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "example.org"
+                  "value": {
+                    "string": "example.org"
+                  }
                 }
               ]
             }
@@ -53,7 +63,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

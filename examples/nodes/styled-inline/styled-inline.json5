@@ -6,30 +6,30 @@
       content: [
         {
           type: "Text",
-          value: "A "
+          value: { string: "A " }
         },
         {
           type: "StyledInline",
-          code: "text-green-600",
+          code: { string: "text-green-600" },
           content: [
             {
               type: "Text",
-              value: "styled span"
+              value: { string: "styled span" }
             }
           ]
         },
         {
           type: "Text",
-          value: ", and one with language specified: "
+          value: { string: ", and one with language specified: " }
         },
         {
           type: "StyledInline",
-          code: "color:red",
+          code: { string: "color:red" },
           styleLanguage: "css",
           content: [
             {
               type: "Text",
-              value: "CSS span"
+              value: { string: "CSS span" }
             }
           ]
         }
@@ -40,29 +40,29 @@
       content: [
         {
           type: "Text",
-          value: "Containing other spans "
+          value: { string: "Containing other spans " }
         },
         {
           type: "StyledInline",
-          code: "text-blue-600",
+          code: { string: "text-blue-600" },
           content: [
             {
               type: "Text",
-              value: "blue "
+              value: { string: "blue " }
             },
             {
               type: "StyledInline",
-              code: "text-red-600",
+              code: { string: "text-red-600" },
               content: [
                 {
                   type: "Text",
-                  value: "red"
+                  value: { string: "red" }
                 }
               ]
             },
             {
               type: "Text",
-              value: " blue"
+              value: { string: " blue" }
             }
           ]
         }
@@ -73,15 +73,15 @@
       content: [
         {
           type: "Text",
-          value: "Containing variable interpolations "
+          value: { string: "Containing variable interpolations " }
         },
         {
           type: "StyledInline",
-          code: "color: {{var1}}; padding: {{var2}}; margin: $var3",
+          code: { string: "color: {{var1}}; padding: {{var2}}; margin: $var3" },
           content: [
             {
               type: "Text",
-              value: "styled"
+              value: { string: "styled" }
             }
           ]
         }

@@ -18,7 +18,8 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: A dog.
+      value:
+        string: A dog.
 - type: Section
   content:
   - type: Figure
@@ -31,4 +32,5 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: A figure of a mouse inside a section.
+        value:
+          string: A figure of a mouse inside a section.

@@ -6,14 +6,14 @@
       content: [
         {
           type: "Text",
-          value: "This is a suggested modification to some inline code: "
+          value: { string: "This is a suggested modification to some inline code: " }
         },
         {
           type: "ModifyInline",
           content: [
             {
               type: "CodeInline",
-              code: "Some code"
+              code: { string: "Some code" }
             }
           ],
           operations: [
@@ -40,7 +40,7 @@
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     }

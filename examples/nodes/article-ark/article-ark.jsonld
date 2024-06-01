@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations."
+          "value": {
+            "string": "This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations."
+          }
         }
       ]
     },
@@ -19,7 +21,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This is a paragraph with "
+          "value": {
+            "string": "This is a paragraph with "
+          }
         },
         {
           "@type": "AudioObject",
@@ -27,51 +31,69 @@
           "caption": [
             {
               "@type": "Text",
-              "value": "audio"
+              "value": {
+                "string": "audio"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:CodeExpression",
-          "stencila:code": "code expression"
+          "stencila:code": {
+            "string": "code expression"
+          }
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "inline code"
+          "stencila:code": {
+            "string": "inline code"
+          }
         },
         {
           "@type": "stencila:DeleteInline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": ", delete"
+              "value": {
+                "string": ", delete"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Emphasis",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "emphasis"
+              "value": {
+                "string": "emphasis"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "ImageObject",
@@ -79,7 +101,9 @@
           "caption": [
             {
               "@type": "Text",
-              "value": "image"
+              "value": {
+                "string": "image"
+              }
             }
           ]
         },
@@ -88,35 +112,47 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": ", insert"
+              "value": {
+                "string": ", insert"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Link",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "link"
+              "value": {
+                "string": "link"
+              }
             }
           ],
           "target": "https://example.org"
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:MathInline",
-          "stencila:code": "inline math"
+          "stencila:code": {
+            "string": "inline math"
+          }
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -127,7 +163,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A footnote"
+                  "value": {
+                    "string": "A footnote"
+                  }
                 }
               ]
             }
@@ -135,7 +173,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -143,14 +183,18 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:QuoteInline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "inline quote"
+              "value": {
+                "string": "inline quote"
+              }
             }
           ]
         },
@@ -159,98 +203,130 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": ", old"
+              "value": {
+                "string": ", old"
+              }
             }
           ],
           "stencila:replacement": [
             {
               "@type": "Text",
-              "value": ", new"
+              "value": {
+                "string": ", new"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:StyledInline",
-          "stencila:code": "text-blue-400",
+          "stencila:code": {
+            "string": "text-blue-400"
+          },
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "styled inline"
+              "value": {
+                "string": "styled inline"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Strikeout",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "strikeout"
+              "value": {
+                "string": "strikeout"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Strong",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "strong emphasis"
+              "value": {
+                "string": "strong emphasis"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Subscript",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "subscript"
+              "value": {
+                "string": "subscript"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Superscript",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "superscript"
+              "value": {
+                "string": "superscript"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Underline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "underline"
+              "value": {
+                "string": "underline"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "VideoObject",
@@ -258,13 +334,17 @@
           "caption": [
             {
               "@type": "Text",
-              "value": "video"
+              "value": {
+                "string": "video"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -282,7 +362,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a claim"
+              "value": {
+                "string": "This is a claim"
+              }
             }
           ]
         }
@@ -290,11 +372,15 @@
     },
     {
       "@type": "stencila:CodeBlock",
-      "stencila:code": "This is a code block"
+      "stencila:code": {
+        "string": "This is a code block"
+      }
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "This is a code chunk"
+      "stencila:code": {
+        "string": "This is a code chunk"
+      }
     },
     {
       "@type": "stencila:DeleteBlock",
@@ -304,7 +390,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This paragraph is to be deleted"
+              "value": {
+                "string": "This paragraph is to be deleted"
+              }
             }
           ]
         }
@@ -318,7 +406,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a figure"
+              "value": {
+                "string": "This is a figure"
+              }
             }
           ]
         }
@@ -326,7 +416,9 @@
     },
     {
       "@type": "stencila:ForBlock",
-      "stencila:code": "items",
+      "stencila:code": {
+        "string": "items"
+      },
       "stencila:variable": "item",
       "stencila:content": [
         {
@@ -334,7 +426,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a for block"
+              "value": {
+                "string": "This is a for block"
+              }
             }
           ]
         }
@@ -346,7 +440,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This is a heading"
+          "value": {
+            "string": "This is a heading"
+          }
         }
       ]
     },
@@ -355,14 +451,18 @@
       "stencila:clauses": [
         {
           "@type": "stencila:IfBlockClause",
-          "stencila:code": "1 < 2",
+          "stencila:code": {
+            "string": "1 < 2"
+          },
           "stencila:content": [
             {
               "@type": "stencila:Paragraph",
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "This is an if block"
+                  "value": {
+                    "string": "This is an if block"
+                  }
                 }
               ]
             }
@@ -382,7 +482,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This paragraph is to be inserted"
+              "value": {
+                "string": "This paragraph is to be inserted"
+              }
             }
           ]
         }
@@ -399,7 +501,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "This is a list"
+                  "value": {
+                    "string": "This is a list"
+                  }
                 }
               ]
             }
@@ -410,7 +514,9 @@
     },
     {
       "@type": "stencila:MathBlock",
-      "stencila:code": "This is a math block"
+      "stencila:code": {
+        "string": "This is a math block"
+      }
     },
     {
       "@type": "stencila:QuoteBlock",
@@ -420,7 +526,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a quote block"
+              "value": {
+                "string": "This is a quote block"
+              }
             }
           ]
         }
@@ -434,7 +542,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Old paragraph"
+              "value": {
+                "string": "Old paragraph"
+              }
             }
           ]
         }
@@ -445,7 +555,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "New paragraph"
+              "value": {
+                "string": "New paragraph"
+              }
             }
           ]
         }
@@ -459,7 +571,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a section"
+              "value": {
+                "string": "This is a section"
+              }
             }
           ]
         }
@@ -467,14 +581,18 @@
     },
     {
       "@type": "stencila:StyledBlock",
-      "stencila:code": "text-red-800 bg-indigo-100",
+      "stencila:code": {
+        "string": "text-red-800 bg-indigo-100"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is a styled block"
+              "value": {
+                "string": "This is a styled block"
+              }
             }
           ]
         }
@@ -494,7 +612,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "A"
+                      "value": {
+                        "string": "A"
+                      }
                     }
                   ]
                 }
@@ -514,7 +634,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "1"
+                      "value": {
+                        "string": "1"
+                      }
                     }
                   ]
                 }

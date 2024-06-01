@@ -6,15 +6,15 @@
       content: [
         {
           type: "Text",
-          value: "A TeX equation "
+          value: { string: "A TeX equation " }
         },
         {
           type: "MathInline",
-          code: "2 \\pi r^2"
+          code: { string: "2 \\pi r^2" }
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     },
@@ -23,16 +23,16 @@
       content: [
         {
           type: "Text",
-          value: "An ASCIIMath equation "
+          value: { string: "An ASCIIMath equation " }
         },
         {
           type: "MathInline",
-          code: "2 pi r^2",
+          code: { string: "2 pi r^2" },
           mathLanguage: "asciimath"
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     },
@@ -41,16 +41,16 @@
       content: [
         {
           type: "Text",
-          value: "A MathML equation "
+          value: { string: "A MathML equation " }
         },
         {
           type: "MathInline",
-          code: "<math><mrow><mn>2<\/mn><mi>π<\/mi><msup><mi>r<\/mi><mn>2<\/mn><\/msup><\/mrow><\/math>",
+          code: { string: "<math><mrow><mn>2<\/mn><mi>π<\/mi><msup><mi>r<\/mi><mn>2<\/mn><\/msup><\/mrow><\/math>" },
           mathLanguage: "mathml"
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     }

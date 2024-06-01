@@ -3,56 +3,67 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: A call of sibling document
+    value:
+      string: A call of sibling document
 - type: CallBlock
   source: ../parameter/parameter.md
   arguments: []
 - type: Paragraph
   content:
   - type: Text
-    value: A call with one value argument
+    value:
+      string: A call with one value argument
 - type: CallBlock
   source: ../parameter/parameter.md
   arguments:
   - type: CallArgument
     name: arg1
     value: 123
-    code: ''
+    code:
+      string: ''
 - type: Paragraph
   content:
   - type: Text
-    value: A call with one code expression argument
+    value:
+      string: A call with one code expression argument
 - type: CallBlock
   source: ../parameter/parameter.md
   arguments:
   - type: CallArgument
     name: arg1
-    code: 1 + 2 + 3
+    code:
+      string: 1 + 2 + 3
 - type: Paragraph
   content:
   - type: Text
-    value: A call with several arguments with mixed naming and types
+    value:
+      string: A call with several arguments with mixed naming and types
 - type: CallBlock
   source: ../parameter/parameter.md
   arguments:
   - type: CallArgument
     name: arg1
-    code: 1 + 2 + 3
+    code:
+      string: 1 + 2 + 3
   - type: CallArgument
     name: argtwo
     value: t w o
-    code: ''
+    code:
+      string: ''
   - type: CallArgument
     name: arg_three
     value: 1.23
-    code: ''
+    code:
+      string: ''
   - type: CallArgument
     name: arg4
-    code: 2 * 2
+    code:
+      string: 2 * 2
   - type: CallArgument
     name: argFive
     value:
     - 1
     - 2
     - 3
-    code: ''
+    code:
+      string: ''

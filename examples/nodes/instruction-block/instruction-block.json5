@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "An insert instruction with no assignee:"
+          value: { string: "An insert instruction with no assignee:" }
         }
       ]
     },
@@ -18,7 +18,7 @@
           parts: [
             {
               type: "Text",
-              value: "insert a 4x10 table"
+              value: { string: "insert a 4x10 table" }
             }
           ]
         }
@@ -29,7 +29,7 @@
       content: [
         {
           type: "Text",
-          value: "An insert instruction with an assignee:"
+          value: { string: "An insert instruction with an assignee:" }
         }
       ]
     },
@@ -41,7 +41,7 @@
           parts: [
             {
               type: "Text",
-              value: "top five highest mountains, with height in metres"
+              value: { string: "top five highest mountains, with height in metres" }
             }
           ]
         }
@@ -53,7 +53,7 @@
       content: [
         {
           type: "Text",
-          value: "An insert instruction with an assignee but a blank instruction"
+          value: { string: "An insert instruction with an assignee but a blank instruction" }
         }
       ]
     },
@@ -65,7 +65,7 @@
           parts: [
             {
               type: "Text",
-              value: ""
+              value: { string: "" }
             }
           ]
         }
@@ -77,7 +77,7 @@
       content: [
         {
           type: "Text",
-          value: "An edit instruction (has content) with no assignee:"
+          value: { string: "An edit instruction (has content) with no assignee:" }
         }
       ]
     },
@@ -89,7 +89,7 @@
           parts: [
             {
               type: "Text",
-              value: "improve this paragraph"
+              value: { string: "improve this paragraph" }
             }
           ]
         }
@@ -100,7 +100,7 @@
           content: [
             {
               type: "Text",
-              value: "The paragraph to be improved."
+              value: { string: "The paragraph to be improved." }
             }
           ]
         }
@@ -111,7 +111,7 @@
       content: [
         {
           type: "Text",
-          value: "An edit instruction with an assignee:"
+          value: { string: "An edit instruction with an assignee:" }
         }
       ]
     },
@@ -123,7 +123,7 @@
           parts: [
             {
               type: "Text",
-              value: "please improve this paragraph"
+              value: { string: "please improve this paragraph" }
             }
           ]
         }
@@ -135,7 +135,7 @@
           content: [
             {
               type: "Text",
-              value: "Another paragraph to be improved."
+              value: { string: "Another paragraph to be improved." }
             }
           ]
         }
@@ -146,7 +146,7 @@
       content: [
         {
           type: "Text",
-          value: "An insert instruction with an assignee and a suggestion:"
+          value: { string: "An insert instruction with an assignee and a suggestion:" }
         }
       ]
     },
@@ -158,7 +158,7 @@
           parts: [
             {
               type: "Text",
-              value: "analyze data"
+              value: { string: "analyze data" }
             }
           ]
         }
@@ -169,7 +169,7 @@
         content: [
           {
             type: "CodeChunk",
-            code: "some code"
+            code: { string: "some code" }
           }
         ]
       }
@@ -179,7 +179,7 @@
       content: [
         {
           type: "Text",
-          value: "An edit instruction with a suggestion:"
+          value: { string: "An edit instruction with a suggestion:" }
         }
       ]
     },
@@ -191,7 +191,7 @@
           parts: [
             {
               type: "Text",
-              value: "more succinct"
+              value: { string: "more succinct" }
             }
           ]
         }
@@ -202,7 +202,7 @@
           content: [
             {
               type: "Text",
-              value: "A rather long winded paragraph."
+              value: { string: "A rather long winded paragraph." }
             }
           ]
         }
@@ -216,7 +216,7 @@
             content: [
               {
                 type: "Text",
-                value: "A paragraph."
+                value: { string: "A paragraph." }
               }
             ]
           }

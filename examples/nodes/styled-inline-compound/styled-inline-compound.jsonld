@@ -10,31 +10,41 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A styled inlines containing other compound inline nodes: "
+          "value": {
+            "string": "A styled inlines containing other compound inline nodes: "
+          }
         },
         {
           "@type": "stencila:StyledInline",
-          "stencila:code": "text-blue-600",
+          "stencila:code": {
+            "string": "text-blue-600"
+          },
           "stencila:content": [
             {
               "@type": "stencila:Emphasis",
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "emphasis"
+                  "value": {
+                    "string": "emphasis"
+                  }
                 }
               ]
             },
             {
               "@type": "Text",
-              "value": ", "
+              "value": {
+                "string": ", "
+              }
             },
             {
               "@type": "stencila:Link",
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "link"
+                  "value": {
+                    "string": "link"
+                  }
                 }
               ],
               "target": "https://example.org"

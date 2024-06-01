@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "A boolean parameter "
+          value: { string: "A boolean parameter " }
         },
         {
           type: "Parameter",
@@ -15,7 +15,7 @@
         },
         {
           type: "Text",
-          value: ", with a default "
+          value: { string: ", with a default " }
         },
         {
           type: "Parameter",
@@ -25,7 +25,7 @@
         },
         {
           type: "Text",
-          value: ", with a default and value "
+          value: { string: ", with a default and value " }
         },
         {
           type: "Parameter",
@@ -41,7 +41,7 @@
       content: [
         {
           type: "Text",
-          value: "An integer parameter "
+          value: { string: "An integer parameter " }
         },
         {
           type: "Parameter",
@@ -50,7 +50,7 @@
         },
         {
           type: "Text",
-          value: ", with a default "
+          value: { string: ", with a default " }
         },
         {
           type: "Parameter",
@@ -60,7 +60,7 @@
         },
         {
           type: "Text",
-          value: ", with a default and value "
+          value: { string: ", with a default and value " }
         },
         {
           type: "Parameter",
@@ -71,7 +71,7 @@
         },
         {
           type: "Text",
-          value: ", with min, max and mult options "
+          value: { string: ", with min, max and mult options " }
         },
         {
           type: "Parameter",
@@ -92,7 +92,7 @@
       content: [
         {
           type: "Text",
-          value: "A number parameter "
+          value: { string: "A number parameter " }
         },
         {
           type: "Parameter",
@@ -115,7 +115,7 @@
       content: [
         {
           type: "Text",
-          value: "A string parameter "
+          value: { string: "A string parameter " }
         },
         {
           type: "Parameter",
@@ -131,7 +131,7 @@
         },
         {
           type: "Text",
-          value: " with quotes in properties "
+          value: { string: " with quotes in properties " }
         },
         {
           type: "Parameter",
@@ -150,7 +150,7 @@
       content: [
         {
           type: "Text",
-          value: "A date parameter "
+          value: { string: "A date parameter " }
         },
         {
           type: "Parameter",
@@ -176,7 +176,7 @@
       content: [
         {
           type: "Text",
-          value: "A time parameter "
+          value: { string: "A time parameter " }
         },
         {
           type: "Parameter",
@@ -202,7 +202,7 @@
       content: [
         {
           type: "Text",
-          value: "A date-time parameter "
+          value: { string: "A date-time parameter " }
         },
         {
           type: "Parameter",
@@ -228,7 +228,7 @@
       content: [
         {
           type: "Text",
-          value: "An enum parameter "
+          value: { string: "An enum parameter " }
         },
         {
           type: "Parameter",

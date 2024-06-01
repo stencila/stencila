@@ -36,7 +36,7 @@
           content: [
             {
               type: "Text",
-              value: "A dog."
+              value: { string: "A dog." }
             }
           ]
         }
@@ -64,7 +64,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "A figure of a mouse inside a section."
+                  value: { string: "A figure of a mouse inside a section." }
                 }
               ]
             }

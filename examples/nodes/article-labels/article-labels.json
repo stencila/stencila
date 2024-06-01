@@ -6,39 +6,57 @@
       "content": [
         {
           "type": "Text",
-          "value": "An example of an article with automatic numbering (setting the "
+          "value": {
+            "string": "An example of an article with automatic numbering (setting the "
+          }
         },
         {
           "type": "CodeInline",
-          "code": "label"
+          "code": {
+            "string": "label"
+          }
         },
         {
           "type": "Text",
-          "value": " property) for "
+          "value": {
+            "string": " property) for "
+          }
         },
         {
           "type": "CodeInline",
-          "code": "Table"
+          "code": {
+            "string": "Table"
+          }
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "CodeInline",
-          "code": "Figure"
+          "code": {
+            "string": "Figure"
+          }
         },
         {
           "type": "Text",
-          "value": " and "
+          "value": {
+            "string": " and "
+          }
         },
         {
           "type": "CodeInline",
-          "code": "CodeChunk"
+          "code": {
+            "string": "CodeChunk"
+          }
         },
         {
           "type": "Text",
-          "value": " nodes."
+          "value": {
+            "string": " nodes."
+          }
         }
       ]
     },
@@ -47,7 +65,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "A figure, it should be labelled as Figure one."
+          "value": {
+            "string": "A figure, it should be labelled as Figure one."
+          }
         }
       ]
     },
@@ -70,7 +90,9 @@
           "content": [
             {
               "type": "Text",
-              "value": "Some white text on orange an background."
+              "value": {
+                "string": "Some white text on orange an background."
+              }
             }
           ]
         }
@@ -81,13 +103,17 @@
       "content": [
         {
           "type": "Text",
-          "value": "Another figure that is actually a code chunk that produces a plot:"
+          "value": {
+            "string": "Another figure that is actually a code chunk that produces a plot:"
+          }
         }
       ]
     },
     {
       "type": "CodeChunk",
-      "code": "plot(1:10)",
+      "code": {
+        "string": "plot(1:10)"
+      },
       "programmingLanguage": "r",
       "labelType": "FigureLabel",
       "caption": [
@@ -96,7 +122,9 @@
           "content": [
             {
               "type": "Text",
-              "value": "A plot."
+              "value": {
+                "string": "A plot."
+              }
             }
           ]
         }
@@ -107,7 +135,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "A table:"
+          "value": {
+            "string": "A table:"
+          }
         }
       ]
     },
@@ -119,7 +149,9 @@
           "content": [
             {
               "type": "Text",
-              "value": "A little table about fish."
+              "value": {
+                "string": "A little table about fish."
+              }
             }
           ]
         },
@@ -128,7 +160,9 @@
           "content": [
             {
               "type": "Text",
-              "value": "This caption has two paragraphs."
+              "value": {
+                "string": "This caption has two paragraphs."
+              }
             }
           ]
         }
@@ -145,7 +179,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "Species"
+                      "value": {
+                        "string": "Species"
+                      }
                     }
                   ]
                 }
@@ -159,7 +195,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "Average Length (cm)"
+                      "value": {
+                        "string": "Average Length (cm)"
+                      }
                     }
                   ]
                 }
@@ -173,7 +211,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "Average Weight (kg)"
+                      "value": {
+                        "string": "Average Weight (kg)"
+                      }
                     }
                   ]
                 }
@@ -193,7 +233,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "Goldfish"
+                      "value": {
+                        "string": "Goldfish"
+                      }
                     }
                   ]
                 }
@@ -207,7 +249,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "20.0"
+                      "value": {
+                        "string": "20.0"
+                      }
                     }
                   ]
                 }
@@ -221,7 +265,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "0.45"
+                      "value": {
+                        "string": "0.45"
+                      }
                     }
                   ]
                 }
@@ -240,7 +286,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "Clownfish"
+                      "value": {
+                        "string": "Clownfish"
+                      }
                     }
                   ]
                 }
@@ -254,7 +302,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "10.0"
+                      "value": {
+                        "string": "10.0"
+                      }
                     }
                   ]
                 }
@@ -268,7 +318,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "0.25"
+                      "value": {
+                        "string": "0.25"
+                      }
                     }
                   ]
                 }
@@ -287,7 +339,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "Trout"
+                      "value": {
+                        "string": "Trout"
+                      }
                     }
                   ]
                 }
@@ -301,7 +355,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "40.0"
+                      "value": {
+                        "string": "40.0"
+                      }
                     }
                   ]
                 }
@@ -315,7 +371,9 @@
                   "content": [
                     {
                       "type": "Text",
-                      "value": "1.50"
+                      "value": {
+                        "string": "1.50"
+                      }
                     }
                   ]
                 }
@@ -330,13 +388,17 @@
       "content": [
         {
           "type": "Text",
-          "value": "Another table with a caption generated by code:"
+          "value": {
+            "string": "Another table with a caption generated by code:"
+          }
         }
       ]
     },
     {
       "type": "CodeChunk",
-      "code": "head(mtcars)",
+      "code": {
+        "string": "head(mtcars)"
+      },
       "programmingLanguage": "r",
       "labelType": "TableLabel",
       "caption": [
@@ -345,7 +407,9 @@
           "content": [
             {
               "type": "Text",
-              "value": "Some cars"
+              "value": {
+                "string": "Some cars"
+              }
             }
           ]
         }

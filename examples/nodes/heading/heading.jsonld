@@ -11,7 +11,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 1"
+          "value": {
+            "string": "Level 1"
+          }
         }
       ]
     },
@@ -21,7 +23,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 2"
+          "value": {
+            "string": "Level 2"
+          }
         }
       ]
     },
@@ -31,7 +35,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 3"
+          "value": {
+            "string": "Level 3"
+          }
         }
       ]
     },
@@ -41,7 +47,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 4"
+          "value": {
+            "string": "Level 4"
+          }
         }
       ]
     },
@@ -51,7 +59,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 5"
+          "value": {
+            "string": "Level 5"
+          }
         }
       ]
     },
@@ -61,7 +71,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 6"
+          "value": {
+            "string": "Level 6"
+          }
         }
       ]
     },
@@ -71,7 +83,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With authors"
+          "value": {
+            "string": "With authors"
+          }
         }
       ],
       "author": [

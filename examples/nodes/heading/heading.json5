@@ -7,7 +7,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 1"
+          value: { string: "Level 1" }
         }
       ]
     },
@@ -17,7 +17,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 2"
+          value: { string: "Level 2" }
         }
       ]
     },
@@ -27,7 +27,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 3"
+          value: { string: "Level 3" }
         }
       ]
     },
@@ -37,7 +37,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 4"
+          value: { string: "Level 4" }
         }
       ]
     },
@@ -47,7 +47,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 5"
+          value: { string: "Level 5" }
         }
       ]
     },
@@ -57,7 +57,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 6"
+          value: { string: "Level 6" }
         }
       ]
     },
@@ -67,7 +67,7 @@
       content: [
         {
           type: "Text",
-          value: "With authors"
+          value: { string: "With authors" }
         }
       ],
       authors: [

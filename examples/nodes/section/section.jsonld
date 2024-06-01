@@ -14,7 +14,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Introduction"
+              "value": {
+                "string": "Introduction"
+              }
             }
           ]
         },
@@ -23,7 +25,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Sections will usually start with a header."
+              "value": {
+                "string": "Sections will usually start with a header."
+              }
             }
           ]
         }
@@ -38,7 +42,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Nested sections"
+              "value": {
+                "string": "Nested sections"
+              }
             }
           ]
         },
@@ -51,7 +57,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "Inner section"
+                  "value": {
+                    "string": "Inner section"
+                  }
                 }
               ]
             },
@@ -64,7 +72,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "First inner-inner section"
+                      "value": {
+                        "string": "First inner-inner section"
+                      }
                     }
                   ]
                 },
@@ -73,7 +83,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "This is the first inner-inner section"
+                      "value": {
+                        "string": "This is the first inner-inner section"
+                      }
                     }
                   ]
                 }
@@ -88,7 +100,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Second inner-inner section"
+                      "value": {
+                        "string": "Second inner-inner section"
+                      }
                     }
                   ]
                 },
@@ -97,7 +111,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "This is the second inner-inner section"
+                      "value": {
+                        "string": "This is the second inner-inner section"
+                      }
                     }
                   ]
                 }
@@ -115,7 +131,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is the header"
+              "value": {
+                "string": "This is the header"
+              }
             }
           ]
         }
@@ -130,7 +148,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is the introduction"
+              "value": {
+                "string": "This is the introduction"
+              }
             }
           ]
         }
@@ -145,7 +165,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is the conclusion"
+              "value": {
+                "string": "This is the conclusion"
+              }
             }
           ]
         }
@@ -160,7 +182,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This is the footer"
+              "value": {
+                "string": "This is the footer"
+              }
             }
           ]
         }

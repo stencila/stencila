@@ -5,43 +5,52 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: Old paragraph
+      value:
+        string: Old paragraph
   - type: Paragraph
     content:
     - type: Text
-      value: Another old paragraph
+      value:
+        string: Another old paragraph
   replacement:
   - type: Paragraph
     content:
     - type: Text
-      value: New paragraph
+      value:
+        string: New paragraph
   - type: CodeChunk
-    code: A new code chunk
+    code:
+      string: A new code chunk
   - type: Paragraph
     content:
     - type: Text
-      value: Another new paragraph
+      value:
+        string: Another new paragraph
 - type: ReplaceBlock
   suggestionStatus: Accepted
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Old paragraph
+      value:
+        string: Old paragraph
   replacement:
   - type: Paragraph
     content:
     - type: Text
-      value: Accepted new paragraph
+      value:
+        string: Accepted new paragraph
 - type: ReplaceBlock
   suggestionStatus: Rejected
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Old paragraph
+      value:
+        string: Old paragraph
   replacement:
   - type: Paragraph
     content:
     - type: Text
-      value: Rejected new paragraph
+      value:
+        string: Rejected new paragraph

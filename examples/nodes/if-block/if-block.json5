@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "A simple if block"
+          value: { string: "A simple if block" }
         }
       ]
     },
@@ -15,14 +15,14 @@
       clauses: [
         {
           type: "IfBlockClause",
-          code: "true",
+          code: { string: "true" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This paragraph should be shown"
+                  value: { string: "This paragraph should be shown" }
                 }
               ]
             }
@@ -35,7 +35,7 @@
       content: [
         {
           type: "Text",
-          value: "An if block with programming language specified"
+          value: { string: "An if block with programming language specified" }
         }
       ]
     },
@@ -44,7 +44,7 @@
       clauses: [
         {
           type: "IfBlockClause",
-          code: "True",
+          code: { string: "True" },
           programmingLanguage: "python",
           content: [
             {
@@ -52,7 +52,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "This paragraph should be shown"
+                  value: { string: "This paragraph should be shown" }
                 }
               ]
             }
@@ -65,7 +65,7 @@
       content: [
         {
           type: "Text",
-          value: "With an else clause"
+          value: { string: "With an else clause" }
         }
       ]
     },
@@ -74,14 +74,14 @@
       clauses: [
         {
           type: "IfBlockClause",
-          code: "false",
+          code: { string: "false" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This paragraph should NOT be shown"
+                  value: { string: "This paragraph should NOT be shown" }
                 }
               ]
             }
@@ -89,14 +89,14 @@
         },
         {
           type: "IfBlockClause",
-          code: "",
+          code: { string: "" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This paragraph should be shown"
+                  value: { string: "This paragraph should be shown" }
                 }
               ]
             }
@@ -109,7 +109,7 @@
       content: [
         {
           type: "Text",
-          value: "With multiple clauses"
+          value: { string: "With multiple clauses" }
         }
       ]
     },
@@ -118,14 +118,14 @@
       clauses: [
         {
           type: "IfBlockClause",
-          code: "false",
+          code: { string: "false" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This first paragraph should NOT be shown"
+                  value: { string: "This first paragraph should NOT be shown" }
                 }
               ]
             }
@@ -133,14 +133,14 @@
         },
         {
           type: "IfBlockClause",
-          code: "false",
+          code: { string: "false" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This second paragraph should NOT be shown"
+                  value: { string: "This second paragraph should NOT be shown" }
                 }
               ]
             }
@@ -148,14 +148,14 @@
         },
         {
           type: "IfBlockClause",
-          code: "true",
+          code: { string: "true" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This third paragraph should be shown"
+                  value: { string: "This third paragraph should be shown" }
                 }
               ]
             }
@@ -163,14 +163,14 @@
         },
         {
           type: "IfBlockClause",
-          code: "true",
+          code: { string: "true" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This fourth paragraph should NOT be shown because above clause is"
+                  value: { string: "This fourth paragraph should NOT be shown because above clause is" }
                 }
               ]
             }
@@ -178,14 +178,14 @@
         },
         {
           type: "IfBlockClause",
-          code: "",
+          code: { string: "" },
           content: [
             {
               type: "Paragraph",
               content: [
                 {
                   type: "Text",
-                  value: "This final paragraph should NOT be shown because above clause is"
+                  value: { string: "This final paragraph should NOT be shown because above clause is" }
                 }
               ]
             }
@@ -198,7 +198,7 @@
       content: [
         {
           type: "Text",
-          value: "Nested if blocks"
+          value: { string: "Nested if blocks" }
         }
       ]
     },
@@ -207,21 +207,21 @@
       clauses: [
         {
           type: "IfBlockClause",
-          code: "true",
+          code: { string: "true" },
           content: [
             {
               type: "IfBlock",
               clauses: [
                 {
                   type: "IfBlockClause",
-                  code: "true",
+                  code: { string: "true" },
                   content: [
                     {
                       type: "Paragraph",
                       content: [
                         {
                           type: "Text",
-                          value: "This paragraph should be shown"
+                          value: { string: "This paragraph should be shown" }
                         }
                       ]
                     }

@@ -9,7 +9,7 @@
           content: [
             {
               type: "Text",
-              value: "Proposed deleted paragraph"
+              value: { string: "Proposed deleted paragraph" }
             }
           ]
         }
@@ -24,7 +24,7 @@
           content: [
             {
               type: "Text",
-              value: "Accepted deleted paragraph"
+              value: { string: "Accepted deleted paragraph" }
             }
           ]
         }
@@ -39,7 +39,7 @@
           content: [
             {
               type: "Text",
-              value: "Rejected deleted paragraph"
+              value: { string: "Rejected deleted paragraph" }
             }
           ]
         }

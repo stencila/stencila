@@ -6,20 +6,20 @@
       content: [
         {
           type: "Text",
-          value: "An inline quote "
+          value: { string: "An inline quote " }
         },
         {
           type: "QuoteInline",
           content: [
             {
               type: "Text",
-              value: "Never memorize something that you can look up"
+              value: { string: "Never memorize something that you can look up" }
             }
           ]
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     }

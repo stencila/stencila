@@ -9,7 +9,7 @@
           content: [
             {
               type: "Text",
-              value: "Proposed inserted paragraph"
+              value: { string: "Proposed inserted paragraph" }
             }
           ]
         }
@@ -24,7 +24,7 @@
           content: [
             {
               type: "Text",
-              value: "Accepted inserted paragraph"
+              value: { string: "Accepted inserted paragraph" }
             }
           ]
         }
@@ -39,7 +39,7 @@
           content: [
             {
               type: "Text",
-              value: "Rejected inserted paragraph"
+              value: { string: "Rejected inserted paragraph" }
             }
           ]
         }

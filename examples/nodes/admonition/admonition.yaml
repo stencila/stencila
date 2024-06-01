@@ -6,17 +6,20 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: A note
+      value:
+        string: A note
 - type: Admonition
   admonitionType: Warning
   title:
   - type: Text
-    value: With a title
+    value:
+      string: With a title
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: A warning
+      value:
+        string: A warning
 - type: Admonition
   admonitionType: Success
   isFolded: false
@@ -24,23 +27,27 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: Foldable, but unfolded
+      value:
+        string: Foldable, but unfolded
 - type: Admonition
   admonitionType: Danger
   title:
   - type: Text
-    value: Folded with a title
+    value:
+      string: Folded with a title
   isFolded: true
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Foldable
+      value:
+        string: Foldable
 - type: Admonition
   admonitionType: Tip
   title:
   - type: Text
-    value: Nested admonitions
+    value:
+      string: Nested admonitions
   content:
   - type: Admonition
     admonitionType: Info
@@ -51,11 +58,13 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: This is the first inner-inner admonition
+          value:
+            string: This is the first inner-inner admonition
     - type: Admonition
       admonitionType: Error
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: This is the second inner-inner admonition
+          value:
+            string: This is the second inner-inner admonition

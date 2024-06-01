@@ -10,15 +10,21 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A code fragment: "
+          "value": {
+            "string": "A code fragment: "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "2 * pi * r^2"
+          "stencila:code": {
+            "string": "2 * pi * r^2"
+          }
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -27,16 +33,22 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With language: "
+          "value": {
+            "string": "With language: "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "6 * 7",
+          "stencila:code": {
+            "string": "6 * 7"
+          },
           "programmingLanguage": "python"
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

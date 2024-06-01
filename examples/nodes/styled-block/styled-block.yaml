@@ -3,56 +3,71 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'A styled block with two paragraphs:'
+    value:
+      string: 'A styled block with two paragraphs:'
 - type: StyledBlock
-  code: rounded border border-solid border-blue-200 bg-blue-100 p-2
+  code:
+    string: rounded border border-solid border-blue-200 bg-blue-100 p-2
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Styled paragraph one.
+      value:
+        string: Styled paragraph one.
   - type: Paragraph
     content:
     - type: Text
-      value: Styled paragraph two.
+      value:
+        string: Styled paragraph two.
 - type: Paragraph
   content:
   - type: Text
-    value: 'With style language specified:'
+    value:
+      string: 'With style language specified:'
 - type: StyledBlock
-  code: color:red
+  code:
+    string: color:red
   styleLanguage: css
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Styled paragraph.
+      value:
+        string: Styled paragraph.
 - type: Paragraph
   content:
   - type: Text
-    value: 'Nested styled blocks:'
+    value:
+      string: 'Nested styled blocks:'
 - type: StyledBlock
-  code: bg-red-100 p-2
+  code:
+    string: bg-red-100 p-2
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Outer paragraph.
+      value:
+        string: Outer paragraph.
   - type: StyledBlock
-    code: bg-blue-100
+    code:
+      string: bg-blue-100
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: Inner paragraph.
+        value:
+          string: Inner paragraph.
 - type: Paragraph
   content:
   - type: Text
-    value: 'Containing variable interpolations:'
+    value:
+      string: 'Containing variable interpolations:'
 - type: StyledBlock
-  code: bg-red-{{var1}} p-$var2 m-$var3
+  code:
+    string: bg-red-{{var1}} p-$var2 m-$var3
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Dynamically styled paragraph.
+      value:
+        string: Dynamically styled paragraph.

@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "Simple lists"
+          value: { string: "Simple lists" }
         }
       ]
     },
@@ -21,7 +21,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "apple"
+                  value: { string: "apple" }
                 }
               ]
             }
@@ -35,7 +35,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "pear"
+                  value: { string: "pear" }
                 }
               ]
             }
@@ -49,7 +49,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "orange"
+                  value: { string: "orange" }
                 }
               ]
             }
@@ -69,7 +69,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "first"
+                  value: { string: "first" }
                 }
               ]
             }
@@ -83,7 +83,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "second"
+                  value: { string: "second" }
                 }
               ]
             }
@@ -97,7 +97,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "third"
+                  value: { string: "third" }
                 }
               ]
             }
@@ -111,7 +111,7 @@
       content: [
         {
           type: "Text",
-          value: "Nested lists"
+          value: { string: "Nested lists" }
         }
       ]
     },
@@ -126,7 +126,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "1"
+                  value: { string: "1" }
                 }
               ]
             },
@@ -141,7 +141,7 @@
                       content: [
                         {
                           type: "Text",
-                          value: "2a"
+                          value: { string: "2a" }
                         }
                       ]
                     },
@@ -156,7 +156,7 @@
                               content: [
                                 {
                                   type: "Text",
-                                  value: "3a"
+                                  value: { string: "3a" }
                                 }
                               ]
                             }
@@ -175,7 +175,7 @@
                       content: [
                         {
                           type: "Text",
-                          value: "2b"
+                          value: { string: "2b" }
                         }
                       ]
                     }
@@ -189,7 +189,7 @@
                       content: [
                         {
                           type: "Text",
-                          value: "2c"
+                          value: { string: "2c" }
                         }
                       ]
                     },
@@ -204,7 +204,7 @@
                               content: [
                                 {
                                   type: "Text",
-                                  value: "3b"
+                                  value: { string: "3b" }
                                 }
                               ]
                             },
@@ -219,7 +219,7 @@
                                       content: [
                                         {
                                           type: "Text",
-                                          value: "4a"
+                                          value: { string: "4a" }
                                         }
                                       ]
                                     }
@@ -248,7 +248,7 @@
       content: [
         {
           type: "Text",
-          value: "Lists with check boxes"
+          value: { string: "Lists with check boxes" }
         }
       ]
     },
@@ -263,7 +263,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "first"
+                  value: { string: "first" }
                 }
               ]
             }
@@ -278,7 +278,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "second"
+                  value: { string: "second" }
                 }
               ]
             }
@@ -293,7 +293,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "third"
+                  value: { string: "third" }
                 }
               ]
             }
@@ -314,7 +314,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "done"
+                  value: { string: "done" }
                 }
               ]
             }
@@ -329,7 +329,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "todo"
+                  value: { string: "todo" }
                 }
               ]
             }
@@ -344,7 +344,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "still todo"
+                  value: { string: "still todo" }
                 }
               ]
             }
@@ -359,7 +359,7 @@
       content: [
         {
           type: "Text",
-          value: "A paragraph to keep the previous and following lists separate (otherwise they get merged)."
+          value: { string: "A paragraph to keep the previous and following lists separate (otherwise they get merged)." }
         }
       ]
     },
@@ -374,7 +374,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "an item with an image "
+                  value: { string: "an item with an image " }
                 },
                 {
                   type: "ImageObject",
@@ -382,7 +382,7 @@
                 },
                 {
                   type: "Text",
-                  value: ", see!"
+                  value: { string: ", see!" }
                 }
               ]
             }
@@ -396,14 +396,14 @@
               content: [
                 {
                   type: "Text",
-                  value: "an item with "
+                  value: { string: "an item with " }
                 },
                 {
                   type: "Emphasis",
                   content: [
                     {
                       type: "Text",
-                      value: "emphasis"
+                      value: { string: "emphasis" }
                     }
                   ]
                 }
@@ -419,14 +419,14 @@
               content: [
                 {
                   type: "Text",
-                  value: "an item with HTML "
+                  value: { string: "an item with HTML " }
                 },
                 {
                   type: "Underline",
                   content: [
                     {
                       type: "Text",
-                      value: "underlined"
+                      value: { string: "underlined" }
                     }
                   ]
                 }
@@ -442,7 +442,7 @@
       content: [
         {
           type: "Text",
-          value: "A list with multiple paragraphs in each item"
+          value: { string: "A list with multiple paragraphs in each item" }
         }
       ]
     },
@@ -457,7 +457,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "para 1a"
+                  value: { string: "para 1a" }
                 }
               ]
             },
@@ -466,7 +466,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "para 1b"
+                  value: { string: "para 1b" }
                 }
               ]
             },
@@ -475,7 +475,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "para 1c"
+                  value: { string: "para 1c" }
                 }
               ]
             }
@@ -489,7 +489,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "para 2a"
+                  value: { string: "para 2a" }
                 }
               ]
             },
@@ -498,7 +498,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "para 2b"
+                  value: { string: "para 2b" }
                 }
               ]
             }
@@ -512,7 +512,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "para 3"
+                  value: { string: "para 3" }
                 }
               ]
             }
@@ -526,7 +526,7 @@
       content: [
         {
           type: "Text",
-          value: "A list with it, and some of it's items, having authors"
+          value: { string: "A list with it, and some of it's items, having authors" }
         }
       ]
     },
@@ -541,7 +541,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "With two authors"
+                  value: { string: "With two authors" }
                 }
               ],
               authors: [
@@ -565,7 +565,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "No authors"
+                  value: { string: "No authors" }
                 }
               ]
             }
@@ -579,7 +579,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "With three authors"
+                  value: { string: "With three authors" }
                 }
               ],
               authors: [

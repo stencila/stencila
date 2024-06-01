@@ -3,74 +3,91 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'This paragraph has a simple notes: '
+    value:
+      string: 'This paragraph has a simple notes: '
   - type: Note
     noteType: Footnote
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: A footnote
+        value:
+          string: A footnote
   - type: Text
-    value: ', a '
+    value:
+      string: ', a '
   - type: Note
     noteType: Endnote
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: An endnote
+        value:
+          string: An endnote
   - type: Text
-    value: ', a '
+    value:
+      string: ', a '
   - type: Note
     noteType: Sidenote
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: A side note
+        value:
+          string: A side note
   - type: Text
-    value: .
+    value:
+      string: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'This paragraph has a more complex notes: '
+    value:
+      string: 'This paragraph has a more complex notes: '
   - type: Note
     noteType: Footnote
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: A footnote with...
+        value:
+          string: A footnote with...
     - type: Paragraph
       content:
       - type: Text
-        value: Another paragraph
+        value:
+          string: Another paragraph
   - type: Text
-    value: ', a '
+    value:
+      string: ', a '
   - type: Note
     noteType: Endnote
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: An endnote with...
+        value:
+          string: An endnote with...
     - type: CodeBlock
-      code: A code block
+      code:
+        string: A code block
   - type: Text
-    value: ', a '
+    value:
+      string: ', a '
   - type: Note
     noteType: Sidenote
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: A sidenote with...
+        value:
+          string: A sidenote with...
     - type: QuoteBlock
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: A quote block
+          value:
+            string: A quote block
   - type: Text
-    value: .
+    value:
+      string: .

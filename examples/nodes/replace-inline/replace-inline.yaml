@@ -3,13 +3,17 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'Some '
+    value:
+      string: 'Some '
   - type: ReplaceInline
     content:
     - type: Text
-      value: old
+      value:
+        string: old
     replacement:
     - type: Text
-      value: new
+      value:
+        string: new
   - type: Text
-    value: ' text.'
+    value:
+      string: ' text.'

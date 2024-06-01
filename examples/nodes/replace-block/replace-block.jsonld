@@ -13,7 +13,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Old paragraph"
+              "value": {
+                "string": "Old paragraph"
+              }
             }
           ]
         },
@@ -22,7 +24,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Another old paragraph"
+              "value": {
+                "string": "Another old paragraph"
+              }
             }
           ]
         }
@@ -33,20 +37,26 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "New paragraph"
+              "value": {
+                "string": "New paragraph"
+              }
             }
           ]
         },
         {
           "@type": "stencila:CodeChunk",
-          "stencila:code": "A new code chunk"
+          "stencila:code": {
+            "string": "A new code chunk"
+          }
         },
         {
           "@type": "stencila:Paragraph",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Another new paragraph"
+              "value": {
+                "string": "Another new paragraph"
+              }
             }
           ]
         }
@@ -61,7 +71,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Old paragraph"
+              "value": {
+                "string": "Old paragraph"
+              }
             }
           ]
         }
@@ -72,7 +84,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Accepted new paragraph"
+              "value": {
+                "string": "Accepted new paragraph"
+              }
             }
           ]
         }
@@ -87,7 +101,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Old paragraph"
+              "value": {
+                "string": "Old paragraph"
+              }
             }
           ]
         }
@@ -98,7 +114,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Rejected new paragraph"
+              "value": {
+                "string": "Rejected new paragraph"
+              }
             }
           ]
         }

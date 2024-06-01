@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "An image "
+          value: { string: "An image " }
         },
         {
           type: "ImageObject",
@@ -14,7 +14,7 @@
         },
         {
           type: "Text",
-          value: ", with a caption "
+          value: { string: ", with a caption " }
         },
         {
           type: "ImageObject",
@@ -22,27 +22,27 @@
           caption: [
             {
               type: "Text",
-              value: "A cat"
+              value: { string: "A cat" }
             }
           ]
         },
         {
           type: "Text",
-          value: ", with a caption and title "
+          value: { string: ", with a caption and title " }
         },
         {
           type: "ImageObject",
           title: [
             {
               type: "Text",
-              value: "The cat"
+              value: { string: "The cat" }
             }
           ],
           contentUrl: "https:\/\/example.org\/cat.jpg",
           caption: [
             {
               type: "Text",
-              value: "A cat"
+              value: { string: "A cat" }
             }
           ]
         }
@@ -53,7 +53,7 @@
       content: [
         {
           type: "Text",
-          value: "Some audio "
+          value: { string: "Some audio " }
         },
         {
           type: "AudioObject",
@@ -66,7 +66,7 @@
       content: [
         {
           type: "Text",
-          value: "A video "
+          value: { string: "A video " }
         },
         {
           type: "VideoObject",

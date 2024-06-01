@@ -10,20 +10,26 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Some "
+          "value": {
+            "string": "Some "
+          }
         },
         {
           "@type": "stencila:InsertInline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "inserted "
+              "value": {
+                "string": "inserted "
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": "text."
+          "value": {
+            "string": "text."
+          }
         }
       ]
     },
@@ -32,7 +38,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Several inserted inlines"
+          "value": {
+            "string": "Several inserted inlines"
+          }
         },
         {
           "@type": "stencila:InsertInline",
@@ -42,36 +50,48 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "strongly emphasized"
+                  "value": {
+                    "string": "strongly emphasized"
+                  }
                 }
               ]
             },
             {
               "@type": "Text",
-              "value": " and "
+              "value": {
+                "string": " and "
+              }
             },
             {
               "@type": "stencila:Superscript",
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "superscripted"
+                  "value": {
+                    "string": "superscripted"
+                  }
                 }
               ]
             },
             {
               "@type": "Text",
-              "value": " and "
+              "value": {
+                "string": " and "
+              }
             },
             {
               "@type": "stencila:CodeExpression",
-              "stencila:code": "2 + 2"
+              "stencila:code": {
+                "string": "2 + 2"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

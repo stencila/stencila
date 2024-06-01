@@ -3,18 +3,23 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'A styled inlines containing other compound inline nodes: '
+    value:
+      string: 'A styled inlines containing other compound inline nodes: '
   - type: StyledInline
-    code: text-blue-600
+    code:
+      string: text-blue-600
     content:
     - type: Emphasis
       content:
       - type: Text
-        value: emphasis
+        value:
+          string: emphasis
     - type: Text
-      value: ', '
+      value:
+        string: ', '
     - type: Link
       content:
       - type: Text
-        value: link
+        value:
+          string: link
       target: https://example.org

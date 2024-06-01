@@ -7,10 +7,7 @@ start     end        offsets   node_type+property                   authorship
     84     95       (12, 17)   CodeChunk.code
     69    100       (-15, 5)   CodeChunk
     69    101         (0, 1)   ModifyBlock.content
-   114    124       (45, 23)   CodeChunk.programmingLanguage
-   130    142       (16, 18)   CodeChunk.code
-   111    147       (-19, 5)   CodeChunk
-   111    148         (0, 1)   ModifyBlock.operations
-    57    152       (-54, 4)   ModifyBlock
-     0    153       (-57, 1)   Article.content
-     0    153         (0, 0)   Article
+   111    111       (42, 10)   ModifyBlock.operations
+    57    115       (-54, 4)   ModifyBlock
+     0    116       (-57, 1)   Article.content
+     0    116         (0, 0)   Article

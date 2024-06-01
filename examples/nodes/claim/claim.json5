@@ -10,7 +10,7 @@
           content: [
             {
               type: "Text",
-              value: "A theorem"
+              value: { string: "A theorem" }
             }
           ]
         }
@@ -26,7 +26,7 @@
           content: [
             {
               type: "Text",
-              value: "A proposition with a label"
+              value: { string: "A proposition with a label" }
             }
           ]
         }

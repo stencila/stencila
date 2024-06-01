@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions: "
+          value: { string: "This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions: " }
         },
         {
           type: "Note",
@@ -17,7 +17,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "A paragraph"
+                  value: { string: "A paragraph" }
                 }
               ]
             }
@@ -25,7 +25,7 @@
         },
         {
           type: "Text",
-          value: ", a "
+          value: { string: ", a " }
         },
         {
           type: "Note",
@@ -36,7 +36,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "First paragraph."
+                  value: { string: "First paragraph." }
                 }
               ]
             },
@@ -45,7 +45,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "Second paragraph."
+                  value: { string: "Second paragraph." }
                 }
               ]
             }
@@ -53,7 +53,7 @@
         },
         {
           type: "Text",
-          value: ", a "
+          value: { string: ", a " }
         },
         {
           type: "Note",
@@ -64,13 +64,13 @@
               content: [
                 {
                   type: "Text",
-                  value: "A paragraph."
+                  value: { string: "A paragraph." }
                 }
               ]
             },
             {
               type: "CodeBlock",
-              code: "A code block"
+              code: { string: "A code block" }
             },
             {
               type: "QuoteBlock",
@@ -80,7 +80,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "A quote block"
+                      value: { string: "A quote block" }
                     }
                   ]
                 }
@@ -90,7 +90,7 @@
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     }

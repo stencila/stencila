@@ -1,1 +1,1 @@
-{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: "Some "},{type: "ReplaceInline",content: [{type: "Text",value: "old"}],replacement: [{type: "Text",value: "new"}]},{type: "Text",value: " text."}]}]}
+{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: { string: "Some " }},{type: "ReplaceInline",content: [{type: "Text",value: { string: "old" }}],replacement: [{type: "Text",value: { string: "new" }}]},{type: "Text",value: { string: " text." }}]}]}

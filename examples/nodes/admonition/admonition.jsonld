@@ -14,7 +14,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "A note"
+              "value": {
+                "string": "A note"
+              }
             }
           ]
         }
@@ -26,7 +28,9 @@
       "headline": [
         {
           "@type": "Text",
-          "value": "With a title"
+          "value": {
+            "string": "With a title"
+          }
         }
       ],
       "stencila:content": [
@@ -35,7 +39,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "A warning"
+              "value": {
+                "string": "A warning"
+              }
             }
           ]
         }
@@ -51,7 +57,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Foldable, but unfolded"
+              "value": {
+                "string": "Foldable, but unfolded"
+              }
             }
           ]
         }
@@ -63,7 +71,9 @@
       "headline": [
         {
           "@type": "Text",
-          "value": "Folded with a title"
+          "value": {
+            "string": "Folded with a title"
+          }
         }
       ],
       "stencila:isFolded": true,
@@ -73,7 +83,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Foldable"
+              "value": {
+                "string": "Foldable"
+              }
             }
           ]
         }
@@ -85,7 +97,9 @@
       "headline": [
         {
           "@type": "Text",
-          "value": "Nested admonitions"
+          "value": {
+            "string": "Nested admonitions"
+          }
         }
       ],
       "stencila:content": [
@@ -102,7 +116,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "This is the first inner-inner admonition"
+                      "value": {
+                        "string": "This is the first inner-inner admonition"
+                      }
                     }
                   ]
                 }
@@ -117,7 +133,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "This is the second inner-inner admonition"
+                      "value": {
+                        "string": "This is the second inner-inner admonition"
+                      }
                     }
                   ]
                 }

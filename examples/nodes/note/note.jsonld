@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This paragraph has a simple notes: "
+          "value": {
+            "string": "This paragraph has a simple notes: "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -21,7 +23,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A footnote"
+                  "value": {
+                    "string": "A footnote"
+                  }
                 }
               ]
             }
@@ -29,7 +33,9 @@
         },
         {
           "@type": "Text",
-          "value": ", a "
+          "value": {
+            "string": ", a "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -40,7 +46,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "An endnote"
+                  "value": {
+                    "string": "An endnote"
+                  }
                 }
               ]
             }
@@ -48,7 +56,9 @@
         },
         {
           "@type": "Text",
-          "value": ", a "
+          "value": {
+            "string": ", a "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -59,7 +69,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A side note"
+                  "value": {
+                    "string": "A side note"
+                  }
                 }
               ]
             }
@@ -67,7 +79,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -76,7 +90,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This paragraph has a more complex notes: "
+          "value": {
+            "string": "This paragraph has a more complex notes: "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -87,7 +103,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A footnote with..."
+                  "value": {
+                    "string": "A footnote with..."
+                  }
                 }
               ]
             },
@@ -96,7 +114,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "Another paragraph"
+                  "value": {
+                    "string": "Another paragraph"
+                  }
                 }
               ]
             }
@@ -104,7 +124,9 @@
         },
         {
           "@type": "Text",
-          "value": ", a "
+          "value": {
+            "string": ", a "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -115,19 +137,25 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "An endnote with..."
+                  "value": {
+                    "string": "An endnote with..."
+                  }
                 }
               ]
             },
             {
               "@type": "stencila:CodeBlock",
-              "stencila:code": "A code block"
+              "stencila:code": {
+                "string": "A code block"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", a "
+          "value": {
+            "string": ", a "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -138,7 +166,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A sidenote with..."
+                  "value": {
+                    "string": "A sidenote with..."
+                  }
                 }
               ]
             },
@@ -150,7 +180,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "A quote block"
+                      "value": {
+                        "string": "A quote block"
+                      }
                     }
                   ]
                 }
@@ -160,7 +192,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

@@ -4,7 +4,7 @@
   </p>
   <stencila-if-block>
     <div slot='clauses'>
-      <stencila-if-block-clause code='true'>
+      <stencila-if-block-clause code='{"string":"true"}'>
         <div slot='content'>
           <p>
             <span>This paragraph should be shown</span>
@@ -18,7 +18,7 @@
   </p>
   <stencila-if-block>
     <div slot='clauses'>
-      <stencila-if-block-clause code='True' programming-language='python'>
+      <stencila-if-block-clause code='{"string":"True"}' programming-language='python'>
         <div slot='content'>
           <p>
             <span>This paragraph should be shown</span>
@@ -32,14 +32,14 @@
   </p>
   <stencila-if-block>
     <div slot='clauses'>
-      <stencila-if-block-clause code='false'>
+      <stencila-if-block-clause code='{"string":"false"}'>
         <div slot='content'>
           <p>
             <span>This paragraph should NOT be shown</span>
           </p>
         </div>
       </stencila-if-block-clause>
-      <stencila-if-block-clause code=''>
+      <stencila-if-block-clause code='{"string":""}'>
         <div slot='content'>
           <p>
             <span>This paragraph should be shown</span>
@@ -53,35 +53,35 @@
   </p>
   <stencila-if-block>
     <div slot='clauses'>
-      <stencila-if-block-clause code='false'>
+      <stencila-if-block-clause code='{"string":"false"}'>
         <div slot='content'>
           <p>
             <span>This first paragraph should NOT be shown</span>
           </p>
         </div>
       </stencila-if-block-clause>
-      <stencila-if-block-clause code='false'>
+      <stencila-if-block-clause code='{"string":"false"}'>
         <div slot='content'>
           <p>
             <span>This second paragraph should NOT be shown</span>
           </p>
         </div>
       </stencila-if-block-clause>
-      <stencila-if-block-clause code='true'>
+      <stencila-if-block-clause code='{"string":"true"}'>
         <div slot='content'>
           <p>
             <span>This third paragraph should be shown</span>
           </p>
         </div>
       </stencila-if-block-clause>
-      <stencila-if-block-clause code='true'>
+      <stencila-if-block-clause code='{"string":"true"}'>
         <div slot='content'>
           <p>
             <span>This fourth paragraph should NOT be shown because above clause is</span>
           </p>
         </div>
       </stencila-if-block-clause>
-      <stencila-if-block-clause code=''>
+      <stencila-if-block-clause code='{"string":""}'>
         <div slot='content'>
           <p>
             <span>This final paragraph should NOT be shown because above clause is</span>
@@ -95,11 +95,11 @@
   </p>
   <stencila-if-block>
     <div slot='clauses'>
-      <stencila-if-block-clause code='true'>
+      <stencila-if-block-clause code='{"string":"true"}'>
         <div slot='content'>
           <stencila-if-block>
             <div slot='clauses'>
-              <stencila-if-block-clause code='true'>
+              <stencila-if-block-clause code='{"string":"true"}'>
                 <div slot='content'>
                   <p>
                     <span>This paragraph should be shown</span>

@@ -14,7 +14,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "A theorem"
+              "value": {
+                "string": "A theorem"
+              }
             }
           ]
         }
@@ -30,7 +32,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "A proposition with a label"
+              "value": {
+                "string": "A proposition with a label"
+              }
             }
           ]
         }

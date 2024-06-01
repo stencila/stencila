@@ -6,13 +6,13 @@
       content: [
         {
           type: "Text",
-          value: "A code block"
+          value: { string: "A code block" }
         }
       ]
     },
     {
       type: "CodeBlock",
-      code: "# Some python code\na = 3",
+      code: { string: "# Some python code\na = 3" },
       programmingLanguage: "python"
     },
     {
@@ -20,39 +20,39 @@
       content: [
         {
           type: "Text",
-          value: "A code block with no language"
+          value: { string: "A code block with no language" }
         }
       ]
     },
     {
       type: "CodeBlock",
-      code: "No language"
+      code: { string: "No language" }
     },
     {
       type: "Paragraph",
       content: [
         {
           type: "Text",
-          value: "An empty code block"
+          value: { string: "An empty code block" }
         }
       ]
     },
     {
       type: "CodeBlock",
-      code: ""
+      code: { string: "" }
     },
     {
       type: "Paragraph",
       content: [
         {
           type: "Text",
-          value: "A code block with only whitespace"
+          value: { string: "A code block with only whitespace" }
         }
       ]
     },
     {
       type: "CodeBlock",
-      code: " \t\n "
+      code: { string: " \t\n " }
     }
   ]
 }

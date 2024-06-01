@@ -6,20 +6,20 @@
       content: [
         {
           type: "Text",
-          value: "Some "
+          value: { string: "Some " }
         },
         {
           type: "DeleteInline",
           content: [
             {
               type: "Text",
-              value: "deleted "
+              value: { string: "deleted " }
             }
           ]
         },
         {
           type: "Text",
-          value: "text."
+          value: { string: "text." }
         }
       ]
     },
@@ -28,7 +28,7 @@
       content: [
         {
           type: "Text",
-          value: "Several deleted inlines "
+          value: { string: "Several deleted inlines " }
         },
         {
           type: "DeleteInline",
@@ -38,36 +38,36 @@
               content: [
                 {
                   type: "Text",
-                  value: "strongly emphasized"
+                  value: { string: "strongly emphasized" }
                 }
               ]
             },
             {
               type: "Text",
-              value: " and "
+              value: { string: " and " }
             },
             {
               type: "Underline",
               content: [
                 {
                   type: "Text",
-                  value: "underlined"
+                  value: { string: "underlined" }
                 }
               ]
             },
             {
               type: "Text",
-              value: " and "
+              value: { string: " and " }
             },
             {
               type: "CodeExpression",
-              code: "2 + 2"
+              code: { string: "2 + 2" }
             }
           ]
         },
         {
           type: "Text",
-          value: "."
+          value: { string: "." }
         }
       ]
     }

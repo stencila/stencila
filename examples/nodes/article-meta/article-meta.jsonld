@@ -41,7 +41,9 @@
   "headline": [
     {
       "@type": "Text",
-      "value": "Adding metadata to articles in Stencila"
+      "value": {
+        "string": "Adding metadata to articles in Stencila"
+      }
     }
   ],
   "stencila:content": [
@@ -50,34 +52,44 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An example article for testing metadata encoding in various formats. It illustrates Stencila's focus on the "
+          "value": {
+            "string": "An example article for testing metadata encoding in various formats. It illustrates Stencila's focus on the "
+          }
         },
         {
           "@type": "stencila:Link",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Robustness Principle"
+              "value": {
+                "string": "Robustness Principle"
+              }
             }
           ],
           "target": "https://en.wikipedia.org/wiki/Robustness_principle"
         },
         {
           "@type": "Text",
-          "value": ": "
+          "value": {
+            "string": ": "
+          }
         },
         {
           "@type": "stencila:QuoteInline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "be conservative in what you do, be liberal in what you accept from others"
+              "value": {
+                "string": "be conservative in what you do, be liberal in what you accept from others"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ". Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes."
+          "value": {
+            "string": ". Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes."
+          }
         }
       ]
     }

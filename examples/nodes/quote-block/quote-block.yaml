@@ -5,32 +5,38 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: This is a quote block
+      value:
+        string: This is a quote block
 - type: QuoteBlock
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This quote block...
+      value:
+        string: This quote block...
   - type: Paragraph
     content:
     - type: Text
-      value: Has two paragraphs
+      value:
+        string: Has two paragraphs
 - type: QuoteBlock
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This quote block...
+      value:
+        string: This quote block...
   - type: QuoteBlock
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: Has another inside it.
+        value:
+          string: Has another inside it.
     - type: QuoteBlock
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: And another inside that!
+          value:
+            string: And another inside that!

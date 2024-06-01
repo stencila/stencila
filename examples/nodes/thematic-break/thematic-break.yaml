@@ -3,16 +3,19 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: A paragraph before first thematic break.
+    value:
+      string: A paragraph before first thematic break.
 - type: ThematicBreak
 - type: Paragraph
   content:
   - type: Text
-    value: A paragraph after first thematic break.
+    value:
+      string: A paragraph after first thematic break.
 - type: ThematicBreak
 - type: Paragraph
   content:
   - type: Text
-    value: Two consecutive thematic breaks follow this paragraph.
+    value:
+      string: Two consecutive thematic breaks follow this paragraph.
 - type: ThematicBreak
 - type: ThematicBreak

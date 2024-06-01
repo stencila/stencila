@@ -6,7 +6,8 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: A theorem
+      value:
+        string: A theorem
 - type: Claim
   claimType: Proposition
   label: Proposition 1
@@ -14,4 +15,5 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: A proposition with a label
+      value:
+        string: A proposition with a label

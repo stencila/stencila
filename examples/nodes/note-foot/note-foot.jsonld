@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions: "
+          "value": {
+            "string": "This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions: "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -21,7 +23,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A paragraph"
+                  "value": {
+                    "string": "A paragraph"
+                  }
                 }
               ]
             }
@@ -29,7 +33,9 @@
         },
         {
           "@type": "Text",
-          "value": ", a "
+          "value": {
+            "string": ", a "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -40,7 +46,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "First paragraph."
+                  "value": {
+                    "string": "First paragraph."
+                  }
                 }
               ]
             },
@@ -49,7 +57,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "Second paragraph."
+                  "value": {
+                    "string": "Second paragraph."
+                  }
                 }
               ]
             }
@@ -57,7 +67,9 @@
         },
         {
           "@type": "Text",
-          "value": ", a "
+          "value": {
+            "string": ", a "
+          }
         },
         {
           "@type": "stencila:Note",
@@ -68,13 +80,17 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "A paragraph."
+                  "value": {
+                    "string": "A paragraph."
+                  }
                 }
               ]
             },
             {
               "@type": "stencila:CodeBlock",
-              "stencila:code": "A code block"
+              "stencila:code": {
+                "string": "A code block"
+              }
             },
             {
               "@type": "stencila:QuoteBlock",
@@ -84,7 +100,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "A quote block"
+                      "value": {
+                        "string": "A quote block"
+                      }
                     }
                   ]
                 }
@@ -94,7 +112,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

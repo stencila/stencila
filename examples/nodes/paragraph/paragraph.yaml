@@ -3,11 +3,13 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: This is paragraph one. It has two sentences.
+    value:
+      string: This is paragraph one. It has two sentences.
 - type: Paragraph
   content:
   - type: Text
-    value: Paragraph two has one person author.
+    value:
+      string: Paragraph two has one person author.
   authors:
   - type: Person
     familyNames:
@@ -17,7 +19,8 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'Paragraph three has three authors of different types: a software application, a person, and organization'
+    value:
+      string: 'Paragraph three has three authors of different types: a software application, a person, and organization'
   authors:
   - type: SoftwareApplication
     id: super-editor
@@ -32,7 +35,8 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Paragraph four has four author roles. These provide additional information for each author such as role and time.
+    value:
+      string: Paragraph four has four author roles. These provide additional information for each author such as role and time.
   authors:
   - type: AuthorRole
     author:

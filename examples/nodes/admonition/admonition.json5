@@ -10,7 +10,7 @@
           content: [
             {
               type: "Text",
-              value: "A note"
+              value: { string: "A note" }
             }
           ]
         }
@@ -22,7 +22,7 @@
       title: [
         {
           type: "Text",
-          value: "With a title"
+          value: { string: "With a title" }
         }
       ],
       content: [
@@ -31,7 +31,7 @@
           content: [
             {
               type: "Text",
-              value: "A warning"
+              value: { string: "A warning" }
             }
           ]
         }
@@ -47,7 +47,7 @@
           content: [
             {
               type: "Text",
-              value: "Foldable, but unfolded"
+              value: { string: "Foldable, but unfolded" }
             }
           ]
         }
@@ -59,7 +59,7 @@
       title: [
         {
           type: "Text",
-          value: "Folded with a title"
+          value: { string: "Folded with a title" }
         }
       ],
       isFolded: true,
@@ -69,7 +69,7 @@
           content: [
             {
               type: "Text",
-              value: "Foldable"
+              value: { string: "Foldable" }
             }
           ]
         }
@@ -81,7 +81,7 @@
       title: [
         {
           type: "Text",
-          value: "Nested admonitions"
+          value: { string: "Nested admonitions" }
         }
       ],
       content: [
@@ -98,7 +98,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "This is the first inner-inner admonition"
+                      value: { string: "This is the first inner-inner admonition" }
                     }
                   ]
                 }
@@ -113,7 +113,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "This is the second inner-inner admonition"
+                      value: { string: "This is the second inner-inner admonition" }
                     }
                   ]
                 }

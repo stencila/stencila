@@ -8,8 +8,4 @@ The following code chunk has a suggested modifications.
 
 ::: with
 
-```javascript exec
-// Some code
-```
-
 :::

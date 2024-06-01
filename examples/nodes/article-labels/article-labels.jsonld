@@ -10,39 +10,57 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An example of an article with automatic numbering (setting the "
+          "value": {
+            "string": "An example of an article with automatic numbering (setting the "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "label"
+          "stencila:code": {
+            "string": "label"
+          }
         },
         {
           "@type": "Text",
-          "value": " property) for "
+          "value": {
+            "string": " property) for "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "Table"
+          "stencila:code": {
+            "string": "Table"
+          }
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "Figure"
+          "stencila:code": {
+            "string": "Figure"
+          }
         },
         {
           "@type": "Text",
-          "value": " and "
+          "value": {
+            "string": " and "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "CodeChunk"
+          "stencila:code": {
+            "string": "CodeChunk"
+          }
         },
         {
           "@type": "Text",
-          "value": " nodes."
+          "value": {
+            "string": " nodes."
+          }
         }
       ]
     },
@@ -51,7 +69,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A figure, it should be labelled as Figure one."
+          "value": {
+            "string": "A figure, it should be labelled as Figure one."
+          }
         }
       ]
     },
@@ -74,7 +94,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Some white text on orange an background."
+              "value": {
+                "string": "Some white text on orange an background."
+              }
             }
           ]
         }
@@ -85,13 +107,17 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Another figure that is actually a code chunk that produces a plot:"
+          "value": {
+            "string": "Another figure that is actually a code chunk that produces a plot:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "plot(1:10)",
+      "stencila:code": {
+        "string": "plot(1:10)"
+      },
       "programmingLanguage": "r",
       "stencila:labelType": "FigureLabel",
       "caption": [
@@ -100,7 +126,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "A plot."
+              "value": {
+                "string": "A plot."
+              }
             }
           ]
         }
@@ -111,7 +139,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A table:"
+          "value": {
+            "string": "A table:"
+          }
         }
       ]
     },
@@ -123,7 +153,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "A little table about fish."
+              "value": {
+                "string": "A little table about fish."
+              }
             }
           ]
         },
@@ -132,7 +164,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "This caption has two paragraphs."
+              "value": {
+                "string": "This caption has two paragraphs."
+              }
             }
           ]
         }
@@ -149,7 +183,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Species"
+                      "value": {
+                        "string": "Species"
+                      }
                     }
                   ]
                 }
@@ -163,7 +199,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Average Length (cm)"
+                      "value": {
+                        "string": "Average Length (cm)"
+                      }
                     }
                   ]
                 }
@@ -177,7 +215,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Average Weight (kg)"
+                      "value": {
+                        "string": "Average Weight (kg)"
+                      }
                     }
                   ]
                 }
@@ -197,7 +237,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Goldfish"
+                      "value": {
+                        "string": "Goldfish"
+                      }
                     }
                   ]
                 }
@@ -211,7 +253,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "20.0"
+                      "value": {
+                        "string": "20.0"
+                      }
                     }
                   ]
                 }
@@ -225,7 +269,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "0.45"
+                      "value": {
+                        "string": "0.45"
+                      }
                     }
                   ]
                 }
@@ -244,7 +290,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Clownfish"
+                      "value": {
+                        "string": "Clownfish"
+                      }
                     }
                   ]
                 }
@@ -258,7 +306,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "10.0"
+                      "value": {
+                        "string": "10.0"
+                      }
                     }
                   ]
                 }
@@ -272,7 +322,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "0.25"
+                      "value": {
+                        "string": "0.25"
+                      }
                     }
                   ]
                 }
@@ -291,7 +343,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "Trout"
+                      "value": {
+                        "string": "Trout"
+                      }
                     }
                   ]
                 }
@@ -305,7 +359,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "40.0"
+                      "value": {
+                        "string": "40.0"
+                      }
                     }
                   ]
                 }
@@ -319,7 +375,9 @@
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "1.50"
+                      "value": {
+                        "string": "1.50"
+                      }
                     }
                   ]
                 }
@@ -334,13 +392,17 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Another table with a caption generated by code:"
+          "value": {
+            "string": "Another table with a caption generated by code:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "head(mtcars)",
+      "stencila:code": {
+        "string": "head(mtcars)"
+      },
       "programmingLanguage": "r",
       "stencila:labelType": "TableLabel",
       "caption": [
@@ -349,7 +411,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Some cars"
+              "value": {
+                "string": "Some cars"
+              }
             }
           ]
         }

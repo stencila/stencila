@@ -2,17 +2,17 @@
   <p>
     <span>A simple for loop</span>
   </p>
-  <stencila-for-block code='[1,2,3]' variable='item'>
+  <stencila-for-block code='{"string":"[1,2,3]"}' variable='item'>
     <p>
       <span>This paragraph will be repeated with a different value for</span>
-      <stencila-code-expression code='item'>
+      <stencila-code-expression code='{"string":"item"}'>
       </stencila-code-expression>
     </p>
   </stencila-for-block>
   <p>
     <span>With a programming language specified</span>
   </p>
-  <stencila-for-block code='[1,2,3]' programming-language='python' variable='item'>
+  <stencila-for-block code='{"string":"[1,2,3]"}' programming-language='python' variable='item'>
     <p>
       <span>This content is repeated</span>
     </p>
@@ -20,11 +20,11 @@
   <p>
     <span>Nested for loops</span>
   </p>
-  <stencila-for-block code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' variable='outer'>
-    <stencila-for-block code='outer' variable='inner'>
+  <stencila-for-block code='{"string":"[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]"}' variable='outer'>
+    <stencila-for-block code='{"string":"outer"}' variable='inner'>
       <p>
         <span>This paragraph will be repeated for each inner item</span>
-        <stencila-code-expression code='inner'>
+        <stencila-code-expression code='{"string":"inner"}'>
         </stencila-code-expression>
       </p>
     </stencila-for-block>
@@ -32,7 +32,7 @@
   <p>
     <span>With an else clause</span>
   </p>
-  <stencila-for-block code='[]' variable='item' otherwise='[{"type":"Paragraph","content":[{"type":"Text","value":"There are no items"}]}]'>
+  <stencila-for-block code='{"string":"[]"}' variable='item' otherwise='[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"There are no items"}}]}]'>
     <p>
       <span>This content is never shown</span>
     </p>
@@ -40,6 +40,6 @@
   <p>
     <span>With no content in &#x27;content&#x27; or &#x27;otherwise&#x27;</span>
   </p>
-  <stencila-for-block code='[]' variable='item' otherwise='[]'>
+  <stencila-for-block code='{"string":"[]"}' variable='item' otherwise='[]'>
   </stencila-for-block>
 </article>

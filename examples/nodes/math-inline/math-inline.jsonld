@@ -10,15 +10,21 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A TeX equation "
+          "value": {
+            "string": "A TeX equation "
+          }
         },
         {
           "@type": "stencila:MathInline",
-          "stencila:code": "2 \\pi r^2"
+          "stencila:code": {
+            "string": "2 \\pi r^2"
+          }
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -27,16 +33,22 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An ASCIIMath equation "
+          "value": {
+            "string": "An ASCIIMath equation "
+          }
         },
         {
           "@type": "stencila:MathInline",
-          "stencila:code": "2 pi r^2",
+          "stencila:code": {
+            "string": "2 pi r^2"
+          },
           "stencila:mathLanguage": "asciimath"
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -45,16 +57,22 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A MathML equation "
+          "value": {
+            "string": "A MathML equation "
+          }
         },
         {
           "@type": "stencila:MathInline",
-          "stencila:code": "<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>",
+          "stencila:code": {
+            "string": "<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>"
+          },
           "stencila:mathLanguage": "mathml"
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

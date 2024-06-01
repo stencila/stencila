@@ -6,7 +6,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Examples of the parameter type can be inferred from options when using Markdown."
+          "value": {
+            "string": "Examples of the parameter type can be inferred from options when using Markdown."
+          }
         }
       ]
     },
@@ -15,7 +17,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "No options and no type, so no validator: "
+          "value": {
+            "string": "No options and no type, so no validator: "
+          }
         },
         {
           "type": "Parameter",
@@ -23,7 +27,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -32,7 +38,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options only found on string parameters: "
+          "value": {
+            "string": "Options only found on string parameters: "
+          }
         },
         {
           "type": "Parameter",
@@ -44,7 +52,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -56,7 +66,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -68,7 +80,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -77,15 +91,21 @@
       "content": [
         {
           "type": "Text",
-          "value": "Option "
+          "value": {
+            "string": "Option "
+          }
         },
         {
           "type": "CodeInline",
-          "code": "vals"
+          "code": {
+            "string": "vals"
+          }
         },
         {
           "type": "Text",
-          "value": " is only on \"enum\" parameters: "
+          "value": {
+            "string": " is only on \"enum\" parameters: "
+          }
         },
         {
           "type": "Parameter",
@@ -93,7 +113,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -102,7 +124,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options specified as bool: "
+          "value": {
+            "string": "Options specified as bool: "
+          }
         },
         {
           "type": "Parameter",
@@ -114,7 +138,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -123,7 +149,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options specified as integer: "
+          "value": {
+            "string": "Options specified as integer: "
+          }
         },
         {
           "type": "Parameter",
@@ -135,7 +163,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -147,7 +177,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -159,7 +191,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -168,7 +202,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options specified as number: "
+          "value": {
+            "string": "Options specified as number: "
+          }
         },
         {
           "type": "Parameter",
@@ -180,7 +216,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -192,7 +230,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -204,7 +244,9 @@
         },
         {
           "type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "type": "Parameter",
@@ -216,7 +258,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -225,7 +269,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options specified as date: "
+          "value": {
+            "string": "Options specified as date: "
+          }
         },
         {
           "type": "Parameter",
@@ -240,7 +286,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -249,7 +297,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options specified as time: "
+          "value": {
+            "string": "Options specified as time: "
+          }
         },
         {
           "type": "Parameter",
@@ -264,7 +314,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -273,7 +325,9 @@
       "content": [
         {
           "type": "Text",
-          "value": "Options specified as datetime: "
+          "value": {
+            "string": "Options specified as datetime: "
+          }
         },
         {
           "type": "Parameter",
@@ -288,7 +342,9 @@
         },
         {
           "type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

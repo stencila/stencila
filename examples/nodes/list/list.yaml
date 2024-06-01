@@ -3,7 +3,8 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Simple lists
+    value:
+      string: Simple lists
 - type: List
   items:
   - type: ListItem
@@ -11,19 +12,22 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: apple
+        value:
+          string: apple
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: pear
+        value:
+          string: pear
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: orange
+        value:
+          string: orange
   order: Unordered
 - type: List
   items:
@@ -32,24 +36,28 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: first
+        value:
+          string: first
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: second
+        value:
+          string: second
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: third
+        value:
+          string: third
   order: Ascending
 - type: Paragraph
   content:
   - type: Text
-    value: Nested lists
+    value:
+      string: Nested lists
 - type: List
   items:
   - type: ListItem
@@ -57,7 +65,8 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: '1'
+        value:
+          string: '1'
     - type: List
       items:
       - type: ListItem
@@ -65,7 +74,8 @@ content:
         - type: Paragraph
           content:
           - type: Text
-            value: 2a
+            value:
+              string: 2a
         - type: List
           items:
           - type: ListItem
@@ -73,20 +83,23 @@ content:
             - type: Paragraph
               content:
               - type: Text
-                value: 3a
+                value:
+                  string: 3a
           order: Unordered
       - type: ListItem
         content:
         - type: Paragraph
           content:
           - type: Text
-            value: 2b
+            value:
+              string: 2b
       - type: ListItem
         content:
         - type: Paragraph
           content:
           - type: Text
-            value: 2c
+            value:
+              string: 2c
         - type: List
           items:
           - type: ListItem
@@ -94,7 +107,8 @@ content:
             - type: Paragraph
               content:
               - type: Text
-                value: 3b
+                value:
+                  string: 3b
             - type: List
               items:
               - type: ListItem
@@ -102,7 +116,8 @@ content:
                 - type: Paragraph
                   content:
                   - type: Text
-                    value: 4a
+                    value:
+                      string: 4a
               order: Unordered
           order: Unordered
       order: Unordered
@@ -110,7 +125,8 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Lists with check boxes
+    value:
+      string: Lists with check boxes
 - type: List
   items:
   - type: ListItem
@@ -118,21 +134,24 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: first
+        value:
+          string: first
     isChecked: false
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: second
+        value:
+          string: second
     isChecked: true
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: third
+        value:
+          string: third
     isChecked: false
   order: Ascending
 - type: List
@@ -142,27 +161,31 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: done
+        value:
+          string: done
     isChecked: true
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: todo
+        value:
+          string: todo
     isChecked: false
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: still todo
+        value:
+          string: still todo
     isChecked: false
   order: Unordered
 - type: Paragraph
   content:
   - type: Text
-    value: A paragraph to keep the previous and following lists separate (otherwise they get merged).
+    value:
+      string: A paragraph to keep the previous and following lists separate (otherwise they get merged).
 - type: List
   items:
   - type: ListItem
@@ -170,36 +193,43 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: 'an item with an image '
+        value:
+          string: 'an item with an image '
       - type: ImageObject
         contentUrl: image.png
       - type: Text
-        value: ', see!'
+        value:
+          string: ', see!'
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: 'an item with '
+        value:
+          string: 'an item with '
       - type: Emphasis
         content:
         - type: Text
-          value: emphasis
+          value:
+            string: emphasis
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: 'an item with HTML '
+        value:
+          string: 'an item with HTML '
       - type: Underline
         content:
         - type: Text
-          value: underlined
+          value:
+            string: underlined
   order: Unordered
 - type: Paragraph
   content:
   - type: Text
-    value: A list with multiple paragraphs in each item
+    value:
+      string: A list with multiple paragraphs in each item
 - type: List
   items:
   - type: ListItem
@@ -207,36 +237,43 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: para 1a
+        value:
+          string: para 1a
     - type: Paragraph
       content:
       - type: Text
-        value: para 1b
+        value:
+          string: para 1b
     - type: Paragraph
       content:
       - type: Text
-        value: para 1c
+        value:
+          string: para 1c
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: para 2a
+        value:
+          string: para 2a
     - type: Paragraph
       content:
       - type: Text
-        value: para 2b
+        value:
+          string: para 2b
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: para 3
+        value:
+          string: para 3
   order: Unordered
 - type: Paragraph
   content:
   - type: Text
-    value: A list with it, and some of it's items, having authors
+    value:
+      string: A list with it, and some of it's items, having authors
 - type: List
   items:
   - type: ListItem
@@ -244,7 +281,8 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: With two authors
+        value:
+          string: With two authors
       authors:
       - type: Person
         givenNames:
@@ -256,13 +294,15 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: No authors
+        value:
+          string: No authors
   - type: ListItem
     content:
     - type: Paragraph
       content:
       - type: Text
-        value: With three authors
+        value:
+          string: With three authors
       authors:
       - type: Person
         givenNames:

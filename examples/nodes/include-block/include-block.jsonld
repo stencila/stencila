@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An include of a sibling example:"
+          "value": {
+            "string": "An include of a sibling example:"
+          }
         }
       ]
     },
@@ -23,7 +25,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An include of a remote document:"
+          "value": {
+            "string": "An include of a remote document:"
+          }
         }
       ]
     },

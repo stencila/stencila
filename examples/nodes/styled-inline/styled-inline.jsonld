@@ -10,30 +10,42 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A "
+          "value": {
+            "string": "A "
+          }
         },
         {
           "@type": "stencila:StyledInline",
-          "stencila:code": "text-green-600",
+          "stencila:code": {
+            "string": "text-green-600"
+          },
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "styled span"
+              "value": {
+                "string": "styled span"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", and one with language specified: "
+          "value": {
+            "string": ", and one with language specified: "
+          }
         },
         {
           "@type": "stencila:StyledInline",
-          "stencila:code": "color:red",
+          "stencila:code": {
+            "string": "color:red"
+          },
           "stencila:styleLanguage": "css",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "CSS span"
+              "value": {
+                "string": "CSS span"
+              }
             }
           ]
         }
@@ -44,29 +56,41 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Containing other spans "
+          "value": {
+            "string": "Containing other spans "
+          }
         },
         {
           "@type": "stencila:StyledInline",
-          "stencila:code": "text-blue-600",
+          "stencila:code": {
+            "string": "text-blue-600"
+          },
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "blue "
+              "value": {
+                "string": "blue "
+              }
             },
             {
               "@type": "stencila:StyledInline",
-              "stencila:code": "text-red-600",
+              "stencila:code": {
+                "string": "text-red-600"
+              },
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "red"
+                  "value": {
+                    "string": "red"
+                  }
                 }
               ]
             },
             {
               "@type": "Text",
-              "value": " blue"
+              "value": {
+                "string": " blue"
+              }
             }
           ]
         }
@@ -77,15 +101,21 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Containing variable interpolations "
+          "value": {
+            "string": "Containing variable interpolations "
+          }
         },
         {
           "@type": "stencila:StyledInline",
-          "stencila:code": "color: {{var1}}; padding: {{var2}}; margin: $var3",
+          "stencila:code": {
+            "string": "color: {{var1}}; padding: {{var2}}; margin: $var3"
+          },
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "styled"
+              "value": {
+                "string": "styled"
+              }
             }
           ]
         }

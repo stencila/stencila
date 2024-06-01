@@ -1,1 +1,1 @@
-{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: "An inline quote "},{type: "QuoteInline",content: [{type: "Text",value: "Never memorize something that you can look up"}]},{type: "Text",value: "."}]}]}
+{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: { string: "An inline quote " }},{type: "QuoteInline",content: [{type: "Text",value: { string: "Never memorize something that you can look up" }}]},{type: "Text",value: { string: "." }}]}]}

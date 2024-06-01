@@ -10,46 +10,60 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This is "
+          "value": {
+            "string": "This is "
+          }
         },
         {
           "@type": "stencila:Emphasis",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "emphasized"
+              "value": {
+                "string": "emphasized"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", and this is "
+          "value": {
+            "string": ", and this is "
+          }
         },
         {
           "@type": "stencila:Strong",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "strongly emphasized"
+              "value": {
+                "string": "strongly emphasized"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", and this is "
+          "value": {
+            "string": ", and this is "
+          }
         },
         {
           "@type": "stencila:Underline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "underlined"
+              "value": {
+                "string": "underlined"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -58,46 +72,60 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This is "
+          "value": {
+            "string": "This is "
+          }
         },
         {
           "@type": "stencila:Subscript",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "subscripted"
+              "value": {
+                "string": "subscripted"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", and this is "
+          "value": {
+            "string": ", and this is "
+          }
         },
         {
           "@type": "stencila:Superscript",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "superscripted"
+              "value": {
+                "string": "superscripted"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", and this is "
+          "value": {
+            "string": ", and this is "
+          }
         },
         {
           "@type": "stencila:Strikeout",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "struck out"
+              "value": {
+                "string": "struck out"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -106,33 +134,43 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "This paragraph tests escaping within marks. "
+          "value": {
+            "string": "This paragraph tests escaping within marks. "
+          }
         },
         {
           "@type": "stencila:Emphasis",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "_ under_scores _"
+              "value": {
+                "string": "_ under_scores _"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": ", and "
+          "value": {
+            "string": ", and "
+          }
         },
         {
           "@type": "stencila:Strong",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "* aster*isks *"
+              "value": {
+                "string": "* aster*isks *"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

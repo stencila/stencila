@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "Regular table"
+          value: { string: "Regular table" }
         }
       ]
     },
@@ -24,7 +24,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "A"
+                      value: { string: "A" }
                     }
                   ]
                 }
@@ -38,7 +38,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "B"
+                      value: { string: "B" }
                     }
                   ]
                 }
@@ -52,7 +52,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "C"
+                      value: { string: "C" }
                     }
                   ]
                 }
@@ -72,7 +72,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "1"
+                      value: { string: "1" }
                     }
                   ]
                 }
@@ -86,7 +86,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "2"
+                      value: { string: "2" }
                     }
                   ]
                 }
@@ -100,7 +100,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "3"
+                      value: { string: "3" }
                     }
                   ]
                 }
@@ -119,7 +119,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "4"
+                      value: { string: "4" }
                     }
                   ]
                 }
@@ -133,7 +133,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "5"
+                      value: { string: "5" }
                     }
                   ]
                 }
@@ -147,7 +147,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "6"
+                      value: { string: "6" }
                     }
                   ]
                 }
@@ -162,7 +162,7 @@
       content: [
         {
           type: "Text",
-          value: "Table with empty cells"
+          value: { string: "Table with empty cells" }
         }
       ]
     },
@@ -180,7 +180,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "D"
+                      value: { string: "D" }
                     }
                   ]
                 }
@@ -194,7 +194,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "E"
+                      value: { string: "E" }
                     }
                   ]
                 }
@@ -214,7 +214,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "1"
+                      value: { string: "1" }
                     }
                   ]
                 }
@@ -241,7 +241,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "2"
+                      value: { string: "2" }
                     }
                   ]
                 }
@@ -256,7 +256,7 @@
       content: [
         {
           type: "Text",
-          value: "Table with label, caption & notes"
+          value: { string: "Table with label, caption & notes" }
         }
       ]
     },
@@ -270,7 +270,7 @@
           content: [
             {
               type: "Text",
-              value: "The caption."
+              value: { string: "The caption." }
             }
           ]
         }
@@ -287,7 +287,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "A"
+                      value: { string: "A" }
                     }
                   ]
                 }
@@ -301,7 +301,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "B"
+                      value: { string: "B" }
                     }
                   ]
                 }
@@ -321,7 +321,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "1"
+                      value: { string: "1" }
                     }
                   ]
                 }
@@ -335,7 +335,7 @@
                   content: [
                     {
                       type: "Text",
-                      value: "2"
+                      value: { string: "2" }
                     }
                   ]
                 }
@@ -350,7 +350,7 @@
           content: [
             {
               type: "Text",
-              value: "Some notes."
+              value: { string: "Some notes." }
             }
           ]
         }

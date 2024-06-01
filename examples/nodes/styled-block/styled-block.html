@@ -2,7 +2,7 @@
   <p>
     <span>A styled block with two paragraphs:</span>
   </p>
-  <div data-code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
+  <div data-code='{"string":"rounded border border-solid border-blue-200 bg-blue-100 p-2"}'>
     <p>
       <span>Styled paragraph one.</span>
     </p>
@@ -13,7 +13,7 @@
   <p>
     <span>With style language specified:</span>
   </p>
-  <div data-code='color:red' data-style-language='css'>
+  <div data-code='{"string":"color:red"}' data-style-language='css'>
     <p>
       <span>Styled paragraph.</span>
     </p>
@@ -21,11 +21,11 @@
   <p>
     <span>Nested styled blocks:</span>
   </p>
-  <div data-code='bg-red-100 p-2'>
+  <div data-code='{"string":"bg-red-100 p-2"}'>
     <p>
       <span>Outer paragraph.</span>
     </p>
-    <div data-code='bg-blue-100'>
+    <div data-code='{"string":"bg-blue-100"}'>
       <p>
         <span>Inner paragraph.</span>
       </p>
@@ -34,7 +34,7 @@
   <p>
     <span>Containing variable interpolations:</span>
   </p>
-  <div data-code='bg-red-{{var1}} p-$var2 m-$var3'>
+  <div data-code='{"string":"bg-red-{{var1}} p-$var2 m-$var3"}'>
     <p>
       <span>Dynamically styled paragraph.</span>
     </p>

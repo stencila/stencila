@@ -6,72 +6,84 @@ content:
     level: 1
     content:
     - type: Text
-      value: Introduction
+      value:
+        string: Introduction
   - type: Paragraph
     content:
     - type: Text
-      value: Sections will usually start with a header.
+      value:
+        string: Sections will usually start with a header.
 - type: Section
   content:
   - type: Heading
     level: 1
     content:
     - type: Text
-      value: Nested sections
+      value:
+        string: Nested sections
   - type: Section
     content:
     - type: Heading
       level: 2
       content:
       - type: Text
-        value: Inner section
+        value:
+          string: Inner section
     - type: Section
       content:
       - type: Heading
         level: 3
         content:
         - type: Text
-          value: First inner-inner section
+          value:
+            string: First inner-inner section
       - type: Paragraph
         content:
         - type: Text
-          value: This is the first inner-inner section
+          value:
+            string: This is the first inner-inner section
     - type: Section
       content:
       - type: Heading
         level: 3
         content:
         - type: Text
-          value: Second inner-inner section
+          value:
+            string: Second inner-inner section
       - type: Paragraph
         content:
         - type: Text
-          value: This is the second inner-inner section
+          value:
+            string: This is the second inner-inner section
 - type: Section
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This is the header
+      value:
+        string: This is the header
   sectionType: Header
 - type: Section
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This is the introduction
+      value:
+        string: This is the introduction
   sectionType: Introduction
 - type: Section
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This is the conclusion
+      value:
+        string: This is the conclusion
   sectionType: Conclusion
 - type: Section
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This is the footer
+      value:
+        string: This is the footer
   sectionType: Footer

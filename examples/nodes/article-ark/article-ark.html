@@ -7,7 +7,7 @@
     <audio src='https://example.org/cat.mp3' alt='audio' controls>
     </audio>
     <span>,</span>
-    <stencila-code-expression code='code expression'>
+    <stencila-code-expression code='{"string":"code expression"}'>
     </stencila-code-expression>
     <span>,</span>
     <code>inline code</code>
@@ -29,7 +29,7 @@
       <span>link</span>
     </a>
     <span>,</span>
-    <math data-code='inline math'>
+    <math data-code='{"string":"inline math"}'>
     </math>
     <span>,</span>
     <stencila-note note-type='Footnote'>
@@ -47,11 +47,11 @@
     <q>
       <span>inline quote</span>
     </q>
-    <stencila-replace-inline replacement='[{"type":"Text","value":", new"}]'>
+    <stencila-replace-inline replacement='[{"type":"Text","value":{"string":", new"}}]'>
       <span>, old</span>
     </stencila-replace-inline>
     <span>,</span>
-    <span data-code='text-blue-400'>
+    <span data-code='{"string":"text-blue-400"}'>
       <span>styled inline</span>
     </span>
     <span>,</span>
@@ -87,7 +87,7 @@
     </p>
   </stencila-claim>
   <pre>This is a code block</pre>
-  <stencila-code-chunk code='This is a code chunk'>
+  <stencila-code-chunk code='{"string":"This is a code chunk"}'>
   </stencila-code-chunk>
   <stencila-delete-block>
     <p>
@@ -99,7 +99,7 @@
       <span>This is a figure</span>
     </p>
   </figure>
-  <stencila-for-block code='items' variable='item'>
+  <stencila-for-block code='{"string":"items"}' variable='item'>
     <p>
       <span>This is a for block</span>
     </p>
@@ -109,7 +109,7 @@
   </h1>
   <stencila-if-block>
     <div slot='clauses'>
-      <stencila-if-block-clause code='1 &lt; 2'>
+      <stencila-if-block-clause code='{"string":"1 &lt; 2"}'>
         <div slot='content'>
           <p>
             <span>This is an if block</span>
@@ -132,14 +132,14 @@
       </p>
     </li>
   </ul>
-  <math data-code='This is a math block'>
+  <math data-code='{"string":"This is a math block"}'>
   </math>
   <blockquote>
     <p>
       <span>This is a quote block</span>
     </p>
   </blockquote>
-  <stencila-replace-block replacement='[{"type":"Paragraph","content":[{"type":"Text","value":"New paragraph"}]}]'>
+  <stencila-replace-block replacement='[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"New paragraph"}}]}]'>
     <p>
       <span>Old paragraph</span>
     </p>
@@ -149,16 +149,16 @@
       <span>This is a section</span>
     </p>
   </section>
-  <div data-code='text-red-800 bg-indigo-100'>
+  <div data-code='{"string":"text-red-800 bg-indigo-100"}'>
     <p>
       <span>This is a styled block</span>
     </p>
   </div>
   <table>
     <tbody>
-      <tr data-cells='[{"type":"TableCell","content":[{"type":"Paragraph","content":[{"type":"Text","value":"A"}]}]}]' data-row-type='HeaderRow'>
+      <tr data-cells='[{"type":"TableCell","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"A"}}]}]}]' data-row-type='HeaderRow'>
       </tr>
-      <tr data-cells='[{"type":"TableCell","content":[{"type":"Paragraph","content":[{"type":"Text","value":"1"}]}]}]'>
+      <tr data-cells='[{"type":"TableCell","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"1"}}]}]}]'>
       </tr>
     </tbody>
   </table>

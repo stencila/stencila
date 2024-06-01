@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Examples of the parameter type can be inferred from options when using Markdown."
+          "value": {
+            "string": "Examples of the parameter type can be inferred from options when using Markdown."
+          }
         }
       ]
     },
@@ -19,7 +21,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "No options and no type, so no validator: "
+          "value": {
+            "string": "No options and no type, so no validator: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -27,7 +31,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -36,7 +42,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options only found on string parameters: "
+          "value": {
+            "string": "Options only found on string parameters: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -48,7 +56,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -60,7 +70,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -72,7 +84,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -81,15 +95,21 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Option "
+          "value": {
+            "string": "Option "
+          }
         },
         {
           "@type": "stencila:CodeInline",
-          "stencila:code": "vals"
+          "stencila:code": {
+            "string": "vals"
+          }
         },
         {
           "@type": "Text",
-          "value": " is only on \"enum\" parameters: "
+          "value": {
+            "string": " is only on \"enum\" parameters: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -97,7 +117,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -106,7 +128,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options specified as bool: "
+          "value": {
+            "string": "Options specified as bool: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -118,7 +142,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -127,7 +153,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options specified as integer: "
+          "value": {
+            "string": "Options specified as integer: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -139,7 +167,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -151,7 +181,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -163,7 +195,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -172,7 +206,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options specified as number: "
+          "value": {
+            "string": "Options specified as number: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -184,7 +220,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -196,7 +234,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -208,7 +248,9 @@
         },
         {
           "@type": "Text",
-          "value": ", "
+          "value": {
+            "string": ", "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -220,7 +262,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -229,7 +273,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options specified as date: "
+          "value": {
+            "string": "Options specified as date: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -244,7 +290,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -253,7 +301,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options specified as time: "
+          "value": {
+            "string": "Options specified as time: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -268,7 +318,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     },
@@ -277,7 +329,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Options specified as datetime: "
+          "value": {
+            "string": "Options specified as datetime: "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -292,7 +346,9 @@
         },
         {
           "@type": "Text",
-          "value": "."
+          "value": {
+            "string": "."
+          }
         }
       ]
     }

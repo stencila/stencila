@@ -10,26 +10,34 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With no language:"
+          "value": {
+            "string": "With no language:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "No language"
+      "stencila:code": {
+        "string": "No language"
+      }
     },
     {
       "@type": "stencila:Paragraph",
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With language:"
+          "value": {
+            "string": "With language:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "# Some python code\na = 3",
+      "stencila:code": {
+        "string": "# Some python code\na = 3"
+      },
       "programmingLanguage": "python"
     },
     {
@@ -37,14 +45,18 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With language and autoExec:"
+          "value": {
+            "string": "With language and autoExec:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
       "stencila:autoExec": "Always",
-      "stencila:code": "// Javascript",
+      "stencila:code": {
+        "string": "// Javascript"
+      },
       "programmingLanguage": "js"
     },
     {
@@ -52,13 +64,17 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "With label:"
+          "value": {
+            "string": "With label:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "# Chunk 1A",
+      "stencila:code": {
+        "string": "# Chunk 1A"
+      },
       "stencila:label": "1A",
       "stencila:labelAutomatically": false
     },
@@ -67,13 +83,17 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Code figure with caption:"
+          "value": {
+            "string": "Code figure with caption:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "plot(y~x)",
+      "stencila:code": {
+        "string": "plot(y~x)"
+      },
       "programmingLanguage": "r",
       "stencila:labelType": "FigureLabel",
       "stencila:label": "1",
@@ -84,7 +104,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Y against X."
+              "value": {
+                "string": "Y against X."
+              }
             }
           ]
         }
@@ -95,13 +117,17 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Code table with caption:"
+          "value": {
+            "string": "Code table with caption:"
+          }
         }
       ]
     },
     {
       "@type": "stencila:CodeChunk",
-      "stencila:code": "head(mtcars)",
+      "stencila:code": {
+        "string": "head(mtcars)"
+      },
       "programmingLanguage": "r",
       "stencila:labelType": "TableLabel",
       "stencila:label": "1",
@@ -112,7 +138,9 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Some cars."
+              "value": {
+                "string": "Some cars."
+              }
             }
           ]
         }

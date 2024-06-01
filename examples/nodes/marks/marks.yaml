@@ -3,60 +3,79 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'This is '
+    value:
+      string: 'This is '
   - type: Emphasis
     content:
     - type: Text
-      value: emphasized
+      value:
+        string: emphasized
   - type: Text
-    value: ', and this is '
+    value:
+      string: ', and this is '
   - type: Strong
     content:
     - type: Text
-      value: strongly emphasized
+      value:
+        string: strongly emphasized
   - type: Text
-    value: ', and this is '
+    value:
+      string: ', and this is '
   - type: Underline
     content:
     - type: Text
-      value: underlined
+      value:
+        string: underlined
   - type: Text
-    value: .
+    value:
+      string: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'This is '
+    value:
+      string: 'This is '
   - type: Subscript
     content:
     - type: Text
-      value: subscripted
+      value:
+        string: subscripted
   - type: Text
-    value: ', and this is '
+    value:
+      string: ', and this is '
   - type: Superscript
     content:
     - type: Text
-      value: superscripted
+      value:
+        string: superscripted
   - type: Text
-    value: ', and this is '
+    value:
+      string: ', and this is '
   - type: Strikeout
     content:
     - type: Text
-      value: struck out
+      value:
+        string: struck out
   - type: Text
-    value: .
+    value:
+      string: .
 - type: Paragraph
   content:
   - type: Text
-    value: 'This paragraph tests escaping within marks. '
+    value:
+      string: 'This paragraph tests escaping within marks. '
   - type: Emphasis
     content:
     - type: Text
-      value: _ under_scores _
+      value:
+        string: _ under_scores _
   - type: Text
-    value: ', and '
+    value:
+      string: ', and '
   - type: Strong
     content:
     - type: Text
-      value: '* aster*isks *'
+      value:
+        string: '* aster*isks *'
   - type: Text
-    value: .
+    value:
+      string: .

@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A boolean parameter "
+          "value": {
+            "string": "A boolean parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -21,7 +23,9 @@
         },
         {
           "@type": "Text",
-          "value": ", with a default "
+          "value": {
+            "string": ", with a default "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -33,7 +37,9 @@
         },
         {
           "@type": "Text",
-          "value": ", with a default and value "
+          "value": {
+            "string": ", with a default and value "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -51,7 +57,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An integer parameter "
+          "value": {
+            "string": "An integer parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -62,7 +70,9 @@
         },
         {
           "@type": "Text",
-          "value": ", with a default "
+          "value": {
+            "string": ", with a default "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -74,7 +84,9 @@
         },
         {
           "@type": "Text",
-          "value": ", with a default and value "
+          "value": {
+            "string": ", with a default and value "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -87,7 +99,9 @@
         },
         {
           "@type": "Text",
-          "value": ", with min, max and mult options "
+          "value": {
+            "string": ", with min, max and mult options "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -108,7 +122,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A number parameter "
+          "value": {
+            "string": "A number parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -131,7 +147,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A string parameter "
+          "value": {
+            "string": "A string parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -147,7 +165,9 @@
         },
         {
           "@type": "Text",
-          "value": " with quotes in properties "
+          "value": {
+            "string": " with quotes in properties "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -166,7 +186,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A date parameter "
+          "value": {
+            "string": "A date parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -192,7 +214,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A time parameter "
+          "value": {
+            "string": "A time parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -218,7 +242,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A date-time parameter "
+          "value": {
+            "string": "A date-time parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",
@@ -244,7 +270,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "An enum parameter "
+          "value": {
+            "string": "An enum parameter "
+          }
         },
         {
           "@type": "stencila:Parameter",

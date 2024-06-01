@@ -10,26 +10,34 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Some "
+          "value": {
+            "string": "Some "
+          }
         },
         {
           "@type": "stencila:ReplaceInline",
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "old"
+              "value": {
+                "string": "old"
+              }
             }
           ],
           "stencila:replacement": [
             {
               "@type": "Text",
-              "value": "new"
+              "value": {
+                "string": "new"
+              }
             }
           ]
         },
         {
           "@type": "Text",
-          "value": " text."
+          "value": {
+            "string": " text."
+          }
         }
       ]
     }

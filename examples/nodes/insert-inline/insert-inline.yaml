@@ -3,32 +3,42 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: 'Some '
+    value:
+      string: 'Some '
   - type: InsertInline
     content:
     - type: Text
-      value: 'inserted '
+      value:
+        string: 'inserted '
   - type: Text
-    value: text.
+    value:
+      string: text.
 - type: Paragraph
   content:
   - type: Text
-    value: Several inserted inlines
+    value:
+      string: Several inserted inlines
   - type: InsertInline
     content:
     - type: Strong
       content:
       - type: Text
-        value: strongly emphasized
+        value:
+          string: strongly emphasized
     - type: Text
-      value: ' and '
+      value:
+        string: ' and '
     - type: Superscript
       content:
       - type: Text
-        value: superscripted
+        value:
+          string: superscripted
     - type: Text
-      value: ' and '
+      value:
+        string: ' and '
     - type: CodeExpression
-      code: 2 + 2
+      code:
+        string: 2 + 2
   - type: Text
-    value: .
+    value:
+      string: .

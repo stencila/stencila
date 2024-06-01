@@ -10,7 +10,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Simple lists"
+          "value": {
+            "string": "Simple lists"
+          }
         }
       ]
     },
@@ -25,7 +27,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "apple"
+                  "value": {
+                    "string": "apple"
+                  }
                 }
               ]
             }
@@ -39,7 +43,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "pear"
+                  "value": {
+                    "string": "pear"
+                  }
                 }
               ]
             }
@@ -53,7 +59,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "orange"
+                  "value": {
+                    "string": "orange"
+                  }
                 }
               ]
             }
@@ -73,7 +81,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "first"
+                  "value": {
+                    "string": "first"
+                  }
                 }
               ]
             }
@@ -87,7 +97,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "second"
+                  "value": {
+                    "string": "second"
+                  }
                 }
               ]
             }
@@ -101,7 +113,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "third"
+                  "value": {
+                    "string": "third"
+                  }
                 }
               ]
             }
@@ -115,7 +129,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Nested lists"
+          "value": {
+            "string": "Nested lists"
+          }
         }
       ]
     },
@@ -130,7 +146,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "1"
+                  "value": {
+                    "string": "1"
+                  }
                 }
               ]
             },
@@ -145,7 +163,9 @@
                       "stencila:content": [
                         {
                           "@type": "Text",
-                          "value": "2a"
+                          "value": {
+                            "string": "2a"
+                          }
                         }
                       ]
                     },
@@ -160,7 +180,9 @@
                               "stencila:content": [
                                 {
                                   "@type": "Text",
-                                  "value": "3a"
+                                  "value": {
+                                    "string": "3a"
+                                  }
                                 }
                               ]
                             }
@@ -179,7 +201,9 @@
                       "stencila:content": [
                         {
                           "@type": "Text",
-                          "value": "2b"
+                          "value": {
+                            "string": "2b"
+                          }
                         }
                       ]
                     }
@@ -193,7 +217,9 @@
                       "stencila:content": [
                         {
                           "@type": "Text",
-                          "value": "2c"
+                          "value": {
+                            "string": "2c"
+                          }
                         }
                       ]
                     },
@@ -208,7 +234,9 @@
                               "stencila:content": [
                                 {
                                   "@type": "Text",
-                                  "value": "3b"
+                                  "value": {
+                                    "string": "3b"
+                                  }
                                 }
                               ]
                             },
@@ -223,7 +251,9 @@
                                       "stencila:content": [
                                         {
                                           "@type": "Text",
-                                          "value": "4a"
+                                          "value": {
+                                            "string": "4a"
+                                          }
                                         }
                                       ]
                                     }
@@ -252,7 +282,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Lists with check boxes"
+          "value": {
+            "string": "Lists with check boxes"
+          }
         }
       ]
     },
@@ -267,7 +299,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "first"
+                  "value": {
+                    "string": "first"
+                  }
                 }
               ]
             }
@@ -282,7 +316,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "second"
+                  "value": {
+                    "string": "second"
+                  }
                 }
               ]
             }
@@ -297,7 +333,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "third"
+                  "value": {
+                    "string": "third"
+                  }
                 }
               ]
             }
@@ -318,7 +356,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "done"
+                  "value": {
+                    "string": "done"
+                  }
                 }
               ]
             }
@@ -333,7 +373,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "todo"
+                  "value": {
+                    "string": "todo"
+                  }
                 }
               ]
             }
@@ -348,7 +390,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "still todo"
+                  "value": {
+                    "string": "still todo"
+                  }
                 }
               ]
             }
@@ -363,7 +407,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A paragraph to keep the previous and following lists separate (otherwise they get merged)."
+          "value": {
+            "string": "A paragraph to keep the previous and following lists separate (otherwise they get merged)."
+          }
         }
       ]
     },
@@ -378,7 +424,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "an item with an image "
+                  "value": {
+                    "string": "an item with an image "
+                  }
                 },
                 {
                   "@type": "ImageObject",
@@ -386,7 +434,9 @@
                 },
                 {
                   "@type": "Text",
-                  "value": ", see!"
+                  "value": {
+                    "string": ", see!"
+                  }
                 }
               ]
             }
@@ -400,14 +450,18 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "an item with "
+                  "value": {
+                    "string": "an item with "
+                  }
                 },
                 {
                   "@type": "stencila:Emphasis",
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "emphasis"
+                      "value": {
+                        "string": "emphasis"
+                      }
                     }
                   ]
                 }
@@ -423,14 +477,18 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "an item with HTML "
+                  "value": {
+                    "string": "an item with HTML "
+                  }
                 },
                 {
                   "@type": "stencila:Underline",
                   "stencila:content": [
                     {
                       "@type": "Text",
-                      "value": "underlined"
+                      "value": {
+                        "string": "underlined"
+                      }
                     }
                   ]
                 }
@@ -446,7 +504,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A list with multiple paragraphs in each item"
+          "value": {
+            "string": "A list with multiple paragraphs in each item"
+          }
         }
       ]
     },
@@ -461,7 +521,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "para 1a"
+                  "value": {
+                    "string": "para 1a"
+                  }
                 }
               ]
             },
@@ -470,7 +532,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "para 1b"
+                  "value": {
+                    "string": "para 1b"
+                  }
                 }
               ]
             },
@@ -479,7 +543,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "para 1c"
+                  "value": {
+                    "string": "para 1c"
+                  }
                 }
               ]
             }
@@ -493,7 +559,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "para 2a"
+                  "value": {
+                    "string": "para 2a"
+                  }
                 }
               ]
             },
@@ -502,7 +570,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "para 2b"
+                  "value": {
+                    "string": "para 2b"
+                  }
                 }
               ]
             }
@@ -516,7 +586,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "para 3"
+                  "value": {
+                    "string": "para 3"
+                  }
                 }
               ]
             }
@@ -530,7 +602,9 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "A list with it, and some of it's items, having authors"
+          "value": {
+            "string": "A list with it, and some of it's items, having authors"
+          }
         }
       ]
     },
@@ -545,7 +619,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "With two authors"
+                  "value": {
+                    "string": "With two authors"
+                  }
                 }
               ],
               "author": [
@@ -571,7 +647,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "No authors"
+                  "value": {
+                    "string": "No authors"
+                  }
                 }
               ]
             }
@@ -585,7 +663,9 @@
               "stencila:content": [
                 {
                   "@type": "Text",
-                  "value": "With three authors"
+                  "value": {
+                    "string": "With three authors"
+                  }
                 }
               ],
               "author": [

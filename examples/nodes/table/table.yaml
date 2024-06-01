@@ -3,7 +3,8 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Regular table
+    value:
+      string: Regular table
 - type: Table
   rows:
   - type: TableRow
@@ -13,19 +14,22 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: A
+          value:
+            string: A
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: B
+          value:
+            string: B
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: C
+          value:
+            string: C
     rowType: HeaderRow
   - type: TableRow
     cells:
@@ -34,19 +38,22 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: '1'
+          value:
+            string: '1'
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: '2'
+          value:
+            string: '2'
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: '3'
+          value:
+            string: '3'
   - type: TableRow
     cells:
     - type: TableCell
@@ -54,23 +61,27 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: '4'
+          value:
+            string: '4'
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: '5'
+          value:
+            string: '5'
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: '6'
+          value:
+            string: '6'
 - type: Paragraph
   content:
   - type: Text
-    value: Table with empty cells
+    value:
+      string: Table with empty cells
 - type: Table
   rows:
   - type: TableRow
@@ -80,13 +91,15 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: D
+          value:
+            string: D
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: E
+          value:
+            string: E
     rowType: HeaderRow
   - type: TableRow
     cells:
@@ -95,7 +108,8 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: '1'
+          value:
+            string: '1'
     - type: TableCell
       content: []
   - type: TableRow
@@ -107,11 +121,13 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: '2'
+          value:
+            string: '2'
 - type: Paragraph
   content:
   - type: Text
-    value: Table with label, caption & notes
+    value:
+      string: Table with label, caption & notes
 - type: Table
   label: '3'
   labelAutomatically: false
@@ -119,7 +135,8 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: The caption.
+      value:
+        string: The caption.
   rows:
   - type: TableRow
     cells:
@@ -128,13 +145,15 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: A
+          value:
+            string: A
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: B
+          value:
+            string: B
     rowType: HeaderRow
   - type: TableRow
     cells:
@@ -143,15 +162,18 @@ content:
       - type: Paragraph
         content:
         - type: Text
-          value: '1'
+          value:
+            string: '1'
     - type: TableCell
       content:
       - type: Paragraph
         content:
         - type: Text
-          value: '2'
+          value:
+            string: '2'
   notes:
   - type: Paragraph
     content:
     - type: Text
-      value: Some notes.
+      value:
+        string: Some notes.

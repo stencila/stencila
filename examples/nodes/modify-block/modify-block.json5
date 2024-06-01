@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: "The following code chunk has a suggested modifications."
+          value: { string: "The following code chunk has a suggested modifications." }
         }
       ]
     },
@@ -15,7 +15,7 @@
       content: [
         {
           type: "CodeChunk",
-          code: "# Some code",
+          code: { string: "# Some code" },
           programmingLanguage: "python"
         }
       ],
