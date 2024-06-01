@@ -12,6 +12,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila compile`↴](#stencila-compile)
 * [`stencila execute`↴](#stencila-execute)
+* [`stencila render`↴](#stencila-render)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila assistants list`↴](#stencila-assistants-list)
@@ -54,6 +55,7 @@ CLI subcommands and global options
 * `convert` — Convert a document between formats
 * `compile` — Compile a document
 * `execute` — Execute a document
+* `render` — Render a document
 * `serve` — Serve
 * `assistants` — Manage assistants
 * `kernels` — Manage execution kernels
@@ -179,6 +181,10 @@ Export a document to a file in another format
 
   Possible values: `true`, `false`
 
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
+
+  Possible values: `true`, `false`
+
 * `-c`, `--compact` — Use compact form of encoding if possible
 
   Possible values: `true`, `false`
@@ -234,6 +240,10 @@ Synchronize a document with one of more other files in other formats
   Possible values: `true`, `false`
 
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
 
   Possible values: `true`, `false`
 
@@ -299,6 +309,10 @@ Convert a document between formats
 
   Possible values: `true`, `false`
 
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
+
+  Possible values: `true`, `false`
+
 * `-c`, `--compact` — Use compact form of encoding if possible
 
   Possible values: `true`, `false`
@@ -346,6 +360,48 @@ Compile a document
 ###### **Options:**
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
+* `--standalone` — Encode as a standalone document
+
+  Possible values: `true`, `false`
+
+* `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
+
+  Possible values: `true`, `false`
+
+* `-c`, `--compact` — Use compact form of encoding if possible
+
+  Possible values: `true`, `false`
+
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+  Possible values: `true`, `false`
+
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
 
 
@@ -391,6 +447,137 @@ Execute a document
 
   Possible values: `true`, `false`
 
+* `--standalone` — Encode as a standalone document
+
+  Possible values: `true`, `false`
+
+* `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
+
+  Possible values: `true`, `false`
+
+* `-c`, `--compact` — Use compact form of encoding if possible
+
+  Possible values: `true`, `false`
+
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+  Possible values: `true`, `false`
+
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+
+
+## `stencila render`
+
+Render a document
+
+Equivalent to the `execute` command with the `--render` flag.
+
+**Usage:** `stencila render [OPTIONS] <INPUT> [OUTPUT]`
+
+###### **Arguments:**
+
+* `<INPUT>` — The path of the file to render
+* `<OUTPUT>` — The path of the file to write the rendered document to
+
+###### **Options:**
+
+* `-t`, `--to <TO>` — The format to encode to (or codec to use)
+* `--force-all` — Re-execute all node types regardless of current state
+
+  Possible values: `true`, `false`
+
+* `--skip-code` — Skip executing code
+
+  Possible values: `true`, `false`
+
+* `--skip-instructions` — Skip executing instructions
+
+  Possible values: `true`, `false`
+
+* `--force-unreviewed` — Re-execute instructions with suggestions that have not yet been reviewed
+
+  Possible values: `true`, `false`
+
+* `--force-accepted` — Re-execute instructions with suggestions that have been accepted
+
+  Possible values: `true`, `false`
+
+* `--skip-rejected` — Skip re-executing instructions with suggestions that have been rejected
+
+  Possible values: `true`, `false`
+
+* `--dry-run` — Prepare, but do not actually perform, execution tasks
+
+  Possible values: `true`, `false`
+
+* `--standalone` — Encode as a standalone document
+
+  Possible values: `true`, `false`
+
+* `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
+
+  Possible values: `true`, `false`
+
+* `-c`, `--compact` — Use compact form of encoding if possible
+
+  Possible values: `true`, `false`
+
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+  Possible values: `true`, `false`
+
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
 
 

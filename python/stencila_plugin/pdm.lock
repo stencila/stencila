@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:94b0471ed452f3436375126d5c7eb96811f376740644d38279191bd84ee4babd"
+content_hash = "sha256:a2c8654db1cbcabc57a23a1c741850ee161ee0536dd6e62fc89ccb108473d4f9"
 
 [[package]]
 name = "aiohttp"
@@ -755,7 +755,7 @@ files = [
 
 [[package]]
 name = "stencila-types"
-version = "2.0.0a30"
+version = "2.0.0a31"
 requires_python = ">=3.10"
 summary = "Python types for Stencila"
 groups = ["default"]
@@ -765,8 +765,8 @@ dependencies = [
     "strenum>=0.4.15; python_version < \"3.11\"",
 ]
 files = [
-    {file = "stencila_types-2.0.0a30-py3-none-any.whl", hash = "sha256:cf2ae38eef4d7e8184dce7919a973d76140c95247906384c518aaadfbff12a1e"},
-    {file = "stencila_types-2.0.0a30.tar.gz", hash = "sha256:6fb27d5292ee64c43a2db8d21298e153998a7d9e4187628db64b1f3f546e4494"},
+    {file = "stencila_types-2.0.0a31-py3-none-any.whl", hash = "sha256:e927258a71e4b51c77f831d550d354c5f5f97efc3558c2c9676818dbf0b80bef"},
+    {file = "stencila_types-2.0.0a31.tar.gz", hash = "sha256:60fb410ccf246b25200be25c1030cb1ac9d1b692a64ec08b6e22c5db5c6b7b82"},
 ]
 
 [[package]]
