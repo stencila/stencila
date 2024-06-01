@@ -70,13 +70,15 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: "An insert instruction with an assignee:"
+          value:
+            string: "An insert instruction with an assignee:"
     - type: InstructionBlock
       messages:
         - type: InstructionMessage
           parts:
             - type: Text
-              value: "top five highest mountains, with height in feet"
+              value:
+                string: "top five highest mountains, with height in feet"
       assignee: insert-table
 merged:
   type: Article

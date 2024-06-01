@@ -103,23 +103,27 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: "The area of a cube is: "
+          value:
+            string: "The area of a cube is: "
         - type: InstructionInline
           messages:
             - type: InstructionMessage
               parts:
                 - type: Text
-                  value: equation for surface area of cube
+                  value:
+                    string: equation for surface area of cube
           assignee: insert-inline-math
         - type: Text
-          value: "."
+          value:
+            string: "."
         - type: Note
           noteType: Footnote
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: according to OpenAI.
+                  value:
+                    string: according to OpenAI.
 merged:
   type: Article
   authors:

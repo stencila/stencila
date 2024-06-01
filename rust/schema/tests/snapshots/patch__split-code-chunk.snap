@@ -42,14 +42,17 @@ new:
   type: Article
   content:
     - type: CodeChunk
-      code: "1\n2\n3"
+      code:
+        string: "1\n2\n3"
       programmingLanguage: python
     - type: Paragraph
       content:
         - type: Text
-          value: para
+          value:
+            string: para
     - type: CodeChunk
-      code: "4"
+      code:
+        string: "4"
       programmingLanguage: python
 merged:
   type: Article
@@ -148,9 +151,11 @@ ops:
         - type: Paragraph
           content:
             - type: Text
-              value: para
+              value:
+                string: para
         - type: CodeChunk
-          code: "4"
+          code:
+            string: "4"
           programmingLanguage: python
   - - - content
       - 0

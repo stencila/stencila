@@ -144,30 +144,36 @@ new:
           level: 1
           content:
             - type: Text
-              value: Header 1
+              value:
+                string: Header 1
         - type: Paragraph
           content:
             - type: Text
-              value: Text.
+              value:
+                string: Text.
         - type: Paragraph
           content:
             - type: Text
-              value: More text.
+              value:
+                string: More text.
         - type: Section
           content:
             - type: Heading
               level: 2
               content:
                 - type: Text
-                  value: Sub section
+                  value:
+                    string: Sub section
             - type: Paragraph
               content:
                 - type: Text
-                  value: This is in the sub section.
+                  value:
+                    string: This is in the sub section.
         - type: Paragraph
           content:
             - type: Text
-              value: End text.
+              value:
+                string: End text.
 merged:
   type: Article
   authors:
@@ -366,9 +372,11 @@ ops:
           - type: Paragraph
             content:
               - type: Text
-                value: More text.
+                value:
+                  string: More text.
         - - 4
           - type: Paragraph
             content:
               - type: Text
-                value: End text.
+                value:
+                  string: End text.

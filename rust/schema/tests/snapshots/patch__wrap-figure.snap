@@ -70,7 +70,8 @@ new:
         - type: Paragraph
           content:
             - type: Text
-              value: Caption.
+              value:
+                string: Caption.
 merged:
   type: Article
   authors:
@@ -164,4 +165,5 @@ ops:
               - type: Paragraph
                 content:
                   - type: Text
-                    value: Caption.
+                    value:
+                      string: Caption.

@@ -45,11 +45,13 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: "grass "
+          value:
+            string: "grass "
         - type: Emphasis
           content:
             - type: Text
-              value: rabbit
+              value:
+                string: rabbit
 merged:
   type: Article
   authors:
@@ -117,7 +119,8 @@ ops:
         type: Emphasis
         content:
           - type: Text
-            value: rabbit
+            value:
+              string: rabbit
   - - - content
       - 0
       - content

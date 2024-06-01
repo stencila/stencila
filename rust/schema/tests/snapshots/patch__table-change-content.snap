@@ -203,19 +203,22 @@ new:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Country
+                      value:
+                        string: Country
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Capital
+                      value:
+                        string: Capital
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Population (millions)
+                      value:
+                        string: Population (millions)
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -224,19 +227,22 @@ new:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: USA
+                      value:
+                        string: USA
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: DC
+                      value:
+                        string: DC
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "329"
+                      value:
+                        string: "329"
         - type: TableRow
           cells:
             - type: TableCell
@@ -244,19 +250,22 @@ new:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Canada
+                      value:
+                        string: Canada
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Ottawa
+                      value:
+                        string: Ottawa
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "38"
+                      value:
+                        string: "38"
 merged:
   type: Article
   authors:

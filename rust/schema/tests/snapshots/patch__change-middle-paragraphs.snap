@@ -111,19 +111,23 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: para1
+          value:
+            string: para1
     - type: Paragraph
       content:
         - type: Text
-          value: para2two
+          value:
+            string: para2two
     - type: Paragraph
       content:
         - type: Text
-          value: para3three
+          value:
+            string: para3three
     - type: Paragraph
       content:
         - type: Text
-          value: para4
+          value:
+            string: para4
 merged:
   type: Article
   authors:

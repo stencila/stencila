@@ -88,19 +88,23 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: "The area of a cube is: "
+          value:
+            string: "The area of a cube is: "
         - type: InstructionInline
           messages:
             - type: InstructionMessage
               parts:
                 - type: Text
-                  value: insert equation for surface area of cube
+                  value:
+                    string: insert equation for surface area of cube
         - type: Text
-          value: ".\nFollowed by "
+          value:
+            string: ".\nFollowed by "
         - type: Emphasis
           content:
             - type: Text
-              value: text.
+              value:
+                string: text.
 merged:
   type: Article
   authors:

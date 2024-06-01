@@ -72,12 +72,14 @@ new:
         - type: InstructionMessage
           parts:
             - type: Text
-              value: more succinct
+              value:
+                string: more succinct
       content:
         - type: Paragraph
           content:
             - type: Text
-              value: A rather long winded paragraph that goes on and on.
+              value:
+                string: A rather long winded paragraph that goes on and on.
 merged:
   type: Article
   authors:

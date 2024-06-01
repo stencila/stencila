@@ -70,16 +70,19 @@ new:
       admonitionType: Tip
       title:
         - type: Text
-          value: This is a tip.
+          value:
+            string: This is a tip.
       content:
         - type: Paragraph
           content:
             - type: Text
-              value: Some interesting text.
+              value:
+                string: Some interesting text.
         - type: Paragraph
           content:
             - type: Text
-              value: And more.
+              value:
+                string: And more.
 merged:
   type: Article
   authors:
@@ -183,4 +186,5 @@ ops:
         type: Paragraph
         content:
           - type: Text
-            value: And more.
+            value:
+              string: And more.

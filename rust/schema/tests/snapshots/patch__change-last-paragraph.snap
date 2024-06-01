@@ -89,15 +89,18 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: para1
+          value:
+            string: para1
     - type: Paragraph
       content:
         - type: Text
-          value: para2
+          value:
+            string: para2
     - type: Paragraph
       content:
         - type: Text
-          value: para3delta
+          value:
+            string: para3delta
 merged:
   type: Article
   authors:

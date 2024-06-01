@@ -203,19 +203,22 @@ new:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Age
+                      value:
+                        string: Age
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Name
+                      value:
+                        string: Name
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Occupation
+                      value:
+                        string: Occupation
           rowType: HeaderRow
         - type: TableRow
           cells:
@@ -224,19 +227,22 @@ new:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "30"
+                      value:
+                        string: "30"
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Alice
+                      value:
+                        string: Alice
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Developer
+                      value:
+                        string: Developer
         - type: TableRow
           cells:
             - type: TableCell
@@ -244,19 +250,22 @@ new:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: "25"
+                      value:
+                        string: "25"
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Bob
+                      value:
+                        string: Bob
             - type: TableCell
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: Designer
+                      value:
+                        string: Designer
 merged:
   type: Article
   authors:

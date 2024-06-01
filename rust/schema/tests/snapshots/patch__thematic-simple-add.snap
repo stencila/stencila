@@ -67,12 +67,14 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: This is something.
+          value:
+            string: This is something.
     - type: ThematicBreak
     - type: Paragraph
       content:
         - type: Text
-          value: And something else.
+          value:
+            string: And something else.
 merged:
   type: Article
   authors:

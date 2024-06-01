@@ -151,31 +151,37 @@ new:
             - type: Paragraph
               content:
                 - type: Text
-                  value: "an item with "
+                  value:
+                    string: "an item with "
                 - type: Emphasis
                   content:
                     - type: Text
-                      value: emphasis
+                      value:
+                        string: emphasis
         - type: ListItem
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: "an item with an image "
+                  value:
+                    string: "an item with an image "
                 - type: ImageObject
                   contentUrl: image.png
                 - type: Text
-                  value: ", see!"
+                  value:
+                    string: ", see!"
         - type: ListItem
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: "an item with HTML "
+                  value:
+                    string: "an item with HTML "
                 - type: Underline
                   content:
                     - type: Text
-                      value: underlined
+                      value:
+                        string: underlined
       order: Unordered
 merged:
   type: Article

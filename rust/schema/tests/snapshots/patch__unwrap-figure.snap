@@ -78,7 +78,8 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: Caption.
+          value:
+            string: Caption.
     - type: Paragraph
       content:
         - type: ImageObject
@@ -157,4 +158,5 @@ ops:
           - type: Paragraph
             content:
               - type: Text
-                value: Caption.
+                value:
+                  string: Caption.

@@ -1,14 +1,11 @@
-use std::{fmt, ops::Range};
+use std::ops::Range;
 
-use common::serde::{
-    de::{self, MapAccess, Visitor as SerdeVisitor},
-    ser::SerializeStruct,
-    Deserialize, Deserializer, Serialize, Serializer,
-};
+use common::serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::prelude::*;
 
-#[derive(Debug, Default, Clone, Deref, DerefMut)]
+#[derive(Debug, Default, Clone, Deref, DerefMut, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Cord {
     /// The string value of the cord
     #[deref]
@@ -16,11 +13,12 @@ pub struct Cord {
     pub string: String,
 
     /// The runs of authorship in the cord
-    pub runs: Vec<CordRun>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub authorship: Vec<CordAuthorship>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CordRun {
+pub struct CordAuthorship {
     /// A count of all authors of the run
     pub count: u8,
 
@@ -32,20 +30,13 @@ pub struct CordRun {
     pub authors: u64,
 
     /// The provenance byte
-    ///
-    /// 0 = 100% human written ie. no machine influence
-    /// 1 = human written, machine edited once
-    /// 2 = human written, machine edited twice
-    /// ...
-    /// 254 = machine written, human edited once
-    /// 255 = 100% machine written i.e. no human influence
     pub provenance: u8,
 
     /// The number of characters (Unicode code points) in the run
     pub length: u32,
 }
 
-impl CordRun {
+impl CordAuthorship {
     pub fn new(count: u8, authors: u64, provenance: u8, length: u32) -> Self {
         Self {
             count,
@@ -78,7 +69,7 @@ where
     fn from(value: S) -> Self {
         Self {
             string: value.as_ref().to_string(),
-            runs: Vec::new(),
+            authorship: Vec::new(),
         }
     }
 }
@@ -89,81 +80,39 @@ impl From<Cord> for String {
     }
 }
 
-impl Serialize for Cord {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        if self.runs.is_empty() {
-            // Serialize just the string if authorship is empty
-            serializer.serialize_str(&self.string)
-        } else {
-            // Otherwise, serialize as an object with both fields
-            let mut state = serializer.serialize_struct("Cord", 2)?;
-            state.serialize_field("string", &self.string)?;
-            state.serialize_field("authorship", &self.runs)?;
-            state.end()
-        }
-    }
-}
-
-struct CordVisitor;
-
-impl<'de> SerdeVisitor<'de> for CordVisitor {
-    type Value = Cord;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("string or map with a string and authorship")
-    }
-
-    // Deserialize Cord from a simple string
-    fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
-        Ok(Cord {
-            string: value.to_owned(),
-            runs: Vec::new(),
-        })
-    }
-
-    // Deserialize Cord from a map
-    fn visit_map<M: MapAccess<'de>>(self, mut map: M) -> Result<Self::Value, M::Error> {
-        let mut string = None;
-        let mut authorship = None;
-
-        while let Some(key) = map.next_key()? {
-            match key {
-                "string" => {
-                    if string.is_some() {
-                        return Err(de::Error::duplicate_field("string"));
-                    }
-                    string = Some(map.next_value()?);
-                }
-                "authorship" => {
-                    if authorship.is_some() {
-                        return Err(de::Error::duplicate_field("authorship"));
-                    }
-                    authorship = Some(map.next_value()?);
-                }
-                _ => return Err(de::Error::unknown_field(key, &["string", "authorship"])),
-            }
-        }
-
-        let string = string.ok_or_else(|| de::Error::missing_field("string"))?;
-        let authorship = authorship.unwrap_or_default();
-
-        Ok(Cord {
-            string,
-            runs: authorship,
-        })
-    }
-}
-
 impl<'de> Deserialize<'de> for Cord {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        deserializer.deserialize_any(CordVisitor)
+        #[derive(Deserialize)]
+        #[serde(crate = "common::serde")]
+        struct Map {
+            string: String,
+            #[serde(default)]
+            authorship: Vec<CordAuthorship>,
+        }
+
+        #[derive(Deserialize)]
+        #[serde(untagged, crate = "common::serde")]
+        enum StringOrMap {
+            String(String),
+            Map(Map),
+        }
+
+        let cord = match StringOrMap::deserialize(deserializer)? {
+            StringOrMap::String(string) => Cord {
+                string,
+                ..Default::default()
+            },
+            StringOrMap::Map(map) => Cord {
+                string: map.string,
+                authorship: map.authorship,
+            },
+        };
+
+        Ok(cord)
     }
 }
 
-impl Serialize for CordRun {
+impl Serialize for CordAuthorship {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -172,11 +121,11 @@ impl Serialize for CordRun {
     }
 }
 
-impl<'de> Deserialize<'de> for CordRun {
+impl<'de> Deserialize<'de> for CordAuthorship {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         type Tuple = (u8, u64, u8, u32);
         let tuple = Tuple::deserialize(deserializer)?;
-        Ok(CordRun::from_tuple(tuple))
+        Ok(CordAuthorship::from_tuple(tuple))
     }
 }
 

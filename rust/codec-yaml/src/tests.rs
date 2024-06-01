@@ -30,7 +30,8 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Hello world
+    value:
+      string: Hello world
 "#
     );
 

@@ -89,22 +89,26 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: Some okay text.
+          value:
+            string: Some okay text.
     - type: InstructionBlock
       messages:
         - type: InstructionMessage
           parts:
             - type: Text
-              value: more succinct
+              value:
+                string: more succinct
       content:
         - type: Paragraph
           content:
             - type: Text
-              value: A rather long winded paragraph.
+              value:
+                string: A rather long winded paragraph.
     - type: Paragraph
       content:
         - type: Text
-          value: A great conclusion.
+          value:
+            string: A great conclusion.
 merged:
   type: Article
   authors:
@@ -226,9 +230,11 @@ ops:
               - type: InstructionMessage
                 parts:
                   - type: Text
-                    value: more succinct
+                    value:
+                      string: more succinct
             content:
               - type: Paragraph
                 content:
                   - type: Text
-                    value: A rather long winded paragraph.
+                    value:
+                      string: A rather long winded paragraph.

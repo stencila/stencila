@@ -25,7 +25,7 @@ async fn escaping_unicode_2028_and_2029() -> Result<()> {
         .await?;
     assert_eq!(
         json5,
-        r#"{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: "\u2028"}]}]}"#
+        r#"{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: { string: "\u2028" }}]}]}"#
     );
 
     let (doc2, ..) = codec.from_str(&json5, None).await?;

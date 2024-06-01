@@ -16,8 +16,8 @@ use node_strip::{strip, StripScope, StripTargets};
 use schema::{
     authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
-    Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordOp, CordRun, Figure,
-    Inline, Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot,
+    Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
+    Figure, Inline, Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot,
     PatchValue, Person, Primitive, ProvenanceCategory, ProvenanceCount, SoftwareApplication,
     Strong, Text, TimeUnit,
 };
@@ -609,7 +609,7 @@ fn authors() -> Result<()> {
     )?;
     strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "abc".into());
-    assert_eq!(chunk.code.runs, vec![CordRun::new(1, 0, 0, 3)]);
+    assert_eq!(chunk.code.authorship, vec![CordAuthorship::new(1, 0, 0, 3)]);
     assert_eq!(chunk.authors, Some(vec![Author::AuthorRole(alice.clone())]));
     assert_eq!(chunk.provenance, Some(vec![prov(Hw, 3, 100)]));
 
@@ -622,8 +622,11 @@ fn authors() -> Result<()> {
     strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "abcd".into());
     assert_eq!(
-        chunk.code.runs,
-        vec![CordRun::new(1, 0, 0, 3), CordRun::new(1, 1, 0, 1)]
+        chunk.code.authorship,
+        vec![
+            CordAuthorship::new(1, 0, 0, 3),
+            CordAuthorship::new(1, 1, 0, 1)
+        ]
     );
     assert_eq!(
         chunk.authors,
@@ -643,12 +646,12 @@ fn authors() -> Result<()> {
     strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "abxcd".into());
     assert_eq!(
-        chunk.code.runs,
+        chunk.code.authorship,
         vec![
-            CordRun::new(1, 0, 0, 2),
-            CordRun::new(1, 1, 0, 1),
-            CordRun::new(1, 0, 0, 1),
-            CordRun::new(1, 1, 0, 1)
+            CordAuthorship::new(1, 0, 0, 2),
+            CordAuthorship::new(1, 1, 0, 1),
+            CordAuthorship::new(1, 0, 0, 1),
+            CordAuthorship::new(1, 1, 0, 1)
         ]
     );
     assert_eq!(
@@ -669,8 +672,11 @@ fn authors() -> Result<()> {
     strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "ad".into());
     assert_eq!(
-        chunk.code.runs,
-        vec![CordRun::new(1, 0, 0, 1), CordRun::new(1, 1, 0, 1)]
+        chunk.code.authorship,
+        vec![
+            CordAuthorship::new(1, 0, 0, 1),
+            CordAuthorship::new(1, 1, 0, 1)
+        ]
     );
     assert_eq!(
         chunk.authors,
@@ -691,11 +697,11 @@ fn authors() -> Result<()> {
     strip(&mut chunk, strip_targets.clone());
     assert_eq!(chunk.code, "and".into());
     assert_eq!(
-        chunk.code.runs,
+        chunk.code.authorship,
         vec![
-            CordRun::new(1, 0, 0, 1),
-            CordRun::new(1, 2, 0, 1),
-            CordRun::new(1, 1, 0, 1)
+            CordAuthorship::new(1, 0, 0, 1),
+            CordAuthorship::new(1, 2, 0, 1),
+            CordAuthorship::new(1, 1, 0, 1)
         ]
     );
     assert_eq!(

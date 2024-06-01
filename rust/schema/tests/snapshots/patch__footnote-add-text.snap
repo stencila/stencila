@@ -175,41 +175,48 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: A note.
+          value:
+            string: A note.
         - type: Note
           noteType: Footnote
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: A footnote
+                  value:
+                    string: A footnote
     - type: Paragraph
       content:
         - type: Text
-          value: More notes.
+          value:
+            string: More notes.
         - type: Note
           noteType: Footnote
           content:
             - type: Paragraph
               content:
                 - type: Text
-                  value: A footnote with...
+                  value:
+                    string: A footnote with...
             - type: QuoteBlock
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: added quote.
+                      value:
+                        string: added quote.
             - type: Paragraph
               content:
                 - type: Text
-                  value: "some text:"
+                  value:
+                    string: "some text:"
             - type: QuoteBlock
               content:
                 - type: Paragraph
                   content:
                     - type: Text
-                      value: and a quote
+                      value:
+                        string: and a quote
 merged:
   type: Article
   authors:
@@ -438,4 +445,5 @@ ops:
               - type: Paragraph
                 content:
                   - type: Text
-                    value: added quote.
+                    value:
+                      string: added quote.

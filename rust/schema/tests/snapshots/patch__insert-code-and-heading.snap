@@ -136,32 +136,39 @@ new:
       level: 1
       content:
         - type: Text
-          value: heading1
+          value:
+            string: heading1
     - type: Paragraph
       content:
         - type: Text
-          value: para1
+          value:
+            string: para1
     - type: CodeBlock
-      code: ""
+      code:
+        string: ""
       programmingLanguage: python
     - type: Paragraph
       content:
         - type: Text
-          value: para2
+          value:
+            string: para2
     - type: Heading
       level: 2
       content:
         - type: Text
-          value: heading3
+          value:
+            string: heading3
     - type: Heading
       level: 2
       content:
         - type: Text
-          value: heading2
+          value:
+            string: heading2
     - type: Paragraph
       content:
         - type: Text
-          value: para3
+          value:
+            string: para3
 merged:
   type: Article
   authors:
@@ -339,11 +346,13 @@ ops:
     - Insert:
         - - 2
           - type: CodeBlock
-            code: ""
+            code:
+              string: ""
             programmingLanguage: python
         - - 4
           - type: Heading
             level: 2
             content:
               - type: Text
-                value: heading3
+                value:
+                  string: heading3

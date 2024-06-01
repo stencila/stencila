@@ -62,11 +62,13 @@ new:
         - type: Paragraph
           content:
             - type: Text
-              value: para1
+              value:
+                string: para1
         - type: Paragraph
           content:
             - type: Text
-              value: para2
+              value:
+                string: para2
       sectionType: Methods
 merged:
   type: Article
@@ -162,4 +164,5 @@ ops:
         type: Paragraph
         content:
           - type: Text
-            value: para2
+            value:
+              string: para2

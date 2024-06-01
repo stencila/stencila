@@ -218,7 +218,7 @@ mod tests {
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
         if let Some(PatchOperation::Replace(ReplaceOperation { path, .. })) = &patch.ops.get(1) {
-            assert_eq!(path, "/node/content/0/content/0/value");
+            assert_eq!(path, "/node/content/0/content/0/value/string");
         } else {
             bail!("unexpected patch operation {patch:?}")
         }

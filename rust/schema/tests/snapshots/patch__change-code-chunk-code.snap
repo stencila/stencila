@@ -42,7 +42,8 @@ new:
   type: Article
   content:
     - type: CodeChunk
-      code: 1 + 3
+      code:
+        string: 1 + 3
       programmingLanguage: python
 merged:
   type: Article

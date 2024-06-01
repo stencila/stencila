@@ -37,7 +37,9 @@ fn article() -> Result<()> {
             "content": [
                 {
                     "type": "Text",
-                    "value": "Some text"
+                    "value": {
+                        "string": "Some text"
+                    }
                 }
             ]
         }],
@@ -81,7 +83,7 @@ async fn compact() -> Result<()> {
         .await?;
     assert_eq!(
         json,
-        r#"{"type":"Article","content":[{"type":"Paragraph","content":[{"type":"Text","value":"Hello world"}]}]}"#
+        r#"{"type":"Article","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"Hello world"}}]}]}"#
     );
 
     let (doc2, ..) = codec.from_str(&json, None).await?;
@@ -118,7 +120,9 @@ async fn standalone() -> Result<()> {
       "content": [
         {
           "type": "Text",
-          "value": "Hello world"
+          "value": {
+            "string": "Hello world"
+          }
         }
       ]
     }

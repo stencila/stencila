@@ -55,7 +55,8 @@ new:
     - type: Paragraph
       content:
         - type: Text
-          value: grass rabbit
+          value:
+            string: grass rabbit
 merged:
   type: Article
   authors:

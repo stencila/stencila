@@ -84,14 +84,17 @@ new:
         - type: Paragraph
           content:
             - type: Text
-              value: Relatively interesting.
+              value:
+                string: Relatively interesting.
         - type: MathBlock
-          code: e = m*c^2
+          code:
+            string: e = m*c^2
           mathLanguage: latex
         - type: Paragraph
           content:
             - type: Text
-              value: May be true.
+              value:
+                string: May be true.
 merged:
   type: Article
   authors:
@@ -207,4 +210,5 @@ ops:
         type: Paragraph
         content:
           - type: Text
-            value: May be true.
+            value:
+              string: May be true.

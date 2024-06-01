@@ -116,22 +116,26 @@ new:
       level: 2
       content:
         - type: Text
-          value: heading2
+          value:
+            string: heading2
     - type: Heading
       level: 1
       content:
         - type: Text
-          value: heading1
+          value:
+            string: heading1
     - type: Heading
       level: 4
       content:
         - type: Text
-          value: heading4delta
+          value:
+            string: heading4delta
     - type: Heading
       level: 1
       content:
         - type: Text
-          value: heading3
+          value:
+            string: heading3
 merged:
   type: Article
   authors:
