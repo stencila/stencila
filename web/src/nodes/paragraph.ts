@@ -25,7 +25,7 @@ export class Paragraph extends Entity {
    * a list of parent nodes that can require different
    * behaviour/rendering of this node.
    */
-  static subscribedParentNodes = [
+  static subscribedParentNodes: NodeType[] = [
     'ListItem',
     'TableCell',
     'QuoteBlock',
@@ -105,7 +105,7 @@ export class Paragraph extends Entity {
    */
   override renderDynamicView() {
     if (Paragraph.subscribedParentNodes.includes(this.directAncestor)) {
-      return this.renderStaticView()
+      return html`<slot name="content"></slot>`
     }
 
     // TODO: Add summary stats to card
