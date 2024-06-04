@@ -1,7 +1,7 @@
 import { provide } from '@lit/context'
 import { css } from '@twind/core'
 import { html, LitElement } from 'lit'
-import { property, state } from 'lit/decorators'
+import { property } from 'lit/decorators'
 
 import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
@@ -47,7 +47,6 @@ export abstract class Entity extends LitElement {
   activeChild: NodeId
 
   @provide({ context: entityContext })
-  @state()
   protected context: EntityContext = {
     nodeId: this.id,
     cardOpen: false,
