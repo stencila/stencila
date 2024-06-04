@@ -35,7 +35,7 @@ impl Document {
                     tracing::trace!("Document root node update received");
 
                     let root = &mut *root.write().await;
-                    if let Err(error) = schema::merge(root, &update.node, update.authors) {
+                    if let Err(error) = schema::merge(root, &update.node, update.format, update.authors) {
                         tracing::error!("While merging update into root: {error}");
                     }
 

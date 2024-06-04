@@ -100,7 +100,7 @@ async fn fixtures() -> Result<()> {
             },
             AuthorRoleName::Writer,
         );
-        let patch = diff(&old, &new, Some(vec![bob]))?;
+        let patch = diff(&old, &new, Some(Format::Markdown), Some(vec![bob]))?;
         ops_count.insert(name.clone(), patch.ops.len());
         ops_total += patch.ops.len();
 
@@ -142,9 +142,9 @@ async fn fixtures() -> Result<()> {
     Ok(())
 }
 
-/// Do a diff and get to ops
+/// Do a diff and get the ops
 pub fn diff_ops<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
-    Ok(diff(old, new, None)?.ops)
+    Ok(diff(old, new, Some(Format::Markdown), None)?.ops)
 }
 
 /// Patch a node with an anonymous author role
@@ -605,6 +605,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abc".into()),
+        Some(Format::Markdown),
         Some(vec![alice.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -617,6 +618,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abcd".into()),
+        Some(Format::Markdown),
         Some(vec![bob.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -641,6 +643,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abxcd".into()),
+        Some(Format::Markdown),
         Some(vec![bob.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -667,6 +670,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("ad".into()),
+        Some(Format::Markdown),
         Some(vec![carol.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -692,6 +696,7 @@ fn authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("and".into()),
+        Some(Format::Markdown),
         Some(vec![carol.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());

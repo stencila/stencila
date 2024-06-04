@@ -345,7 +345,11 @@ impl Document {
                         if let Ok(node) =
                             codecs::from_str(current_content, decode_options.clone()).await
                         {
-                            if let Err(error) = update_sender.send(Update::new(node, None)).await {
+                            // TODO: update `format` should be based on the `path` & `decode_options`
+                            // and `authors` should use the local user
+                            if let Err(error) =
+                                update_sender.send(Update::new(node, None, None)).await
+                            {
                                 tracing::error!("While sending root update: {error}");
                             }
                         }
@@ -582,7 +586,9 @@ mod tests {
         assert_eq!(patch.ops[0], FormatOperation::reset_content(""));
 
         // Test inserting content
-        document.update(art([p([t("Hello world")])]), None).await?;
+        document
+            .update(art([p([t("Hello world")])]), None, None)
+            .await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
         assert_eq!(
@@ -591,13 +597,17 @@ mod tests {
         );
 
         // Test deleting content
-        document.update(art([p([t("Hello ld")])]), None).await?;
+        document
+            .update(art([p([t("Hello ld")])]), None, None)
+            .await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
         assert_eq!(patch.ops[0], FormatOperation::delete_content(6, 9));
 
         // Test replacing content
-        document.update(art([p([t("Hello friend")])]), None).await?;
+        document
+            .update(art([p([t("Hello friend")])]), None, None)
+            .await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
         assert_eq!(

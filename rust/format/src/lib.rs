@@ -158,9 +158,10 @@ impl Format {
         matches!(self, Unknown)
     }
 
-    /// Is this a document store format?
-    pub fn is_store(&self) -> bool {
-        false
+    /// Is this a lossless format for Stencila nodes?
+    pub fn is_lossless(&self) -> bool {
+        use Format::*;
+        matches!(self, Cbor | CborZst | Json | Json5 | JsonLd | Yaml)
     }
 
     /// Is this an image format?

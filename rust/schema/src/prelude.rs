@@ -19,6 +19,7 @@ pub use codec_info::Losses;
 pub use codec_jats_trait::JatsCodec;
 pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 pub use codec_text_trait::TextCodec;
+pub use format::Format;
 pub use node_id::{NodeId, NodeUid};
 pub use node_patch_derive::PatchNode;
 pub use node_store::{ReadNode, WriteNode};

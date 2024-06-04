@@ -473,6 +473,7 @@ impl Executor {
 
         let patch = Patch {
             node_id: Some(node_id.clone()),
+            format: None,
             authors,
             ops,
         };

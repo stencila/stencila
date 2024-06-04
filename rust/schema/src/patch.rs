@@ -11,6 +11,7 @@ use common::{
     serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, Value as JsonValue},
 };
+use format::Format;
 use node_id::NodeId;
 use node_type::NodeProperty;
 
@@ -37,14 +38,20 @@ pub fn authorship<T: PatchNode>(node: &mut T, authors: Vec<AuthorRole>) -> Resul
 pub fn merge<T: PatchNode + Debug>(
     old: &mut T,
     new: &T,
+    format: Option<Format>,
     authors: Option<Vec<AuthorRole>>,
 ) -> Result<()> {
-    let ops = diff(old, new, authors)?;
+    let ops = diff(old, new, format, authors)?;
     patch(old, ops)
 }
 
 /// Generate the operations needed to patch `old` node into `new` node
-pub fn diff<T: PatchNode>(old: &T, new: &T, mut authors: Option<Vec<AuthorRole>>) -> Result<Patch> {
+pub fn diff<T: PatchNode>(
+    old: &T,
+    new: &T,
+    format: Option<Format>,
+    mut authors: Option<Vec<AuthorRole>>,
+) -> Result<Patch> {
     // Ensure that each author role has a last_modified timestamp
     if let Some(roles) = authors.as_mut() {
         for role in roles {
@@ -54,10 +61,17 @@ pub fn diff<T: PatchNode>(old: &T, new: &T, mut authors: Option<Vec<AuthorRole>>
         }
     }
 
-    let mut context = PatchContext::default();
+    let mut context = PatchContext {
+        format,
+        ..Default::default()
+    };
     old.diff(new, &mut context)?;
+    let ops = context.ops;
+    let format = context.format;
+
     Ok(Patch {
-        ops: context.ops,
+        ops,
+        format,
         authors,
         ..Default::default()
     })
@@ -66,6 +80,7 @@ pub fn diff<T: PatchNode>(old: &T, new: &T, mut authors: Option<Vec<AuthorRole>>
 /// Apply patch operations to a node and record authorship of changes
 pub fn patch<T: PatchNode + Debug>(node: &mut T, mut patch: Patch) -> Result<()> {
     let mut context = PatchContext {
+        format: patch.format.clone(),
         authors: patch.authors.clone(),
         ..Default::default()
     };
@@ -87,6 +102,9 @@ pub struct PatchContext {
 
     /// The target paths and operations collected during a call to `diff`.
     ops: Vec<(PatchPath, PatchOp)>,
+
+    /// The source format from which a patch is being generated
+    pub format: Option<Format>,
 
     /// The authors to which authorship of changes will be assigned during a call to `patch`.
     authors: Option<Vec<AuthorRole>>,
@@ -357,6 +375,12 @@ pub struct Patch {
 
     /// The operations which should be applied for the patch
     pub ops: Vec<(PatchPath, PatchOp)>,
+
+    /// The source format from which the patch was generated
+    ///
+    /// If `None` then the update is assumed to be programmatically generated
+    /// internally, rather than from a source format.
+    pub format: Option<Format>,
 
     /// The authors of the patch
     pub authors: Option<Vec<AuthorRole>>,

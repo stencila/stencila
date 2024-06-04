@@ -118,19 +118,36 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         });
 
         // Diffing related methods are conditionally implemented based on the format
-        // TODO: This currently does not consider different formats. Merging
-        // is turned on for the property if there is any format in the list.
-        if !field_attr.formats.is_empty() {
-            similarity_fields.extend(quote! {
-                self.#field_name.similarity(&other.#field_name, context)?,
-            });
+        let field_diffed = if field_attr.formats.contains(&"all".to_string()) {
+            // Field should be diffed for all formats
+            quote! { true }
+        } else {
+            // Field should be diffed if the context has no, or lossless format, or if
+            // the context format is explicitly listed.
+            let mut condition = quote! {
+                context.format.is_none() || context.format.as_ref().map(|format| format.is_lossless()).unwrap_or_default()
+            };
+            if field_attr.formats.contains(&"md".to_string()) {
+                condition.extend(quote! {
+                    || matches!(context.format, Some(Format::Markdown))
+                })
+            }
+            condition
+        };
 
-            diff_fields.extend(quote! {
+        similarity_fields.extend(quote! {
+            if #field_diffed {
+                fields.push(self.#field_name.similarity(&other.#field_name, context)?);
+            }
+        });
+
+        diff_fields.extend(quote! {
+            if #field_diffed {
                 context.enter_property(NodeProperty::#property);
                 self.#field_name.diff(&other.#field_name, context)?;
                 context.exit_property();
-            });
-        }
+            }
+        });
     });
 
     let call_update_and_release_authors = |overwrite: bool| {
@@ -208,9 +225,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let similarity = if !similarity_fields.is_empty() {
         quote! {
             fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
-                PatchContext::mean_similarity(vec![
-                    #similarity_fields
-                ])
+                let mut fields = Vec::new();
+                #similarity_fields
+                PatchContext::mean_similarity(fields)
             }
         }
     } else {

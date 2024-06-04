@@ -5670,6 +5670,7 @@ dependencies = [
  "codec-text-trait",
  "common",
  "common-dev",
+ "format",
  "human_name",
  "interim",
  "monostate",

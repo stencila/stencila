@@ -155,13 +155,23 @@ pub(crate) struct Update {
     /// The new value of the node (at present always the `root` of the document)
     pub node: Node,
 
+    /// The source format that generated the update
+    ///
+    /// If `None` then the update is assumed to be programmatically generated
+    /// internally, rather than from a source format.
+    pub format: Option<Format>,
+
     /// The authors of the update
     pub authors: Option<Vec<AuthorRole>>,
 }
 
 impl Update {
-    pub fn new(node: Node, authors: Option<Vec<AuthorRole>>) -> Self {
-        Self { node, authors }
+    pub fn new(node: Node, format: Option<Format>, authors: Option<Vec<AuthorRole>>) -> Self {
+        Self {
+            node,
+            format,
+            authors,
+        }
     }
 }
 
@@ -407,8 +417,16 @@ impl Document {
     }
 
     /// Update the root node of the document
-    pub async fn update(&self, node: Node, authors: Option<Vec<AuthorRole>>) -> Result<()> {
-        Ok(self.update_sender.send(Update::new(node, authors)).await?)
+    pub async fn update(
+        &self,
+        node: Node,
+        format: Option<Format>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
+        Ok(self
+            .update_sender
+            .send(Update::new(node, format, authors))
+            .await?)
     }
 
     /// Perform a command on the document

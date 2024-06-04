@@ -1,5 +1,6 @@
 use codec::{
     common::{eyre::Result, tokio},
+    format::Format,
     schema::{
         authorship, merge,
         shortcuts::{art, p, t},
@@ -55,7 +56,7 @@ async fn paragraph() -> Result<()> {
     authorship(&mut node, vec![alice])?;
 
     let (edited, ..) = codec.from_str("Hello, world!", None).await?;
-    merge(&mut node, &edited, Some(vec![bob]))?;
+    merge(&mut node, &edited, Some(Format::Markdown), Some(vec![bob]))?;
 
     assert_yaml_snapshot!(node, {
       ".authors[].lastModified.value" => "redacted",
@@ -136,7 +137,7 @@ print('Hello, world!')
             None,
         )
         .await?;
-    merge(&mut node, &edited, Some(vec![bob]))?;
+    merge(&mut node, &edited, Some(Format::Markdown), Some(vec![bob]))?;
 
     assert_yaml_snapshot!(node, {
       ".authors[].lastModified.value" => "redacted",

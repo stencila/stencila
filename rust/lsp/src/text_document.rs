@@ -303,7 +303,11 @@ impl TextDocument {
             // Update the Stencila document with the new node
             let doc = doc.write().await;
             if let Err(error) = doc
-                .update(node.clone(), Some(vec![author_role.clone()]))
+                .update(
+                    node.clone(),
+                    Some(Format::Markdown),
+                    Some(vec![author_role.clone()]),
+                )
                 .await
             {
                 tracing::error!("While updating node: {error}");
