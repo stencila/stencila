@@ -89,9 +89,9 @@ export class StencilaAuthorship extends LitElement {
     const textOpacity = getProvenanceOpacity(this.mi as ProvenanceOpacityLevel)
     const tooltipStyle = apply([
       'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
+      'opacity-0',
       'group-hover:opacity-100',
       'w-32',
-      'opacity-0',
       'rounded',
       'p-2',
       'transition-all delay-200 duration-300',
@@ -99,12 +99,18 @@ export class StencilaAuthorship extends LitElement {
       'bg-black',
       'transform -translate-x-1/2',
       'pointer-events-none',
-      'after:content[""]',
+      'after:content-[""]',
       'after:absolute after:-bottom-1 after:left-1/2',
       'after:w-2 after:h-2',
       'after:bg-black',
       'after:transform after:-translate-x-1/2 after:rotate-45',
     ])
+
+    // find the current text color in rgb (remove all whitespace)
+    const computedColour = window
+      .getComputedStyle(this)
+      .getPropertyValue('color')
+      .replace(/\s/g, '')
 
     /*
       Do not change the formatting of this template,
@@ -113,8 +119,7 @@ export class StencilaAuthorship extends LitElement {
     */
     // prettier-ignore
     const htmlTemplate = html`<span
-          class="group text-black"
-          style="position: relative; --tw-text-opacity: ${textOpacity};"
+          class="group relative text-[${computedColour}]/[${textOpacity}]"
         ><div class=${tooltipStyle}>${getTooltipContent(this.count, this.provenance)}</div
         ><slot></slot
       ></span>`
