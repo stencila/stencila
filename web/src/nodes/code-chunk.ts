@@ -63,6 +63,7 @@ export class CodeChunk extends CodeExecutable {
       type="CodeChunk"
       view="dynamic"
       programming-language="${this.programmingLanguage}"
+      node-id=${this.id}
     >
       <span slot="header-right">
         <stencila-ui-node-execution-commands

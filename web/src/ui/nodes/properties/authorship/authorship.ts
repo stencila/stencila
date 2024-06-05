@@ -1,6 +1,5 @@
 import { consume } from '@lit/context'
 import { ProvenanceCategory } from '@stencila/types'
-import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
 
@@ -14,8 +13,6 @@ import {
   ProvenanceOpacityLevel,
   getProvenanceOpacity,
 } from '../../icons-and-colours'
-
-import { getTooltipContent } from './utils'
 
 /**
  * Renders the author provenance highlighting of document text.
@@ -87,24 +84,6 @@ export class StencilaAuthorship extends LitElement {
 
   renderHighlights() {
     const textOpacity = getProvenanceOpacity(this.mi as ProvenanceOpacityLevel)
-    const tooltipStyle = apply([
-      'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
-      'opacity-0',
-      'group-hover:opacity-100',
-      'w-32',
-      'rounded',
-      'p-2',
-      'transition-all delay-200 duration-300',
-      'text-white text-sm',
-      'bg-black',
-      'transform -translate-x-1/2',
-      'pointer-events-none',
-      'after:content-[""]',
-      'after:absolute after:-bottom-1 after:left-1/2',
-      'after:w-2 after:h-2',
-      'after:bg-black',
-      'after:transform after:-translate-x-1/2 after:rotate-45',
-    ])
 
     // find the current text color in rgb (remove all whitespace)
     const computedColour = window
@@ -120,7 +99,6 @@ export class StencilaAuthorship extends LitElement {
     // prettier-ignore
     const htmlTemplate = html`<span
           class="group relative text-[${computedColour}]/[${textOpacity}]"
-        ><div class=${tooltipStyle}>${getTooltipContent(this.count, this.provenance)}</div
         ><slot></slot
       ></span>`
 
