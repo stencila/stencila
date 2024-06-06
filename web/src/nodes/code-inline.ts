@@ -7,9 +7,12 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/outputs'
 
+import { withTwind } from '../twind'
+
 import { CodeStatic } from './code-static'
 
 @customElement('stencila-code-inline')
+@withTwind()
 export class CodeInline extends CodeStatic {
   /**
    * In static view, render the code and programming language
@@ -27,6 +30,7 @@ export class CodeInline extends CodeStatic {
   override renderDynamicView() {
     return html`
       <stencila-ui-inline-on-demand
+        disable-content-styles
         type="CodeInline"
         view="dynamic"
         programming-language=${this.programmingLanguage}
@@ -48,10 +52,13 @@ export class CodeInline extends CodeStatic {
             <slot name="outputs">${this.code}</slot>
           </stencila-ui-node-outputs>
         </div>
-        <span slot="content"> ${this.code} </span>
+        <span slot="content">
+          <slot></slot>
+        </span>
       </stencila-ui-inline-on-demand>
     `
   }
+  // <code slot="content" class=${codeStyles}>${this.code}</code>
 
   /**
    * In dynamic view, render the authors but not code since that is

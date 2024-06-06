@@ -82,12 +82,15 @@ export class CodeExpression extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
-        <stencila-ui-node-outputs type="CodeExpression">
-          <slot name="output"></slot>
-        </stencila-ui-node-outputs>
       </div>
-
-      <span slot="content">${this.code}</span>
+      <span slot="content">
+        ${
+          // TODO get the <code> put into a slot
+          this.executionCount > 0
+            ? html`<slot name="output"></slot>`
+            : html`<code>${this.code}</code>`
+        }
+      </span>
     </stencila-ui-inline-on-demand>`
   }
 

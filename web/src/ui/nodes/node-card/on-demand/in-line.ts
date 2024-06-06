@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { apply, css as twCss, Twind } from '@twind/core'
 import { css, html } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement, state, property } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
 import '../../../animation/collapsible'
@@ -19,6 +19,12 @@ import { UIBaseCard } from '../base-card'
 export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   @state()
   isToolTipOpen: boolean = false
+
+  /**
+   * apply the default styles to the displayed content or not.
+   */
+  @property({ type: Boolean, attribute: 'disable-content-styles' })
+  disableContentStyles: boolean = false
 
   protected override restrictTitleWidth: boolean = true
 
@@ -95,17 +101,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       }
     `
 
-    const contentStyles = apply([
-      'inline-block',
-      `bg-[${this.ui.borderColour}]`,
-      'rounded-md',
-      'cursor-default',
-      `not-italic text-black leading-5`,
-      'mb-auto mx-1 -mt-[0.125rem]',
-      'py-[0.125rem] px-1.5',
-    ])
-
-    return html` <div
+    return html`<div
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
     >
@@ -119,7 +115,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         <div slot="content">
           ${this.renderHeader()} ${this.renderAnimatedContent()}
         </div>
-        <div class=${contentStyles}>
+        <div class="inline">
           <slot name="content"></slot>
         </div>
       </sl-tooltip>
