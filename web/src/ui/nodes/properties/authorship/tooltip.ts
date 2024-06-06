@@ -26,7 +26,7 @@ export class AuthorshipTooltip extends LitElement {
       this.open ? 'opacity-100' : 'opacity-0',
       'w-32',
       'p-2',
-      'font-sans font-normal text-white text-sm text-wrap',
+      'font-sans font-normal text-white text-sm',
       'bg-black',
       'rounded drop-shadow',
       'transition-all delay-200 duration-300',
@@ -39,6 +39,7 @@ export class AuthorshipTooltip extends LitElement {
       'after:transform after:-translate-x-1/2 after:rotate-45',
     ])
 
+    // have to add the text-wrap setting inline, tw utility class is not being compiled.
     return html`<div style="text-wrap: wrap;" class=${styles}>
       ${this.content}
     </div>`
