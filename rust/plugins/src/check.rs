@@ -1,5 +1,3 @@
-use assistant::schema::{InstructionInline, InstructionMessage, MessagePart};
-use assistant::{GenerateOptions, GenerateTask, Instruction};
 use cli_utils::{message, Message};
 use common::{
     clap::{self, Args},
@@ -7,6 +5,10 @@ use common::{
     tracing,
 };
 use kernel::schema::{Node, Null};
+use model::{
+    schema::{InstructionInline, InstructionMessage, MessagePart},
+    GenerateOptions, GenerateTask, Instruction,
+};
 
 use crate::Plugin;
 

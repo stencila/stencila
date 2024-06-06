@@ -5,8 +5,8 @@ instruction-type: insert-blocks
 instruction-examples:
   - figure with a graphviz diagram
 
-# Does not delegate to generic assistant, only renders the following system prompt
-delegates: false
+# Does not use models, only renders the following system prompt
+models: false
 ---
 
 Creates a new `Figure` containing a `CodeChunk` in the Graphviz DOT language.

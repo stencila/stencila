@@ -1,22 +1,14 @@
-use cli_utils::{
-    table::{self, Attribute, Cell, Color},
-    Code, ToStdout,
-};
+use cli_utils::table::{self, Attribute, Cell, CellAlignment, Color};
 use model::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
-        serde_yaml,
+        itertools::Itertools,
     },
-    context::Context,
-    format::Format,
-    schema::{InstructionBlock, InstructionMessage},
-    GenerateOptions, ModelAvailability, ModelType,
+    ModelAvailability, ModelType,
 };
 
-use crate::execute_instruction;
-
-/// Manage assistants
+/// Manage models
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
@@ -26,7 +18,6 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 enum Command {
     List(List),
-    Execute(Execute),
 }
 
 impl Cli {
@@ -38,7 +29,6 @@ impl Cli {
 
         match command {
             Command::List(list) => list.run().await?,
-            Command::Execute(execute) => execute.run().await?,
         }
 
         Ok(())
@@ -52,11 +42,30 @@ struct List;
 impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
-        table.set_header(["Name", "Provider", "Version", "Description"]);
+        table.set_header([
+            "Name",
+            "Provider",
+            "Version",
+            "Context len.",
+            "Inputs",
+            "Outputs",
+        ]);
 
-        for assistant in super::list(true).await {
+        for assistant in super::list().await {
             use ModelAvailability::*;
             let availability = assistant.availability();
+
+            let inputs = assistant
+                .supported_inputs()
+                .iter()
+                .map(|input| input.to_string())
+                .join(", ");
+
+            let outputs = assistant
+                .supported_outputs()
+                .iter()
+                .map(|output| output.to_string())
+                .join(", ");
 
             table.add_row([
                 Cell::new(assistant.name()).add_attribute(Attribute::Bold),
@@ -77,48 +86,16 @@ impl List {
                         Unavailable => Cell::new(availability).fg(Color::Grey),
                     },
                 },
-                Cell::new(assistant.description().unwrap_or_default()),
+                match assistant.context_length() {
+                    0 => Cell::new(""),
+                    _ => Cell::new(assistant.context_length()).set_alignment(CellAlignment::Right),
+                },
+                Cell::new(inputs),
+                Cell::new(outputs),
             ]);
         }
 
         println!("{table}");
-
-        Ok(())
-    }
-}
-
-/// Execute an instruction with an assistant
-///
-/// Mainly intended for quick testing of assistants during development.
-#[derive(Debug, Args)]
-#[clap(alias = "exec")]
-struct Execute {
-    /// The name of the assistant to execute the instruction
-    ///
-    /// For example, `stencila/insert-code-chunk` or `mistral/mistral-medium`.
-    /// For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`.
-    /// See `stencila assistants list` for a list of available assistants.
-    name: String,
-
-    /// The instruction to execute
-    instruction: String,
-}
-
-impl Execute {
-    async fn run(self) -> Result<()> {
-        let mut instruction =
-            InstructionBlock::new(vec![InstructionMessage::from(&self.instruction)]);
-        instruction.assignee = Some(self.name);
-
-        let context = Context::default();
-        let options = GenerateOptions::default();
-        let output = execute_instruction(instruction.clone(), context, options).await?;
-
-        println!("Instruction");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&instruction)?).to_stdout();
-
-        println!("Output");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
 
         Ok(())
     }
