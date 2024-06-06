@@ -26,9 +26,9 @@ export class AuthorshipTooltip extends LitElement {
       this.open ? 'opacity-100' : 'opacity-0',
       'w-32',
       'p-2',
-      'font-sans text-white text-sm',
-      'rounded drop-shadow',
+      'font-sans font-normal text-white text-sm text-wrap',
       'bg-black',
+      'rounded drop-shadow',
       'transition-all delay-200 duration-300',
       'transform -translate-y-full -translate-x-1/2',
       'pointer-events-none',
@@ -39,6 +39,8 @@ export class AuthorshipTooltip extends LitElement {
       'after:transform after:-translate-x-1/2 after:rotate-45',
     ])
 
-    return html`<div class=${styles}>${this.content}</div>`
+    return html`<div style="text-wrap: wrap;" class=${styles}>
+      ${this.content}
+    </div>`
   }
 }
