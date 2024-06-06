@@ -1,7 +1,8 @@
 import { consume } from '@lit/context'
 import { ProvenanceCategory } from '@stencila/types'
-import { LitElement, html, css } from 'lit'
+import { LitElement, html, css, PropertyValueMap } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import {
   documentPreviewContext,
@@ -13,6 +14,9 @@ import {
   ProvenanceOpacityLevel,
   getProvenanceOpacity,
 } from '../../icons-and-colours'
+
+import { AuthorshipTooltip } from './tooltip'
+import { getTooltipContent } from './utils'
 
 /**
  * Renders the author provenance highlighting of document text.
@@ -71,6 +75,40 @@ export class StencilaAuthorship extends LitElement {
     }
   `
 
+  /**
+   * element refs for tooltip functionality
+   */
+  private authorshipRef: Ref<HTMLElement> = createRef()
+  private tooltipRef: Ref<AuthorshipTooltip> = createRef()
+
+  /**
+   * Calculate the x and y positions for the tooltip
+   * @returns `{ x: number; y: number }`
+   */
+  private tooltipPosition(): { x: number; y: number } {
+    const { x, y, width } = this.authorshipRef.value.getBoundingClientRect()
+    return { x: x + width / 2, y }
+  }
+
+  override update(
+    changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>
+  ) {
+    super.update(changedProperties)
+
+    if (this.authorshipRef.value) {
+      this.authorshipRef.value.addEventListener('mouseover', () => {
+        const { x, y } = this.tooltipPosition()
+        this.tooltipRef.value.xPos = x
+        this.tooltipRef.value.yPos = y
+        this.tooltipRef.value.open = true
+      })
+
+      this.authorshipRef.value.addEventListener('mouseout', () => {
+        this.tooltipRef.value.open = false
+      })
+    }
+  }
+
   override render() {
     if (
       this.previewContext.showAllAuthorshipHighlight ||
@@ -98,9 +136,10 @@ export class StencilaAuthorship extends LitElement {
     */
     // prettier-ignore
     const htmlTemplate = html`<span
+          ${ref(this.authorshipRef)}
           class="group relative text-[${computedColour}]/[${textOpacity}]"
         ><slot></slot
-      ></span>`
+      ></span><authorship-tooltip ${ref(this.tooltipRef)} content=${getTooltipContent(this.count, this.provenance)}></authorship-tooltip>`
 
     return htmlTemplate
   }
