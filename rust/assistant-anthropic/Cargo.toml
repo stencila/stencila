@@ -1,7 +1,0 @@
-[package]
-name = "assistant-anthropic"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-assistant = { path = "../assistant" }

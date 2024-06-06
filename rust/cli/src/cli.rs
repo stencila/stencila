@@ -320,6 +320,7 @@ enum Command {
     Serve(ServeOptions),
 
     Assistants(assistants::cli::Cli),
+    Models(models::cli::Cli),
     Kernels(kernels::cli::Cli),
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
@@ -684,6 +685,7 @@ impl Cli {
             Command::Serve(options) => serve(options).await?,
 
             Command::Assistants(assistants) => assistants.run().await?,
+            Command::Models(models) => models.run().await?,
             Command::Kernels(kernels) => kernels.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,

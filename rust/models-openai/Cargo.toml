@@ -1,8 +1,9 @@
 [package]
-name = "assistant-google"
+name = "models-openai"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-assistant = { path = "../assistant" }
+model = { path = "../model" }
+async-openai = "0.20.0"
 cached = { version = "0.50.0", features = ["async"] }

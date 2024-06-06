@@ -2,7 +2,7 @@
 
 use std::{cmp::Ordering, sync::Arc};
 
-use assistant::{
+use model::{
     common::{
         eyre::{bail, eyre, Result},
         futures::future::join_all,
@@ -10,7 +10,7 @@ use assistant::{
         tracing,
     },
     context::Context,
-    Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
+    GenerateOptions, GenerateOutput, GenerateTask, Instruction, Model,
 };
 
 pub use assistant;
@@ -18,17 +18,12 @@ pub use assistant;
 pub mod cli;
 
 /// Get a list of available assistants in descending preference rank
-pub async fn list(all: bool) -> Vec<Arc<dyn Assistant>> {
+pub async fn list(all: bool) -> Vec<Arc<dyn Model>> {
     let range = if all { 0..=6 } else { 5..=6 };
 
     let futures = range.map(|provider| async move {
         let (provider, result) = match provider {
-            0 => ("Anthropic", assistant_anthropic::list().await),
-            1 => ("Google", assistant_google::list().await),
-            2 => ("Mistral", assistant_mistral::list().await),
-            3 => ("Ollama", assistant_ollama::list().await),
-            4 => ("OpenAI", assistant_openai::list().await),
-            5 => ("specialized", assistant_specialized::list()),
+            5 => ("specialized", assistant::list()),
             6 => ("plugin", plugins::assistants::list().await),
             _ => return vec![],
         };
@@ -76,7 +71,7 @@ where
 /// If the task's instruction has an `assignee` (and assignee exists and supports the
 /// task) then returns that assistant. Otherwise returns the assignee with the highest
 /// suitability score for the task.
-pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>> {
+pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Model>> {
     let assistants = list(true).await;
 
     let assistant = if let Some(assignee) = task.instruction().assignee() {
@@ -112,7 +107,7 @@ pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>
 
         let (max, index) = best;
         if max == 0. {
-            bail!("Unable to delegate the task, no assistants with suitable capabilities")
+            bail!("Unable to assign the task, no assistants with suitable capabilities")
         }
 
         let assistant = assistants

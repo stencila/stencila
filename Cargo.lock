@@ -185,70 +185,13 @@ name = "assistant"
 version = "0.0.0"
 dependencies = [
  "app",
- "codec-markdown-trait",
- "codec-text-trait",
- "codecs",
- "common",
- "context",
- "fastembed",
- "format",
- "merge",
- "schema",
- "secrets",
-]
-
-[[package]]
-name = "assistant-anthropic"
-version = "0.0.0"
-dependencies = [
- "assistant",
-]
-
-[[package]]
-name = "assistant-google"
-version = "0.0.0"
-dependencies = [
- "assistant",
  "cached",
-]
-
-[[package]]
-name = "assistant-mistral"
-version = "0.0.0"
-dependencies = [
- "assistant",
- "cached",
-]
-
-[[package]]
-name = "assistant-ollama"
-version = "0.0.0"
-dependencies = [
- "assistant",
- "ollama-rs",
-]
-
-[[package]]
-name = "assistant-openai"
-version = "0.0.0"
-dependencies = [
- "assistant",
- "async-openai",
- "cached",
-]
-
-[[package]]
-name = "assistant-specialized"
-version = "0.1.0"
-dependencies = [
- "app",
- "assistant",
- "assistant-anthropic",
- "assistant-google",
- "assistant-mistral",
- "assistant-ollama",
- "assistant-openai",
- "cached",
+ "model",
+ "models-anthropic",
+ "models-google",
+ "models-mistral",
+ "models-ollama",
+ "models-openai",
  "rust-embed",
 ]
 
@@ -257,13 +200,10 @@ name = "assistants"
 version = "0.0.0"
 dependencies = [
  "assistant",
- "assistant-anthropic",
- "assistant-google",
- "assistant-mistral",
- "assistant-ollama",
- "assistant-openai",
- "assistant-specialized",
  "cli-utils",
+ "common",
+ "model",
+ "models",
  "plugins",
 ]
 
@@ -1115,6 +1055,7 @@ dependencies = [
  "format",
  "is-terminal",
  "kernels",
+ "models",
  "node-execute",
  "node-strip",
  "plugins",
@@ -3804,6 +3745,77 @@ dependencies = [
 ]
 
 [[package]]
+name = "model"
+version = "0.0.0"
+dependencies = [
+ "app",
+ "codec-markdown-trait",
+ "codec-text-trait",
+ "codecs",
+ "common",
+ "context",
+ "fastembed",
+ "format",
+ "merge",
+ "schema",
+ "secrets",
+]
+
+[[package]]
+name = "models"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "model",
+ "models-anthropic",
+ "models-google",
+ "models-mistral",
+ "models-ollama",
+ "models-openai",
+ "plugins",
+]
+
+[[package]]
+name = "models-anthropic"
+version = "0.0.0"
+dependencies = [
+ "model",
+]
+
+[[package]]
+name = "models-google"
+version = "0.0.0"
+dependencies = [
+ "cached",
+ "model",
+]
+
+[[package]]
+name = "models-mistral"
+version = "0.0.0"
+dependencies = [
+ "cached",
+ "model",
+]
+
+[[package]]
+name = "models-ollama"
+version = "0.0.0"
+dependencies = [
+ "model",
+ "ollama-rs",
+]
+
+[[package]]
+name = "models-openai"
+version = "0.0.0"
+dependencies = [
+ "async-openai",
+ "cached",
+ "model",
+]
+
+[[package]]
 name = "monostate"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4706,11 +4718,11 @@ version = "0.0.0"
 dependencies = [
  "app",
  "assistant",
- "assistant-specialized",
  "cli-utils",
  "common",
  "common-dev",
  "kernel",
+ "model",
  "semver",
 ]
 

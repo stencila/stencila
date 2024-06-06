@@ -110,8 +110,8 @@ export abstract class Assistant {
    * Get the system prompt of the assistant
    *
    * This method is called by Stencila before executing an
-   * `InstructionBlock` or `InstructionInline` node so that the
-   * assistant can provide a system prompt template to delegates.
+   * `InstructionBlock` or `InstructionInline` node so that the plugin
+   * assistant can provide a system prompt template to models.
    *
    * It receives a `GenerateTask` and `GenerateOptions` and should
    * return a `string`. This default implementation returns an

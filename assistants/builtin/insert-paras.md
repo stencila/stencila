@@ -3,9 +3,9 @@ version: "0.1.0"
 
 instruction-type: insert-blocks
 
-# Preferentially delegates to Claude 3 which is reported
+# Preferentially uses Claude 3 which is reported
 # to have a "less AI" style of writing.
-delegates:
+models:
     - anthropic/claude-3-opus-20240229
 
 expected-nodes: Paragraph+
