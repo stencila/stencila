@@ -1,22 +1,22 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
 
-use assistant::{
-    common::{eyre::Result, serde::Deserialize, serde_yaml, tokio},
-    Assistant, Embeddings, GenerateTask, Instruction, InstructionType,
-};
-use assistant_specialized::SpecializedAssistant;
+use assistant::SpecializedAssistant;
 use assistants::get_assistant;
+use model::{
+    common::{eyre::Result, serde::Deserialize, serde_yaml, tokio},
+    Embeddings, GenerateTask, Instruction, InstructionType, Model,
+};
 
 #[derive(Debug, Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct AssistantTest {
     text: Vec<String>,
 }
 
 // If your YAML file contains an array of tests
 #[derive(Debug, Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct TestCases(Vec<AssistantTest>);
 
 async fn local_get_assistant(itype: InstructionType, text: String) -> Result<(String, f32)> {
@@ -46,7 +46,7 @@ fn short_name(id: &str) -> String {
 async fn check_we_get_the_right_assistant() -> Result<()> {
     // Make a lookup of all special assistants built in to stencila.
     let special_by_key: HashMap<String, SpecializedAssistant> =
-        assistant_specialized::list_builtin_as_specialized()?
+        assistant::list_builtin_as_specialized()?
             .into_iter()
             // Remove "stencila/"
             .map(|a| (short_name(&a.name()), a))
@@ -98,7 +98,7 @@ async fn check_we_get_the_right_assistant() -> Result<()> {
 #[test]
 fn ensure_instruction_examples_are_distinct() -> Result<()> {
     // Make a lookup of all special assistants built in to stencila.
-    let mut assistants = assistant_specialized::list_builtin_as_specialized()?;
+    let mut assistants = assistant::list_builtin_as_specialized()?;
     for a in assistants.iter_mut() {
         a.init()?;
     }

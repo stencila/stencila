@@ -13,8 +13,8 @@ use std::{
     time::Duration,
 };
 
-use model::Model;
 use kernel::Kernel;
+use model::Model;
 use semver::{Version, VersionReq};
 
 use app::{get_app_dir, DirType};

@@ -12,6 +12,7 @@ use cached::proc_macro::once;
 use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
+pub use model::GenerateOptions;
 use model::{
     common::{
         async_trait::async_trait,
@@ -27,10 +28,9 @@ use model::{
     format::Format,
     merge::Merge,
     schema::{AuthorRoleName, InstructionMessage, MessagePart, NodeType},
-    ModelIO, ModelType, Embeddings, GenerateOutput, GenerateTask, Instruction,
-    InstructionType, Model,
+    Embeddings, GenerateOutput, GenerateTask, Instruction, InstructionType, Model, ModelIO,
+    ModelType,
 };
-pub use model::GenerateOptions;
 
 /// Default preference rank
 const PREFERENCE_RANK: u8 = 50;

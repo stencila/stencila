@@ -10,8 +10,8 @@ use common::{
 };
 use kernel::schema::AuthorRoleName;
 use model::{
-    format::Format, ModelAvailability, ModelIO, ModelType, GenerateOptions,
-    GenerateOutput, GenerateTask, Model,
+    format::Format, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelAvailability,
+    ModelIO, ModelType,
 };
 
 use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
