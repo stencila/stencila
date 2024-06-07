@@ -25,7 +25,7 @@ use crate::{
 #[command(name = "stencila", author, version, about, long_about, styles = Cli::styles())]
 pub struct Cli {
     #[command(subcommand)]
-    command: Command,
+    pub command: Command,
 
     /// The minimum log level to output
     #[arg(long, default_value = "info", global = true)]
@@ -76,7 +76,7 @@ impl Cli {
 }
 
 #[derive(Debug, Subcommand)]
-enum Command {
+pub enum Command {
     /// Create a new document
     New {
         /// The path of the document to create
@@ -316,8 +316,10 @@ enum Command {
         strip_options: StripOptions,
     },
 
-    /// Serve
     Serve(ServeOptions),
+
+    /// Run the Stencila Language Server
+    Lsp,
 
     Assistants(assistants::cli::Cli),
     Models(models::cli::Cli),
@@ -338,7 +340,7 @@ enum Command {
 /// when DecodeOptions` and `EncodeOptions` are both flattened into `Sync` and `Convert`
 /// commands.
 #[derive(Debug, Clone, Args)]
-struct StripOptions {
+pub struct StripOptions {
     /// Scopes defining which properties of nodes should be stripped
     #[arg(long)]
     strip_scopes: Vec<StripScope>,
@@ -354,7 +356,7 @@ struct StripOptions {
 
 /// Command line arguments for decoding nodes from other formats
 #[derive(Debug, Args)]
-struct DecodeOptions {}
+pub struct DecodeOptions {}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
@@ -383,7 +385,7 @@ impl DecodeOptions {
 
 /// Command line arguments for encoding nodes to other formats
 #[derive(Debug, Args)]
-struct EncodeOptions {
+pub struct EncodeOptions {
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
     standalone: bool,
@@ -459,7 +461,7 @@ impl EncodeOptions {
 }
 
 #[derive(Debug, Args)]
-struct ConfigOptions {
+pub struct ConfigOptions {
     #[arg(long, default_value = "config")]
     dir: DirType,
 
@@ -683,6 +685,8 @@ impl Cli {
             }
 
             Command::Serve(options) => serve(options).await?,
+
+            Command::Lsp => lsp::run().await,
 
             Command::Assistants(assistants) => assistants.run().await?,
             Command::Models(models) => models.run().await?,

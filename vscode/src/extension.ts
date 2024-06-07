@@ -33,7 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Start the language server client
   const serverOptions: ServerOptions = {
     command: "cargo",
-    args: ["run", "--package=lsp", "--quiet"],
+    args: ["run", "--package=cli", "--quiet", "lsp"],
     options: {
       cwd: path.join(__dirname, "..", ".."),
     },

@@ -1055,6 +1055,7 @@ dependencies = [
  "format",
  "is-terminal",
  "kernels",
+ "lsp",
  "models",
  "node-execute",
  "node-strip",
