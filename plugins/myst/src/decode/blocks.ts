@@ -14,6 +14,7 @@ import {
   Table,
   TableCell,
   TableRow,
+  Text,
   ThematicBreak,
 } from "@stencila/types";
 import type {
@@ -100,7 +101,10 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
             (c) => c.type !== "admonitionTitle"
           ) as FlowContent[]
         ),
-        { title: titleInlines ? mdsToInlines(titleInlines) : undefined }
+        {
+          title: titleInlines ? mdsToInlines(titleInlines) : undefined,
+          isFolded: md.class === "dropdown" ? true : undefined,
+        }
       );
     case "container":
       return new Figure(
@@ -109,16 +113,23 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
             case "table":
               return mdToBlock(r)!;
             case "image":
-              return new Paragraph([new ImageObject(r.url)]);
-            // TODO: Figure out what the diff between these two are
+              return new Paragraph([
+                new ImageObject(r.url, {
+                  description: r.alt ? new Text(r.alt) : undefined,
+                }),
+              ]);
+            // TODO: Find out what the diff between these two are
             case "caption":
             case "legend":
               return new Figure(mdsToBlocks(r.children));
+            default:
+              throw new Error(`Figure type not yet implemented: ${r.type}`);
           }
-        })
+        }),
+        { name: md.identifier, label: md.label }
       );
     case "math":
-      return new MathBlock(md.value);
+      return new MathBlock(md.value, {label: md.label });
     case "table":
       return new Table(
         md.children.map(
@@ -127,9 +138,16 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
               r.children.map(
                 (c) =>
                   new TableCell(
-                    mdsToInlines(c.children).map((p) => new Paragraph([p]))
+                    mdsToInlines(c.children).map((p) => new Paragraph([p])),
+                    { cellType: c.header ? "HeaderCell" : "DataCell" }
                   )
-              )
+              ),
+              {
+                // If all cells in the row are HeaderCells, then this is a HeaderRow
+                rowType: !r.children.some((c) => !c.header)
+                  ? "HeaderRow"
+                  : undefined,
+              }
             )
         )
       );
@@ -152,7 +170,7 @@ const toStencilaAdmonitionKind = {
   hint: "Tip",
   important: "Important",
   note: "Note",
-  seealso: "Info",
+  seealso: "Note",
   tip: "Tip",
   warning: "Warning",
 };

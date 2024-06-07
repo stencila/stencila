@@ -51,6 +51,17 @@ export function encodeInline(inline: Inline, context: MySTEncodeContext) {
         "![" + (inline.text ?? "") + "](" + inline.contentUrl + ")"
       );
       break;
+    case "Link":
+      context.pushString("[");
+      if (inline.content) {
+        encodeInlines(inline.content, context);
+      }
+      context.pushString("](" + inline.target + ")");
+      break;
+    case "MathInline":
+      // Alternatively we could wrap in dollar signs $ but can be more problematic
+      context.pushString("{math}`" + inline.code + "`");
+      break;
     case "AudioObject":
     case "Button":
     case "Cite":
@@ -62,8 +73,6 @@ export function encodeInline(inline: Inline, context: MySTEncodeContext) {
     case "Duration":
     case "InsertInline":
     case "InstructionInline":
-    case "Link":
-    case "MathInline":
     case "MediaObject":
     case "ModifyInline":
     case "Note":
