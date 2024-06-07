@@ -26,7 +26,6 @@ You can click on these and see the preview of the reference immediately.
 
 :::{figure}
 :name: my-fig
-:label: my-fig
 ![](https://source.unsplash.com/random/400x200?beach,ocean)
 
 Relaxing at the beach 🏝 🌊 😎
@@ -43,9 +42,8 @@ Relaxing at the beach 🏝 🌊 😎
 ```
 ## Including Tables
 
-:::{figure}
+:::{table}
 :name: example-table
-:label: example-table
 This is a nice table!
 
 | Training  | Validation |

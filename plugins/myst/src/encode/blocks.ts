@@ -16,11 +16,11 @@ export function encodeBlocks(blocks: Block[], context: MySTEncodeContext) {
  */
 export function encodeBlock(block: Block, context: MySTEncodeContext) {
   context.enterNode(block.type, block.id ?? "");
+  const parentType = parentNodeType(context);
 
   switch (block.type) {
     case "Paragraph":
       encodeInlines(block.content, context);
-      const parentType = parentNodeType(context);
       if (parentType === "Table") {
         // No line break in table cell. Note, we currently do not push TableCell/Row on stack.
       } else if (parentType === "ListItem") {
@@ -69,27 +69,27 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
       }
       break;
     case "Figure":
-      // TODO: Seems there are four possible ways to encode a MyST Figure:
-      //   caption: if a Paragraph block with a Text is first child of the Figure container
-      //   legend: if a Paragraph block with a Text is first child of the Figure container
-      //   table: if a Table block is first child of the Figure container after taking into account
-      //   the above (in this case make first line `:::{table}` not `:::{figure}` )
-      //   image: if a Paragraph block with an ImageObject is first child of the Figure container
-      // Either implement rules as per above
-      if (parentNodeType(context) != "Figure") {
-        context.pushString(":::{figure}\n");
-      }
-      if (block.name) {
-        context.pushString(":name: " + block.name + "\n");
-      }
-      if (block.label) {
-        context.pushString(":label: " + block.label + "\n");
-      }
-      if (block.description) {
-        context.pushString(":alt: " + block.description + "\n");
+      // Disallow nested Figure
+      if (parentType != "Figure") {
+        if (
+          block.content[0].type === "Table" ||
+          (block.content[0]?.type === "Figure" &&
+            block.content[0]?.content[0]?.type === "Paragraph" &&
+            block.content[1]?.type === "Table")
+        ) {
+          context.pushString(":::{table}\n");
+        } else {
+          context.pushString(":::{figure}\n");
+        }
+        if (block.name) {
+          context.pushString(":name: " + block.name + "\n");
+        }
+        if (block.description) {
+          context.pushString(":alt: " + block.description + "\n");
+        }
       }
       encodeBlocks(block.content, context);
-      if (parentNodeType(context) != "Figure") {
+      if (parentType != "Figure") {
         context.pushString(":::\n");
       }
       break;
