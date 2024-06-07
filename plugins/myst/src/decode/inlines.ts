@@ -5,6 +5,7 @@ import {
   Inline,
   Link,
   MathInline,
+  Strikeout,
   Strong,
   Subscript,
   Superscript,
@@ -49,10 +50,15 @@ export function mdToInline(md: PhrasingContent): Inline {
         return new Subscript(mdsToInlines(md.children));
       case "superscript":
         return new Superscript(mdsToInlines(md.children));
-      case "mystRole":
-      // Roles should not exist after basicTransformations() in index.ts
-      case "abbreviation":
       case "break":
+        return new Text("\n");
+      case "delete":
+        return new Strikeout(mdsToInlines(md.children), md.value);
+      case "mystRole":
+        throw new Error(
+          "mystRole should not exist after basicTransformations()"
+        );
+      case "abbreviation":
       case "html":
       case "crossReference":
       case "footnoteReference":

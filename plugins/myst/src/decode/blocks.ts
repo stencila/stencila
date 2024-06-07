@@ -46,10 +46,11 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
     case "block":
       // A MyST Block corresponds to a seperate cell in a notebook
       // But we are currently assuming only one at top level block, see index.ts
-      throw new Error(`Not yet implemented: ${md.type}`);
+      throw new Error(`Expected only one top-level block`);
     case "mystDirective":
-      // Directive should not exist after basicTransformations() in index.ts
-      throw new Error(`Not yet implemented: ${md.type}`);
+      throw new Error(
+        "mystDirective should not exist after basicTransformations()"
+      );
     case "paragraph":
       return new Paragraph(mdsToInlines(md.children));
     case "heading":
@@ -83,7 +84,7 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
                 }
               })
               .filter((_) => !!_) as Block[],
-            // For some reason `checked` is not defined, but actually does exist in the ListItem
+            // `checked` is not defined, but actually does exist in the MyST ListItem checkbox
             { isChecked: (li as any).checked }
           );
         }),
@@ -123,13 +124,15 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
             case "legend":
               return new Figure(mdsToBlocks(r.children));
             default:
-              throw new Error(`Figure type not yet implemented: ${r.type}`);
+              throw new Error(
+                `MyST container type not yet implemented: ${(r as any).type}`
+              );
           }
         }),
         { name: md.identifier, label: md.label }
       );
     case "math":
-      return new MathBlock(md.value, {label: md.label });
+      return new MathBlock(md.value, { label: md.label });
     case "table":
       return new Table(
         md.children.map(
@@ -143,7 +146,7 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
                   )
               ),
               {
-                // If all cells in the row are HeaderCells, then this is a HeaderRow
+                // If all cells in the row are HeaderCells, then assume this is a HeaderRow
                 rowType: !r.children.some((c) => !c.header)
                   ? "HeaderRow"
                   : undefined,

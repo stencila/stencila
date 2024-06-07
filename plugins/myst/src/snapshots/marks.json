@@ -56,6 +56,88 @@
           "value": ", and *escaped symbols*"
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Fleas "
+        },
+        {
+          "type": "Text",
+          "value": "\n"
+        },
+        {
+          "type": "Text",
+          "value": "Adam "
+        },
+        {
+          "type": "Text",
+          "value": "\n"
+        },
+        {
+          "type": "Text",
+          "value": "Had 'em."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "H"
+        },
+        {
+          "type": "Subscript",
+          "content": [
+            {
+              "type": "Text",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "O, and 4"
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Text",
+              "value": "th"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " of July"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Here is some "
+        },
+        {
+          "type": "Strikeout",
+          "content": [
+            {
+              "type": "Text",
+              "value": "deleted"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " text"
+        }
+      ]
     }
   ]
 }

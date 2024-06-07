@@ -26,7 +26,11 @@ export function encodeInline(inline: Inline, context: MySTEncodeContext) {
 
   switch (inline.type) {
     case "Text":
-      context.pushString(escapeMarkdown(inline.value));
+      if (inline.value === "\n") {
+        context.pushString("\\\n");
+      } else {
+        context.pushString(escapeMarkdown(inline.value));
+      }
       break;
     case "CodeInline":
       context.pushString("`" + inline.code + "`");
@@ -59,8 +63,23 @@ export function encodeInline(inline: Inline, context: MySTEncodeContext) {
       context.pushString("](" + inline.target + ")");
       break;
     case "MathInline":
-      // Alternatively we could wrap in dollar signs $ but can be more problematic
+      // Alternatively we could wrap in dollar signs $, but this can be more problematic
       context.pushString("{math}`" + inline.code + "`");
+      break;
+    case "Subscript":
+      context.pushString("{sub}`");
+      encodeInlines(inline.content, context);
+      context.pushString("`");
+      break;
+    case "Superscript":
+      context.pushString("{sup}`");
+      encodeInlines(inline.content, context);
+      context.pushString("`");
+      break;
+    case "Strikeout":
+      context.pushString("{del}`");
+      encodeInlines(inline.content, context);
+      context.pushString("`");
       break;
     case "AudioObject":
     case "Button":
@@ -80,10 +99,6 @@ export function encodeInline(inline: Inline, context: MySTEncodeContext) {
     case "QuoteInline":
     case "ReplaceInline":
     case "StyledInline":
-    case "Strikeout":
-    case "Subscript":
-    case "Superscript":
-    case "Text":
     case "Time":
     case "Timestamp":
     case "VideoObject":
