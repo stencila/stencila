@@ -78,13 +78,16 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const toolTipStyles = css`
       &::part(body) {
-        --sl-tooltip-padding: 0;
-        --sl-tooltip-border-radius: 0;
-        --sl-tooltip-background-color: transparent;
-        --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
         --max-width: 24rem;
-
+        color: ${(colors['black'] ?? 'black') as string};
+        padding: 0;
+        border-radius: 0;
+        background-color: transparent;
         pointer-events: all;
+      }
+
+      &::part(base__arrow) {
+        display: none;
       }
 
       &::part(body)::after {
@@ -101,10 +104,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       }
     `
 
-    return html`<div
-      class=${containerStyles}
-      style="--sl-tooltip-arrow-size: 0;"
-    >
+    return html`<div class=${containerStyles}>
       ${this.renderChip(this.getIcon(), this.ui)}
       <sl-tooltip
         trigger="manual"

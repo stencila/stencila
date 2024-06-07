@@ -88,7 +88,7 @@ export class CodeExpression extends CodeExecutable {
           // TODO get the <code> put into a slot
           this.executionCount > 0
             ? html`<slot name="output"></slot>`
-            : html`<code>${this.code}</code>`
+            : html`<slot></slot>`
         }
       </span>
     </stencila-ui-inline-on-demand>`
