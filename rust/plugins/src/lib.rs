@@ -13,8 +13,8 @@ use std::{
     time::Duration,
 };
 
-use assistant::Assistant;
 use kernel::Kernel;
+use model::Model;
 use semver::{Version, VersionReq};
 
 use app::{get_app_dir, DirType};
@@ -487,13 +487,13 @@ impl Plugin {
     ///
     /// Each assistant is bound to this plugin so that it can
     /// be started (by starting the plugin first).
-    fn assistants(&self) -> Vec<Arc<dyn Assistant>> {
+    fn assistants(&self) -> Vec<Arc<dyn Model>> {
         self.assistants
             .clone()
             .into_iter()
             .map(|mut assistant| {
                 assistant.bind(self);
-                Arc::new(assistant) as Arc<dyn Assistant>
+                Arc::new(assistant) as Arc<dyn Model>
             })
             .collect()
     }

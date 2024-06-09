@@ -21,7 +21,7 @@ Assistants are specified in Markdown files with a YAML header (surrounded by thr
 name: example/assistant
 description: An example assistant
 
-delegates:
+models:
   - openai/gpt-3.5-turbo-1106
   - anthropic/claude-2.1
 ---
@@ -41,7 +41,7 @@ The following fields are required in the header:
 
 - `name`: A unique name for the assistant
 - `description`: A description of what the assistant does and how it does it
-- `delegates`: A list of general assistants that will be delegated to; delegation will be attempted in the order specified
+- `models`: A list of general assistants that will be delegated to; delegation will be attempted in the order specified
 
 #### Instruction matching
 

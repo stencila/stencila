@@ -278,18 +278,79 @@
         ]
       },
       {
-        "title": "Writing documents: The Krebs Cycle",
-        "description": "Generating related text and figures.\n",
-        "id": "krebs",
+        "title": "Writing documents: Wildfires",
+        "description": "Data summary and analysis",
+        "id": "fires",
         "steps": [
           {
-            "title": "Generating Diagrams and Code",
+            "title": "Getting started",
             "id": "step1",
             "media": {
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22krebs.smd%22).\n\n• We're going to write about modeling [The Krebs Cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%23%20The%20Krebs%20Cycle%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%20%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20krebs%20cycle%2C%20background%20and%20history%5Cn-%20krebs%20cycle%2C%20the%20process%5Cn-%20krebs%20cycle%2C%20the%20significance%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• We can use Graphviz to make create a diagram showing the [reactions and products in the cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz-figure%20the%20krebs%20cycle%2C%20showing%20the%20sequence%20of%20reactions%2C%20products%20and%20cycle.%5Cn%22%5D)\n\n• The diagram generated can be tweaked. For example, the default is often orientation is often left-right (LR). If so, try changing it to TB (top-bottom). Re-run it.\n\n• We can also generate code to plot a [time series](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20plot%20times%20series%20of%20elements%20for%20the%20krebs%20cycle%20using%20scipy%5Cn%22%5D) of concentrations of elements in the Krebs cycle.\n\n"
+            "description": "\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough-file-open?%22fires.smd%22)\n\n• [Add some metadata](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22---%5Cntitle%3A%20An%20analysis%20of%20causes%20and%20trends%20of%20wildfires%20in%20the%20US%2C%201992-2015%5Cngenre%3A%20Scientific%20journal%20article%5Cnkeywords%3A%20wildfires%2C%20causes%5Cn---%22%5D) to the document to help guide the assistant to produce relevant content.\n\n• Next, let's start the article by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%20one%2020-40%20word%20paragraph%5Cn%5Cn%22%5D), and assigned to ``insert-paras``\n\n"
+          },
+          {
+            "title": "Summarizing the data",
+            "id": "step2",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's [read in the data](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%23%20Results%5Cn%5Cn%60%60%60r%20exec%5Cndata%20%3D%20read.csv%28%5C%22fires.csv%5C%22%29%5Cn%60%60%60%5Cn%22%5D) we want to summarize.\n\n• Now, use the ``insert-code-chunk`` assistant to [summarize the data](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20summarize%20data%20by%20cause%20ranked%20by%20acres%20burnt%5Cn%22%5D)\n\n• Then we'll use the ``describe-outputs`` assistant [to write a summary in words](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40describe-outputs%20in%20one%20paragraphs%5Cn%22%5D)\n\n"
+          },
+          {
+            "title": "Plotting the data",
+            "id": "step3",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's see what the ``insert-code-figure`` [assistant](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20total%20acres%20by%20year%20for%20the%20top%20five%20states%5Cn%22%5D) does for us.\n\n• Finally, let's see if the ``insert-graphviz`` [assistant](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz%20relationship%20between%20causes%20of%20wildfires%2C%20use%20appropriate%20colors%2C%20maximum%205%20nodes%5Cn%22%5D) can get us started with code for creating a diagram.\n\n"
+          },
+          {
+            "title": "Finishing up",
+            "id": "step4",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Finally, we'll use ``insert-discussion`` to [get us started with a discussion](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%23%20Discussion%5Cn%5Cn%3A%3A%3A%20do%20%40insert-discussion%201-2%20paras%2C%20100%20words%5Cn%5Cn%22%5D). \n\n• And, ``insert-code-methods`` to [write-up how we did the analysis](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%23%20Methods%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-methods%20max%202%20paras%2C%20100%20words%5Cn%5Cn%22%5D).\n\n"
+          }
+        ]
+      },
+      {
+        "title": "Writing documents: The Krebs Cycle",
+        "description": "Generating related text and figures.\n",
+        "id": "krebs",
+        "steps": [
+          {
+            "title": "Getting started",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22krebs.smd%22).\n\n• We're going to write about modeling [The Krebs Cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%23%20The%20Krebs%20Cycle%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%20%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20krebs%20cycle%2C%20background%20and%20history%5Cn-%20krebs%20cycle%2C%20the%20process%5Cn-%20krebs%20cycle%2C%20the%20significance%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n"
+          },
+          {
+            "title": "Adding a diagram",
+            "id": "step2",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Let's use Graphviz to make create a diagram showing the [reactions and products in the cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5CnThe%20following%20figure%20illustrates%20the%20sequence%20of%20reactions%2C%20products%20in%20the%20Krebs%20cycle%5Cn%5Cn%3A%3A%3A%20do%20%40insert-graphviz%20showing%20the%20sequence%20of%20reactions%2C%20products%20and%20cycle%2C%20use%20colored%20rectangles.%22%5D)\n\n• The diagram generated can be tweaked. For example, the default is often orientation is often left-right (LR). If so, try changing it to TB (top-bottom). Re-run it.\n\n"
+          },
+          {
+            "title": "Adding a plot",
+            "id": "step3",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\nLet's add a plot of the [time series](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5CnThe%20following%20figure%20illustrates%20the%20time%20series%20of%20elements%20in%20the%20Krebs%20Cycle.%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20plot%20times%20series%20of%20elements%20using%20scipy%5Cn%22%5D) of concentrations of elements in the Krebs cycle.\n\n"
           }
         ]
       },

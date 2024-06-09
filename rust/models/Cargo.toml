@@ -1,15 +1,14 @@
 [package]
-name = "assistant"
+name = "models"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-app = { path = "../app" }
+cli-utils = { path = "../cli-utils" }
 model = { path = "../model" }
 models-anthropic = { path = "../models-anthropic" }
 models-google = { path = "../models-google" }
 models-mistral = { path = "../models-mistral" }
 models-ollama = { path = "../models-ollama" }
 models-openai = { path = "../models-openai" }
-cached = { version = "0.50.0", features = ["async"] }
-rust-embed = { version = "8.3.0", features = ["interpolate-folder-path", "include-exclude"] }
+plugins = { path = "../plugins" }

@@ -23,6 +23,8 @@ document = { path = "../document" }
 format = { path = "../format" }
 kernels = { path = "../kernels" }
 is-terminal = "0.4.12"
+lsp = { path = "../lsp" }
+models = { path = "../models" }
 node-execute = { path = "../node-execute" }
 node-strip = { path = "../node-strip" }
 plugins = { path = "../plugins" }

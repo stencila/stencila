@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use cached::proc_macro::cached;
 
-use assistant::{
+use model::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
@@ -13,8 +13,8 @@ use assistant::{
         tracing,
     },
     schema::MessagePart,
-    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
-    IsAssistantMessage,
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
+    ModelType,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -22,7 +22,7 @@ const BASE_URL: &str = "https://api.mistral.ai/v1";
 /// The name of the env var or secret for the API key
 const API_KEY: &str = "MISTRAL_API_KEY";
 
-struct MistralAssistant {
+struct MistralModel {
     /// The name of the model
     model: String,
 
@@ -33,8 +33,8 @@ struct MistralAssistant {
     client: Client,
 }
 
-impl MistralAssistant {
-    /// Create a Mistral assistant
+impl MistralModel {
+    /// Create a Mistral model
     fn new(model: String, context_length: usize) -> Self {
         Self {
             model,
@@ -45,25 +45,25 @@ impl MistralAssistant {
 }
 
 #[async_trait]
-impl Assistant for MistralAssistant {
+impl Model for MistralModel {
     fn name(&self) -> String {
         format!("mistral/{}", self.model)
     }
 
-    fn r#type(&self) -> AssistantType {
-        AssistantType::Remote
+    fn r#type(&self) -> ModelType {
+        ModelType::Remote
     }
 
     fn context_length(&self) -> usize {
         self.context_length
     }
 
-    fn supported_inputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_inputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
-    fn supported_outputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_outputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
     #[tracing::instrument(skip(self))]
@@ -141,17 +141,17 @@ impl Assistant for MistralAssistant {
 ///
 /// Based on https://docs.mistral.ai/api#operation/listModels
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ModelsResponse {
-    data: Vec<Model>,
+    data: Vec<ModelSpec>,
 }
 
 /// A model returned within a `ModelsResponse`
 ///
 /// Note: at present several other fields are ignored.
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
-struct Model {
+#[serde(crate = "model::common::serde")]
+struct ModelSpec {
     id: String,
 }
 
@@ -160,7 +160,7 @@ struct Model {
 /// Based on https://docs.mistral.ai/api#operation/createChatCompletion
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ChatCompletionRequest {
     model: String,
     messages: Vec<ChatMessage>,
@@ -175,7 +175,7 @@ struct ChatCompletionRequest {
 /// Note: at present several other fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ChatCompletionResponse {
     choices: Vec<ChatCompletionChoice>,
 }
@@ -185,7 +185,7 @@ struct ChatCompletionResponse {
 /// Note: at present several other fields are ignored.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ChatCompletionChoice {
     message: ChatMessage,
 }
@@ -193,7 +193,7 @@ struct ChatCompletionChoice {
 /// A chat message within a `ChatCompletionRequest` or a `ChatCompletionResponse`
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ChatMessage {
     role: ChatRole,
     content: String,
@@ -201,7 +201,7 @@ struct ChatMessage {
 
 /// A role in a `ChatMessage`
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "assistant::common::serde")]
+#[serde(rename_all = "lowercase", crate = "model::common::serde")]
 enum ChatRole {
     System,
     User,
@@ -215,7 +215,7 @@ enum ChatRole {
 /// Memoized for an hour to reduce the number of times that the
 /// remote API need to be called to get a list of available models.
 #[cached(time = 3600, result = true)]
-pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     let Ok(key) = secrets::env_or_get(API_KEY) else {
         tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
@@ -233,11 +233,11 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 
     let ModelsResponse { data: models } = response.json().await?;
 
-    let assistants = models
+    let models = models
         .into_iter()
         .filter(|model| !model.id.ends_with("-embed"))
         .sorted_by(|a, b| a.id.cmp(&b.id))
-        .map(|Model { id: model }| {
+        .map(|ModelSpec { id: model }| {
             let context_length = match model.as_str() {
                 "mistral-tiny" => 4_096,
                 "mistral-small" => 8_192,
@@ -245,20 +245,20 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
                 _ => 4_096,
             };
 
-            Arc::new(MistralAssistant::new(model, context_length)) as Arc<dyn Assistant>
+            Arc::new(MistralModel::new(model, context_length)) as Arc<dyn Model>
         })
         .collect();
 
-    Ok(assistants)
+    Ok(models)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word};
+    use model::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
-    async fn list_assistants() -> Result<()> {
+    async fn list_models() -> Result<()> {
         let list = list().await?;
 
         if secrets::env_or_get(API_KEY).is_err() {
@@ -276,8 +276,8 @@ mod tests {
             return Ok(());
         }
 
-        let assistant = &list().await?[0];
-        let output = assistant
+        let model = &list().await?[0];
+        let output = model
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 

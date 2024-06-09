@@ -9,7 +9,7 @@ use ollama_rs::{
     Ollama,
 };
 
-use assistant::{
+use model::{
     common::{
         async_trait::async_trait,
         eyre::{eyre, Result},
@@ -17,11 +17,10 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
-    IsAssistantMessage,
+    GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO, ModelType,
 };
 
-/// An assistant running on a Ollama (https://github.com/jmorganca/ollama/) server
+/// A model running on a Ollama (https://github.com/jmorganca/ollama/) server
 ///
 /// To start an Ollama server:
 ///
@@ -35,8 +34,8 @@ use assistant::{
 /// sudo service ollama stop
 /// ```
 ///
-/// An assistant is listed for each Ollama model that has previously been pulled.
-pub struct OllamaAssistant {
+/// A model is listed for each Ollama model that has previously been pulled.
+pub struct OllamaModel {
     /// The Ollama name for a model including any tag e.g. "llama2:13b"
     ///
     /// Used as the required `model` parameter in each request to `POST /api/generate`
@@ -50,13 +49,13 @@ pub struct OllamaAssistant {
     client: Ollama,
 }
 
-impl OllamaAssistant {
-    /// Create a Ollama-based assistant
+impl OllamaModel {
+    /// Create a Ollama-based model
     pub fn new(model: String, context_length: usize) -> Self {
         Self::new_with(model, context_length, None, None)
     }
 
-    /// Create a Ollama-based assistant with options for address of server
+    /// Create a Ollama-based model with options for address of server
     pub fn new_with(
         model: String,
         context_length: usize,
@@ -76,13 +75,13 @@ impl OllamaAssistant {
 }
 
 #[async_trait]
-impl Assistant for OllamaAssistant {
+impl Model for OllamaModel {
     fn name(&self) -> String {
         format!("ollama/{}", self.model)
     }
 
-    fn r#type(&self) -> AssistantType {
-        AssistantType::Local
+    fn r#type(&self) -> ModelType {
+        ModelType::Local
     }
 
     fn publisher(&self) -> String {
@@ -111,12 +110,12 @@ impl Assistant for OllamaAssistant {
         self.context_length
     }
 
-    fn supported_inputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_inputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
-    fn supported_outputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_outputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
     async fn perform_task(
@@ -147,14 +146,14 @@ impl Assistant for OllamaAssistant {
                                 images.push(Image::from_base64(base64))
                             } else {
                                 tracing::warn!(
-                                    "Image does not appear to have a DataURI so was ignored by assistant `{}`",
+                                    "Image does not appear to have a DataURI so was ignored by model `{}`",
                                     self.name()
                                 );
                             }
                         }
                         _ => {
                             tracing::warn!(
-                                "Message part `{part}` is ignored by assistant `{}`",
+                                "Message part `{part}` is ignored by model `{}`",
                                 self.name()
                             );
                         }
@@ -191,7 +190,7 @@ impl Assistant for OllamaAssistant {
             ($name:ident) => {
                 if options.$name.is_some() {
                     tracing::warn!(
-                        "Option `{}` is ignored by assistant `{}` for text-to-text generation",
+                        "Option `{}` is ignored by model `{}` for text-to-text generation",
                         stringify!($name),
                         self.name()
                     )
@@ -243,10 +242,10 @@ impl Assistant for OllamaAssistant {
     }
 }
 
-/// Get a list of all available Ollama assistants
+/// Get a list of all available Ollama models
 ///
 /// Fetches the list of Ollama models from the server and maps them
-/// into assistants.
+/// into models.
 ///
 /// If there is no server listening on port 11434 (the default for Ollama)
 /// returns an empty list.
@@ -255,28 +254,28 @@ impl Assistant for OllamaAssistant {
 /// (which will be probably be wrong for some). At the time of writing
 /// there does not appear to be an easy way to get the actual context
 /// length of an Ollama model (i.e. it is not in the API).
-pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     if std::net::TcpStream::connect("127.0.0.1:11434").is_err() {
         return Ok(vec![]);
     }
 
     let models = Ollama::default().list_local_models().await?;
 
-    let assistants = models
+    let models = models
         .into_iter()
-        .map(|model| Arc::new(OllamaAssistant::new(model.name, 4096)) as Arc<dyn Assistant>)
+        .map(|model| Arc::new(OllamaModel::new(model.name, 4096)) as Arc<dyn Model>)
         .collect();
 
-    Ok(assistants)
+    Ok(models)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word};
+    use model::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
-    async fn list_assistants() -> Result<()> {
+    async fn list_models() -> Result<()> {
         // Just check this does not error since list may be empty is Ollama
         // not installed or has no models.
         list().await?;
@@ -287,11 +286,11 @@ mod tests {
     #[tokio::test]
     async fn perform_task() -> Result<()> {
         let list = list().await?;
-        let Some(assistant) = list.first() else {
+        let Some(model) = list.first() else {
             return Ok(());
         };
 
-        let output = assistant
+        let output = model
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use assistant::{
+use model::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
@@ -11,8 +11,8 @@ use assistant::{
         tracing,
     },
     schema::MessagePart,
-    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
-    IsAssistantMessage,
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
+    ModelType,
 };
 
 /// The base URL for the Anthropic API
@@ -24,8 +24,8 @@ const API_VERSION: &str = "2023-06-01";
 /// The name of the env var or secret for the API key
 const API_KEY: &str = "ANTHROPIC_API_KEY";
 
-/// An assistant running on Anthropic
-pub struct AnthropicAssistant {
+/// An model running on Anthropic
+pub struct AnthropicModel {
     /// The name of the model including its version e.g. "claude-2.1"
     model: String,
 
@@ -36,8 +36,8 @@ pub struct AnthropicAssistant {
     client: Client,
 }
 
-impl AnthropicAssistant {
-    /// Create an Anthropic assistant
+impl AnthropicModel {
+    /// Create an Anthropic model
     fn new(model: String, context_length: usize) -> Self {
         Self {
             model,
@@ -48,25 +48,25 @@ impl AnthropicAssistant {
 }
 
 #[async_trait]
-impl Assistant for AnthropicAssistant {
+impl Model for AnthropicModel {
     fn name(&self) -> String {
         format!("anthropic/{}", self.model)
     }
 
-    fn r#type(&self) -> AssistantType {
-        AssistantType::Remote
+    fn r#type(&self) -> ModelType {
+        ModelType::Remote
     }
 
     fn context_length(&self) -> usize {
         self.context_length
     }
 
-    fn supported_inputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_inputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
-    fn supported_outputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_outputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
     async fn perform_task(
@@ -148,20 +148,20 @@ impl Assistant for AnthropicAssistant {
     }
 }
 
-/// Get a list of all available Anthropic assistants.
+/// Get a list of all available Anthropic models.
 ///
 /// Currently there is no Anthropic API route to obtain a list of models.
 /// Therefore, this uses a static list with versions and other info from
 /// https://docs.anthropic.com/claude/reference/input-and-output-sizes.
 ///
 /// If the Anthropic API key is not available returns an empty list.
-pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     if secrets::env_or_get(API_KEY).is_err() {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     }
 
-    let assistants = [
+    let models = [
         ("claude-3-opus-20240229", 200_000),
         ("claude-3-sonnet-20240229", 200_000),
         ("claude-3-haiku-20240307", 200_000),
@@ -171,18 +171,18 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     ]
     .into_iter()
     .map(|(model, context_length)| {
-        Arc::new(AnthropicAssistant::new(model.to_string(), context_length)) as Arc<dyn Assistant>
+        Arc::new(AnthropicModel::new(model.to_string(), context_length)) as Arc<dyn Model>
     })
     .collect();
 
-    Ok(assistants)
+    Ok(models)
 }
 
 /// A part within the content of a message in the Messages API
 ///
 /// Note: at present only `text` type is handled
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ContentPart {
     r#type: String,
     text: String,
@@ -192,7 +192,7 @@ struct ContentPart {
 ///
 /// Note: at present only text content is handled
 #[derive(Debug, Serialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct Message {
     role: String,
     content: Vec<ContentPart>,
@@ -204,7 +204,7 @@ struct Message {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct MessagesRequest {
     model: String,
     system: String,
@@ -219,7 +219,7 @@ struct MessagesRequest {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct MessagesResponse {
     content: Vec<ContentPart>,
 }
@@ -227,10 +227,10 @@ struct MessagesResponse {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word};
+    use model::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
-    async fn list_assistants() -> Result<()> {
+    async fn list_models() -> Result<()> {
         let list = list().await?;
 
         if secrets::env_or_get(API_KEY).is_err() {
@@ -248,8 +248,8 @@ mod tests {
             return Ok(());
         }
 
-        let assistant = &list().await?[0];
-        let output = assistant
+        let model = &list().await?[0];
+        let output = model
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 

@@ -1,1395 +1,891 @@
-use std::str::FromStr;
+//! Custom Stencila assistants specialized for specific tasks
+//!
+//! An assistant is a combination of (a) a model, (b) a default prompt,
+//! and (c) a set of default options. This crate defines some specialized
+//! assistants build on top of lower level, more generalized assistants
+//! in other crates and prompts defined in the top level `prompts` module.
 
-use context::Context;
-use merge::Merge;
+use std::{fs::read_to_string, sync::Arc};
 
-use codecs::{DecodeOptions, EncodeOptions, LossesResponse};
-use common::{
-    async_trait::async_trait,
-    clap::{self, Args, ValueEnum},
-    eyre::{bail, Result},
-    inflector::Inflector,
-    itertools::Itertools,
-    regex::Regex,
-    serde::{de::Error, Deserialize, Deserializer, Serialize},
-    serde_with::skip_serializing_none,
-    smart_default::SmartDefault,
-    strum::Display,
-    tracing,
-};
-use format::Format;
-use schema::{
-    transforms::{
-        blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes, transform_block,
-        transform_inline,
+#[cfg(not(debug_assertions))]
+use cached::proc_macro::once;
+use rust_embed::RustEmbed;
+
+use app::{get_app_dir, DirType};
+pub use model::GenerateOptions;
+use model::{
+    common::{
+        async_trait::async_trait,
+        eyre::{self, bail, eyre, Result},
+        glob::glob,
+        inflector::Inflector,
+        itertools::Itertools,
+        regex::Regex,
+        serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer},
+        serde_yaml, tracing,
     },
-    Article, AudioObject, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, ImageObject, Inline,
-    InsertBlock, InsertInline, InstructionBlock, InstructionInline, InstructionMessage, Link,
-    MessagePart, Node, NodeType, Organization, OrganizationOptions, PersonOrOrganization,
-    PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
-    SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
-    SuggestionStatus, Timestamp, VideoObject, VisitorMut, WalkNode,
+    deserialize_option_regex,
+    format::Format,
+    merge::Merge,
+    schema::{AuthorRoleName, InstructionMessage, MessagePart, NodeType},
+    Embeddings, GenerateOutput, GenerateTask, Instruction, InstructionType, Model, ModelIO,
+    ModelType,
 };
 
-// Export crates for the convenience of dependant crates
-pub use codecs;
-pub use common;
-pub use context;
-pub use format;
-pub use merge;
-pub use schema;
-pub use secrets;
+/// Default preference rank
+const PREFERENCE_RANK: u8 = 50;
 
-mod jinja;
-
-/// An instruction created within a document
-#[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
-pub enum Instruction {
-    /// The user created an `InstructionBlock` node
-    Block(InstructionBlock),
-
-    /// The user created an `InstructionInline` node
-    Inline(InstructionInline),
-}
-
-impl Default for Instruction {
-    fn default() -> Self {
-        Self::Block(InstructionBlock::default())
-    }
-}
-
-impl From<InstructionBlock> for Instruction {
-    fn from(instruct: InstructionBlock) -> Self {
-        Self::Block(instruct)
-    }
-}
-
-impl From<InstructionInline> for Instruction {
-    fn from(instruct: InstructionInline) -> Self {
-        Self::Inline(instruct)
-    }
-}
-
-impl Instruction {
-    /// Create an inline instruction from some text
-    pub fn inline_text<S: AsRef<str>>(text: S) -> Self {
-        Instruction::Inline(InstructionInline {
-            messages: vec![InstructionMessage {
-                parts: vec![MessagePart::Text(text.into())],
-                ..Default::default()
-            }],
-            ..Default::default()
-        })
-    }
-
-    /// Create an inline instruction from some text with content
-    pub fn inline_text_with<S: AsRef<str>, C: IntoIterator<Item = Inline>>(
-        text: S,
-        content: C,
-    ) -> Self {
-        Instruction::Inline(InstructionInline {
-            messages: vec![InstructionMessage {
-                parts: vec![MessagePart::Text(text.into())],
-                ..Default::default()
-            }],
-            content: Some(content.into_iter().collect()),
-            ..Default::default()
-        })
-    }
-
-    /// Create a block instruction from some text
-    pub fn block_text<S: AsRef<str>>(text: S) -> Self {
-        Instruction::Block(InstructionBlock {
-            messages: vec![InstructionMessage {
-                parts: vec![MessagePart::Text(text.into())],
-                ..Default::default()
-            }],
-            ..Default::default()
-        })
-    }
-
-    /// Create a block instruction from some text with content
-    pub fn block_text_with<S: AsRef<str>, C: IntoIterator<Item = Block>>(
-        text: S,
-        content: C,
-    ) -> Self {
-        Instruction::Block(InstructionBlock {
-            messages: vec![InstructionMessage {
-                parts: vec![MessagePart::Text(text.into())],
-                ..Default::default()
-            }],
-            content: Some(content.into_iter().collect()),
-            ..Default::default()
-        })
-    }
-
-    /// Get the assignee of the instruction (if any)
-    pub fn assignee(&self) -> Option<&str> {
-        match self {
-            Instruction::Block(block) => block.assignee.as_deref(),
-            Instruction::Inline(inline) => inline.assignee.as_deref(),
-        }
-    }
-
-    /// Get the messages of the instruction
-    pub fn messages(&self) -> &Vec<InstructionMessage> {
-        match self {
-            Instruction::Block(block) => &block.messages,
-            Instruction::Inline(inline) => &inline.messages,
-        }
-    }
-
-    /// Get the text of the instruction
-    ///
-    /// This joins all the text parts from all the messages in the instruction that are
-    /// not from assistants. It is generally better to use messages individually but
-    /// this is provided for convenience in circumstances when the aggregate text suffices.
-    pub fn text(&self) -> String {
-        self.messages()
-            .iter()
-            .filter(|message| !message.is_assistant())
-            .flat_map(|message| message.parts.iter())
-            .filter_map(|part| match part {
-                MessagePart::Text(text) => Some(text.to_value_string()),
-                _ => None,
-            })
-            .join(" ")
-    }
-
-    /// Get the content of the instruction (if any)
-    pub fn content(&self) -> Option<Vec<Node>> {
-        match self {
-            Instruction::Block(InstructionBlock {
-                content: Some(content),
-                ..
-            }) => Some(blocks_to_nodes(content.clone())),
-
-            Instruction::Inline(InstructionInline {
-                content: Some(content),
-                ..
-            }) => Some(inlines_to_nodes(content.clone())),
-
-            _ => None,
-        }
-    }
-}
-
-/// A enumeration of the type of instructions
+/// Default ordered list of models
 ///
-/// Used to delegate to different types of assistants
-#[derive(Debug, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
-pub enum InstructionType {
-    InsertBlocks,
-    InsertInlines,
-    ModifyBlocks,
-    ModifyInlines,
-}
-
-impl From<&Instruction> for InstructionType {
-    fn from(instruct: &Instruction) -> Self {
-        use InstructionType::*;
-        match instruct {
-            Instruction::Block(InstructionBlock { content: None, .. }) => InsertBlocks,
-
-            Instruction::Block(InstructionBlock {
-                content: Some(..), ..
-            }) => ModifyBlocks,
-
-            Instruction::Inline(InstructionInline { content: None, .. }) => InsertInlines,
-
-            Instruction::Inline(InstructionInline {
-                content: Some(..), ..
-            }) => ModifyInlines,
-        }
-    }
-}
-
-/// A trait to determine if a [`InstructionMessage`] in an instruction is from an
-/// assistant, based on its `authors`
-pub trait IsAssistantMessage {
-    fn is_assistant(&self) -> bool;
-}
-
-impl IsAssistantMessage for InstructionMessage {
-    fn is_assistant(&self) -> bool {
-        self.authors.iter().flatten().any(|author| {
-            matches!(
-                author,
-                PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(..)
-            )
-        })
-    }
-}
-
-/// A wrapper for Embeddings.
-/// It starts out empty, and must be filled in.
-/// We store both the text and the vectors so that we can easily
-/// retrieve them in tests.
-#[derive(Debug, Clone, Default, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct Embeddings {
-    texts: Option<Vec<String>>,
-    vectors: Option<Vec<Vec<f32>>>,
-}
-
-impl Embeddings {
-    pub fn is_empty(&self) -> bool {
-        self.vectors.is_none()
-    }
-
-    pub fn iter_items(&self) -> impl Iterator<Item = (&str, &[f32])> {
-        match (self.texts.as_ref(), self.vectors.as_ref()) {
-            (Some(texts), Some(vectors)) => texts
-                .iter()
-                .zip(vectors.iter())
-                .map(|(text, vector)| (text.as_str(), vector.as_slice()))
-                .collect::<Vec<(&str, &[f32])>>()
-                .into_iter(),
-            _ => vec![].into_iter(),
-        }
-    }
-
-    /// Create embeddings for a list of instructions texts
-    pub fn build<S>(&mut self, texts: Vec<S>) -> Result<()>
-    where
-        S: AsRef<str> + Send + Sync,
-    {
-        // Store a copy of the strings.
-        self.texts = Some(texts.iter().map(|s| s.as_ref().to_string()).collect());
-
-        #[cfg(feature = "fastembed")]
-        {
-            use app::DirType;
-            use common::{eyre::eyre, once_cell::sync::OnceCell};
-            use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
-            use std::path::PathBuf;
-
-            // Informal perf tests during development indicated that using
-            // a static improved speed substantially (rather than reloading for each call)
-            static MODEL: OnceCell<TextEmbedding> = OnceCell::new();
-
-            let model = match MODEL.get_or_try_init(|| {
-                TextEmbedding::try_new(InitOptions {
-                    // This model was chosen good performance for a small size.
-                    // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
-                    model_name: EmbeddingModel::BGESmallENV15,
-                    cache_dir: app::get_app_dir(DirType::Cache, true)
-                        .unwrap_or_else(|_| PathBuf::from("."))
-                        .join("fastembed"),
-                    ..Default::default()
-                })
-            }) {
-                Ok(model) => model,
-                Err(error) => bail!(error),
-            };
-
-            self.vectors = Some(model.embed(texts, None).map_err(|error| eyre!(error))?);
-        }
-
-        Ok(())
-    }
-
-    /// Return the best score of matching between two sets of embeddings.
-    /// If either has not been filled, then we get None.
-    pub fn score_match(&self, other: &Embeddings) -> Option<f32> {
-        self.vectors
-            .as_ref()
-            .zip(other.vectors.as_ref())
-            .map(|(v1, v2)| {
-                let mut best = 0.0f32;
-                for e1 in v1 {
-                    for e2 in v2 {
-                        let score = Self::calculate_similarity(e1, e2);
-                        if score > best {
-                            best = score;
-                        }
-                    }
-                }
-                best
-            })
-    }
-
-    /// Calculate the cosine similarity of two embeddings
-    pub fn calculate_similarity(a: &[f32], b: &[f32]) -> f32 {
-        if a.len() != b.len() {
-            return 0.0;
-        }
-
-        let dot_product: f32 = a.iter().zip(b.iter()).map(|(&x, &y)| x * y).sum();
-        let magnitude_a: f32 = a.iter().map(|&x| x * x).sum::<f32>().sqrt();
-        let magnitude_b: f32 = b.iter().map(|&y| y * y).sum::<f32>().sqrt();
-
-        if magnitude_a == 0.0 || magnitude_b == 0.0 {
-            return 0.0;
-        }
-
-        dot_product / (magnitude_a * magnitude_b)
-    }
-}
-
-/// A task to generate content
+/// Ordering of text-to-text assistants loosely based on https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard
+/// but with more recent models in a series always preferred over older models
+/// in the same series.
 ///
-/// A task is created for each generation request to an AI model.
-/// It is then included in the rendering context for the prompt.
-///
-/// Only properties not required within rendered templates should
-/// have `#[serde(skip)]`.
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct GenerateTask {
-    /// The instruction provided by the user
-    instruction: Instruction,
+/// Local models are at the end of the list on the assumption that
+/// if an API key is available for one of the other remote providers then
+/// that will usually be preferred.
+const MODELS: &[&str] = &[
+    // Text-to-text
+    "openai/gpt-4o-2024-05-13",
+    "openai/gpt-4-turbo-2024-04-09",
+    "anthropic/claude-3-sonnet-20240229",
+    "openai/gpt-4-1106-preview",
+    "google/gemini-1.0-pro-latest",
+    "openai/gpt-4-0613",
+    "openai/gpt-4-0314",
+    "mistral/mistral-large-latest",
+    "anthropic/claude-2.1",
+    "anthropic/claude-2.0",
+    "anthropic/claude-instant-1.2",
+    "mistral/mistral-medium-latest",
+    "openai/gpt-3.5-turbo-1106",
+    "openai/gpt-3.5-turbo-0613",
+    "openai/gpt-3.5-turbo-0301",
+    "mistral/mistral-small-latest",
+    "mistral/mistral-tiny",
+    "ollama/llama2:latest",
+    // Text-to-image,
+    "openai/dall-e-3",
+    "openai/dall-e-2",
+];
 
-    /// The instruction text provided for convenient access in prompt template
-    instruction_text: String,
-
-    /// The instruction embedding
-    ///
-    /// Not serialized because not necessary to send to plugin assistants.
-    #[serde(skip)]
-    instruction_embedding: Embeddings,
-
-    /// The content of the instruction in the format specified
-    /// in the `GenerateOptions` (defaulting to Markdown)
-    content_formatted: Option<String>,
-
-    /// The context of the instruction
-    ///
-    /// This is available to assistants so that they can tailor
-    /// their responses given the broader context of the document
-    /// that the instruction is within. For specialized assistants
-    /// it is available as the variable `context` within the
-    /// system prompt template.
-    context: Option<Context>,
-
-    /// The input type of the task
-    pub input: AssistantIO,
-
-    /// The output type of the task
-    pub output: AssistantIO,
-
-    /// The desired output format of the task
-    pub format: Format,
-
-    /// The context length of assistant performing the task
-    ///
-    /// Provided here so that user prompt templates can change rendering
-    /// to take into account the specific context length of the specific base
-    /// assistant being used for the task.
-    context_length: Option<usize>,
-
-    /// An optional system prompt
-    system_prompt: Option<String>,
+/// This structure eases the process of creating a specialized assistant
+/// by providing a shorthand for the type of nodes expected to be returned
+/// by the instruction.
+/// For now, it is simple, just a node type and a boolean indicating whether
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "&str", into = "String", crate = "model::common::serde")]
+pub struct ExpectedNodes {
+    node_type: NodeType,
+    repeated: bool,
 }
 
-impl GenerateTask {
-    /// Create a generation task from an instruction
-    pub fn new(instruction: Instruction, context: Option<Context>) -> Self {
-        // Pull the text out of the instruction here.
-        // TODO: Should we just build the embeddings here?
-        let text = instruction.text().to_string();
-        Self {
-            instruction,
-            instruction_text: text,
-            context,
-            ..Default::default()
-        }
-    }
-
-    /// Get the task's instruction
-    pub fn instruction(&self) -> &Instruction {
-        &self.instruction
-    }
-
-    /// Get the task's instruction mutably
-    pub fn instruction_mut(&mut self) -> &mut Instruction {
-        &mut self.instruction
-    }
-
-    /// Get the messages of the task's instruction
-    pub fn instruction_messages(&self) -> impl Iterator<Item = &InstructionMessage> {
-        self.instruction.messages().iter()
-    }
-
-    /// Get the similarity between the text of the instruction and some other, precalculated embedding
-    ///
-    /// Will populate `self.instruction_embedding` if necessary, so that this only needs to
-    /// be done once for each call to this function (e.g. when calculating similarity with
-    /// a number of other embeddings).
-    pub fn instruction_similarity(&mut self, embeddings: &Embeddings) -> Result<f32> {
-        if self.instruction_embedding.is_empty() {
-            self.instruction_embedding
-                .build(vec![&self.instruction_text])?;
-        }
-
-        Ok(self
-            .instruction_embedding
-            .score_match(embeddings)
-            .unwrap_or(0.1))
-    }
-
-    /// Get the task's desired input type
-    pub fn input(&self) -> &AssistantIO {
-        &self.input
-    }
-
-    /// Get the task's desired output type
-    pub fn output(&self) -> &AssistantIO {
-        &self.output
-    }
-
-    /// Get the task's desired output format
-    pub fn format(&self) -> &Format {
-        &self.format
-    }
-
-    /// Get the task's system prompt
-    pub fn system_prompt(&self) -> &Option<String> {
-        &self.system_prompt
-    }
-
-    /// Prepare the task to be executed by a particular assistant
-    #[tracing::instrument(skip_all)]
-    pub async fn prepare(
-        &mut self,
-        assistant: Option<&dyn Assistant>,
-        content_format: Option<&Format>,
-        system_prompt: Option<&String>,
-    ) -> Result<()> {
-        // Update properties of the task related to the assistant that
-        // will perform the task
-        if let Some(assistant) = assistant {
-            self.context_length = Some(assistant.context_length());
-        }
-
-        // Encode content to desired format
-        let encode_options = EncodeOptions {
-            // Do not use compact encodings
-            compact: Some(false),
-            // Reduce log level for losses. Consider further reducing to `Ignore`.
-            losses: LossesResponse::Debug,
-            ..Default::default()
+impl ExpectedNodes {
+    /// Create a regex for the comma separated list of expected node type names
+    fn as_regex(&self, use_repeat: bool) -> Result<Regex> {
+        let pattern = if use_repeat && self.repeated {
+            format!("^({},?)+$", self.node_type)
+        } else {
+            format!("^{}$", self.node_type)
         };
-        if let Some(nodes) = self.instruction().content() {
-            let mut content = String::new();
-            for node in nodes {
-                content += &codecs::to_string(
-                    &node,
-                    Some(EncodeOptions {
-                        format: content_format.cloned().or(Some(Format::Markdown)),
-                        ..encode_options.clone()
-                    }),
-                )
-                .await?;
-            }
-            self.content_formatted = Some(content);
+        Ok(Regex::new(&pattern)?)
+    }
+
+    /// Update the options based on the expected nodes.
+    fn apply(&self, options: &mut GenerateOptions) -> Result<()> {
+        if options.transform_nodes.is_none() {
+            options.transform_nodes = Some(self.node_type);
+        }
+        if options.filter_nodes.is_none() {
+            options.filter_nodes = Some(self.as_regex(false)?);
         }
 
-        // Render the system prompt with this task as context
-        if let Some(prompt) = system_prompt {
-            let rendered = jinja::render_template(prompt, self)?;
-
-            // This is very useful for debugging rendering of system prompts.
-            // Please consider that before removing :)
-            tracing::debug!("System prompt rendered:\n\n{rendered}");
-
-            self.system_prompt = Some(rendered);
+        if options.take_nodes.is_none() && !self.repeated {
+            options.take_nodes = Some(1);
         }
 
+        if options.assert_nodes.is_none() {
+            options.assert_nodes = Some(self.as_regex(true)?);
+        }
         Ok(())
     }
 }
 
-/// Options for various assistant generation methods
-///
-/// These options are across the various APIs used by various implementations of
-/// the `Assistant` trait. As such, each option is not necessarily supported by each
-/// implementation, and implementations may differ in their application of, and
-/// defaults for each option.
-///
-/// For details, see:
-///
-/// Google: https://ai.google.dev/api/rest/v1beta/GenerationConfig
-/// Ollama: https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
-/// OpenAI: https://platform.openai.com/docs/api-reference/parameter-details
-///
-/// Currently, the names and descriptions are based mainly on those documented for `ollama`
-/// with some additions for OpenAI.
-#[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, Merge, Args, Serialize, Deserialize)]
+// Providing these conversions means we don't need a specialized Serialize and
+// Deserialize implementation for the `ExpectedNodes` struct.
+// And they can be used more widely.
+impl From<ExpectedNodes> for String {
+    fn from(en: ExpectedNodes) -> Self {
+        let mut result = en.node_type.to_string();
+        if en.repeated {
+            result.push('+');
+        }
+        result
+    }
+}
+
+impl TryFrom<&str> for ExpectedNodes {
+    type Error = eyre::Report;
+
+    fn try_from(s: &str) -> Result<Self> {
+        let repeated = s.ends_with('+');
+        let node_type_str = if repeated { &s[..s.len() - 1] } else { s };
+        let node_type = node_type_str
+            .parse::<NodeType>()
+            .map_err(|_| eyre::eyre!("Invalid NodeType: {}", node_type_str))?;
+
+        Ok(ExpectedNodes {
+            node_type,
+            repeated,
+        })
+    }
+}
+
+/// Default format
+const FORMAT: Format = Format::Markdown;
+
+/// Default maximum retries
+const MAX_RETRIES: u8 = 1;
+
+/// A custom assistant
+/// TODO: Remove this when the options are being used.
+#[allow(dead_code)]
+#[derive(Default, Deserialize)]
 #[serde(
     rename_all = "kebab-case",
     deny_unknown_fields,
-    crate = "common::serde"
+    crate = "model::common::serde"
 )]
-pub struct GenerateOptions {
-    /// The name of the assistant to use
-    ///
-    /// Specify this option when you want to use a specific assistant and skip
-    /// the assistant delegation algorithm.
-    #[arg(long)]
-    pub assistant: Option<String>,
+pub struct SpecializedAssistant {
+    /// The id of the assistant
+    #[serde(skip_deserializing)]
+    id: String,
 
-    /// Prepare a generation task (e.g. render a system prompt) but do not actually generate content
-    ///
-    /// Assistant implementations should respect this option by returning an empty `GenerateOutput`
-    /// from `perform_task` at the last possible moment before generation (usually just before an API request is made).
-    #[arg(long)]
-    #[serde(default)]
-    #[merge(strategy = merge::bool::overwrite_false)]
-    pub dry_run: bool,
+    /// The version of the assistant
+    version: String,
 
-    /// Enable Mirostat sampling for controlling perplexity.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub mirostat: Option<u8>,
+    /// A description of the custom assistant
+    #[allow(unused)]
+    #[serde(skip_deserializing)]
+    description: String,
 
-    /// Influences how quickly the algorithm responds to feedback from the generated text.
+    /// The names of the models this assistant will use
+    /// to in descending order of preference
     ///
-    /// A lower learning rate will result in slower adjustments, while a higher learning
-    /// rate will make the algorithm more responsive.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub mirostat_eta: Option<f32>,
+    /// The default ordered list of models can be prepended
+    /// using this options. If the last item is `only` then the
+    /// list will be limited to those specified.
+    #[serde(deserialize_with = "deserialize_models", default = "default_models")]
+    models: Vec<String>,
 
-    /// Controls the balance between coherence and diversity of the output.
-    ///
-    /// A lower value will result in more focused and coherent text.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub mirostat_tau: Option<f32>,
+    /// The type of input for the generation task
+    task_input: Option<ModelIO>,
 
-    /// Sets the size of the context window used to generate the next token.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub num_ctx: Option<u32>,
+    /// The type of output for the generation task
+    task_output: Option<ModelIO>,
 
-    /// The number of GQA groups in the transformer layer.
+    /// An indication of the context length
     ///
-    /// Required for some models, for example it is 8 for llama2:70b
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub num_gqa: Option<u32>,
+    /// At runtime, the context length of the model used (for example to trim prompts).
+    context_length: Option<usize>,
 
-    /// The number of layers to send to the GPU(s).
+    /// The preference rank of the custom assistant
     ///
-    /// On macOS it defaults to 1 to enable metal support, 0 to disable.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub num_gpu: Option<u32>,
+    /// Defaults to 50 so that custom assistants are by default
+    /// preferred over generic assistants.
+    preference_rank: Option<u8>,
 
-    /// Sets the number of threads to use during computation.
-    ///
-    /// By default, Ollama will detect this for optimal performance. It is recommended to set this
-    /// value to the number of physical CPU cores your system has (as opposed to the logical
-    /// number of cores).
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub num_thread: Option<u32>,
+    /// The type of instruction the assistant executes
+    instruction_type: Option<InstructionType>,
 
-    /// Sets how far back for the model to look back to prevent repetition.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub repeat_last_n: Option<i32>,
+    /// A description of the kinds of nodes expected to be returned by the instruction.
+    expected_nodes: Option<ExpectedNodes>,
 
-    /// Sets how strongly to penalize repetitions.
-    ///
-    /// A higher value (e.g., 1.5) will penalize repetitions more strongly, while a lower value (e.g., 0.9) will be more lenient.
-    ///
-    /// Supported by Ollama, OpenAI Chat.
-    #[arg(long)]
-    pub repeat_penalty: Option<f32>,
+    /// Regexes to match in the instruction text
+    #[serde(deserialize_with = "deserialize_option_vec_regex", default)]
+    instruction_regexes: Option<Vec<Regex>>,
 
-    /// The temperature of the model.
+    /// Examples of instructions used to generate a suitability score
+    instruction_examples: Option<Vec<String>>,
+
+    /// Embeddings of the instructions examples
+    #[serde(skip_deserializing)]
+    instruction_embeddings: Embeddings,
+
+    /// A regex to match against a comma separated list of the
+    /// node types in the instruction content
+    #[serde(deserialize_with = "deserialize_option_regex", default)]
+    content_nodes: Option<Regex>,
+
+    /// Regexes to match in the text of the instruction content
+    #[serde(deserialize_with = "deserialize_option_vec_regex", default)]
+    content_regexes: Option<Vec<Regex>>,
+
+    /// The format to convert various parts of the document and generated content
     ///
-    /// Increasing the temperature will make the model answer more creatively.
-    #[arg(long)]
-    pub temperature: Option<f32>,
+    /// Generally this single format is applied to the `content` of
+    /// the instruction, and to the generated content. However, these can be specified
+    /// separately using `content_format`, and `generated_format` respectively.
+    format: Option<Format>,
 
-    /// Sets the random number seed to use for generation.
-    ///
-    /// Setting this to a specific number will make the model generate the same text for the same prompt.
-    #[arg(long)]
-    pub seed: Option<i32>,
+    /// The format to convert the instruction content (if any) into when rendered into the prompt.
+    content_format: Option<Format>,
 
-    /// Sets the stop sequences to use.
-    ///
-    /// When this pattern is encountered the LLM will stop generating text and return.
-    #[arg(long)]
-    pub stop: Option<String>,
+    /// The format of the generated content
+    generated_format: Option<Format>,
 
-    /// The maximum number of tokens to generate.
-    ///
-    /// The total length of input tokens and generated tokens is limited by the model's context length.
-    #[arg(long)]
-    pub max_tokens: Option<u16>,
+    /// The system prompt of the assistant
+    #[serde(skip_deserializing)]
+    system_prompt: Option<String>,
 
-    /// Tail free sampling is used to reduce the impact of less probable tokens from the output.
-    ///
-    /// A higher value (e.g., 2.0) will reduce the impact more, while a value of 1.0 disables this setting.
-    ///
-    /// Supported by Ollama.
-    #[arg(long)]
-    pub tfs_z: Option<f32>,
+    /// The maximum number of retries for generating valid nodes
+    max_retries: Option<u8>,
 
-    /// Reduces the probability of generating nonsense.
-    ///
-    /// A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative.
-    #[arg(long)]
-    pub top_k: Option<u32>,
-
-    /// Works together with top-k.
-    ///
-    /// A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more
-    /// focused and conservative text.
-    #[arg(long)]
-    pub top_p: Option<f32>,
-
-    /// The size of the generated images.
-    ///
-    /// Supported by `openai/dall-e-3` and `openai/dall-e-2`.
-    /// Must be one of `256x256`, `512x512`, or `1024x1024` for `dall-e-2`.
-    /// Must be one of `1024x1024`, `1792x1024`, or `1024x1792` for `dall-e-3` models.
-    #[arg(skip)]
-    pub image_size: Option<(u16, u16)>,
-
-    /// The quality of the image that will be generated.
-    ///
-    /// Supported by `openai/dall-e-3`.
-    #[arg(long)]
-    pub image_quality: Option<String>,
-
-    /// The style of the generated images. Must be one of `vivid` or `natural`.
-    ///
-    /// Vivid causes the model to lean towards generating hyper-real and dramatic images.
-    /// Natural causes the model to produce more natural, less hyper-real looking images.
-    ///
-    /// Supported by `openai/dall-e-3`.
-    #[arg(long)]
-    pub image_style: Option<String>,
-
-    /// The type of node that each decoded node should be transformed to
-    #[serde(
-        deserialize_with = "deserialize_option_node_type",
-        default,
-        skip_serializing
-    )]
-    pub transform_nodes: Option<NodeType>,
-
-    /// The pattern for the type of node that filtered for after transform in applied
-    #[serde(
-        deserialize_with = "deserialize_option_regex",
-        default,
-        skip_serializing
-    )]
-    pub filter_nodes: Option<Regex>,
-
-    /// The number of nodes to take after filtering
-    pub take_nodes: Option<usize>,
-
-    /// A pattern for the type and number of nodes that should be generated
-    #[serde(
-        deserialize_with = "deserialize_option_regex",
-        default,
-        skip_serializing
-    )]
-    pub assert_nodes: Option<Regex>,
+    /// The default options to use for the assistant
+    #[serde(flatten)]
+    options: GenerateOptions,
 }
 
-pub fn deserialize_option_node_type<'de, D>(deserializer: D) -> Result<Option<NodeType>, D::Error>
+/// Get the default list of models
+pub fn default_models() -> Vec<String> {
+    MODELS.iter().map(|model| model.to_string()).collect()
+}
+
+/// Deserialize a list of models
+pub fn deserialize_models<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    Ok(match Option::<String>::deserialize(deserializer)? {
-        Some(value) => Some(
-            NodeType::from_str(&value)
-                .map_err(|error| D::Error::custom(format!("invalid node type: {error}")))?,
-        ),
-        None => None,
+    #[derive(Deserialize)]
+    #[serde(untagged, crate = "model::common::serde")]
+    enum Models {
+        Bool(bool),
+        List(Option<Vec<String>>),
+    }
+
+    let mut defaults: Vec<String> = default_models();
+
+    Ok(match Models::deserialize(deserializer)? {
+        Models::Bool(value) => match value {
+            true => defaults,
+            false => Vec::new(),
+        },
+        Models::List(Some(mut list)) => {
+            if let Some("only") = list.last().map(|id| id.as_str()) {
+                list.pop();
+            } else {
+                defaults.retain(|model| !list.contains(model));
+                list.append(&mut defaults);
+            }
+            list
+        }
+        Models::List(None) => defaults,
     })
 }
 
-pub fn deserialize_option_regex<'de, D>(deserializer: D) -> Result<Option<Regex>, D::Error>
+/// Serialize a list of models
+pub fn serialize_models<S>(vec: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    if vec.is_empty() {
+        // Serialize the vector as `false` if it's empty
+        false.serialize(serializer)
+    } else {
+        // Otherwise, serialize the vector as is
+        vec.serialize(serializer)
+    }
+}
+
+/// Get the first model in the list of models capable to performing task
+#[tracing::instrument(skip_all)]
+pub async fn choose_model(model: &[String], task: &GenerateTask) -> Result<Arc<dyn Model>> {
+    for id in model {
+        let (provider, _model) = id
+            .split('/')
+            .collect_tuple()
+            .ok_or_else(|| eyre!("Expected model name to have a forward slash"))?;
+
+        let list = match provider {
+            "anthropic" => models_anthropic::list().await?,
+            "google" => models_google::list().await?,
+            "mistral" => models_mistral::list().await?,
+            "ollama" => models_ollama::list().await?,
+            "openai" => models_openai::list().await?,
+            _ => bail!("Unknown assistant provider: {provider}"),
+        };
+
+        if let Some(assistant) = list
+            .into_iter()
+            .find(|assistant| &assistant.name() == id)
+            .take()
+        {
+            if assistant.supports_task(task) {
+                return Ok(assistant);
+            }
+        }
+    }
+
+    bail!("Unable to delegate task, none of the listed models are available or capable of performing task: {}", model.join(", "))
+}
+
+fn deserialize_option_vec_regex<'de, D>(deserializer: D) -> Result<Option<Vec<Regex>>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    Ok(match Option::<String>::deserialize(deserializer)? {
+    Ok(match Option::<Vec<String>>::deserialize(deserializer)? {
         Some(value) => Some(
-            Regex::new(&value)
+            value
+                .into_iter()
+                .map(|regex| Regex::new(&regex))
+                .collect::<Result<Vec<Regex>, _>>()
                 .map_err(|error| D::Error::custom(format!("invalid regex: {error}")))?,
         ),
         None => None,
     })
 }
 
-/// Output generated for a task
-///
-/// Yes, this could have been named `GeneratedOutput`! But it wasn't to
-/// maintain consistency with `GenerateTask` and `GenerateOptions`.
-#[skip_serializing_none]
-#[derive(Debug, Default, Deserialize, Serialize)]
-#[serde(default, deny_unknown_fields, crate = "common::serde")]
-pub struct GenerateOutput {
-    /// The assistants that were involved in generating the output
-    pub authors: Vec<AuthorRole>,
+impl SpecializedAssistant {
+    // Added for testing
+    // TODO: Wrap these in test / debug assertions?
+    pub fn instruction_examples(&self) -> &Option<Vec<String>> {
+        &self.instruction_examples
+    }
 
-    /// The kind of output in the content
+    pub fn instruction_embeddings(&self) -> &Embeddings {
+        &self.instruction_embeddings
+    }
+
+    pub fn instruction_type(&self) -> &Option<InstructionType> {
+        &self.instruction_type
+    }
+
+    /// Return
+    /// Parse Markdown content into a custom assistant
+    fn parse(id: &str, content: &str) -> Result<Self> {
+        // Split a string into parts and ensure that there is at least a header
+        let mut parts = content
+            .split("---\n")
+            .map(|part| part.trim().to_string())
+            .skip(1);
+        let Some(header) = parts.next() else {
+            bail!("Assistant file should have a YAML header delimited by ---");
+        };
+
+        // Parse header into an assistant
+        let mut assistant: SpecializedAssistant = serde_yaml::from_str(&header)?;
+        assistant.id = id.to_string();
+        assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
+
+        // If the system prompt is not blank then use it
+        if let Some(prompt) = parts.next() {
+            let trimmed = prompt.trim();
+            if !trimmed.is_empty() {
+                assistant.system_prompt = Some(trimmed.to_string());
+            }
+        }
+
+        assistant.init()?;
+
+        Ok(assistant)
+    }
+
+    /// Initialize the assistant
+    pub fn init(&mut self) -> Result<()> {
+        // Calculate embeddings if necessary
+        if let Some(examples) = &self.instruction_examples {
+            self.instruction_embeddings.build(examples.clone())?;
+        }
+
+        // Apply expected nodes to options, updating them if necessary
+        if let Some(expected_nodes) = &self.expected_nodes {
+            expected_nodes.apply(&mut self.options)?;
+        }
+
+        Ok(())
+    }
+
+    /// Merge a `GenerateTask` with the relevant options of this assistant
     ///
-    /// Used to determine how to handle the `content` before
-    /// decoding it into nodes.
-    pub kind: GenerateKind,
+    /// This should be called before selecting an assistant to delegate to
+    /// (since the input and output type of the task influences that)
+    fn merge_task(&self, task: &GenerateTask) -> GenerateTask {
+        let mut task = task.clone();
 
-    /// The format of the generated content
-    ///
-    /// Used by to decode the generated `content` into a set of
-    /// Stencila Schema nodes.
-    pub format: Format,
-
-    /// The content generated by the assistant
-    pub content: String,
-
-    /// Stencila Schema nodes generated by the assistant or decoded from `content`
-    pub nodes: Nodes,
-}
-
-impl GenerateOutput {
-    /// Create an empty `GenerateOutput`
-    ///
-    /// Usually only used when the `--dry-run` flag is used.
-    pub fn empty(assistant: &dyn Assistant) -> Result<Self> {
-        Ok(Self {
-            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
-            kind: GenerateKind::Text,
-            format: Format::Unknown,
-            content: (String::new()),
-            nodes: Nodes::Blocks(vec![]),
-        })
-    }
-
-    /// Create a `GenerateOutput` from text
-    ///
-    /// If the output format of the task in unknown (i.e. was not specified)
-    /// then assumes it is Markdown.
-    pub async fn from_text(
-        assistant: &dyn Assistant,
-        format: &Format,
-        instruction: &Instruction,
-        options: &GenerateOptions,
-        text: String,
-    ) -> Result<Self> {
-        let format = match format {
-            Format::Unknown => Format::Markdown,
-            _ => format.clone(),
-        };
-
-        // Decode text to an article
-        let node = codecs::from_str(
-            &text,
-            Some(DecodeOptions {
-                format: Some(format.clone()),
-                ..Default::default()
-            }),
-        )
-        .await?;
-        let Node::Article(Article { content, .. }) = node else {
-            bail!("Expected decoded node to be an article, got `{node}`")
-        };
-
-        // Transform content to blocks or inlines depending upon instruction type
-        let nodes = if matches!(
-            InstructionType::from(instruction),
-            InstructionType::InsertBlocks | InstructionType::ModifyBlocks
-        ) {
-            Nodes::Blocks(content)
-        } else {
-            Nodes::Inlines(blocks_to_inlines(content))
-        };
-
-        let unfiltered_types = match &nodes {
-            Nodes::Blocks(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
-            Nodes::Inlines(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
-        };
-
-        // Transform the nodes to the expected type if specified
-        let nodes = if let Some(node_type) = options.transform_nodes {
-            match nodes {
-                Nodes::Blocks(nodes) => Nodes::Blocks(
-                    nodes
-                        .into_iter()
-                        .map(|node| transform_block(node, node_type))
-                        .collect(),
-                ),
-                Nodes::Inlines(nodes) => Nodes::Inlines(
-                    nodes
-                        .into_iter()
-                        .map(|node| transform_inline(node, node_type))
-                        .collect(),
-                ),
-            }
-        } else {
-            nodes
-        };
-
-        // Filter nodes if regex specified
-        let nodes = if let Some(regex) = &options.filter_nodes {
-            match nodes {
-                Nodes::Blocks(nodes) => Nodes::Blocks(
-                    nodes
-                        .into_iter()
-                        .filter(|node| regex.is_match(&node.to_string()))
-                        .collect(),
-                ),
-                Nodes::Inlines(nodes) => Nodes::Inlines(
-                    nodes
-                        .into_iter()
-                        .filter(|node| regex.is_match(&node.to_string()))
-                        .collect(),
-                ),
-            }
-        } else {
-            nodes
-        };
-
-        // Take a certain number of nodes is specified
-        let nodes = if let Some(take) = options.take_nodes {
-            match nodes {
-                Nodes::Blocks(nodes) => Nodes::Blocks(nodes.into_iter().take(take).collect()),
-                Nodes::Inlines(nodes) => Nodes::Inlines(nodes.into_iter().take(take).collect()),
-            }
-        } else {
-            nodes
-        };
-
-        // Assert the number and type of nodes if specified
-        if let Some(regex) = &options.assert_nodes {
-            let list = match &nodes {
-                Nodes::Blocks(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
-                Nodes::Inlines(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
-            };
-            if !regex.is_match(&list) {
-                bail!(
-                    "Expected types of generated {format} to match pattern `{regex}`, got `{unfiltered_types}`"
-                )
-            }
+        if let Some(input) = self.task_input {
+            task.input = input;
         }
 
-        Ok(Self {
-            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
-            kind: GenerateKind::Text,
-            format,
-            content: text,
-            nodes,
-        })
-    }
-
-    /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url(
-        assistant: &dyn Assistant,
-        media_type: &str,
-        url: String,
-    ) -> Result<Self> {
-        let format = Format::from_media_type(media_type).unwrap_or(Format::Unknown);
-
-        let media_type = Some(media_type.to_string());
-
-        let node = if format.is_audio() {
-            Inline::AudioObject(AudioObject {
-                content_url: url.clone(),
-                media_type,
-                ..Default::default()
-            })
-        } else if format.is_image() {
-            Inline::ImageObject(ImageObject {
-                content_url: url.clone(),
-                media_type,
-                ..Default::default()
-            })
-        } else if format.is_video() {
-            Inline::VideoObject(VideoObject {
-                content_url: url.clone(),
-                media_type,
-                ..Default::default()
-            })
-        } else {
-            Inline::Link(Link {
-                target: url.clone(),
-                ..Default::default()
-            })
-        };
-
-        let nodes = Nodes::Inlines(vec![node]);
-
-        Ok(Self {
-            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
-            kind: GenerateKind::Url,
-            format,
-            content: url,
-            nodes,
-        })
-    }
-
-    /// Update output after it has been deserialized from a plugin based assistant
-    pub async fn from_plugin(
-        other: Self,
-        assistant: &dyn Assistant,
-        format: &Format,
-        instruction: &Instruction,
-        options: &GenerateOptions,
-    ) -> Result<Self> {
-        let mut output = if !other.nodes.is_empty() {
-            other
-        } else {
-            match other.kind {
-                GenerateKind::Text => {
-                    Self::from_text(assistant, format, instruction, options, other.content).await?
-                }
-                GenerateKind::Url => {
-                    Self::from_url(assistant, &format.media_type(), other.content).await?
-                }
-            }
-        };
-
-        output
-            .authors
-            .push(assistant.to_author_role(AuthorRoleName::Generator));
-
-        Ok(output)
-    }
-
-    /// Create a `Message` from the output that can be added to the `messages` property
-    /// of the instruction
-    pub fn to_message(&self) -> InstructionMessage {
-        let authors = self
-            .authors
-            .iter()
-            .filter_map(|role| match &role.author {
-                AuthorRoleAuthor::SoftwareApplication(app) => Some(app.clone()),
-                _ => None,
-            })
-            .map(PersonOrOrganizationOrSoftwareApplication::SoftwareApplication)
-            .collect();
-        let authors = Some(authors);
-
-        let parts = vec![match &self.kind {
-            GenerateKind::Text => MessagePart::Text(self.content.clone().into()),
-            GenerateKind::Url => {
-                let url = self.content.clone();
-                if self.format.is_audio() {
-                    MessagePart::AudioObject(AudioObject::new(url))
-                } else if self.format.is_image() {
-                    MessagePart::ImageObject(ImageObject::new(url))
-                } else if self.format.is_video() {
-                    MessagePart::VideoObject(VideoObject::new(url))
-                } else {
-                    MessagePart::Text(url.into())
-                }
-            }
-        }];
-
-        let content = Some(self.nodes.clone().into_blocks());
-
-        InstructionMessage {
-            authors,
-            parts,
-            content,
-            ..Default::default()
+        if let Some(output) = self.task_output {
+            task.output = output;
         }
+
+        task.format = self
+            .generated_format
+            .clone()
+            .or(self.format.clone())
+            .unwrap_or(FORMAT);
+
+        task
     }
 
-    /// Create a `SuggestionInlineType` from the output that can be used for the `suggestion`
-    /// property of the instruction
-    pub fn to_suggestion_inline(self, insert: bool) -> SuggestionInlineType {
-        if insert {
-            SuggestionInlineType::InsertInline(InsertInline {
-                content: self.nodes.into_inlines(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        } else {
-            SuggestionInlineType::ReplaceInline(ReplaceInline {
-                replacement: self.nodes.into_inlines(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        }
-    }
-
-    /// Create a `SuggestionBlockType` from the output that can be used for the `suggestion`
-    /// property of the instruction
-    pub fn to_suggestion_block(self, insert: bool) -> SuggestionBlockType {
-        if insert {
-            SuggestionBlockType::InsertBlock(InsertBlock {
-                content: self.nodes.into_blocks(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        } else {
-            SuggestionBlockType::ReplaceBlock(ReplaceBlock {
-                replacement: self.nodes.into_blocks(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        }
+    /// Merge options supplied to generation functions into the default options for this custom assistant
+    fn merge_options(&self, options: &GenerateOptions) -> GenerateOptions {
+        let mut merged_options = self.options.clone();
+        merged_options.merge(options.clone());
+        merged_options
     }
 }
 
-/// The kind of content generated for a task
-#[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
-pub enum GenerateKind {
-    /// Generated text in a text format
-    #[default]
-    Text,
-
-    /// Generated content at a URL
-    Url,
-}
-
-/// Generated nodes
-///
-/// This enum allows us to differentiate between different types of
-/// generated nodes associated with different types of instructions
-/// (block or inline)
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(untagged, crate = "common::serde")]
-pub enum Nodes {
-    Blocks(Vec<Block>),
-    Inlines(Vec<Inline>),
-}
-
-impl Default for Nodes {
-    fn default() -> Self {
-        Self::Blocks(Vec::new())
-    }
-}
-
-impl Nodes {
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Nodes::Blocks(blocks) => blocks.is_empty(),
-            Nodes::Inlines(inlines) => inlines.is_empty(),
-        }
-    }
-
-    /// Move nodes into blocks
-    pub fn into_blocks(self) -> Vec<Block> {
-        match self {
-            Nodes::Blocks(blocks) => blocks,
-            Nodes::Inlines(inlines) => inlines_to_blocks(inlines),
-        }
-    }
-
-    /// Move nodes into inlines
-    pub fn into_inlines(self) -> Vec<Inline> {
-        match self {
-            Nodes::Blocks(blocks) => blocks_to_inlines(blocks),
-            Nodes::Inlines(inlines) => inlines,
-        }
-    }
-}
-
-impl WalkNode for Nodes {
-    fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
-        match self {
-            Nodes::Blocks(nodes) => nodes.walk_mut(visitor),
-            Nodes::Inlines(nodes) => nodes.walk_mut(visitor),
-        }
-    }
-}
-
-/// The type of input or output an assistant can consume or generate
-#[derive(
-    Debug, Default, Clone, Copy, PartialEq, Eq, ValueEnum, Display, Deserialize, Serialize,
-)]
-#[strum(serialize_all = "lowercase")]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
-pub enum AssistantIO {
-    #[default]
-    Text,
-    Image,
-    Audio,
-    Video,
-    Nodes,
-}
-
-/// An AI assistant
-///
-/// Provides a common, shared interface for the various AI models
-/// and APIs used. Assistant implementations should override
-/// `supports_generating` and other methods.
 #[async_trait]
-pub trait Assistant: Sync + Send {
-    /// Get the name of the assistant
-    ///
-    /// The name should be unique amongst assistants.
-    /// The name should follow the pattern <PUBLISHER>/<MODEL>.
-    fn name(&self) -> String;
-
-    /// Get the provider of the assistant
-    fn r#type(&self) -> AssistantType {
-        AssistantType::Builtin
+impl Model for SpecializedAssistant {
+    fn name(&self) -> String {
+        self.id.clone()
     }
 
-    /// Get the availability of the assistant
-    fn availability(&self) -> AssistantAvailability {
-        AssistantAvailability::Available
+    fn r#type(&self) -> ModelType {
+        ModelType::Builtin
     }
 
-    /// Is the assistant currently available?
-    fn is_available(&self) -> bool {
-        matches!(self.availability(), AssistantAvailability::Available)
-    }
-
-    /// Get the name of the publisher of the assistant
-    ///
-    /// This default implementation returns the title cased name
-    /// before the first forward slash in the name. Derived assistants
-    /// should override if necessary.
-    fn publisher(&self) -> String {
-        let name = self.name();
-        let publisher = name
-            .split_once('/')
-            .map(|(publisher, ..)| publisher)
-            .unwrap_or(&name);
-        publisher.to_title_case()
-    }
-
-    /// Get the title of the assistant
-    ///
-    /// This default implementation returns the title cased name
-    /// after the last forward slash but before the first dash in the name.
-    /// Derived assistants should override if necessary.
     fn title(&self) -> String {
-        let name = self.name();
-        let name = name
-            .rsplit_once('/')
-            .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
-            .unwrap_or(&name);
+        let id = self.name();
+        let name = id.rsplit_once('/').map(|(.., name)| name).unwrap_or(&id);
         name.to_title_case()
     }
 
-    /// Get the version of the assistant
-    ///
-    /// This default implementation returns the version after the
-    /// first dash in the name. Derived assistants should override if necessary.
     fn version(&self) -> String {
-        let name = self.name();
-        let version = name
-            .split_once('-')
-            .map(|(.., version)| version)
-            .unwrap_or_default();
-        version.to_string()
+        self.version.clone()
     }
 
-    /// A description of the assistant in Markdown
     fn description(&self) -> Option<String> {
-        None
+        Some(self.description.clone())
     }
 
-    /// Create an `AuthorRole` node for this assistant
-    fn to_author_role(&self, role_name: AuthorRoleName) -> AuthorRole {
-        let mut role = AuthorRole::new(
-            AuthorRoleAuthor::SoftwareApplication(self.to_software_application()),
-            role_name,
-        );
-        role.last_modified = Some(Timestamp::now());
-        role
-    }
-
-    /// Create a `SoftwareApplication` node identifying this assistant
-    ///
-    /// Intended for usage in the `authors` property of inner document
-    /// nodes where it is desirable to have minimal identifying information
-    /// only.
-    fn to_software_application(&self) -> SoftwareApplication {
-        SoftwareApplication {
-            id: Some(self.name()),
-            name: self.title(),
-            options: Box::new(SoftwareApplicationOptions {
-                version: Some(StringOrNumber::String(self.version())),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-
-    /// Create a `SoftwareApplication` node representing this assistant
-    ///
-    /// Intended for usage in the `authors` or `contributors` property
-    /// of the root `CreativeWork`.
-    fn to_software_application_complete(&self) -> SoftwareApplication {
-        SoftwareApplication {
-            id: Some(self.name()),
-            name: self.title(),
-            options: Box::new(SoftwareApplicationOptions {
-                version: Some(StringOrNumber::String(self.version())),
-                publisher: Some(PersonOrOrganization::Organization(Organization {
-                    options: Box::new(OrganizationOptions {
-                        name: Some(self.publisher()),
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-
-    /// Get the context length of the assistant
-    ///
-    /// Used by custom assistants to dynamically adjust the content of prompts
-    /// based on the context length of the underlying model being delegated to.
     fn context_length(&self) -> usize {
-        0
+        self.context_length.unwrap_or_default()
     }
 
-    /// Does the assistant support a specific task
-    ///
-    /// This default implementation is based solely on whether the assistants
-    /// supports the input/output combination of the task. Overrides may
-    /// add other criteria such as the type of the task's instruction.
     fn supports_task(&self, task: &GenerateTask) -> bool {
-        self.supports_from_to(task.input, task.output)
+        // If instruction type is specified then the instruction must match
+        if let Some(instruction_type) = self.instruction_type {
+            if instruction_type != InstructionType::from(task.instruction()) {
+                return false;
+            }
+        }
+
+        true
     }
 
-    /// Get a list of input types this assistant supports
-    fn supported_inputs(&self) -> &[AssistantIO] {
-        &[]
+    fn supported_inputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
-    /// Get a list of output types this assistant supports
-    fn supported_outputs(&self) -> &[AssistantIO] {
-        &[]
+    fn supported_outputs(&self) -> &[ModelIO] {
+        &[ModelIO::Nodes]
     }
 
-    /// Whether this assistant support a specific input/output combination
-    fn supports_from_to(&self, input: AssistantIO, output: AssistantIO) -> bool {
-        self.supported_inputs().contains(&input) && self.supported_outputs().contains(&output)
-    }
-
-    /// A score of the suitability of this assistant for a performing a task
-    ///
-    /// A score between 0 and 1. A task will be delegated to the assistant
-    /// with the highest suitability score for that task.
-    /// Tied scores are broken using [`Self::preference_rank`].
-    ///
-    /// This default implementation returns 0.1 if the assistant supports the
-    /// task, 0.0 otherwise.
     fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
-        Ok(if self.supports_task(task) { 0.1 } else { 0.0 })
+        if !self.supports_task(task) {
+            return Ok(0.0);
+        }
+
+        task.instruction_similarity(&self.instruction_embeddings)
     }
 
-    /// The relative rank of preference to delegate tasks to this assistant
-    ///
-    /// Used to break ties when to assistants have the same suitability score
-    /// for a task.
     fn preference_rank(&self) -> u8 {
-        0
+        self.preference_rank.unwrap_or(PREFERENCE_RANK)
     }
 
-    /// Perform a generation task
+    #[tracing::instrument(skip_all)]
     async fn perform_task(
         &self,
         task: &GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<GenerateOutput>;
-}
+    ) -> Result<GenerateOutput> {
+        let mut task = self.merge_task(task);
+        let options = self.merge_options(options);
 
-/// The provider of an assistant
-pub enum AssistantType {
-    Builtin,
-    Local,
-    Remote,
-    Plugin(String),
-}
+        let content_format = self
+            .content_format
+            .clone()
+            .or(self.format.clone())
+            .or(Some(FORMAT));
 
-/// The availability of a assistant on the current machine
-#[derive(Display, Clone, Copy)]
-#[strum(serialize_all = "lowercase")]
-pub enum AssistantAvailability {
-    /// Available on this machine
-    Available,
-    /// Available on this machine but requires installation
-    Installable,
-    /// Not available on this machine
-    Unavailable,
-    /// Available on this machine but disabled
-    Disabled,
-}
+        // Create the prompter role now so it has a timestamp before the generator timestamp
+        let prompter_role = self.to_author_role(AuthorRoleName::Prompter);
 
-/// Generate a test task which has system, user and assistant messages
-///
-/// Used for tests of implementations of the `Assistant` trait to check that
-/// the system prompt, and each user and assistant message, are being sent to
-/// and processed by the assistant.
-#[allow(unused)]
-pub fn test_task_repeat_word() -> GenerateTask {
-    GenerateTask {
-        system_prompt: Some(
-            "When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".to_string(),
-        ),
-        instruction: Instruction::from(InstructionInline {
-            messages: vec![
-                InstructionMessage {
-                    parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
-                    ..Default::default()
-                },
-                InstructionMessage {
-                    authors: Some(vec![
-                        PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
-                            SoftwareApplication::default(),
-                        ),
-                    ]),
-                    parts: vec![MessagePart::Text("Hello".into())],
-                    ..Default::default()
-                },
-                InstructionMessage {
-                    parts: vec![MessagePart::Text("Repeat the word.".into())],
-                    ..Default::default()
-                },
-            ],
-            ..Default::default()
-        }),
-        ..Default::default()
+        let mut output = if options.dry_run {
+            // Dry run so just prepare the task but return an empty output
+            task.prepare(None, content_format.as_ref(), self.system_prompt.as_ref())
+                .await?;
+
+            GenerateOutput::empty(self)?
+        } else if self.models.is_empty() {
+            // No modelss, so simply render the template into output.
+            // This differs from `options.dry_run` in that the prompt is decoded into nodes
+            // (including transformations associated with `expected_nodes`) in the call to `from_text`.
+            task.prepare(None, content_format.as_ref(), self.system_prompt.as_ref())
+                .await?;
+            let prompt = task.system_prompt().clone().unwrap_or_default();
+
+            GenerateOutput::from_text(self, task.format(), task.instruction(), &options, prompt)
+                .await?
+        } else {
+            // Get the first available model
+            let model = choose_model(&self.models, &task).await?;
+
+            // Update the task, to render template etc based on the model, before performing it
+            task.prepare(
+                Some(model.as_ref()),
+                content_format.as_ref(),
+                self.system_prompt.as_ref(),
+            )
+            .await?;
+
+            // Try once, and then up to `max_retries`, breaking early if successful
+            let mut output = None;
+            let max_retries = self.max_retries.unwrap_or(MAX_RETRIES);
+            for retry in 0..=max_retries {
+                let result: Result<GenerateOutput> = model.perform_task(&task, &options).await;
+                match result {
+                    Ok(out) => {
+                        output = Some(out);
+                        break;
+                    }
+                    Err(error) => {
+                        if retry >= max_retries {
+                            return Err(error);
+                        }
+
+                        tracing::debug!("Error on retry {retry}: {error}");
+
+                        // Add the error to the instruction messages so that the assistant
+                        // can use it to try to correct
+                        let message = InstructionMessage {
+                            parts: vec![MessagePart::Text(format!("Error: {error}").into())],
+                            ..Default::default()
+                        };
+                        match task.instruction_mut() {
+                            Instruction::Block(instr) => instr.messages.push(message),
+                            Instruction::Inline(instr) => instr.messages.push(message),
+                        }
+                    }
+                }
+            }
+
+            match output {
+                Some(output) => output,
+                // Should not be reached but in case it is...
+                None => bail!("Maximum number of retries reached"),
+            }
+        };
+
+        // Add the prompter role. Intentionally appended, not prepended, so that
+        // the generator is the primary author
+        output.authors.push(prompter_role);
+
+        Ok(output)
     }
 }
 
-#[allow(unused)]
-#[cfg(test)]
+/// Builtin assistants
+///
+/// During development these are loaded directly from the `assistants/builtin`
+/// directory at the root of the repository but are embedded into the binary on release builds.
+#[derive(RustEmbed)]
+#[folder = "$CARGO_MANIFEST_DIR/../../assistants/builtin"]
+struct Builtin;
 
+/// Get a list of all available specialized assistants
+///
+/// Memoized in production for performance (i.e not parsing files or creating
+/// embeddings), but not in debug (so that custom assistants can be reloaded from disk).
+#[cfg_attr(not(debug_assertions), once(result = true))]
+pub fn list() -> Result<Vec<Arc<dyn Model>>> {
+    let mut list = list_builtin()?;
+    list.append(&mut list_local()?);
+    Ok(list)
+}
+
+/// Get a list of the specialized assistants.
+/// Useful for testing.
+pub fn list_builtin_as_specialized() -> Result<Vec<SpecializedAssistant>> {
+    let mut assistants = vec![];
+
+    for (name, content) in
+        Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
+    {
+        let id = format!("stencila/{}", name.strip_suffix(".md").unwrap_or(&name));
+        let content = String::from_utf8_lossy(&content);
+        let assistant = SpecializedAssistant::parse(&id, &content)
+            .map_err(|error| eyre!("While parsing `{name}`: {error}"))?;
+        assistants.push(assistant)
+    }
+    Ok(assistants)
+}
+
+/// Get a list of all builtin specialized assistants as Assistant trait objects
+fn list_builtin() -> Result<Vec<Arc<dyn Model>>> {
+    list_builtin_as_specialized().map(|assistants| {
+        assistants
+            .into_iter()
+            .map(|assistant| Arc::new(assistant) as Arc<dyn Model>)
+            .collect()
+    })
+}
+
+/// Get a list of all local specialized assistants
+fn list_local() -> Result<Vec<Arc<dyn Model>>> {
+    let mut assistants = vec![];
+
+    let dir = get_app_dir(DirType::Assistants, false)?;
+
+    tracing::debug!(
+        "Attempting to read assistants from `{}` (if it exists)",
+        dir.display()
+    );
+
+    if !dir.exists() {
+        return Ok(assistants);
+    }
+
+    for path in glob(&dir.join("*.md").to_string_lossy())?.flatten() {
+        let Some(name) = path.file_name().map(|name| name.to_string_lossy()) else {
+            continue;
+        };
+        let id = format!("local/{}", name.strip_suffix(".md").unwrap_or(&name));
+
+        let content = read_to_string(&path)?;
+
+        let assistant = SpecializedAssistant::parse(&id, &content)
+            .map_err(|error| eyre!("While parsing `{}`: {error}", path.display()))?;
+        assistants.push(Arc::new(assistant) as Arc<dyn Model>)
+    }
+
+    Ok(assistants)
+}
+
+#[cfg(test)]
 mod tests {
+    use model::{
+        schema::shortcuts::{p, t},
+        Instruction,
+    };
+
     use super::*;
 
-    #[cfg(feature = "fastembed")]
     #[test]
-    fn create_embeddings_and_compare_them() -> Result<()> {
-        let mut e1 = Embeddings::default();
-        let mut e2 = Embeddings::default();
-        let mut e3 = Embeddings::default();
-        let e4 = Embeddings::default();
-        e1.build(vec!["insert an equation", "insert some math"])?;
-        e2.build(vec!["insert some code"])?;
-        e3.build(vec!["edit this text"])?;
+    fn builtin_assistants_can_be_parsed() -> Result<()> {
+        list_builtin()?;
 
-        let s1 = e1.score_match(&e2).expect("Should have a score");
-        let s2 = e2.score_match(&e3).expect("Should have a score");
-        let s3 = e1.score_match(&e3).expect("Should have a score");
-        assert!(s1 > s2);
-        assert!(s2 > s3);
-        assert_eq!(e4.score_match(&e3), None);
+        Ok(())
+    }
+
+    #[test]
+    fn test_expected_nodes_conversion() {
+        let test_cases = [
+            ("Paragraph", NodeType::Paragraph, false),
+            ("CodeBlock+", NodeType::CodeBlock, true),
+            ("Cite", NodeType::Cite, false),
+            ("Claim+", NodeType::Claim, true),
+        ];
+
+        for &(input, expected_node_type, expected_repeated) in &test_cases {
+            match ExpectedNodes::try_from(input) {
+                Ok(en) => {
+                    assert_eq!(en.node_type, expected_node_type);
+                    assert_eq!(en.repeated, expected_repeated);
+                }
+                Err(e) => panic!("Failed to convert from str: {}", e),
+            }
+
+            let en = ExpectedNodes {
+                node_type: expected_node_type,
+                repeated: expected_repeated,
+            };
+            let output: String = en.into();
+            assert_eq!(output, input)
+        }
+    }
+
+    #[test]
+    fn expected_nodes_fills_out_options() -> Result<()> {
+        let mut assistant = SpecializedAssistant {
+            id: "insert-blocks".to_string(),
+            instruction_type: Some(InstructionType::InsertBlocks),
+            expected_nodes: Some(ExpectedNodes {
+                node_type: NodeType::Paragraph,
+                repeated: true,
+            }),
+            ..Default::default()
+        };
+        assistant.init()?;
+
+        assert_eq!(assistant.options.transform_nodes, Some(NodeType::Paragraph));
+
+        let rx = assistant
+            .options
+            .filter_nodes
+            .ok_or_else(|| eyre!("Expected filter_nodes to be Some"))?;
+
+        assert_eq!("^Paragraph$", rx.as_str());
+
+        assert_eq!(assistant.options.take_nodes, None);
+
+        let rx = assistant
+            .options
+            .assert_nodes
+            .ok_or_else(|| eyre!("Expected assert_nodes to be Some"))?;
+
+        assert_eq!("^(Paragraph,?)+$", rx.as_str());
+
+        Ok(())
+    }
+
+    #[test]
+    fn supports_task_works_as_expected() -> Result<()> {
+        let tasks = [
+            /*
+            TODO: temporarily commented out while instruction regex in flux
+
+            GenerateTask::new(Instruction::inline_text_with(
+                "modify-inlines-regex-nodes-regex",
+                [t("the"), t(" keyword")],
+            )),
+            GenerateTask::new(Instruction::block_text_with(
+                "modify-blocks-regex-nodes",
+                [p([])],
+            )),
+            GenerateTask::new(Instruction::block_text("insert-blocks-regex")),
+            GenerateTask::new(Instruction::inline_text_with(
+                "modify-inlines-regex",
+                [t("")],
+            )),
+            */
+            GenerateTask::new(Instruction::block_text("insert-blocks"), None),
+            GenerateTask::new(Instruction::block_text_with("modify-blocks", [p([])]), None),
+            GenerateTask::new(Instruction::inline_text("insert-inlines"), None),
+            GenerateTask::new(
+                Instruction::inline_text_with("modify-inlines", [t("")]),
+                None,
+            ),
+        ];
+
+        let assistants = [
+            /*
+            // Assistants with regexes and content nodes and content regexes specified
+            SpecializedAssistant {
+                id: "modify-inlines-regex-nodes-regex".to_string(),
+                instruction_type: Some(InstructionType::ModifyInlines),
+                instruction_regexes: Some(vec![Regex::new("^modify-inlines-regex-nodes-regex$")?]),
+                content_nodes: Some(Regex::new("^(Text,?)+$")?),
+                content_regexes: Some(vec![Regex::new("keyword")?]),
+                ..Default::default()
+            },
+            // Assistants with regexes and content nodes specified
+            SpecializedAssistant {
+                id: "modify-blocks-regex-nodes".to_string(),
+                instruction_type: Some(InstructionType::ModifyBlocks),
+                instruction_regexes: Some(vec![Regex::new("^modify-blocks-regex-nodes$")?]),
+                content_nodes: Some(Regex::new("^Paragraph$")?),
+                ..Default::default()
+            },
+            // Assistants with regexes specified
+            SpecializedAssistant {
+                id: "insert-blocks-regex".to_string(),
+                instruction_type: Some(InstructionType::InsertBlocks),
+                instruction_regexes: Some(vec![Regex::new("^insert-blocks-regex$")?]),
+                ..Default::default()
+            },
+            SpecializedAssistant {
+                id: "modify-inlines-regex".to_string(),
+                instruction_type: Some(InstructionType::ModifyInlines),
+                instruction_regexes: Some(vec![
+                    Regex::new("foo")?,
+                    Regex::new("^modify-inlines-regex$")?,
+                ]),
+                ..Default::default()
+            },
+            */
+            // Generic assistants
+            SpecializedAssistant {
+                id: "insert-blocks".to_string(),
+                instruction_type: Some(InstructionType::InsertBlocks),
+                ..Default::default()
+            },
+            SpecializedAssistant {
+                id: "modify-blocks".to_string(),
+                instruction_type: Some(InstructionType::ModifyBlocks),
+                ..Default::default()
+            },
+            SpecializedAssistant {
+                id: "insert-inlines".to_string(),
+                instruction_type: Some(InstructionType::InsertInlines),
+                ..Default::default()
+            },
+            SpecializedAssistant {
+                id: "modify-inlines".to_string(),
+                instruction_type: Some(InstructionType::ModifyInlines),
+                ..Default::default()
+            },
+        ];
+
+        // Iterate over tasks (in reverse order, generic to specific) and ensure that the assistants
+        // that it matches against has the name equal to the instruction text of the task
+        for task in tasks.iter().rev() {
+            let task_name = task.instruction().text();
+
+            let mut matched = false;
+            for assistant in &assistants {
+                if assistant.supports_task(task) {
+                    let assistant_name = assistant.id.as_str();
+                    if assistant_name != task_name {
+                        bail!(
+                            "Task `{task_name}` was unexpectedly matched by assistant `{assistant_name}`"
+                        );
+                    }
+                    matched = true;
+                    break;
+                }
+            }
+
+            if !matched {
+                bail!("Task `{task_name}` was not matched by any assistant");
+            }
+        }
+
+        Ok(())
+    }
+
+    #[ignore = "reinstate when embedding is reinstated"]
+    #[test]
+    fn suitability_score_works_as_expected() -> Result<()> {
+        let mut task_improve_wording =
+            GenerateTask::new(Instruction::inline_text("improve wording"), None);
+        let mut task_the_improve_wording_of_this = GenerateTask::new(
+            Instruction::inline_text("improve the wording of this"),
+            None,
+        );
+        let mut task_make_table =
+            GenerateTask::new(Instruction::inline_text("make a 4x4 table"), None);
+
+        let mut assistant_improve_wording = SpecializedAssistant {
+            instruction_examples: Some(vec![String::from("improve wording")]),
+            ..Default::default()
+        };
+        assistant_improve_wording.init()?;
+
+        let score_perfect =
+            assistant_improve_wording.suitability_score(&mut task_improve_wording)?;
+        println!("{}", score_perfect);
+        assert!(score_perfect > 0.9999);
+
+        let score_high =
+            assistant_improve_wording.suitability_score(&mut task_the_improve_wording_of_this)?;
+        assert!(score_high < score_perfect);
+
+        let score_low = assistant_improve_wording.suitability_score(&mut task_make_table)?;
+        assert!(score_low < score_high);
 
         Ok(())
     }

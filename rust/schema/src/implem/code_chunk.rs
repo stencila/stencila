@@ -6,6 +6,9 @@ use super::utils::caption_to_dom;
 
 impl DomCodec for CodeChunk {
     fn to_dom(&self, context: &mut DomEncodeContext) {
+        // Custom implementation, primarily needed for encoding of different types of
+        // captions before and after the outputs
+
         context.enter_node(self.node_type(), self.node_id());
 
         if let Some(auto_exec) = &self.auto_exec {

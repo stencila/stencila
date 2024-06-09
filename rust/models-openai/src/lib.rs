@@ -14,7 +14,7 @@ use async_openai::{
 };
 use cached::proc_macro::cached;
 
-use assistant::{
+use model::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
@@ -23,15 +23,15 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
-    IsAssistantMessage,
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
+    ModelType,
 };
 
 /// The name of the env var or secret for the API key
 const API_KEY: &str = "OPENAI_API_KEY";
 
-/// An assistant running on OpenAI
-pub struct OpenAIAssistant {
+/// A model running on OpenAI
+pub struct OpenAIModel {
     /// The OpenAI name for a model including any tag e.g. "llama2:13b"
     ///
     /// Used as the required `model` parameter in each request to `POST /api/generate`
@@ -42,19 +42,19 @@ pub struct OpenAIAssistant {
     context_length: usize,
 
     /// The type of input that the model consumes
-    inputs: Vec<AssistantIO>,
+    inputs: Vec<ModelIO>,
 
     /// The type of output that the model generates
-    outputs: Vec<AssistantIO>,
+    outputs: Vec<ModelIO>,
 }
 
-impl OpenAIAssistant {
-    /// Create an OpenAI-based assistant
+impl OpenAIModel {
+    /// Create an OpenAI-based model
     fn new(
         model: String,
         context_length: usize,
-        inputs: Vec<AssistantIO>,
-        outputs: Vec<AssistantIO>,
+        inputs: Vec<ModelIO>,
+        outputs: Vec<ModelIO>,
     ) -> Self {
         Self {
             model,
@@ -66,13 +66,13 @@ impl OpenAIAssistant {
 }
 
 #[async_trait]
-impl Assistant for OpenAIAssistant {
+impl Model for OpenAIModel {
     fn name(&self) -> String {
         format!("openai/{}", self.model)
     }
 
-    fn r#type(&self) -> AssistantType {
-        AssistantType::Remote
+    fn r#type(&self) -> ModelType {
+        ModelType::Remote
     }
 
     fn publisher(&self) -> String {
@@ -113,11 +113,11 @@ impl Assistant for OpenAIAssistant {
         self.context_length
     }
 
-    fn supported_inputs(&self) -> &[AssistantIO] {
+    fn supported_inputs(&self) -> &[ModelIO] {
         &self.inputs
     }
 
-    fn supported_outputs(&self) -> &[AssistantIO] {
+    fn supported_outputs(&self) -> &[ModelIO] {
         &self.outputs
     }
 
@@ -126,12 +126,12 @@ impl Assistant for OpenAIAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        use AssistantIO::*;
+        use ModelIO::*;
         match (task.input(), task.output()) {
             (Text, Text) => self.chat_completion(task, options).await,
             (Text, Image) => self.create_image(task, options).await,
             _ => bail!(
-                "{} to {} is not supported by assistant `{}`",
+                "{} to {} is not supported by model `{}`",
                 task.input(),
                 task.output(),
                 self.name()
@@ -140,7 +140,7 @@ impl Assistant for OpenAIAssistant {
     }
 }
 
-impl OpenAIAssistant {
+impl OpenAIModel {
     /// Create a client with the correct API key
     fn client() -> Result<Client<OpenAIConfig>> {
         let api_key = secrets::env_or_get(API_KEY)?;
@@ -192,7 +192,7 @@ impl OpenAIAssistant {
                                     ),
                                     _ => {
                                         tracing::warn!(
-                                            "User message part `{part}` is ignored by assistant `{}`", self.name()
+                                            "User message part `{part}` is ignored by model `{}`", self.name()
                                         );
                                         None
                                     }
@@ -213,7 +213,7 @@ impl OpenAIAssistant {
                                     MessagePart::Text(text) => Some(text.to_value_string()),
                                     _ => {
                                         tracing::warn!(
-                                            "Assistant message part `{part}` is ignored by assistant `{}`", self.name()
+                                            "Assistant message part `{part}` is ignored by model `{}`", self.name()
                                         );
                                         None
                                     }
@@ -250,7 +250,7 @@ impl OpenAIAssistant {
             ($name:ident) => {
                 if options.$name.is_some() {
                     tracing::warn!(
-                        "Option `{}` is ignored by assistant `{}` for chat completion",
+                        "Option `{}` is ignored by model `{}` for chat completion",
                         stringify!($name),
                         self.name()
                     )
@@ -307,7 +307,7 @@ impl OpenAIAssistant {
                         MessagePart::Text(text) => Some(text.to_value_string()),
                         _ => {
                             tracing::warn!(
-                                "Message part `{part}` is ignored by assistant `{}`",
+                                "Message part `{part}` is ignored by model `{}`",
                                 self.name()
                             );
                             None
@@ -373,7 +373,7 @@ impl OpenAIAssistant {
             ($name:ident) => {
                 if options.$name.is_some() {
                     tracing::warn!(
-                        "Option `{}` is ignored by assistant `{}` for text-to-image generation",
+                        "Option `{}` is ignored by model `{}` for text-to-image generation",
                         stringify!($name),
                         self.name()
                     )
@@ -425,10 +425,10 @@ impl OpenAIAssistant {
     }
 }
 
-/// Get a list of all available OpenAI assistants
+/// Get a list of all available OpenAI models
 ///
 /// If the OpenAI API key is not available returns an empty list.
-/// Lists the assistants available for the account in lexical order.
+/// Lists the models available for the account in lexical order.
 ///
 /// This mapping of model name to context_length and input/output types will need to be
 /// updated periodically based on https://platform.openai.com/docs/models/.
@@ -436,15 +436,15 @@ impl OpenAIAssistant {
 /// Memoized for an hour to reduce the number of times that
 /// remote APIs need to be called to get a list of available models.
 #[cached(time = 3600, result = true)]
-pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    let Ok(client) = OpenAIAssistant::client() else {
+pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
+    let Ok(client) = OpenAIModel::client() else {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 
     let models = client.models().list().await?;
 
-    let assistants = models
+    let models = models
         .data
         .into_iter()
         .sorted_by(|a, b| a.id.cmp(&b.id))
@@ -467,7 +467,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
                     4_096
                 };
 
-            use AssistantIO::*;
+            use ModelIO::*;
             let (inputs, outputs) = if name.starts_with("gpt-4-vision") {
                 (vec![Text, Image], vec![Text])
             } else if name.starts_with("gpt-4") || name.starts_with("gpt-3.5") {
@@ -479,27 +479,26 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
             } else if name.starts_with("whisper") {
                 (vec![Audio], vec![Text])
             } else {
-                // Other models are not mapped into assistants
+                // Other models are not mapped
                 return None;
             };
 
             Some(
-                Arc::new(OpenAIAssistant::new(name, context_length, inputs, outputs))
-                    as Arc<dyn Assistant>,
+                Arc::new(OpenAIModel::new(name, context_length, inputs, outputs)) as Arc<dyn Model>,
             )
         })
         .collect();
 
-    Ok(assistants)
+    Ok(models)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word};
+    use model::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
-    async fn list_assistants() -> Result<()> {
+    async fn list_models() -> Result<()> {
         let list = list().await?;
 
         if secrets::env_or_get(API_KEY).is_err() {
@@ -518,11 +517,11 @@ mod tests {
         }
 
         let list = list().await?;
-        let assistant = list
+        let model = list
             .iter()
-            .find(|assistant| assistant.title().starts_with("GPT"))
+            .find(|model| model.title().starts_with("GPT"))
             .unwrap();
-        let output = assistant
+        let output = model
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 

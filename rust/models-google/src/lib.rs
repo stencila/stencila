@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use cached::proc_macro::cached;
 
-use assistant::{
+use model::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
@@ -13,8 +13,8 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    secrets, Assistant, AssistantIO, AssistantType, GenerateOptions, GenerateOutput, GenerateTask,
-    IsAssistantMessage,
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
+    ModelType,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
@@ -22,7 +22,7 @@ const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
 /// The name of the env var or secret for the API key
 const API_KEY: &str = "GOOGLE_AI_API_KEY";
 
-struct GoogleAssistant {
+struct GoogleModel {
     /// The name of the model
     model: String,
 
@@ -33,8 +33,8 @@ struct GoogleAssistant {
     client: Client,
 }
 
-impl GoogleAssistant {
-    /// Create a Google AI assistant
+impl GoogleModel {
+    /// Create a Google AI model
     fn new(model: String, context_length: usize) -> Self {
         Self {
             model,
@@ -45,29 +45,29 @@ impl GoogleAssistant {
 }
 
 #[async_trait]
-impl Assistant for GoogleAssistant {
+impl Model for GoogleModel {
     fn name(&self) -> String {
         format!("google/{}", self.model)
     }
 
-    fn r#type(&self) -> AssistantType {
-        AssistantType::Remote
+    fn r#type(&self) -> ModelType {
+        ModelType::Remote
     }
 
     fn context_length(&self) -> usize {
         self.context_length
     }
 
-    fn supported_inputs(&self) -> &[AssistantIO] {
-        use AssistantIO::*;
+    fn supported_inputs(&self) -> &[ModelIO] {
+        use ModelIO::*;
         match self.model.as_str() {
             "gemini-pro-vision" => &[Text, Video],
             _ => &[Text],
         }
     }
 
-    fn supported_outputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+    fn supported_outputs(&self) -> &[ModelIO] {
+        &[ModelIO::Text]
     }
 
     #[tracing::instrument(skip(self))]
@@ -195,9 +195,9 @@ impl Assistant for GoogleAssistant {
 ///
 /// Based on https://ai.google.dev/api/rest/v1/models/list.
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct ModelsResponse {
-    models: Vec<Model>,
+    models: Vec<ModelSpec>,
 }
 
 /// A model returned within a `ModelsResponse`
@@ -205,8 +205,8 @@ struct ModelsResponse {
 /// Based on https://ai.google.dev/api/rest/v1/models#Model.
 /// Note: at present several fields are ignored.
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
-struct Model {
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+struct ModelSpec {
     name: String,
     input_token_limit: Option<usize>,
 }
@@ -217,7 +217,7 @@ struct Model {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
 struct GenerateContentRequest {
     contents: Vec<Content>,
     generation_config: Option<GenerationConfig>,
@@ -228,7 +228,7 @@ struct GenerateContentRequest {
 /// Based on https://ai.google.dev/api/rest/v1beta/GenerateContentResponse.
 /// Note: at present the `promptFeedback` field ignored.
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct GenerateContentResponse {
     candidates: Vec<Candidate>,
 }
@@ -239,7 +239,7 @@ struct GenerateContentResponse {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct Candidate {
     content: Content,
 }
@@ -249,7 +249,7 @@ struct Candidate {
 /// Based on https://ai.google.dev/api/rest/v1beta/Content.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "assistant::common::serde")]
+#[serde(crate = "model::common::serde")]
 struct Content {
     role: Option<Role>,
     parts: Vec<Part>,
@@ -261,7 +261,7 @@ struct Content {
 /// Note: at present does not include all variants
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
 struct Part {
     text: Option<String>,
     inline_data: Option<Blob>,
@@ -294,7 +294,7 @@ impl Part {
 /// Based on https://ai.google.dev/api/rest/v1beta/Content#Blob.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
 struct Blob {
     mime_type: String,
     data: String,
@@ -302,7 +302,7 @@ struct Blob {
 
 /// A role in a `Content` object
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "assistant::common::serde")]
+#[serde(rename_all = "lowercase", crate = "model::common::serde")]
 enum Role {
     User,
     Model,
@@ -313,7 +313,7 @@ enum Role {
 /// Based on https://ai.google.dev/api/rest/v1beta/GenerationConfig.
 #[skip_serializing_none]
 #[derive(Default, Serialize)]
-#[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
 struct GenerationConfig {
     stop_sequences: Option<Vec<String>>,
     candidate_count: Option<u8>,
@@ -333,7 +333,7 @@ struct GenerationConfig {
 /// See https://ai.google.dev/api/rest/v1/models/list and
 /// https://ai.google.dev/tutorials/rest_quickstart#list_models
 #[cached(time = 3600, result = true)]
-pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     let Ok(key) = secrets::env_or_get(API_KEY) else {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
@@ -351,7 +351,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 
     let ModelsResponse { models } = response.json().await?;
 
-    let assistants = models
+    let models = models
         .into_iter()
         .filter(|model| !model.name.starts_with("models/embedding-"))
         .sorted_by(|a, b| a.name.cmp(&b.name))
@@ -364,20 +364,20 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
 
             let context_length = model.input_token_limit.unwrap_or(4_096);
 
-            Arc::new(GoogleAssistant::new(name, context_length)) as Arc<dyn Assistant>
+            Arc::new(GoogleModel::new(name, context_length)) as Arc<dyn Model>
         })
         .collect();
 
-    Ok(assistants)
+    Ok(models)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assistant::{common::tokio, test_task_repeat_word};
+    use model::{common::tokio, test_task_repeat_word};
 
     #[tokio::test]
-    async fn list_assistants() -> Result<()> {
+    async fn list_models() -> Result<()> {
         let list = list().await?;
 
         if secrets::env_or_get(API_KEY).is_err() {
@@ -395,8 +395,8 @@ mod tests {
             return Ok(());
         }
 
-        let assistant = &list().await?[0];
-        let output = assistant
+        let model = &list().await?[0];
+        let output = model
             .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
             .await?;
 

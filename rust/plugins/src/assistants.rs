@@ -1,10 +1,6 @@
 use std::sync::Arc;
 
-use assistant::{
-    format::Format, Assistant, AssistantAvailability, AssistantIO, AssistantType, GenerateOptions,
-    GenerateOutput, GenerateTask,
-};
-use assistant_specialized::{choose_delegate, deserialize_delegates, serialize_delegates};
+use assistant::{choose_model, deserialize_models, serialize_models};
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -13,6 +9,10 @@ use common::{
     tokio::sync::Mutex,
 };
 use kernel::schema::AuthorRoleName;
+use model::{
+    format::Format, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelAvailability,
+    ModelIO, ModelType,
+};
 
 use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 
@@ -33,11 +33,11 @@ pub struct PluginAssistant {
 
     /// The input types that the assistant supports
     #[serde(default)]
-    inputs: Vec<AssistantIO>,
+    inputs: Vec<ModelIO>,
 
     /// The output types that the assistant supports
     #[serde(default)]
-    outputs: Vec<AssistantIO>,
+    outputs: Vec<ModelIO>,
 
     /// The format that the content of the instruction should
     /// be formatted using for use in the system prompt
@@ -53,17 +53,17 @@ pub struct PluginAssistant {
     #[serde(alias = "system-prompt")]
     system_prompt: bool,
 
-    /// The names of the assistants this assistant will delegate
+    /// The names of the assistants this assistant will model
     /// to in descending order of preference
     ///
-    /// The default ordered list of delegates can be prepended
+    /// The default ordered list of models can be prepended
     /// using this options. If the last item is `only` then the
     /// list will be limited to those specified.
     #[serde(
-        deserialize_with = "deserialize_delegates",
-        serialize_with = "serialize_delegates"
+        deserialize_with = "deserialize_models",
+        serialize_with = "serialize_models"
     )]
-    delegates: Vec<String>,
+    models: Vec<String>,
 
     /// The plugin that provides this assistant
     ///
@@ -90,42 +90,42 @@ impl PluginAssistant {
 }
 
 #[async_trait]
-impl Assistant for PluginAssistant {
+impl Model for PluginAssistant {
     fn name(&self) -> String {
         self.name.clone()
     }
 
-    fn r#type(&self) -> AssistantType {
+    fn r#type(&self) -> ModelType {
         match &self.plugin {
             Some(plugin) => {
                 let mut name = plugin.name.clone();
                 if plugin.linked {
                     name += " (linked)";
                 }
-                AssistantType::Plugin(name)
+                ModelType::Plugin(name)
             }
-            None => AssistantType::Plugin("unknown".to_string()),
+            None => ModelType::Plugin("unknown".to_string()),
         }
     }
 
-    fn availability(&self) -> AssistantAvailability {
+    fn availability(&self) -> ModelAvailability {
         match &self.plugin {
             Some(plugin) => match plugin.availability() {
                 (
                     PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
                     PluginEnabled::Yes,
-                ) => AssistantAvailability::Available,
+                ) => ModelAvailability::Available,
 
                 (
                     PluginStatus::InstalledLatest(..) | PluginStatus::InstalledOutdated(..),
                     PluginEnabled::No,
-                ) => AssistantAvailability::Disabled,
+                ) => ModelAvailability::Disabled,
 
-                (PluginStatus::Installable, _) => AssistantAvailability::Installable,
+                (PluginStatus::Installable, _) => ModelAvailability::Installable,
 
-                _ => AssistantAvailability::Unavailable,
+                _ => ModelAvailability::Unavailable,
             },
-            None => AssistantAvailability::Unavailable,
+            None => ModelAvailability::Unavailable,
         }
     }
 
@@ -147,17 +147,17 @@ impl Assistant for PluginAssistant {
             .unwrap_or_default()
     }
 
-    fn supported_inputs(&self) -> &[AssistantIO] {
+    fn supported_inputs(&self) -> &[ModelIO] {
         if self.inputs.is_empty() {
-            &[AssistantIO::Text]
+            &[ModelIO::Text]
         } else {
             &self.inputs
         }
     }
 
-    fn supported_outputs(&self) -> &[AssistantIO] {
+    fn supported_outputs(&self) -> &[ModelIO] {
         if self.outputs.is_empty() {
-            &[AssistantIO::Text]
+            &[ModelIO::Text]
         } else {
             &self.outputs
         }
@@ -214,28 +214,28 @@ impl Assistant for PluginAssistant {
             (None, None)
         };
 
-        // If the assistant has delegates choose one for the task
-        let delegate = if self.delegates.is_empty() {
+        // If the assistant has models choose one for the task
+        let model = if self.models.is_empty() {
             None
         } else {
-            Some(choose_delegate(&self.delegates, task).await?)
+            Some(choose_model(&self.models, task).await?)
         };
 
-        // Prepare the task for the delegate assistant (if any) including
+        // Prepare the task for the model (if any) including
         // formatting the content and rendering the system prompt
         let mut task = task.clone();
         if self.content_format.is_some() || system_prompt.is_some() {
             task.prepare(
-                delegate.as_deref(),
+                model.as_deref(),
                 self.content_format.as_ref(),
                 system_prompt.as_ref(),
             )
             .await?;
         }
 
-        let output: GenerateOutput = if let Some(delegate) = delegate {
-            // Get delegate to perform the task
-            delegate.perform_task(&task, options).await?
+        let output: GenerateOutput = if let Some(model) = model {
+            // Get model to perform the task
+            model.perform_task(&task, options).await?
         } else {
             // Call the plugin assistant's `perform_task` method
             #[derive(Serialize)]
@@ -277,7 +277,7 @@ impl Assistant for PluginAssistant {
 }
 
 /// List all the assistants provided by plugins
-pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     Ok(plugins()
         .await
         .into_iter()
