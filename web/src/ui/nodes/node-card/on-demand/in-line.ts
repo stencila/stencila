@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { apply, css as twCss, Twind } from '@twind/core'
 import { css, html } from 'lit'
-import { customElement, state, property } from 'lit/decorators'
+import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
 import '../../../animation/collapsible'
@@ -19,12 +19,6 @@ import { UIBaseCard } from '../base-card'
 export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   @state()
   isToolTipOpen: boolean = false
-
-  /**
-   * apply the default styles to the displayed content or not.
-   */
-  @property({ type: Boolean, attribute: 'disable-content-styles' })
-  disableContentStyles: boolean = false
 
   protected override restrictTitleWidth: boolean = true
 
