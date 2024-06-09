@@ -426,28 +426,38 @@ pub enum NodeProperty {{
 
         // Add a #[patch(...)] attribute for main struct if it has authors that is a Vec<Author>
         if derive_patch {
+            let mut args = Vec::new();
+
             if let Some(authors) = schema.properties.get("authors") {
                 if let Some(Items::Ref(ItemsRef { r#ref })) = &authors.items {
                     if r#ref == "Author" {
                         let authors_on = if authors.is_required || authors.is_core {
-                            "authors_on = \"self\""
+                            r#"authors_on = "self""#
                         } else {
-                            "authors_on = \"options\""
-                        };
+                            r#"authors_on = "options""#
+                        }
+                        .to_string();
+                        args.push(authors_on);
 
-                        let authors_take = schema
-                            .patch
-                            .as_ref()
-                            .and_then(|options| {
-                                options
-                                    .take_authors
-                                    .then(|| ", authors_take = true".to_string())
-                            })
-                            .unwrap_or_default();
-
-                        attrs.push(format!("#[patch({authors_on}{authors_take})]"));
+                        if let Some(authors_take) = schema.patch.as_ref().and_then(|options| {
+                            options
+                                .take_authors
+                                .then(|| "authors_take = true".to_string())
+                        }) {
+                            args.push(authors_take)
+                        }
                     }
                 }
+            }
+
+            if let Some(options) = &schema.patch {
+                if let Some(apply_with) = &options.apply_with {
+                    args.push(format!(r#"apply_with = "{apply_with}""#));
+                }
+            }
+
+            if !args.is_empty() {
+                attrs.push(format!("#[patch({})]", args.join(", ")));
             }
         }
 

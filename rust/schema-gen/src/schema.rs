@@ -562,6 +562,15 @@ pub struct PatchOptions {
     #[default = true]
     pub derive: bool,
 
+    /// A custom function for applying patch operations
+    /// 
+    /// This function has a similar signature to `PatchNode::apply` but returns
+    /// `Result<bool>`. If the function does not handle the operation it
+    /// should return `Ok(false)`, in which case the derived implementation
+    /// may attempt to handle it.
+    #[serde(rename = "applyWith")]
+    pub apply_with: Option<String>,
+
     /// Whether the `authors` of the context should be "taken" (i.e made not
     /// available to child nodes).
     #[serde(rename = "takeAuthors", skip_serializing_if = "is_false")]
