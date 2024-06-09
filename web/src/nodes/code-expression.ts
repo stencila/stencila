@@ -84,12 +84,7 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-execution-messages>
       </div>
       <span slot="content">
-        ${
-          // TODO get the <code> put into a slot
-          this.executionCount > 0
-            ? html`<slot name="output"></slot>`
-            : html`<slot></slot>`
-        }
+        ${this.executionCount > 0 ? html`<slot name="output"></slot>` : ''}
       </span>
     </stencila-ui-inline-on-demand>`
   }
