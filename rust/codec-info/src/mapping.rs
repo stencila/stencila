@@ -5,7 +5,7 @@ pub use node_id::NodeId;
 pub use node_type::{NodeProperty, NodeType};
 
 /// A mapping between UTF-8 character indices and nodes and their properties
-#[derive(Default, Clone, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize)]
 #[serde(transparent, crate = "common::serde")]
 pub struct Mapping {
     entries: Vec<MappingEntry>,
@@ -167,7 +167,7 @@ impl Mapping {
     /// Get the range of UTF-8 character indices, if any, of a node
     pub fn range_of_node(&self, node_id: &NodeId) -> Option<Range<usize>> {
         for entry in self.entries.iter() {
-            if &entry.node_id == node_id {
+            if &entry.node_id == node_id && entry.property.is_none() && entry.authorship.is_none() {
                 return Some(entry.range.clone());
             }
         }
