@@ -26,7 +26,12 @@ export class MathBlock extends Math {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-on-demand type="MathBlock" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="MathBlock"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">
             <slot name="authors"></slot>

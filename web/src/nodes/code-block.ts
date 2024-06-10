@@ -29,6 +29,8 @@ export class CodeBlock extends CodeStatic {
         type="CodeBlock"
         view="dynamic"
         programming-language=${this.programmingLanguage}
+        depth=${this.depth}
+        ancestors=${this.ancestors}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">

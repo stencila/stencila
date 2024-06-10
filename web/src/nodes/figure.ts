@@ -30,7 +30,12 @@ export class Figure extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand type="Figure" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Figure"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Figure">
             <slot name="authors"></slot>

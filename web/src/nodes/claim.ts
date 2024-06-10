@@ -39,6 +39,8 @@ export class Claim extends Entity {
         type="Claim"
         title=${`Claim: ${this.claimType}`}
         view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Claim">

@@ -33,7 +33,12 @@ export class QuoteBlock extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand type="QuoteBlock" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="QuoteBlock"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="QuoteBlock">
             <slot name="authors"></slot>

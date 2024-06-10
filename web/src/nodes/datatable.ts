@@ -30,7 +30,12 @@ export class Datatable extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-on-demand type="Datatable" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Datatable"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div class="content" slot="content">
           <div class="overflow-x-scroll data-table">
             <slot></slot>

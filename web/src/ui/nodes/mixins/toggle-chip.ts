@@ -1,13 +1,15 @@
 import { consume } from '@lit/context'
+import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
-import { state } from 'lit/decorators'
+import { state, property } from 'lit/decorators'
 
 import {
   DocPreviewContext,
   documentPreviewContext,
 } from '../../../contexts/preview-context'
 import { nodeUi } from '../icons-and-colours'
+import { calculateChipOffset } from '../node-card/on-demand/utils'
 
 import { UIBaseClass } from './ui-base-class'
 
@@ -39,6 +41,18 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     protected toggle: boolean = false
 
     /**
+     * the depth of the current `Node`
+     */
+    @property({ type: Object })
+    depth: number
+
+    /**
+     * the string of ancestors for the `Node`
+     */
+    @property({ type: String })
+    ancestors: string
+
+    /**
      * Used to allow clients to override css classes (tailwind) to change the
      * positioning of the chip.
      */
@@ -58,6 +72,11 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     protected renderChip(icons: [string, string], colours: NodeColours) {
       const { colour, borderColour } = colours
       const [library, icon] = icons
+
+      const yOffset = calculateChipOffset(
+        this.depth,
+        (this.ancestors?.split('.') as NodeType[]) ?? []
+      )
 
       const styles = apply([
         this.docViewContext.nodeChipState === 'hidden' && 'pointer-events-none',
@@ -79,7 +98,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
         `fill-black text-black`,
         `hover:bg-[${borderColour}] hover:border-[${colour}]`,
         'absolute',
-        'top-0',
+        `top-[${!this.toggle ? yOffset : 0}px]`,
       ])
 
       return html`

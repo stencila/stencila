@@ -30,7 +30,12 @@ export class IncludeBlock extends Executable {
 
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-on-demand type="IncludeBlock" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="IncludeBlock"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body">
           <div><span>source: </span><span>${this.source}</span></div>
           <slot name="authors"></slot>
