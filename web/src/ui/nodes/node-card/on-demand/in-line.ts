@@ -117,7 +117,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         placement="bottom"
       >
         <div slot="content">
-          ${this.renderHeader()} ${this.renderAnimatedContent()}
+          ${this.renderHeader()} ${this.renderAnimatedCardBody()}
         </div>
         <div class=${contentStyles}>
           <slot name="content"></slot>
@@ -126,7 +126,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
     </div>`
   }
 
-  protected override toggleCardDisplay() {
+  protected toggleCardDisplay() {
     this.toggle = !this.toggle
 
     this.shadowRoot.dispatchEvent(

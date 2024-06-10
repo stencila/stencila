@@ -136,8 +136,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
           if (!this.canCollapse) {
             return
           }
-
-          this.toggleCardDisplay()
+          this.toggleCardBodyCollapse()
         }}
       >
         <span class="items-center flex grow-0 shrink-0">
@@ -173,18 +172,18 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
   /**
    * Displays the content, wrapped in a `collapsible-animation` component.
    */
-  protected renderAnimatedContent() {
+  protected renderAnimatedCardBody() {
     const animationClasses = `${!this.canAnimate ? 'no-animate' : ''} ${this.collapsed ? '' : 'opened'}`
 
     return html`<stencila-ui-collapsible-animation class=${animationClasses}>
-      <div>${this.renderBody()} ${this.renderContent()}</div>
+      <div>${this.renderBody()}</div>
     </stencila-ui-collapsible-animation>`
   }
 
   /**
    * This function is called when the `collapse` click event is triggered.
    */
-  protected toggleCardDisplay(): void {
+  protected toggleCardBodyCollapse(): void {
     this.collapsed = !this.collapsed
   }
 
