@@ -111,11 +111,7 @@ impl<'content> Positions<'content> {
     /// Find the line that a character is on using binary search
     ///
     /// Returns the index of the line and the index of the line start character.
-    fn find_line(&self, char_index: usize) -> Option<(usize, usize)> {
-        if char_index >= self.content.chars().count() {
-            return None;
-        }
-
+    fn find_line(&self, char_index: usize) -> (usize, usize) {
         let lines = self.lines();
         let lines = lines.as_ref().expect("should always be some");
 
@@ -130,7 +126,7 @@ impl<'content> Positions<'content> {
             }
         }
 
-        Some((line_range.start, lines[line_range.start]))
+        (line_range.start, lines[line_range.start])
     }
 
     /// Get a the character index at the start of a line
@@ -142,9 +138,9 @@ impl<'content> Positions<'content> {
     }
 
     /// Get the UTF16-based column index for a UTF-8 column index
-    fn utf8_to_utf16_column(&self, utf8_line_start: usize, utf8_column: usize) -> Option<usize> {
+    fn utf8_to_utf16_column(&self, utf8_line_start: usize, utf8_column: usize) -> usize {
         if utf8_column == 0 {
-            return Some(0);
+            return 0;
         }
 
         let mut chars = self.content.chars().skip(utf8_line_start);
@@ -154,14 +150,14 @@ impl<'content> Positions<'content> {
             if let Some(char) = chars.next() {
                 utf16_column += if char as u32 <= 0xFFF { 1 } else { 2 };
                 if char == '\n' {
-                    return Some(utf16_column);
+                    return utf16_column;
                 }
             } else {
-                return None;
+                return utf16_column;
             }
         }
 
-        Some(utf16_column)
+        utf16_column
     }
 
     /// Get the UTF8-based column index for a UTF-16 column index
@@ -198,22 +194,19 @@ impl<'content> Positions<'content> {
     }
 
     /// Get the UTF8-based position at the character index in the content
-    pub fn position8_at_index(&self, char_index: usize) -> Option<Position8> {
-        self.find_line(char_index)
-            .map(|(line_index, line_start)| Position8 {
-                line: line_index,
-                column: char_index.saturating_sub(line_start),
-            })
+    pub fn position8_at_index(&self, char_index: usize) -> Position8 {
+        let (line, line_start) = self.find_line(char_index);
+        let column = char_index.saturating_sub(line_start);
+
+        Position8 { line, column }
     }
 
     /// Get the UTF16-based position at the character index in the content
-    pub fn position16_at_index(&self, char_index: usize) -> Option<Position16> {
-        self.find_line(char_index)
-            .and_then(|(line_index, line_start)| {
-                self.utf8_to_utf16_column(line_start, char_index)
-                    .map(|utf16_column| (line_index, utf16_column))
-            })
-            .map(|(line, column)| Position16 { line, column })
+    pub fn position16_at_index(&self, char_index: usize) -> Position16 {
+        let (line, line_start) = self.find_line(char_index);
+        let column = self.utf8_to_utf16_column(line_start, char_index);
+
+        Position16 { line, column }
     }
 
     /// Get the character index at the UTF8-based position in the content
@@ -261,31 +254,13 @@ mod tests {
         let content = "line1\n\n\nbefore😊after";
         let positions = Positions::new(content);
 
-        assert_eq!(
-            positions.position8_at_index(0).unwrap(),
-            Position8::new(0, 0)
-        );
-        assert_eq!(
-            positions.position8_at_index(6).unwrap(),
-            Position8::new(1, 0)
-        );
-        assert_eq!(
-            positions.position8_at_index(7).unwrap(),
-            Position8::new(2, 0)
-        );
-        assert_eq!(
-            positions.position8_at_index(8).unwrap(),
-            Position8::new(3, 0)
-        );
-        assert_eq!(
-            positions.position8_at_index(14).unwrap(),
-            Position8::new(3, 6)
-        );
-        assert_eq!(
-            positions.position8_at_index(15).unwrap(),
-            Position8::new(3, 7)
-        );
-        assert_eq!(positions.position8_at_index(20), None);
+        assert_eq!(positions.position8_at_index(0), Position8::new(0, 0));
+        assert_eq!(positions.position8_at_index(6), Position8::new(1, 0));
+        assert_eq!(positions.position8_at_index(7), Position8::new(2, 0));
+        assert_eq!(positions.position8_at_index(8), Position8::new(3, 0));
+        assert_eq!(positions.position8_at_index(14), Position8::new(3, 6));
+        assert_eq!(positions.position8_at_index(15), Position8::new(3, 7));
+        assert_eq!(positions.position8_at_index(20), Position8::new(3, 12));
     }
 
     #[test]
@@ -293,31 +268,16 @@ mod tests {
         let content = "line1\n\n\nbefore😊after";
         let positions = Positions::new(content);
 
+        assert_eq!(positions.position16_at_index(0), Position16::new(0, 0));
+        assert_eq!(positions.position16_at_index(6), Position16::new(1, 0));
+        assert_eq!(positions.position16_at_index(7), Position16::new(2, 0));
+        assert_eq!(positions.position16_at_index(8), Position16::new(3, 0));
+        assert_eq!(positions.position16_at_index(14), Position16::new(3, 6));
         assert_eq!(
-            positions.position16_at_index(0).unwrap(),
-            Position16::new(0, 0)
-        );
-        assert_eq!(
-            positions.position16_at_index(6).unwrap(),
-            Position16::new(1, 0)
-        );
-        assert_eq!(
-            positions.position16_at_index(7).unwrap(),
-            Position16::new(2, 0)
-        );
-        assert_eq!(
-            positions.position16_at_index(8).unwrap(),
-            Position16::new(3, 0)
-        );
-        assert_eq!(
-            positions.position16_at_index(14).unwrap(),
-            Position16::new(3, 6)
-        );
-        assert_eq!(
-            positions.position16_at_index(15).unwrap(),
+            positions.position16_at_index(15),
             Position16::new(3, 8) // Note different to above
         );
-        assert_eq!(positions.position16_at_index(20), None);
+        assert_eq!(positions.position16_at_index(20), Position16::new(3, 13));
     }
 
     #[test]

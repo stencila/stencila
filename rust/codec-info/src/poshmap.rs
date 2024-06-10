@@ -32,7 +32,7 @@ where
     /// Get the [`NodeId`] at a UTF8-based line/column position
     pub fn position8_to_node_id(&self, position8: Position8) -> Option<&NodeId> {
         let source_index = self.positions.index_at_position8(position8)?;
-        let generated_index = self.shifter.source_to_generated(source_index)?;
+        let generated_index = self.shifter.source_to_generated(source_index);
         self.mapping.node_id_at(generated_index)
     }
 
@@ -40,15 +40,15 @@ where
     pub fn node_id_to_range8(&self, node_id: &NodeId) -> Option<Range8> {
         let generated_range = self.mapping.range_of_node(node_id)?;
 
-        let start_index = self.shifter.generated_to_source(generated_range.start)?;
+        let start_index = self.shifter.generated_to_source(generated_range.start);
         let end_index = self
             .shifter
-            .generated_to_source(generated_range.end.saturating_sub(1))?;
+            .generated_to_source(generated_range.end.saturating_sub(1));
 
-        let start_position = self.positions.position8_at_index(start_index)?;
+        let start_position = self.positions.position8_at_index(start_index);
         let end_position = self
             .positions
-            .position8_at_index(end_index.saturating_add(1))?;
+            .position8_at_index(end_index.saturating_add(1));
 
         Some(Range8::new(start_position, end_position))
     }
@@ -56,7 +56,7 @@ where
     /// Get the [`NodeId`] at a UTF8-based line/column position
     pub fn position16_to_node_id(&self, position16: Position16) -> Option<&NodeId> {
         let source_index = self.positions.index_at_position16(position16)?;
-        let generated_index = self.shifter.source_to_generated(source_index)?;
+        let generated_index = self.shifter.source_to_generated(source_index);
         self.mapping.node_id_at(generated_index)
     }
 
@@ -64,15 +64,15 @@ where
     pub fn node_id_to_range16(&self, node_id: &NodeId) -> Option<Range16> {
         let generated_range = self.mapping.range_of_node(node_id)?;
 
-        let start_index = self.shifter.generated_to_source(generated_range.start)?;
+        let start_index = self.shifter.generated_to_source(generated_range.start);
         let end_index = self
             .shifter
-            .generated_to_source(generated_range.end.saturating_sub(1))?;
+            .generated_to_source(generated_range.end.saturating_sub(1));
 
-        let start_position = self.positions.position16_at_index(start_index)?;
+        let start_position = self.positions.position16_at_index(start_index);
         let end_position = self
             .positions
-            .position16_at_index(end_index.saturating_add(1))?;
+            .position16_at_index(end_index.saturating_add(1));
 
         Some(Range16::new(start_position, end_position))
     }
