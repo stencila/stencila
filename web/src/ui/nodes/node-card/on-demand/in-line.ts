@@ -46,12 +46,11 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
+      `bg-[${this.ui.colour}]`,
+      'rounded-b',
     ])
 
     return html`<div class=${bodyStyles}>
@@ -85,7 +84,6 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         mix-blend-mode: multiply;
         content: '';
-
         position: absolute;
         top: 0;
         right: 0;
@@ -116,7 +114,10 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         .open=${this.toggle}
         placement="bottom"
       >
-        <div slot="content">
+        <div
+          slot="content"
+          class="bg-transparent border border-[${this.ui.borderColour}] rounded"
+        >
           ${this.renderHeader()} ${this.renderAnimatedCardBody()}
         </div>
         <div class=${contentStyles}>

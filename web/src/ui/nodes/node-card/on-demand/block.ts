@@ -42,12 +42,10 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
+      `bg-[${this.ui.colour}]`,
     ])
 
     return html`<div class=${bodyStyles}>

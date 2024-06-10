@@ -121,8 +121,6 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
       'px-4 py-2',
       'gap-x-2',
       `bg-[${borderColour}]`,
-      `border border-[${borderColour}]`,
-      this.view === 'source' ? '' : 'rounded-t',
       'font-medium',
       'cursor-pointer',
       'transition duration-100 ease-in',
