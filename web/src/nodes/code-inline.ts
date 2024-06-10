@@ -48,9 +48,6 @@ export class CodeInline extends CodeStatic {
             read-only
           >
           </stencila-ui-node-code>
-          <stencila-ui-node-outputs type="CodeInline">
-            <slot name="outputs">${this.code}</slot>
-          </stencila-ui-node-outputs>
         </div>
         <span slot="content">
           <slot></slot>
