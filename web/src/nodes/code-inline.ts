@@ -33,6 +33,9 @@ export class CodeInline extends CodeStatic {
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeInline">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
 

@@ -42,11 +42,11 @@ export class Claim extends Entity {
       >
         <div slot="body">
           <stencila-ui-node-authors type="Claim">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="Claim">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <slot name="content"></slot>
