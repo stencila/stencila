@@ -32,9 +32,11 @@ export class UINodeAuthors extends LitElement {
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)
 
-    const slot: HTMLSlotElement = this.shadowRoot.querySelector('slot')
+    const slot: HTMLSlotElement = this.shadowRoot.querySelector(
+      'slot:not([name="provenance"])'
+    )
     if (slot) {
-      this.hasItems = slot.assignedElements().length !== 0
+      this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
     }
   }
 
