@@ -43,8 +43,9 @@ export class UINodeAuthors extends LitElement {
       type=${this.type}
       icon-name="authors"
       title="Authors"
-      wrapper-css=${this.hasItems ? '' : 'hidden'}
+      wrapper-css="border-t border-black/20 ${this.hasItems ? '' : 'hidden'}"
     >
+      <slot name="provenance" slot="header-content"></slot>
       <slot></slot>
     </stencila-ui-node-collapsible-details>`
   }

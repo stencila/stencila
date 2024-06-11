@@ -48,9 +48,13 @@ export class UINodeCollapsibleProperty extends LitElement {
           <div slot="title">
             <slot name="title"></slot>
           </div>
+          <div slot="content">
+            <slot name="header-content"></slot>
+          </div>
           <stencila-chevron-button
             default-pos=${this.collapsed ? 'up' : 'down'}
             slot="right-side"
+            custom-class="flex items-center"
           ></stencila-chevron-button>
         </stencila-ui-node-card-section-header>
         <div class=${contentClasses}>

@@ -30,11 +30,11 @@ export class MathInline extends Math {
       <stencila-ui-inline-on-demand type="MathInline" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="MathInline">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="MathInline">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
 
           <stencila-ui-node-code
             type="MathInline"

@@ -42,6 +42,8 @@ export class UISectionHeader extends LitElement {
       <div class=${`grow select-none text-sm ${this.iconName && 'ml-4'}`}>
         <slot name="title"></slot>
       </div>
+
+      <slot name="content"></slot>
       <slot name="right-side"></slot>
     </div>`
   }
