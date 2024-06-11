@@ -76,7 +76,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         --sl-tooltip-border-radius: 0;
         --sl-tooltip-background-color: transparent;
         --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
-        --max-width: 24rem;
+        min-width: 24rem;
+        max-width: 28rem;
 
         pointer-events: all;
       }
@@ -104,6 +105,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       'py-[0.125rem] px-1.5',
     ])
 
+    const headerStyles = this.collapsed && 'rounded-sm'
+
     return html` <div
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
@@ -119,7 +122,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
           slot="content"
           class="bg-transparent border border-[${this.ui.borderColour}] rounded"
         >
-          ${this.renderHeader()} ${this.renderAnimatedCardBody()}
+          ${this.renderHeader(headerStyles)} ${this.renderAnimatedCardBody()}
         </div>
         <div class=${contentStyles}>
           <slot name="content"></slot>

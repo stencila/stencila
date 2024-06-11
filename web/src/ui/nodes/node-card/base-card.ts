@@ -110,9 +110,20 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
     </div>`
   }
 
-  protected renderHeader() {
+  /**
+   * Renders the header element of the card
+   * @param {string[]} extraTwindClasses additional `twind` classes for the header container
+   * @returns
+   */
+  protected renderHeader(extraTwindClasses?: string | string[]) {
     const { title, borderColour } = this.ui
     const headerTitle = (this.title && this.title) || title
+
+    const additionalStyles: string[] = extraTwindClasses
+      ? Array.isArray(extraTwindClasses)
+        ? extraTwindClasses
+        : [extraTwindClasses]
+      : []
 
     const headerStyles = apply([
       `font-sans not-italic text-[${this.ui.textColour}]`,
@@ -120,11 +131,13 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
       'w-full',
       'px-4 py-2',
       'gap-x-2',
+      'rounded-t-sm',
       `bg-[${borderColour}]`,
       'font-medium',
       'cursor-pointer',
       'transition duration-100 ease-in',
       `hover:contrast-[105%]`,
+      ...additionalStyles,
     ])
 
     return html`<div class=${headerStyles}>
