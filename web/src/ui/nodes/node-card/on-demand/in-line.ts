@@ -49,6 +49,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
+      `text-[${this.ui.textColour}]`,
       `bg-[${this.ui.colour}]`,
       'rounded-b',
     ])

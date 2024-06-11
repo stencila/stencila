@@ -36,7 +36,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
   override render() {
     const containerClasses = apply([
       'flex flex-row items-center gap-x-3 flex-shrink-0',
-      'text-black',
+      `text-${this.ui.textColour}`,
     ])
 
     const dividerClasses = apply([

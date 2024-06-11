@@ -70,7 +70,7 @@ export class UIIconButton extends LitElement {
    * If consumer prefers to supply their own colours, then we can ignore what
    * the colours that have been set up here.
    */
-  @property({ type: Boolean })
+  @property({ type: Boolean, attribute: 'ignore-colours' })
   ignoreColours: boolean = false
 
   override render() {

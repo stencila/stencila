@@ -296,6 +296,7 @@ export class UINodeCode extends LitElement {
 
   override render() {
     const contentClasses = apply([
+      'text-black',
       this.collapsed ? 'max-h-0' : 'max-h-full',
       'transition-max-h duration-200',
     ])

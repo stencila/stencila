@@ -115,7 +115,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
     const headerTitle = (this.title && this.title) || title
 
     const headerStyles = apply([
-      'font-sans not-italic',
+      `font-sans not-italic text-[${this.ui.textColour}]`,
       'flex items-center',
       'w-full',
       'px-4 py-2',

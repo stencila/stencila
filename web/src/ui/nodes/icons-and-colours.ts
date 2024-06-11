@@ -8,6 +8,7 @@ export type NodeTypeUI = {
   iconLibrary?: string
   colour?: string
   borderColour?: string
+  textColour?: string
 }
 
 const colours = resolveConfig(tailwindConfig).theme.colors
@@ -16,6 +17,7 @@ const DEFAULT_ICON = 'box'
 const DEFAULT_ICON_LIBRARY = 'default'
 const DEFAULT_COLOUR = colours.blue[100]
 const DEFAULT_BORDER_COLOUR = colours.blue[200]
+const DEFAULT_TEXT_COLOUR = colours.blue[900]
 
 const stencilaIcon = (icon: string) => ({
   icon,
@@ -30,6 +32,7 @@ const shoelaceIcon = (icon: string) => ({
 const nodeColours = (name: string) => ({
   colour: colours[name][100],
   borderColour: colours[name][200],
+  textColour: colours[name][900],
 })
 
 // prettier-ignore
@@ -100,6 +103,7 @@ export const nodeUi = (nodeType: NodeType): Required<NodeTypeUI> => {
     iconLibrary: ui?.iconLibrary ?? DEFAULT_ICON_LIBRARY,
     colour: ui?.colour ?? DEFAULT_COLOUR,
     borderColour: ui?.borderColour ?? DEFAULT_BORDER_COLOUR,
+    textColour: ui?.textColour ?? DEFAULT_TEXT_COLOUR,
   }
 }
 
