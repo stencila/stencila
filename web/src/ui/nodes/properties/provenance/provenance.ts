@@ -27,7 +27,7 @@ export class UINodeProvenance extends LitElement {
 
     const slot = this.shadowRoot.querySelector('slot')
     if (slot) {
-      this.hasItems = slot.assignedElements().length !== 0
+      this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
     }
   }
 
@@ -36,6 +36,7 @@ export class UINodeProvenance extends LitElement {
     const countStyles = css`
       & ::slotted([slot='provenance']) {
         display: flex;
+        align-items: center;
         column-gap: 0.5rem;
       }
     `

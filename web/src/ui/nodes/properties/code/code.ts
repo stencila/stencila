@@ -307,7 +307,7 @@ export class UINodeCode extends LitElement {
       <div class="relative z-10">
         <div class=${contentClasses}>
           <div hidden id="messages"><slot></slot></div>
-          <div id="codemirror" class=${`bg-gray-50`}></div>
+          <div id="codemirror" class="bg-gray-50"></div>
         </div>
       </div>
     `

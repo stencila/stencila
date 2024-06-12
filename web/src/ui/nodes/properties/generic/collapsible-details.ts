@@ -27,10 +27,10 @@ export class UINodeCollapsibleDetails extends LitElement {
   iconLibrary: ShoelaceIconLibraries = 'stencila'
 
   @property({ type: Boolean })
-  collapsed: boolean = false
+  collapsed: boolean = true
 
   @property({ attribute: 'wrapper-css' })
-  wrapperCss: string | undefined = 'border-t border-black/30'
+  wrapperCss: string | undefined = ''
 
   static override styles = css`
     [slot='content'] > slot::slotted(*) {
