@@ -33,7 +33,11 @@ export class Table extends Entity {
    */
   override renderDynamicView() {
     return html`
-      <stencila-ui-block-on-demand type="Table" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Table"
+        view="dynamic"
+        node-id=${this.id}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Table">
             <stencila-ui-node-provenance slot="provenance">
