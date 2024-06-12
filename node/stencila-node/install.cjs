@@ -44,7 +44,7 @@ const target = (() => {
   );
 })();
 
-const url = `https://github.com/stencila/stencila/releases/download/node-v${version}/stencila.${target}.node.gz`;
+const url = `https://github.com/stencila/stencila/releases/download/v${version}/stencila.${target}.node.gz`;
 
 function followRedirects(url, callback) {
   const req = https.get(url, (res) => {
