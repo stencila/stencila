@@ -1,8 +1,11 @@
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
+import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
+import tailwindConfig from 'tailwindcss/defaultConfig'
+import resolveConfig from 'tailwindcss/resolveConfig'
 
 import {
   DocumentCommand,
@@ -10,6 +13,11 @@ import {
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
+
+const colours = resolveConfig(tailwindConfig).theme.colors
+
+// TODO - disable all buttons when execution is running / pending.
+// TODO - refactor these menu items into reusable components to use in the preview menu as well.
 
 /**
  * A component for providing common execution related actions of executable nodes
@@ -35,14 +43,8 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
   override render() {
     const containerClasses = apply([
-      'flex flex-row items-center gap-x-3 flex-shrink-0',
+      'flex flex-row items-center flex-shrink-0',
       `text-${this.ui.textColour}`,
-    ])
-
-    const dividerClasses = apply([
-      'h-4 w-0',
-      `border-l-2 border-[${this.ui.borderColour}]`,
-      `brightness-75`,
     ])
 
     const buttonClasses = css`
@@ -63,33 +65,93 @@ export class UINodeExecutionCommands extends UIBaseClass {
             class=${`${buttonClasses} text-base`}
           ></sl-icon-button>
         </sl-tooltip>
+        ${this.renderDropdown()}
+      </div>
+    `
+  }
 
-        <div class=${dividerClasses} aria-hidden="true"></div>
+  renderDropdown() {
+    const containerStyles = css`
+      &[open] {
+        z-index: 1000;
+        & [slot='trigger'] {
+          transform: rotate(180deg);
+        }
+      }
+      &::part(panel) {
+        position: relative;
+        z-index: 1000;
+      }
+    `
 
-        <sl-tooltip content="Execute this node and all following nodes">
-          <sl-icon-button
-            name="skip"
-            library="stencila"
-            @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
-            class=${`${buttonClasses} text-2xl`}
-          ></sl-icon-button>
-        </sl-tooltip>
+    const buttonStyles = css`
+      &::part(base) {
+        &:hover {
+          color: inherit;
+        }
+      }
+    `
 
-        <div class=${dividerClasses}></div>
+    const itemStyles = apply([
+      'block',
+      'w-full',
+      'bg-white',
+      'text-sm text-grey-aluminium text-left',
+    ])
 
-        <sl-tooltip
-          content="Execute any stale upstream dependencies, this node, and any downstream dependant nodes. Coming soon!"
-        >
-          <sl-icon-button
-            name="deps-tree"
-            library="stencila"
-            disabled
+    const classes = css`
+      &::part(checked-icon),
+      &::part(submenu-icon) {
+        display: none;
+      }
+
+      &::part(base) {
+        width: 100%;
+        padding: 0.25rem 1rem;
+        &:hover {
+          background-color: ${colours['gray'][200]};
+        }
+      }
+
+      &::part(label) {
+        font-size: 0.75rem;
+      }
+    `
+
+    return html`
+      <sl-dropdown
+        class=${containerStyles}
+        @click=${(e: Event) => e.stopImmediatePropagation()}
+        placement="bottom-end"
+        hoist
+      >
+        <sl-icon-button
+          class="text-xs ${buttonStyles} hover:contrast-[105%]"
+          name="chevron-down"
+          slot="trigger"
+        ></sl-icon-button>
+        <sl-menu class="z-50">
+          <sl-menu-item
+            class="${itemStyles} ${classes}"
             @click=${(e: Event) =>
               this.emitEvent(e, 'plus-upstream-downstream')}
-            class=${`${buttonClasses} text-xl`}
-          ></sl-icon-button>
-        </sl-tooltip>
-      </div>
+          >
+            <div class="flex items-center">
+              <sl-icon name="skip-start" class="mr-1"></sl-icon>
+              Run all above
+            </div>
+          </sl-menu-item>
+          <sl-menu-item
+            class="${itemStyles} ${classes}"
+            @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
+          >
+            <div class="flex items-center">
+              <sl-icon name="skip-end" class="mr-1"></sl-icon>
+              Run all below
+            </div>
+          </sl-menu-item>
+        </sl-menu>
+      </sl-dropdown>
     `
   }
 }
