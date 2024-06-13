@@ -56,7 +56,6 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override renderContent() {
     const contentStyles = apply([
-      'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       this.toggle && 'p-3',
     ])
@@ -65,7 +64,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
         ${this.renderChip(this.getIcon(), this.ui)}
         <div class="content-block ${contentStyles}">
-          <slot name="content" class="w-full"></slot>
+          <slot name="content" class="relative w-full"></slot>
         </div>
       </div>
     `

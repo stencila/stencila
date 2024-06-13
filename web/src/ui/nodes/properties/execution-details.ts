@@ -43,7 +43,7 @@ export class UINodeExecutionDetails extends LitElement {
   count?: number
 
   @property()
-  required?: ExecutionRequired
+  required?: ExecutionRequired = 'NeverExecuted'
 
   @property()
   status?: ExecutionStatus
@@ -63,6 +63,7 @@ export class UINodeExecutionDetails extends LitElement {
     const classes = apply([
       'flex flex-row flex-wrap gap-3',
       'text-xs leading-tight',
+      'h-9',
       'py-1.5 px-4',
       `bg-[${borderColour}]`,
       'border-t border-black/20',
@@ -75,6 +76,7 @@ export class UINodeExecutionDetails extends LitElement {
           <stencila-ui-node-execution-state
             status=${this.status}
             required=${this.required}
+            count=${this.count}
           ></stencila-ui-node-execution-state>
           <stencila-ui-node-execution-count
             value=${this.count}

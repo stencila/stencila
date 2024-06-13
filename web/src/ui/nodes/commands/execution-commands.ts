@@ -99,7 +99,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
       'text-sm text-grey-aluminium text-left',
     ])
 
-    const classes = css`
+    const itemPartStyles = css`
       &::part(checked-icon),
       &::part(submenu-icon) {
         display: none;
@@ -132,7 +132,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
         ></sl-icon-button>
         <sl-menu class="z-50">
           <sl-menu-item
-            class="${itemStyles} ${classes}"
+            class="${itemStyles} ${itemPartStyles}"
             @click=${(e: Event) =>
               this.emitEvent(e, 'plus-upstream-downstream')}
           >
@@ -142,7 +142,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
             </div>
           </sl-menu-item>
           <sl-menu-item
-            class="${itemStyles} ${classes}"
+            class="${itemStyles} ${itemPartStyles}"
             @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
           >
             <div class="flex items-center">

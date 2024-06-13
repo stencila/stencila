@@ -47,7 +47,10 @@ export class ProvenanceCount extends Entity {
     // A percentage of 0 means <1%
     const percent = this.characterPercent === 0 ? '<1' : this.characterPercent
 
-    return html`<div class="relative flex items-center">
+    return html`<div
+      class="relative flex items-center"
+      @click=${(e: Event) => e.stopImmediatePropagation()}
+    >
       <sl-tooltip
         content=${this.tooltipText()}
         trigger="manual"
