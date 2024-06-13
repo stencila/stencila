@@ -62,7 +62,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
             @click=${(e: Event) => {
               this.emitEvent(e, 'only')
             }}
-            class=${`${buttonClasses} text-base`}
+            class=${`${buttonClasses} text-black hover:text-black/80`}
           ></sl-icon-button>
         </sl-tooltip>
         ${this.renderDropdown()}
@@ -125,7 +125,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
         hoist
       >
         <sl-icon-button
-          class="text-xs ${buttonStyles} hover:contrast-[105%]"
+          class="text-xs ${buttonStyles}"
           name="chevron-down"
           slot="trigger"
         ></sl-icon-button>
