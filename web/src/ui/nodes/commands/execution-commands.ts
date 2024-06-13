@@ -73,7 +73,6 @@ export class UINodeExecutionCommands extends UIBaseClass {
   renderDropdown() {
     const containerStyles = css`
       &[open] {
-        z-index: 1000;
         & [slot='trigger'] {
           transform: rotate(180deg);
         }

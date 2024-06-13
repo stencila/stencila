@@ -136,7 +136,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
       'font-medium',
       'cursor-pointer',
       'transition duration-100 ease-in',
-      // `hover:contrast-[105%]`,
+      `hover:bg-[${borderColour}]/90`,
       ...additionalStyles,
     ])
 
