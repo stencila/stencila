@@ -118,6 +118,8 @@
         "seahash",
         "serde",
         "sidenote",
+        "signin",
+        "signout",
         "slotchange",
         "smol",
         "SPANTRACE",
