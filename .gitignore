@@ -9,3 +9,4 @@ node_modules
 /python/.idea
 /python/.envrc
 python/stencila/.venv
+llm-evaluate/.idea

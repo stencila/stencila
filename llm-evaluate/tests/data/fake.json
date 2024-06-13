@@ -1,0 +1,402 @@
+[
+  {
+    "question": "What is the best way to achieve happiness?",
+    "answers": [
+      {
+        "answer": "Pursuing personal passions",
+        "model": "A",
+        "scores": {"A": 9, "B": 7, "C": 6, "D": 8, "E": 7},
+        "response_time": 120,
+        "cost": 0.005
+      },
+      {
+        "answer": "Helping others",
+        "model": "B",
+        "scores": {"A": 6, "B": 9, "C": 5, "D": 7, "E": 8},
+        "response_time": 150,
+        "cost": 0.006
+      },
+      {
+        "answer": "Achieving financial success",
+        "model": "C",
+        "scores": {"A": 5, "B": 4, "C": 8, "D": 5, "E": 6},
+        "response_time": 100,
+        "cost": 0.004
+      },
+      {
+        "answer": "Practicing mindfulness",
+        "model": "D",
+        "scores": {"A": 8, "B": 6, "C": 7, "D": 9, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Building strong relationships",
+        "model": "E",
+        "scores": {"A": 7, "B": 8, "C": 6, "D": 8, "E": 9},
+        "response_time": 140,
+        "cost": 0.007
+      }
+    ]
+  },
+  {
+    "question": "What is the most important skill for success?",
+    "answers": [
+      {
+        "answer": "Communication",
+        "model": "A",
+        "scores": {"A": 10, "B": 8, "C": 7, "D": 9, "E": 8},
+        "response_time": 90,
+        "cost": 0.004
+      },
+      {
+        "answer": "Critical thinking",
+        "model": "B",
+        "scores": {"A": 8, "B": 10, "C": 6, "D": 8, "E": 7},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Resilience",
+        "model": "C",
+        "scores": {"A": 7, "B": 6, "C": 10, "D": 7, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Networking",
+        "model": "D",
+        "scores": {"A": 6, "B": 5, "C": 7, "D": 10, "E": 6},
+        "response_time": 100,
+        "cost": 0.004
+      },
+      {
+        "answer": "Adaptability",
+        "model": "E",
+        "scores": {"A": 8, "B": 7, "C": 8, "D": 9, "E": 10},
+        "response_time": 120,
+        "cost": 0.005
+      }
+    ]
+  },
+  {
+    "question": "What is the ideal diet?",
+    "answers": [
+      {
+        "answer": "Balanced with all food groups",
+        "model": "A",
+        "scores": {"A": 9, "B": 8, "C": 7, "D": 9, "E": 8},
+        "response_time": 115,
+        "cost": 0.005
+      },
+      {
+        "answer": "Plant-based diet",
+        "model": "B",
+        "scores": {"A": 7, "B": 10, "C": 6, "D": 8, "E": 7},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Low-carb diet",
+        "model": "C",
+        "scores": {"A": 5, "B": 6, "C": 9, "D": 6, "E": 6},
+        "response_time": 90,
+        "cost": 0.004
+      },
+      {
+        "answer": "Mediterranean diet",
+        "model": "D",
+        "scores": {"A": 9, "B": 8, "C": 7, "D": 10, "E": 8},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Intermittent fasting",
+        "model": "E",
+        "scores": {"A": 6, "B": 7, "C": 6, "D": 7, "E": 9},
+        "response_time": 100,
+        "cost": 0.004
+      }
+    ]
+  },
+  {
+    "question": "What is the best form of exercise?",
+    "answers": [
+      {
+        "answer": "Cardio workouts",
+        "model": "A",
+        "scores": {"A": 10, "B": 8, "C": 7, "D": 9, "E": 8},
+        "response_time": 100,
+        "cost": 0.004
+      },
+      {
+        "answer": "Strength training",
+        "model": "B",
+        "scores": {"A": 7, "B": 10, "C": 8, "D": 8, "E": 7},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Yoga",
+        "model": "C",
+        "scores": {"A": 7, "B": 8, "C": 10, "D": 8, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "High-intensity interval training (HIIT)",
+        "model": "D",
+        "scores": {"A": 9, "B": 7, "C": 8, "D": 10, "E": 9},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Walking",
+        "model": "E",
+        "scores": {"A": 6, "B": 6, "C": 6, "D": 7, "E": 10},
+        "response_time": 120,
+        "cost": 0.005
+      }
+    ]
+  },
+  {
+    "question": "What is the key to a successful relationship?",
+    "answers": [
+      {
+        "answer": "Communication",
+        "model": "A",
+        "scores": {"A": 10, "B": 9, "C": 8, "D": 9, "E": 8},
+        "response_time": 90,
+        "cost": 0.004
+      },
+      {
+        "answer": "Trust",
+        "model": "B",
+        "scores": {"A": 8, "B": 10, "C": 7, "D": 8, "E": 7},
+        "response_time": 100,
+        "cost": 0.004
+      },
+      {
+        "answer": "Mutual respect",
+        "model": "C",
+        "scores": {"A": 7, "B": 8, "C": 10, "D": 7, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Shared values",
+        "model": "D",
+        "scores": {"A": 6, "B": 7, "C": 7, "D": 10, "E": 6},
+        "response_time": 120,
+        "cost": 0.005
+      },
+      {
+        "answer": "Compromise",
+        "model": "E",
+        "scores": {"A": 8, "B": 8, "C": 8, "D": 9, "E": 10},
+        "response_time": 140,
+        "cost": 0.007
+      }
+    ]
+  },
+  {
+    "question": "What is the most significant threat to global security?",
+    "answers": [
+      {
+        "answer": "Climate change",
+        "model": "A",
+        "scores": {"A": 10, "B": 8, "C": 7, "D": 9, "E": 8},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Nuclear proliferation",
+        "model": "B",
+        "scores": {"A": 7, "B": 10, "C": 6, "D": 8, "E": 7},
+        "response_time": 90,
+        "cost": 0.004
+      },
+      {
+        "answer": "Cyber warfare",
+        "model": "C",
+        "scores": {"A": 8, "B": 7, "C": 10, "D": 7, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Terrorism",
+        "model": "D",
+        "scores": {"A": 6, "B": 6, "C": 7, "D": 10, "E": 6},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Economic instability",
+        "model": "E",
+        "scores": {"A": 7, "B": 8, "C": 7, "D": 8, "E": 10},
+        "response_time": 100,
+        "cost": 0.004
+      }
+    ]
+  },
+  {
+    "question": "What is the best way to educate children?",
+    "answers": [
+      {
+        "answer": "Experiential learning",
+        "model": "A",
+        "scores": {"A": 10, "B": 8, "C": 7, "D": 9, "E": 8},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Traditional classroom education",
+        "model": "B",
+        "scores": {"A": 6, "B": 10, "C": 6, "D": 7, "E": 6},
+        "response_time": 90,
+        "cost": 0.004
+      },
+      {
+        "answer": "Montessori method",
+        "model": "C",
+        "scores": {"A": 8, "B": 8, "C": 10, "D": 8, "E": 7},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Homeschooling",
+        "model": "D",
+        "scores": {"A": 7, "B": 7, "C": 8, "D": 10, "E": 6},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Online learning",
+        "model": "E",
+        "scores": {"A": 8, "B": 8, "C": 7, "D": 9, "E": 10},
+        "response_time": 100,
+        "cost": 0.004
+      }
+    ]
+  },
+  {
+    "question": "What is the meaning of life?",
+    "answers": [
+      {
+        "answer": "Finding personal fulfillment",
+        "model": "A",
+        "scores": {"A": 10, "B": 7, "C": 8, "D": 9, "E": 8},
+        "response_time": 100,
+        "cost": 0.004
+      },
+      {
+        "answer": "Leaving a legacy",
+        "model": "B",
+        "scores": {"A": 6, "B": 10, "C": 7, "D": 7, "E": 7},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Seeking knowledge",
+        "model": "C",
+        "scores": {"A": 8, "B": 8, "C": 10, "D": 8, "E": 7},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Connecting with others",
+        "model": "D",
+        "scores": {"A": 9, "B": 7, "C": 7, "D": 10, "E": 8},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Spiritual enlightenment",
+        "model": "E",
+        "scores": {"A": 7, "B": 7, "C": 7, "D": 8, "E": 10},
+        "response_time": 120,
+        "cost": 0.005
+      }
+    ]
+  },
+  {
+    "question": "What is the most influential invention of all time?",
+    "answers": [
+      {
+        "answer": "The wheel",
+        "model": "A",
+        "scores": {"A": 10, "B": 9, "C": 8, "D": 9, "E": 8},
+        "response_time": 100,
+        "cost": 0.004
+      },
+      {
+        "answer": "The internet",
+        "model": "B",
+        "scores": {"A": 9, "B": 10, "C": 9, "D": 8, "E": 8},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Electricity",
+        "model": "C",
+        "scores": {"A": 8, "B": 8, "C": 10, "D": 7, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Printing press",
+        "model": "D",
+        "scores": {"A": 7, "B": 7, "C": 7, "D": 10, "E": 7},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Vaccines",
+        "model": "E",
+        "scores": {"A": 8, "B": 8, "C": 8, "D": 8, "E": 10},
+        "response_time": 120,
+        "cost": 0.005
+      }
+    ]
+  },
+  {
+    "question": "What is the most effective way to combat climate change?",
+    "answers": [
+      {
+        "answer": "Renewable energy",
+        "model": "A",
+        "scores": {"A": 10, "B": 8, "C": 9, "D": 9, "E": 8},
+        "response_time": 110,
+        "cost": 0.005
+      },
+      {
+        "answer": "Reforestation",
+        "model": "B",
+        "scores": {"A": 7, "B": 10, "C": 7, "D": 7, "E": 7},
+        "response_time": 90,
+        "cost": 0.004
+      },
+      {
+        "answer": "Reducing carbon emissions",
+        "model": "C",
+        "scores": {"A": 8, "B": 7, "C": 10, "D": 8, "E": 8},
+        "response_time": 130,
+        "cost": 0.006
+      },
+      {
+        "answer": "Promoting sustainable agriculture",
+        "model": "D",
+        "scores": {"A": 6, "B": 6, "C": 7, "D": 10, "E": 6},
+        "response_time": 140,
+        "cost": 0.007
+      },
+      {
+        "answer": "Innovative technology",
+        "model": "E",
+        "scores": {"A": 8, "B": 8, "C": 8, "D": 9, "E": 10},
+        "response_time": 100,
+        "cost": 0.004
+      }
+    ]
+  }
+]
