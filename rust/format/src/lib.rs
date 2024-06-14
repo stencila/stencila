@@ -58,6 +58,7 @@ pub enum Format {
     JsonLd,
     Cbor,
     CborZst,
+    Toml,
     Yaml,
     // Image formats
     Gif,
@@ -130,6 +131,7 @@ impl Format {
             Tailwind => "Tailwind",
             Tex => "TeX",
             Text => "Plain text",
+            Toml => "TOML",
             Wav => "WAV",
             WebM => "WebM",
             WebP => "WebP",
@@ -379,6 +381,7 @@ impl Display for Format {
             Tailwind => "tailwind",
             Tex => "tex",
             Text => "text",
+            Toml => "toml",
             Wav => "wav",
             WebM => "webm",
             WebP => "webp",
