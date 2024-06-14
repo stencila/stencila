@@ -54,6 +54,11 @@ export interface EncodeInfo {
 }
 
 /**
+ * The type for the name of a codec
+ */
+export type CodecName = string;
+
+/**
  * An encoder-decoder to convert content between a format and Stencila Schema nodes
  *
  * This partially mirrors the Rust trait in `rust/codec/src/lib.rs`.

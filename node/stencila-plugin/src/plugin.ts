@@ -19,6 +19,7 @@ import {
   GenerateOutput,
   GenerateTask,
 } from "./assistant.js";
+import { Codec, CodecName, DecodeInfo, EncodeInfo } from "./codec.js";
 import { KernelInstanceName, KernelName, Kernel } from "./kernel.js";
 
 /**
@@ -28,11 +29,25 @@ import { KernelInstanceName, KernelName, Kernel } from "./kernel.js";
  * methods for their use case.
  */
 export class Plugin {
-  assistants: Record<AssistantName, Assistant> = {};
+  /**
+   * The codecs the plugin provides
+   */
+  codecs: Record<CodecName, Codec> = {};
 
+  /**
+   * The kernels the plugin provides
+   */
   kernels: Record<KernelName, new () => Kernel> = {};
 
+  /**
+   * The instances of kernels create by the plugin
+   */
   kernelInstances: Record<KernelInstanceName, Kernel> = {};
+
+  /**
+   * The assistants the plugin provides
+   */
+  assistants: Record<AssistantName, Assistant> = {};
 
   /**
    * Get the health of the plugin
@@ -46,6 +61,54 @@ export class Plugin {
       timestamp: Math.floor(Date.now() / 1000),
       status: "OK",
     };
+  }
+
+  /**
+   * JSON-RPC interface for `Codec.fromString`
+   *
+   * @param {Object}
+   * @param content The content to decode
+   * @param codec The name of the codec to use
+   *
+   * @return GenerateOutput
+   */
+  protected async codec_from_string({
+    content,
+    codec,
+  }: {
+    content: string;
+    codec: CodecName;
+  }): Promise<[Node, DecodeInfo]> {
+    const instance = this.codecs[codec];
+    if (instance === undefined) {
+      throw new Error(`No codec named '${codec}'`);
+    }
+
+    return instance.fromString(content);
+  }
+
+  /**
+   * JSON-RPC interface for `Codec.toString`
+   *
+   * @param {Object}
+   * @param node The node to encode to a string
+   * @param codec The name of the codec to use
+   *
+   * @return GenerateOutput
+   */
+  protected async codec_to_string({
+    node,
+    codec,
+  }: {
+    node: Node;
+    codec: CodecName;
+  }): Promise<[string, EncodeInfo]> {
+    const instance = this.codecs[codec];
+    if (instance === undefined) {
+      throw new Error(`No codec named '${codec}'`);
+    }
+
+    return instance.toString(node);
   }
 
   /**
