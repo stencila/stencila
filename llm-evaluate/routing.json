@@ -1,0 +1,807 @@
+{
+    "id": 9,
+    "categories": [
+        {
+            "category": "code",
+            "results": [
+                {
+                    "cost": 0.0,
+                    "speed": 0.0,
+                    "quality": 1.0,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.1,
+                    "quality": 0.9,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.2,
+                    "quality": 0.8,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.3,
+                    "quality": 0.7,
+                    "model": "openai/gpt-4-0613"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.4,
+                    "quality": 0.6,
+                    "model": "openai/gpt-4-0613"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.5,
+                    "quality": 0.5,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.6,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.7,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.8,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.9,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 1.0,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.0,
+                    "quality": 0.9,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.1,
+                    "quality": 0.8,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.2,
+                    "quality": 0.7,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.3,
+                    "quality": 0.6,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.4,
+                    "quality": 0.5,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.5,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.6,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.7,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.8,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.9,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.0,
+                    "quality": 0.8,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.1,
+                    "quality": 0.7,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.2,
+                    "quality": 0.6,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.3,
+                    "quality": 0.5,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.4,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.5,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.6,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.7,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.8,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.0,
+                    "quality": 0.7,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.1,
+                    "quality": 0.6,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.2,
+                    "quality": 0.5,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.3,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.4,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.5,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.6,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.7,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.0,
+                    "quality": 0.6,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.1,
+                    "quality": 0.5,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.2,
+                    "quality": 0.4,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.3,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.4,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.5,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.6,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.0,
+                    "quality": 0.5,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.1,
+                    "quality": 0.4,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.2,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.3,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.4,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.5,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.0,
+                    "quality": 0.4,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.1,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-1106"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.2,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.3,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.4,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.0,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-1106"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.1,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.2,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.3,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.8,
+                    "speed": 0.0,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0125"
+                },
+                {
+                    "cost": 0.8,
+                    "speed": 0.1,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.8,
+                    "speed": 0.2,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.9,
+                    "speed": 0.0,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0125"
+                },
+                {
+                    "cost": 0.9,
+                    "speed": 0.1,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 1.0,
+                    "speed": 0.0,
+                    "quality": 0.0,
+                    "model": "google/gemini-1.5-flash-001"
+                }
+            ]
+        },
+        {
+            "category": "text",
+            "results": [
+                {
+                    "cost": 0.0,
+                    "speed": 0.0,
+                    "quality": 1.0,
+                    "model": "openai/gpt-4o"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.1,
+                    "quality": 0.9,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.2,
+                    "quality": 0.8,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.3,
+                    "quality": 0.7,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.4,
+                    "quality": 0.6,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.5,
+                    "quality": 0.5,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.6,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.7,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.8,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 0.9,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.0,
+                    "speed": 1.0,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.0,
+                    "quality": 0.9,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.1,
+                    "quality": 0.8,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.2,
+                    "quality": 0.7,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.3,
+                    "quality": 0.6,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.4,
+                    "quality": 0.5,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.5,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.6,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.7,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.8,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.1,
+                    "speed": 0.9,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.0,
+                    "quality": 0.8,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.1,
+                    "quality": 0.7,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.2,
+                    "quality": 0.6,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.3,
+                    "quality": 0.5,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.4,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.5,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.6,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.7,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.2,
+                    "speed": 0.8,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.0,
+                    "quality": 0.7,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.1,
+                    "quality": 0.6,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.2,
+                    "quality": 0.5,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.3,
+                    "quality": 0.4,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.4,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.5,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.6,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.3,
+                    "speed": 0.7,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.0,
+                    "quality": 0.6,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.1,
+                    "quality": 0.5,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.2,
+                    "quality": 0.4,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.3,
+                    "quality": 0.3,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.4,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.5,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.4,
+                    "speed": 0.6,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.0,
+                    "quality": 0.5,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.1,
+                    "quality": 0.4,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.2,
+                    "quality": 0.3,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.3,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.4,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.5,
+                    "speed": 0.5,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.0,
+                    "quality": 0.4,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.1,
+                    "quality": 0.3,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.2,
+                    "quality": 0.2,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.3,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.6,
+                    "speed": 0.4,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.0,
+                    "quality": 0.3,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.1,
+                    "quality": 0.2,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.2,
+                    "quality": 0.1,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.7,
+                    "speed": 0.3,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.8,
+                    "speed": 0.0,
+                    "quality": 0.2,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.8,
+                    "speed": 0.1,
+                    "quality": 0.1,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.8,
+                    "speed": 0.2,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 0.9,
+                    "speed": 0.0,
+                    "quality": 0.1,
+                    "model": "google/gemini-1.5-flash-001"
+                },
+                {
+                    "cost": 0.9,
+                    "speed": 0.1,
+                    "quality": 0.0,
+                    "model": "openai/gpt-3.5-turbo-0301"
+                },
+                {
+                    "cost": 1.0,
+                    "speed": 0.0,
+                    "quality": 0.0,
+                    "model": "google/gemini-1.5-flash-001"
+                }
+            ]
+        }
+    ]
+}
