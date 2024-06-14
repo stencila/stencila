@@ -412,7 +412,7 @@ export class Plugin {
    * Run the plugin based on environment variables
    */
   public async run(): Promise<void> {
-    const protocol = process.env.STENCILA_TRANSPORT;
+    const protocol = process.env.STENCILA_TRANSPORT ?? "stdio";
     if (protocol == "stdio") {
       this.listenStdio();
     } else if (protocol == "http") {
