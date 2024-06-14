@@ -8,8 +8,14 @@ import aiohttp
 from bs4 import BeautifulSoup, element
 from pydantic import BaseModel, field_validator
 
-from llm_evaluate.orm import LLMSnapshotRecord, LLMStatsRecord, LLMCategory, RoutingRecord
-from llm_evaluate.util import normalize_numbers
+from llm_evaluate.orm import (
+    LLMCategory,
+    LLMSnapshotRecord,
+    LLMStatsRecord,
+    RoutingRecord,
+)
+from llm_evaluate.util import find_stencila_model, normalize_numbers
+
 from .base import ProviderJson
 
 # URL for the Trustbit leaderboard
@@ -175,7 +181,9 @@ class TrustbitJson(ProviderJson):
 
         return None
 
-    async def generate_snapshot(self, routing: RoutingRecord, category: LLMCategory)-> int:
+    async def generate_snapshot(
+        self, routing: RoutingRecord, category: LLMCategory
+    ) -> int:
         """Generate a *normalized* snapshot of these results"""
         snapshot = await LLMSnapshotRecord.create(
             routing=routing, category=category, provider="trustbit", when=self.when
@@ -193,9 +201,14 @@ class TrustbitJson(ProviderJson):
         for result, cost, speed, quality in zip(
             self.results, costs, speeds, qualities, strict=True
         ):
+            # TODO: This is pretty broken for now
+            name = find_stencila_model(result.name, cutoff=7)
+            if name is None:
+                continue
+            print(f"matching {result.name} to {name}")
             await LLMStatsRecord.create(
                 snapshot=snapshot,
-                name=result.name,
+                name=name,
                 quality=quality,
                 # Use complement, as we'll seek a max
                 cost=1.0 - cost,

@@ -1,13 +1,15 @@
 import asyncio
 import inspect
 from functools import partial, wraps
+from pathlib import Path
 
 import typer
 from rich import print
 
-from .orm import Database, ProviderRecord, LLMCategory, RoutingRecord
+from .orm import Database, LLMCategory, ProviderRecord, RoutingRecord
 from .provider import PROVIDERS, ProviderType
 from .settings import get_settings
+from .stats import CategoryResults, Routing, build_grid
 
 
 # A hack for enabling async functions in typer
@@ -62,29 +64,44 @@ async def scrape(provider: ProviderType):
 
 
 @app.command()
-async def history():
-    """Show the history of provider (scraped) records."""
+async def dump(scrape_id: int):
+    """Dump the JSON scraping record"""
+    async with Database():
+        rec = await ProviderRecord.filter(id=scrape_id).first()
+
+    if rec is None:
+        print(f"Record {scrape_id} not found.")
+        raise typer.Exit(code=1)
+
+    print(rec.dump)
+
+
+@app.command()
+async def show(table: str):
+    """Show tables in the database."""
     from rich.table import Table
 
+    if table == "provider":
+        tb, flds = ProviderRecord, "id provider when".split()
+    else:
+        tb, flds = RoutingRecord, "id created provider_id".split()
+
     async with Database():
-        records = await ProviderRecord.all()
+        records = await tb.all()
 
     # Create a rich table
-    table = Table(title="Records")
+    table = Table(title="Provider")
 
     # Add columns dynamically based on model fields
-    fields = "id provider when".split()
-    for field in fields:
+    for field in flds:
         table.add_column(field)
 
     # Add rows dynamically based on records
     for record in records:
-        row = [str(getattr(record, field)) for field in fields]
+        row = [str(getattr(record, field)) for field in flds]
         table.add_row(*row)
 
-    # Create a console and display the table
     print(table)
-
 
 
 @app.command()
@@ -105,6 +122,26 @@ async def generate(scrape_id: int):
         for category in LLMCategory:
             await scraped.generate_snapshot(routing, category)
 
+
+@app.command()
+async def export(routing_id: int, output_path: Path):
+    """Export a routing record to a JSON file."""
+    async with Database():
+        rec = await RoutingRecord.filter(id=routing_id).first()
+
+        if rec is None:
+            print(f"Record {routing_id} not found.")
+            raise typer.Exit(code=1)
+
+        categories = await rec.categories.all()
+
+        results = []
+        for c in categories:
+            df = await build_grid(c.id)
+            results.append(CategoryResults.from_grid(c.category, df))
+
+        r = Routing(id=routing_id, categories=results)
+    output_path.write_text(r.model_dump_json(indent=4))
 
 
 @app.command()

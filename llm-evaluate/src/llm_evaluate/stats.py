@@ -2,8 +2,9 @@ from itertools import product
 
 import numpy as np
 import polars as pl
+from pydantic import BaseModel, field_validator
 
-from .orm import LLMStatsRecord
+from .orm import LLMStatsRecord, LLMCategory
 
 
 async def load_stats(snapshot_id: int) -> pl.DataFrame:
@@ -33,7 +34,7 @@ async def build_grid(snapshot_id: int):
     # Iterate over all possible weight combinations that add to 1.0
     for w_cost, w_speed, w_quality in product(weights, repeat=3):
         if np.isclose(
-            w_cost + w_speed + w_quality, 1.0
+                w_cost + w_speed + w_quality, 1.0
         ):  # Ensure the sum of weights is 1
             current_weights = np.array([w_cost, w_speed, w_quality])
             scores = np.apply_along_axis(calculate_score, 1, arr, current_weights)
@@ -43,3 +44,33 @@ async def build_grid(snapshot_id: int):
             )
 
     return pl.DataFrame(results, schema="cost speed quality model score".split())
+
+
+class Result(BaseModel):
+    @field_validator("cost", "speed", "quality")
+    @classmethod
+    def strip_non_numeric(cls, value: float) -> float:
+        return round(value, 2)
+
+    cost: float
+    speed: float
+    quality: float
+    model: str
+
+
+class CategoryResults(BaseModel):
+    category: LLMCategory
+    results: list[Result]
+
+    @classmethod
+    def from_grid(cls, category: LLMCategory, grid: pl.DataFrame):
+        results = []
+        for row in grid.to_dicts():
+            results.append(Result.model_validate(row))
+        return cls(category=category, results=results)
+
+
+class Routing(BaseModel):
+    id: int
+    # provider: str
+    categories: list[CategoryResults]
