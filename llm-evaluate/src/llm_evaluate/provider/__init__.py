@@ -1,14 +1,13 @@
-from typing import Protocol, Self
-
+from .base import ProviderJson
 from .trustbit import TrustbitJson
+from enum import StrEnum, auto
 
 
-class Provider(Protocol):
-    @classmethod
-    async def scrape(cls) -> Self | None: ...
-    async def generate_snapshot(self, category: str = "*") -> int: ...
+class ProviderType(StrEnum):
+    Trustbit = auto()
+    # Add more providers here
 
 
-PROVIDERS: dict[str, type[Provider]] = {"trustbit": TrustbitJson}
+PROVIDERS: dict[str, type[ProviderJson]] = {ProviderType.Trustbit: TrustbitJson}
 
-__all__ = ["PROVIDERS", "Provider"]
+__all__ = ["PROVIDERS", "ProviderJson", "ProviderType"]

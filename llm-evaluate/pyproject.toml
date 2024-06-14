@@ -15,6 +15,9 @@ dependencies = [
     "pydantic>=2.7.3",
     "polars>=0.20.31",
     "numpy>=1.26.4",
+    "pydantic-settings>=2.3.2",
+    "orjson>=3.10.4",
+    "rich>=13.7.1",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
@@ -23,7 +26,7 @@ readme = "README.md"
 text = "Apache-2.0"
 
 [project.scripts]
-llm = "llm_evaluate:cli.main"
+lemmy = "llm_evaluate:cli.main"
 
 [build-system]
 requires = [
@@ -43,7 +46,6 @@ dev = [
     "hypothesis>=6.103.1",
     "hypothesis-jsonschema>=0.23.1",
     "pytest-datadir>=1.5.0",
-    "jupyterlab>=4.2.2",
 ]
 
 [tool.pytest.ini_options]

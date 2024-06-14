@@ -1,17 +1,12 @@
-import json
-from pathlib import Path
-
 import pytest
 
 from llm_evaluate.orm import (
+    LLMCategory,
     LLMSnapshotRecord,
-    LLMStatsRecord,
     ProviderRecord,
-    close_connection,
-    init_connection,
 )
 from llm_evaluate.provider.trustbit import TrustbitJson
-from llm_evaluate.stats import build_grid, load_stats
+from llm_evaluate.stats import load_stats
 
 
 @pytest.fixture(scope="session")
@@ -28,7 +23,7 @@ async def test_database(with_sqlite, trustbit_json):
     assert pr.provider == "trustbit"
 
     # Check we can generate a snapshot
-    snapshot_id = await trustbit_json.generate_snapshot()
+    snapshot_id = await trustbit_json.generate_snapshot(LLMCategory.Code)
     saved = await LLMSnapshotRecord.filter(id=snapshot_id).first()
     assert saved.provider == "trustbit"
 

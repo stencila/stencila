@@ -1,9 +1,12 @@
 # Ignore Meta overrides for Tortoise models
 # pyright: reportIncompatibleVariableOverride=false
 #
+from enum import StrEnum, auto
 
 from tortoise import Tortoise, fields
 from tortoise.models import Model
+
+from llm_evaluate.settings import get_settings
 
 
 async def init_connection(db_url: str):
@@ -15,6 +18,24 @@ async def close_connection():
     await Tortoise.close_connections()
 
 
+class Database:
+    def __init__(self):
+        self.url = f"sqlite:///{get_settings().database_path}"
+
+    async def __aenter__(self):
+        await init_connection(self.url)
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await close_connection()
+
+
+class LLMCategory(StrEnum):
+    Code = auto()
+    Text = auto()
+
+
+# ORM models below -----------
 class ProviderRecord(Model):
     """Record with JSON dump from a provider"""
 
@@ -30,20 +51,32 @@ class ProviderRecord(Model):
         unique_together = (("provider", "when"),)
 
 
+class RoutingRecord(Model):
+    """Record with JSON dump from a provider"""
+
+    id = fields.IntField(pk=True)
+    created = fields.DatetimeField(auto_now_add=True)
+
+    # This points to the ScrapeRecord that was used to generate this record
+    provider: fields.ForeignKeyRelation[ProviderRecord] = fields.ForeignKeyField(
+        "models.ProviderRecord", related_name="routing"
+    )
+
+    categories: fields.ReverseRelation["LLMSnapshotRecord"]
+
+    class Meta:
+        table = "routing"
+
+
 class LLMSnapshotRecord(Model):
     id = fields.IntField(pk=True)
 
     # What category are we interested in?
-    # TODO: This should be an Enum?
-    category = fields.TextField()
+    category = fields.CharEnumField(LLMCategory)
 
-    # Origin information ----
-    created = fields.DatetimeField(auto_now_add=True)
-
-    # This points to the ScrapeRecord that was used to generate this record
-    provider = fields.TextField()
-    when = fields.DateField()
-
+    routing: fields.ForeignKeyRelation[RoutingRecord] = fields.ForeignKeyField(
+        "models.RoutingRecord", related_name="categories"
+    )
     stats: fields.ReverseRelation["LLMStatsRecord"]
 
     class Meta:

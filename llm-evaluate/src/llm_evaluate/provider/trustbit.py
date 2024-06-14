@@ -8,9 +8,9 @@ import aiohttp
 from bs4 import BeautifulSoup, element
 from pydantic import BaseModel, field_validator
 
-from llm_evaluate.orm import LLMSnapshotRecord, LLMStatsRecord
-from llm_evaluate.provider.base import ProviderJson
+from llm_evaluate.orm import LLMSnapshotRecord, LLMStatsRecord, LLMCategory, RoutingRecord
 from llm_evaluate.util import normalize_numbers
+from .base import ProviderJson
 
 # URL for the Trustbit leaderboard
 TRUSTBIT_URL = "https://www.trustbit.tech/en/llm-leaderboard-{month}-{year}/"
@@ -175,14 +175,20 @@ class TrustbitJson(ProviderJson):
 
         return None
 
-    async def generate_snapshot(self, category: str = "*") -> int:
+    async def generate_snapshot(self, routing: RoutingRecord, category: LLMCategory)-> int:
         """Generate a *normalized* snapshot of these results"""
         snapshot = await LLMSnapshotRecord.create(
-            category=category, provider="trustbit", when=self.when
+            routing=routing, category=category, provider="trustbit", when=self.when
         )
         costs = normalize_numbers([result.cost_euros for result in self.results])
         speeds = normalize_numbers([result.speed_tpm for result in self.results])
-        qualities = normalize_numbers([result.final for result in self.results])
+        if category == LLMCategory.Code:
+            qualities = normalize_numbers([result.code for result in self.results])
+        elif category == LLMCategory.Text:
+            # Not sure if this is the best?
+            qualities = normalize_numbers([result.docs for result in self.results])
+        else:
+            raise ValueError(f"Unknown category: {category}")
 
         for result, cost, speed, quality in zip(
             self.results, costs, speeds, qualities, strict=True

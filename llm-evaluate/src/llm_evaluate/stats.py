@@ -30,7 +30,7 @@ async def build_grid(snapshot_id: int):
     # Store the results
     results = []
 
-    # Iterate over all possible weight combinations
+    # Iterate over all possible weight combinations that add to 1.0
     for w_cost, w_speed, w_quality in product(weights, repeat=3):
         if np.isclose(
             w_cost + w_speed + w_quality, 1.0
