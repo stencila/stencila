@@ -770,7 +770,7 @@ impl MicrokernelInstance {
 
         #[cfg(windows)]
         {
-            OK(self.status)
+            Ok(self.status)
         }
     }
 
