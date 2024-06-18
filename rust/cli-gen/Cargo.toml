@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap-markdown = "0.1.3"
+clap-markdown = "0.1.4"
 cli = { path = "../cli" }

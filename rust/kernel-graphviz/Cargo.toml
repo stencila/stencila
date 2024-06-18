@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
-layout-rs = { git = "https://github.com/nokome/layout", rev = "ba5f060f703e05529d83dc6ea21bb1d1a247a39f" }
+layout-rs = { git = "https://github.com/nadavrot/layout", rev = "2ce7e8e6261f9b02eb80b2a4534cb9d827393abf" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
