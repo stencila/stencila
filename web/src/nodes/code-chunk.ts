@@ -34,31 +34,10 @@ export class CodeChunk extends CodeExecutable {
   isInvisible?: boolean = false
 
   /**
-   * In static view just render the outputs, label and caption
-   */
-  override renderStaticView() {
-    return html`<div>
-      ${this.isInvisible
-        ? ''
-        : html`
-            ${this.labelType === 'TableLabel'
-              ? html`<caption class="block">
-                  <slot name="caption"></slot>
-                </caption>`
-              : ''}
-            <slot name="outputs"></slot>
-            ${this.labelType === 'FigureLabel'
-              ? html`<figcaption><slot name="caption"></slot></figcaption>`
-              : ''}
-          `}
-    </div>`
-  }
-
-  /**
    * In dynamic view, in addition to what is in static view, render a node card
    * with execution actions and details and code read-only and collapsed.
    */
-  override renderDynamicView() {
+  override render() {
     return html`<stencila-ui-block-on-demand
       type="CodeChunk"
       view="dynamic"
@@ -121,53 +100,5 @@ export class CodeChunk extends CodeExecutable {
             `}
       </div>
     </stencila-ui-block-on-demand>`
-  }
-
-  /**
-   * In source view render everything as in dynamic view except for
-   * code, label, caption (because they are displayed in the source code).
-   */
-  override renderSourceView() {
-    return html`<stencila-ui-block-in-flow type="CodeChunk" view="source">
-      <span slot="header-right">
-        <stencila-ui-node-execution-commands
-          node-id=${this.id}
-          type="CodeChunk"
-        >
-        </stencila-ui-node-execution-commands>
-      </span>
-      <div slot="body">
-        <stencila-ui-node-execution-details
-          type="CodeChunk"
-          auto-exec=${this.autoExec}
-          .tags=${this.executionTags}
-          status=${this.executionStatus}
-          required=${this.executionRequired}
-          count=${this.executionCount}
-          ended=${this.executionEnded}
-          duration=${this.executionDuration}
-        >
-          <slot name="execution-dependencies"></slot>
-          <slot name="execution-dependants"></slot>
-        </stencila-ui-node-execution-details>
-
-        <stencila-ui-node-authors type="CodeChunk">
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
-
-        <stencila-ui-node-execution-messages
-          type="CodeChunk"
-          message-count=${this.messageCount}
-          warning-count=${this.warningCount}
-          error-count=${this.errorCount}
-        >
-          <slot name="execution-messages"></slot>
-        </stencila-ui-node-execution-messages>
-
-        <stencila-ui-node-outputs type="CodeChunk">
-          <slot name="outputs"></slot>
-        </stencila-ui-node-outputs>
-      </div>
-    </stencila-ui-block-in-flow>`
   }
 }

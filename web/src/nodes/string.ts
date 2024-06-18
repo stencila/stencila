@@ -19,37 +19,15 @@ import { Entity } from './entity'
 @customElement('stencila-string')
 @withTwind()
 export class String extends Entity {
-  private bodyStyles = apply(['w-full'])
-
-  /**
-   * In static view just render the value
-   */
-  override renderStaticView() {
-    return html`<q><slot></slot></q>`
-  }
-
   /**
    * In dynamic view, render a node card with the value in the content slot.
    */
-  override renderDynamicView() {
+  override render() {
+    const bodyStyles = apply(['w-full'])
+
     return html`
       <stencila-ui-block-on-demand type="String" view="dynamic">
-        <div slot="content" class=${this.bodyStyles}>
-          <q><slot></slot></q>
-        </div>
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view, render the same as dynamic view, including the
-   * value since that won't be a present in the source usually (given this
-   * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
-   */
-  override renderSourceView() {
-    return html`
-      <stencila-ui-block-on-demand type="String" view="source">
-        <div slot="body" class=${this.bodyStyles}>
+        <div slot="content" class=${bodyStyles}>
           <q><slot></slot></q>
         </div>
       </stencila-ui-block-on-demand>

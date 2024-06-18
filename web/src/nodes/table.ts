@@ -16,22 +16,10 @@ import '../ui/nodes/properties/provenance/provenance'
 @withTwind()
 export class Table extends Entity {
   /**
-   * render table and any additional content
-   */
-  override renderStaticView() {
-    return html`
-      <slot name="content">
-        <slot name="rows"></slot>
-        <slot></slot>
-      </slot>
-    `
-  }
-
-  /**
    * render table and any additional content,
    * as well as `authors` inside a node card
    */
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand
         type="Table"

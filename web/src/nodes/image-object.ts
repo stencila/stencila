@@ -16,13 +16,6 @@ import { Entity } from './entity'
 @customElement('stencila-image-object')
 @withTwind()
 export class ImageObject extends Entity {
-  /**
-   * In static view just render the image
-   */
-  override renderStaticView() {
-    return html`<slot></slot>`
-  }
-
   private imgStyles = css`
     & img {
       width: 100%;
@@ -32,7 +25,7 @@ export class ImageObject extends Entity {
   /**
    * In dynamic view, in addition to the image, render a node card.
    */
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="ImageObject" view="dynamic">
         <div slot="body"></div>
@@ -40,24 +33,6 @@ export class ImageObject extends Entity {
           <slot></slot>
         </div>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view, render the same as for dynamic view, including the
-   * image itself, which won't be displayed in the source.
-   */
-  override renderSourceView() {
-    return html`
-      <stencila-ui-node-card
-        type="ImageObject"
-        view="source"
-        collapsible=${true}
-      >
-        <div slot="body">
-          <slot></slot>
-        </div>
-      </stencila-ui-node-card>
     `
   }
 }

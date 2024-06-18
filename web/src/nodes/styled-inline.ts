@@ -17,23 +17,10 @@ import { Styled } from './styled'
 @customElement('stencila-styled-inline')
 export class StyledInline extends Styled {
   /**
-   * In static view just render the `content` with styles applied
-   */
-  override renderStaticView() {
-    this.adoptCss()
-
-    return html`<span class="styled">
-      <span class="${this.classes}">
-        <slot name="content"></slot>
-      </span>
-    </span>`
-  }
-
-  /**
    * In dynamic view, in addition to what is in static view, render a node card
    * with authors and code read-only.
    */
-  override renderDynamicView() {
+  override render() {
     this.adoptCss()
 
     return html` <stencila-ui-inline-on-demand
@@ -64,20 +51,5 @@ export class StyledInline extends Styled {
         </span>
       </span>
     </stencila-ui-inline-on-demand>`
-  }
-
-  /**
-   * In source view just render authors
-   *
-   * TODO: Also render compiled CSS and styled content to help with debugging?
-   */
-  override renderSourceView() {
-    return html` <stencila-ui-block-in-flow type="StyledBlock" view="source">
-      <div slot="body">
-        <stencila-ui-node-authors type="StyledBlock">
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
-      </div>
-    </stencila-ui-block-in-flow>`
   }
 }

@@ -35,13 +35,6 @@ export class Paragraph extends Entity {
   ]
 
   /**
-   * In static view just render the `content`.
-   */
-  override renderStaticView() {
-    return html`<slot name="content"></slot>`
-  }
-
-  /**
    * The ancester node directly above this one in the tree
    */
   private directAncestor: NodeType
@@ -100,10 +93,10 @@ export class Paragraph extends Entity {
   }
 
   /**
-   * In dynamic view render `content`, and `authors` and summary stats in a node card
+   * render `content`, and `authors` and summary stats in a node card
    * that is shown on hover.
    */
-  override renderDynamicView() {
+  override render() {
     if (Paragraph.subscribedParentNodes.includes(this.directAncestor)) {
       return html`<slot name="content"></slot>`
     }
@@ -126,24 +119,6 @@ export class Paragraph extends Entity {
         </div>
         <div slot="content">
           <slot name="content"></slot>
-        </div>
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view render `authors` and summary stats in a node card. Do not render
-   * `content` since that is visible in the source code.
-   */
-  override renderSourceView() {
-    // TODO: Add summary stats to card
-
-    return html`
-      <stencila-ui-block-on-demand type="Paragraph" view="source">
-        <div slot="body">
-          <stencila-ui-node-authors type="Paragraph">
-            <slot name="authors"></slot>
-          </stencila-ui-node-authors>
         </div>
       </stencila-ui-block-on-demand>
     `

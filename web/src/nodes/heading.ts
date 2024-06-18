@@ -19,17 +19,10 @@ export class Heading extends Entity {
   level: Number
 
   /**
-   * In static view, just render the `content`.
-   */
-  override renderStaticView() {
-    return html`<slot name="content"></slot>`
-  }
-
-  /**
    * In dynamic view, render the `content`, `authors` and summary stats in
    * a node card that is shown on demand.
    */
-  override renderDynamicView() {
+  override render() {
     // TODO: Add summary stats to card
 
     return html`
@@ -44,24 +37,6 @@ export class Heading extends Entity {
         </div>
         <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view, render `authors` and summary stats in a node card. Do not render
-   * `content` since that is visible in the source code.
-   */
-  override renderSourceView() {
-    // TODO: Add summary stats to card
-
-    return html`
-      <stencila-ui-node-card type="Heading" view="source">
-        <div slot="body">
-          <stencila-ui-node-authors type="Heading">
-            <slot name="authors"></slot>
-          </stencila-ui-node-authors>
-        </div>
-      </stencila-ui-node-card>
     `
   }
 }

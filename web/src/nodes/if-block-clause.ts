@@ -58,7 +58,7 @@ export class IfBlockClause extends CodeExecutable {
   @property({ type: Boolean, attribute: 'is-active' })
   isActive: boolean
 
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="IfBlockClause" view="dynamic">
         <div slot="body" class="h-full">
@@ -88,16 +88,6 @@ export class IfBlockClause extends CodeExecutable {
     `
   }
 
-  override renderSourceView() {
-    return html`
-      <stencila-ui-node-card type="IfBlockClause">
-        <div slot="body" class="h-full">
-          <slot name="execution-messages"></slot>
-          <slot name="authors"></slot>
-        </div>
-      </stencila-ui-node-card>
-    `
-  }
   // override render() {
   //   return html` <div>${this.renderHeader()} ${this.renderContent()}</div> `
   // }

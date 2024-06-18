@@ -18,16 +18,7 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-for-block')
 @withTwind()
 export class ForBlock extends CodeExecutable {
-  override renderStaticView() {
-    return html`<stencila-ui-node-card type="ForBlock">
-        <div slot="body" class="h-full">
-          <slot name="code"></slot>
-        </div>
-      </stencila-ui-node-card>
-      <slot name="iterations"></slot>`
-  }
-
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="ForBlock" view="dynamic">
         <span slot="header-right">
@@ -77,23 +68,6 @@ export class ForBlock extends CodeExecutable {
           <slot name="iterations"></slot>
         </div>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  override renderSourceView() {
-    return html`
-      <stencila-ui-node-card type="ForBlock" view="source">
-        <span slot="header-right">
-          <stencila-ui-node-execution-commands
-            node-id=${this.id}
-            type="ForBlock"
-          >
-          </stencila-ui-node-execution-commands>
-        </span>
-        <div slot="body" class="h-full">
-          <slot name="execution-messages"></slot>
-        </div>
-      </stencila-ui-node-card>
     `
   }
 }
