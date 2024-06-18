@@ -132,6 +132,34 @@
       "foreground": "#102c64",
       "fontStyle": "bold"
     }
-  }]
+  }, {
+    "scope": [
+      "markup.italic",
+    ],
+    "settings": {
+      "fontStyle": "italic"
+    }
+  }, {
+    "scope": [
+      "markup.bold",
+    ],
+    "settings": {
+      "fontStyle": "bold"
+    }
+  }, {
+    "scope": [
+      "markup.strikethrough",
+    ],
+    "settings": {
+      "fontStyle": "strikethrough"
+    }
+  }, {
+    "scope": [
+      "markup.inline.raw",
+    ],
+    "settings": {
+      "foreground": "#ac1e04"
+    }
+  }, ]
 }
 
