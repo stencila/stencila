@@ -22,7 +22,7 @@ export class Object extends Entity {
   /**
    * render a node card with the value in the content slot.
    */
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="Object" view="dynamic">
         <div slot="content">
