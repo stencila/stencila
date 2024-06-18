@@ -14,7 +14,7 @@ install: pdm.lock
 # Make formatting and linting fixes
 fix: pdm.lock
 	pdm run ruff format
-
+	pdm run ruff check --fix
 
 # Run linting checks
 lint: pdm.lock
