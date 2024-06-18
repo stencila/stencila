@@ -30,13 +30,27 @@ export async function activate(context: vscode.ExtensionContext) {
     aff.type = "Organization";
   }
 
+  // Determine which binary to run based on mode
+  let command: string;
+  let args: string[];
+  switch (context.extensionMode) {
+    case vscode.ExtensionMode.Development:
+    case vscode.ExtensionMode.Test: {
+      command = path.join(__dirname, "..", "..", "target", "debug", "stencila");
+      args = ["lsp"];
+      break;
+    }
+    case vscode.ExtensionMode.Production: {
+      command = "stencila";
+      args = ["lsp"];
+      break;
+    }
+  }
+
   // Start the language server client
   const serverOptions: ServerOptions = {
-    command: "cargo",
-    args: ["run", "--package=cli", "--quiet", "lsp"],
-    options: {
-      cwd: path.join(__dirname, "..", ".."),
-    },
+    command,
+    args,
   };
   const clientOptions: LanguageClientOptions = {
     initializationOptions: { user },

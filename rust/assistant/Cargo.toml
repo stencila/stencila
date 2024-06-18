@@ -11,5 +11,5 @@ models-google = { path = "../models-google" }
 models-mistral = { path = "../models-mistral" }
 models-ollama = { path = "../models-ollama" }
 models-openai = { path = "../models-openai" }
-cached = { version = "0.50.0", features = ["async"] }
+cached = { workspace = true }
 rust-embed = { version = "8.3.0", features = ["interpolate-folder-path", "include-exclude"] }

@@ -36,7 +36,7 @@ fn indent(html: &str) -> String {
     use quick_xml::{events::Event, Reader, Writer};
 
     let mut reader = Reader::from_str(html);
-    reader.trim_text(true);
+    reader.config_mut().trim_text(true);
 
     let mut writer = Writer::new_with_indent(Vec::new(), b' ', 2);
 

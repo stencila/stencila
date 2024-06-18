@@ -1,5 +1,6 @@
 {
   "workspaces": [
+    "cloud/api/auth",
     "node/stencila-node",
     "node/stencila-plugin",
     "plugins/myst",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.15.3",
+    "@cloudflare/workers-types": "4.20240605.0",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.12",
     "@types/tmp": "0.2.6",

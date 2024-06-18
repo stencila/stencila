@@ -2,16 +2,33 @@
 
 ## 🛠️ Develop
 
-### Testing locally
+### Testing
 
-In order to test the extension in VSCode, you will need to do the following:
+To test the extension in VSCode, you will need `cargo` and `node` installed. Ensure JavaScript dependencies are installed using,
 
 ```sh
 npm install
+```
+
+Then, build the extension's JavaScript and `stencila` CLI binary (which contains the Stencila Language Server used by the extension using):
+
+```sh
 npm run compile
 ```
 
-Then press `F5` to run the "VSCode Extension" debug task,
+Finally, within VSCode, press `F5` to run the "VSCode Extension" debug task which will bring up an "Extension Development Host" with the Stencila extension loaded.
+
+There is also a test suite which can be run using
+
+```sh
+npm test
+```
+
+If you prefer, there is also a `Makefile` with recipes for these (and other tasks),
+
+```sh
+make install compile test
+```
 
 ### Writing walkthroughs
 
@@ -34,13 +51,13 @@ description: A description of the demo
 
 Each step in the walkthrough is written as a Markdown file with a specific format:
 
-* A YAML header with the `title` of the step
+- A YAML header with the `title` of the step
 
-* The `description` of the step which supports a limited subset of Markdown including __emphasis__, **bold**, and ``code`` (note specific syntax). Links on their own line (including special command links) are rendered as a button. Also don't forget emoji 🦄! 
+- The `description` of the step which supports a limited subset of Markdown including **emphasis**, **bold**, and `code` (note specific syntax). Links on their own line (including special command links) are rendered as a button. Also don't forget emoji 🦄!
 
-* The description can use the following special command links:
+- The description can use the following special command links:
 
-    - `file:open` to open a demonstration file with to be typed into with a name unique to the walkthrough
-    - `type:X` to insert the source fragment (see below) with index X at the end of the file
+  - `file:open` to open a demonstration file with to be typed into with a name unique to the walkthrough
+  - `type:X` to insert the source fragment (see below) with index X at the end of the file
 
-* One or more `source` sections which define the source to be inserted into the document when `type:X` links are clicked. Source sections are separated from the description and each other by three hyphens `---`.
+- One or more `source` sections which define the source to be inserted into the document when `type:X` links are clicked. Source sections are separated from the description and each other by three hyphens `---`.

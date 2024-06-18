@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 model = { path = "../model" }
-ollama-rs = { version = "0.1.9", features = ["rustls", "stream"] }
+ollama-rs = { version = "0.2.0", features = ["rustls", "stream"] }
