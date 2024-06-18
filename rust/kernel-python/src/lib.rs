@@ -505,7 +505,7 @@ para = {'type':'Paragraph', 'content':[]}
 a1 = np.array([True, False], dtype=np.bool_)
 a2 = np.array([-1, 0, 1], dtype=np.int_)
 a3 = np.array([1, 2 , 3], dtype=np.uint)
-a4 = np.array([1.23, 4.56], dtype=np.float_)
+a4 = np.array([1.23, 4.56], dtype=np.float64)
 
 # TODO: implement handling for these
 #a5 = np.array(['2020-01-01', '2020-01-02', '2020-01-03'], dtype=np.datetime64)
