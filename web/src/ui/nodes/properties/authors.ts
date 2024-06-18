@@ -36,7 +36,9 @@ export class UINodeAuthors extends LitElement {
       'slot:not([name="provenance"])'
     )
     if (slot) {
-      this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
+      slot.addEventListener('slotchange', () => {
+        this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
+      })
     }
   }
 
