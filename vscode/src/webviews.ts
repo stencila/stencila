@@ -39,8 +39,15 @@ export async function createDocumentViewPanel(
 ): Promise<vscode.WebviewPanel> {
   if (documentViewPanels.has(documentUri)) {
     // If there is already a panel open for this document, reveal it
-    let panel = documentViewPanels.get(documentUri);
+    const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
+
     panel.reveal();
+
+    // if `nodeId` param is defined, scroll webview to target node.
+    if (nodeId) {
+      panel.webview.postMessage({ scrollTarget: nodeId });
+    }
+
     return panel;
   }
 
@@ -128,11 +135,22 @@ export async function createDocumentViewPanel(
 
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);
-
+  
   // Handle when the webview is disposed
   panel.onDidDispose(() => {
     documentViewPanels.delete(documentUri);
   }, null);
+    
+  // if `nodeId` param is defined, scroll webview panel to target node.
+  if (nodeId) {
+    panel.webview.postMessage({ scrollTarget: nodeId });
+  }
 
   return panel;
+}
+
+export function addScroll () {
+  vscode.window.onDidChangeTextEditorVisibleRanges(e => {
+
+  });
 }
