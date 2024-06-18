@@ -27,7 +27,7 @@ export class UINodeExecutionState extends LitElement {
   override render() {
     const statusString =
       this.required === 'NeverExecuted' || !this.count
-        ? 'Never Executed'
+        ? 'Not Executed'
         : this.status
 
     // TODO: Decided how best to coalesce (or not) `status` and `required` including

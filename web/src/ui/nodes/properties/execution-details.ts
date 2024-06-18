@@ -78,15 +78,17 @@ export class UINodeExecutionDetails extends LitElement {
             required=${this.required}
             count=${this.count}
           ></stencila-ui-node-execution-state>
-          <stencila-ui-node-execution-count
-            value=${this.count}
-          ></stencila-ui-node-execution-count>
-          <stencila-ui-node-execution-ended
-            value=${this.ended}
-          ></stencila-ui-node-execution-ended>
-          <stencila-ui-node-execution-duration
-            value=${this.duration}
-          ></stencila-ui-node-execution-duration>
+          ${this.count > 0
+            ? html`<stencila-ui-node-execution-count
+                  value=${this.count}
+                ></stencila-ui-node-execution-count>
+                <stencila-ui-node-execution-ended
+                  value=${this.ended}
+                ></stencila-ui-node-execution-ended>
+                <stencila-ui-node-execution-duration
+                  value=${this.duration}
+                ></stencila-ui-node-execution-duration>`
+            : ''}
         </div>
       </div>
     `
