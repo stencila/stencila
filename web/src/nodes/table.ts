@@ -40,11 +40,11 @@ export class Table extends Entity {
       >
         <div slot="body">
           <stencila-ui-node-authors type="Table">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="Table">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <div class="content" slot="content">
           <slot name="caption"></slot>

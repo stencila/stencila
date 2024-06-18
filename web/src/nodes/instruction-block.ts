@@ -44,13 +44,12 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors type=${this.type}>
+        <stencila-ui-node-authors type="InstructionBlock">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-
-        <stencila-ui-node-provenance type=${this.type}>
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-execution-messages
           type=${this.type}

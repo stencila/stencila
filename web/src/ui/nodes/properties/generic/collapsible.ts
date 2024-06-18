@@ -22,7 +22,7 @@ export class UINodeCollapsibleProperty extends LitElement {
   iconLibrary: ShoelaceIconLibraries = 'stencila'
 
   @property({ type: Boolean })
-  collapsed: boolean = false
+  collapsed: boolean = true
 
   @property({ attribute: 'wrapper-css' })
   wrapperCSS: string | undefined = undefined
@@ -48,9 +48,13 @@ export class UINodeCollapsibleProperty extends LitElement {
           <div slot="title">
             <slot name="title"></slot>
           </div>
+          <div slot="content">
+            <slot name="header-content"></slot>
+          </div>
           <stencila-chevron-button
-            default-pos=${this.collapsed ? 'up' : 'down'}
+            default-pos=${this.collapsed ? 'left' : 'down'}
             slot="right-side"
+            custom-class="flex items-center"
           ></stencila-chevron-button>
         </stencila-ui-node-card-section-header>
         <div class=${contentClasses}>

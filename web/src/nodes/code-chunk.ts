@@ -88,12 +88,11 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-execution-details>
 
         <stencila-ui-node-authors type="CodeChunk">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-
-        <stencila-ui-node-provenance type="CodeChunk">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="CodeChunk"

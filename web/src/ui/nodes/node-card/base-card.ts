@@ -103,30 +103,41 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
 
     return html`<div class=${classes}>
       <stencila-chevron-button
-        default-pos=${this.collapsed ? 'up' : 'down'}
+        default-pos=${this.collapsed ? 'left' : 'down'}
         .disableEvents=${true}
         class="inline-flex"
       ></stencila-chevron-button>
     </div>`
   }
 
-  protected renderHeader() {
+  /**
+   * Renders the header element of the card
+   * @param {string[]} extraTwindClasses additional `twind` classes for the header container
+   * @returns
+   */
+  protected renderHeader(extraTwindClasses?: string | string[]) {
     const { title, borderColour } = this.ui
     const headerTitle = (this.title && this.title) || title
 
+    const additionalStyles: string[] = extraTwindClasses
+      ? Array.isArray(extraTwindClasses)
+        ? extraTwindClasses
+        : [extraTwindClasses]
+      : []
+
     const headerStyles = apply([
-      'font-sans not-italic',
+      `font-sans not-italic text-[${this.ui.textColour}]`,
       'flex items-center',
       'w-full',
       'px-4 py-2',
       'gap-x-2',
+      'rounded-t-sm',
       `bg-[${borderColour}]`,
-      `border border-[${borderColour}]`,
-      this.view === 'source' ? '' : 'rounded-t',
       'font-medium',
       'cursor-pointer',
       'transition duration-100 ease-in',
-      `hover:contrast-[105%]`,
+      `hover:bg-[${borderColour}]/90`,
+      ...additionalStyles,
     ])
 
     return html`<div class=${headerStyles}>
@@ -136,8 +147,7 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
           if (!this.canCollapse) {
             return
           }
-
-          this.toggleCardDisplay()
+          this.toggleCardBodyCollapse()
         }}
       >
         <span class="items-center flex grow-0 shrink-0">
@@ -173,18 +183,18 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
   /**
    * Displays the content, wrapped in a `collapsible-animation` component.
    */
-  protected renderAnimatedContent() {
+  protected renderAnimatedCardBody() {
     const animationClasses = `${!this.canAnimate ? 'no-animate' : ''} ${this.collapsed ? '' : 'opened'}`
 
     return html`<stencila-ui-collapsible-animation class=${animationClasses}>
-      <div>${this.renderBody()} ${this.renderContent()}</div>
+      <div>${this.renderBody()}</div>
     </stencila-ui-collapsible-animation>`
   }
 
   /**
    * This function is called when the `collapse` click event is triggered.
    */
-  protected toggleCardDisplay(): void {
+  protected toggleCardBodyCollapse(): void {
     this.collapsed = !this.collapsed
   }
 

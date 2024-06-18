@@ -46,12 +46,12 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
+      `text-[${this.ui.textColour}]`,
+      `bg-[${this.ui.colour}]`,
+      'rounded-b',
     ])
 
     return html`<div class=${bodyStyles}>
@@ -76,7 +76,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         --sl-tooltip-border-radius: 0;
         --sl-tooltip-background-color: transparent;
         --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
-        --max-width: 24rem;
+        min-width: 24rem;
+        max-width: 28rem;
 
         pointer-events: all;
       }
@@ -85,7 +86,6 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         mix-blend-mode: multiply;
         content: '';
-
         position: absolute;
         top: 0;
         right: 0;
@@ -105,6 +105,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       'py-[0.125rem] px-1.5',
     ])
 
+    const headerStyles = this.collapsed && 'rounded-sm'
+
     return html` <div
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
@@ -116,8 +118,11 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         .open=${this.toggle}
         placement="bottom"
       >
-        <div slot="content">
-          ${this.renderHeader()} ${this.renderAnimatedContent()}
+        <div
+          slot="content"
+          class="bg-transparent border border-[${this.ui.borderColour}] rounded"
+        >
+          ${this.renderHeader(headerStyles)} ${this.renderAnimatedCardBody()}
         </div>
         <div class=${contentStyles}>
           <slot name="content"></slot>
@@ -126,7 +131,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
     </div>`
   }
 
-  protected override toggleCardDisplay() {
+  protected toggleCardDisplay() {
     this.toggle = !this.toggle
 
     this.shadowRoot.dispatchEvent(

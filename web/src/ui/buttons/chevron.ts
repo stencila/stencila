@@ -10,8 +10,6 @@ type ChevronPosition = 'left' | 'down' | 'right' | 'up'
 
 /**
  * A chevron style button used for collapsing and expanding elements,
- *
- * Will roatate 90 degrees when toggled based
  */
 @customElement('stencila-chevron-button')
 @withTwind()
@@ -23,7 +21,7 @@ export class Chevron extends LitElement {
   clickEvent?: (e: Event) => void
 
   @property({ type: String, attribute: 'default-pos' })
-  direction: ChevronPosition = 'left'
+  direction: ChevronPosition = 'down'
 
   @property()
   position: ChevronPosition
@@ -52,22 +50,20 @@ export class Chevron extends LitElement {
 
     switch (this.direction) {
       case 'left':
-        rotation = '-rotate-90'
+        rotation = 'rotate-90'
         break
       case 'up':
-        rotation = 'rotate-0'
+        rotation = 'rotate-180'
         break
       case 'down':
         rotation = 'rotate-0'
         break
       default:
-        rotation = 'rotate-90'
+        rotation = '-rotate-90'
         break
     }
 
     const styles = apply([rotation, 'transition-transform duration-100'])
-
-    const icon = `chevron-${this.direction}`
 
     return html`
       <button
@@ -81,7 +77,11 @@ export class Chevron extends LitElement {
           this.clickEvent && this.clickEvent(e)
         }}
       >
-        <sl-icon class="${styles}" name=${icon} library="default"></sl-icon>
+        <sl-icon
+          class="${styles}"
+          name="chevron-down"
+          library="default"
+        ></sl-icon>
       </button>
     `
   }

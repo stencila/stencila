@@ -36,11 +36,11 @@ export class List extends Entity {
       >
         <div slot="body">
           <stencila-ui-node-authors type="List">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="List">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <slot name="items" slot="content"></slot>
       </stencila-ui-block-on-demand>

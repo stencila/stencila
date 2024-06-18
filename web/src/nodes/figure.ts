@@ -33,11 +33,11 @@ export class Figure extends Entity {
       <stencila-ui-block-on-demand type="Figure" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="Figure">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="Figure">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <figure slot="content" class="m-0">
           <slot name="content"></slot>
