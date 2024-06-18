@@ -72,16 +72,6 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected toggleCardDisplay() {
     this.toggle = !this.toggle
-
-    this.shadowRoot.dispatchEvent(
-      new CustomEvent(`toggle-${this.nodeId}`, {
-        bubbles: true,
-        composed: true,
-        detail: {
-          cardOpen: this.toggle,
-          nodeId: this.nodeId,
-        },
-      })
-    )
+    this.dispatchToggleEvent()
   }
 }
