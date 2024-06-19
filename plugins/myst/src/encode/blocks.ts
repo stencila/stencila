@@ -22,7 +22,8 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
     case "Paragraph":
       encodeInlines(block.content, context);
       if (parentType === "Table") {
-        // No line break in table cell. Note, we currently do not push TableCell/Row on stack.
+        // No line break in table cell.
+        // Note, we currently do not push TableCell/Row on context node stack.
       } else if (parentType === "ListItem") {
         context.pushString("\n");
       } else {
@@ -32,7 +33,7 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
     case "CodeBlock":
       context.pushString("```" + block.programmingLanguage + "\n");
       context.pushString(block.code + "\n");
-      context.pushString("```\n");
+      context.pushString("```\n\n");
       break;
     case "Heading":
       context.pushString("#".repeat(block.level) + " ");
@@ -90,7 +91,7 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
       }
       encodeBlocks(block.content, context);
       if (parentType != "Figure") {
-        context.pushString(":::\n");
+        context.pushString(":::\n\n");
       }
       break;
     case "ThematicBreak":
@@ -109,7 +110,7 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
         context.pushString(":class: dropdown\n");
       }
       encodeBlocks(block.content, context);
-      context.pushString(":::\n");
+      context.pushString(":::\n\n");
       break;
     case "MathBlock":
       context.pushString("```{math}\n");
@@ -135,6 +136,7 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
           context.pushString("|" + "--- |".repeat(row.cells.length) + "\n");
         }
       });
+      context.pushString("\n");
       break;
 
     case "CallBlock":
