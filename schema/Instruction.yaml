@@ -5,12 +5,18 @@ abstract: true
 category: edits
 description: Abstract base type for a document editing instruction.
 required:
+  - instructionType
   - messages
 core:
   - assignee
-  - authors
-  - provenance
+  - model
+  - replicates
+  - hideSuggestions
 properties:
+  instructionType:
+    '@id': stencila:instructionType
+    description: The type of instruction.
+    $ref: InstructionType
   messages:
     '@id': stencila:messages
     description: Messages involved in the instruction.
@@ -27,12 +33,11 @@ properties:
       elem: div
   assignee:
     '@id': stencila:assignee
-    description: An identifier for the agent assigned to perform the instruction
+    description: An identifier for the assistant assigned to perform the instruction
     type: string
     $comment: |
       This property is a string because on creation of the instruction the identifier has not yet been
       resolved into a person, organization, or software application.
-        patch:
     patch:
       formats: [md]
     proptest:
@@ -45,21 +50,19 @@ properties:
       max:
         description: Generate an arbitrary assignee id using any characters
         strategy: option::of(String::arbitrary())
-  authors:
-    '@id': schema:author
-    description: The authors of the instruction.
-    type: array
-    items:
-      $ref: Author
-    strip: [authors]
-    dom:
-      elem: span
-  provenance:
-    '@id': stencila:provenance
-    description: A summary of the provenance of the messages and content within the instruction.
-    type: array
-    items:
-      $ref: ProvenanceCount
-    strip: [provenance]
-    dom:
-      elem: span
+  model:
+    '@id': stencila:model
+    description: The name, and other options, for the model that the assistant should use to generate suggestions.
+    $ref: InstructionModel
+    patch:
+      formats: [md]
+  replicates:
+    '@id': stencila:replicates
+    description: The number of suggestions to generate for the instruction
+    $ref: UnsignedInteger
+    patch:
+      formats: [md]
+  hideSuggestions:
+    '@id': stencila:hideSuggestions
+    description: Whether suggestions should be hidden in source views such as Markdown.
+    type: boolean
