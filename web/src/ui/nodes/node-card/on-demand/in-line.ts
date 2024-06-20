@@ -72,14 +72,16 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const toolTipStyles = css`
       &::part(body) {
-        --sl-tooltip-padding: 0;
-        --sl-tooltip-border-radius: 0;
-        --sl-tooltip-background-color: transparent;
-        --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
-        min-width: 24rem;
-        max-width: 28rem;
-
+        --max-width: 24rem;
+        color: ${(colors['black'] ?? 'black') as string};
+        padding: 0;
+        border-radius: 0;
+        background-color: transparent;
         pointer-events: all;
+      }
+
+      &::part(base__arrow) {
+        display: none;
       }
 
       &::part(body)::after {
@@ -94,16 +96,6 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         z-index: -1;
       }
     `
-
-    const contentStyles = apply([
-      'inline-block',
-      `bg-[${this.ui.borderColour}]`,
-      'rounded-md',
-      'cursor-default',
-      `not-italic text-black leading-5`,
-      'mb-auto mx-1 -mt-[0.125rem]',
-      'py-[0.125rem] px-1.5',
-    ])
 
     const headerStyles = this.collapsed && 'rounded-sm'
 
@@ -124,7 +116,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         >
           ${this.renderHeader(headerStyles)} ${this.renderAnimatedCardBody()}
         </div>
-        <div class=${contentStyles}>
+        <div class="inline">
           <slot name="content"></slot>
         </div>
       </sl-tooltip>
