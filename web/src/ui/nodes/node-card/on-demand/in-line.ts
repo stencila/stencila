@@ -72,21 +72,11 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const toolTipStyles = css`
       &::part(body) {
-<<<<<<< HEAD
         --max-width: 24rem;
         color: ${(colors['black'] ?? 'black') as string};
         padding: 0;
         border-radius: 0;
         background-color: transparent;
-=======
-        --sl-tooltip-padding: 0;
-        --sl-tooltip-border-radius: 0;
-        --sl-tooltip-background-color: transparent;
-        --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
-        min-width: 24rem;
-        max-width: 28rem;
-
->>>>>>> 09f368e8ef52d17fa2995a609da0a9651ec449fd
         pointer-events: all;
       }
 

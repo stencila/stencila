@@ -25,9 +25,13 @@ export class UINodeProvenance extends LitElement {
   protected override firstUpdated(changedProperties: PropertyValues): void {
     super.firstUpdated(changedProperties)
 
-    const slot = this.shadowRoot.querySelector('slot')
+    const slot: HTMLSlotElement = this.shadowRoot.querySelector(
+      'slot:not([name="provenance"])'
+    )
     if (slot) {
-      this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
+      slot.addEventListener('slotchange', () => {
+        this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
+      })
     }
   }
 
