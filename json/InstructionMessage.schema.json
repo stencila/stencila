@@ -11,12 +11,13 @@
   "description": "A message within an `Instruction`.",
   "required": [
     "type",
+    "role",
     "parts"
   ],
   "core": [
     "id",
-    "content",
-    "authors"
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {
@@ -37,6 +38,11 @@
       },
       "type": "string"
     },
+    "role": {
+      "@id": "stencila:role",
+      "description": "The role of the message in the conversation.",
+      "$ref": "MessageRole.schema.json"
+    },
     "parts": {
       "@id": "schema:hasParts",
       "description": "Parts of the message.",
@@ -56,46 +62,36 @@
         "$ref": "MessagePart.schema.json"
       }
     },
-    "content": {
-      "@id": "stencila:content",
-      "description": "Content of the message.",
-      "$comment": "An optional property to hold the decoded parts of the message. \n",
-      "dom": {
-        "elem": "div"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
-    },
     "authors": {
       "@id": "schema:author",
       "description": "The authors of the message.",
       "aliases": [
         "author"
       ],
+      "strip": [
+        "authors"
+      ],
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {
-        "anyOf": [
-          {
-            "$ref": "Person.schema.json"
-          },
-          {
-            "$ref": "Organization.schema.json"
-          },
-          {
-            "$ref": "SoftwareApplication.schema.json"
-          }
-        ]
+        "$ref": "Author.schema.json"
       }
     },
-    "level": {
-      "@id": "stencila:level",
-      "description": "The severity level of the message.",
-      "$ref": "MessageLevel.schema.json"
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the messages and content within the instruction.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
     }
   }
 }

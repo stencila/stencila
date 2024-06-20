@@ -1,9 +1,10 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { Author } from "./Author.js";
 import { Executable } from "./Executable.js";
 import { InstructionMessage } from "./InstructionMessage.js";
-import { ProvenanceCount } from "./ProvenanceCount.js";
+import { InstructionModel } from "./InstructionModel.js";
+import { InstructionType } from "./InstructionType.js";
+import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * Abstract base type for a document editing instruction.
@@ -13,29 +14,40 @@ export class Instruction extends Executable {
   type: "Instruction";
 
   /**
+   * The type of instruction.
+   */
+  instructionType: InstructionType;
+
+  /**
    * Messages involved in the instruction.
    */
   messages: InstructionMessage[];
 
   /**
-   * An identifier for the agent assigned to perform the instruction
+   * An identifier for the assistant assigned to perform the instruction
    */
   assignee?: string;
 
   /**
-   * The authors of the instruction.
+   * The name, and other options, for the model that the assistant should use to generate suggestions.
    */
-  authors?: Author[];
+  model?: InstructionModel;
 
   /**
-   * A summary of the provenance of the messages and content within the instruction.
+   * The number of suggestions to generate for the instruction
    */
-  provenance?: ProvenanceCount[];
+  replicates?: UnsignedInteger;
 
-  constructor(messages: InstructionMessage[], options?: Partial<Instruction>) {
+  /**
+   * Whether suggestions should be hidden in source views such as Markdown.
+   */
+  hideSuggestions?: boolean;
+
+  constructor(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";
     if (options) Object.assign(this, options);
+    this.instructionType = instructionType;
     this.messages = messages;
   }
 }
@@ -43,6 +55,6 @@ export class Instruction extends Executable {
 /**
 * Create a new `Instruction`
 */
-export function instruction(messages: InstructionMessage[], options?: Partial<Instruction>): Instruction {
-  return new Instruction(messages, options);
+export function instruction(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<Instruction>): Instruction {
+  return new Instruction(instructionType, messages, options);
 }

@@ -1,7 +1,11 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { Author } from "./Author.js";
+import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 import { SuggestionStatus } from "./SuggestionStatus.js";
+import { Timestamp } from "./Timestamp.js";
 
 /**
  * Abstract base type for nodes that indicate a suggested change to content.
@@ -14,6 +18,31 @@ export class Suggestion extends Entity {
    * The status of the suggestion including whether it is proposed, accepted, or rejected.
    */
   suggestionStatus?: SuggestionStatus;
+
+  /**
+   * The authors of the suggestion
+   */
+  authors?: Author[];
+
+  /**
+   * A summary of the provenance of the content within the suggestion.
+   */
+  provenance?: ProvenanceCount[];
+
+  /**
+   * Time taken to generate the suggestion.
+   */
+  executionDuration?: Duration;
+
+  /**
+   * The timestamp when the generation ended.
+   */
+  executionEnded?: Timestamp;
+
+  /**
+   * Feedback on the suggestion
+   */
+  feedback?: string;
 
   constructor(options?: Partial<Suggestion>) {
     super();

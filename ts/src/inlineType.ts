@@ -27,6 +27,7 @@ export type InlineType =
   | "Strikeout"
   | "Strong"
   | "Subscript"
+  | "SuggestionInline"
   | "Superscript"
   | "Text"
   | "Time"
@@ -66,6 +67,7 @@ export const InlineTypeList = [
   "Strikeout",
   "Strong",
   "Subscript",
+  "SuggestionInline",
   "Superscript",
   "Text",
   "Time",

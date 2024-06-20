@@ -170,9 +170,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionEnded",
       "rdfs:comment": "The timestamp when the last execution ended.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Timestamp"
       }
@@ -182,9 +187,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionDuration",
       "rdfs:comment": "Duration of the last execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Duration"
       }
@@ -199,6 +209,18 @@
       },
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMessage"
+      }
+    },
+    {
+      "@id": "stencila:instructionType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "instructionType",
+      "rdfs:comment": "The type of instruction.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:InstructionType"
       }
     },
     {
@@ -217,7 +239,7 @@
       "@id": "stencila:assignee",
       "@type": "rdfs:Property",
       "rdfs:label": "assignee",
-      "rdfs:comment": "An identifier for the agent assigned to perform the instruction",
+      "rdfs:comment": "An identifier for the assistant assigned to perform the instruction",
       "schema:domainIncludes": {
         "@id": "stencila:Instruction"
       },
@@ -226,100 +248,39 @@
       }
     },
     {
-      "@id": "schema:author",
+      "@id": "stencila:model",
       "@type": "rdfs:Property",
-      "rdfs:label": "authors",
-      "rdfs:comment": "The authors of the instruction.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "schema:ItemList"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:Instruction"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
-        },
-        {
-          "@id": "stencila:Math"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:Styled"
-        }
-      ],
+      "rdfs:label": "model",
+      "rdfs:comment": "The name, and other options, for the model that the assistant should use to generate suggestions.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
       "schema:rangeIncludes": {
-        "@id": "stencila:Author"
+        "@id": "stencila:InstructionModel"
       }
     },
     {
-      "@id": "stencila:provenance",
+      "@id": "stencila:replicates",
       "@type": "rdfs:Property",
-      "rdfs:label": "provenance",
-      "rdfs:comment": "A summary of the provenance of the messages and content within the instruction.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "schema:ItemList"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:Instruction"
-        },
-        {
-          "@id": "stencila:Math"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:Styled"
-        }
-      ],
+      "rdfs:label": "replicates",
+      "rdfs:comment": "The number of suggestions to generate for the instruction",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
       "schema:rangeIncludes": {
-        "@id": "stencila:ProvenanceCount"
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:hideSuggestions",
+      "@type": "rdfs:Property",
+      "rdfs:label": "hideSuggestions",
+      "rdfs:comment": "Whether suggestions should be hidden in source views such as Markdown.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
       }
     }
   ]

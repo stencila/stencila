@@ -6,6 +6,7 @@ export type AuthorRoleName =
   'Importer' |
   'Writer' |
   'Verifier' |
+  'Accepter' |
   'Instructor' |
   'Prompter' |
   'Generator';

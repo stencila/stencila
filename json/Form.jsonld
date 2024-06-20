@@ -170,9 +170,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionEnded",
       "rdfs:comment": "The timestamp when the last execution ended.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Timestamp"
       }
@@ -182,9 +187,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionDuration",
       "rdfs:comment": "Duration of the last execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Duration"
       }
@@ -248,9 +258,6 @@
         },
         {
           "@id": "stencila:InstructionInline"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Link"

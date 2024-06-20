@@ -29,6 +29,7 @@ import { type Strikeout } from "./Strikeout.js";
 import { type Strong } from "./Strong.js";
 import { type StyledInline } from "./StyledInline.js";
 import { type Subscript } from "./Subscript.js";
+import { type SuggestionInline } from "./SuggestionInline.js";
 import { type Superscript } from "./Superscript.js";
 import { type Text } from "./Text.js";
 import { type Time } from "./Time.js";
@@ -67,6 +68,7 @@ export type Inline =
   Strikeout |
   Strong |
   Subscript |
+  SuggestionInline |
   Superscript |
   Text |
   Time |
@@ -113,6 +115,7 @@ export function inline(other: Inline): Inline {
     case "Strikeout":
     case "Strong":
     case "Subscript":
+    case "SuggestionInline":
     case "Superscript":
     case "Text":
     case "Time":

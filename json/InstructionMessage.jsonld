@@ -18,6 +18,18 @@
       }
     },
     {
+      "@id": "stencila:role",
+      "@type": "rdfs:Property",
+      "rdfs:label": "role",
+      "rdfs:comment": "The role of the message in the conversation.",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionMessage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:MessageRole"
+      }
+    },
+    {
       "@id": "schema:hasParts",
       "@type": "rdfs:Property",
       "rdfs:label": "parts",
@@ -35,95 +47,6 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:MessagePart"
-      }
-    },
-    {
-      "@id": "stencila:content",
-      "@type": "rdfs:Property",
-      "rdfs:label": "content",
-      "rdfs:comment": "Content of the message.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:Claim"
-        },
-        {
-          "@id": "schema:Comment"
-        },
-        {
-          "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:Cite"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:ForBlock"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfBlockClause"
-        },
-        {
-          "@id": "stencila:IncludeBlock"
-        },
-        {
-          "@id": "stencila:InstructionBlock"
-        },
-        {
-          "@id": "stencila:InstructionInline"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
-        },
-        {
-          "@id": "stencila:Link"
-        },
-        {
-          "@id": "stencila:Mark"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:StyledBlock"
-        },
-        {
-          "@id": "stencila:StyledInline"
-        },
-        {
-          "@id": "stencila:SuggestionBlock"
-        },
-        {
-          "@id": "stencila:SuggestionInline"
-        },
-        {
-          "@id": "stencila:TableCell"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Block"
       }
     },
     {
@@ -151,7 +74,54 @@
           "@id": "stencila:Heading"
         },
         {
-          "@id": "stencila:Instruction"
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "stencila:provenance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provenance",
+      "rdfs:comment": "A summary of the provenance of the messages and content within the instruction.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
         },
         {
           "@id": "stencila:InstructionMessage"
@@ -170,41 +140,13 @@
         },
         {
           "@id": "stencila:Styled"
-        }
-      ],
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:Person"
         },
         {
-          "@id": "schema:Organization"
-        },
-        {
-          "@id": "schema:SoftwareApplication"
-        }
-      ]
-    },
-    {
-      "@id": "stencila:level",
-      "@type": "rdfs:Property",
-      "rdfs:label": "level",
-      "rdfs:comment": "The severity level of the message.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:CompilationMessage"
-        },
-        {
-          "@id": "stencila:ExecutionMessage"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
+          "@id": "stencila:Suggestion"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:MessageLevel"
+        "@id": "stencila:ProvenanceCount"
       }
     }
   ]

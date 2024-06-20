@@ -1,10 +1,10 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { Block } from "./Block.js";
+import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
-import { MessageLevel } from "./MessageLevel.js";
 import { MessagePart } from "./MessagePart.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
+import { MessageRole } from "./MessageRole.js";
+import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
  * A message within an `Instruction`.
@@ -14,29 +14,30 @@ export class InstructionMessage extends Entity {
   type: "InstructionMessage";
 
   /**
+   * The role of the message in the conversation.
+   */
+  role: MessageRole;
+
+  /**
    * Parts of the message.
    */
   parts: MessagePart[];
 
   /**
-   * Content of the message.
-   */
-  content?: Block[];
-
-  /**
    * The authors of the message.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   /**
-   * The severity level of the message.
+   * A summary of the provenance of the messages and content within the instruction.
    */
-  level?: MessageLevel;
+  provenance?: ProvenanceCount[];
 
-  constructor(parts: MessagePart[], options?: Partial<InstructionMessage>) {
+  constructor(role: MessageRole, parts: MessagePart[], options?: Partial<InstructionMessage>) {
     super();
     this.type = "InstructionMessage";
     if (options) Object.assign(this, options);
+    this.role = role;
     this.parts = parts;
   }
 }
@@ -44,6 +45,6 @@ export class InstructionMessage extends Entity {
 /**
 * Create a new `InstructionMessage`
 */
-export function instructionMessage(parts: MessagePart[], options?: Partial<InstructionMessage>): InstructionMessage {
-  return new InstructionMessage(parts, options);
+export function instructionMessage(role: MessageRole, parts: MessagePart[], options?: Partial<InstructionMessage>): InstructionMessage {
+  return new InstructionMessage(role, parts, options);
 }
