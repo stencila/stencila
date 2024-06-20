@@ -27,7 +27,7 @@ export class UIBlockInFlow extends UIBaseCard {
 
     return html`<div class=${`${cardStyles}`}>
       <div class="relative">
-        ${this.renderHeader()} ${this.renderAnimatedContent()}
+        ${this.renderHeader()} ${this.renderAnimatedCardBody()}
       </div>
     </div>`
   }

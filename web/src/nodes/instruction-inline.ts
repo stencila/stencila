@@ -43,11 +43,11 @@ export class InstructionInline extends Instruction {
         </stencila-ui-node-execution-details>
 
         <stencila-ui-node-authors type="InstructionInline">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-        <stencila-ui-node-provenance type="InstructionInline">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
         <stencila-ui-node-execution-messages
           type=${this.type}
           warning-count=${this.warningCount}

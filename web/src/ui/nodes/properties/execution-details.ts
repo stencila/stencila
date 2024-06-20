@@ -43,7 +43,7 @@ export class UINodeExecutionDetails extends LitElement {
   count?: number
 
   @property()
-  required?: ExecutionRequired
+  required?: ExecutionRequired = 'NeverExecuted'
 
   @property()
   status?: ExecutionStatus
@@ -63,28 +63,32 @@ export class UINodeExecutionDetails extends LitElement {
     const classes = apply([
       'flex flex-row flex-wrap gap-3',
       'text-xs leading-tight',
+      'min-h-[2.25rem]',
       'py-1.5 px-4',
       `bg-[${borderColour}]`,
-      'border-t border-b border-black/20',
+      'border-t border-black/20',
       'font-sans',
     ])
 
     return html`
-      <div>
+      <div class="@container">
         <div class=${`${classes}`}>
           <stencila-ui-node-execution-state
             status=${this.status}
             required=${this.required}
+            count=${this.count}
           ></stencila-ui-node-execution-state>
-          <stencila-ui-node-execution-count
-            value=${this.count}
-          ></stencila-ui-node-execution-count>
-          <stencila-ui-node-execution-ended
-            value=${this.ended}
-          ></stencila-ui-node-execution-ended>
-          <stencila-ui-node-execution-duration
-            value=${this.duration}
-          ></stencila-ui-node-execution-duration>
+          ${this.count > 0
+            ? html`<stencila-ui-node-execution-count
+                  value=${this.count}
+                ></stencila-ui-node-execution-count>
+                <stencila-ui-node-execution-ended
+                  value=${this.ended}
+                ></stencila-ui-node-execution-ended>
+                <stencila-ui-node-execution-duration
+                  value=${this.duration}
+                ></stencila-ui-node-execution-duration>`
+            : ''}
         </div>
       </div>
     `

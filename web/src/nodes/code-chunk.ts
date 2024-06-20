@@ -38,18 +38,19 @@ export class CodeChunk extends CodeExecutable {
    */
   override renderStaticView() {
     return html`<div>
-      <stencila-ui-node-outputs type="CodeChunk">
-        <slot name="outputs"></slot>
-      </stencila-ui-node-outputs>
-      <div>
-        <stencila-ui-node-label-and-caption
-          type="CodeChunk"
-          label-type=${this.labelType}
-          label=${this.label}
-        >
-          <slot name="caption" slot="caption"></slot>
-        </stencila-ui-node-label-and-caption>
-      </div>
+      ${this.isInvisible
+        ? ''
+        : html`
+            ${this.labelType === 'TableLabel'
+              ? html`<caption class="block">
+                  <slot name="caption"></slot>
+                </caption>`
+              : ''}
+            <slot name="outputs"></slot>
+            ${this.labelType === 'FigureLabel'
+              ? html`<figcaption><slot name="caption"></slot></figcaption>`
+              : ''}
+          `}
     </div>`
   }
 
@@ -62,6 +63,7 @@ export class CodeChunk extends CodeExecutable {
       type="CodeChunk"
       view="dynamic"
       programming-language="${this.programmingLanguage}"
+      node-id=${this.id}
     >
       <span slot="header-right">
         <stencila-ui-node-execution-commands
@@ -86,12 +88,11 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-execution-details>
 
         <stencila-ui-node-authors type="CodeChunk">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-
-        <stencila-ui-node-provenance type="CodeChunk">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="CodeChunk"
@@ -108,7 +109,7 @@ export class CodeChunk extends CodeExecutable {
           ? ''
           : html`
               ${this.labelType === 'TableLabel'
-                ? html`<caption>
+                ? html`<caption class="block">
                     <slot name="caption"></slot>
                   </caption>`
                 : ''}

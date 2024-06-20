@@ -42,11 +42,11 @@ export class StyledInline extends Styled {
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledInline">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-        <stencila-ui-node-provenance type="StyledInline">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="StyledInline"

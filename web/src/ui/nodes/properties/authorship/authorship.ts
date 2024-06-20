@@ -1,8 +1,8 @@
 import { consume } from '@lit/context'
 import { ProvenanceCategory } from '@stencila/types'
-import { apply } from '@twind/core'
-import { LitElement, html, css } from 'lit'
+import { LitElement, html, css, PropertyValueMap } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import {
   documentPreviewContext,
@@ -15,6 +15,7 @@ import {
   getProvenanceOpacity,
 } from '../../icons-and-colours'
 
+import { AuthorshipTooltip } from './tooltip'
 import { getTooltipContent } from './utils'
 
 /**
@@ -74,6 +75,40 @@ export class StencilaAuthorship extends LitElement {
     }
   `
 
+  /**
+   * element refs for tooltip functionality
+   */
+  private authorshipRef: Ref<HTMLElement> = createRef()
+  private tooltipRef: Ref<AuthorshipTooltip> = createRef()
+
+  /**
+   * Calculate the x and y positions for the tooltip
+   * @returns `{ x: number; y: number }`
+   */
+  private tooltipPosition(): { x: number; y: number } {
+    const { x, y, width } = this.authorshipRef.value.getBoundingClientRect()
+    return { x: x + width / 2, y }
+  }
+
+  override update(
+    changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>
+  ) {
+    super.update(changedProperties)
+
+    if (this.authorshipRef.value) {
+      this.authorshipRef.value.addEventListener('mouseover', () => {
+        const { x, y } = this.tooltipPosition()
+        this.tooltipRef.value.xPos = x
+        this.tooltipRef.value.yPos = y
+        this.tooltipRef.value.open = true
+      })
+
+      this.authorshipRef.value.addEventListener('mouseout', () => {
+        this.tooltipRef.value.open = false
+      })
+    }
+  }
+
   override render() {
     if (
       this.previewContext.showAllAuthorshipHighlight ||
@@ -87,24 +122,12 @@ export class StencilaAuthorship extends LitElement {
 
   renderHighlights() {
     const textOpacity = getProvenanceOpacity(this.mi as ProvenanceOpacityLevel)
-    const tooltipStyle = apply([
-      'absolute bottom-[calc(100%+0.5rem)] left-1/2 z-10',
-      'group-hover:opacity-100',
-      'w-32',
-      'opacity-0',
-      'rounded',
-      'p-2',
-      'transition-all delay-200 duration-300',
-      'text-white text-sm',
-      'bg-black',
-      'transform -translate-x-1/2',
-      'pointer-events-none',
-      'after:content[""]',
-      'after:absolute after:-bottom-1 after:left-1/2',
-      'after:w-2 after:h-2',
-      'after:bg-black',
-      'after:transform after:-translate-x-1/2 after:rotate-45',
-    ])
+
+    // find the current text color in rgb (remove all whitespace)
+    const computedColour = window
+      .getComputedStyle(this)
+      .getPropertyValue('color')
+      .replace(/\s/g, '')
 
     /*
       Do not change the formatting of this template,
@@ -113,11 +136,10 @@ export class StencilaAuthorship extends LitElement {
     */
     // prettier-ignore
     const htmlTemplate = html`<span
-          class="group text-black"
-          style="position: relative; --tw-text-opacity: ${textOpacity};"
-        ><div class=${tooltipStyle}>${getTooltipContent(this.count, this.provenance)}</div
+          ${ref(this.authorshipRef)}
+          class="group relative text-[${computedColour}]/[${textOpacity}]"
         ><slot></slot
-      ></span>`
+      ></span><authorship-tooltip ${ref(this.tooltipRef)} content=${getTooltipContent(this.count, this.provenance)}></authorship-tooltip>`
 
     return htmlTemplate
   }

@@ -7,10 +7,11 @@
 !package*.json
 !assistants/builtin
 !json/context.jsonld
-!node/Cargo.toml
-!node/src
-!python/Cargo.toml
-!python/src
+!node/stencila-node/Cargo.toml
+!node/stencila-node/src
+!python/stencila/Cargo.toml
+!python/stencila/src
 !rust
 !rust-toolchain.toml
+!ts
 !web

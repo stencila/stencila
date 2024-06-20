@@ -46,12 +46,12 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
+      `text-[${this.ui.textColour}]`,
+      `bg-[${this.ui.colour}]`,
+      'rounded-b',
     ])
 
     return html`<div class=${bodyStyles}>
@@ -72,11 +72,21 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const toolTipStyles = css`
       &::part(body) {
+<<<<<<< HEAD
         --max-width: 24rem;
         color: ${(colors['black'] ?? 'black') as string};
         padding: 0;
         border-radius: 0;
         background-color: transparent;
+=======
+        --sl-tooltip-padding: 0;
+        --sl-tooltip-border-radius: 0;
+        --sl-tooltip-background-color: transparent;
+        --sl-tooltip-color: ${(colors['black'] ?? 'black') as string};
+        min-width: 24rem;
+        max-width: 28rem;
+
+>>>>>>> 09f368e8ef52d17fa2995a609da0a9651ec449fd
         pointer-events: all;
       }
 
@@ -88,7 +98,6 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         mix-blend-mode: multiply;
         content: '';
-
         position: absolute;
         top: 0;
         right: 0;
@@ -98,7 +107,12 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       }
     `
 
-    return html`<div class=${containerStyles}>
+    const headerStyles = this.collapsed && 'rounded-sm'
+
+    return html` <div
+      class=${containerStyles}
+      style="--sl-tooltip-arrow-size: 0;"
+    >
       ${this.renderChip(this.getIcon(), this.ui)}
       <sl-tooltip
         trigger="manual"
@@ -106,8 +120,11 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         .open=${this.toggle}
         placement="bottom"
       >
-        <div slot="content">
-          ${this.renderHeader()} ${this.renderAnimatedContent()}
+        <div
+          slot="content"
+          class="bg-transparent border border-[${this.ui.borderColour}] rounded"
+        >
+          ${this.renderHeader(headerStyles)} ${this.renderAnimatedCardBody()}
         </div>
         <div class="inline">
           <slot name="content"></slot>
@@ -116,15 +133,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
     </div>`
   }
 
-  protected override toggleCardDisplay() {
+  protected toggleCardDisplay() {
     this.toggle = !this.toggle
-
-    this.shadowRoot.dispatchEvent(
-      new CustomEvent(`toggle-${this.id}`, {
-        bubbles: true,
-        composed: true,
-        detail: { cardOpen: this.toggle, nodeId: this.nodeId },
-      })
-    )
+    this.dispatchToggleEvent()
   }
 }

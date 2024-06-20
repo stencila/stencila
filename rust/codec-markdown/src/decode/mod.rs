@@ -178,9 +178,7 @@ impl Context {
 
     /// Parse any YAML frontmatter
     fn frontmatter(&self) -> Option<Node> {
-        let Some(yaml) = &self.yaml else {
-            return None;
-        };
+        let yaml = self.yaml.as_ref()?;
 
         // Deserialize YAML to a value, and add `type: Article` if necessary
         let mut value = match serde_yaml::from_str(yaml) {

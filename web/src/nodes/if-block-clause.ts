@@ -63,6 +63,9 @@ export class IfBlockClause extends CodeExecutable {
       <stencila-ui-block-on-demand type="IfBlockClause" view="dynamic">
         <div slot="body" class="h-full">
           <stencila-ui-node-authors type="IfBlockClause">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
           <stencila-ui-node-code
@@ -71,15 +74,8 @@ export class IfBlockClause extends CodeExecutable {
             language=${this.programmingLanguage}
             read-only
           >
-          </stencila-ui-node-code>
-          <stencila-ui-node-execution-messages
-            type="IfBlockClause"
-            message-count=${this.messageCount}
-            warning-count=${this.warningCount}
-            error-count=${this.errorCount}
-          >
             <slot name="execution-messages"></slot>
-          </stencila-ui-node-execution-messages>
+          </stencila-ui-node-code>
         </div>
         <div slot="content">
           <slot name="content"></slot>

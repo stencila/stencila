@@ -32,9 +32,13 @@ export class UINodeAuthors extends LitElement {
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)
 
-    const slot: HTMLSlotElement = this.shadowRoot.querySelector('slot')
+    const slot: HTMLSlotElement = this.shadowRoot.querySelector(
+      'slot:not([name="provenance"])'
+    )
     if (slot) {
-      this.hasItems = slot.assignedElements().length !== 0
+      slot.addEventListener('slotchange', () => {
+        this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
+      })
     }
   }
 
@@ -43,8 +47,9 @@ export class UINodeAuthors extends LitElement {
       type=${this.type}
       icon-name="authors"
       title="Authors"
-      wrapper-css=${this.hasItems ? '' : 'hidden'}
+      wrapper-css="${this.hasItems ? '' : 'hidden'}"
     >
+      <slot name="provenance" slot="header-content"></slot>
       <slot></slot>
     </stencila-ui-node-collapsible-details>`
   }

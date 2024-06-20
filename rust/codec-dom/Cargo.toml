@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-dom-trait = { path = "../codec-dom-trait" }
-quick-xml = "0.31.0"
+quick-xml = { workspace = true }

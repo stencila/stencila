@@ -20,8 +20,8 @@ lint: install
 test: install
 	npm test
 
-# Build
-build: install
+# Compile (build in development mode)
+compile: install
 	npm run compile
 
 # Clean up development artifacts

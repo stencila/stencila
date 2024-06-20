@@ -61,6 +61,7 @@ On a WebSocket upgrade request the server will only allow connections using subp
 | `maintainers`  | + `admin.nodes`, `admin.<FORMAT>`                 |
 
 [^2]: A user has a role if they are a member of one of the following properties of a [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md). A user has the "anon" role if they are not in any of those properties.
+
 [^3]: Which of these modes is available to anonymous users may be restricted.
 
 ### Client classes

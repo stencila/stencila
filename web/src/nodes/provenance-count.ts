@@ -1,11 +1,16 @@
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import { ProvenanceCategory, provenanceCategories } from '@stencila/types'
+import {
+  NodeType,
+  ProvenanceCategory,
+  provenanceCategories,
+} from '@stencila/types'
 import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../twind'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
 import { renderProvenanceStatus } from '../ui/nodes/properties/provenance/icons'
 
 import { Entity } from './entity'
@@ -32,22 +37,29 @@ export class ProvenanceCount extends Entity {
   private buttonRef: Ref<HTMLElement> = createRef()
 
   override render() {
+    const nodeType = this.ancestors.split('.').reverse()[0] as NodeType
+
+    const { colour, borderColour, textColour } = nodeUi(nodeType)
+
     const styles = apply([
       'relative',
       'inline-block',
       'cursor-default',
-      'bg-black',
-      'text-white text-2xs leading-none',
+      `bg-[${colour}]`,
+      `text-[${textColour}] text-2xs leading-none`,
       'px-2 py-1',
-      'border border-black/0 rounded-full',
+      `border border-[${textColour}]/0 rounded-full`,
       'transition-all duration-200 ease-in',
-      'hover:bg-black/0 hover:border-black hover:text-black',
+      `hover:bg-[${borderColour}] hover:border-[${colour}]`,
     ])
 
     // A percentage of 0 means <1%
     const percent = this.characterPercent === 0 ? '<1' : this.characterPercent
 
-    return html`<div class="relative">
+    return html`<div
+      class="relative flex items-center"
+      @click=${(e: Event) => e.stopImmediatePropagation()}
+    >
       <sl-tooltip
         content=${this.tooltipText()}
         trigger="manual"

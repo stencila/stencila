@@ -5,7 +5,6 @@ Tests of functions in the `convert` module
 from pathlib import Path
 
 import pytest
-
 from stencila_types import shortcuts as S
 from stencila_types import types as T
 
