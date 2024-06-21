@@ -7,11 +7,11 @@ import { withTwind } from '../../../twind'
 import './generic/collapsible'
 
 /**
- * A component for displaying the `messages` property of `Instruction` nodes
+ * A component for displaying the `suggestions` property of `Instruction` nodes
  */
-@customElement('stencila-ui-node-instruction-messages')
+@customElement('stencila-ui-node-instruction-suggestions')
 @withTwind()
-export class UINodeInstructionMessages extends LitElement {
+export class UINodeInstructionSuggestions extends LitElement {
   @property()
   type: NodeType
 
@@ -19,11 +19,11 @@ export class UINodeInstructionMessages extends LitElement {
     return html`
       <stencila-ui-node-collapsible-property
         type=${this.type}
-        icon-name="list-task"
+        icon-name="lightbulb"
         icon-library="default"
       >
         <div slot="title">
-          <span>Instructions</span>
+          <span>Suggestions</span>
         </div>
         <div slot="content" class="p-3 font-sans text-sm">
           <slot></slot>
