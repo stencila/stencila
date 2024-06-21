@@ -1,24 +1,24 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, InsertBlock};
+use crate::{prelude::*, SuggestionBlock};
 
-impl InsertBlock {
+impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
         let (content, mut losses) = self.content.to_jats();
 
-        losses.add("InsertBlock@");
+        losses.add("SuggestionBlock@");
 
         (content, losses)
     }
 }
 
-impl MarkdownCodec for InsertBlock {
+impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .push_semis()
-            .push_str(" insert");
+            .push_str(" suggest");
 
         if let Some(feedback) = &self.feedback {
             context

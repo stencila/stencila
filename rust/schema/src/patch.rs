@@ -17,7 +17,7 @@ use node_type::NodeProperty;
 
 use crate::{
     prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, Block, CordOp, Inline,
-    Node, ProvenanceCount, SuggestionBlockType, SuggestionInlineType, Timestamp,
+    Node, ProvenanceCount, Timestamp,
 };
 
 /// Assign authorship to a node
@@ -437,6 +437,9 @@ pub enum PatchOp {
 
     /// Clear a vector
     Clear,
+
+    /// Choose a node from a set of candidate children
+    Choose(NodeId),
 }
 
 /// A value in a patch operation
@@ -451,8 +454,6 @@ pub enum PatchOp {
 pub enum PatchValue {
     Inline(Inline),
     Block(Block),
-    SuggestionInlineType(SuggestionInlineType),
-    SuggestionBlockType(SuggestionBlockType),
     Node(Node),
     String(String),
     Json(JsonValue),
@@ -772,7 +773,7 @@ where
 // Implementation for optional properties
 impl<T> PatchNode for Option<T>
 where
-    T: PatchNode + Serialize + DeserializeOwned,
+    T: PatchNode + Serialize + DeserializeOwned + Default,
 {
     fn to_value(&self) -> Result<PatchValue> {
         match self {
@@ -840,6 +841,14 @@ where
         if path.is_empty() {
             if let PatchOp::Set(value) = op {
                 *self = Self::from_value(value)?;
+                return Ok(());
+            }
+
+            if self.is_none() && matches!(op, PatchOp::Append(..) | PatchOp::Push(..)) {
+                // Vector operations can be applied to `None`
+                let mut value = T::default();
+                value.apply(path, op, context)?;
+                *self = Some(value);
                 return Ok(());
             }
         }

@@ -563,7 +563,7 @@ pub struct PatchOptions {
     pub derive: bool,
 
     /// A custom function for applying patch operations
-    /// 
+    ///
     /// This function has a similar signature to `PatchNode::apply` but returns
     /// `Result<bool>`. If the function does not handle the operation it
     /// should return `Ok(false)`, in which case the derived implementation

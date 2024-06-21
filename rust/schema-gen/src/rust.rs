@@ -53,9 +53,9 @@ const NO_READ_NODE: &[&str] = &[
 /// (usually because it is manually implemented)
 const NO_ORD: &[&str] = &["ExecutionStatus"];
 
-/// Properties that need to be boxed to avoid recursive types
+/// Properties that are boxed to avoid recursive types or reduce the size of structs
 ///
-/// Note that properties that are not "core" do not be boxed because they
+/// Note that properties that are not "core" do not need to be boxed because they
 /// will be in the `Options` struct for the type and thus are already boxed.
 const BOX_PROPERTIES: &[&str] = &[
     "ArrayValidator.contains",
@@ -64,6 +64,8 @@ const BOX_PROPERTIES: &[&str] = &[
     "CallArgument.value",
     "CodeExpression.output",
     "ConstantValidator.value",
+    "InstructionBlock.model",
+    "InstructionInline.model",
     "ListItem.item",
     "ModifyOperation.value",
     "Parameter.default",
@@ -259,6 +261,8 @@ pub enum NodeProperty {{
             Self::rust_any_of(dest, schema)?;
         } else if schema.r#type.is_none() {
             Self::rust_object(dest, title, schema).await?;
+        } else {
+            bail!("Schema {title} was not translated to Rust")
         }
 
         Ok(())
