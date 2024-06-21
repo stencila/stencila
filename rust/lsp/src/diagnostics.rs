@@ -15,7 +15,7 @@ use common::{
     serde::{Deserialize, Serialize},
     tracing,
 };
-use schema::{ExecutionStatus, MessageLevel};
+use schema::{Author, AuthorRoleName, ExecutionStatus, MessageLevel, NodeType, StringOrNumber};
 
 use crate::text_document::TextNode;
 
@@ -70,42 +70,100 @@ pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket
 /// Create status notifications
 fn statuses(node: &TextNode) -> Vec<Status> {
     // TODO: consider periodic updates to update times ended
-    let mut items = node
-        .execution
-        .as_ref()
-        .map(|execution| {
-            use ExecutionStatus::*;
-            let details = match &execution.status {
-                Pending | Running => execution.status.to_string(),
-                Succeeded => {
-                    let mut status = "Succeeded".to_string();
-                    if let Some(duration) = &execution.duration {
-                        status.push_str(" in ");
-                        status.push_str(&duration.humanize(true));
-                    }
-                    if let Some(ended) = &execution.ended {
-                        let ended = ended.humanize(false);
-                        if ended == "now ago" {
-                            status.push_str(", just now");
-                        } else {
-                            status.push_str(", ");
-                            status.push_str(&ended);
-                        }
-                    }
-                    status
-                }
-                // Ignore other statuses: warning, errors, and exceptions are
-                // published as diagnostics
-                _ => return vec![],
-            };
+    let mut items = Vec::new();
 
-            vec![Status {
-                range: node.range,
-                status: execution.status.clone(),
-                details,
-            }]
-        })
-        .unwrap_or_default();
+    if let Some(execution) = node.execution.as_ref() {
+        use ExecutionStatus::*;
+        let details = match &execution.status {
+            Pending | Running => execution.status.to_string(),
+            Succeeded => {
+                let mut status = if matches!(
+                    node.node_type,
+                    NodeType::InsertBlock
+                        | NodeType::InsertInline
+                        | NodeType::ReplaceBlock
+                        | NodeType::ReplaceInline
+                ) {
+                    "Generated"
+                } else {
+                    "Succeeded"
+                }
+                .to_string();
+
+                if let Some(duration) = &execution.duration {
+                    status.push_str(" in ");
+                    status.push_str(&duration.humanize(true));
+                }
+
+                if let Some(ended) = &execution.ended {
+                    let ended = ended.humanize(false);
+                    if ended == "now ago" {
+                        status.push_str(", just now");
+                    } else {
+                        status.push_str(", ");
+                        status.push_str(&ended);
+                    }
+                }
+
+                if let Some(authors) = &execution.authors {
+                    status.push_str(", by ");
+                    let list = authors
+                        .iter()
+                        .filter_map(|author| match author {
+                            Author::AuthorRole(role) => match role.role_name {
+                                // Only show generator role
+                                AuthorRoleName::Generator => role.to_author(),
+                                _ => None,
+                            },
+                            _ => Some(author.clone()),
+                        })
+                        .map(|author| match author {
+                            Author::Person(person) => person
+                                .given_names
+                                .iter()
+                                .flatten()
+                                .chain(person.family_names.iter().flatten())
+                                .join(" "),
+                            Author::Organization(org) => org
+                                .options
+                                .name
+                                .clone()
+                                .or(org.options.legal_name.clone())
+                                .unwrap_or_else(|| "Unnamed Org".to_string()),
+                            Author::SoftwareApplication(app) => {
+                                let mut name = app.name.clone();
+                                if let Some(version) =
+                                    &app.options.software_version.clone().or_else(|| {
+                                        app.options.version.as_ref().map(|version| match version {
+                                            StringOrNumber::String(string) => string.clone(),
+                                            StringOrNumber::Number(number) => number.to_string(),
+                                        })
+                                    })
+                                {
+                                    name.push_str(" v");
+                                    name.push_str(version);
+                                }
+                                name
+                            }
+                            Author::AuthorRole(_) => String::new(),
+                        })
+                        .join(", ");
+                    status.push_str(&list);
+                }
+
+                status
+            }
+            // Ignore other statuses: warning, errors, and exceptions are
+            // published as diagnostics
+            _ => return vec![],
+        };
+
+        items.push(Status {
+            range: node.range,
+            status: execution.status.clone(),
+            details,
+        });
+    }
 
     items.append(&mut node.children.iter().flat_map(statuses).collect());
 

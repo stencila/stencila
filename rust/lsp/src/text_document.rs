@@ -24,7 +24,7 @@ use common::{
 };
 use document::Document;
 use schema::{
-    AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionStatus, Node, NodeId,
+    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionStatus, Node, NodeId,
     NodeType, Person, ProvenanceCount, Timestamp, Visitor,
 };
 
@@ -43,6 +43,7 @@ pub(super) struct TextNode {
     pub parent_type: NodeType,
 
     /// The id of the parent of the node
+    #[allow(unused)]
     pub parent_id: NodeId,
 
     /// The type of the node
@@ -78,12 +79,13 @@ pub(super) struct TextNode {
     pub children: Vec<TextNode>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub(super) struct TextNodeExecution {
     pub status: ExecutionStatus,
     pub duration: Option<Duration>,
     pub ended: Option<Timestamp>,
     pub messages: Option<Vec<ExecutionMessage>>,
+    pub authors: Option<Vec<Author>>,
 }
 
 impl Default for TextNode {
