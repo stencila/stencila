@@ -28,6 +28,7 @@ old:
                 - 0
                 - 23
         - type: InstructionInline
+          instructionType: New
           messages:
             - type: InstructionMessage
               parts:
@@ -39,19 +40,19 @@ old:
                         - 0
                         - 0
                         - 33
-          assignee: insert-inline-math
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
-          provenance:
-            - type: ProvenanceCount
-              provenanceCategory: Hw
-              characterCount: 33
-              characterPercent: 100
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+              provenance:
+                - type: ProvenanceCount
+                  provenanceCategory: Hw
+                  characterCount: 33
+                  characterPercent: 100
+          assignee: math
         - type: Text
           value:
             string: "."
@@ -106,13 +107,14 @@ new:
           value:
             string: "The area of a cube is: "
         - type: InstructionInline
+          instructionType: New
           messages:
             - type: InstructionMessage
               parts:
                 - type: Text
                   value:
                     string: equation for surface area of cube
-          assignee: insert-inline-math
+          assignee: math
         - type: Text
           value:
             string: "."
@@ -156,6 +158,7 @@ merged:
                 - 0
                 - 23
         - type: InstructionInline
+          instructionType: New
           messages:
             - type: InstructionMessage
               parts:
@@ -167,19 +170,19 @@ merged:
                         - 0
                         - 0
                         - 33
-          assignee: insert-inline-math
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
-          provenance:
-            - type: ProvenanceCount
-              provenanceCategory: Hw
-              characterCount: 33
-              characterPercent: 100
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+              provenance:
+                - type: ProvenanceCount
+                  provenanceCategory: Hw
+                  characterCount: 33
+                  characterPercent: 100
+          assignee: math
         - type: Text
           value:
             string: "."

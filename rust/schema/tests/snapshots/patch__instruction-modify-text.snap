@@ -18,6 +18,7 @@ old:
       characterPercent: 100
   content:
     - type: InstructionBlock
+      instructionType: Edit
       messages:
         - type: InstructionMessage
           parts:
@@ -29,18 +30,18 @@ old:
                     - 0
                     - 0
                     - 13
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-      provenance:
-        - type: ProvenanceCount
-          provenanceCategory: Hw
-          characterCount: 44
-          characterPercent: 100
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 13
+              characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -68,6 +69,7 @@ new:
   type: Article
   content:
     - type: InstructionBlock
+      instructionType: Edit
       messages:
         - type: InstructionMessage
           parts:
@@ -102,6 +104,7 @@ merged:
       characterPercent: 100
   content:
     - type: InstructionBlock
+      instructionType: Edit
       messages:
         - type: InstructionMessage
           parts:
@@ -113,24 +116,18 @@ merged:
                     - 0
                     - 0
                     - 13
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
-      provenance:
-        - type: ProvenanceCount
-          provenanceCategory: Hw
-          characterCount: 64
-          characterPercent: 100
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 13
+              characterPercent: 100
       content:
         - type: Paragraph
           content:

@@ -1,12 +1,10 @@
-::: do more succinct
-::: with
+::: edit more succinct
 
 A rather long winded paragraph.
 
 :::
 ===
-::: do more succinct
-::: with
+::: edit more succinct
 
 A rather long winded paragraph that goes on and on.
 
