@@ -351,7 +351,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
     let (to_value, from_value) = match enum_name.to_string().as_str() {
-        "Inline" | "Block" | "Node" | "SuggestionBlockType" | "SuggestionInlineType" => (
+        "Inline" | "Block" | "Node" => (
             quote! {
                 Ok(PatchValue::#enum_name(self.clone()))
             },
