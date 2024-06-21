@@ -1,7 +1,7 @@
-A paragraph with an instruction to insert content [[do insert an inline]].
+A paragraph with an instruction to insert content [[new insert an inline]].
 
-A paragraph with an instruction to edit some existing content: [[do improve this>>existing content]].
+A paragraph with an instruction to edit some existing content: [[new improve this>>existing content]].
 
-Instructions with an assignee: [[do @insert-inline-math equation for surface area of cube]] with a blank instruction [[do @insert-math-inline ]] and [[do @joe please improve this>>existing content]].
+Instructions with an assignee: [[new @insert-inline-math equation for surface area of cube]] with a blank instruction [[new @insert-math-inline ]] and [[edit @joe please improve this>>existing content]].
 
-Instructions with a suggestion: [[do @insert-inline-math area of circle]][[insert $2 /pi r^2$]] and [[do improve>>existing content]][[replace >>improved content]].
+Instructions with a suggestion: [[new @insert-inline-math area of circle]][[suggest $2 /pi r^2$]] and [[edit improve>>existing content]][[suggest improved content]].

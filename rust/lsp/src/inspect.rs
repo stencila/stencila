@@ -6,13 +6,13 @@ use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
-    Emphasis, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
-    Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
-    ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
-    NodeType, Note, Paragraph, Parameter, ProvenanceCount, QuoteBlock, QuoteInline, ReplaceBlock,
-    ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
-    SuggestionBlockType, SuggestionInlineType, Superscript, Table, TableCell, TableRow, Text,
-    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
+    ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
+    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
+    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
+    QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock,
+    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
+    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -118,6 +118,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             ($( $variant:ident ),*) => {
                 match block {
                     $(Block::$variant(node) => node.inspect(self),)*
+                    Block::SuggestionBlock(..) => {}
                 }
             };
         }
@@ -156,7 +157,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             ($( $variant:ident ),*) => {
                 match inline {
                     $(Inline::$variant(node) => node.inspect(self),)*
-                    Inline::Null(..) | Inline::Boolean(..) | Inline::Integer(..) | Inline::UnsignedInteger(..) | Inline::Number(..) => {}
+                    Inline::SuggestionInline(..) |Inline::Null(..) | Inline::Boolean(..) | Inline::Integer(..) | Inline::UnsignedInteger(..) | Inline::Number(..) => {}
                 }
             };
         }
@@ -198,28 +199,62 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         WalkControl::Break
     }
 
-    fn visit_suggestion_block(&mut self, block: &SuggestionBlockType) -> WalkControl {
-        use SuggestionBlockType::*;
-        match block {
-            InsertBlock(node) => node.inspect(self),
-            DeleteBlock(node) => node.inspect(self),
-            ModifyBlock(node) => node.inspect(self),
-            ReplaceBlock(node) => node.inspect(self),
+    fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
+        let execution = if block.execution_duration.is_some() {
+            Some(TextNodeExecution {
+                status: ExecutionStatus::Succeeded,
+                duration: block.execution_duration.clone(),
+                ended: block.execution_ended.clone(),
+                authors: block.authors.clone(),
+                ..Default::default()
+            })
+        } else {
+            None
         };
+
+        let provenance = block.provenance.clone();
+
+        self.enter_node(
+            block.node_type(),
+            block.node_id(),
+            None,
+            None,
+            execution,
+            provenance,
+        );
+        self.visit(&block.content);
+        self.exit_node();
 
         WalkControl::Break
     }
 
-    fn visit_suggestion_inline(&mut self, inline: &SuggestionInlineType) -> WalkControl {
-        use SuggestionInlineType::*;
-        match inline {
-            InsertInline(node) => node.inspect(self),
-            DeleteInline(node) => node.inspect(self),
-            ModifyInline(node) => node.inspect(self),
-            ReplaceInline(node) => node.inspect(self),
+    fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
+        let execution = if inline.execution_duration.is_some() {
+            Some(TextNodeExecution {
+                status: ExecutionStatus::Succeeded,
+                duration: inline.execution_duration.clone(),
+                ended: inline.execution_ended.clone(),
+                authors: inline.authors.clone(),
+                ..Default::default()
+            })
+        } else {
+            None
         };
 
-        WalkControl::Continue
+        let provenance = inline.provenance.clone();
+
+        self.enter_node(
+            inline.node_type(),
+            inline.node_id(),
+            None,
+            None,
+            execution,
+            provenance,
+        );
+        self.visit(&inline.content);
+        self.exit_node();
+
+        WalkControl::Break
     }
 
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
@@ -344,6 +379,7 @@ impl Inspect for CodeChunk {
                 duration: self.options.execution_duration.clone(),
                 ended: self.options.execution_ended.clone(),
                 messages: self.options.execution_messages.clone(),
+                ..Default::default()
             });
 
         let provenance = self.provenance.clone();
@@ -454,8 +490,8 @@ default!(
     DeleteInline,
     Duration,
     Emphasis,
-    ImageObject,
     InsertInline,
+    ImageObject,
     Link,
     MathInline,
     MediaObject,
@@ -554,6 +590,7 @@ macro_rules! executable {
                         duration: self.options.execution_duration.clone(),
                         ended: self.options.execution_ended.clone(),
                         messages: self.options.execution_messages.clone(),
+                        ..Default::default()
                     })
                 } else {
                     None
@@ -567,7 +604,15 @@ macro_rules! executable {
     };
 }
 
-executable!(CallBlock, ForBlock, IfBlock, IncludeBlock, Parameter);
+executable!(
+    CallBlock,
+    ForBlock,
+    IfBlock,
+    IncludeBlock,
+    Parameter,
+    InstructionBlock,
+    InstructionInline
+);
 
 /// Implementation for executable nodes with provenance
 macro_rules! executable_with_provenance {
@@ -582,6 +627,7 @@ macro_rules! executable_with_provenance {
                         duration: self.options.execution_duration.clone(),
                         ended: self.options.execution_ended.clone(),
                         messages: self.options.execution_messages.clone(),
+                        ..Default::default()
                     })
                 } else {
                     None
@@ -597,4 +643,4 @@ macro_rules! executable_with_provenance {
     };
 }
 
-executable_with_provenance!(CodeExpression, InstructionBlock, InstructionInline);
+executable_with_provenance!(CodeExpression);

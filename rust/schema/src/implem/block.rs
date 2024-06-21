@@ -33,6 +33,7 @@ impl Block {
             ReplaceBlock,
             Section,
             StyledBlock,
+            SuggestionBlock,
             Table,
             ThematicBreak
         )
@@ -70,6 +71,7 @@ impl Block {
             ReplaceBlock,
             Section,
             StyledBlock,
+            SuggestionBlock,
             Table,
             ThematicBreak
         )

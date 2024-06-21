@@ -6,7 +6,7 @@ use common::{
     inflector::Inflector,
     proc_macro2::{Span, TokenStream},
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident},
+    syn::{parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path},
 };
 
 #[derive(FromDeriveInput)]
@@ -19,6 +19,8 @@ struct TypeAttr {
 
     #[darling(default)]
     authors_take: bool,
+
+    apply_with: Option<String>,
 }
 
 #[derive(FromField)]
@@ -280,6 +282,19 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let apply = {
+        let call_apply_with = match &type_attr.apply_with {
+            Some(apply_with) => {
+                let func =
+                    parse_str::<Path>(apply_with).expect("invalid patch `apply_with` option");
+                quote! {
+                    if #func(self, path, &op, context)? {
+                        return Ok(())
+                    }
+                }
+            }
+            None => TokenStream::new(),
+        };
+
         let (call_update_authors, call_release_authors) = call_update_and_release_authors(false);
 
         let unmatched_field = if has_options {
@@ -298,6 +313,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         quote! {
             fn apply(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
+                #call_apply_with
+
                 let Some(PatchSlot::Property(property)) = path.pop_front() else {
                     bail!("Invalid patch path for `{}`", stringify!(#struct_name));
                 };
@@ -334,7 +351,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
     let (to_value, from_value) = match enum_name.to_string().as_str() {
-        "Inline" | "Block" | "Node" | "SuggestionBlockType" | "SuggestionInlineType" => (
+        "Inline" | "Block" | "Node" => (
             quote! {
                 Ok(PatchValue::#enum_name(self.clone()))
             },

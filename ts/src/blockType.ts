@@ -23,6 +23,7 @@ export type BlockType =
   | "ReplaceBlock"
   | "Section"
   | "StyledBlock"
+  | "SuggestionBlock"
   | "Table"
   | "ThematicBreak";
 
@@ -49,6 +50,7 @@ export const BlockTypeList = [
   "ReplaceBlock",
   "Section",
   "StyledBlock",
+  "SuggestionBlock",
   "Table",
   "ThematicBreak",
 ];

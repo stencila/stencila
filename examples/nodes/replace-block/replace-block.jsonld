@@ -64,7 +64,7 @@
     },
     {
       "@type": "stencila:ReplaceBlock",
-      "stencila:suggestionStatus": "Accepted",
+      "stencila:feedback": "Some feedback",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -86,36 +86,6 @@
               "@type": "Text",
               "value": {
                 "string": "Accepted new paragraph"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "@type": "stencila:ReplaceBlock",
-      "stencila:suggestionStatus": "Rejected",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "Old paragraph"
-              }
-            }
-          ]
-        }
-      ],
-      "stencila:replacement": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "Rejected new paragraph"
               }
             }
           ]

@@ -6,6 +6,11 @@ abstract: true
 description: Abstract base type for nodes that indicate a suggested change to content.
 core:
   - suggestionStatus
+  - authors
+  - provenance
+  - executionDuration
+  - executionEnded
+  - feedback
 properties:
   suggestionStatus:
     '@id': stencila:suggestionStatus
@@ -14,3 +19,43 @@ properties:
     patch:
       formats: [md]
     $ref: SuggestionStatus
+  authors:
+    "@id": schema:author
+    description: The authors of the suggestion
+    type: array
+    items:
+      $ref: Author
+    strip: [authors]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: span
+  provenance:
+    '@id': stencila:provenance
+    description: A summary of the provenance of the content within the suggestion.
+    type: array
+    items:
+      $ref: ProvenanceCount
+    strip: [provenance]
+    dom:
+      elem: span
+  executionDuration:
+    '@id': stencila:executionDuration
+    description: Time taken to generate the suggestion.
+    strip: [execution]
+    $ref: Duration
+    dom:
+      with: Duration::to_dom_attr
+  executionEnded:
+    '@id': stencila:executionEnded
+    description: The timestamp when the generation ended.
+    strip: [execution, timestamps]
+    $ref: Timestamp
+    dom:
+      with: Timestamp::to_dom_attr
+  feedback:
+    '@id': stencila:feedback
+    description: Feedback on the suggestion
+    type: string
+    patch:
+      formats: [md]

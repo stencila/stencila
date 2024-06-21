@@ -45,7 +45,7 @@ tokio = { version = "1.37.0", features = ["full", "tracing"] }
 toml = "0.8.14"
 tracing = { version = "0.1.40", features = ["log"] }
 type-safe-id = "0.3.0"
-uuid = "1.8.0"
+uuid = { version = "1.8.0", features = ["v4"]}
 which = "6.0.1"
 xz2 = "0.1.7"
 zip = "0.6.6"

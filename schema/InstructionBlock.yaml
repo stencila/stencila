@@ -4,12 +4,14 @@ nick: isb
 extends: Instruction
 category: edits
 description: An instruction to edit some block content.
+patch:
+  applyWith: "InstructionBlock::apply_patch_op"
 markdown:
   derive: false
 proptest: {}
 core:
   - content
-  - suggestion
+  - suggestions
 properties:
   content:
     '@id': stencila:content
@@ -33,10 +35,12 @@ properties:
       max:
         description: Generate up to four arbitrary, non-recursive, block nodes
         strategy: option::of(vec_blocks_non_recursive(4))
-  suggestion:
-    '@id': stencila:suggestion
-    description: A suggestion for the instruction
-    $ref: SuggestionBlockType
+  suggestions:
+    '@id': stencila:suggestions
+    description: Suggestions for the instruction
+    type: array
+    items:
+      $ref: SuggestionBlock
     walk: true
     patch:
       formats: [md]

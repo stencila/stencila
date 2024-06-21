@@ -1,0 +1,52 @@
+title: InstructionModel
+"@id": stencila:InstructionModel
+nick: ism
+extends: Entity
+description: The name and execution options for the generative model used for an instruction.
+core:
+  - name
+  - qualityWeight
+  - speedWeight
+  - costWeight
+  - temperature
+  - randomSeed
+properties:
+  name:
+    '@id': schema:name
+    description: The name of the model.
+    type: string
+    patch:
+      formats: [md]
+  qualityWeight:
+    '@id': stencila:qualityWeight
+    description: The relative weighting given to model quality (0-100).
+    $ref: UnsignedInteger
+    patch:
+      formats: [md]
+  speedWeight:
+    '@id': stencila:speedWeight
+    description: The relative weighting given to model speed (0-100).
+    $ref: UnsignedInteger
+    patch:
+      formats: [md]
+  costWeight:
+    '@id': stencila:costWeight
+    description: The relative weighting given to model cost (0-100).
+    $ref: UnsignedInteger
+    patch:
+      formats: [md]
+  temperature:
+    '@id': stencila:temperature
+    description: The temperature option for model inference (0-100).
+    $comment: |
+      The lower the temperature, the more deterministic the output because the most
+      probable next token is more likely to be picked. Increasing temperature generally leads
+      to more diverse and creative outputs.
+    $ref: UnsignedInteger
+    patch:
+      formats: [md]
+  randomSeed:
+    '@id': stencila:randomSeed
+    description: The random seed used for the model (if possible)
+    type: integer
+  

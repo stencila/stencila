@@ -68,6 +68,7 @@ use super::insert_inline::InsertInline;
 use super::instruction_block::InstructionBlock;
 use super::instruction_inline::InstructionInline;
 use super::instruction_message::InstructionMessage;
+use super::instruction_model::InstructionModel;
 use super::integer::Integer;
 use super::integer_validator::IntegerValidator;
 use super::link::Link;
@@ -115,6 +116,8 @@ use super::strong::Strong;
 use super::styled_block::StyledBlock;
 use super::styled_inline::StyledInline;
 use super::subscript::Subscript;
+use super::suggestion_block::SuggestionBlock;
+use super::suggestion_inline::SuggestionInline;
 use super::superscript::Superscript;
 use super::table::Table;
 use super::table_cell::TableCell;
@@ -280,6 +283,8 @@ pub enum Node {
 
     InstructionMessage(InstructionMessage),
 
+    InstructionModel(InstructionModel),
+
     IntegerValidator(IntegerValidator),
 
     Link(Link),
@@ -363,6 +368,10 @@ pub enum Node {
     StyledInline(StyledInline),
 
     Subscript(Subscript),
+
+    SuggestionBlock(SuggestionBlock),
+
+    SuggestionInline(SuggestionInline),
 
     Superscript(Superscript),
 

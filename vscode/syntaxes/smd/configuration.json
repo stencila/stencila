@@ -26,7 +26,7 @@
   "folding": {
     "$comment": "Basic folding. More advanced folding to be provided by language server.",
     "markers": {
-      "start": "^:{3,}\\s*(if|for|with|insert|delete|table|figure)",
+      "start": "^:{3,}\\s*(if|for|with|new|edit|update|suggest|insert|delete|table|figure)",
       "end": "^:{3,}\\s*$"
     }
   },

@@ -13,10 +13,11 @@
     },
     {
       "type": "InstructionBlock",
+      "instructionType": "New",
       "messages": [
         {
           "type": "InstructionMessage",
-          "parts": [{ "type": "Text", "value": "insert a 4x10 table" }]
+          "parts": [{ "type": "Text", "value": "a 4x10 table" }]
         }
       ]
     },
@@ -31,7 +32,8 @@
     },
     {
       "type": "InstructionBlock",
-      "assignee": "insert-table",
+      "instructionType": "New",
+      "assignee": "table",
       "messages": [
         {
           "type": "InstructionMessage",
@@ -55,11 +57,12 @@
     },
     {
       "type": "InstructionBlock",
-      "assignee": "insert-code-chunk",
+      "instructionType": "New",
+      "assignee": "code-chunk",
       "messages": [
         {
           "type": "InstructionMessage",
-          "parts": [ { "type": "Text", "value": "" } ]
+          "parts": [{ "type": "Text", "value": "" }]
         }
       ]
     },
@@ -74,6 +77,7 @@
     },
     {
       "type": "InstructionBlock",
+      "instructionType": "Edit",
       "messages": [
         {
           "type": "InstructionMessage",
@@ -100,6 +104,7 @@
     },
     {
       "type": "InstructionBlock",
+      "instructionType": "Edit",
       "assignee": "anne",
       "messages": [
         {
@@ -129,17 +134,20 @@
     },
     {
       "type": "InstructionBlock",
-      "assignee": "insert-code-chunk",
+      "instructionType": "New",
+      "assignee": "code-chunk",
       "messages": [
         {
           "type": "InstructionMessage",
           "parts": [{ "type": "Text", "value": "analyze data" }]
         }
       ],
-      "suggestion": {
-        "type": "InsertBlock",
-        "content": [{ "type": "CodeChunk", "code": "some code" }]
-      }
+      "suggestions": [
+        {
+          "type": "SuggestionBlock",
+          "content": [{ "type": "CodeChunk", "code": "some code" }]
+        }
+      ]
     },
     {
       "type": "Paragraph",
@@ -152,6 +160,7 @@
     },
     {
       "type": "InstructionBlock",
+      "instructionType": "Edit",
       "messages": [
         {
           "type": "InstructionMessage",
@@ -166,16 +175,17 @@
           ]
         }
       ],
-      "suggestion": {
-        "type": "ReplaceBlock",
-        "content": [],
-        "replacement": [
-          {
-            "type": "Paragraph",
-            "content": [{ "type": "Text", "value": "A paragraph." }]
-          }
-        ]
-      }
+      "suggestions": [
+        {
+          "type": "SuggestionBlock",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [{ "type": "Text", "value": "A paragraph." }]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

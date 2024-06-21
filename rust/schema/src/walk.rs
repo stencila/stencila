@@ -6,8 +6,7 @@ use node_type::{NodeProperty, NodeType};
 
 use crate::{
     Array, Block, Boolean, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem, Node, Null,
-    Number, Object, SuggestionBlockType, SuggestionInlineType, TableCell, TableRow,
-    UnsignedInteger,
+    Number, Object, SuggestionBlock, SuggestionInline, TableCell, TableRow, UnsignedInteger,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -68,13 +67,13 @@ pub trait Visitor: Sized {
         WalkControl::Continue
     }
 
-    /// Visit a `SuggestionBlockType` node type
-    fn visit_suggestion_block(&mut self, block: &SuggestionBlockType) -> WalkControl {
+    /// Visit a `SuggestionBlock` node type
+    fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         WalkControl::Continue
     }
 
-    /// Visit a `SuggestionInlineType` node type
-    fn visit_suggestion_inline(&mut self, inline: &SuggestionInlineType) -> WalkControl {
+    /// Visit a `SuggestionInline` node type
+    fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -148,13 +147,13 @@ pub trait VisitorMut: Sized {
         WalkControl::Continue
     }
 
-    /// Visit, and potentially mutate, a `SuggestionBlockType` node type
-    fn visit_suggestion_block(&mut self, block: &mut SuggestionBlockType) -> WalkControl {
+    /// Visit, and potentially mutate, a `SuggestionBlock` node type
+    fn visit_suggestion_block(&mut self, block: &mut SuggestionBlock) -> WalkControl {
         WalkControl::Continue
     }
 
-    /// Visit, and potentially mutate, a `SuggestionInlineType` node type
-    fn visit_suggestion_inline(&mut self, inline: &mut SuggestionInlineType) -> WalkControl {
+    /// Visit, and potentially mutate, a `SuggestionInline` node type
+    fn visit_suggestion_inline(&mut self, inline: &mut SuggestionInline) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -231,18 +230,18 @@ pub trait VisitorAsync: Send + Sync {
         async { Ok(WalkControl::Continue) }
     }
 
-    /// Visit, and potentially mutate, a `SuggestionBlockType` node type
+    /// Visit, and potentially mutate, a `SuggestionBlock` node type
     fn visit_suggestion_block(
         &mut self,
-        block: &mut SuggestionBlockType,
+        block: &mut SuggestionBlock,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
 
-    /// Visit, and potentially mutate, a `SuggestionInlineType` node type
+    /// Visit, and potentially mutate, a `SuggestionInline` node type
     fn visit_suggestion_inline(
         &mut self,
-        inline: &mut SuggestionInlineType,
+        inline: &mut SuggestionInline,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }

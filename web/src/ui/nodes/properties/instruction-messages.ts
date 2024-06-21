@@ -19,11 +19,11 @@ export class UINodeInstructionMessages extends LitElement {
     return html`
       <stencila-ui-node-collapsible-property
         type=${this.type}
-        icon-name="chat-left-dots"
+        icon-name="list-task"
         icon-library="default"
       >
         <div slot="title">
-          <span>Chat</span>
+          <span>Instructions</span>
         </div>
         <div slot="content" class="p-3 font-sans text-sm">
           <slot></slot>

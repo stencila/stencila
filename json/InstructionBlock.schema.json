@@ -9,22 +9,27 @@
   ],
   "category": "edits",
   "description": "An instruction to edit some block content.",
+  "patch": {
+    "applyWith": "InstructionBlock::apply_patch_op"
+  },
   "markdown": {
     "derive": false
   },
   "proptest": {},
   "required": [
     "type",
+    "instructionType",
     "messages"
   ],
   "core": [
     "id",
     "autoExec",
     "assignee",
-    "authors",
-    "provenance",
+    "model",
+    "replicates",
+    "hideSuggestions",
     "content",
-    "suggestion"
+    "suggestions"
   ],
   "properties": {
     "type": {
@@ -279,6 +284,15 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
+    "instructionType": {
+      "@id": "stencila:instructionType",
+      "description": "The type of instruction.",
+      "aliases": [
+        "instruction-type",
+        "instruction_type"
+      ],
+      "$ref": "InstructionType.schema.json"
+    },
     "messages": {
       "@id": "stencila:messages",
       "description": "Messages involved in the instruction.",
@@ -301,8 +315,8 @@
     },
     "assignee": {
       "@id": "stencila:assignee",
-      "description": "An identifier for the agent assigned to perform the instruction",
-      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n  patch:\n",
+      "description": "An identifier for the assistant assigned to perform the instruction",
+      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n",
       "patch": {
         "formats": [
           "md"
@@ -324,36 +338,34 @@
       },
       "type": "string"
     },
-    "authors": {
-      "@id": "schema:author",
-      "description": "The authors of the instruction.",
-      "aliases": [
-        "author"
-      ],
-      "strip": [
-        "authors"
-      ],
-      "dom": {
-        "elem": "span"
+    "model": {
+      "@id": "stencila:model",
+      "description": "The name, and other options, for the model that the assistant should use to generate suggestions.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
       },
-      "type": "array",
-      "items": {
-        "$ref": "Author.schema.json"
-      }
+      "$ref": "InstructionModel.schema.json"
     },
-    "provenance": {
-      "@id": "stencila:provenance",
-      "description": "A summary of the provenance of the messages and content within the instruction.",
-      "strip": [
-        "provenance"
-      ],
-      "dom": {
-        "elem": "span"
+    "replicates": {
+      "@id": "stencila:replicates",
+      "description": "The number of suggestions to generate for the instruction",
+      "patch": {
+        "formats": [
+          "md"
+        ]
       },
-      "type": "array",
-      "items": {
-        "$ref": "ProvenanceCount.schema.json"
-      }
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "hideSuggestions": {
+      "@id": "stencila:hideSuggestions",
+      "description": "Whether suggestions should be hidden in source views such as Markdown.",
+      "aliases": [
+        "hide-suggestions",
+        "hide_suggestions"
+      ],
+      "type": "boolean"
     },
     "content": {
       "@id": "stencila:content",
@@ -385,9 +397,12 @@
         "$ref": "Block.schema.json"
       }
     },
-    "suggestion": {
-      "@id": "stencila:suggestion",
-      "description": "A suggestion for the instruction",
+    "suggestions": {
+      "@id": "stencila:suggestions",
+      "description": "Suggestions for the instruction",
+      "aliases": [
+        "suggestion"
+      ],
       "patch": {
         "formats": [
           "md"
@@ -397,7 +412,10 @@
       "dom": {
         "elem": "div"
       },
-      "$ref": "SuggestionBlockType.schema.json"
+      "type": "array",
+      "items": {
+        "$ref": "SuggestionBlock.schema.json"
+      }
     }
   }
 }

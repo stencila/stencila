@@ -24,11 +24,13 @@ import { type Figure } from "./Figure.js";
 import { type FormDeriveAction } from "./FormDeriveAction.js";
 import { type Grant } from "./Grant.js";
 import { type ImageObject } from "./ImageObject.js";
+import { type InstructionType } from "./InstructionType.js";
 import { type LabelType } from "./LabelType.js";
 import { type ListItem } from "./ListItem.js";
 import { type ListOrder } from "./ListOrder.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type MessageLevel } from "./MessageLevel.js";
+import { type MessageRole } from "./MessageRole.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type NoteType } from "./NoteType.js";
 import { type Organization } from "./Organization.js";
@@ -80,11 +82,13 @@ export type ThingType =
   FormDeriveAction |
   Grant |
   ImageObject |
+  InstructionType |
   LabelType |
   ListItem |
   ListOrder |
   MediaObject |
   MessageLevel |
+  MessageRole |
   MonetaryGrant |
   NoteType |
   Organization |

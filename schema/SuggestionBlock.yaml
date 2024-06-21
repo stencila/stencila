@@ -3,8 +3,9 @@ title: SuggestionBlock
 nick: sgb
 extends: Suggestion
 category: edits
-abstract: true
 description: Abstract base type for nodes that indicate a suggested change to block content.
+markdown:
+  derive: false
 required:
   - content
 properties:

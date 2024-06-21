@@ -24,8 +24,7 @@ use codecs::{EncodeOptions, Format};
 use common::{
     eyre::Result,
     once_cell::sync::Lazy,
-    serde_json,
-    serde_json::Value,
+    serde_json::{self, json, Value},
     tokio::{
         self,
         sync::{mpsc, RwLock},
@@ -34,9 +33,7 @@ use common::{
 };
 use document::{Command, CommandNodes, Document};
 use node_execute::ExecuteOptions;
-use schema::{
-    NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, SuggestionStatus,
-};
+use schema::{NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue};
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
@@ -52,7 +49,10 @@ pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
 pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
 pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 
-pub(super) const RETRY_NODE: &str = "stencila.retry-node";
+pub(super) const HIDE_SUGGESTIONS_NODE: &str = "stencila.hide-suggestions-node";
+pub(super) const SHOW_SUGGESTIONS_NODE: &str = "stencila.show-suggestions-node";
+
+pub(super) const CHOOSE_NODE: &str = "stencila.choose-node";
 pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
 pub(super) const REJECT_NODE: &str = "stencila.reject-node";
 
@@ -71,7 +71,9 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_NODE,
         CANCEL_CURR,
         CANCEL_ALL_DOC,
-        RETRY_NODE,
+        HIDE_SUGGESTIONS_NODE,
+        SHOW_SUGGESTIONS_NODE,
+        CHOOSE_NODE,
         ACCEPT_NODE,
         REJECT_NODE,
         EXPORT_DOC,
@@ -141,13 +143,55 @@ pub(super) async fn execute_command(
                 false,
             )
         }
-        RETRY_NODE => {
+        HIDE_SUGGESTIONS_NODE => {
             args.next(); // Skip the currently unused node type arg
-            let node_id = node_id_arg(args.next())?;
+            let instruction_id = node_id_arg(args.next())?;
             (
-                "Retrying instruction".to_string(),
-                Command::ExecuteNodes(CommandNodes::new(vec![node_id], None)),
+                "Hiding suggestions".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(instruction_id),
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::HideSuggestions),
+                        PatchOp::Set(PatchValue::Json(json!(true))),
+                    )],
+                    format: None,
+                    authors: None,
+                }),
+                false,
                 true,
+            )
+        }
+        SHOW_SUGGESTIONS_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let instruction_id = node_id_arg(args.next())?;
+            (
+                "Show suggestions".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(instruction_id),
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::HideSuggestions),
+                        PatchOp::Set(PatchValue::None),
+                    )],
+                    format: None,
+                    authors: None,
+                }),
+                false,
+                true,
+            )
+        }
+        CHOOSE_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let suggestion_id = node_id_arg(args.next())?;
+            let instruction_id = node_id_arg(args.next())?;
+            (
+                "Using suggestion".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(instruction_id),
+                    ops: vec![(PatchPath::new(), PatchOp::Choose(suggestion_id))],
+                    format: None,
+                    authors: None,
+                }),
+                false,
                 true,
             )
         }
@@ -159,8 +203,8 @@ pub(super) async fn execute_command(
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
                     ops: vec![(
-                        PatchPath::from(NodeProperty::SuggestionStatus),
-                        PatchOp::Set(SuggestionStatus::Accepted.to_value().unwrap_or_default()),
+                        PatchPath::from(NodeProperty::Feedback),
+                        PatchOp::Set("Good suggestion".to_string().to_value().unwrap_or_default()),
                     )],
                     format: None,
                     authors: None,
@@ -177,8 +221,8 @@ pub(super) async fn execute_command(
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
                     ops: vec![(
-                        PatchPath::from(NodeProperty::SuggestionStatus),
-                        PatchOp::Set(SuggestionStatus::Rejected.to_value().unwrap_or_default()),
+                        PatchPath::from(NodeProperty::Feedback),
+                        PatchOp::Set("Poor suggestion".to_string().to_value().unwrap_or_default()),
                     )],
                     format: None,
                     authors: None,

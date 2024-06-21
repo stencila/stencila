@@ -10,7 +10,7 @@ use model::{
     },
     context::Context,
     format::Format,
-    schema::{InstructionBlock, InstructionMessage},
+    schema::{InstructionBlock, InstructionMessage, InstructionType},
     GenerateOptions, ModelAvailability, ModelType,
 };
 
@@ -106,8 +106,10 @@ struct Execute {
 
 impl Execute {
     async fn run(self) -> Result<()> {
-        let mut instruction =
-            InstructionBlock::new(vec![InstructionMessage::from(&self.instruction)]);
+        let mut instruction = InstructionBlock::new(
+            InstructionType::New,
+            vec![InstructionMessage::user(self.instruction)],
+        );
         instruction.assignee = Some(self.name);
 
         let context = Context::default();

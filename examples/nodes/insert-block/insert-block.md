@@ -4,14 +4,8 @@ Proposed inserted paragraph
 
 :::
 
-::: insert accepted
+::: insert Some feedback on suggestion
 
-Accepted inserted paragraph
-
-:::
-
-::: insert rejected
-
-Rejected inserted paragraph
+Proposed inserted paragraph with feedback
 
 :::

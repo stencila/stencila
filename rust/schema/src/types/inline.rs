@@ -32,6 +32,7 @@ use super::strikeout::Strikeout;
 use super::strong::Strong;
 use super::styled_inline::StyledInline;
 use super::subscript::Subscript;
+use super::suggestion_inline::SuggestionInline;
 use super::superscript::Superscript;
 use super::text::Text;
 use super::time::Time;
@@ -138,6 +139,12 @@ pub enum Inline {
     Strong(Strong),
 
     Subscript(Subscript),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    SuggestionInline(SuggestionInline),
 
     Superscript(Superscript),
 

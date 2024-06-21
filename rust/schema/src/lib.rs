@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 mod deserialize;
 mod implem;
 mod prelude;

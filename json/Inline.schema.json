@@ -218,6 +218,15 @@
       "$ref": "Subscript.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `SuggestionInline` nodes in inline content.",
+          "skip": true
+        }
+      },
+      "$ref": "SuggestionInline.schema.json"
+    },
+    {
       "$ref": "Superscript.schema.json"
     },
     {

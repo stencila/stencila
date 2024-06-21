@@ -26,6 +26,7 @@ repository:
       - include: "#include-block"
       - include: "#call-block"
       - include: "#instruction-block"
+      - include: "#suggestion-block"
       - include: "#insert-block"
       - include: "#delete-block"
       - include: "#replace-block"
@@ -48,6 +49,7 @@ repository:
       - include: "#parameter"
       - include: "#math-inline"
       - include: "#instruction-inline"
+      - include: "#suggestion-inline"
       - include: "#insert-inline"
       - include: "#delete-inline"
       - include: "#replace-inline"
@@ -219,7 +221,7 @@ repository:
       (?x)
       ^
         (?:
-          (?:(:{3,})\s*(do))|
+          (?:(:{3,})\s*(new|edit|update))|
           (/)
         )
         \s+
@@ -232,7 +234,7 @@ repository:
       $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # do
+      "2": { name: keyword.control.stencila } # instruction type
       "3": { name: markup.heading.stencila } # forward slash
       "4": { name: decorator.keyword.stencila } # @
       "5": { name: decorator.keyword.stencila } # assignee
@@ -251,7 +253,7 @@ repository:
       (?x)
       \[\[
         \s*
-        (do)
+        (new|edit|update)
         \s+
         (?:
           (@)
@@ -265,7 +267,7 @@ repository:
         )?
       \]\]
     captures:
-      "1": { name: keyword.control.stencila } # do
+      "1": { name: keyword.control.stencila } # instruction type
       "2": { name: decorator.keyword.stencila } # @
       "3": { name: decorator.keyword.stencila } # assignee
       "4": { name: comment.line } # message
@@ -307,6 +309,41 @@ repository:
       \]\]
     captures:
       "1": { name: keyword.control.stencila } # insert
+
+  suggestion-block:
+    name: meta.stencila.suggestion-block
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (suggest)
+        \s+
+        (?:
+          (accept)|
+          (reject)|
+          .*
+        )?
+        \s*
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # suggest
+      "3": { name: accept.stencila } # accept
+      "4": { name: error.stencila } # reject
+
+  suggestion-inline:
+    name: meta.stencila.suggestion-inline
+    match: >
+      (?x)
+      \[\[
+        \s*
+        (suggest)
+        \s
+        (.*?)
+      \]\]
+    captures:
+      "1": { name: keyword.control.stencila } # suggest
 
   delete-block:
     name: meta.stencila.delete-block

@@ -20,7 +20,12 @@
   ],
   "core": [
     "id",
-    "suggestionStatus"
+    "suggestionStatus",
+    "authors",
+    "provenance",
+    "executionDuration",
+    "executionEnded",
+    "feedback"
   ],
   "properties": {
     "type": {
@@ -57,6 +62,81 @@
         ]
       },
       "$ref": "SuggestionStatus.schema.json"
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the suggestion",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "authors"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the suggestion.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Time taken to generate the suggestion.",
+      "aliases": [
+        "execution-duration",
+        "execution_duration"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "with": "Duration::to_dom_attr"
+      },
+      "$ref": "Duration.schema.json"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the generation ended.",
+      "aliases": [
+        "execution-ended",
+        "execution_ended"
+      ],
+      "strip": [
+        "execution",
+        "timestamps"
+      ],
+      "dom": {
+        "with": "Timestamp::to_dom_attr"
+      },
+      "$ref": "Timestamp.schema.json"
+    },
+    "feedback": {
+      "@id": "stencila:feedback",
+      "description": "Feedback on the suggestion",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "type": "string"
     },
     "content": {
       "@id": "stencila:content",

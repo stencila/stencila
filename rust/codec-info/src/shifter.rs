@@ -63,10 +63,10 @@ where
     }
 
     /// Translate a character index in `generated` to an index in `source`
-    pub fn generated_to_source(&self, index: usize) -> Option<usize> {
+    pub fn generated_to_source(&self, index: usize) -> usize {
         let changes = self.changes();
         let Some(changes) = changes.as_ref() else {
-            return (index < self.source.chars().count()).then_some(index);
+            return index.min(self.source.chars().count() - 1);
         };
 
         let mut current_new_index = 0usize;
@@ -76,19 +76,19 @@ where
                     current_new_index = new_index;
                 }
                 if old_index == index {
-                    return Some(current_new_index);
+                    return current_new_index;
                 }
             }
         }
 
-        None
+        current_new_index.min(self.source.chars().count() - 1)
     }
 
     /// Translate a character index in `source` to an index in `generated`
-    pub fn source_to_generated(&self, index: usize) -> Option<usize> {
+    pub fn source_to_generated(&self, index: usize) -> usize {
         let changes = self.changes();
         let Some(changes) = changes.as_ref() else {
-            return (index < self.generated.chars().count()).then_some(index);
+            return index.min(self.generated.chars().count() - 1);
         };
 
         let mut current_old_index = 0usize;
@@ -98,12 +98,12 @@ where
                     current_old_index = old_index;
                 }
                 if new_index == index {
-                    return Some(current_old_index);
+                    return current_old_index;
                 }
             }
         }
 
-        None
+        current_old_index.min(self.generated.chars().count() - 1)
     }
 }
 
@@ -117,15 +117,15 @@ mod tests {
         let generated = "abc";
         let shifter = Shifter::new(source, generated);
 
-        assert_eq!(shifter.generated_to_source(0), Some(0));
-        assert_eq!(shifter.generated_to_source(1), Some(1));
-        assert_eq!(shifter.generated_to_source(2), Some(2));
-        assert_eq!(shifter.generated_to_source(3), None);
+        assert_eq!(shifter.generated_to_source(0), 0);
+        assert_eq!(shifter.generated_to_source(1), 1);
+        assert_eq!(shifter.generated_to_source(2), 2);
+        assert_eq!(shifter.generated_to_source(3), 2);
 
-        assert_eq!(shifter.source_to_generated(0), Some(0));
-        assert_eq!(shifter.source_to_generated(1), Some(1));
-        assert_eq!(shifter.source_to_generated(2), Some(2));
-        assert_eq!(shifter.source_to_generated(3), None);
+        assert_eq!(shifter.source_to_generated(0), 0);
+        assert_eq!(shifter.source_to_generated(1), 1);
+        assert_eq!(shifter.source_to_generated(2), 2);
+        assert_eq!(shifter.source_to_generated(3), 2);
     }
 
     #[test]
@@ -135,38 +135,38 @@ mod tests {
         let generated = "abc";
         let shifter = Shifter::new(source, generated);
 
-        assert_eq!(shifter.generated_to_source(0), Some(0));
-        assert_eq!(shifter.generated_to_source(1), Some(3));
-        assert_eq!(shifter.generated_to_source(2), Some(5));
-        assert_eq!(shifter.generated_to_source(3), None);
+        assert_eq!(shifter.generated_to_source(0), 0);
+        assert_eq!(shifter.generated_to_source(1), 3);
+        assert_eq!(shifter.generated_to_source(2), 5);
+        assert_eq!(shifter.generated_to_source(3), 5);
 
-        assert_eq!(shifter.source_to_generated(0), Some(0));
-        assert_eq!(shifter.source_to_generated(1), Some(0));
-        assert_eq!(shifter.source_to_generated(2), Some(0));
-        assert_eq!(shifter.source_to_generated(3), Some(1));
-        assert_eq!(shifter.source_to_generated(4), Some(1));
-        assert_eq!(shifter.source_to_generated(5), Some(2));
-        assert_eq!(shifter.source_to_generated(6), None);
+        assert_eq!(shifter.source_to_generated(0), 0);
+        assert_eq!(shifter.source_to_generated(1), 0);
+        assert_eq!(shifter.source_to_generated(2), 0);
+        assert_eq!(shifter.source_to_generated(3), 1);
+        assert_eq!(shifter.source_to_generated(4), 1);
+        assert_eq!(shifter.source_to_generated(5), 2);
+        assert_eq!(shifter.source_to_generated(6), 2);
 
         // Insertions at ends and within
         let source = " a b  c ";
         let generated = "abc";
         let shifter = Shifter::new(source, generated);
 
-        assert_eq!(shifter.generated_to_source(0), Some(1));
-        assert_eq!(shifter.generated_to_source(1), Some(3));
-        assert_eq!(shifter.generated_to_source(2), Some(6));
-        assert_eq!(shifter.generated_to_source(3), None);
+        assert_eq!(shifter.generated_to_source(0), 1);
+        assert_eq!(shifter.generated_to_source(1), 3);
+        assert_eq!(shifter.generated_to_source(2), 6);
+        assert_eq!(shifter.generated_to_source(3), 6);
 
-        assert_eq!(shifter.source_to_generated(0), Some(0));
-        assert_eq!(shifter.source_to_generated(1), Some(0));
-        assert_eq!(shifter.source_to_generated(2), Some(0));
-        assert_eq!(shifter.source_to_generated(3), Some(1));
-        assert_eq!(shifter.source_to_generated(4), Some(1));
-        assert_eq!(shifter.source_to_generated(5), Some(1));
-        assert_eq!(shifter.source_to_generated(6), Some(2));
-        assert_eq!(shifter.source_to_generated(7), Some(2));
-        assert_eq!(shifter.source_to_generated(8), None);
+        assert_eq!(shifter.source_to_generated(0), 0);
+        assert_eq!(shifter.source_to_generated(1), 0);
+        assert_eq!(shifter.source_to_generated(2), 0);
+        assert_eq!(shifter.source_to_generated(3), 1);
+        assert_eq!(shifter.source_to_generated(4), 1);
+        assert_eq!(shifter.source_to_generated(5), 1);
+        assert_eq!(shifter.source_to_generated(6), 2);
+        assert_eq!(shifter.source_to_generated(7), 2);
+        assert_eq!(shifter.source_to_generated(8), 2);
     }
 
     #[test]
@@ -176,37 +176,37 @@ mod tests {
         let generated = "a  b c";
         let shifter = Shifter::new(source, generated);
 
-        assert_eq!(shifter.generated_to_source(0), Some(0));
-        assert_eq!(shifter.generated_to_source(1), Some(0));
-        assert_eq!(shifter.generated_to_source(2), Some(0));
-        assert_eq!(shifter.generated_to_source(3), Some(1));
-        assert_eq!(shifter.generated_to_source(4), Some(1));
-        assert_eq!(shifter.generated_to_source(5), Some(2));
-        assert_eq!(shifter.generated_to_source(6), None);
+        assert_eq!(shifter.generated_to_source(0), 0);
+        assert_eq!(shifter.generated_to_source(1), 0);
+        assert_eq!(shifter.generated_to_source(2), 0);
+        assert_eq!(shifter.generated_to_source(3), 1);
+        assert_eq!(shifter.generated_to_source(4), 1);
+        assert_eq!(shifter.generated_to_source(5), 2);
+        assert_eq!(shifter.generated_to_source(6), 2);
 
-        assert_eq!(shifter.source_to_generated(0), Some(0));
-        assert_eq!(shifter.source_to_generated(1), Some(3));
-        assert_eq!(shifter.source_to_generated(2), Some(5));
-        assert_eq!(shifter.source_to_generated(3), None);
+        assert_eq!(shifter.source_to_generated(0), 0);
+        assert_eq!(shifter.source_to_generated(1), 3);
+        assert_eq!(shifter.source_to_generated(2), 5);
+        assert_eq!(shifter.source_to_generated(3), 5);
 
         // Insertions at ends and within
         let source = "abc";
         let generated = " a b  c ";
         let shifter = Shifter::new(source, generated);
 
-        assert_eq!(shifter.generated_to_source(0), Some(0));
-        assert_eq!(shifter.generated_to_source(1), Some(0));
-        assert_eq!(shifter.generated_to_source(2), Some(0));
-        assert_eq!(shifter.generated_to_source(3), Some(1));
-        assert_eq!(shifter.generated_to_source(4), Some(1));
-        assert_eq!(shifter.generated_to_source(5), Some(1));
-        assert_eq!(shifter.generated_to_source(6), Some(2));
-        assert_eq!(shifter.generated_to_source(7), Some(2));
-        assert_eq!(shifter.generated_to_source(8), None);
+        assert_eq!(shifter.generated_to_source(0), 0);
+        assert_eq!(shifter.generated_to_source(1), 0);
+        assert_eq!(shifter.generated_to_source(2), 0);
+        assert_eq!(shifter.generated_to_source(3), 1);
+        assert_eq!(shifter.generated_to_source(4), 1);
+        assert_eq!(shifter.generated_to_source(5), 1);
+        assert_eq!(shifter.generated_to_source(6), 2);
+        assert_eq!(shifter.generated_to_source(7), 2);
+        assert_eq!(shifter.generated_to_source(8), 2);
 
-        assert_eq!(shifter.source_to_generated(0), Some(1));
-        assert_eq!(shifter.source_to_generated(1), Some(3));
-        assert_eq!(shifter.source_to_generated(2), Some(6));
-        assert_eq!(shifter.source_to_generated(3), None);
+        assert_eq!(shifter.source_to_generated(0), 1);
+        assert_eq!(shifter.source_to_generated(1), 3);
+        assert_eq!(shifter.source_to_generated(2), 6);
+        assert_eq!(shifter.source_to_generated(3), 6);
     }
 }

@@ -3,7 +3,8 @@
 import { Inline } from "./Inline.js";
 import { Instruction } from "./Instruction.js";
 import { InstructionMessage } from "./InstructionMessage.js";
-import { SuggestionInlineType } from "./SuggestionInlineType.js";
+import { InstructionType } from "./InstructionType.js";
+import { SuggestionInline } from "./SuggestionInline.js";
 
 /**
  * An instruction to edit some inline content.
@@ -18,14 +19,15 @@ export class InstructionInline extends Instruction {
   content?: Inline[];
 
   /**
-   * A suggestion for the instruction
+   * Suggestions for the instruction
    */
-  suggestion?: SuggestionInlineType;
+  suggestions?: SuggestionInline[];
 
-  constructor(messages: InstructionMessage[], options?: Partial<InstructionInline>) {
-    super(messages);
+  constructor(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<InstructionInline>) {
+    super(instructionType, messages);
     this.type = "InstructionInline";
     if (options) Object.assign(this, options);
+    this.instructionType = instructionType;
     this.messages = messages;
   }
 }
@@ -33,6 +35,6 @@ export class InstructionInline extends Instruction {
 /**
 * Create a new `InstructionInline`
 */
-export function instructionInline(messages: InstructionMessage[], options?: Partial<InstructionInline>): InstructionInline {
-  return new InstructionInline(messages, options);
+export function instructionInline(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<InstructionInline>): InstructionInline {
+  return new InstructionInline(instructionType, messages, options);
 }

@@ -8,18 +8,10 @@ content:
       value:
         string: Proposed deleted paragraph
 - type: DeleteBlock
-  suggestionStatus: Accepted
+  feedback: Some feedback on suggestion
   content:
   - type: Paragraph
     content:
     - type: Text
       value:
-        string: Accepted deleted paragraph
-- type: DeleteBlock
-  suggestionStatus: Rejected
-  content:
-  - type: Paragraph
-    content:
-    - type: Text
-      value:
-        string: Rejected deleted paragraph
+        string: Proposed deleted paragraph with feedback

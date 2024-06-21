@@ -31,7 +31,7 @@
     },
     {
       "type": "ReplaceBlock",
-      "suggestionStatus": "Accepted",
+      "feedback": "Some feedback",
       "content": [
         {
           "type": "Paragraph",
@@ -42,22 +42,6 @@
         {
           "type": "Paragraph",
           "content": [{ "type": "Text", "value": "Accepted new paragraph" }]
-        }
-      ]
-    },
-    {
-      "type": "ReplaceBlock",
-      "suggestionStatus": "Rejected",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "Old paragraph" }]
-        }
-      ],
-      "replacement": [
-        {
-          "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "Rejected new paragraph" }]
         }
       ]
     }

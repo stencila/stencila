@@ -1,0 +1,115 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/InstructionModel.schema.json",
+  "@id": "stencila:InstructionModel",
+  "title": "InstructionModel",
+  "nick": "ism",
+  "extends": [
+    "Entity"
+  ],
+  "description": "The name and execution options for the generative model used for an instruction.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "name",
+    "qualityWeight",
+    "speedWeight",
+    "costWeight",
+    "temperature",
+    "randomSeed"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the model.",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "type": "string"
+    },
+    "qualityWeight": {
+      "@id": "stencila:qualityWeight",
+      "description": "The relative weighting given to model quality (0-100).",
+      "aliases": [
+        "quality-weight",
+        "quality_weight"
+      ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "speedWeight": {
+      "@id": "stencila:speedWeight",
+      "description": "The relative weighting given to model speed (0-100).",
+      "aliases": [
+        "speed-weight",
+        "speed_weight"
+      ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "costWeight": {
+      "@id": "stencila:costWeight",
+      "description": "The relative weighting given to model cost (0-100).",
+      "aliases": [
+        "cost-weight",
+        "cost_weight"
+      ],
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "temperature": {
+      "@id": "stencila:temperature",
+      "description": "The temperature option for model inference (0-100).",
+      "$comment": "The lower the temperature, the more deterministic the output because the most\nprobable next token is more likely to be picked. Increasing temperature generally leads\nto more diverse and creative outputs.\n",
+      "patch": {
+        "formats": [
+          "md"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "randomSeed": {
+      "@id": "stencila:randomSeed",
+      "description": "The random seed used for the model (if possible)",
+      "aliases": [
+        "random-seed",
+        "random_seed"
+      ],
+      "type": "integer"
+    }
+  }
+}
