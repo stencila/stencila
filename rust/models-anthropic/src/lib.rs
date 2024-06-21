@@ -11,8 +11,7 @@ use model::{
         tracing,
     },
     schema::MessagePart,
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
-    ModelType,
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
 };
 
 /// The base URL for the Anthropic API
@@ -81,12 +80,16 @@ impl Model for AnthropicModel {
 
         let messages = task
             .instruction_messages()
+            .iter()
             .map(|message| {
-                let role = match message.is_assistant() {
-                    true => "assistant",
-                    false => "user",
-                }
-                .to_string();
+                println!("{message:#?}");
+
+                let role = message
+                    .role
+                    .clone()
+                    .unwrap_or_default()
+                    .to_string()
+                    .to_lowercase();
 
                 let content = message
                     .parts

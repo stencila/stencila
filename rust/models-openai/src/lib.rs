@@ -22,9 +22,8 @@ use model::{
         itertools::Itertools,
         tracing,
     },
-    schema::{ImageObject, MessagePart},
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
-    ModelType,
+    schema::{ImageObject, MessagePart, MessageRole},
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
 };
 
 /// The name of the env var or secret for the API key
@@ -161,76 +160,85 @@ impl OpenAIModel {
         let messages = task
             .system_prompt()
             .iter()
-            .map(|prompt| ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
-                role: Role::System,
-                content: prompt.clone(),
-                ..Default::default()
-            }))
-            .chain(task
-                .instruction_messages()
-                .map(|message| {
-                    match message.is_assistant() {
-                        false => {
-                            let content = message
-                                .parts
-                                .iter()
-                                .filter_map(|part| match part {
-                                    MessagePart::Text(text) => Some(
-                                        ChatCompletionRequestMessageContentPart::Text(ChatCompletionRequestMessageContentPartText{
+            .map(|prompt| {
+                ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
+                    role: Role::System,
+                    content: prompt.clone(),
+                    ..Default::default()
+                })
+            })
+            .chain(task.instruction_messages().iter().filter_map(|message| {
+                match message.role.clone().unwrap_or_default() {
+                    MessageRole::System => None,
+                    MessageRole::User => {
+                        let content = message
+                            .parts
+                            .iter()
+                            .filter_map(|part| match part {
+                                MessagePart::Text(text) => {
+                                    Some(ChatCompletionRequestMessageContentPart::Text(
+                                        ChatCompletionRequestMessageContentPartText {
                                             r#type: "text".to_string(),
-                                            text: text.to_value_string()
-                                        })
-                                    ),
-                                    MessagePart::ImageObject(ImageObject { content_url, .. }) => Some(
-                                        ChatCompletionRequestMessageContentPart::Image(ChatCompletionRequestMessageContentPartImage{
+                                            text: text.to_value_string(),
+                                        },
+                                    ))
+                                }
+                                MessagePart::ImageObject(ImageObject { content_url, .. }) => {
+                                    Some(ChatCompletionRequestMessageContentPart::Image(
+                                        ChatCompletionRequestMessageContentPartImage {
                                             r#type: "image_url".to_string(),
                                             image_url: ImageUrl {
                                                 url: content_url.clone(),
-                                                detail: ImageUrlDetail::Auto
-                                            }
-                                        })
-                                    ),
-                                    _ => {
-                                        tracing::warn!(
-                                            "User message part `{part}` is ignored by model `{}`", self.name()
-                                        );
-                                        None
-                                    }
-                                })
-                                .collect_vec();
+                                                detail: ImageUrlDetail::Auto,
+                                            },
+                                        },
+                                    ))
+                                }
+                                _ => {
+                                    tracing::warn!(
+                                        "User message part `{part}` is ignored by model `{}`",
+                                        self.name()
+                                    );
+                                    None
+                                }
+                            })
+                            .collect_vec();
 
-                            ChatCompletionRequestMessage::User(ChatCompletionRequestUserMessage {
+                        Some(ChatCompletionRequestMessage::User(
+                            ChatCompletionRequestUserMessage {
                                 role: Role::User,
                                 content: ChatCompletionRequestUserMessageContent::Array(content),
                                 ..Default::default()
-                            })
-                        }
-                        true => {
-                            let content = message
-                                .parts
-                                .iter()
-                                .filter_map(|part| match part {
-                                    MessagePart::Text(text) => Some(text.to_value_string()),
-                                    _ => {
-                                        tracing::warn!(
-                                            "Assistant message part `{part}` is ignored by model `{}`", self.name()
-                                        );
-                                        None
-                                    }
-                                })
-                                .join("");
-
-                            ChatCompletionRequestMessage::Assistant(
-                                ChatCompletionRequestAssistantMessage {
-                                    role: Role::Assistant,
-                                    content: Some(content),
-                                    ..Default::default()
-                                },
-                            )
-                        }
+                            },
+                        ))
                     }
-                }))
-                .collect();
+                    MessageRole::Assistant => {
+                        let content = message
+                            .parts
+                            .iter()
+                            .filter_map(|part| match part {
+                                MessagePart::Text(text) => Some(text.to_value_string()),
+                                _ => {
+                                    tracing::warn!(
+                                        "Assistant message part `{part}` is ignored by model `{}`",
+                                        self.name()
+                                    );
+                                    None
+                                }
+                            })
+                            .join("");
+
+                        Some(ChatCompletionRequestMessage::Assistant(
+                            ChatCompletionRequestAssistantMessage {
+                                role: Role::Assistant,
+                                content: Some(content),
+                                ..Default::default()
+                            },
+                        ))
+                    }
+                }
+            }))
+            .collect();
 
         // Create the request
         let request = CreateChatCompletionRequest {

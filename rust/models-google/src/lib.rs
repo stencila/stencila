@@ -12,9 +12,8 @@ use model::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::{ImageObject, MessagePart},
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
-    ModelType,
+    schema::{ImageObject, MessagePart, MessageRole},
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
@@ -94,11 +93,12 @@ impl Model for GoogleModel {
                 ]
                 .into_iter()
             })
-            .chain(task.instruction_messages().map(|message| {
-                let role = Some(match message.is_assistant() {
-                    true => Role::Model,
-                    false => Role::User
-                });
+            .chain(task.instruction_messages().iter().map(|message| {
+                let role = match message.role.clone().unwrap_or_default() {
+                    MessageRole::Assistant => Some(Role::Model),
+                    MessageRole::User => Some(Role::User),
+                    _ => None
+                };
 
                 let parts = message
                     .parts

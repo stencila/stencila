@@ -13,8 +13,7 @@ use common::{
     serde_json, serde_yaml,
 };
 use schema::{
-    ArrayHint, Block, DatatableHint, Hint, InsertBlock, InstructionBlock, MathBlock, MessagePart,
-    Node, SuggestionBlockType, SuggestionStatus, Variable,
+    ArrayHint, Block, DatatableHint, Hint, InstructionBlock, MathBlock, MessagePart, Node, Variable,
 };
 
 use crate::GenerateTask;
@@ -232,22 +231,7 @@ where
                 });
 
             // Get accepted inserted block
-            let block = instruction.suggestion.and_then(|suggestion| {
-                if let SuggestionBlockType::InsertBlock(InsertBlock {
-                    suggestion_status,
-                    mut content,
-                    ..
-                }) = suggestion
-                {
-                    if suggestion_status != Some(SuggestionStatus::Accepted) {
-                        None
-                    } else {
-                        (!content.is_empty()).then_some(content.swap_remove(0))
-                    }
-                } else {
-                    None
-                }
-            });
+            let block = None;
 
             // Extract string from the block
             let assistant = match block {

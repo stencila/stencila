@@ -12,9 +12,8 @@ use model::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::MessagePart,
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO,
-    ModelType,
+    schema::{MessagePart, MessageRole},
+    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -79,10 +78,11 @@ impl Model for MistralModel {
                 role: ChatRole::System,
                 content: prompt.clone(),
             })
-            .chain(task.instruction_messages().map(|message| {
-                let role = match message.is_assistant() {
-                    true => ChatRole::Assistant,
-                    false => ChatRole::User,
+            .chain(task.instruction_messages().iter().map(|message| {
+                let role = match message.role.clone().unwrap_or_default() {
+                    MessageRole::Assistant => ChatRole::Assistant,
+                    MessageRole::System => ChatRole::System,
+                    MessageRole::User => ChatRole::User,
                 };
 
                 let content = message
