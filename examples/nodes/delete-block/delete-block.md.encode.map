@@ -5,19 +5,12 @@ start     end        offsets   node_type+property                   authorship
     12     39         (0, 1)   Paragraph
     12     40         (0, 1)   DeleteBlock.content
      0     44       (-12, 4)   DeleteBlock
-    56     64       (56, 20)   DeleteBlock.suggestionStatus
-    66     92       (10, 28)   Text.value
-    66     92         (0, 0)   Text
-    66     92         (0, 0)   Paragraph.content
-    66     93         (0, 1)   Paragraph
-    66     94         (0, 1)   DeleteBlock.content
-    45     98       (-21, 4)   DeleteBlock
-   110    118       (65, 20)   DeleteBlock.suggestionStatus
-   120    146       (10, 28)   Text.value
-   120    146         (0, 0)   Text
-   120    146         (0, 0)   Paragraph.content
-   120    147         (0, 1)   Paragraph
-   120    148         (0, 1)   DeleteBlock.content
-    99    152       (-21, 4)   DeleteBlock
-     0    153       (-99, 1)   Article.content
-     0    153         (0, 0)   Article
+    56     83       (56, 39)   DeleteBlock.feedback
+    85    125       (29, 42)   Text.value
+    85    125         (0, 0)   Text
+    85    125         (0, 0)   Paragraph.content
+    85    126         (0, 1)   Paragraph
+    85    127         (0, 1)   DeleteBlock.content
+    45    131       (-40, 4)   DeleteBlock
+     0    132       (-45, 1)   Article.content
+     0    132         (0, 0)   Article

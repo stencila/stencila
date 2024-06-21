@@ -20,29 +20,17 @@ start     end        offsets   node_type+property                   authorship
    106    128         (0, 1)   Paragraph
     61    129       (-45, 1)   ReplaceBlock.replacement
      0    133       (-61, 4)   ReplaceBlock
-   146    154      (146, 21)   ReplaceBlock.suggestionStatus
-   156    169       (10, 15)   Text.value
-   156    169         (0, 0)   Text
-   156    169         (0, 0)   Paragraph.content
-   156    170         (0, 1)   Paragraph
-   156    171         (0, 1)   ReplaceBlock.content
-   181    203       (25, 32)   Text.value
-   181    203         (0, 0)   Text
-   181    203         (0, 0)   Paragraph.content
-   181    204         (0, 1)   Paragraph
-   181    205         (0, 1)   ReplaceBlock.replacement
-   134    209       (-47, 4)   ReplaceBlock
-   222    230       (88, 21)   ReplaceBlock.suggestionStatus
-   232    245       (10, 15)   Text.value
-   232    245         (0, 0)   Text
-   232    245         (0, 0)   Paragraph.content
-   232    246         (0, 1)   Paragraph
-   232    247         (0, 1)   ReplaceBlock.content
-   257    279       (25, 32)   Text.value
-   257    279         (0, 0)   Text
-   257    279         (0, 0)   Paragraph.content
-   257    280         (0, 1)   Paragraph
-   257    281         (0, 1)   ReplaceBlock.replacement
-   210    285       (-47, 4)   ReplaceBlock
-     0    286      (-210, 1)   Article.content
-     0    286         (0, 0)   Article
+   146    159      (146, 26)   ReplaceBlock.feedback
+   161    174       (15, 15)   Text.value
+   161    174         (0, 0)   Text
+   161    174         (0, 0)   Paragraph.content
+   161    175         (0, 1)   Paragraph
+   161    176         (0, 1)   ReplaceBlock.content
+   186    208       (25, 32)   Text.value
+   186    208         (0, 0)   Text
+   186    208         (0, 0)   Paragraph.content
+   186    209         (0, 1)   Paragraph
+   186    210         (0, 1)   ReplaceBlock.replacement
+   134    214       (-52, 4)   ReplaceBlock
+     0    215      (-134, 1)   Article.content
+     0    215         (0, 0)   Article
