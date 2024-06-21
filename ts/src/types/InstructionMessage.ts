@@ -16,7 +16,7 @@ export class InstructionMessage extends Entity {
   /**
    * The role of the message in the conversation.
    */
-  role: MessageRole;
+  role?: MessageRole;
 
   /**
    * Parts of the message.
@@ -33,11 +33,10 @@ export class InstructionMessage extends Entity {
    */
   provenance?: ProvenanceCount[];
 
-  constructor(role: MessageRole, parts: MessagePart[], options?: Partial<InstructionMessage>) {
+  constructor(parts: MessagePart[], options?: Partial<InstructionMessage>) {
     super();
     this.type = "InstructionMessage";
     if (options) Object.assign(this, options);
-    this.role = role;
     this.parts = parts;
   }
 }
@@ -45,6 +44,6 @@ export class InstructionMessage extends Entity {
 /**
 * Create a new `InstructionMessage`
 */
-export function instructionMessage(role: MessageRole, parts: MessagePart[], options?: Partial<InstructionMessage>): InstructionMessage {
-  return new InstructionMessage(role, parts, options);
+export function instructionMessage(parts: MessagePart[], options?: Partial<InstructionMessage>): InstructionMessage {
+  return new InstructionMessage(parts, options);
 }

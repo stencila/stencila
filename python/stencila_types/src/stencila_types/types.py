@@ -1915,7 +1915,7 @@ class InstructionMessage(Entity):
 
     type: Literal["InstructionMessage"] = "InstructionMessage"
 
-    role: MessageRole
+    role: MessageRole | None = None
     """The role of the message in the conversation."""
 
     parts: list[MessagePart]

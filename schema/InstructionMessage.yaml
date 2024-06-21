@@ -5,9 +5,9 @@ extends: Entity
 category: edits
 description: A message within an `Instruction`.
 required:
-  - role
   - parts
 core:
+  - role
   - authors
   - provenance
 properties:

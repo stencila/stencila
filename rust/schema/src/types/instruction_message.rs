@@ -26,7 +26,7 @@ pub struct InstructionMessage {
     pub id: Option<String>,
 
     /// The role of the message in the conversation.
-    pub role: MessageRole,
+    pub role: Option<MessageRole>,
 
     /// Parts of the message.
     #[serde(alias = "part")]
@@ -65,9 +65,8 @@ impl InstructionMessage {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(role: MessageRole, parts: Vec<MessagePart>) -> Self {
+    pub fn new(parts: Vec<MessagePart>) -> Self {
         Self {
-            role,
             parts,
             ..Default::default()
         }

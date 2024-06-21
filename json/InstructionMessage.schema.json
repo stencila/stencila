@@ -11,11 +11,11 @@
   "description": "A message within an `Instruction`.",
   "required": [
     "type",
-    "role",
     "parts"
   ],
   "core": [
     "id",
+    "role",
     "authors",
     "provenance"
   ],
