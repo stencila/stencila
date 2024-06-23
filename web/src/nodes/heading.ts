@@ -29,6 +29,9 @@ export class Heading extends Entity {
       <stencila-ui-block-on-demand type="Heading" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
           <stencila-ui-node-provenance type="Heading">

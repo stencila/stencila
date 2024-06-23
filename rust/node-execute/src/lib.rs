@@ -17,8 +17,7 @@ use context::Context;
 use kernels::Kernels;
 use schema::{
     AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
-    Node, NodeId, NodeProperty, Patch, PatchOp, PatchPath, SuggestionBlockType,
-    SuggestionInlineType, SuggestionStatus, VisitorAsync, WalkControl, WalkNode,
+    Node, NodeId, NodeProperty, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -340,25 +339,6 @@ impl Executor {
         }
     }
 
-    /// Should the executor execute an `Instruction` based on the the
-    /// status of its suggestion.
-    pub fn should_execute_instruction(&self, status: &Option<SuggestionStatus>) -> bool {
-        let Some(status) = status else {
-            // Re-execute unreviewed only if `force_unreviewed`
-            return self.options.force_unreviewed;
-        };
-
-        use SuggestionStatus::*;
-        match status {
-            // Re-execute proposed only if `force_unreviewed`
-            Proposed => self.options.force_unreviewed,
-            // Re-execute accepted only if `force_accepted`
-            Accepted => self.options.force_accepted,
-            // Re-execute rejected unless `skip_reject`
-            Rejected => self.options.skip_rejected,
-        }
-    }
-
     /// Should the executor execute an `InstructionBlock`
     #[allow(unreachable_code, unused_variables)]
     pub fn should_execute_instruction_block(
@@ -379,27 +359,15 @@ impl Executor {
             }
         }
 
-        let suggestion = &instruction.suggestion;
-
         // Respect `skip_instructions`
         if self.options.skip_instructions {
             return false;
         }
 
-        let Some(suggestion) = suggestion else {
-            // Execute instructions without suggestions
-            return true;
-        };
-
-        use SuggestionBlockType::*;
-        let status = match suggestion {
-            DeleteBlock(block) => &block.suggestion_status,
-            InsertBlock(block) => &block.suggestion_status,
-            ModifyBlock(block) => &block.suggestion_status,
-            ReplaceBlock(block) => &block.suggestion_status,
-        };
-
-        self.should_execute_instruction(status)
+        instruction
+            .suggestions
+            .as_ref()
+            .map_or(true, |suggestions| suggestions.is_empty())
     }
 
     /// Should the executor execute an `InstructionInline`
@@ -418,27 +386,15 @@ impl Executor {
             }
         }
 
-        let suggestion = &instruction.suggestion;
-
         // Respect `skip_instructions`
         if self.options.skip_instructions {
             return false;
         }
 
-        let Some(suggestion) = suggestion else {
-            // Execute instructions without suggestions
-            return true;
-        };
-
-        use SuggestionInlineType::*;
-        let status = match suggestion {
-            DeleteInline(inline) => &inline.suggestion_status,
-            InsertInline(inline) => &inline.suggestion_status,
-            ModifyInline(inline) => &inline.suggestion_status,
-            ReplaceInline(inline) => &inline.suggestion_status,
-        };
-
-        self.should_execute_instruction(status)
+        instruction
+            .suggestions
+            .as_ref()
+            .map_or(true, |suggestions| suggestions.is_empty())
     }
 
     /// Patch several properties of a node

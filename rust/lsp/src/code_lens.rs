@@ -12,7 +12,10 @@ use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio
 use schema::{NodeType, ProvenanceCategory};
 
 use crate::{
-    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, RETRY_NODE, RUN_NODE},
+    commands::{
+        ACCEPT_NODE, CANCEL_NODE, CHOOSE_NODE, HIDE_SUGGESTIONS_NODE, REJECT_NODE, RUN_NODE,
+        SHOW_SUGGESTIONS_NODE,
+    },
     text_document::TextNode,
 };
 
@@ -57,8 +60,7 @@ pub(crate) async fn request(
                     | NodeType::CodeChunk
                     | NodeType::ForBlock
                     | NodeType::IfBlock
-                    | NodeType::IncludeBlock
-                    | NodeType::InstructionBlock => {
+                    | NodeType::IncludeBlock => {
                         // It would be nice to show/hide the run and cancel buttons
                         // based on the execution status of the node but doing this
                         // while avoiding race conditions is difficult.
@@ -66,23 +68,35 @@ pub(crate) async fn request(
                         // not fully implemented
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
+                    NodeType::InstructionBlock => {
+                        vec![
+                            lens(RUN_NODE),
+                            lens(HIDE_SUGGESTIONS_NODE),
+                            lens(SHOW_SUGGESTIONS_NODE),
+                            lens(VIEW_NODE),
+                        ]
+                    }
                     // Block suggestions
-                    NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
-                        let mut lenses = Vec::with_capacity(4);
-                        if matches!(parent_type, NodeType::InstructionBlock) {
-                            lenses.push(CodeLens {
+                    NodeType::SuggestionBlock => {
+                        vec![
+                            CodeLens {
                                 range: *range,
                                 command: None,
-                                // Note that retry is actually a run of the parent instruction
-                                data: Some(json!([RETRY_NODE, uri, parent_type, parent_id])),
-                            });
-                        }
-                        lenses.append(&mut vec![
-                            lens(ACCEPT_NODE),
+                                data: Some(json!([
+                                    CHOOSE_NODE,
+                                    uri,
+                                    node_type,
+                                    node_id,
+                                    parent_id
+                                ])),
+                            },
                             lens(REJECT_NODE),
                             lens(VIEW_NODE),
-                        ]);
-                        lenses
+                        ]
+                    }
+                    // Block suggestions
+                    NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
+                        vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(VIEW_NODE)]
                     }
                     _ => vec![],
                 };
@@ -149,12 +163,25 @@ pub(crate) async fn resolve(
     };
 
     let command = command.to_string();
-    let arguments = Some(vec![json!(uri), json!(node_type), json!(node_id)]);
+    let mut arguments = Some(vec![json!(uri), json!(node_type), json!(node_id)]);
 
     let command = match command.as_str() {
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
-        RETRY_NODE => Command::new("$(refresh) Retry".to_string(), command, arguments),
+        HIDE_SUGGESTIONS_NODE => Command::new(
+            "$(eye-closed) Hide suggestion".to_string(),
+            command,
+            arguments,
+        ),
+        SHOW_SUGGESTIONS_NODE => {
+            Command::new("$(eye) Show suggestions".to_string(), command, arguments)
+        }
+        CHOOSE_NODE => {
+            if let (Some(arguments), Some(parent_id)) = (arguments.as_mut(), data.next()) {
+                arguments.push(json!(parent_id));
+            }
+            Command::new("$(thumbsup) Accept".to_string(), command, arguments)
+        }
         ACCEPT_NODE => Command::new("$(thumbsup) Accept".to_string(), command, arguments),
         REJECT_NODE => Command::new("$(thumbsdown) Reject".to_string(), command, arguments),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),

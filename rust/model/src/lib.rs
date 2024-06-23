@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use codec_markdown_trait::to_markdown;
 use context::Context;
 use merge::Merge;
 
@@ -23,12 +24,11 @@ use schema::{
         blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes, transform_block,
         transform_inline,
     },
-    Article, AudioObject, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, ImageObject, Inline,
-    InsertBlock, InsertInline, InstructionBlock, InstructionInline, InstructionMessage, Link,
-    MessagePart, Node, NodeType, Organization, OrganizationOptions, PersonOrOrganization,
-    PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
-    SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
-    SuggestionStatus, Timestamp, VideoObject, VisitorMut, WalkNode,
+    Article, AudioObject, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, ImageObject,
+    Inline, InstructionBlock, InstructionInline, InstructionMessage, Link, MessagePart,
+    MessageRole, Node, NodeType, Organization, OrganizationOptions, PersonOrOrganization,
+    SoftwareApplication, SoftwareApplicationOptions, StringOrNumber, SuggestionBlock,
+    SuggestionInline, Timestamp, VideoObject, VisitorMut, WalkNode,
 };
 
 // Export crates for the convenience of dependant crates
@@ -134,11 +134,38 @@ impl Instruction {
     }
 
     /// Get the messages of the instruction
-    pub fn messages(&self) -> &Vec<InstructionMessage> {
+    pub fn messages(&self) -> Vec<InstructionMessage> {
+        let mut messages = match self {
+            Instruction::Block(block) => block.messages.clone(),
+            Instruction::Inline(inline) => inline.messages.clone(),
+        };
+
         match self {
-            Instruction::Block(block) => &block.messages,
-            Instruction::Inline(inline) => &inline.messages,
+            Instruction::Block(node) => {
+                for suggestion in node.suggestions.iter().flatten() {
+                    // Note: this encodes suggestion content to Markdown. Using the
+                    // format used by the particular assistant e.g. HTML may be more appropriate 
+                    let md = to_markdown(&suggestion.content);
+                    messages.push(InstructionMessage::assistant(md));
+
+                    if let Some(feedback) = &suggestion.feedback {
+                        messages.push(InstructionMessage::user(feedback));
+                    }
+                }
+            }
+            Instruction::Inline(node) => {
+                for suggestion in node.suggestions.iter().flatten() {
+                    let md = to_markdown(&suggestion.content);
+                    messages.push(InstructionMessage::assistant(md));
+
+                    if let Some(feedback) = &suggestion.feedback {
+                        messages.push(InstructionMessage::user(feedback));
+                    }
+                }
+            }
         }
+
+        messages
     }
 
     /// Get the text of the instruction
@@ -149,7 +176,7 @@ impl Instruction {
     pub fn text(&self) -> String {
         self.messages()
             .iter()
-            .filter(|message| !message.is_assistant())
+            .filter(|message| !matches!(message.role, Some(MessageRole::Assistant)))
             .flat_map(|message| message.parts.iter())
             .filter_map(|part| match part {
                 MessagePart::Text(text) => Some(text.to_value_string()),
@@ -204,23 +231,6 @@ impl From<&Instruction> for InstructionType {
                 content: Some(..), ..
             }) => ModifyInlines,
         }
-    }
-}
-
-/// A trait to determine if a [`InstructionMessage`] in an instruction is from an
-/// assistant, based on its `authors`
-pub trait IsAssistantMessage {
-    fn is_assistant(&self) -> bool;
-}
-
-impl IsAssistantMessage for InstructionMessage {
-    fn is_assistant(&self) -> bool {
-        self.authors.iter().flatten().any(|author| {
-            matches!(
-                author,
-                PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(..)
-            )
-        })
     }
 }
 
@@ -411,8 +421,8 @@ impl GenerateTask {
     }
 
     /// Get the messages of the task's instruction
-    pub fn instruction_messages(&self) -> impl Iterator<Item = &InstructionMessage> {
-        self.instruction.messages().iter()
+    pub fn instruction_messages(&self) -> Vec<InstructionMessage> {
+        self.instruction.messages()
     }
 
     /// Get the similarity between the text of the instruction and some other, precalculated embedding
@@ -974,7 +984,7 @@ impl GenerateOutput {
                 AuthorRoleAuthor::SoftwareApplication(app) => Some(app.clone()),
                 _ => None,
             })
-            .map(PersonOrOrganizationOrSoftwareApplication::SoftwareApplication)
+            .map(Author::SoftwareApplication)
             .collect();
         let authors = Some(authors);
 
@@ -994,50 +1004,23 @@ impl GenerateOutput {
             }
         }];
 
-        let content = Some(self.nodes.clone().into_blocks());
-
         InstructionMessage {
             authors,
             parts,
-            content,
             ..Default::default()
         }
     }
 
-    /// Create a `SuggestionInlineType` from the output that can be used for the `suggestion`
+    /// Create a `SuggestionInline` from the output that can be used for the `suggestion`
     /// property of the instruction
-    pub fn to_suggestion_inline(self, insert: bool) -> SuggestionInlineType {
-        if insert {
-            SuggestionInlineType::InsertInline(InsertInline {
-                content: self.nodes.into_inlines(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        } else {
-            SuggestionInlineType::ReplaceInline(ReplaceInline {
-                replacement: self.nodes.into_inlines(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        }
+    pub fn to_suggestion_inline(self) -> SuggestionInline {
+        SuggestionInline::new(self.nodes.into_inlines())
     }
 
-    /// Create a `SuggestionBlockType` from the output that can be used for the `suggestion`
+    /// Create a `SuggestionBlock` from the output that can be used for the `suggestion`
     /// property of the instruction
-    pub fn to_suggestion_block(self, insert: bool) -> SuggestionBlockType {
-        if insert {
-            SuggestionBlockType::InsertBlock(InsertBlock {
-                content: self.nodes.into_blocks(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        } else {
-            SuggestionBlockType::ReplaceBlock(ReplaceBlock {
-                replacement: self.nodes.into_blocks(),
-                suggestion_status: Some(SuggestionStatus::Proposed),
-                ..Default::default()
-            })
-        }
+    pub fn to_suggestion_block(self) -> SuggestionBlock {
+        SuggestionBlock::new(self.nodes.into_blocks())
     }
 }
 
@@ -1340,19 +1323,17 @@ pub fn test_task_repeat_word() -> GenerateTask {
         instruction: Instruction::from(InstructionInline {
             messages: vec![
                 InstructionMessage {
+                    role: Some(MessageRole::User),
                     parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
                     ..Default::default()
                 },
                 InstructionMessage {
-                    authors: Some(vec![
-                        PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
-                            SoftwareApplication::default(),
-                        ),
-                    ]),
+                    role: Some(MessageRole::Assistant),
                     parts: vec![MessagePart::Text("Hello".into())],
                     ..Default::default()
                 },
                 InstructionMessage {
+                    role: Some(MessageRole::User),
                     parts: vec![MessagePart::Text("Repeat the word.".into())],
                     ..Default::default()
                 },

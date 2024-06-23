@@ -40,6 +40,7 @@ old:
           characterCount: 39
           characterPercent: 100
     - type: InstructionBlock
+      instructionType: New
       messages:
         - type: InstructionMessage
           parts:
@@ -51,19 +52,19 @@ old:
                     - 0
                     - 0
                     - 49
-      assignee: insert-table
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-      provenance:
-        - type: ProvenanceCount
-          provenanceCategory: Hw
-          characterCount: 49
-          characterPercent: 100
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 49
+              characterPercent: 100
+      assignee: table
 new:
   type: Article
   content:
@@ -73,13 +74,14 @@ new:
           value:
             string: "An insert instruction with an assignee:"
     - type: InstructionBlock
+      instructionType: New
       messages:
         - type: InstructionMessage
           parts:
             - type: Text
               value:
                 string: "top five highest mountains, with height in feet"
-      assignee: insert-table
+      assignee: table
 merged:
   type: Article
   authors:
@@ -128,6 +130,7 @@ merged:
           characterCount: 39
           characterPercent: 100
     - type: InstructionBlock
+      instructionType: New
       messages:
         - type: InstructionMessage
           parts:
@@ -147,29 +150,29 @@ merged:
                     - 0
                     - 0
                     - 2
-      assignee: insert-table
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Alice
-          roleName: Importer
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
-      provenance:
-        - type: ProvenanceCount
-          provenanceCategory: Hw
-          characterCount: 45
-          characterPercent: 95
-        - type: ProvenanceCount
-          provenanceCategory: HwHe
-          characterCount: 2
-          characterPercent: 4
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 45
+              characterPercent: 95
+            - type: ProvenanceCount
+              provenanceCategory: HwHe
+              characterCount: 2
+              characterPercent: 4
+      assignee: table
 ops:
   - - - content
       - 1

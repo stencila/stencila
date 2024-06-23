@@ -27,13 +27,13 @@ export class UINodeCollapsibleDetails extends LitElement {
   iconLibrary: ShoelaceIconLibraries = 'stencila'
 
   @property({ type: Boolean })
-  collapsed: boolean = false
+  collapsed: boolean = true
 
   @property({ attribute: 'wrapper-css' })
-  wrapperCss: string | undefined = 'border-t border-black/30'
+  wrapperCss: string | undefined = ''
 
   static override styles = css`
-    ::slotted(*) {
+    [slot='content'] > slot::slotted(*) {
       display: flex;
       flex-direction: column;
       row-gap: 0.75rem; // gap-y-3
@@ -50,6 +50,7 @@ export class UINodeCollapsibleDetails extends LitElement {
         wrapper-css=${this.wrapperCss}
       >
         <div slot="title" class="not-italic">${this.title}</div>
+        <slot name="header-content" slot="header-content"></slot>
         <div class="px-4 py-3 not-italic" slot="content">
           <slot></slot>
         </div>

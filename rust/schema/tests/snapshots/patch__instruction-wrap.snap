@@ -92,6 +92,7 @@ new:
           value:
             string: Some okay text.
     - type: InstructionBlock
+      instructionType: Edit
       messages:
         - type: InstructionMessage
           parts:
@@ -153,6 +154,7 @@ merged:
           characterCount: 15
           characterPercent: 100
     - type: InstructionBlock
+      instructionType: Edit
       messages:
         - type: InstructionMessage
           parts:
@@ -164,18 +166,18 @@ merged:
                     - 0
                     - 0
                     - 13
-      authors:
-        - type: AuthorRole
-          author:
-            type: Person
-            givenNames:
-              - Bob
-          roleName: Writer
-      provenance:
-        - type: ProvenanceCount
-          provenanceCategory: Hw
-          characterCount: 44
-          characterPercent: 100
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 13
+              characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -226,6 +228,7 @@ ops:
     - Replace:
         - - 1
           - type: InstructionBlock
+            instructionType: Edit
             messages:
               - type: InstructionMessage
                 parts:

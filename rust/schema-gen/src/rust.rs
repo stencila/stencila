@@ -53,9 +53,9 @@ const NO_READ_NODE: &[&str] = &[
 /// (usually because it is manually implemented)
 const NO_ORD: &[&str] = &["ExecutionStatus"];
 
-/// Properties that need to be boxed to avoid recursive types
+/// Properties that are boxed to avoid recursive types or reduce the size of structs
 ///
-/// Note that properties that are not "core" do not be boxed because they
+/// Note that properties that are not "core" do not need to be boxed because they
 /// will be in the `Options` struct for the type and thus are already boxed.
 const BOX_PROPERTIES: &[&str] = &[
     "ArrayValidator.contains",
@@ -64,6 +64,8 @@ const BOX_PROPERTIES: &[&str] = &[
     "CallArgument.value",
     "CodeExpression.output",
     "ConstantValidator.value",
+    "InstructionBlock.model",
+    "InstructionInline.model",
     "ListItem.item",
     "ModifyOperation.value",
     "Parameter.default",
@@ -259,6 +261,8 @@ pub enum NodeProperty {{
             Self::rust_any_of(dest, schema)?;
         } else if schema.r#type.is_none() {
             Self::rust_object(dest, title, schema).await?;
+        } else {
+            bail!("Schema {title} was not translated to Rust")
         }
 
         Ok(())
@@ -426,28 +430,38 @@ pub enum NodeProperty {{
 
         // Add a #[patch(...)] attribute for main struct if it has authors that is a Vec<Author>
         if derive_patch {
+            let mut args = Vec::new();
+
             if let Some(authors) = schema.properties.get("authors") {
                 if let Some(Items::Ref(ItemsRef { r#ref })) = &authors.items {
                     if r#ref == "Author" {
                         let authors_on = if authors.is_required || authors.is_core {
-                            "authors_on = \"self\""
+                            r#"authors_on = "self""#
                         } else {
-                            "authors_on = \"options\""
-                        };
+                            r#"authors_on = "options""#
+                        }
+                        .to_string();
+                        args.push(authors_on);
 
-                        let authors_take = schema
-                            .patch
-                            .as_ref()
-                            .and_then(|options| {
-                                options
-                                    .take_authors
-                                    .then(|| ", authors_take = true".to_string())
-                            })
-                            .unwrap_or_default();
-
-                        attrs.push(format!("#[patch({authors_on}{authors_take})]"));
+                        if let Some(authors_take) = schema.patch.as_ref().and_then(|options| {
+                            options
+                                .take_authors
+                                .then(|| "authors_take = true".to_string())
+                        }) {
+                            args.push(authors_take)
+                        }
                     }
                 }
+            }
+
+            if let Some(options) = &schema.patch {
+                if let Some(apply_with) = &options.apply_with {
+                    args.push(format!(r#"apply_with = "{apply_with}""#));
+                }
+            }
+
+            if !args.is_empty() {
+                attrs.push(format!("#[patch({})]", args.join(", ")));
             }
         }
 

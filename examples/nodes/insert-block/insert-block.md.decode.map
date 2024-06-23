@@ -1,8 +1,6 @@
 start     end        offsets   node_type+property                   authorship
     12     39       (12, 39)   Paragraph
      0     44       (-12, 5)   InsertBlock
-    67     94       (67, 50)   Paragraph
-    46     99       (-21, 5)   InsertBlock
-   122    149       (76, 50)   Paragraph
-   101    154       (-21, 5)   InsertBlock
-     0    155      (-101, 1)   Article
+    86    127       (86, 83)   Paragraph
+    46    132       (-40, 5)   InsertBlock
+     0    133       (-46, 1)   Article

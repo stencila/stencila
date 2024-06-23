@@ -10,6 +10,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "New",
           messages: [
             {
               type: "InstructionMessage",
@@ -37,6 +38,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "New",
           messages: [
             {
               type: "InstructionMessage",
@@ -70,6 +72,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "New",
           messages: [
             {
               type: "InstructionMessage",
@@ -89,6 +92,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "New",
           messages: [
             {
               type: "InstructionMessage",
@@ -108,6 +112,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "Edit",
           messages: [
             {
               type: "InstructionMessage",
@@ -142,6 +147,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "New",
           messages: [
             {
               type: "InstructionMessage",
@@ -154,15 +160,17 @@
             }
           ],
           assignee: "insert-inline-math",
-          suggestion: {
-            type: "InsertInline",
-            content: [
-              {
-                type: "MathInline",
-                code: { string: "2 \/pi r^2" }
-              }
-            ]
-          }
+          suggestions: [
+            {
+              type: "SuggestionInline",
+              content: [
+                {
+                  type: "MathInline",
+                  code: { string: "2 \/pi r^2" }
+                }
+              ]
+            }
+          ]
         },
         {
           type: "Text",
@@ -170,6 +178,7 @@
         },
         {
           type: "InstructionInline",
+          instructionType: "Edit",
           messages: [
             {
               type: "InstructionMessage",
@@ -187,16 +196,17 @@
               value: { string: "existing content" }
             }
           ],
-          suggestion: {
-            type: "ReplaceInline",
-            content: [],
-            replacement: [
-              {
-                type: "Text",
-                value: { string: "improved content" }
-              }
-            ]
-          }
+          suggestions: [
+            {
+              type: "SuggestionInline",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "improved content" }
+                }
+              ]
+            }
+          ]
         },
         {
           type: "Text",

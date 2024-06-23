@@ -1,0 +1,15 @@
+title: MessageRole
+'@id': stencila:MessageRole
+extends: Enumeration
+description: The role of a message.
+default: User
+anyOf:
+  - const: System
+    '@id': stencila:SystemMessage
+    description: A system message
+  - const: User
+    '@id': stencila:UserMessage
+    description: A user message
+  - const: Assistant
+    '@id': stencila:AssistantMessage
+    description: An assistant message

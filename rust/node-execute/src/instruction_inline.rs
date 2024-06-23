@@ -55,7 +55,7 @@ impl Executable for InstructionInline {
             {
                 Ok(output) => (
                     Some(output.authors.clone()),
-                    Some(output.to_suggestion_inline(self.content.is_none())),
+                    Some(output.to_suggestion_inline()),
                     Vec::new(),
                 ),
                 Err(error) => (
@@ -84,7 +84,7 @@ impl Executable for InstructionInline {
                 // Set the suggestion
                 executor.patch(
                     &node_id,
-                    [set(NodeProperty::Suggestion, suggestion.clone())],
+                    [push(NodeProperty::Suggestions, suggestion.clone())],
                 );
 
                 // Execute the suggestion

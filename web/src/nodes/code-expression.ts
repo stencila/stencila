@@ -54,6 +54,9 @@ export class CodeExpression extends CodeExecutable {
         </stencila-ui-node-execution-details>
 
         <stencila-ui-node-authors type="CodeExpression">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 
@@ -64,6 +67,7 @@ export class CodeExpression extends CodeExecutable {
           language=${this.programmingLanguage}
           read-only
         >
+          <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
 
         <stencila-ui-node-execution-messages
@@ -74,12 +78,10 @@ export class CodeExpression extends CodeExecutable {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
-        <stencila-ui-node-outputs type="CodeExpression">
-          <slot name="output"></slot>
-        </stencila-ui-node-outputs>
       </div>
-
-      <span slot="content">${this.code}</span>
+      <span slot="content">
+        ${this.executionCount > 0 ? html`<slot name="output"></slot>` : ''}
+      </span>
     </stencila-ui-inline-on-demand>`
   }
 }

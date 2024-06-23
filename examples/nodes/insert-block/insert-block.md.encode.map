@@ -5,19 +5,12 @@ start     end        offsets   node_type+property                   authorship
     12     40         (0, 1)   Paragraph
     12     41         (0, 1)   InsertBlock.content
      0     45       (-12, 4)   InsertBlock
-    57     65       (57, 20)   InsertBlock.suggestionStatus
-    67     94       (10, 29)   Text.value
-    67     94         (0, 0)   Text
-    67     94         (0, 0)   Paragraph.content
-    67     95         (0, 1)   Paragraph
-    67     96         (0, 1)   InsertBlock.content
-    46    100       (-21, 4)   InsertBlock
-   112    120       (66, 20)   InsertBlock.suggestionStatus
-   122    149       (10, 29)   Text.value
-   122    149         (0, 0)   Text
-   122    149         (0, 0)   Paragraph.content
-   122    150         (0, 1)   Paragraph
-   122    151         (0, 1)   InsertBlock.content
-   101    155       (-21, 4)   InsertBlock
-     0    156      (-101, 1)   Article.content
-     0    156         (0, 0)   Article
+    57     84       (57, 39)   InsertBlock.feedback
+    86    127       (29, 43)   Text.value
+    86    127         (0, 0)   Text
+    86    127         (0, 0)   Paragraph.content
+    86    128         (0, 1)   Paragraph
+    86    129         (0, 1)   InsertBlock.content
+    46    133       (-40, 4)   InsertBlock
+     0    134       (-46, 1)   Article.content
+     0    134         (0, 0)   Article

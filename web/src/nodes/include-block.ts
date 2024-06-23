@@ -24,8 +24,13 @@ export class IncludeBlock extends Executable {
     return html`
       <stencila-ui-block-on-demand type="IncludeBlock" view="dynamic">
         <div slot="body">
+          <stencila-ui-node-authors type="IncludeBlock">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
           <div><span>source: </span><span>${this.source}</span></div>
-          <slot name="authors"></slot>
         </div>
         <div slot="content">
           <slot name="output"></slot>

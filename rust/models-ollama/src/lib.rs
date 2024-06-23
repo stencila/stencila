@@ -16,8 +16,8 @@ use model::{
         inflector::Inflector,
         tracing,
     },
-    schema::{ImageObject, MessagePart},
-    GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage, Model, ModelIO, ModelType,
+    schema::{self, ImageObject, MessagePart},
+    GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
 };
 
 /// A model running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -127,10 +127,11 @@ impl Model for OllamaModel {
             .system_prompt()
             .iter()
             .map(|prompt| ChatMessage::new(MessageRole::System, prompt.clone()))
-            .chain(task.instruction_messages().map(|message| {
-                let role = match message.is_assistant() {
-                    true => MessageRole::Assistant,
-                    false => MessageRole::User,
+            .chain(task.instruction_messages().iter().map(|message| {
+                let role = match message.role.clone().unwrap_or_default() {
+                    schema::MessageRole::Assistant => MessageRole::Assistant,
+                    schema::MessageRole::System => MessageRole::System,
+                    schema::MessageRole::User => MessageRole::User,
                 };
 
                 let mut content = String::new();

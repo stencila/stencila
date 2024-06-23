@@ -34,6 +34,9 @@ export class IfBlock extends Executable {
           </stencila-ui-node-execution-details>
 
           <stencila-ui-node-authors type="IfBlock">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
 

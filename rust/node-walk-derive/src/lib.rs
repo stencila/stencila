@@ -63,12 +63,15 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let (visit, visit_mut, visit_async) = match struct_name.to_string().as_str() {
-        name @ ("IfBlockClause" | "ListItem" | "TableRow" | "TableCell") => {
+        name @ ("IfBlockClause" | "ListItem" | "TableRow" | "TableCell" | "SuggestionBlock"
+        | "SuggestionInline") => {
             let method = match name {
                 "IfBlockClause" => quote!(visit_if_block_clause),
                 "ListItem" => quote!(visit_list_item),
                 "TableRow" => quote!(visit_table_row),
                 "TableCell" => quote!(visit_table_cell),
+                "SuggestionBlock" => quote!(visit_suggestion_block),
+                "SuggestionInline" => quote!(visit_suggestion_inline),
                 _ => unreachable!(),
             };
 
@@ -160,19 +163,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
     let (visit, visit_mut, visit_async) = match enum_name.to_string().as_str() {
-        name @ ("Node"
-        | "CreativeWorkType"
-        | "Block"
-        | "Inline"
-        | "SuggestionBlockType"
-        | "SuggestionInlineType") => {
+        name @ ("Node" | "CreativeWorkType" | "Block" | "Inline") => {
             let method = match name {
                 "Node" => quote!(visit_node),
                 "CreativeWorkType" => quote!(visit_work),
                 "Block" => quote!(visit_block),
                 "Inline" => quote!(visit_inline),
-                "SuggestionBlockType" => quote!(visit_suggestion_block),
-                "SuggestionInlineType" => quote!(visit_suggestion_inline),
                 _ => unreachable!(),
             };
 

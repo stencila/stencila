@@ -30,11 +30,11 @@ export class StyledBlock extends Styled {
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-        <stencila-ui-node-provenance type="StyledBlock">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="StyledBlock"

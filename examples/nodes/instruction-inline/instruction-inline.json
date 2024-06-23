@@ -11,6 +11,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "New",
           "messages": [
             {
               "type": "InstructionMessage",
@@ -33,6 +34,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "New",
           "messages": [
             {
               "type": "InstructionMessage",
@@ -61,6 +63,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "New",
           "assignee": "insert-inline-math",
           "messages": [
             {
@@ -77,6 +80,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "New",
           "assignee": "insert-math-inline",
           "messages": [
             {
@@ -91,6 +95,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "Edit",
           "assignee": "joe",
           "messages": [
             {
@@ -120,6 +125,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "New",
           "assignee": "insert-inline-math",
           "messages": [
             {
@@ -127,15 +133,10 @@
               "parts": [{ "type": "Text", "value": "area of circle" }]
             }
           ],
-          "suggestion": {
-            "type": "InsertInline",
-            "content": [
-              {
-                "type": "MathInline",
-                "code": "2 /pi r^2"
-              }
-            ]
-          }
+          "suggestions": [{
+            "type": "SuggestionInline",
+            "content": [{ "type": "MathInline", "code": "2 /pi r^2" }]
+          }]
         },
         {
           "type": "Text",
@@ -143,6 +144,7 @@
         },
         {
           "type": "InstructionInline",
+          "instructionType": "Edit",
           "messages": [
             {
               "type": "InstructionMessage",
@@ -150,11 +152,10 @@
             }
           ],
           "content": [{ "type": "Text", "value": "existing content" }],
-          "suggestion": {
-            "type": "ReplaceInline",
-            "content": [],
-            "replacement": [{ "type": "Text", "value": "improved content" }]
-          }
+          "suggestions": [{
+            "type": "SuggestionInline",
+            "content": [{ "type": "Text", "value": "improved content" }]
+          }]
         },
         {
           "type": "Text",

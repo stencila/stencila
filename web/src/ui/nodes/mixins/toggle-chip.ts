@@ -17,6 +17,9 @@ export declare class ChipToggleInterface {
   protected toggle: boolean
   protected toggleChipPosition: string
   protected toggleChip: () => void
+  protected dispatchToggleEvent: () => void
+  public openCard: () => void
+  public closeCard: () => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,8 +47,25 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
      */
     protected toggleChipPosition: string = ''
 
+    // ----------------------
+    // public methods for allow opening / closing the card externally.
+    public openCard() {
+      this.toggle = true
+      this.dispatchToggleEvent()
+    }
+
+    public closeCard() {
+      this.toggle = false
+      this.dispatchToggleEvent()
+    }
+    // ---------------------
+
     protected toggleChip() {
       this.toggle = !this.toggle
+      this.dispatchToggleEvent()
+    }
+
+    protected dispatchToggleEvent() {
       this.shadowRoot.dispatchEvent(
         new CustomEvent(`toggle-${this.nodeId}`, {
           bubbles: true,

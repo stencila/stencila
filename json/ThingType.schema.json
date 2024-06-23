@@ -78,6 +78,9 @@
       "$ref": "ImageObject.schema.json"
     },
     {
+      "$ref": "InstructionType.schema.json"
+    },
+    {
       "$ref": "LabelType.schema.json"
     },
     {
@@ -91,6 +94,9 @@
     },
     {
       "$ref": "MessageLevel.schema.json"
+    },
+    {
+      "$ref": "MessageRole.schema.json"
     },
     {
       "$ref": "MonetaryGrant.schema.json"

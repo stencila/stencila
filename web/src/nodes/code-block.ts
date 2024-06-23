@@ -22,11 +22,11 @@ export class CodeBlock extends CodeStatic {
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="CodeBlock">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <stencila-ui-node-code

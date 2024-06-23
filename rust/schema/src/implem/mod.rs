@@ -62,6 +62,8 @@ mod string_patch;
 mod string_patch_or_primitive;
 mod styled_block;
 mod styled_inline;
+mod suggestion_block;
+mod suggestion_inline;
 mod table;
 mod text;
 mod time;

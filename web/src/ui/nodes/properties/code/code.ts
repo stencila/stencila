@@ -296,6 +296,7 @@ export class UINodeCode extends LitElement {
 
   override render() {
     const contentClasses = apply([
+      'text-black',
       this.collapsed ? 'max-h-0' : 'max-h-full',
       'transition-max-h duration-200',
     ])
@@ -303,10 +304,10 @@ export class UINodeCode extends LitElement {
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`
     return html`
-      <div class="relative z-10">
+      <div class="relative z-0">
         <div class=${contentClasses}>
           <div hidden id="messages"><slot></slot></div>
-          <div id="codemirror" class=${`bg-gray-50`}></div>
+          <div id="codemirror" class="bg-gray-50"></div>
         </div>
       </div>
     `

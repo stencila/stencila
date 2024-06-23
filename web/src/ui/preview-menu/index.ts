@@ -37,6 +37,7 @@ export class DocumentViewMenu extends LitElement {
   protected override render() {
     const styles = apply([
       'fixed right-8 top-8 z-50',
+      'font-sans',
       !this.visible && 'opacity-0',
       !this.visible && 'pointer-events-none',
     ])
@@ -58,7 +59,7 @@ export class DocumentViewMenu extends LitElement {
     return html`
       <button class=${styles} @click=${() => (this.open = !this.open)}>
         <div class="flex justify-center items-center w-8 h-8 hover:text-gray-400">
-          <sl-icon name=${this.open ? 'x' : 'list'}><sl-icon>
+          <sl-icon name=${this.open ? 'chevron-down' : 'list'}><sl-icon>
         </div>
       </button>
     `

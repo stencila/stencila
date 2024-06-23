@@ -133,6 +133,11 @@
       "const": "Verifier"
     },
     {
+      "@id": "stencila:Accepter",
+      "description": "The author, usually a `Person`, accepted the content, usually written by another `Person` or `SoftwareApplication`.",
+      "const": "Accepter"
+    },
+    {
       "@id": "stencila:Instructor",
       "description": "The author, usually a `Person`, instructed another author, usually a `SoftwareApplication`, to create content.",
       "const": "Instructor"

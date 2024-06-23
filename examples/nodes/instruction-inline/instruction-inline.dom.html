@@ -3,7 +3,7 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph with an instruction to insert content</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -18,7 +18,7 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph with an instruction to edit some existing content:</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -36,7 +36,7 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Instructions with an assignee:</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph assignee=insert-inline-math>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New assignee=insert-inline-math>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -46,7 +46,7 @@
           </div>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>with a blank instruction</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph assignee=insert-math-inline>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New assignee=insert-math-inline>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -57,7 +57,7 @@
           </div>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>and</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph assignee=joe>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit assignee=joe>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -75,7 +75,7 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Instructions with a suggestion:</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph assignee=insert-inline-math>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New assignee=insert-inline-math>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -83,17 +83,17 @@
               </div>
             </stencila-instruction-message>
           </div>
-          <span slot=suggestion>
-            <stencila-insert-inline id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
+          <span slot=suggestions>
+            <stencila-suggestion-inline id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <span slot=content>
-                <stencila-math-inline id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InsertInline code='2 /pi r^2'>
+                <stencila-math-inline id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.SuggestionInline code='2 /pi r^2'>
                 </stencila-math-inline>
               </span>
-            </stencila-insert-inline>
+            </stencila-suggestion-inline>
           </span>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>and</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit>
           <div slot=messages>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -104,12 +104,12 @@
           <span slot=content>
             <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>existing content</stencila-text>
           </span>
-          <span slot=suggestion>
-            <stencila-replace-inline id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
-              <span slot=replacement>
-                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.ReplaceInline>improved content</stencila-text>
+          <span slot=suggestions>
+            <stencila-suggestion-inline id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
+              <span slot=content>
+                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.SuggestionInline>improved content</stencila-text>
               </span>
-            </stencila-replace-inline>
+            </stencila-suggestion-inline>
           </span>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>

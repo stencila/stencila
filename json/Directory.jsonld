@@ -48,6 +48,9 @@
           "@id": "stencila:Function"
         },
         {
+          "@id": "stencila:InstructionModel"
+        },
+        {
           "@id": "stencila:Parameter"
         },
         {

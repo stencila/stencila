@@ -16,6 +16,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "New",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -49,6 +50,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "New",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -90,6 +92,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "New",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -113,6 +116,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "New",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -136,6 +140,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "Edit",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -178,6 +183,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "New",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -192,17 +198,19 @@
             }
           ],
           "stencila:assignee": "insert-inline-math",
-          "stencila:suggestion": {
-            "@type": "stencila:InsertInline",
-            "stencila:content": [
-              {
-                "@type": "stencila:MathInline",
-                "stencila:code": {
-                  "string": "2 /pi r^2"
+          "stencila:suggestions": [
+            {
+              "@type": "stencila:SuggestionInline",
+              "stencila:content": [
+                {
+                  "@type": "stencila:MathInline",
+                  "stencila:code": {
+                    "string": "2 /pi r^2"
+                  }
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         },
         {
           "@type": "Text",
@@ -212,6 +220,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
+          "stencila:instructionType": "Edit",
           "stencila:messages": [
             {
               "@type": "stencila:InstructionMessage",
@@ -233,18 +242,19 @@
               }
             }
           ],
-          "stencila:suggestion": {
-            "@type": "stencila:ReplaceInline",
-            "stencila:content": [],
-            "stencila:replacement": [
-              {
-                "@type": "Text",
-                "value": {
-                  "string": "improved content"
+          "stencila:suggestions": [
+            {
+              "@type": "stencila:SuggestionInline",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "improved content"
+                  }
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         },
         {
           "@type": "Text",

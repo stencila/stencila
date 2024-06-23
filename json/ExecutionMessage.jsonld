@@ -31,9 +31,6 @@
         },
         {
           "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": {

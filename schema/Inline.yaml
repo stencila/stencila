@@ -157,6 +157,12 @@ anyOf:
 
   - $ref: Subscript
 
+  - $ref: SuggestionInline
+    proptest:
+      min:
+        description: Do not generate `SuggestionInline` nodes in inline content.
+        skip: true
+
   - $ref: Superscript
 
   - $ref: Text

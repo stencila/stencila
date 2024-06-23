@@ -4,6 +4,10 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
+import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/properties/instruction-messages'
+import '../ui/nodes/properties/instruction-suggestions'
+
 import { Instruction } from './instruction'
 
 /**
@@ -44,13 +48,12 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors type=${this.type}>
+        <stencila-ui-node-authors type="InstructionBlock">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-
-        <stencila-ui-node-provenance type=${this.type}>
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-execution-messages
           type=${this.type}
@@ -63,9 +66,13 @@ export class InstructionBlock extends Instruction {
         <stencila-ui-node-instruction-messages type=${this.type}>
           <slot name="messages"></slot>
         </stencila-ui-node-instruction-messages>
+
+        <stencila-ui-node-instruction-suggestions type=${this.type}>
+          <slot name="suggestions"></slot>
+        </stencila-ui-node-instruction-suggestions>
       </div>
       <div slot="content" class="w-full">
-        <slot name="suggestion"></slot>
+        <slot name="content"></slot>
       </div>
     </stencila-ui-block-on-demand>`
   }

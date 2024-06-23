@@ -3,7 +3,8 @@
 import { Block } from "./Block.js";
 import { Instruction } from "./Instruction.js";
 import { InstructionMessage } from "./InstructionMessage.js";
-import { SuggestionBlockType } from "./SuggestionBlockType.js";
+import { InstructionType } from "./InstructionType.js";
+import { SuggestionBlock } from "./SuggestionBlock.js";
 
 /**
  * An instruction to edit some block content.
@@ -18,14 +19,15 @@ export class InstructionBlock extends Instruction {
   content?: Block[];
 
   /**
-   * A suggestion for the instruction
+   * Suggestions for the instruction
    */
-  suggestion?: SuggestionBlockType;
+  suggestions?: SuggestionBlock[];
 
-  constructor(messages: InstructionMessage[], options?: Partial<InstructionBlock>) {
-    super(messages);
+  constructor(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<InstructionBlock>) {
+    super(instructionType, messages);
     this.type = "InstructionBlock";
     if (options) Object.assign(this, options);
+    this.instructionType = instructionType;
     this.messages = messages;
   }
 }
@@ -33,6 +35,6 @@ export class InstructionBlock extends Instruction {
 /**
 * Create a new `InstructionBlock`
 */
-export function instructionBlock(messages: InstructionMessage[], options?: Partial<InstructionBlock>): InstructionBlock {
-  return new InstructionBlock(messages, options);
+export function instructionBlock(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<InstructionBlock>): InstructionBlock {
+  return new InstructionBlock(instructionType, messages, options);
 }

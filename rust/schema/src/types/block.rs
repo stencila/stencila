@@ -24,6 +24,7 @@ use super::quote_block::QuoteBlock;
 use super::replace_block::ReplaceBlock;
 use super::section::Section;
 use super::styled_block::StyledBlock;
+use super::suggestion_block::SuggestionBlock;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
 
@@ -109,6 +110,12 @@ pub enum Block {
     Section(Section),
 
     StyledBlock(StyledBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    SuggestionBlock(SuggestionBlock),
 
     Table(Table),
 

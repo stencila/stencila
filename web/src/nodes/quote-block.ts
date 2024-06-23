@@ -33,11 +33,11 @@ export class QuoteBlock extends Entity {
       >
         <div slot="body">
           <stencila-ui-node-authors type="QuoteBlock">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="QuoteBlock">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <slot name="content"></slot>

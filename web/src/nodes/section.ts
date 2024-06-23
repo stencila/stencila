@@ -29,11 +29,11 @@ export class Section extends Entity {
       <stencila-ui-block-on-demand type="Section" view="dynamic">
         <div slot="body">
           <stencila-ui-node-authors type="Section">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="Section">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <div slot="content">
           <slot name="content"></slot>

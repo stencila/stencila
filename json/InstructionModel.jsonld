@@ -1,0 +1,128 @@
+{
+  "@id": "https://stencila.org/InstructionModel",
+  "name": "InstructionModel",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:InstructionModel",
+      "@type": "rdfs:Class",
+      "rdfs:label": "InstructionModel",
+      "rdfs:comment": "The name and execution options for the generative model used for an instruction.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the model.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:InstructionModel"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:qualityWeight",
+      "@type": "rdfs:Property",
+      "rdfs:label": "qualityWeight",
+      "rdfs:comment": "The relative weighting given to model quality (0-100).",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:speedWeight",
+      "@type": "rdfs:Property",
+      "rdfs:label": "speedWeight",
+      "rdfs:comment": "The relative weighting given to model speed (0-100).",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:costWeight",
+      "@type": "rdfs:Property",
+      "rdfs:label": "costWeight",
+      "rdfs:comment": "The relative weighting given to model cost (0-100).",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:temperature",
+      "@type": "rdfs:Property",
+      "rdfs:label": "temperature",
+      "rdfs:comment": "The temperature option for model inference (0-100).",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:randomSeed",
+      "@type": "rdfs:Property",
+      "rdfs:label": "randomSeed",
+      "rdfs:comment": "The random seed used for the model (if possible)",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}
