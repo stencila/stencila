@@ -19,7 +19,7 @@ body {
   /* custom properties */
   --code-font-family: 'IBM Plex Mono', monospace;
   --code-bg-colour: #f2f2f2;
-  --code-font-size: 1rem;
+  --code-font-size: 0.875rem;
 }
 
 figure {
