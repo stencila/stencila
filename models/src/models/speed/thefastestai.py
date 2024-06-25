@@ -100,7 +100,7 @@ def score_date(date: datetime) -> dict:
     # Normalize scores by min and max
     range = max - min
     for model, score in scores.items():
-        scores[model] = (score - min) / range
+        scores[model] = round((score - min) / range, 6)
 
     return scores
 
