@@ -45,6 +45,10 @@ impl DomCodec for Heading {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
 
+        if let Some(provenance) = &self.provenance {
+            context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
+        }
+
         context.exit_node();
     }
 }
