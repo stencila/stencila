@@ -60,9 +60,9 @@ export class Paragraph extends Entity {
 
     this.directAncestor = this.ancestors.split('.').reverse()[0] as NodeType
 
-    /* 
+    /*
       if this Paragraph needs to be subscribed to parent node
-      creates a consumer for the `entityContext`, 
+      creates a consumer for the `entityContext`,
       this will subscribe to the nearest entityContext above this node.
     */
     if (
@@ -86,7 +86,7 @@ export class Paragraph extends Entity {
     super.update(changedProperties)
 
     if (this.parentContext) {
-      /* 
+      /*
         if `parentContext` is initiated,
         mirror the paragraph entity's context `cardOpen` status to the parent.
       */
@@ -124,9 +124,7 @@ export class Paragraph extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div slot="content">
-          <slot name="content"></slot>
-        </div>
+        <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>
     `
   }
