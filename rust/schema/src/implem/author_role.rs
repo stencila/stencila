@@ -144,8 +144,6 @@ impl DomCodec for AuthorRole {
             }
         }
 
-        context
-            .push_slot_fn("div", "author", |context| self.author.to_dom(context))
-            .exit_node();
+        context.exit_node();
     }
 }
