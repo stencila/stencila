@@ -30,7 +30,6 @@ import '../views/live'
 import '../views/dynamic'
 import '../views/source'
 import '../views/split'
-import '../views/visual'
 import { DirectoryView } from '../views/directory'
 import { VIEWS } from '../views/views'
 
