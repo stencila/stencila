@@ -21,35 +21,10 @@ import '../ui/nodes/node-card/on-demand/block'
 @customElement('stencila-array')
 @withTwind()
 export class Array extends Entity {
-  /**
-   * In static view just render the value
-   */
-  override renderStaticView() {
-    return html`<slot></slot>`
-  }
-
-  /**
-   * In dynamic view, render a node card with the value in the content slot.
-   */
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="Array" view="dynamic">
         <div slot="content">
-          <slot></slot>
-        </div>
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view, render the same as dynamic view, including the
-   * value since that won't be a present in the source usually (given this
-   * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
-   */
-  override renderSourceView() {
-    return html`
-      <stencila-ui-block-on-demand type="Array" view="source">
-        <div slot="body">
           <slot></slot>
         </div>
       </stencila-ui-block-on-demand>

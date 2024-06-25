@@ -5,7 +5,6 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
-
 /**
  * Web component representing a Stencila Schema `SuggestionBlock` node
  *
@@ -14,7 +13,7 @@ import { Entity } from './entity'
 @customElement('stencila-suggestion-block')
 @withTwind()
 export class SuggestionBlock extends Entity {
-  override renderDynamicView() {
+  override render() {
     return html`<stencila-ui-block-on-demand
       type="SuggestionBlock"
       view="dynamic"
