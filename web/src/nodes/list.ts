@@ -15,17 +15,10 @@ import { Entity } from './entity'
 @customElement('stencila-list')
 export class List extends Entity {
   /**
-   * In static view, just render the `items`.
-   */
-  override renderStaticView() {
-    return html`<slot name="items"></slot>`
-  }
-
-  /**
-   * In dynamic view, render the `items`, `authors` and summary stats in
+   * render the `items`, `authors` and summary stats in
    * a node card that is shown on demand.
    */
-  override renderDynamicView() {
+  override render() {
     // TODO: Add summary stats to card
 
     return html`
@@ -44,27 +37,6 @@ export class List extends Entity {
         </div>
         <slot name="items" slot="content"></slot>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view, render `authors` and summary stats in a node card. Do not render
-   * `items` since those are visible in the source code.
-   */
-  override renderSourceView() {
-    // TODO: Add summary stats to card
-
-    return html`
-      <stencila-ui-node-card type="List" view="source">
-        <div slot="body">
-          <stencila-ui-node-authors type="List">
-            <slot name="authors"></slot>
-          </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="List">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
-        </div>
-      </stencila-ui-node-card>
     `
   }
 }

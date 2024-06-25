@@ -1,5 +1,4 @@
 import { provide } from '@lit/context'
-import { css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
@@ -133,71 +132,7 @@ export abstract class Entity extends LitElement {
     this.dispatchEvent(directoryActionEvent({ type, path, to }))
   }
 
-  /**
-   * Default rendering method that dispatches to a view specific method
-   *
-   * In general, derived components should not need to override this but
-   * should instead override `render<VIEW>` methods.
-   */
   override render() {
-    const view = this.documentView()
-
-    switch (view) {
-      case 'static':
-      case 'live':
-        return this.renderStaticView()
-      case 'interactive':
-        return this.renderInteractiveView()
-      case 'dynamic':
-        return this.renderDynamicView()
-      case 'visual':
-        return this.renderVisualView()
-      case 'source':
-        if (this.activeChild) {
-          const parentNodeStyles = css`
-            height: 100%;
-            & slot[name='content']::slotted(*),
-            slot[name='items']::slotted(*),
-            slot[name='clauses']::slotted(*) {
-              visibility: hidden;
-            }
-          `
-          /*
-            render the slots which can contain the active child nodes
-          */
-          return html`
-            <div class=${parentNodeStyles}>
-              <slot name="content"></slot>
-              <slot name="items"></slot>
-              <slot name="clauses"></slot>
-            </div>
-          `
-        }
-        return this.renderSourceView()
-      default:
-        return html`Not implemented`
-    }
-  }
-
-  renderStaticView() {
-    return html`Not implemented`
-  }
-
-  renderInteractiveView() {
-    // Default is to render the static view since most
-    // nodes will be the same in both views.
-    return this.renderStaticView()
-  }
-
-  renderDynamicView() {
-    return html`Not implemented`
-  }
-
-  renderVisualView() {
-    return html`Not implemented`
-  }
-
-  renderSourceView() {
-    return html`Not implemented`
+    return html`<slot></slot>`
   }
 }

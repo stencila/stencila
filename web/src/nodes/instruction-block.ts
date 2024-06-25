@@ -20,7 +20,7 @@ import { Instruction } from './instruction'
 export class InstructionBlock extends Instruction {
   override type: NodeType = 'InstructionBlock'
 
-  override renderDynamicView() {
+  override render() {
     return html`<stencila-ui-block-on-demand
       type=${this.type}
       view="dynamic"

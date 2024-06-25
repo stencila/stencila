@@ -14,11 +14,7 @@ import { Executable } from './executable'
 @customElement('stencila-if-block')
 @withTwind()
 export class IfBlock extends Executable {
-  override renderStaticView() {
-    return html`<div></div>`
-  }
-
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="IfBlock">
         <span slot="header-right"></span>
@@ -57,26 +53,6 @@ export class IfBlock extends Executable {
           <slot name="clauses"></slot>
         </div>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  override renderVisualView() {
-    return this.renderDynamicView()
-  }
-
-  override renderInteractiveView() {
-    return this.renderDynamicView()
-  }
-
-  override renderSourceView() {
-    return html`
-      <stencila-ui-node-card type="IfBlock">
-        <span slot="header-right"></span>
-        <div slot="body" class="h-full">
-          <slot name="execution-messages"></slot>
-          <slot name="authors"></slot>
-        </div>
-      </stencila-ui-node-card>
     `
   }
 }
