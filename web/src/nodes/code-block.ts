@@ -28,7 +28,7 @@ export class CodeBlock extends CodeStatic {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div slot="content">
+        <div slot="content" class="my-2">
           <stencila-ui-node-code
             type="CodeBlock"
             code=${this.code}

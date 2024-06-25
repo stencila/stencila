@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import '../ui/nodes/card'
+import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/authorship'
 import '../ui/nodes/properties/provenance/provenance'
@@ -26,7 +26,11 @@ export class Heading extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand type="Heading" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Heading"
+        view="dynamic"
+        node-id=${this.id}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
             <stencila-ui-node-provenance slot="provenance">
@@ -34,9 +38,6 @@ export class Heading extends Entity {
             </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="Heading">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>

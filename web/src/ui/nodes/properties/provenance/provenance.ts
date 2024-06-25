@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { css } from '@twind/core'
-import { html, LitElement, PropertyValues } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
 
@@ -14,27 +14,6 @@ import '../generic/collapsible-details'
 @customElement('stencila-ui-node-provenance')
 @withTwind()
 export class UINodeProvenance extends LitElement {
-  /**
-   * Whether there are any provenance in the list
-   *
-   * Used to determine if anything should be rendered.
-   */
-  @state()
-  private hasItems = false
-
-  protected override firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties)
-
-    const slot: HTMLSlotElement = this.shadowRoot.querySelector(
-      'slot:not([name="provenance"])'
-    )
-    if (slot) {
-      slot.addEventListener('slotchange', () => {
-        this.hasItems = slot.assignedElements({ flatten: true }).length !== 0
-      })
-    }
-  }
-
   override render() {
     // apply flex to the slotted container
     const countStyles = css`
@@ -46,7 +25,7 @@ export class UINodeProvenance extends LitElement {
     `
 
     return html`
-      <div class="mx-4 ${countStyles} ${!this.hasItems ? 'hidden' : ''}">
+      <div class="mx-4 ${countStyles}">
         <slot></slot>
       </div>
     `
