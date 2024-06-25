@@ -68,14 +68,13 @@ On a WebSocket upgrade request the server will only allow connections using subp
 
 Several client classes are implemented, each using one or more of the WebSocket subprotocols, and interacting with the browser DOM or JavaScript editors.
 
-| Client class                                      | Subprotocol         | Description                                                                                                                             |
-| ------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [`Client`](src/clients/client.ts)                 | Any                 | Abstract base class for all client classes; maintains a WebSocket connection to the server including reconnecting after disconnections. |
-| [`FormatClient`](src/clients/format.ts)           | `<ACCESS>.<FORMAT>` | Abstract base class for clients of a document (represented in a particular format) which can send and receive `FormatPatch`s.           |
-| [`NodesClient`](src/clients/nodes.ts)             | `<ACCESS>.nodes`    | A client which forwards in-browser `stencila-node-patch` events (emitted by Web Components) to the server as `NodePatch`s.              |
-| [`DomClient`](src/clients/dom.ts)                 | `read.html`         | Read-only client of a document's HTML which updates the browser DOM when it receive `FormatPatch`s from the server.                     |
-| [`CodeMirrorClient`](src/clients/codemirror.ts)   | `<ACCESS>.<FORMAT>` | Read-write client of a document (represented in a particular format) which synchronizes content with a CodeMirror editor.               |
-| [`ProseMirrorClient`](src/clients/prosemirror.ts) | `<ACCESS>.nodes`    | Read-write client of a document which synchronizes content with a ProseMirror editor.                                                   |
+| Client class                                    | Subprotocol         | Description                                                                                                                             |
+| ----------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [`Client`](src/clients/client.ts)               | Any                 | Abstract base class for all client classes; maintains a WebSocket connection to the server including reconnecting after disconnections. |
+| [`FormatClient`](src/clients/format.ts)         | `<ACCESS>.<FORMAT>` | Abstract base class for clients of a document (represented in a particular format) which can send and receive `FormatPatch`s.           |
+| [`NodesClient`](src/clients/nodes.ts)           | `<ACCESS>.nodes`    | A client which forwards in-browser `stencila-node-patch` events (emitted by Web Components) to the server as `NodePatch`s.              |
+| [`DomClient`](src/clients/dom.ts)               | `read.html`         | Read-only client of a document's HTML which updates the browser DOM when it receive `FormatPatch`s from the server.                     |
+| [`CodeMirrorClient`](src/clients/codemirror.ts) | `<ACCESS>.<FORMAT>` | Read-write client of a document (represented in a particular format) which synchronizes content with a CodeMirror editor.               |
 
 ## 🪟 Views
 
