@@ -1,0 +1,15 @@
+[project]
+name = "models"
+version = "0.1.0"
+description = "Benchmarking and evaluation of generative AI models"
+authors = [
+    {name = "Nokome Bentley", email = "nokome@stencila.io"},
+]
+dependencies = []
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+
+
+[tool.pdm]
+distribution = false
