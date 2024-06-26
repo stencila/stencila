@@ -181,6 +181,12 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
                 .iter()
                 .flatten()
                 .map(|message| {
+                    // Currently, just use the start of node as range (to avoid
+                    // having too many squiggly lines). In future, use
+                    // error location, if any
+                    let range = Range::new(node.range.start, node.range.start);
+
+                    // Translate message level to diagnostic severity
                     use MessageLevel::*;
                     let severity = Some(match message.level {
                         Error | Exception => DiagnosticSeverity::ERROR,
@@ -189,12 +195,16 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
                         Debug | Trace => DiagnosticSeverity::HINT,
                     });
 
-                    let message = message.message.clone();
+                    // Add error type to message (if any)
+                    let mut msg = message.message.clone();
+                    if let Some(error_type) = message.error_type.as_ref() {
+                        msg.insert_str(0, &[error_type, ": "].concat())
+                    };
 
                     Diagnostic {
-                        range: node.range,
+                        range,
                         severity,
-                        message,
+                        message: msg,
                         ..Default::default()
                     }
                 })
