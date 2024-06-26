@@ -6,7 +6,7 @@ impl Executable for IfBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending IfBlock {node_id}");
+        tracing::trace!("Pending IfBlock {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -24,12 +24,12 @@ impl Executable for IfBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping IfBlock {node_id}");
+            tracing::trace!("Skipping IfBlock {node_id}");
 
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing IfBlock {node_id}");
+        tracing::debug!("Executing IfBlock {node_id}");
 
         executor.patch(
             &node_id,
@@ -122,7 +122,7 @@ impl Executable for IfBlockClause {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Executing IfBlockClause {node_id}");
+        tracing::debug!("Executing IfBlockClause {node_id}");
 
         executor.patch(
             &node_id,

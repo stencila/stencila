@@ -6,7 +6,7 @@ impl Executable for CodeExpression {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling CodeExpression {node_id}");
+        tracing::trace!("Compiling CodeExpression {node_id}");
 
         let info = parsers::parse(
             &self.code,
@@ -27,7 +27,7 @@ impl Executable for CodeExpression {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending CodeExpression {node_id}");
+        tracing::trace!("Pending CodeExpression {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -44,12 +44,12 @@ impl Executable for CodeExpression {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping CodeExpression {node_id}");
+            tracing::trace!("Skipping CodeExpression {node_id}");
 
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing CodeExpression {node_id}");
+        tracing::debug!("Executing CodeExpression {node_id}");
 
         executor.patch(
             &node_id,

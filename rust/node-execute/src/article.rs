@@ -17,7 +17,7 @@ impl Executable for Article {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Executing Article {node_id}: {self:?}");
+        tracing::debug!("Executing Article {node_id}");
 
         executor.patch(
             &node_id,

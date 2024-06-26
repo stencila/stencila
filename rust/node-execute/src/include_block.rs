@@ -7,7 +7,7 @@ impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending IncludeBlock {node_id}");
+        tracing::trace!("Pending IncludeBlock {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -25,12 +25,12 @@ impl Executable for IncludeBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping IncludeBlock {node_id}");
+            tracing::trace!("Skipping IncludeBlock {node_id}");
 
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing IncludeBlock {node_id}");
+        tracing::debug!("Executing IncludeBlock {node_id}");
 
         executor.patch(
             &node_id,

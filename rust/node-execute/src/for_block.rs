@@ -7,7 +7,7 @@ impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling ForBlock {node_id}");
+        tracing::trace!("Compiling ForBlock {node_id}");
 
         let language = self.programming_language.as_deref().unwrap_or_default();
         let ParseInfo {
@@ -44,7 +44,7 @@ impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending ForBlock {node_id}");
+        tracing::trace!("Pending ForBlock {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -62,12 +62,12 @@ impl Executable for ForBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping ForBlock {node_id}");
+            tracing::trace!("Skipping ForBlock {node_id}");
 
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing ForBlock {node_id}");
+        tracing::debug!("Executing ForBlock {node_id}");
 
         executor.patch(
             &node_id,

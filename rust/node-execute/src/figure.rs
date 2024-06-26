@@ -6,7 +6,7 @@ impl Executable for Figure {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling Figure {node_id}");
+        tracing::trace!("Compiling Figure {node_id}");
 
         executor.figure_count += 1;
 

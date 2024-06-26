@@ -6,7 +6,7 @@ impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling CodeChunk {node_id}");
+        tracing::trace!("Compiling CodeChunk {node_id}");
 
         // Some code chunks should be executed during "compile" to
         // enable live updates (e.g. Graphviz, Mermaid)
@@ -56,7 +56,7 @@ impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending CodeChunk {node_id}");
+        tracing::trace!("Pending CodeChunk {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -73,12 +73,12 @@ impl Executable for CodeChunk {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping CodeChunk {node_id}");
+            tracing::trace!("Skipping CodeChunk {node_id}");
 
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing CodeChunk {node_id}");
+        tracing::debug!("Executing CodeChunk {node_id}");
 
         executor.patch(
             &node_id,
