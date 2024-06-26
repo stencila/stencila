@@ -5,8 +5,8 @@ import { customElement } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/node-card/on-demand/block'
-import '../ui/nodes/properties/instruction-messages'
-import '../ui/nodes/properties/instruction-suggestions'
+import '../ui/nodes/properties/instructions/instruction-messages'
+import '../ui/nodes/properties/instructions/instruction-suggestions'
 
 import { Instruction } from './instruction'
 
