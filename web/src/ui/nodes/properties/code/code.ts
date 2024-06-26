@@ -85,11 +85,22 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
-      name: 'jinja',
+      name: 'dot',
+      alias: ['dotlang', 'graphviz'],
       load: async () => {
-        return import('@codemirror/legacy-modes/mode/jinja2').then(
-          (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
-        )
+        return import('@viz-js/lang-dot').then((obj) => obj.dot())
+      },
+    }),
+    LanguageDescription.of({
+      name: 'html',
+      load: async () => {
+        return import('@codemirror/lang-html').then((obj) => obj.html())
+      },
+    }),
+    LanguageDescription.of({
+      name: 'json',
+      load: async () => {
+        return import('@codemirror/lang-json').then((obj) => obj.json())
       },
     }),
     LanguageDescription.of({
@@ -98,6 +109,14 @@ export class UINodeCode extends LitElement {
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
+        )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'jinja',
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/jinja2').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
         )
       },
     }),
@@ -134,13 +153,6 @@ export class UINodeCode extends LitElement {
       alias: ['mathml'],
       load: async () => {
         return import('@codemirror/lang-xml').then((obj) => obj.xml())
-      },
-    }),
-    LanguageDescription.of({
-      name: 'dot',
-      alias: ['dotlang', 'graphviz'],
-      load: async () => {
-        return import('@viz-js/lang-dot').then((obj) => obj.dot())
       },
     }),
   ]
