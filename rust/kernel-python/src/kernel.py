@@ -776,7 +776,7 @@ def main() -> None:
                 traceback.print_exc(file=strio)
                 matches = re.findall(r"line (\d+)", strio.getvalue())
                 if matches:
-                    line = int(matches[-1])
+                    line = int(matches[-1]) - 1
                     code_location = {
                         "type": "CodeLocation",
                         "startLine": int(line),

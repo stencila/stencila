@@ -322,8 +322,8 @@ warnings.warn('This is a warning message', UserWarning)
         assert_eq!(
             msg.code_location,
             Some(CodeLocation {
-                start_line: Some(1),
-                end_line: Some(1),
+                start_line: Some(0),
+                end_line: Some(0),
                 ..Default::default()
             })
         );
