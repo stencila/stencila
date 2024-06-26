@@ -24,8 +24,7 @@
     "activationEvents": [
       "onLanguage:smd",
       "onCommand:stencila.walkthrough-file-open",
-      "workspaceContains:**/*.smd",
-      "*"
+      "workspaceContains:**/*.smd"
     ],
     "configuration": {
       "title": "Stencila Configuration",
