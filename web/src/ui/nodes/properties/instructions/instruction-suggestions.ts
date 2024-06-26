@@ -2,9 +2,9 @@ import { NodeType } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
+import { withTwind } from '../../../../twind'
 
-import './generic/collapsible'
+import '../generic/collapsible'
 
 /**
  * A component for displaying the `suggestions` property of `Instruction` nodes
@@ -25,7 +25,7 @@ export class UINodeInstructionSuggestions extends LitElement {
         <div slot="title">
           <span>Suggestions</span>
         </div>
-        <div slot="content" class="p-3 font-sans text-sm">
+        <div slot="content" class="px-3 pb-2 font-sans text-sm">
           <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>
