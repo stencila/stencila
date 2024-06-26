@@ -11,6 +11,7 @@ import io
 import json
 import logging
 import os
+import re
 import resource
 import sys
 import traceback
@@ -121,12 +122,19 @@ STENCILA_LEVEL = Union[
 ]
 
 
+class CodeLocation(TypedDict):
+    type: Literal["CodeLocation"]
+    startLine: int
+    endLine: int
+
+
 class ExecutionMessage(TypedDict, total=False):
     type: Literal["ExecutionMessage"]
     level: STENCILA_LEVEL
     message: str
     errorType: str
     stackTrace: str
+    codeLocation: Optional[CodeLocation]
 
 
 # During development, set DEV environment variable to True
@@ -204,7 +212,9 @@ logger.addHandler(handler)
 def log_warning(message, category, filename, lineno, file=None, line=None) -> None:  # type: ignore  # noqa: ANN001
     warning_details = {
         "warning_details": {
-            "category": str(category.__name__),  # pyright: ignore[reportAttributeAccessIssue]
+            "category": str(
+                category.__name__
+            ),  # pyright: ignore[reportAttributeAccessIssue]
             "filename": filename,
             "lineno": lineno,
             "line": line,
@@ -488,24 +498,28 @@ CONTEXT: dict[str, Any] = {"print": print}
 
 
 # Execute lines of code
-def execute(lines: list[str]) -> None:
+def execute(lines: list[str], file: str) -> None:
     # If the last line is compilable as an `eval`-able
     # expression, then return it as a value. Otherwise
     # just execute all the lines
     rest, last = lines[:-1], lines[-1]
-    try:
-        last = compile(last, "<code>", "eval")
-    except:  # noqa: E722
-        compiled = compile("\n".join(lines), "<code>", "exec")
-        exec(compiled, CONTEXT)
-    else:
-        if rest:
-            joined = "\n".join(rest)
-            compiled = compile(joined, "<code>", "exec")
+    if last.strip():
+        try:
+            last = compile(last, file + ":last", "eval")
+        except:  # noqa: E722
+            compiled = compile("\n".join(lines), file, "exec")
             exec(compiled, CONTEXT)
-        value = eval(last, CONTEXT)
-        if value is not None:
-            sys.stdout.write(to_json(value))
+        else:
+            if rest:
+                joined = "\n".join(rest)
+                compiled = compile(joined, file, "exec")
+                exec(compiled, CONTEXT)
+            value = eval(last, CONTEXT)
+            if value is not None:
+                sys.stdout.write(to_json(value))
+    else:
+        compiled = compile("\n".join(lines), file, "exec")
+        exec(compiled, CONTEXT)
 
 
 # Evaluate an expression
@@ -685,6 +699,8 @@ def main() -> None:
         stream.write(READY + "\n")
 
     # Handle tasks
+    code_id = 0
+    code_file = ""
     while True:
         task = input().strip()
         if not task:
@@ -696,7 +712,9 @@ def main() -> None:
             task_type = lines[0]
 
             if task_type == EXEC:
-                execute(lines[1:])
+                code_id += 1
+                code_file = f"code #{code_id}"
+                execute(lines[1:], code_file)
             elif task_type == EVAL:
                 evaluate(lines[1])
             elif task_type == INFO:
@@ -720,19 +738,47 @@ def main() -> None:
             pass
 
         except Exception as e:
-            stack_trace = io.StringIO()
-            traceback.print_exc(file=stack_trace)
-            stack_trace = stack_trace.getvalue()
+            # Extract the traceback information
+            # Create a textual repr of traceback similar to the standard and
+            # gets the deepest location in the stack within the current code
+            tb = traceback.extract_tb(sys.exc_info()[2])
+            stack_trace = ""
+            code_location = None
+            for frame in tb:
+                if frame.filename == __file__:
+                    continue
 
-            # Remove the first three lines (the header and where we were in `kernel.py`)
-            # and the last line which repeats the message
-            stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
+                file = frame.filename
+                add_lines = 0
+                if file == code_file + ":last":
+                    file = code_file
+                    add_lines = len(lines) - 2
 
-            # Remove the "double" exception that can be caused by re-throwing
-            # the exception
-            position = stack_trace.find("During handling of the above exception")
-            if position:
-                stack_trace = stack_trace[:position].strip()
+                stack_trace += f'File "{file}", line {frame.lineno}, in {frame.name}\n'
+                if file == code_file:
+                    code_location = {
+                        "type": "CodeLocation",
+                        "startLine": frame.lineno - 1 + add_lines,
+                        "startColumn": frame.colno,
+                        "endLine": frame.end_lineno - 1 + add_lines,
+                        "endColumn": frame.end_colno,
+                    }
+
+            if len(stack_trace) == 0:
+                stack_trace = None
+
+            if code_location is None:
+                # Resort to parsing print of stack trace to get location (for syntax errors)
+                strio = io.StringIO()
+                traceback.print_exc(file=strio)
+                matches = re.findall(r"line (\d+)", strio.getvalue())
+                if matches:
+                    line = int(matches[-1])
+                    code_location = {
+                        "type": "CodeLocation",
+                        "startLine": int(line),
+                        "endLine": int(line),
+                    }
 
             em: ExecutionMessage = {
                 "type": "ExecutionMessage",
@@ -740,8 +786,8 @@ def main() -> None:
                 "message": str(e),
                 "errorType": type(e).__name__,
                 "stackTrace": stack_trace,
+                "codeLocation": code_location,
             }
-
             sys.stderr.write(to_json(em) + "\n")
 
         for stream in (sys.stdout, sys.stderr):

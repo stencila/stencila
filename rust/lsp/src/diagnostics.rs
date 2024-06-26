@@ -4,8 +4,8 @@
 
 use async_lsp::{
     lsp_types::{
-        notification::Notification, Diagnostic, DiagnosticSeverity, PublishDiagnosticsParams,
-        Range, Url,
+        notification::Notification, Diagnostic, DiagnosticSeverity, Position,
+        PublishDiagnosticsParams, Range, Url,
     },
     ClientSocket, LanguageClient,
 };
@@ -181,10 +181,42 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
                 .iter()
                 .flatten()
                 .map(|message| {
-                    // Currently, just use the start of node as range (to avoid
-                    // having too many squiggly lines). In future, use
-                    // error location, if any
-                    let range = Range::new(node.range.start, node.range.start);
+                    // Calculate range of diagnostic
+                    let range = if let Some(location) = &message.code_location {
+                        let mut start_line = node.range.start.line
+                            + if matches!(node.node_type, NodeType::CodeChunk) {
+                                // Plus one for code chunk back ticks
+                                1
+                            } else {
+                                0
+                            };
+                        let mut start_column = node.range.start.character;
+                        let mut end_line = start_line;
+                        let mut end_column = start_column;
+                        if let Some(line) = location.start_line {
+                            start_line += line as u32;
+                        }
+                        if let Some(column) = location.start_column {
+                            start_column += column as u32;
+                        }
+                        if let Some(line) = location.end_line {
+                            end_line += line as u32;
+                        }
+                        if let Some(column) = location.end_column {
+                            end_column += column as u32;
+                        } else {
+                            end_column += 100;
+                        }
+
+                        Range::new(
+                            Position::new(start_line, start_column),
+                            Position::new(end_line, end_column),
+                        )
+                    } else {
+                        // Range is just start (avoids having too many squiggly lines across
+                        // whole of code chunk)
+                        Range::new(node.range.start, node.range.start)
+                    };
 
                     // Translate message level to diagnostic severity
                     use MessageLevel::*;
@@ -199,6 +231,10 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
                     let mut msg = message.message.clone();
                     if let Some(error_type) = message.error_type.as_ref() {
                         msg.insert_str(0, &[error_type, ": "].concat())
+                    };
+                    if let Some(stack_trace) = message.stack_trace.as_ref() {
+                        msg.push_str("\n\n");
+                        msg.push_str(&stack_trace);
                     };
 
                     Diagnostic {

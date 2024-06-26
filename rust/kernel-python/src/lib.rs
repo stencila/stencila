@@ -66,11 +66,11 @@ mod tests {
             indexmap::IndexMap,
             tokio,
         },
-        schema::MessageLevel,
         schema::{
-            Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
-            DatatableColumnHint, DatatableHint, Hint, IntegerValidator, Node, Null,
-            NumberValidator, Object, ObjectHint, Primitive, StringHint, Validator, Variable,
+            Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
+            DatatableColumn, DatatableColumnHint, DatatableHint, Hint, IntegerValidator,
+            MessageLevel, Node, Null, NumberValidator, Object, ObjectHint, Primitive, StringHint,
+            Validator, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -315,17 +315,91 @@ warnings.warn('This is a warning message', UserWarning)
 
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].message, "invalid syntax (<code>, line 1)");
-        assert!(messages[0].stack_trace.is_some());
+        let msg = &messages[0];
+        assert_eq!(msg.error_type.as_deref(), Some("SyntaxError"));
+        assert_eq!(msg.message, "invalid syntax (code #1, line 1)");
+        assert!(msg.stack_trace.is_none());
+        assert_eq!(
+            msg.code_location,
+            Some(CodeLocation {
+                start_line: Some(1),
+                end_line: Some(1),
+                ..Default::default()
+            })
+        );
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
-        assert_eq!(messages[0].message, "name 'foo' is not defined");
-        assert!(messages[0].stack_trace.is_some());
+        let msg = &messages[0];
+        assert_eq!(msg.error_type.as_deref(), Some("NameError"));
+        assert_eq!(msg.message, "name 'foo' is not defined");
+        assert_eq!(
+            msg.stack_trace.as_deref(),
+            Some("File \"code #2\", line 1, in <module>\n")
+        );
+        assert_eq!(
+            msg.code_location,
+            Some(CodeLocation {
+                start_line: Some(0),
+                start_column: Some(0),
+                end_line: Some(0),
+                end_column: Some(3),
+                ..Default::default()
+            })
+        );
         assert_eq!(outputs, vec![]);
+
+        // Runtime error on last line
+        let (.., messages) = kernel.execute("# Comment\n1 / 0").await?;
+        let msg = &messages[0];
+        assert_eq!(msg.error_type.as_deref(), Some("ZeroDivisionError"));
+        assert_eq!(msg.message, "division by zero");
+        assert_eq!(
+            msg.stack_trace.as_deref(),
+            Some("File \"code #3\", line 1, in <module>\n")
+        );
+        assert_eq!(
+            msg.code_location,
+            Some(CodeLocation {
+                start_line: Some(1),
+                start_column: Some(0),
+                end_line: Some(1),
+                end_column: Some(5),
+                ..Default::default()
+            })
+        );
+
+        // Nested error
+        let (.., messages) = kernel
+            .execute(
+                r#"
+# Comment   
+def foo():
+    bar()    
+def baz():
+    foo()
+baz()
+"#,
+            )
+            .await?;
+        let msg = &messages[0];
+        assert_eq!(msg.error_type.as_deref(), Some("NameError"));
+        assert_eq!(msg.message, "name 'bar' is not defined");
+        assert_eq!(
+            msg.stack_trace.as_deref(),
+            Some("File \"code #4\", line 7, in <module>\nFile \"code #4\", line 6, in baz\nFile \"code #4\", line 4, in foo\n")
+        );
+        assert_eq!(
+            msg.code_location,
+            Some(CodeLocation {
+                start_line: Some(3),
+                start_column: Some(4),
+                end_line: Some(3),
+                end_column: Some(7),
+                ..Default::default()
+            })
+        );
 
         Ok(())
     }
