@@ -92,7 +92,7 @@
     "@viz-js/lang-dot": "^1.0.4",
     "codemirror-lang-r": "0.1.0-2",
     "just-diff-apply": "5.5.0",
-    "lit": "3.1.3",
+    "lit": "3.1.4",
     "moment": "2.30.1",
     "morphdom": "2.7.2",
     "pagedjs": "0.4.3",
