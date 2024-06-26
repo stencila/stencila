@@ -700,7 +700,7 @@ def main() -> None:
 
     # Handle tasks
     code_id = 0
-    code_file = ""
+    code_label = ""
     while True:
         task = input().strip()
         if not task:
@@ -713,8 +713,8 @@ def main() -> None:
 
             if task_type == EXEC:
                 code_id += 1
-                code_file = f"code #{code_id}"
-                execute(lines[1:], code_file)
+                code_label = f"Code chunk #{code_id}"
+                execute(lines[1:], code_label)
             elif task_type == EVAL:
                 evaluate(lines[1])
             elif task_type == INFO:
@@ -750,12 +750,14 @@ def main() -> None:
 
                 file = frame.filename
                 add_lines = 0
-                if file == code_file + ":last":
-                    file = code_file
+                if file == code_label + ":last":
+                    file = code_label
                     add_lines = len(lines) - 2
 
-                stack_trace += f'File "{file}", line {frame.lineno}, in {frame.name}\n'
-                if file == code_file:
+                location = code_label if file == code_label else f'File "{file}"'
+
+                stack_trace += f"{location}, line {frame.lineno}, in {frame.name}\n"
+                if file == code_label:
                     code_location = {
                         "type": "CodeLocation",
                         "startLine": frame.lineno - 1 + add_lines,
@@ -768,7 +770,8 @@ def main() -> None:
                 stack_trace = None
 
             if code_location is None:
-                # Resort to parsing print of stack trace to get location (for syntax errors)
+                # Resort to parsing print of stack trace to get
+                # location (for syntax errors)
                 strio = io.StringIO()
                 traceback.print_exc(file=strio)
                 matches = re.findall(r"line (\d+)", strio.getvalue())

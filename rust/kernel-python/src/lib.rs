@@ -317,7 +317,7 @@ warnings.warn('This is a warning message', UserWarning)
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         let msg = &messages[0];
         assert_eq!(msg.error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(msg.message, "invalid syntax (code #1, line 1)");
+        assert_eq!(msg.message, "invalid syntax (Code chunk #1, line 1)");
         assert!(msg.stack_trace.is_none());
         assert_eq!(
             msg.code_location,
@@ -336,7 +336,7 @@ warnings.warn('This is a warning message', UserWarning)
         assert_eq!(msg.message, "name 'foo' is not defined");
         assert_eq!(
             msg.stack_trace.as_deref(),
-            Some("File \"code #2\", line 1, in <module>\n")
+            Some("Code chunk #2, line 1, in <module>\n")
         );
         assert_eq!(
             msg.code_location,
@@ -357,7 +357,7 @@ warnings.warn('This is a warning message', UserWarning)
         assert_eq!(msg.message, "division by zero");
         assert_eq!(
             msg.stack_trace.as_deref(),
-            Some("File \"code #3\", line 1, in <module>\n")
+            Some("Code chunk #3, line 1, in <module>\n")
         );
         assert_eq!(
             msg.code_location,
@@ -388,7 +388,7 @@ baz()
         assert_eq!(msg.message, "name 'bar' is not defined");
         assert_eq!(
             msg.stack_trace.as_deref(),
-            Some("File \"code #4\", line 7, in <module>\nFile \"code #4\", line 6, in baz\nFile \"code #4\", line 4, in foo\n")
+            Some("Code chunk #4, line 7, in <module>\nCode chunk #4, line 6, in baz\nCode chunk #4, line 4, in foo\n")
         );
         assert_eq!(
             msg.code_location,
