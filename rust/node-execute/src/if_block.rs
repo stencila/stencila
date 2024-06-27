@@ -69,7 +69,7 @@ impl Executable for IfBlock {
 
             let ended = Timestamp::now();
 
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
@@ -193,7 +193,7 @@ impl Executable for IfBlockClause {
         if status != ExecutionStatus::Skipped {
             status = execution_status(&messages)
         }
-        let required = execution_required(&status);
+        let required = execution_required_status(&status);
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
 

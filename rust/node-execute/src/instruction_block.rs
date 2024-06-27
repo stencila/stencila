@@ -152,7 +152,7 @@ impl Executable for InstructionBlock {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 

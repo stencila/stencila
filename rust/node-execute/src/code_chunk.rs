@@ -26,11 +26,14 @@ impl Executable for CodeChunk {
             self.programming_language.as_deref().unwrap_or_default(),
         );
 
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
         executor.patch(
             &node_id,
             [
                 set(NodeProperty::CompilationDigest, info.compilation_digest),
                 set(NodeProperty::ExecutionTags, info.execution_tags),
+                set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
 
@@ -112,7 +115,7 @@ impl Executable for CodeChunk {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 

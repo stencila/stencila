@@ -25,9 +25,14 @@ impl Executable for ForBlock {
             }
         }
 
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &compilation_digest);
         executor.patch(
             &node_id,
-            [set(NodeProperty::CompilationDigest, compilation_digest)],
+            [
+                set(NodeProperty::CompilationDigest, compilation_digest),
+                set(NodeProperty::ExecutionRequired, execution_required),
+            ],
         );
 
         // Walk over `otherwise` here because this function returns `Break` so it
@@ -225,7 +230,7 @@ impl Executable for ForBlock {
 
         if !is_empty {
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
