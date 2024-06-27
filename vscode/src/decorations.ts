@@ -1,5 +1,28 @@
 import * as vscode from "vscode";
 
+const unexecuted = "0deg";
+const unexecutedMid = `hsl(${unexecuted} 0% 50%)`;
+const unexecutedLight = `hsl(${unexecuted} 0% 95%)`;
+const unexecutedDark = `hsl(${unexecuted} 0% 5%)`;
+
+export const unexecutedDecoration =
+  vscode.window.createTextEditorDecorationType({
+    overviewRulerColor: unexecutedMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: unexecutedMid,
+        backgroundColor: unexecutedLight,
+      },
+    },
+    dark: {
+      after: {
+        color: unexecutedMid,
+        backgroundColor: unexecutedDark,
+      },
+    },
+  });
+
 const stale = "45deg";
 const staleMid = `hsl(${stale} 100% 50%)`;
 const staleLight = `hsl(${stale} 100% 95%)`;
@@ -71,19 +94,21 @@ const succeededMid = `hsl(${succeeded} 100% 30%)`;
 const succeededLight = `hsl(${succeeded} 100% 95%)`;
 const succeededDark = `hsl(${succeeded} 100% 5%)`;
 
-export const succeededDecoration = vscode.window.createTextEditorDecorationType({
-  overviewRulerColor: succeededMid,
-  overviewRulerLane: vscode.OverviewRulerLane.Right,
-  light: {
-    after: {
-      color: succeededMid,
-      backgroundColor: succeededLight,
+export const succeededDecoration = vscode.window.createTextEditorDecorationType(
+  {
+    overviewRulerColor: succeededMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: succeededMid,
+        backgroundColor: succeededLight,
+      },
     },
-  },
-  dark: {
-    after: {
-      color: succeededMid,
-      backgroundColor: succeededDark,
+    dark: {
+      after: {
+        color: succeededMid,
+        backgroundColor: succeededDark,
+      },
     },
-  },
-});
+  }
+);

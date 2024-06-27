@@ -90,6 +90,11 @@ fn statuses(node: &TextNode) -> Vec<Status> {
 
 /// Create a [`Status`] for a [`TextNodeExecution`]
 fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<Status> {
+    // Do not generate status for `IfBlock`s since we generate for its individual clauses
+    if matches!(node.node_type, NodeType::IfBlock) {
+        return None;
+    }
+
     // Generate status string and message
     let (status, message) = if let Some(
         reason @ (ExecutionRequired::NeverExecuted
@@ -100,9 +105,13 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
     ) = &execution.required
     {
         // Stale nodes: expand reason into message
-        // This is first in the if block because any changes since last executed
+        // This is first clause in the if block because any changes since last executed
         // should be indicated (rather than status of last execution).
         use ExecutionRequired::*;
+        let status = match reason {
+            NeverExecuted => "Unexecuted".to_string(),
+            _ => "Stale".to_string(),
+        };
         let message = match reason {
             NeverExecuted => "Not executed".to_string(),
             StateChanged => "Changes since last executed".to_string(),
@@ -111,7 +120,7 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             DependenciesFailed => "One or more dependencies have failed".to_string(),
             _ => reason.to_string(),
         };
-        ("Stale".to_string(), message)
+        (status, message)
     } else if let Some(
         ExecutionStatus::Warnings | ExecutionStatus::Errors | ExecutionStatus::Exceptions,
     ) = &execution.status
@@ -222,7 +231,7 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
 
 /// Create [`Diagnostic`]s for a [`TextNodeExecution`]
 fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<Diagnostic> {
-    // If the node has changed itself since the last execution do not return any
+    // If the node has changed since the last execution do not return any
     // diagnostics for it
     if let Some(ExecutionRequired::StateChanged | ExecutionRequired::SemanticsChanged) =
         &execution.required

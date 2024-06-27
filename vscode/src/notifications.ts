@@ -6,13 +6,15 @@ import {
   runningDecoration,
   staleDecoration,
   succeededDecoration,
+  unexecutedDecoration,
 } from "./decorations";
 
 interface Status {
   range: vscode.Range;
   // The status being reported. Note that this is a combination
-  // of both `ExecutionStatus` and `ExecutionRequired` ("Stale")
+  // of both `ExecutionStatus` and `ExecutionRequired` ("Unexecuted" & "Stale")
   status:
+    | "Unexecuted"
     | "Stale"
     | "Pending"
     | "Running"
@@ -37,7 +39,11 @@ export function registerNotifications(client: LanguageClient) {
         return;
       }
 
-      const statusToRange = ({ range, status, message }: Status) => {
+      const statusToRange = ({
+        range,
+        status,
+        message,
+      }: Status): vscode.DecorationOptions => {
         const startLine = range.start.line;
         const lineLength = editor.document.lineAt(startLine).text.length;
         const position = new vscode.Position(startLine, lineLength);
@@ -47,7 +53,8 @@ export function registerNotifications(client: LanguageClient) {
           range: decorationRange,
           renderOptions: {
             after: {
-              contentText: " " + (message ?? status),
+              contentText: message ?? status,
+              margin: "1em",
             },
           },
         };
@@ -63,6 +70,7 @@ export function registerNotifications(client: LanguageClient) {
         );
       };
 
+      decorationsFor("Unexecuted", unexecutedDecoration);
       decorationsFor("Stale", staleDecoration);
       decorationsFor("Pending", pendingDecoration);
       decorationsFor("Running", runningDecoration);
