@@ -93,14 +93,13 @@ impl Executable for CodeChunk {
 
         let compilation_digest = self.options.compilation_digest.clone();
 
-        let code = self.code.trim();
-        if !code.is_empty() {
+        if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
             let (outputs, messages) = executor
                 .kernels()
                 .await
-                .execute(code, self.programming_language.as_deref())
+                .execute(&self.code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (

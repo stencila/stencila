@@ -63,15 +63,14 @@ impl Executable for CodeExpression {
 
         let compilation_digest = self.options.compilation_digest.clone();
 
-        let code = self.code.trim();
-        if !code.is_empty() {
+        if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
             let (output, messages) = executor
                 .kernels
                 .write()
                 .await
-                .evaluate(code, self.programming_language.as_deref())
+                .evaluate(&self.code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (

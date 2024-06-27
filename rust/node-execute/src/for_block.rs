@@ -90,8 +90,7 @@ impl Executable for ForBlock {
 
         let compilation_digest = self.options.compilation_digest.clone();
         let variable = self.variable.trim();
-        let code = self.code.trim();
-        if !(variable.is_empty() && code.is_empty()) {
+        if !(variable.is_empty() && self.code.trim().is_empty()) {
             is_empty = false;
 
             // Evaluate code in kernels to get the iterable
@@ -99,7 +98,7 @@ impl Executable for ForBlock {
                 .kernels
                 .write()
                 .await
-                .evaluate(code, self.programming_language.as_deref())
+                .evaluate(&self.code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (

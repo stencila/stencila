@@ -135,14 +135,14 @@ impl Executable for IfBlockClause {
         let mut messages = Vec::new();
         let started = Timestamp::now();
 
-        let code = self.code.trim();
-        let (is_active, mut status) = if !code.is_empty() {
+        let is_empty = self.code.trim().is_empty();
+        let (is_active, mut status) = if !is_empty {
             // Evaluate code in kernels
             let (output, mut code_messages) = executor
                 .kernels
                 .write()
                 .await
-                .evaluate(code, self.programming_language.as_deref())
+                .evaluate(&self.code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (
@@ -173,7 +173,7 @@ impl Executable for IfBlockClause {
             }
 
             (truthy, ExecutionStatus::Running)
-        } else if code.is_empty() && executor.is_last {
+        } else if is_empty && executor.is_last {
             // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
             if let Err(error) = self.content.walk_async(executor).await {
