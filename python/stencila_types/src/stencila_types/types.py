@@ -245,6 +245,7 @@ class ExecutionRequired(StrEnum):
 
     No = "No"
     NeverExecuted = "NeverExecuted"
+    StateChanged = "StateChanged"
     SemanticsChanged = "SemanticsChanged"
     DependenciesChanged = "DependenciesChanged"
     DependenciesFailed = "DependenciesFailed"
@@ -1289,16 +1290,16 @@ class CodeLocation(Entity):
     """The source of the code, a file path, label or URL."""
 
     start_line: UnsignedInteger | None = None
-    """The 1-based index if the first line on which the error occurred."""
+    """The 0-based index if the first line on which the error occurred."""
 
     start_column: UnsignedInteger | None = None
-    """The 1-based index if the first column on which the error occurred."""
+    """The 0-based index if the first column on which the error occurred."""
 
     end_line: UnsignedInteger | None = None
-    """The 1-based index if the last line on which the error occurred."""
+    """The 0-based index if the last line on which the error occurred."""
 
     end_column: UnsignedInteger | None = None
-    """The 1-based index if the last column on which the error occurred."""
+    """The 0-based index if the last column on which the error occurred."""
 
 
 @dataclass(kw_only=True, repr=False)

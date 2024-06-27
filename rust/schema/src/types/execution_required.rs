@@ -14,6 +14,9 @@ pub enum ExecutionRequired {
     #[default]
     NeverExecuted,
 
+    /// Re-execution is required because the state of the node (e.g. source code) has changed since it was last executed and no semantic digest is available to determine if semantics changed. 
+    StateChanged,
+
     /// Re-execution is required because the semantics of the node has changed since it was last executed. 
     SemanticsChanged,
 

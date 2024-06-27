@@ -15,6 +15,11 @@ anyOf:
     description: |
       Execution is required because the node has never been executed (or any previous
       execution was not persisted in its state).
+  - const: StateChanged
+    '@id': stencila:StateChanged
+    description: |
+      Re-execution is required because the state of the node (e.g. source code) has changed
+      since it was last executed and no semantic digest is available to determine if semantics changed.
   - const: SemanticsChanged
     '@id': stencila:SemanticsChanged
     description: |

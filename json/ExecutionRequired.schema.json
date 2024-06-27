@@ -128,6 +128,11 @@
       "const": "NeverExecuted"
     },
     {
+      "@id": "stencila:StateChanged",
+      "description": "Re-execution is required because the state of the node (e.g. source code) has changed\nsince it was last executed and no semantic digest is available to determine if semantics changed.\n",
+      "const": "StateChanged"
+    },
+    {
       "@id": "stencila:SemanticsChanged",
       "description": "Re-execution is required because the semantics of the node has changed since it was\nlast executed.\n",
       "const": "SemanticsChanged"
