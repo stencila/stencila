@@ -24,8 +24,7 @@ use common::{
 };
 use document::Document;
 use schema::{
-    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionStatus, Node, NodeId,
-    NodeType, Person, ProvenanceCount, Timestamp, Visitor,
+    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp, Visitor
 };
 
 use crate::{diagnostics, inspect::Inspector, ServerState};
@@ -81,7 +80,8 @@ pub(super) struct TextNode {
 
 #[derive(Debug, Clone, Default)]
 pub(super) struct TextNodeExecution {
-    pub status: ExecutionStatus,
+    pub status: Option<ExecutionStatus>,
+    pub required: Option<ExecutionRequired>,
     pub duration: Option<Duration>,
     pub ended: Option<Timestamp>,
     pub messages: Option<Vec<ExecutionMessage>>,

@@ -6,13 +6,13 @@ use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
-    Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
-    ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
-    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
-    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
-    QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock,
-    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
-    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Emphasis, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
+    Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
+    ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
+    NodeType, Note, Paragraph, Parameter, ProvenanceCount, QuoteBlock, QuoteInline, ReplaceBlock,
+    ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
+    SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
+    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -202,7 +202,6 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         let execution = if block.execution_duration.is_some() {
             Some(TextNodeExecution {
-                status: ExecutionStatus::Succeeded,
                 duration: block.execution_duration.clone(),
                 ended: block.execution_ended.clone(),
                 authors: block.authors.clone(),
@@ -231,7 +230,6 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
         let execution = if inline.execution_duration.is_some() {
             Some(TextNodeExecution {
-                status: ExecutionStatus::Succeeded,
                 duration: inline.execution_duration.clone(),
                 ended: inline.execution_ended.clone(),
                 authors: inline.authors.clone(),
@@ -370,17 +368,14 @@ impl Inspect for CodeChunk {
             Some(detail)
         };
 
-        let execution = self
-            .options
-            .execution_status
-            .as_ref()
-            .map(|execution_status| TextNodeExecution {
-                status: execution_status.clone(),
-                duration: self.options.execution_duration.clone(),
-                ended: self.options.execution_ended.clone(),
-                messages: self.options.execution_messages.clone(),
-                ..Default::default()
-            });
+        let execution = Some(TextNodeExecution {
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
+            ..Default::default()
+        });
 
         let provenance = self.provenance.clone();
 
@@ -584,17 +579,14 @@ macro_rules! executable {
             fn inspect(&self, inspector: &mut Inspector) {
                 // eprintln!("INSPECT EXEC {}", self.node_id());
 
-                let execution = if let Some(execution_status) = &self.options.execution_status {
-                    Some(TextNodeExecution{
-                        status: execution_status.clone(),
-                        duration: self.options.execution_duration.clone(),
-                        ended: self.options.execution_ended.clone(),
-                        messages: self.options.execution_messages.clone(),
-                        ..Default::default()
-                    })
-                } else {
-                    None
-                };
+                let execution = Some(TextNodeExecution{
+                    status: self.options.execution_status.clone(),
+                    required: self.options.execution_required.clone(),
+                    duration: self.options.execution_duration.clone(),
+                    ended: self.options.execution_ended.clone(),
+                    messages: self.options.execution_messages.clone(),
+                    ..Default::default()
+                });
 
                 inspector.enter_node(self.node_type(), self.node_id(), None, None, execution, None);
                 inspector.visit(self);
@@ -621,17 +613,14 @@ macro_rules! executable_with_provenance {
             fn inspect(&self, inspector: &mut Inspector) {
                 // eprintln!("INSPECT EXEC PROV {}", self.node_id());
 
-                let execution = if let Some(execution_status) = &self.options.execution_status {
-                    Some(TextNodeExecution{
-                        status: execution_status.clone(),
-                        duration: self.options.execution_duration.clone(),
-                        ended: self.options.execution_ended.clone(),
-                        messages: self.options.execution_messages.clone(),
-                        ..Default::default()
-                    })
-                } else {
-                    None
-                };
+                let execution =  Some(TextNodeExecution{
+                    status: self.options.execution_status.clone(),
+                    required: self.options.execution_required.clone(),
+                    duration: self.options.execution_duration.clone(),
+                    ended: self.options.execution_ended.clone(),
+                    messages: self.options.execution_messages.clone(),
+                    ..Default::default()
+                });
 
                 let provenance = self.provenance.clone();
 

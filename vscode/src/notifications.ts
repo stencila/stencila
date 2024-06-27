@@ -4,21 +4,21 @@ import { LanguageClient } from "vscode-languageclient/node";
 import {
   pendingDecoration,
   runningDecoration,
+  staleDecoration,
   succeededDecoration,
 } from "./decorations";
 
-type ExecutionStatus =
-  | "Pending"
-  | "Running"
-  | "Succeeded"
-  | "Warnings"
-  | "Errors"
-  | "Exception";
-
 interface Status {
   range: vscode.Range;
-  status: ExecutionStatus;
-  details: string;
+  // The status being reported. Note that this is a combination
+  // of both `ExecutionStatus` and `ExecutionRequired` ("Stale")
+  status:
+    | "Stale"
+    | "Pending"
+    | "Running"
+    | "Succeeded"
+    | "Other";
+  message: string;
 }
 
 /**
@@ -37,7 +37,7 @@ export function registerNotifications(client: LanguageClient) {
         return;
       }
 
-      const statusToRange = ({ range, status, details }: Status) => {
+      const statusToRange = ({ range, status, message }: Status) => {
         const startLine = range.start.line;
         const lineLength = editor.document.lineAt(startLine).text.length;
         const position = new vscode.Position(startLine, lineLength);
@@ -47,14 +47,14 @@ export function registerNotifications(client: LanguageClient) {
           range: decorationRange,
           renderOptions: {
             after: {
-              contentText: " " + (details ?? status),
+              contentText: " " + (message ?? status),
             },
           },
         };
       };
 
       const decorationsFor = (
-        status: ExecutionStatus,
+        status: Status["status"],
         decoration: vscode.TextEditorDecorationType
       ) => {
         editor.setDecorations(
@@ -63,6 +63,7 @@ export function registerNotifications(client: LanguageClient) {
         );
       };
 
+      decorationsFor("Stale", staleDecoration);
       decorationsFor("Pending", pendingDecoration);
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
