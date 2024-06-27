@@ -359,8 +359,8 @@ rl.on("line", (task) => {
                 : undefined;
               msg.codeLocation = {
                 type: "CodeLocation",
-                startLine: lineNumber,
-                startColumn: columnNumber,
+                startLine: lineNumber - 1,
+                startColumn: columnNumber - 1,
               };
               break;
             } catch {}

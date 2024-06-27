@@ -224,7 +224,7 @@ console.log(a, b, c, d)",
         assert_eq!(
             messages[0].code_location,
             Some(CodeLocation {
-                start_line: Some(1),
+                start_line: Some(0),
                 ..Default::default()
             })
         );
@@ -238,8 +238,8 @@ console.log(a, b, c, d)",
         assert_eq!(
             messages[0].code_location,
             Some(CodeLocation {
-                start_line: Some(1),
-                start_column: Some(1),
+                start_line: Some(0),
+                start_column: Some(0),
                 ..Default::default()
             })
         );
@@ -252,8 +252,8 @@ console.log(a, b, c, d)",
         assert_eq!(
             messages[0].code_location,
             Some(CodeLocation {
-                start_line: Some(2),
-                start_column: Some(5),
+                start_line: Some(1),
+                start_column: Some(4),
                 ..Default::default()
             })
         );
