@@ -124,8 +124,10 @@ STENCILA_LEVEL = Union[
 
 class CodeLocation(TypedDict):
     type: Literal["CodeLocation"]
-    startLine: int
-    endLine: int
+    startLine: Optional[int]
+    startColumn: Optional[int]
+    endLine: Optional[int]
+    endColumn: Optional[int]
 
 
 class ExecutionMessage(TypedDict, total=False):
@@ -133,7 +135,7 @@ class ExecutionMessage(TypedDict, total=False):
     level: STENCILA_LEVEL
     message: str
     errorType: str
-    stackTrace: str
+    stackTrace: Optional[str]
     codeLocation: Optional[CodeLocation]
 
 
@@ -760,9 +762,17 @@ def main() -> None:
                 if file == code_label:
                     code_location = {
                         "type": "CodeLocation",
-                        "startLine": frame.lineno - 1 + add_lines,
+                        "startLine": (
+                            frame.lineno - 1 + add_lines
+                            if frame.lineno is not None
+                            else None
+                        ),
                         "startColumn": frame.colno,
-                        "endLine": frame.end_lineno - 1 + add_lines,
+                        "endLine": (
+                            frame.end_lineno - 1 + add_lines
+                            if frame.end_lineno is not None
+                            else None
+                        ),
                         "endColumn": frame.end_colno,
                     }
 
@@ -789,7 +799,7 @@ def main() -> None:
                 "message": str(e),
                 "errorType": type(e).__name__,
                 "stackTrace": stack_trace,
-                "codeLocation": code_location,
+                "codeLocation": code_location, # type: ignore
             }
             sys.stderr.write(to_json(em) + "\n")
 
