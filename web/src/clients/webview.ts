@@ -24,10 +24,11 @@ interface VSCode {
   postMessage(message: VSCodeMessage): void
 }
 
+// make sure the compiler is aware of the existing `vscode` api instance
 declare const vscode: VSCode
 
 /**
- *
+ * a client object to allow for sending recie
  */
 export class WebViewClient {
   constructor(element: HTMLElement) {
@@ -37,11 +38,21 @@ export class WebViewClient {
 
   private element: HTMLElement
 
+  /**
+   * Sends message to webview panel, via the vscode api instance
+   */
   static postMessage(message: VSCodeMessage) {
-    console.log('vscode api instance', vscode)
     vscode.postMessage(message)
   }
 
+  /**
+   * add an event listener to the window instance for 'message'
+   * events from the webview panel
+   *
+   * nb. any class methods used for/in the event callback must be bound to `this`
+   * if they wish to use properties of `this`. using arrow function
+   * syntax when declaring methods will achieve this.
+   */
   private setWindowListener() {
     window.addEventListener('message', this.receiveMessage)
   }
@@ -74,7 +85,6 @@ export class WebViewClient {
   // !!!must be arrow function
   private handleScroll = (scrollTarget: string) => {
     const targetEl = this.element.querySelector(`#${scrollTarget}`) as Entity
-    console.log('scroll handler', this.element)
     if (targetEl) {
       targetEl.scrollIntoView({
         block: 'start',
