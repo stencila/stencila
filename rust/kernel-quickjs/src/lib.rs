@@ -19,6 +19,8 @@ use kernel::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
         indexmap::IndexMap,
+        once_cell::sync::Lazy,
+        regex::Regex,
         serde_json,
         tokio::{
             self,
@@ -28,9 +30,9 @@ use kernel::{
     },
     format::Format,
     schema::{
-        Array, ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null, Object,
-        ObjectHint, Primitive, SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode,
-        StringHint, Variable,
+        Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null,
+        Object, ObjectHint, Primitive, SoftwareApplication, SoftwareApplicationOptions,
+        SoftwareSourceCode, StringHint, Variable,
     },
     Kernel, KernelForks, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
@@ -647,7 +649,6 @@ impl QuickJsKernelInstance {
                 // Evaluate the code and handle any outputs or exceptions
                 match result {
                     Ok(value) => {
-                        // Convert the
                         if !value.is_undefined() {
                             match value_to_node(ctx, value) {
                                 Ok(node) => outputs.push(node),
@@ -661,12 +662,39 @@ impl QuickJsKernelInstance {
                     Err(..) => {
                         let exc = ctx.catch();
                         let message = if let Some(exc) = exc.as_exception() {
+                            let stack_trace = exc.stack();
+
+                            let mut code_location = None;
+                            if let Some(stack_trace) = &stack_trace {
+                                static REGEX: Lazy<Regex> = Lazy::new(|| {
+                                    Regex::new(r"eval_script:(\d+):(\d+)").expect("invalid regex")
+                                });
+
+                                if let Some(matches) = REGEX.captures(&stack_trace) {
+                                    code_location = Some(CodeLocation {
+                                        start_line: matches[1]
+                                            .parse()
+                                            .ok()
+                                            .map(|line: u64| line.saturating_sub(1)),
+                                        start_column: matches[2]
+                                            .parse()
+                                            .ok()
+                                            .map(|line: u64| line.saturating_sub(1)),
+                                        ..Default::default()
+                                    });
+                                }
+                            }
+
+                            let stack_trace = stack_trace
+                                .map(|stack_trace| stack_trace.replace("eval_script", "code"));
+
                             ExecutionMessage {
                                 level: MessageLevel::Exception,
                                 message: exc
                                     .message()
                                     .unwrap_or_else(|| "Unknown error".to_string()),
-                                stack_trace: exc.stack(),
+                                stack_trace,
+                                code_location,
                                 ..Default::default()
                             }
                         } else {
@@ -893,12 +921,58 @@ console.log(a, b, c, d)",
             "invalid first character of private name"
         );
         assert!(messages[0].stack_trace.is_some());
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(0),
+                start_column: Some(5),
+                ..Default::default()
+            })
+        );
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
         assert_eq!(messages[0].message, "'foo' is not defined");
         assert!(messages[0].stack_trace.is_some());
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(0),
+                start_column: Some(0),
+                ..Default::default()
+            })
+        );
+        assert_eq!(outputs, vec![]);
+
+        // Nested error
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+function foo() {
+    bar()
+}
+foo()
+"#,
+            )
+            .await?;
+        assert_eq!(messages[0].message, "'bar' is not defined");
+        assert_eq!(
+            messages[0].stack_trace.as_deref(),
+            Some(
+                r#"    at foo (code:3:5)
+    at <eval> (code:5:1)
+"#
+            )
+        );
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(2),
+                start_column: Some(4),
+                ..Default::default()
+            })
+        );
         assert_eq!(outputs, vec![]);
 
         // Console methods
