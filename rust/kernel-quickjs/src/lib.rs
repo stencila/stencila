@@ -593,7 +593,7 @@ impl QuickJsKernelInstance {
             .ok_or_else(|| eyre!("Kernel not started yet"))
     }
 
-    /// Run code in the kerne;
+    /// Run code in the kernel
     async fn run_code(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         let trimmed = code.trim();
         if trimmed.is_empty() {
