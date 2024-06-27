@@ -670,7 +670,7 @@ impl QuickJsKernelInstance {
                                     Regex::new(r"eval_script:(\d+):(\d+)").expect("invalid regex")
                                 });
 
-                                if let Some(matches) = REGEX.captures(&stack_trace) {
+                                if let Some(matches) = REGEX.captures(stack_trace) {
                                     code_location = Some(CodeLocation {
                                         start_line: matches[1]
                                             .parse()

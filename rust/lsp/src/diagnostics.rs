@@ -297,7 +297,7 @@ fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<D
             };
             if let Some(stack_trace) = message.stack_trace.as_ref() {
                 msg.push_str("\n\n");
-                msg.push_str(&stack_trace);
+                msg.push_str(stack_trace);
             };
 
             Diagnostic {

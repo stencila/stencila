@@ -24,7 +24,8 @@ use common::{
 };
 use document::Document;
 use schema::{
-    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp, Visitor
+    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionRequired,
+    ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp, Visitor,
 };
 
 use crate::{diagnostics, inspect::Inspector, ServerState};
