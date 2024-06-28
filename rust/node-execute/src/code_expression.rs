@@ -1,4 +1,4 @@
-use schema::{AutomaticExecution, CodeExpression};
+use schema::{CodeExpression, ExecutionMode};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -29,9 +29,15 @@ impl Executable for CodeExpression {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Pending CodeExpression {node_id}");
-
-        pending_impl!(executor, &node_id);
+        if executor.should_execute(
+            &node_id,
+            &self.execution_mode.clone().or(Some(ExecutionMode::Always)),
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            tracing::trace!("Pending CodeExpression {node_id}");
+            pending_impl!(executor, &node_id);
+        }
 
         WalkControl::Break
     }
@@ -40,14 +46,13 @@ impl Executable for CodeExpression {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(
+        if !executor.should_execute(
             &node_id,
-            &self.auto_exec.clone().or(Some(AutomaticExecution::Always)),
+            &self.execution_mode.clone().or(Some(ExecutionMode::Always)),
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
             tracing::trace!("Skipping CodeExpression {node_id}");
-
             return WalkControl::Break;
         }
 

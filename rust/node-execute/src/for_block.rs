@@ -49,9 +49,16 @@ impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Pending ForBlock {node_id}");
 
-        pending_impl!(executor, &node_id);
+        if executor.should_execute(
+            &node_id,
+            &self.execution_mode,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            tracing::trace!("Pending ForBlock {node_id}");
+            pending_impl!(executor, &node_id);
+        }
 
         // Break to avoid making executable nodes in `content` as pending
         WalkControl::Break
@@ -61,14 +68,13 @@ impl Executable for ForBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(
+        if !executor.should_execute(
             &node_id,
-            &self.auto_exec,
+            &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
             tracing::trace!("Skipping ForBlock {node_id}");
-
             return WalkControl::Break;
         }
 

@@ -42,9 +42,16 @@ impl Executable for IfBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Pending IfBlock {node_id}");
 
-        pending_impl!(executor, &node_id);
+        if executor.should_execute(
+            &node_id,
+            &self.execution_mode,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            tracing::trace!("Pending IfBlock {node_id}");
+            pending_impl!(executor, &node_id);
+        }
 
         // Break so that clauses (and `content` in clauses) are not made pending
         WalkControl::Break
@@ -54,14 +61,13 @@ impl Executable for IfBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(
+        if !executor.should_execute(
             &node_id,
-            &self.auto_exec,
+            &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
             tracing::trace!("Skipping IfBlock {node_id}");
-
             return WalkControl::Break;
         }
 
@@ -247,7 +253,7 @@ impl Executable for IfBlockClause {
 
             // Execute nodes in `content` if truthy
             if truthy {
-                tracing::debug!("Executing if clause content");
+                tracing::trace!("Executing if clause content");
                 if let Err(error) = self.content.walk_async(executor).await {
                     messages.push(error_to_execution_message("While executing content", error))
                 };
@@ -257,7 +263,7 @@ impl Executable for IfBlockClause {
         } else if is_empty && executor.is_last {
             // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
-            tracing::debug!("Executing if clause content");
+            tracing::trace!("Executing if clause content");
             if let Err(error) = self.content.walk_async(executor).await {
                 messages.push(error_to_execution_message("While executing content", error))
             };

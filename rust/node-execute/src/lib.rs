@@ -16,8 +16,8 @@ use common::{
 use context::Context;
 use kernels::Kernels;
 use schema::{
-    AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
-    Node, NodeId, NodeProperty, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
+    Block, CompilationDigest, ExecutionMode, Inline, InstructionBlock, InstructionInline, Node,
+    NodeId, NodeProperty, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -307,16 +307,20 @@ impl Executor {
         self.context.clone()
     }
 
-    /// Should the executor execute a code-based node (a node derived from `CodeExecutable`)
-    pub fn should_execute_code(
+    /// Should the executor execute a node
+    pub fn should_execute(
         &self,
         node_id: &NodeId,
-        auto_exec: &Option<AutomaticExecution>,
+        execution_mode: &Option<ExecutionMode>,
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> bool {
-        if self.options.force_all {
+        if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
             return true;
+        }
+
+        if matches!(execution_mode, Some(ExecutionMode::Locked)) {
+            return false;
         }
 
         if let Some(node_ids) = &self.node_ids {
@@ -344,23 +348,25 @@ impl Executor {
         // TODO: reinstate the logic of this function
         return true;
 
-        if self.options.force_all {
+        if self.options.force_all
+            || matches!(instruction.execution_mode, Some(ExecutionMode::Always))
+        {
             return true;
+        }
+
+        if matches!(instruction.execution_mode, Some(ExecutionMode::Locked)) {
+            return false;
         }
 
         if let Some(node_ids) = &self.node_ids {
             return node_ids.contains(node_id);
         }
 
-        // Respect `skip_instructions`
         if self.options.skip_instructions {
             return false;
         }
 
-        instruction
-            .suggestions
-            .as_ref()
-            .map_or(true, |suggestions| suggestions.is_empty())
+        true
     }
 
     /// Should the executor execute an `InstructionInline`
@@ -369,23 +375,25 @@ impl Executor {
         node_id: &NodeId,
         instruction: &InstructionInline,
     ) -> bool {
-        if self.options.force_all {
+        if self.options.force_all
+            || matches!(instruction.execution_mode, Some(ExecutionMode::Always))
+        {
             return true;
+        }
+
+        if matches!(instruction.execution_mode, Some(ExecutionMode::Locked)) {
+            return false;
         }
 
         if let Some(node_ids) = &self.node_ids {
             return node_ids.contains(node_id);
         }
 
-        // Respect `skip_instructions`
         if self.options.skip_instructions {
             return false;
         }
 
-        instruction
-            .suggestions
-            .as_ref()
-            .map_or(true, |suggestions| suggestions.is_empty())
+        true
     }
 
     /// Patch several properties of a node
