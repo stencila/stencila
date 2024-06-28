@@ -21,7 +21,7 @@ export class IfBlock extends Executable {
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details
             type="IfBlock"
-            auto-exec=${this.autoExec}
+            mode=${this.executionMode}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

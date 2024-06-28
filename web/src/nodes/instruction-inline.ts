@@ -30,7 +30,7 @@ export class InstructionInline extends Instruction {
       <div slot="body">
         <stencila-ui-node-execution-details
           type=${this.type}
-          auto-exec=${this.autoExec}
+          mode=${this.executionMode}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}

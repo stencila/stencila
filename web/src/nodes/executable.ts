@@ -1,5 +1,5 @@
 import {
-  AutomaticExecution,
+  ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
@@ -15,8 +15,8 @@ import { ExecutionMessage } from './execution-message'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md
  */
 export abstract class Executable extends Entity {
-  @property({ attribute: 'auto-exec' })
-  autoExec?: AutomaticExecution
+  @property({ attribute: 'execution-mode' })
+  executionMode?: ExecutionMode
 
   @property({ attribute: 'execution-tags', type: Array })
   executionTags?: ExecutionTag[]
