@@ -32,10 +32,11 @@ impl MarkdownCodec for CodeExpression {
 
         context.push_str("exec");
 
-        if let Some(auto) = &self.auto_exec {
-            context
-                .push_str(" auto=")
-                .push_prop_str(NodeProperty::AutoExec, &auto.to_string().to_lowercase());
+        if let Some(mode) = &self.execution_mode {
+            context.push_str(" ").push_prop_str(
+                NodeProperty::ExecutionMode,
+                &mode.to_string().to_lowercase(),
+            );
         }
 
         context.push_str("}").exit_node();

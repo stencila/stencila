@@ -42,7 +42,7 @@ impl MarkdownCodec for InstructionInline {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, auto_exec))
+            .merge_losses(lost_options!(self, id, execution_mode))
             .merge_losses(lost_exec_options!(self))
             .push_str("[[")
             .push_str(self.instruction_type.to_string().to_lowercase().as_str())

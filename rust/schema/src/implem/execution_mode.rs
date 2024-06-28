@@ -1,6 +1,6 @@
-use crate::{prelude::*, AutomaticExecution};
+use crate::{prelude::*, ExecutionMode};
 
-impl AutomaticExecution {
+impl ExecutionMode {
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
         self.to_string().to_lowercase()
     }
