@@ -141,12 +141,12 @@
         {
           "@type": "Text",
           "value": {
-            "string": "With automatic execution behavior specified and no output "
+            "string": "With execution mode specified and no output "
           }
         },
         {
           "@type": "stencila:CodeExpression",
-          "stencila:autoExec": "Never",
+          "stencila:executionMode": "Locked",
           "stencila:code": {
             "string": "c * d"
           },

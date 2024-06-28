@@ -33,13 +33,13 @@
       content: [
         {
           type: "Text",
-          value: { string: "With language and autoExec:" }
+          value: { string: "With language and execution mode:" }
         }
       ]
     },
     {
       type: "CodeChunk",
-      autoExec: "Always",
+      executionMode: "Always",
       code: { string: "\/\/ Javascript" },
       programmingLanguage: "js"
     },
