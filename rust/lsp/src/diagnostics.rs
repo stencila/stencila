@@ -106,118 +106,122 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
     }
 
     // Generate status string and message
-    let (status, message) = if let Some(
-        reason @ (ExecutionRequired::NeverExecuted
-        | ExecutionRequired::StateChanged
-        | ExecutionRequired::SemanticsChanged
-        | ExecutionRequired::DependenciesChanged
-        | ExecutionRequired::DependenciesFailed),
-    ) = &execution.required
-    {
-        // Stale nodes: expand reason into message
-        // This is first clause in the if block because any changes since last executed
-        // should be indicated (rather than status of last execution).
-        use ExecutionRequired::*;
-        let status = match reason {
-            NeverExecuted => "Unexecuted".to_string(),
-            _ => "Stale".to_string(),
-        };
-        let message = match reason {
-            NeverExecuted => "Not executed".to_string(),
-            StateChanged => "Changes since last executed".to_string(),
-            SemanticsChanged => "Semantic changes since last executed".to_string(),
-            DependenciesChanged => "One or more dependencies have changed".to_string(),
-            DependenciesFailed => "One or more dependencies have failed".to_string(),
-            _ => reason.to_string(),
-        };
-        (status, message)
-    } else if let Some(
-        ExecutionStatus::Warnings | ExecutionStatus::Errors | ExecutionStatus::Exceptions,
-    ) = &execution.status
-    {
-        // Do not generate a status for these since we generate an LSP diagnostic (below) for them
-        return None;
-    } else if let Some(status @ (ExecutionStatus::Pending | ExecutionStatus::Running)) =
-        &execution.status
-    {
-        // Pending or running nodes: just use status name as message
-        let status = status.to_string();
-        (status.clone(), status)
-    } else if let Some(ExecutionStatus::Succeeded) = &execution.status {
-        // Succeeded nodes: construct message including duration and authors
-        let mut message = if matches!(
-            node.node_type,
-            NodeType::SuggestionBlock | NodeType::SuggestionInline
-        ) {
-            "Generated"
-        } else {
-            "Succeeded"
-        }
-        .to_string();
-
-        if let Some(duration) = &execution.duration {
-            message.push_str(" in ");
-            message.push_str(&duration.humanize(true));
-        }
-
-        if let Some(ended) = &execution.ended {
-            let ended = ended.humanize(false);
-            if ended == "now ago" {
-                message.push_str(", just now");
+    let (status, message) =
+        if let Some(status @ (ExecutionStatus::Pending | ExecutionStatus::Running)) =
+            &execution.status
+        {
+            // Pending or running nodes: just use status name as message
+            // This comes first because it reflects something currently in progress
+            let status = status.to_string();
+            (status.clone(), status)
+        } else if let Some(
+            reason @ (ExecutionRequired::NeverExecuted
+            | ExecutionRequired::StateChanged
+            | ExecutionRequired::SemanticsChanged
+            | ExecutionRequired::DependenciesChanged
+            | ExecutionRequired::DependenciesFailed),
+        ) = &execution.required
+        {
+            // Stale nodes: expand reason into message
+            // This comes before other execution status variants because any changes since last executed
+            // should be indicated (rather than status of last execution).
+            use ExecutionRequired::*;
+            let status = match reason {
+                NeverExecuted => "Unexecuted".to_string(),
+                _ => "Stale".to_string(),
+            };
+            let message = match reason {
+                NeverExecuted => "Not executed".to_string(),
+                StateChanged => "Changes since last executed".to_string(),
+                SemanticsChanged => "Semantic changes since last executed".to_string(),
+                DependenciesChanged => "One or more dependencies have changed".to_string(),
+                DependenciesFailed => "One or more dependencies have failed".to_string(),
+                _ => reason.to_string(),
+            };
+            (status, message)
+        } else if let Some(
+            ExecutionStatus::Warnings | ExecutionStatus::Errors | ExecutionStatus::Exceptions,
+        ) = &execution.status
+        {
+            // Do not generate a status for these since we generate an LSP diagnostic (below) for them
+            return None;
+        } else if let Some(ExecutionStatus::Succeeded) = &execution.status {
+            // Succeeded nodes: construct message including duration and authors
+            let mut message = if matches!(
+                node.node_type,
+                NodeType::SuggestionBlock | NodeType::SuggestionInline
+            ) {
+                "Generated"
             } else {
-                message.push_str(", ");
-                message.push_str(&ended);
+                "Succeeded"
             }
-        }
+            .to_string();
 
-        if let Some(authors) = &execution.authors {
-            message.push_str(", by ");
-            let list = authors
-                .iter()
-                .filter_map(|author| match author {
-                    Author::AuthorRole(role) => match role.role_name {
-                        // Only show generator role
-                        AuthorRoleName::Generator => role.to_author(),
-                        _ => None,
-                    },
-                    _ => Some(author.clone()),
-                })
-                .map(|author| match author {
-                    Author::Person(person) => person
-                        .given_names
-                        .iter()
-                        .flatten()
-                        .chain(person.family_names.iter().flatten())
-                        .join(" "),
-                    Author::Organization(org) => org
-                        .options
-                        .name
-                        .clone()
-                        .or(org.options.legal_name.clone())
-                        .unwrap_or_else(|| "Unnamed Org".to_string()),
-                    Author::SoftwareApplication(app) => {
-                        let mut name = app.name.clone();
-                        if let Some(version) = &app.options.software_version.clone().or_else(|| {
-                            app.options.version.as_ref().map(|version| match version {
-                                StringOrNumber::String(string) => string.clone(),
-                                StringOrNumber::Number(number) => number.to_string(),
-                            })
-                        }) {
-                            name.push_str(" v");
-                            name.push_str(version);
+            if let Some(duration) = &execution.duration {
+                message.push_str(" in ");
+                message.push_str(&duration.humanize(true));
+            }
+
+            if let Some(ended) = &execution.ended {
+                let ended = ended.humanize(false);
+                if ended == "now ago" {
+                    message.push_str(", just now");
+                } else {
+                    message.push_str(", ");
+                    message.push_str(&ended);
+                }
+            }
+
+            if let Some(authors) = &execution.authors {
+                message.push_str(", by ");
+                let list = authors
+                    .iter()
+                    .filter_map(|author| match author {
+                        Author::AuthorRole(role) => match role.role_name {
+                            // Only show generator role
+                            AuthorRoleName::Generator => role.to_author(),
+                            _ => None,
+                        },
+                        _ => Some(author.clone()),
+                    })
+                    .map(|author| match author {
+                        Author::Person(person) => person
+                            .given_names
+                            .iter()
+                            .flatten()
+                            .chain(person.family_names.iter().flatten())
+                            .join(" "),
+                        Author::Organization(org) => org
+                            .options
+                            .name
+                            .clone()
+                            .or(org.options.legal_name.clone())
+                            .unwrap_or_else(|| "Unnamed Org".to_string()),
+                        Author::SoftwareApplication(app) => {
+                            let mut name = app.name.clone();
+                            if let Some(version) =
+                                &app.options.software_version.clone().or_else(|| {
+                                    app.options.version.as_ref().map(|version| match version {
+                                        StringOrNumber::String(string) => string.clone(),
+                                        StringOrNumber::Number(number) => number.to_string(),
+                                    })
+                                })
+                            {
+                                name.push_str(" v");
+                                name.push_str(version);
+                            }
+                            name
                         }
-                        name
-                    }
-                    Author::AuthorRole(_) => String::new(),
-                })
-                .join(", ");
-            message.push_str(&list);
-        }
+                        Author::AuthorRole(_) => String::new(),
+                    })
+                    .join(", ");
+                message.push_str(&list);
+            }
 
-        ("Succeeded".to_string(), message)
-    } else {
-        return None;
-    };
+            ("Succeeded".to_string(), message)
+        } else {
+            return None;
+        };
 
     Some(Status {
         range: node.range,
