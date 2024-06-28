@@ -121,11 +121,13 @@
     "keybindings": [
       {
         "command": "stencila.invoke.run-curr",
-        "key": "Crtl+Enter"
+        "key": "ctrl+enter",
+        "when": "editorTextFocus"
       },
       {
         "command": "stencila.invoke.run-all-doc",
-        "key": "Crtl+Shift+Enter"
+        "key": "ctrl+shift+enter",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {
