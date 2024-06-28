@@ -14,13 +14,13 @@ export function registerCommands(
   // and which use are passed the document URI and selection (position) as arguments
   for (const command of [
     "run-curr",
-    "run-all-doc",
-    "run-code-doc",
-    "run-assist-doc",
-    "run-all-below",
-    "run-all-above",
+    "run-below",
+    "run-above",
+    "run-doc",
+    "run-code",
+    "run-instruct",
     "cancel-curr",
-    "cancel-all-doc",
+    "cancel-doc",
     "lock-curr",
     "unlock-curr",
   ]) {

@@ -39,15 +39,15 @@ use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
-pub(super) const RUN_ALL_DOC: &str = "stencila.run-all-doc";
-pub(super) const RUN_CODE_DOC: &str = "stencila.run-code-doc";
-pub(super) const RUN_ASSIST_DOC: &str = "stencila.run-assist-doc";
-pub(super) const RUN_ALL_ABOVE: &str = "stencila.run-all-above";
-pub(super) const RUN_ALL_BELOW: &str = "stencila.run-all-below";
+pub(super) const RUN_DOC: &str = "stencila.run-doc";
+pub(super) const RUN_CODE: &str = "stencila.run-code";
+pub(super) const RUN_INSTRUCT: &str = "stencila.run-instruct";
+pub(super) const RUN_ABOVE: &str = "stencila.run-above";
+pub(super) const RUN_BELOW: &str = "stencila.run-below";
 
 pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
 pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
-pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
+pub(super) const CANCEL_DOC: &str = "stencila.cancel-doc";
 
 pub(super) const LOCK_CURR: &str = "stencila.lock-curr";
 pub(super) const UNLOCK_CURR: &str = "stencila.unlock-curr";
@@ -66,14 +66,14 @@ pub(super) fn commands() -> Vec<String> {
     [
         RUN_NODE,
         RUN_CURR,
-        RUN_ALL_DOC,
-        RUN_CODE_DOC,
-        RUN_ASSIST_DOC,
-        RUN_ALL_ABOVE,
-        RUN_ALL_BELOW,
+        RUN_DOC,
+        RUN_CODE,
+        RUN_INSTRUCT,
+        RUN_ABOVE,
+        RUN_BELOW,
         CANCEL_NODE,
         CANCEL_CURR,
-        CANCEL_ALL_DOC,
+        CANCEL_DOC,
         LOCK_CURR,
         UNLOCK_CURR,
         HIDE_SUGGESTIONS_NODE,
@@ -132,7 +132,7 @@ pub(super) async fn execute_command(
                 return Ok(None);
             }
         }
-        RUN_ALL_DOC => (
+        RUN_DOC => (
             format!("Running {file_name}"),
             Command::ExecuteDocument(ExecuteOptions::default()),
             true,
