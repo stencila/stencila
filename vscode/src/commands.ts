@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { createDocumentViewPanel } from "./webviews";
 import { LanguageClient } from "vscode-languageclient/node";
-import { existsSync, writeFileSync } from "fs";
+import { writeFileSync } from "fs";
 
 /**
  * Register commands provided by the extension
@@ -21,6 +21,8 @@ export function registerCommands(
     "run-all-above",
     "cancel-curr",
     "cancel-all-doc",
+    "lock-curr",
+    "unlock-curr",
   ]) {
     context.subscriptions.push(
       vscode.commands.registerCommand(`stencila.invoke.${command}`, () => {

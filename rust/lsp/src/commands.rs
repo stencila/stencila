@@ -49,8 +49,8 @@ pub(super) const CANCEL_NODE: &str = "stencila.cancel-node";
 pub(super) const CANCEL_CURR: &str = "stencila.cancel-curr";
 pub(super) const CANCEL_ALL_DOC: &str = "stencila.cancel-all-doc";
 
-pub(super) const LOCK_EXEC: &str = "stencila.exec-mode-lock";
-pub(super) const UNLOCK_EXEC: &str = "stencila.exec-mode-unlock";
+pub(super) const LOCK_CURR: &str = "stencila.lock-curr";
+pub(super) const UNLOCK_CURR: &str = "stencila.unlock-curr";
 
 pub(super) const HIDE_SUGGESTIONS_NODE: &str = "stencila.hide-suggestions-node";
 pub(super) const SHOW_SUGGESTIONS_NODE: &str = "stencila.show-suggestions-node";
@@ -74,8 +74,8 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_NODE,
         CANCEL_CURR,
         CANCEL_ALL_DOC,
-        LOCK_EXEC,
-        UNLOCK_EXEC,
+        LOCK_CURR,
+        UNLOCK_CURR,
         HIDE_SUGGESTIONS_NODE,
         SHOW_SUGGESTIONS_NODE,
         CHOOSE_NODE,
@@ -148,9 +148,15 @@ pub(super) async fn execute_command(
                 false,
             )
         }
-        LOCK_EXEC => {
-            args.next(); // Skip the currently unused node type arg
-            let node_id = node_id_arg(args.next())?;
+        LOCK_CURR => {
+            let position = position_arg(args.next())?;
+            let node_id = if let Some(node_id) = root.read().await.node_id_at(position) {
+                node_id
+            } else {
+                tracing::warn!("No node found at position {position:?}");
+                return Ok(None);
+            };
+
             (
                 "Locking node".to_string(),
                 Command::PatchNode(Patch {
@@ -165,9 +171,15 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        UNLOCK_EXEC => {
-            args.next(); // Skip the currently unused node type arg
-            let node_id = node_id_arg(args.next())?;
+        UNLOCK_CURR => {
+            let position = position_arg(args.next())?;
+            let node_id = if let Some(node_id) = root.read().await.node_id_at(position) {
+                node_id
+            } else {
+                tracing::warn!("No node found at position {position:?}");
+                return Ok(None);
+            };
+
             (
                 "Unlocking node".to_string(),
                 Command::PatchNode(Patch {

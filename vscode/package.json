@@ -71,9 +71,21 @@
         "icon": "$(run)"
       },
       {
+        "command": "stencila.invoke.run-all-above",
+        "title": "Stencila: Run all nodes above the cursor",
+        "shortTitle": "Run all above",
+        "icon": "$(run-above)"
+      },
+      {
+        "command": "stencila.invoke.run-all-below",
+        "title": "Stencila: Run all nodes below the cursor",
+        "shortTitle": "Run all below",
+        "icon": "$(run-below)"
+      },
+      {
         "command": "stencila.invoke.run-all-doc",
-        "title": "Stencila: Run all nodes in document",
-        "shortTitle": "Run all",
+        "title": "Stencila: Run document",
+        "shortTitle": "Run document",
         "icon": "$(run-all)"
       },
       {
@@ -89,18 +101,6 @@
         "icon": "$(sparkle)"
       },
       {
-        "command": "stencila.invoke.run-all-above",
-        "title": "Stencila: Run all nodes above the cursor",
-        "shortTitle": "Run all above",
-        "icon": "$(run-above)"
-      },
-      {
-        "command": "stencila.invoke.run-all-below",
-        "title": "Stencila: Run all nodes below the cursor",
-        "shortTitle": "Run all below",
-        "icon": "$(run-below)"
-      },
-      {
         "command": "stencila.invoke.cancel-curr",
         "title": "Stencila: Cancel current",
         "icon": "$(stop)"
@@ -110,6 +110,18 @@
         "title": "Stencila: Cancel all running nodes in the document",
         "shortTitle": "Cancel all",
         "icon": "$(stop)"
+      },
+      {
+        "command": "stencila.invoke.lock-curr",
+        "title": "Stencila: Lock current node",
+        "shortTitle": "Lock",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "stencila.invoke.unlock-curr",
+        "title": "Stencila: Unlock current node",
+        "shortTitle": "Unlock",
+        "icon": "$(unlock)"
       },
       {
         "command": "stencila.invoke.export-doc",
@@ -141,6 +153,14 @@
           "when": "editorLangId == smd"
         },
         {
+          "command": "stencila.invoke.run-all-above",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.run-all-below",
+          "when": "editorLangId == smd"
+        },
+        {
           "command": "stencila.invoke.run-all-doc",
           "when": "editorLangId == smd"
         },
@@ -153,23 +173,19 @@
           "when": "editorLangId == smd"
         },
         {
-          "command": "stencila.invoke.run-all-above",
-          "when": "editorLangId == smd"
-        },
-        {
-          "command": "stencila.invoke.run-all-below",
-          "when": "editorLangId == smd"
-        },
-        {
-          "command": "stencila.invoke.cancel-all-doc",
-          "when": "editorLangId == smd"
-        },
-        {
           "command": "stencila.invoke.cancel-curr",
           "when": "editorLangId == smd"
         },
         {
           "command": "stencila.invoke.cancel-all-doc",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.lock-curr",
+          "when": "editorLangId == smd"
+        },
+        {
+          "command": "stencila.invoke.unlock-curr",
           "when": "editorLangId == smd"
         },
         {
@@ -197,8 +213,29 @@
       ],
       "editor/context": [
         {
+          "command": "stencila.invoke.run-curr",
+          "when": "editorLangId == smd",
+          "group": "000-Stencila@1"
+        },
+        {
+          "command": "stencila.invoke.lock-curr",
+          "when": "editorLangId == smd",
+          "group": "000-Stencila@2"
+        },
+        {
+          "command": "stencila.invoke.unlock-curr",
+          "when": "editorLangId == smd",
+          "group": "000-Stencila@3"
+        },
+        {
+          "command": "stencila.invoke.run-all-doc",
+          "when": "editorLangId == smd",
+          "group": "001-Stencila@2"
+        },
+        {
           "command": "stencila.invoke.export-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd",
+          "group": "001-Stencila@5"
         }
       ]
     },
