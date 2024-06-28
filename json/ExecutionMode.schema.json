@@ -1,13 +1,13 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/AutomaticExecution.schema.json",
-  "@id": "stencila:AutomaticExecution",
-  "title": "AutomaticExecution",
+  "$id": "https://stencila.org/ExecutionMode.schema.json",
+  "@id": "stencila:ExecutionMode",
+  "title": "ExecutionMode",
   "extends": [
     "Enumeration"
   ],
   "category": "flow",
-  "description": "Under which circumstances the document node should be automatically executed.",
+  "description": "Under which circumstances the document node should be executed.",
   "required": [
     "type"
   ],
@@ -118,20 +118,25 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:Never",
-      "description": "Never automatically execute the document node. Only execute the when the user explicitly executes\nthe specific node or all nodes in the containing document.\n",
-      "const": "Never"
-    },
-    {
-      "@id": "stencila:Needed",
-      "description": "Automatically execute the document node when it needs to be: if it is stale and is \nupstream dependency of a node that has been executed, or is a downstream dependant of a node that\nhas been executed.\n",
-      "const": "Needed"
-    },
-    {
       "@id": "stencila:Always",
-      "description": "Always execute the code when one of its dependants is executed, even if it is not stale (i.e. it, or its own dependencies,\nare unchanged since the last time it was executed).\n",
+      "description": "Always execute the node when the document or ancestor node is executed.\nUse this for nodes that you want to always be executed, even if they, or\ntheir upstream dependencies, are not stale.\n",
       "const": "Always"
+    },
+    {
+      "@id": "stencila:Auto",
+      "description": "Automatically execute the node if it is stale and is an upstream dependency of a node\nthat is to be executed, or is a downstream dependant of a node that has been executed.\n",
+      "const": "Auto"
+    },
+    {
+      "@id": "stencila:Necessary",
+      "description": "Execute the node when necessary (i.e. if it is stale) when the document or ancestor node is executed.",
+      "const": "Necessary"
+    },
+    {
+      "@id": "stencila:Locked",
+      "description": "Do not execute the node. Requires that the node is unlocked first to be executed.\n",
+      "const": "Locked"
     }
   ],
-  "default": "Needed"
+  "default": "Necessary"
 }

@@ -81,16 +81,6 @@ class AuthorRoleName(StrEnum):
     Generator = "Generator"
 
 
-class AutomaticExecution(StrEnum):
-    """
-    Under which circumstances the document node should be automatically executed.
-    """
-
-    Never = "Never"
-    Needed = "Needed"
-    Always = "Always"
-
-
 class CitationIntent(StrEnum):
     """
     The type or nature of a citation, both factually and rhetorically.
@@ -236,6 +226,17 @@ class ExecutionDependencyRelation(StrEnum):
     Includes = "Includes"
     Reads = "Reads"
     Uses = "Uses"
+
+
+class ExecutionMode(StrEnum):
+    """
+    Under which circumstances the document node should be executed.
+    """
+
+    Always = "Always"
+    Auto = "Auto"
+    Necessary = "Necessary"
+    Locked = "Locked"
 
 
 class ExecutionRequired(StrEnum):
@@ -569,8 +570,8 @@ class Executable(Entity):
 
     type: Literal["Executable"] = "Executable"
 
-    auto_exec: AutomaticExecution | None = None
-    """Under which circumstances the code should be automatically executed."""
+    execution_mode: ExecutionMode | None = None
+    """Under which circumstances the code should be executed."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the content, semantics and dependencies of the node."""
@@ -3177,7 +3178,6 @@ ThingType = Union[
     Article,
     AudioObject,
     AuthorRoleName,
-    AutomaticExecution,
     Brand,
     CitationIntent,
     CitationMode,
@@ -3192,6 +3192,7 @@ ThingType = Union[
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
+    ExecutionMode,
     ExecutionRequired,
     ExecutionStatus,
     Figure,

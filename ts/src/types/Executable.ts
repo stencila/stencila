@@ -1,6 +1,5 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { AutomaticExecution } from "./AutomaticExecution.js";
 import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationMessage } from "./CompilationMessage.js";
 import { Duration } from "./Duration.js";
@@ -8,6 +7,7 @@ import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
 import { ExecutionMessage } from "./ExecutionMessage.js";
+import { ExecutionMode } from "./ExecutionMode.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
 import { ExecutionStatus } from "./ExecutionStatus.js";
 import { ExecutionTag } from "./ExecutionTag.js";
@@ -22,9 +22,9 @@ export class Executable extends Entity {
   type: "Executable";
 
   /**
-   * Under which circumstances the code should be automatically executed.
+   * Under which circumstances the code should be executed.
    */
-  autoExec?: AutomaticExecution;
+  executionMode?: ExecutionMode;
 
   /**
    * A digest of the content, semantics and dependencies of the node.

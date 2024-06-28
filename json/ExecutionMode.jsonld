@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/AutomaticExecution",
-  "name": "AutomaticExecution",
+  "@id": "https://stencila.org/ExecutionMode",
+  "name": "ExecutionMode",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:AutomaticExecution",
+      "@id": "stencila:ExecutionMode",
       "@type": "rdfs:Class",
-      "rdfs:label": "AutomaticExecution",
-      "rdfs:comment": "Under which circumstances the document node should be automatically executed.",
+      "rdfs:label": "ExecutionMode",
+      "rdfs:comment": "Under which circumstances the document node should be executed.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

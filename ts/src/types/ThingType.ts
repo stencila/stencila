@@ -3,7 +3,6 @@ import { type AdmonitionType } from "./AdmonitionType.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRoleName } from "./AuthorRoleName.js";
-import { type AutomaticExecution } from "./AutomaticExecution.js";
 import { type Brand } from "./Brand.js";
 import { type CitationIntent } from "./CitationIntent.js";
 import { type CitationMode } from "./CitationMode.js";
@@ -18,6 +17,7 @@ import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
+import { type ExecutionMode } from "./ExecutionMode.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
 import { type Figure } from "./Figure.js";
@@ -61,7 +61,6 @@ export type ThingType =
   Article |
   AudioObject |
   AuthorRoleName |
-  AutomaticExecution |
   Brand |
   CitationIntent |
   CitationMode |
@@ -76,6 +75,7 @@ export type ThingType =
   Enumeration |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
+  ExecutionMode |
   ExecutionRequired |
   ExecutionStatus |
   Figure |
