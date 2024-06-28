@@ -11,7 +11,9 @@ use winnow::{
     Located, PResult, Parser,
 };
 
-use codec::schema::{Date, DateTime, Duration, InstructionType, Node, Time, Timestamp};
+use codec::schema::{
+    Date, DateTime, Duration, ExecutionMode, InstructionType, Node, Time, Timestamp,
+};
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
 
@@ -24,6 +26,18 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
         take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_'),
     )
         .recognize()
+        .parse_next(input)
+}
+
+/// Parse a execution mode
+pub(super) fn execution_mode(input: &mut &str) -> PResult<ExecutionMode> {
+    alt(("always", "auto", "locked", "lock"))
+        .map(|typ| match typ {
+            "always" => ExecutionMode::Always,
+            "auto" => ExecutionMode::Auto,
+            "locked" | "lock" => ExecutionMode::Locked,
+            _ => unreachable!(),
+        })
         .parse_next(input)
 }
 

@@ -371,17 +371,15 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
 
         let mut lang = None;
         let mut exec = false;
-        let mut auto_exec = None;
+        let mut execution_mode = None;
 
         for (name, value) in options {
             if name == "exec" {
                 exec = true
+            } else if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+                execution_mode = name.parse().ok()
             } else if lang.is_none() && value.is_none() {
                 lang = Some(name.to_string());
-            } else if name == "auto" {
-                if let Some(value) = value {
-                    auto_exec = node_to_string(value).parse().ok()
-                }
             }
         }
 
@@ -389,7 +387,7 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
             Inline::CodeExpression(CodeExpression {
                 code: code.into(),
                 programming_language: lang,
-                auto_exec,
+                execution_mode,
                 ..Default::default()
             })
         } else if matches!(
@@ -435,7 +433,7 @@ fn double_braces(input: &mut Located<&str>) -> PResult<Inline> {
             Inline::CodeExpression(CodeExpression {
                 code: code.into(),
                 programming_language: options.first().map(|(lang, ..)| lang.to_string()),
-                auto_exec: options
+                execution_mode: options
                     .swap_remove("auto")
                     .flatten()
                     .and_then(node_to_from_str),
@@ -915,7 +913,7 @@ pub(super) fn mds_to_string(mds: &[mdast::Node]) -> String {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::AutomaticExecution;
+    use codec::schema::ExecutionMode;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
@@ -927,14 +925,14 @@ mod tests {
         code_attrs(&mut Located::new("`a + b`{}")).unwrap();
         code_attrs(&mut Located::new("`a + b`{python}")).unwrap();
         code_attrs(&mut Located::new("`a + b`{python exec}")).unwrap();
-        code_attrs(&mut Located::new("`a + b`{python exec auto=always}")).unwrap();
+        code_attrs(&mut Located::new("`a + b`{python exec always}")).unwrap();
 
         assert_eq!(
-            code_attrs(&mut Located::new("`a + b`{javascript exec auto=never}")).unwrap(),
+            code_attrs(&mut Located::new("`a + b`{javascript exec auto}")).unwrap(),
             Inline::CodeExpression(CodeExpression {
                 code: "a + b".into(),
                 programming_language: Some("javascript".into()),
-                auto_exec: Some(AutomaticExecution::Never),
+                execution_mode: Some(ExecutionMode::Auto),
                 ..Default::default()
             })
         );

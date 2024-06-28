@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{alphanumeric1, digit1, multispace0, multispace1, space0, Caseless},
@@ -11,10 +9,10 @@ use winnow::{
 use codec::{
     common::{indexmap::IndexMap, tracing},
     schema::{
-        Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
-        CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock, CodeChunk,
+        DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Paragraph, QuoteBlock,
+        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
         ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
         TableRowType, Text, ThematicBreak,
     },
@@ -23,7 +21,7 @@ use codec::{
 use super::{
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
-        assignee, attrs, instruction_type, model, name, node_to_from_str, node_to_string,
+        assignee, attrs, execution_mode, instruction_type, model, name, node_to_string,
         primitive_node, take_until_unbalanced,
     },
     Context,
@@ -348,14 +346,14 @@ fn call_block(input: &mut Located<&str>) -> PResult<Block> {
         ),
     )
     .map(|(source, args, options)| {
-        let mut options: HashMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+        let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
         Block::CallBlock(CallBlock {
             source: source.trim().to_string(),
             arguments: args.unwrap_or_default(),
-            media_type: options.remove("format").flatten().map(node_to_string),
-            select: options.remove("select").flatten().map(node_to_string),
-            auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
+            media_type: options.swap_remove("format").flatten().map(node_to_string),
+            select: options.swap_remove("select").flatten().map(node_to_string),
+            execution_mode: execution_mode_from_options(options),
             ..Default::default()
         })
     })
@@ -369,13 +367,13 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
         (take_while(1.., |c| c != '{'), opt(attrs)),
     )
     .map(|(source, attrs)| {
-        let mut options: HashMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
+        let mut options: IndexMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
 
         Block::IncludeBlock(IncludeBlock {
             source: source.trim().to_string(),
-            media_type: options.remove("format").flatten().map(node_to_string),
-            select: options.remove("select").flatten().map(node_to_string),
-            auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
+            media_type: options.swap_remove("format").flatten().map(node_to_string),
+            select: options.swap_remove("select").flatten().map(node_to_string),
+            execution_mode: execution_mode_from_options(options),
             ..Default::default()
         })
     })
@@ -480,16 +478,13 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
         ),
     )
     .map(|((variable, expr), options)| {
-        let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+        let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
         Block::ForBlock(ForBlock {
             variable: variable.into(),
             code: expr.trim().into(),
             programming_language: options.first().map(|(name, _)| name.to_string()),
-            auto_exec: options
-                .swap_remove("auto")
-                .flatten()
-                .and_then(node_to_from_str),
+            execution_mode: execution_mode_from_options(options),
             ..Default::default()
         })
     })
@@ -511,17 +506,14 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
         opt(preceded(multispace0, attrs)),
     )
         .map(|(tag, expr, options)| {
-            let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+            let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
             (
                 tag == "if",
                 IfBlockClause {
                     code: expr.trim().into(),
                     programming_language: options.first().map(|(name, _)| name.to_string()),
-                    auto_exec: options
-                        .swap_remove("auto")
-                        .flatten()
-                        .and_then(node_to_from_str),
+                    execution_mode: execution_mode_from_options(options),
                     ..Default::default()
                 },
             )
@@ -784,7 +776,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             if let Block::CodeChunk(inner) = child {
                 let node_id = inner.node_id();
                 chunk.programming_language = inner.programming_language;
-                chunk.auto_exec = inner.auto_exec;
+                chunk.execution_mode = inner.execution_mode;
                 chunk.code = inner.code;
 
                 // Remove the inner code chunk from the mapping
@@ -927,17 +919,14 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
     }
 }
 
-/// Parse a suggestion status
-fn parse_auto_exec(input: &mut &str) -> PResult<AutomaticExecution> {
-    preceded(
-        ("auto", multispace0, '=', multispace0),
-        alt((
-            "always".map(|_| AutomaticExecution::Always),
-            "needed".map(|_| AutomaticExecution::Needed),
-            "never".map(|_| AutomaticExecution::Never),
-        )),
-    )
-    .parse_next(input)
+/// Get the execution mode from block options
+fn execution_mode_from_options(options: IndexMap<&str, Option<Node>>) -> Option<ExecutionMode> {
+    for (name, value) in options {
+        if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+            return name.parse().ok();
+        }
+    }
+    None
 }
 
 /// Transform an MDAST node to a Stencila `Block`
@@ -973,7 +962,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
                     } else {
                         lang
                     },
-                    auto_exec: parse_auto_exec(&mut meta).ok(),
+                    execution_mode: execution_mode(&mut meta).ok(),
                     is_invisible,
                     ..Default::default()
                 })
@@ -1234,7 +1223,8 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{ClaimType, Node};
+    use codec::schema::{ClaimType, ExecutionMode, Node};
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -1413,14 +1403,14 @@ mod tests {
         // With more complex expression and language and auto exec
         assert_eq!(
             for_block(&mut Located::new(
-                "for row in select * from table { sql, auto=never }"
+                "for row in select * from table { sql, auto }"
             ))
             .unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "row".to_string(),
                 code: "select * from table".into(),
                 programming_language: Some("sql".to_string()),
-                auto_exec: Some(AutomaticExecution::Never),
+                execution_mode: Some(ExecutionMode::Auto),
                 ..Default::default()
             })
         );
