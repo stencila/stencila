@@ -9,12 +9,12 @@ use async_lsp::{
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
-use schema::{NodeType, ProvenanceCategory};
+use schema::{ExecutionMode, NodeType, ProvenanceCategory};
 
 use crate::{
     commands::{
-        ACCEPT_NODE, CANCEL_NODE, CHOOSE_NODE, HIDE_SUGGESTIONS_NODE, REJECT_NODE, RUN_NODE,
-        SHOW_SUGGESTIONS_NODE,
+        ACCEPT_NODE, CANCEL_NODE, CHOOSE_NODE, HIDE_SUGGESTIONS_NODE, LOCK_EXEC, REJECT_NODE,
+        RUN_NODE, SHOW_SUGGESTIONS_NODE, UNLOCK_EXEC,
     },
     text_document::TextNode,
 };
@@ -46,6 +46,7 @@ pub(crate) async fn request(
                  node_type,
                  node_id,
                  provenance,
+                 execution,
                  ..
              }| {
                 let lens = |command: &str| CodeLens {
@@ -66,7 +67,16 @@ pub(crate) async fn request(
                         // while avoiding race conditions is difficult.
                         // TODO: A cancel lens is not provided because this is currently
                         // not fully implemented
-                        vec![lens(RUN_NODE), lens(VIEW_NODE)]
+                        let execution_mode = execution.as_ref().and_then(|exec| exec.mode.as_ref());
+                        vec![
+                            lens(RUN_NODE),
+                            if matches!(execution_mode, Some(ExecutionMode::Locked)) {
+                                lens(UNLOCK_EXEC)
+                            } else {
+                                lens(LOCK_EXEC)
+                            },
+                            lens(VIEW_NODE),
+                        ]
                     }
                     NodeType::InstructionBlock => {
                         vec![
@@ -167,6 +177,8 @@ pub(crate) async fn resolve(
 
     let command = match command.as_str() {
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
+        LOCK_EXEC => Command::new("$(lock) Lock".to_string(), command, arguments),
+        UNLOCK_EXEC => Command::new("$(unlock) Unlock".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
         HIDE_SUGGESTIONS_NODE => Command::new(
             "$(eye-closed) Hide suggestion".to_string(),

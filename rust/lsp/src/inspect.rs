@@ -401,6 +401,7 @@ impl Inspect for CodeChunk {
         };
 
         let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
             status: self.options.execution_status.clone(),
             required: self.options.execution_required.clone(),
             duration: self.options.execution_duration.clone(),
@@ -612,6 +613,7 @@ macro_rules! executable {
                 // eprintln!("INSPECT EXEC {}", self.node_id());
 
                 let execution = Some(TextNodeExecution{
+                    mode: self.execution_mode.clone(),
                     status: self.options.execution_status.clone(),
                     required: self.options.execution_required.clone(),
                     duration: self.options.execution_duration.clone(),
@@ -646,6 +648,7 @@ macro_rules! executable_with_provenance {
                 // eprintln!("INSPECT EXEC PROV {}", self.node_id());
 
                 let execution =  Some(TextNodeExecution{
+                    mode: self.execution_mode.clone(),
                     status: self.options.execution_status.clone(),
                     required: self.options.execution_required.clone(),
                     duration: self.options.execution_duration.clone(),
