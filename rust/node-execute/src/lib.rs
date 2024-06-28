@@ -207,7 +207,7 @@ pub struct ExecuteOptions {
 
     /// Prepare, but do not actually perform, execution tasks
     ///
-    /// Currently only supported by assistants where is is useful for debugging the
+    /// Currently only supported by assistants where it is useful for debugging the
     /// rendering of system prompts without making a potentially slow API request.
     #[arg(long)]
     pub dry_run: bool,
@@ -320,26 +320,21 @@ impl Executor {
         }
 
         if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return true;
-            }
+            return node_ids.contains(node_id);
         }
 
         if self.options.skip_code {
             return false;
         }
 
-        match auto_exec {
-            Some(AutomaticExecution::Never) => false,
-            Some(AutomaticExecution::Always) => true,
-            Some(AutomaticExecution::Needed) | None => {
-                (compilation_digest.is_none() && execution_digest.is_none())
-                    || compilation_digest != execution_digest
-            }
-        }
+        // If the node has never been executed (both digests are none),
+        // or if the digest has changed since last executed, then execute
+        // the node
+        (compilation_digest.is_none() && execution_digest.is_none())
+            || compilation_digest != execution_digest
     }
 
-    /// Should the executor execute an `InstructionBlock`
+    /// Should the executor execute an `InstructionBlock`ss
     #[allow(unreachable_code, unused_variables)]
     pub fn should_execute_instruction_block(
         &self,
@@ -354,9 +349,7 @@ impl Executor {
         }
 
         if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return true;
-            }
+            return node_ids.contains(node_id);
         }
 
         // Respect `skip_instructions`
@@ -381,9 +374,7 @@ impl Executor {
         }
 
         if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return true;
-            }
+            return node_ids.contains(node_id);
         }
 
         // Respect `skip_instructions`
@@ -465,16 +456,6 @@ impl VisitorAsync for Executor {
             }
         }
 
-        // If the executor has node ids (i.e. is only executing some nodes, not the entire
-        // document) then do not execute this node if it is not in the node ids.
-        if let Some(node_ids) = &self.node_ids {
-            if let Some(node_id) = &node.node_id() {
-                if !node_ids.contains(node_id) {
-                    return Ok(WalkControl::Continue);
-                }
-            }
-        }
-
         use Node::*;
         let control = match node {
             Article(node) => self.visit_executable(node).await,
@@ -495,16 +476,6 @@ impl VisitorAsync for Executor {
             Heading(node) => self.context.push_heading(node),
             Paragraph(node) => self.context.push_paragraph(node),
             _ => {}
-        }
-
-        // If the executor has node ids (i.e. is only executing some nodes, not the entire
-        // document) then do not execute this block if it is not in the node ids.
-        if let Some(node_ids) = &self.node_ids {
-            if let Some(node_id) = &block.node_id() {
-                if !node_ids.contains(node_id) {
-                    return Ok(WalkControl::Continue);
-                }
-            }
         }
 
         let control = match block {
@@ -534,16 +505,6 @@ impl VisitorAsync for Executor {
             MathInline(node) => self.context.push_math_inline(node),
             Text(node) => self.context.push_text(node),
             _ => {}
-        }
-
-        // If the executor has node ids (i.e. is only executing some nodes, not the entire
-        // document) then do not execute this inline if it is not in the node ids.
-        if let Some(node_ids) = &self.node_ids {
-            if let Some(node_id) = &inline.node_id() {
-                if !node_ids.contains(node_id) {
-                    return Ok(WalkControl::Continue);
-                }
-            }
         }
 
         let control = match inline {
