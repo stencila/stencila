@@ -1,8 +1,44 @@
-use schema::{IfBlock, IfBlockClause};
+use schema::{CompilationDigest, IfBlock, IfBlockClause};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for IfBlock {
+    #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Compiling IfBlock {node_id}");
+
+        // The compilation digest is a digest of the digests each of the individual clauses.
+        let mut clauses_digest = 0u64;
+        for clause in self.clauses.iter_mut() {
+            clause.compile(executor).await;
+
+            if let Some(digest) = &clause.options.compilation_digest {
+                add_to_digest(
+                    &mut clauses_digest,
+                    &digest
+                        .semantic_digest
+                        .unwrap_or(digest.state_digest)
+                        .to_be_bytes(),
+                );
+            }
+        }
+
+        let compilation_digest = CompilationDigest::new(clauses_digest);
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &compilation_digest);
+
+        executor.patch(
+            &node_id,
+            [
+                set(NodeProperty::CompilationDigest, compilation_digest),
+                set(NodeProperty::ExecutionRequired, execution_required),
+            ],
+        );
+
+        WalkControl::Continue
+    }
+
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
@@ -39,13 +75,17 @@ impl Executable for IfBlock {
             ],
         );
 
+        let compilation_digest = self.options.compilation_digest.clone();
+
         if !self.clauses.is_empty() {
             let started = Timestamp::now();
 
             // Explicitly re-set all clauses to inactive so it is possible to shortcut
-            // evaluation by breaking on the first truthy clause
+            // evaluation by breaking on the first truthy clause. Because of the short
+            // cutting a patch needs to be sent here too
             for clause in self.clauses.iter_mut() {
                 clause.is_active = Some(false);
+                executor.patch(&clause.node_id(), [set(NodeProperty::IsActive, false)]);
             }
 
             // Iterate over clauses breaking on the first that is active
@@ -54,7 +94,12 @@ impl Executable for IfBlock {
             let last_index = self.clauses.len() - 1;
             for (index, clause) in self.clauses.iter_mut().enumerate() {
                 executor.is_last = index == last_index;
+
+                // Temporarily remove any executor node ids so that nodes within
+                // clause content are executed.
+                let node_ids = executor.node_ids.take();
                 clause.execute(executor).await;
+                executor.node_ids = node_ids;
 
                 if let Some(clause_status) = &clause.options.execution_status {
                     if clause_status > &status {
@@ -81,6 +126,7 @@ impl Executable for IfBlock {
                     set(NodeProperty::ExecutionDuration, duration),
                     set(NodeProperty::ExecutionEnded, ended),
                     set(NodeProperty::ExecutionCount, count),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         } else {
@@ -91,6 +137,7 @@ impl Executable for IfBlock {
                     set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
                     none(NodeProperty::ExecutionDuration),
                     none(NodeProperty::ExecutionEnded),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
                 ],
             );
         }
@@ -105,12 +152,45 @@ impl Executable for IfBlock {
 
         interrupt_impl!(self, executor, &node_id);
 
-        // Continue to interrupt `clauses` and any executable nodes within them
+        // Continue walk to interrupt `clauses` and any executable nodes within them
         WalkControl::Continue
     }
 }
 
 impl Executable for IfBlockClause {
+    #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Compiling IfBlockClause {node_id}");
+
+        let info = parsers::parse(
+            &self.code,
+            self.programming_language.as_deref().unwrap_or_default(),
+        );
+
+        // Note that, unlike a `ForBlock`, the `content` of the clause does not need to be part of
+        // the compilation digest because it does not affect the result of execution (which is
+        // just to determine if the clause `is_active`).
+
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
+
+        // Update `compilation_digest` on `self` so that parent `IfBlock`
+        // can update its own `compilation_digest` based on all the clauses
+        self.options.compilation_digest = Some(info.compilation_digest.clone());
+
+        executor.patch(
+            &node_id,
+            [
+                set(NodeProperty::CompilationDigest, info.compilation_digest),
+                set(NodeProperty::ExecutionRequired, execution_required),
+            ],
+        );
+
+        // Continue walk to compile `content`
+        WalkControl::Continue
+    }
+
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, _executor: &mut Executor) -> WalkControl {
         // No change to execution status because not every clause will be
@@ -165,8 +245,9 @@ impl Executable for IfBlockClause {
                 _ => true,
             };
 
-            // Execute nodes in content if truthy
+            // Execute nodes in `content` if truthy
             if truthy {
+                tracing::debug!("Executing if clause content");
                 if let Err(error) = self.content.walk_async(executor).await {
                     messages.push(error_to_execution_message("While executing content", error))
                 };
@@ -176,6 +257,7 @@ impl Executable for IfBlockClause {
         } else if is_empty && executor.is_last {
             // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
+            tracing::debug!("Executing if clause content");
             if let Err(error) = self.content.walk_async(executor).await {
                 messages.push(error_to_execution_message("While executing content", error))
             };
@@ -215,9 +297,14 @@ impl Executable for IfBlockClause {
                 set(NodeProperty::ExecutionDuration, duration),
                 set(NodeProperty::ExecutionEnded, ended),
                 set(NodeProperty::ExecutionCount, count),
+                set(
+                    NodeProperty::ExecutionDigest,
+                    self.options.compilation_digest.clone(),
+                ),
             ],
         );
 
+        // Break walk because `content` was executed above (if truthy)
         WalkControl::Break
     }
 
@@ -228,7 +315,7 @@ impl Executable for IfBlockClause {
 
         interrupt_impl!(self, executor, &node_id);
 
-        // Continue to interrupt executable nodes in `content`
+        // Continue walk to interrupt executable nodes in `content`
         WalkControl::Continue
     }
 }
