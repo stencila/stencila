@@ -83,6 +83,16 @@ fn statuses(node: &TextNode) -> Vec<Status> {
         }
     }
 
+    if matches!(node.node_type, NodeType::IfBlockClause) {
+        if matches!(node.is_active, Some(true)) {
+            items.push(Status {
+                range: node.range,
+                status: "Active".to_string(),
+                message: "Active".to_string(),
+            });
+        }
+    }
+
     items.append(&mut node.children.iter().flat_map(statuses).collect());
 
     items

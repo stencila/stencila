@@ -61,7 +61,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         detail: Option<String>,
         execution: Option<TextNodeExecution>,
         provenance: Option<Vec<ProvenanceCount>>,
-    ) {
+    ) -> &mut TextNode {
         let range = match self.poshmap.node_id_to_range16(&node_id) {
             Some(range) => range16_to_range(range),
             None => {
@@ -86,9 +86,12 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             name,
             detail,
             execution,
+            is_active: None,
             provenance,
             children: Vec::new(),
-        })
+        });
+
+        self.stack.last_mut().expect("just pushed")
     }
 
     fn exit_node(&mut self) {
@@ -110,6 +113,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             _ => {}
         };
 
+        // Break walk because `variant` visited above
         WalkControl::Break
     }
 
@@ -149,6 +153,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             ThematicBreak
         );
 
+        // Break walk because `variant` visited above
         WalkControl::Break
     }
 
@@ -196,6 +201,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             VideoObject
         );
 
+        // Break walk because `variant` visited above
         WalkControl::Break
     }
 
@@ -224,6 +230,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&block.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
@@ -252,14 +259,35 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&inline.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
-        self.enter_node(clause.node_type(), clause.node_id(), None, None, None, None);
+        let execution = Some(TextNodeExecution {
+            status: clause.options.execution_status.clone(),
+            required: clause.options.execution_required.clone(),
+            duration: clause.options.execution_duration.clone(),
+            ended: clause.options.execution_ended.clone(),
+            messages: clause.options.execution_messages.clone(),
+            ..Default::default()
+        });
+
+        let provenance = clause.provenance.clone();
+
+        let node = self.enter_node(
+            clause.node_type(),
+            clause.node_id(),
+            None,
+            None,
+            execution,
+            provenance,
+        );
+        node.is_active = clause.is_active.clone();
         self.visit(&clause.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
@@ -275,6 +303,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&list_item.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
@@ -290,6 +319,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&table_row.cells);
         self.exit_node();
 
+        // Break walk because `cells` already visited above
         WalkControl::Break
     }
 
@@ -307,6 +337,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.in_table_cell = false;
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 }
@@ -330,6 +361,7 @@ impl Inspect for Article {
             // we do not want these displayed on the first line in code lenses etc
             execution: None,
             provenance: None,
+            is_active: None,
             children: Vec::new(),
         });
 

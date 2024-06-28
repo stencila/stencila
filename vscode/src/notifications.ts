@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
 import {
+  activeDecoration,
   pendingDecoration,
   runningDecoration,
   staleDecoration,
@@ -19,7 +20,7 @@ interface Status {
     | "Pending"
     | "Running"
     | "Succeeded"
-    | "Other";
+    | "Active";
   message: string;
 }
 
@@ -75,6 +76,7 @@ export function registerNotifications(client: LanguageClient) {
       decorationsFor("Pending", pendingDecoration);
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
+      decorationsFor("Active", activeDecoration);
     }
   );
 }

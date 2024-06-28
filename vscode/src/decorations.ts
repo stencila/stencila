@@ -112,3 +112,23 @@ export const succeededDecoration = vscode.window.createTextEditorDecorationType(
     },
   }
 );
+
+const active = "260deg";
+const activeMid = `hsl(${active} 100% 80%)`;
+
+export const activeDecoration = vscode.window.createTextEditorDecorationType({
+  overviewRulerColor: activeMid,
+  overviewRulerLane: vscode.OverviewRulerLane.Right,
+  light: {
+    after: {
+      color: activeMid,
+      backgroundColor: `hsl(${active} 100% 50% / 5%)`,
+    },
+  },
+  dark: {
+    after: {
+      color: activeMid,
+      backgroundColor: `hsl(${active} 100% 50% / 30%)`,
+    },
+  },
+});

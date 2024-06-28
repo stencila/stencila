@@ -69,6 +69,9 @@ pub(super) struct TextNode {
     /// notifications for the node
     pub execution: Option<TextNodeExecution>,
 
+    /// Whether the node is active (currently for `IfBlockClause` nodes only)
+    pub is_active: Option<bool>,
+
     /// Provenance details (for nodes with a `provenance` field)
     ///
     /// These detail are used to publish provenance summaries
@@ -100,6 +103,7 @@ impl Default for TextNode {
             name: String::new(),
             detail: None,
             execution: None,
+            is_active: None,
             provenance: None,
             children: Vec::new(),
         }
