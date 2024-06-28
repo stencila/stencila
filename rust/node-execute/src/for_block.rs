@@ -192,12 +192,16 @@ impl Executable for ForBlock {
                 };
 
                 // Execute the iteration
+                // Temporarily remove any executor node ids so that nodes within
+                // the iteration content are executed.
+                let node_ids = executor.node_ids.take();
                 if let Err(error) = iteration.walk_async(executor).await {
                     messages.push(error_to_execution_message(
                         "While executing iteration",
                         error,
                     ));
                 }
+                executor.node_ids = node_ids;
             }
 
             // Remove the loop's variable (if it was set)
