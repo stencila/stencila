@@ -79,7 +79,7 @@
     "@codemirror/state": "6.4.1",
     "@codemirror/view": "6.26.2",
     "@lit/context": "1.1.2",
-    "@shoelace-style/shoelace": "2.15.0",
+    "@shoelace-style/shoelace": "2.15.1",
     "@stencila/types": "2.0.0-alpha.26",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "0.5.10",
