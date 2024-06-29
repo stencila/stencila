@@ -10,6 +10,7 @@ The `ExecutionRequired` type has these members:
 
 - `No`
 - `NeverExecuted`
+- `StateChanged`
 - `SemanticsChanged`
 - `DependenciesChanged`
 - `DependenciesFailed`

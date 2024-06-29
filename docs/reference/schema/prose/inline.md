@@ -34,6 +34,7 @@ The `Inline` type has these members:
 - [`Strikeout`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)
 - [`Strong`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)
 - [`Subscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)
+- [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md)
 - [`Superscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)
 - [`Text`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)
 - [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)
@@ -90,6 +91,7 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 |                     | Low+       | Generate `Parameter` nodes in inline content.                                                                                                                                                     | Default for level                                |
 | `ReplaceInline`     | Min+       | Do not generate `ReplaceInline` nodes in inline content.                                                                                                                                          | -                                                |
 |                     | Max        | Generate `ReplaceInline` nodes in inline content.                                                                                                                                                 | Default for level                                |
+| `SuggestionInline`  | Min+       | Do not generate `SuggestionInline` nodes in inline content.                                                                                                                                       | -                                                |
 | `Time`              | Min+       | Do not generate `Time` nodes in inline content.                                                                                                                                                   | -                                                |
 |                     | High+      | Generate `Time` nodes in inline content.                                                                                                                                                          | Default for level                                |
 | `Timestamp`         | Min+       | Do not generate `Timestamp` nodes in inline content.                                                                                                                                              | -                                                |

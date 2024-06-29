@@ -30,6 +30,7 @@ The `Block` type has these members:
 - [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace-block.md)
 - [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)
 - [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md)
+- [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)
 - [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
 - [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
 
@@ -73,6 +74,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `ReplaceBlock`     | Min+       | Do not generate `ReplaceBlock` nodes in block content.     | -                 |
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
+| `SuggestionBlock`  | Min+       | Do not generate `SuggestionBlock` nodes in block content.  | -                 |
 
 ## Source
 

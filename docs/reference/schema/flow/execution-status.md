@@ -11,6 +11,7 @@ The `ExecutionStatus` type has these members:
 - `Scheduled`
 - `Pending`
 - `Skipped`
+- `Locked`
 - `Empty`
 - `Running`
 - `Succeeded`
