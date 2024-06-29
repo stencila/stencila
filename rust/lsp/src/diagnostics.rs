@@ -83,14 +83,12 @@ fn statuses(node: &TextNode) -> Vec<Status> {
         }
     }
 
-    if matches!(node.node_type, NodeType::IfBlockClause) {
-        if matches!(node.is_active, Some(true)) {
-            items.push(Status {
-                range: node.range,
-                status: "Active".to_string(),
-                message: "Active".to_string(),
-            });
-        }
+    if matches!(node.node_type, NodeType::IfBlockClause) && matches!(node.is_active, Some(true)) {
+        items.push(Status {
+            range: node.range,
+            status: "Active".to_string(),
+            message: "Active".to_string(),
+        });
     }
 
     items.append(&mut node.children.iter().flat_map(statuses).collect());
@@ -132,10 +130,10 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             };
             let message = match reason {
                 NeverExecuted => "Not executed".to_string(),
-                StateChanged => "Changes since last executed".to_string(),
-                SemanticsChanged => "Semantic changes since last executed".to_string(),
-                DependenciesChanged => "One or more dependencies have changed".to_string(),
-                DependenciesFailed => "One or more dependencies have failed".to_string(),
+                StateChanged => "Stale: changes since last executed".to_string(),
+                SemanticsChanged => "Stale: semantic changes since last executed".to_string(),
+                DependenciesChanged => "Stale: one or more dependencies have changed".to_string(),
+                DependenciesFailed => "Stale: one or more dependencies have failed".to_string(),
                 _ => reason.to_string(),
             };
             (status, message)
@@ -145,6 +143,31 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
         {
             // Do not generate a status for these since we generate an LSP diagnostic (below) for them
             return None;
+        } else if let Some(status @ (ExecutionStatus::Locked | ExecutionStatus::Skipped)) =
+            &execution.status
+        {
+            // Skipped nodes
+            let mut message = "Skipped: ".to_string();
+
+            if matches!(status, ExecutionStatus::Locked) {
+                message += "locked"
+            } else if matches!(status, ExecutionStatus::Skipped)
+                && matches!(execution.required, Some(ExecutionRequired::No))
+            {
+                message += "execution unnecessary";
+            }
+
+            if let Some(ended) = &execution.ended {
+                message.push_str(", succeeded ");
+                let ended = ended.humanize(false);
+                if ended == "now ago" {
+                    message.push_str("just now");
+                } else {
+                    message.push_str(&ended);
+                }
+            }
+
+            ("Skipped".to_string(), message)
         } else if let Some(ExecutionStatus::Succeeded) = &execution.status {
             // Succeeded nodes: construct message including duration and authors
             let mut message = if matches!(
@@ -157,8 +180,18 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             }
             .to_string();
 
+            if let Some(outputs) = &execution.outputs {
+                message.push_str(", with ");
+                if outputs == &1 {
+                    message.push_str("1 output");
+                } else {
+                    message.push_str(&outputs.to_string());
+                    message.push_str(" outputs");
+                }
+            }
+
             if let Some(duration) = &execution.duration {
-                message.push_str(" in ");
+                message.push_str(", in ");
                 message.push_str(&duration.humanize(true));
             }
 

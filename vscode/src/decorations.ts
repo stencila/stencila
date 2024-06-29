@@ -89,6 +89,30 @@ export const runningDecoration = vscode.window.createTextEditorDecorationType({
   },
 });
 
+const skipped = "160deg";
+const skippedMid = `hsl(${skipped} 100% 30%)`;
+const skippedLight = `hsl(${skipped} 100% 95%)`;
+const skippedDark = `hsl(${skipped} 100% 5%)`;
+
+export const skippedDecoration = vscode.window.createTextEditorDecorationType(
+  {
+    overviewRulerColor: skippedMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: skippedMid,
+        backgroundColor: skippedLight,
+      },
+    },
+    dark: {
+      after: {
+        color: skippedMid,
+        backgroundColor: skippedDark,
+      },
+    },
+  }
+);
+
 const succeeded = "120deg";
 const succeededMid = `hsl(${succeeded} 100% 30%)`;
 const succeededLight = `hsl(${succeeded} 100% 95%)`;

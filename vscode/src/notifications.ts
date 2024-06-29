@@ -5,6 +5,7 @@ import {
   activeDecoration,
   pendingDecoration,
   runningDecoration,
+  skippedDecoration,
   staleDecoration,
   succeededDecoration,
   unexecutedDecoration,
@@ -17,6 +18,7 @@ interface Status {
   status:
     | "Unexecuted"
     | "Stale"
+    | "Skipped"
     | "Pending"
     | "Running"
     | "Succeeded"
@@ -74,6 +76,7 @@ export function registerNotifications(client: LanguageClient) {
       decorationsFor("Unexecuted", unexecutedDecoration);
       decorationsFor("Stale", staleDecoration);
       decorationsFor("Pending", pendingDecoration);
+      decorationsFor("Skipped", skippedDecoration);
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
       decorationsFor("Active", activeDecoration);

@@ -283,7 +283,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             execution,
             provenance,
         );
-        node.is_active = clause.is_active.clone();
+        node.is_active = clause.is_active;
         self.visit(&clause.content);
         self.exit_node();
 
@@ -406,6 +406,7 @@ impl Inspect for CodeChunk {
             required: self.options.execution_required.clone(),
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
+            outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
             messages: self.options.execution_messages.clone(),
             ..Default::default()
         });
