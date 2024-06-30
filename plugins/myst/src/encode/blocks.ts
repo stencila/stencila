@@ -35,6 +35,15 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
       context.pushString(block.code + "\n");
       context.pushString("```\n\n");
       break;
+    case "CodeChunk":
+      context.pushString("```{code-cell} " + block.programmingLanguage + "\n");
+      context.pushString(block.code + "\n");
+      context.pushString("```\n\n");
+      break;
+    case "IncludeBlock":
+      context.pushString("```{embed} " + block.source + "\n");
+      context.pushString("```\n\n");
+      break;
     case "Heading":
       context.pushString("#".repeat(block.level) + " ");
       encodeInlines(block.content, context);
@@ -138,21 +147,40 @@ export function encodeBlock(block: Block, context: MySTEncodeContext) {
       });
       context.pushString("\n");
       break;
-
-    case "CallBlock":
     case "Claim":
-    case "CodeChunk":
+      context.pushString(":::{prf:" + toMySTProofKind[block.claimType] + "}\n");
+      encodeBlocks(block.content, context);
+      context.pushString(":::\n\n");
+      break;
+    case "QuoteBlock":
+      context.pushString(":::{blockquote}\n");
+      encodeBlocks(block.content, context);
+      // Currently only support Text citation
+      if (block.cite?.type === "Text") {
+        context.pushString("-- " + block.cite.value + "\n");
+      }
+      context.pushString(":::\n\n");
+      break;
+    case "Section":
+      context.pushString("+++");
+      if (block.sectionType) {
+        context.pushString(
+          ' { "part": "' + block.sectionType.toLowerCase() + '" }'
+        );
+      }
+      context.pushString("\n");
+      encodeBlocks(block.content, context);
+      context.pushString("+++\n\n");
+      break;
+    case "CallBlock":
     case "DeleteBlock":
     case "ForBlock":
     case "Form":
     case "IfBlock":
-    case "IncludeBlock":
     case "InsertBlock":
     case "InstructionBlock":
     case "ModifyBlock":
-    case "QuoteBlock":
     case "ReplaceBlock":
-    case "Section":
     case "StyledBlock":
     default:
       throw new Error(`Not yet implemented: ${block.type}`);
@@ -180,4 +208,15 @@ const toMySTAdmonitionKind = {
   Info: "note",
   Success: "note",
   Failure: "error",
+};
+
+const toMySTProofKind = {
+  Statement: "proposition",
+  Theorem: "theorem",
+  Lemma: "lemma",
+  Proof: "proof",
+  Postulate: "axiom",
+  Hypothesis: "conjecture",
+  Proposition: "proposition",
+  Corollary: "corollary",
 };

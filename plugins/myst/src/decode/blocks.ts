@@ -49,7 +49,9 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
       throw new Error(`Expected only one top-level block`);
     case "mystDirective":
       throw new Error(
-        "mystDirective should not exist after basicTransformations()"
+        "mystDirective should not exist after basicTransformations(): " +
+          md.name +
+          "\nIs it implemented in myst-parser or myst-transforms basicTransformations()?"
       );
     case "paragraph":
       return new Paragraph(mdsToInlines(md.children));
@@ -108,6 +110,20 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
         }
       );
     case "container":
+      switch (md.kind) {
+        case "quote":
+          return new QuoteBlock(
+            mdsToBlocks(getBlocksFromFirstChildOfType("blockquote", md)),
+            {
+              cite: {
+                type: "Text",
+                value: getBlocksFromFirstChildOfType("caption", md)[0]
+                  .children[0].value,
+              },
+            }
+          );
+      }
+
       return new Figure(
         md.children?.map((r) => {
           switch (r.type) {
@@ -123,6 +139,8 @@ export function mdToBlock(md: MySTBlock | FlowContent): Block | undefined {
             case "caption":
             case "legend":
               return new Figure(mdsToBlocks(r.children));
+            case "blockquote":
+              return new QuoteBlock(mdsToBlocks(r.children));
             default:
               throw new Error(
                 `MyST container type not yet implemented: ${(r as any).type}`
@@ -197,3 +215,15 @@ const mystBlockTypes = [
   "table",
   "thematicBreak",
 ];
+
+function getBlocksFromFirstChildOfType(
+  type: string,
+  md: MySTBlock | FlowContent
+): (MySTBlock | FlowContent)[] {
+  const child = md.children?.find((c) => c.type === type);
+  if (child) {
+    return child.children;
+  } else {
+    return [];
+  }
+}

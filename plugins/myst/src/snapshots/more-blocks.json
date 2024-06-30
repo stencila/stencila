@@ -1,0 +1,169 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Page Heading 1"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "First block of text under first heading"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "An Embedded Include block"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "A Quote Block"
+        }
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "cite": {
+        "type": "Text",
+        "value": "Hamlet act 4, Scene 5"
+      },
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "We know what we are, but know not what we may be."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Section Block"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "MyST makes Markdown more "
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": "extensible"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " & "
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": "powerful"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " to support an\necosystem of tools for computational narratives, technical documentation,\nand open scientific communication. You can "
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": "edit this demo"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " including the "
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": "frontmatter"
+            }
+          ],
+          "target": "https://mystmd.org/guide/frontmatter"
+        },
+        {
+          "type": "Text",
+          "value": " to change the title!!"
+        }
+      ]
+    },
+    {
+      "type": "Admonition",
+      "admonitionType": "Important",
+      "title": [
+        {
+          "type": "Text",
+          "value": "Our Values"
+        }
+      ],
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "We believe in a community-driven approach of open-source tools that are\ncomposable and extensible. You can find out how to be involved in developing MyST Markdown by getting involved in the "
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "ExecutableBooks"
+                }
+              ],
+              "target": "https://executablebooks.org/"
+            },
+            {
+              "type": "Text",
+              "value": " project."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
