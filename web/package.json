@@ -64,28 +64,21 @@
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --no-scope-hoist --log-level verbose",
     "build:vscode": "cross-env STENCILA_VIEW=vscode NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
-    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "6.15.0",
-    "@codemirror/commands": "6.3.3",
     "@codemirror/lang-html": "6.4.8",
     "@codemirror/lang-javascript": "6.2.2",
     "@codemirror/lang-json": "6.0.1",
-    "@codemirror/lang-markdown": "6.2.4",
     "@codemirror/lang-python": "6.1.5",
     "@codemirror/lang-sql": "6.6.3",
     "@codemirror/lang-xml": "6.1.0",
     "@codemirror/language": "6.10.1",
     "@codemirror/legacy-modes": "6.4.0",
     "@codemirror/lint": "^6.7.0",
-    "@codemirror/search": "6.5.6",
     "@codemirror/state": "6.4.1",
     "@codemirror/view": "6.26.2",
-    "@lezer/common": "1.2.1",
-    "@lezer/highlight": "1.2.0",
-    "@lezer/markdown": "1.2.0",
-    "@lit/context": "1.1.1",
+    "@lit/context": "1.1.2",
     "@shoelace-style/shoelace": "2.15.0",
     "@stencila/types": "2.0.0-alpha.26",
     "@tailwindcss/container-queries": "0.1.1",
@@ -97,18 +90,14 @@
     "@twind/preset-typography": "1.0.7",
     "@twind/with-web-components": "1.1.3",
     "@viz-js/lang-dot": "^1.0.4",
-    "codemirror-json5": "1.0.3",
     "codemirror-lang-r": "0.1.0-2",
     "just-diff-apply": "5.5.0",
-    "lit": "3.1.3",
+    "lit": "3.1.4",
     "moment": "2.30.1",
     "morphdom": "2.7.2",
     "pagedjs": "0.4.3",
-    "prosemirror-model": "1.19.4",
-    "prosemirror-state": "1.4.3",
-    "prosemirror-view": "1.33.4",
     "split.js": "1.6.5",
-    "tailwindcss": "3.4.1"
+    "tailwindcss": "3.4.4"
   },
   "devDependencies": {
     "@parcel/compressor-brotli": "2.12.0",
@@ -117,7 +106,6 @@
     "cross-env": "7.0.3",
     "parcel": "2.12.0",
     "parcel-reporter-static-files-copy": "1.5.3",
-    "postcss-import": "15.1.0",
-    "prosemirror-example-setup": "1.2.2"
+    "postcss-import": "15.1.0"
   }
 }

@@ -164,12 +164,17 @@ repository:
         (LANG_ALIASES)
         \s+
         (exec)
+        (?:
+          \s+
+          (always|auto|locked)
+        )?
         \s*
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
+      "4": { name: keyword.control.stencila } # mode
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -186,12 +191,17 @@ repository:
         (\w+)
         \s+
         (exec)
+        (?:
+          \s+
+          (always|auto|locked)
+        )?
         \s*
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
+      "4": { name: keyword.control.stencila } # mode
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -204,11 +214,16 @@ repository:
         (`{3,})
         \s*
         (exec)
+        (?:
+          \s+
+          (always|auto|locked)
+        )?
         \s*
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: keyword.control.stencila } # exec
+      "3": { name: keyword.control.stencila } # mode
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading.stencila } # backticks

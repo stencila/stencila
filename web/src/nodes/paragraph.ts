@@ -35,13 +35,6 @@ export class Paragraph extends Entity {
   ]
 
   /**
-   * In static view just render the `content`.
-   */
-  override renderStaticView() {
-    return html`<slot name="content"></slot>`
-  }
-
-  /**
    * The ancester node directly above this one in the tree
    */
   private directAncestor: NodeType
@@ -60,9 +53,9 @@ export class Paragraph extends Entity {
 
     this.directAncestor = this.ancestors.split('.').reverse()[0] as NodeType
 
-    /* 
+    /*
       if this Paragraph needs to be subscribed to parent node
-      creates a consumer for the `entityContext`, 
+      creates a consumer for the `entityContext`,
       this will subscribe to the nearest entityContext above this node.
     */
     if (
@@ -86,7 +79,7 @@ export class Paragraph extends Entity {
     super.update(changedProperties)
 
     if (this.parentContext) {
-      /* 
+      /*
         if `parentContext` is initiated,
         mirror the paragraph entity's context `cardOpen` status to the parent.
       */
@@ -100,10 +93,10 @@ export class Paragraph extends Entity {
   }
 
   /**
-   * In dynamic view render `content`, and `authors` and summary stats in a node card
+   * render `content`, and `authors` and summary stats in a node card
    * that is shown on hover.
    */
-  override renderDynamicView() {
+  override render() {
     if (Paragraph.subscribedParentNodes.includes(this.directAncestor)) {
       return html`<slot name="content"></slot>`
     }
@@ -124,27 +117,7 @@ export class Paragraph extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div slot="content">
-          <slot name="content"></slot>
-        </div>
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view render `authors` and summary stats in a node card. Do not render
-   * `content` since that is visible in the source code.
-   */
-  override renderSourceView() {
-    // TODO: Add summary stats to card
-
-    return html`
-      <stencila-ui-block-on-demand type="Paragraph" view="source">
-        <div slot="body">
-          <stencila-ui-node-authors type="Paragraph">
-            <slot name="authors"></slot>
-          </stencila-ui-node-authors>
-        </div>
+        <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>
     `
   }

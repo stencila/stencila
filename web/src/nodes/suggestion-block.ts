@@ -13,8 +13,8 @@ import { Entity } from './entity'
 @customElement('stencila-suggestion-block')
 @withTwind()
 export class SuggestionBlock extends Entity {
-  override renderDynamicView() {
-    return html`<stencila-ui-block-in-flow
+  override render() {
+    return html`<stencila-ui-block-on-demand
       type="SuggestionBlock"
       view="dynamic"
       node-id=${this.id}

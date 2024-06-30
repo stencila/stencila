@@ -85,11 +85,22 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
-      name: 'jinja',
+      name: 'dot',
+      alias: ['dotlang', 'graphviz'],
       load: async () => {
-        return import('@codemirror/legacy-modes/mode/jinja2').then(
-          (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
-        )
+        return import('@viz-js/lang-dot').then((obj) => obj.dot())
+      },
+    }),
+    LanguageDescription.of({
+      name: 'html',
+      load: async () => {
+        return import('@codemirror/lang-html').then((obj) => obj.html())
+      },
+    }),
+    LanguageDescription.of({
+      name: 'json',
+      load: async () => {
+        return import('@codemirror/lang-json').then((obj) => obj.json())
       },
     }),
     LanguageDescription.of({
@@ -98,6 +109,14 @@ export class UINodeCode extends LitElement {
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
+        )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'jinja',
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/jinja2').then(
+          (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
         )
       },
     }),
@@ -136,13 +155,6 @@ export class UINodeCode extends LitElement {
         return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
-    LanguageDescription.of({
-      name: 'dot',
-      alias: ['dotlang', 'graphviz'],
-      load: async () => {
-        return import('@viz-js/lang-dot').then((obj) => obj.dot())
-      },
-    }),
   ]
 
   /**
@@ -176,8 +188,8 @@ export class UINodeCode extends LitElement {
           ]
         : [],
       ...languageExtension,
-      lineNumbers(),
-      foldGutter(),
+      this.type !== 'CodeBlock' ? [lineNumbers(), foldGutter()] : [],
+      // foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       executionMessages ? executionMessageLinter(executionMessages) : [],
       stencilaTheme,
@@ -301,10 +313,15 @@ export class UINodeCode extends LitElement {
       'transition-max-h duration-200',
     ])
 
+    const containerClasses = apply([
+      'relative z-0',
+      `${this.type !== 'CodeBlock' ? 'border-t' : 'border'} border-black/20`,
+    ])
+
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
     // the CodeMirror stylesheet from being applied to the `<slot name="content">`
     return html`
-      <div class="relative z-0">
+      <div class=${containerClasses}>
         <div class=${contentClasses}>
           <div hidden id="messages"><slot></slot></div>
           <div id="codemirror" class="bg-gray-50"></div>

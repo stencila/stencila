@@ -15,9 +15,6 @@
       "$ref": "AuthorRoleName.schema.json"
     },
     {
-      "$ref": "AutomaticExecution.schema.json"
-    },
-    {
       "$ref": "Brand.schema.json"
     },
     {
@@ -58,6 +55,9 @@
     },
     {
       "$ref": "ExecutionDependencyRelation.schema.json"
+    },
+    {
+      "$ref": "ExecutionMode.schema.json"
     },
     {
       "$ref": "ExecutionRequired.schema.json"

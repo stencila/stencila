@@ -16,22 +16,22 @@ export class CodeLocation extends Entity {
   source?: string;
 
   /**
-   * The 1-based index if the first line on which the error occurred.
+   * The 0-based index if the first line on which the error occurred.
    */
   startLine?: UnsignedInteger;
 
   /**
-   * The 1-based index if the first column on which the error occurred.
+   * The 0-based index if the first column on which the error occurred.
    */
   startColumn?: UnsignedInteger;
 
   /**
-   * The 1-based index if the last line on which the error occurred.
+   * The 0-based index if the last line on which the error occurred.
    */
   endLine?: UnsignedInteger;
 
   /**
-   * The 1-based index if the last column on which the error occurred.
+   * The 0-based index if the last column on which the error occurred.
    */
   endColumn?: UnsignedInteger;
 

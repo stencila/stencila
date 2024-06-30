@@ -46,7 +46,7 @@
     },
     "startLine": {
       "@id": "stencila:startLine",
-      "description": "The 1-based index if the first line on which the error occurred.",
+      "description": "The 0-based index if the first line on which the error occurred.",
       "aliases": [
         "start-line",
         "start_line"
@@ -55,7 +55,7 @@
     },
     "startColumn": {
       "@id": "stencila:startColumn",
-      "description": "The 1-based index if the first column on which the error occurred.",
+      "description": "The 0-based index if the first column on which the error occurred.",
       "aliases": [
         "start-column",
         "start_column"
@@ -64,7 +64,7 @@
     },
     "endLine": {
       "@id": "stencila:endLine",
-      "description": "The 1-based index if the last line on which the error occurred.",
+      "description": "The 0-based index if the last line on which the error occurred.",
       "aliases": [
         "end-line",
         "end_line"
@@ -73,7 +73,7 @@
     },
     "endColumn": {
       "@id": "stencila:endColumn",
-      "description": "The 1-based index if the last column on which the error occurred.",
+      "description": "The 0-based index if the last column on which the error occurred.",
       "aliases": [
         "end-column",
         "end_column"

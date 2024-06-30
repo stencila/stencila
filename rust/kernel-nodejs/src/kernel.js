@@ -337,33 +337,57 @@ rl.on("line", (task) => {
         type: "ExecutionMessage",
         level: "Exception",
         message: error.message ?? error.toString(),
+        codeLocation: undefined,
+        stackTrace: undefined,
       };
 
       if (error.name) msg.errorType = error.name;
 
       if (error.stack) {
-        msg.stackTrace = error.stack;
-
-        // Try to fine line and column of error in code
-        // Search in reverse order for line and column because first line of
-        // error.stack usually has only line and for syntax error "evalmachine" is
-        // not referred to elsewhere
         const stackLines = error.stack.split("\n");
-        for (const line of stackLines.reverse()) {
-          const details = line.match(/evalmachine\.<anonymous>:(\d+)(:(\d+))?/);
-          if (details) {
+
+        let stackTrace = "";
+        for (const line of stackLines) {
+          // Try to fine line and column of error in code
+          const details = line.match(/evalmachine\.<anonymous>:(\d+):(\d+)/);
+          if (details && !msg.codeLocation) {
             try {
-              const lineNumber = parseInt(details[1]);
-              const columnNumber = details[3]
-                ? parseInt(details[3])
-                : undefined;
               msg.codeLocation = {
                 type: "CodeLocation",
-                startLine: lineNumber,
-                startColumn: columnNumber,
+                startLine: parseInt(details[1]) - 1,
+                startColumn: parseInt(details[2]) - 1,
               };
-              break;
             } catch {}
+          }
+
+          // Filter out lines related to evaluation
+          if (
+            !(
+              line.includes("kernels/nodejs:") ||
+              line.includes("node:vm:") ||
+              line.includes("node:internal/readline/interface:") ||
+              line.includes("node:events:")
+            )
+          ) {
+            stackTrace +=
+              line.replace("evalmachine.<anonymous>", "code") + "\n";
+          }
+        }
+        msg.stackTrace = stackTrace;
+
+        // If no code location found yet then try to get just line num
+        if (!msg.codeLocation) {
+          for (const line of stackLines) {
+            const details = line.match(/evalmachine\.<anonymous>:(\d+)/);
+            if (details) {
+              try {
+                msg.codeLocation = {
+                  type: "CodeLocation",
+                  startLine: parseInt(details[1]) - 1,
+                };
+                break;
+              } catch {}
+            }
           }
         }
       }

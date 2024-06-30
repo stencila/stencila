@@ -38,7 +38,7 @@
       "@id": "stencila:startLine",
       "@type": "rdfs:Property",
       "rdfs:label": "startLine",
-      "rdfs:comment": "The 1-based index if the first line on which the error occurred.",
+      "rdfs:comment": "The 0-based index if the first line on which the error occurred.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeLocation"
       },
@@ -50,7 +50,7 @@
       "@id": "stencila:startColumn",
       "@type": "rdfs:Property",
       "rdfs:label": "startColumn",
-      "rdfs:comment": "The 1-based index if the first column on which the error occurred.",
+      "rdfs:comment": "The 0-based index if the first column on which the error occurred.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeLocation"
       },
@@ -62,7 +62,7 @@
       "@id": "stencila:endLine",
       "@type": "rdfs:Property",
       "rdfs:label": "endLine",
-      "rdfs:comment": "The 1-based index if the last line on which the error occurred.",
+      "rdfs:comment": "The 0-based index if the last line on which the error occurred.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeLocation"
       },
@@ -74,7 +74,7 @@
       "@id": "stencila:endColumn",
       "@type": "rdfs:Property",
       "rdfs:label": "endColumn",
-      "rdfs:comment": "The 1-based index if the last column on which the error occurred.",
+      "rdfs:comment": "The 0-based index if the last column on which the error occurred.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeLocation"
       },

@@ -8,14 +8,19 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
-    const route = url.pathname.slice(1).split("/").pop();
+    const route = url.pathname.slice(1).split("/");
+
+    if (route[route.length - 2] == "connected") {
+      return connected(route.pop(), request, env, ctx);
+    }
 
     const handler = {
       signup,
       signin,
       signout,
       callback,
-    }[route ?? ""];
+      connect,
+    }[route.pop() ?? ""];
 
     return handler
       ? handler(request, env, ctx)
@@ -26,11 +31,57 @@ export default {
 const OAUTH_BASE_URL = "https://accounts.stencila.io";
 const OAUTH_CLIENT_ID = "14eef3d1b9424a7fb8ac0fd3afa60485";
 const OAUTH_SCOPE = "openid profile email";
-const OAUTH_REDIRECT_URL = "https://cloud.stencila.io/api/auth/callback"; 
+const OAUTH_REDIRECT_URL = "https://cloud.stencila.io/api/auth/callback";
+
+const KINDE_API_URL = "https://stencila.kinde.com/api";
 
 /**
- * Generate an Oauth `state` request parameter and cookie to store it
- * on the client between the request to the Oauth provider and the request to
+ * Check a response is OK, and if it is not, throw an error
+ */
+async function checkResponse(response: Response, message: string) {
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      `Error ${message}: ${response.status} ${response.statusText}: ${text}`
+    );
+  }
+}
+
+/**
+ * Get a token to access the Kinde Management API
+ *
+ * Based on https://docs.kinde.com/developer-tools/kinde-api/get-access-token-for-connecting-securely-to-kindes-api/#get-the-access-token-nodejs-fetch-example
+ */
+let KINDE_API_TOKEN: string | undefined;
+async function kindeApiToken(env: Env): Promise<string> {
+  if (KINDE_API_TOKEN) {
+    return KINDE_API_TOKEN;
+  }
+
+  const response = await fetch(`${OAUTH_BASE_URL}/oauth2/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: new URLSearchParams({
+      audience: KINDE_API_URL,
+      grant_type: "client_credentials",
+      client_id: OAUTH_CLIENT_ID,
+      client_secret: env.OAUTH_CLIENT_SECRET,
+    }),
+  });
+  await checkResponse(response, "fetching API token");
+
+  const { access_token } = (await response.json()) as { access_token: string };
+  KINDE_API_TOKEN = access_token;
+
+  return KINDE_API_TOKEN;
+}
+
+/**
+ * Generate an OAuth `state` request parameter and a cookie to store it
+ * on the client between the request to the OAuth provider and the request to
  * this worker's callback function.
  */
 function generateState() {
@@ -125,7 +176,7 @@ async function signout(
 }
 
 /**
- * Handle a callback from the authentication server (Oauth provider)
+ * Handle a callback from the authentication server (OAuth provider)
  */
 async function callback(
   request: Request,
@@ -134,7 +185,7 @@ async function callback(
 ): Promise<Response> {
   const url = new URL(request.url);
 
-  // Get the signed state from the cookie
+  // Get the state from the cookie
   const cookies = parse(request.headers.get("Cookie") || "");
   const stateCookie = cookies["oauth_state"];
   if (!stateCookie) {
@@ -165,12 +216,7 @@ async function callback(
       code,
     }),
   });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(
-      `Error fetching access token: ${response.status} ${response.statusText}: ${text}`
-    );
-  }
+  await checkResponse(response, "fetching access token");
 
   // Deserialize response
   interface Response {
@@ -213,4 +259,122 @@ async function callback(
       status: 401,
     });
   }
+}
+
+/**
+ * Connect an app to a user account
+ *
+ * This is steps 2 & 3 of https://docs.kinde.com/integrate/connected-apps/add-connected-apps/#step-4-get-an-access-token-via-the-kinde-management-api
+ * It gets a URL that we redirect the user to.
+ */
+async function connect(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext
+): Promise<Response> {
+  const url = new URL(request.url);
+
+  // Get the app and user ids
+  const app = url.searchParams.get("app");
+  const user = url.searchParams.get("user");
+  if (!(app && user)) {
+    return new Response(`Missing "app" and/or "user" query parameter`, {
+      status: 400,
+    });
+  }
+
+  // Get the URL and session id to redirect the user to
+  const params = new URLSearchParams({
+    key_code_ref: app,
+    user_id: user,
+  });
+  const response = await fetch(
+    `${KINDE_API_URL}/v1/connected_apps/auth_url?${params}`,
+    {
+      headers: {
+        Authorization: `Bearer ${await kindeApiToken(env)}`,
+        Accept: "application/json",
+      },
+    }
+  );
+  await checkResponse(response, "fetching app connection URL");
+
+  const payload = (await response.json()) as {
+    url: string;
+    session_id: string;
+  };
+
+  return Response.redirect(payload.url, 302);
+}
+
+/**
+ * Handle a callback after successfully connecting an app to a user account
+ *
+ * Requests an access token for the `app` and sets an `<app>_access_token` cookie.
+ */
+async function connected(
+  app: string | undefined,
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext
+): Promise<Response> {
+  const url = new URL(request.url);
+
+  // Ensure the app is valid
+  if (app !== "github") {
+    return new Response(`Invalid app`, { status: 400 });
+  }
+
+  // Get the session id
+  const session_id = url.searchParams.get("session_id");
+  if (!session_id) {
+    return new Response(`Missing "session_id" query parameter`, {
+      status: 400,
+    });
+  }
+
+  // Request an access token
+  const params = new URLSearchParams({
+    session_id,
+  });
+  const response = await fetch(
+    `${KINDE_API_URL}/v1/connected_apps/token?${params}`,
+    {
+      headers: {
+        Authorization: `Bearer ${await kindeApiToken(env)}`,
+        Accept: "application/json",
+      },
+    }
+  );
+  await checkResponse(response, "fetching app access token");
+
+  const payload = (await response.json()) as {
+    access_token: string;
+    access_token_expiry: string;
+  };
+
+  // Create a cookie with the session id (to be able to refresh the token?),
+  // the token itself, and the token expiry
+  const cookie = serialize(
+    `${app}_access_token`,
+    JSON.stringify({
+      session: session_id,
+      token: payload.access_token,
+      expiry: payload.access_token_expiry,
+    }),
+    {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    }
+  );
+
+  return new Response(null, {
+    headers: {
+      Location: "/",
+      "Set-Cookie": cookie,
+    },
+    status: 302,
+  });
 }

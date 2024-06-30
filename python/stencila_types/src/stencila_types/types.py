@@ -81,16 +81,6 @@ class AuthorRoleName(StrEnum):
     Generator = "Generator"
 
 
-class AutomaticExecution(StrEnum):
-    """
-    Under which circumstances the document node should be automatically executed.
-    """
-
-    Never = "Never"
-    Needed = "Needed"
-    Always = "Always"
-
-
 class CitationIntent(StrEnum):
     """
     The type or nature of a citation, both factually and rhetorically.
@@ -238,6 +228,17 @@ class ExecutionDependencyRelation(StrEnum):
     Uses = "Uses"
 
 
+class ExecutionMode(StrEnum):
+    """
+    Under which circumstances the document node should be executed.
+    """
+
+    Always = "Always"
+    Auto = "Auto"
+    Necessary = "Necessary"
+    Locked = "Locked"
+
+
 class ExecutionRequired(StrEnum):
     """
     Whether, and why, the execution of a node is required or not.
@@ -245,6 +246,7 @@ class ExecutionRequired(StrEnum):
 
     No = "No"
     NeverExecuted = "NeverExecuted"
+    StateChanged = "StateChanged"
     SemanticsChanged = "SemanticsChanged"
     DependenciesChanged = "DependenciesChanged"
     DependenciesFailed = "DependenciesFailed"
@@ -263,6 +265,7 @@ class ExecutionStatus(StrEnum):
     Scheduled = "Scheduled"
     Pending = "Pending"
     Skipped = "Skipped"
+    Locked = "Locked"
     Empty = "Empty"
     Running = "Running"
     Succeeded = "Succeeded"
@@ -568,8 +571,8 @@ class Executable(Entity):
 
     type: Literal["Executable"] = "Executable"
 
-    auto_exec: AutomaticExecution | None = None
-    """Under which circumstances the code should be automatically executed."""
+    execution_mode: ExecutionMode | None = None
+    """Under which circumstances the code should be executed."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the content, semantics and dependencies of the node."""
@@ -1289,16 +1292,16 @@ class CodeLocation(Entity):
     """The source of the code, a file path, label or URL."""
 
     start_line: UnsignedInteger | None = None
-    """The 1-based index if the first line on which the error occurred."""
+    """The 0-based index if the first line on which the error occurred."""
 
     start_column: UnsignedInteger | None = None
-    """The 1-based index if the first column on which the error occurred."""
+    """The 0-based index if the first column on which the error occurred."""
 
     end_line: UnsignedInteger | None = None
-    """The 1-based index if the last line on which the error occurred."""
+    """The 0-based index if the last line on which the error occurred."""
 
     end_column: UnsignedInteger | None = None
-    """The 1-based index if the last column on which the error occurred."""
+    """The 0-based index if the last column on which the error occurred."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3176,7 +3179,6 @@ ThingType = Union[
     Article,
     AudioObject,
     AuthorRoleName,
-    AutomaticExecution,
     Brand,
     CitationIntent,
     CitationMode,
@@ -3191,6 +3193,7 @@ ThingType = Union[
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
+    ExecutionMode,
     ExecutionRequired,
     ExecutionStatus,
     Figure,

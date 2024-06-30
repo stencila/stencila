@@ -127,7 +127,7 @@ export class UIIconButton extends LitElement {
     const classes = apply([
       'transition-all duration-300 ease-in-out',
       'stroke-none',
-      !this.ignoreColours ? stateColour[state] : '',
+      !this.ignoreColours ? stateColour[state] : 'fill-current',
       !this.ignoreColours
         ? state !== 'active'
           ? 'group-hover:fill-grey-900'

@@ -11,9 +11,9 @@ With language:
 a = 3
 ```
 
-With language and autoExec:
+With language and execution mode:
 
-```js exec auto=always
+```js exec always
 // Javascript
 ```
 

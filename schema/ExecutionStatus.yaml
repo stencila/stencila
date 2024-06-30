@@ -13,6 +13,9 @@ anyOf:
   - const: Skipped
     '@id': stencila:Skipped
     description: Execution of the node has been skipped because it is unnecessary.
+  - const: Locked
+    '@id': stencila:Locked
+    description: Execution of the node has been skipped because it is locked.
   - const: Empty
     '@id': stencila:Empty
     description: Execution of the node has been skipped because it has code, or other property, that is empty.

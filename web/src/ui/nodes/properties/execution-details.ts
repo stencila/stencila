@@ -1,5 +1,5 @@
 import {
-  AutomaticExecution,
+  ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
@@ -33,8 +33,8 @@ export class UINodeExecutionDetails extends LitElement {
   @property()
   type: NodeType
 
-  @property({ attribute: 'auto-exec' })
-  autoExec?: AutomaticExecution
+  @property()
+  mode?: ExecutionMode
 
   @property({ type: Array })
   tags?: ExecutionTag[]

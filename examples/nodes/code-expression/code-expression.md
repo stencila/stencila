@@ -8,4 +8,4 @@ With an object output `dict(a=1,b=dict())`{python exec}.
 
 With no language specified and no output `a + b`{exec}.
 
-With automatic execution behavior specified and no output `c * d`{javascript exec auto=never}.
+With execution mode specified and no output `c * d`{javascript exec locked}.

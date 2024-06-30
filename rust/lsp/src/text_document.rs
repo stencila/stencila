@@ -24,8 +24,9 @@ use common::{
 };
 use document::Document;
 use schema::{
-    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionStatus, Node, NodeId,
-    NodeType, Person, ProvenanceCount, Timestamp, Visitor,
+    Author, AuthorRole, AuthorRoleName, Duration, ExecutionMessage, ExecutionMode,
+    ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp,
+    Visitor,
 };
 
 use crate::{diagnostics, inspect::Inspector, ServerState};
@@ -69,6 +70,9 @@ pub(super) struct TextNode {
     /// notifications for the node
     pub execution: Option<TextNodeExecution>,
 
+    /// Whether the node is active (currently for `IfBlockClause` nodes only)
+    pub is_active: Option<bool>,
+
     /// Provenance details (for nodes with a `provenance` field)
     ///
     /// These detail are used to publish provenance summaries
@@ -79,11 +83,15 @@ pub(super) struct TextNode {
     pub children: Vec<TextNode>,
 }
 
+#[allow(unused)]
 #[derive(Debug, Clone, Default)]
 pub(super) struct TextNodeExecution {
-    pub status: ExecutionStatus,
+    pub mode: Option<ExecutionMode>,
+    pub status: Option<ExecutionStatus>,
+    pub required: Option<ExecutionRequired>,
     pub duration: Option<Duration>,
     pub ended: Option<Timestamp>,
+    pub outputs: Option<usize>,
     pub messages: Option<Vec<ExecutionMessage>>,
     pub authors: Option<Vec<Author>>,
 }
@@ -99,6 +107,7 @@ impl Default for TextNode {
             name: String::new(),
             detail: None,
             execution: None,
+            is_active: None,
             provenance: None,
             children: Vec::new(),
         }
@@ -135,14 +144,17 @@ impl<'a> Iterator for TextNodeIterator<'a> {
 impl TextNode {
     /// Get the node id at a position (if any)
     pub fn node_id_at(&self, position: Position) -> Option<NodeId> {
-        if position >= self.range.start && position < self.range.end {
-            return Some(self.node_id.clone());
-        }
-
+        // Search through children (and thus recursively through all
+        // descendants so that the deepest (most narrow range) node is selected)
         for child in &self.children {
             if let Some(node_id) = child.node_id_at(position) {
                 return Some(node_id);
             }
+        }
+
+        // If no descendants in range then check if this is
+        if position >= self.range.start && position < self.range.end {
+            return Some(self.node_id.clone());
         }
 
         None

@@ -33,14 +33,15 @@ impl MarkdownCodec for CallBlock {
             context.push_str(")");
         }
 
-        if self.auto_exec.is_some() || self.media_type.is_some() || self.select.is_some() {
+        if self.execution_mode.is_some() || self.media_type.is_some() || self.select.is_some() {
             context.push_str(" {");
 
             let mut prefix = "";
-            if let Some(auto) = &self.auto_exec {
-                context
-                    .push_str("auto=")
-                    .push_prop_str(NodeProperty::AutoExec, &auto.to_string().to_lowercase());
+            if let Some(mode) = &self.execution_mode {
+                context.push_str(" ").push_prop_str(
+                    NodeProperty::ExecutionMode,
+                    &mode.to_string().to_lowercase(),
+                );
                 prefix = " ";
             }
 

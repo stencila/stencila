@@ -6,7 +6,6 @@ use super::admonition_type::AdmonitionType;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::author_role_name::AuthorRoleName;
-use super::automatic_execution::AutomaticExecution;
 use super::brand::Brand;
 use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
@@ -21,6 +20,7 @@ use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
+use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::figure::Figure;
@@ -69,8 +69,6 @@ pub enum ThingType {
 
     AuthorRoleName(AuthorRoleName),
 
-    AutomaticExecution(AutomaticExecution),
-
     Brand(Brand),
 
     CitationIntent(CitationIntent),
@@ -98,6 +96,8 @@ pub enum ThingType {
     ExecutionDependantRelation(ExecutionDependantRelation),
 
     ExecutionDependencyRelation(ExecutionDependencyRelation),
+
+    ExecutionMode(ExecutionMode),
 
     ExecutionRequired(ExecutionRequired),
 

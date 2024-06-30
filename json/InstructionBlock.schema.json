@@ -23,7 +23,7 @@
   ],
   "core": [
     "id",
-    "autoExec",
+    "executionMode",
     "assignee",
     "model",
     "replicates",
@@ -50,13 +50,12 @@
       },
       "type": "string"
     },
-    "autoExec": {
-      "@id": "stencila:autoExec",
-      "description": "Under which circumstances the code should be automatically executed.",
+    "executionMode": {
+      "@id": "stencila:executionMode",
+      "description": "Under which circumstances the code should be executed.",
       "aliases": [
-        "auto",
-        "auto-exec",
-        "auto_exec"
+        "execution-mode",
+        "execution_mode"
       ],
       "strip": [
         "execution"
@@ -66,7 +65,7 @@
           "md"
         ]
       },
-      "$ref": "AutomaticExecution.schema.json"
+      "$ref": "ExecutionMode.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",

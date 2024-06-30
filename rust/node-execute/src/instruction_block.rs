@@ -10,7 +10,7 @@ impl Executable for InstructionBlock {
         let node_id = self.node_id();
 
         if executor.should_execute_instruction_block(&node_id, self) {
-            tracing::debug!("Pending InstructionBlock {node_id}");
+            tracing::trace!("Pending InstructionBlock {node_id}");
 
             pending_impl!(executor, &node_id);
         }
@@ -24,13 +24,13 @@ impl Executable for InstructionBlock {
         let node_id = self.node_id();
 
         if !executor.should_execute_instruction_block(&node_id, self) {
-            tracing::debug!("Skipping InstructionBlock {node_id}");
+            tracing::trace!("Skipping InstructionBlock {node_id}");
 
             // Continue to execute executable nodes in `content` and/or `suggestion`
             return WalkControl::Continue;
         }
 
-        tracing::trace!("Executing InstructionBlock {node_id}");
+        tracing::debug!("Executing InstructionBlock {node_id}");
 
         executor.patch(
             &node_id,
@@ -152,7 +152,7 @@ impl Executable for InstructionBlock {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 

@@ -3,7 +3,6 @@
 use crate::prelude::*;
 
 use super::author::Author;
-use super::automatic_execution::AutomaticExecution;
 use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
@@ -12,6 +11,7 @@ use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
+use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
@@ -38,11 +38,11 @@ pub struct Button {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be automatically executed.
-    #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
+    /// Under which circumstances the code should be executed.
+    #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md")]
-    pub auto_exec: Option<AutomaticExecution>,
+    pub execution_mode: Option<ExecutionMode>,
 
     /// The code.
     #[strip(code)]

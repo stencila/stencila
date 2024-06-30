@@ -21,13 +21,13 @@
     },
     {
       "type": "Paragraph",
-      "content": [{"type": "Text", "value": "With language and autoExec:"}]
+      "content": [{"type": "Text", "value": "With language and execution mode:"}]
     },
     {
       "type": "CodeChunk",
       "programmingLanguage": "js",
       "code": "// Javascript",
-      "autoExec": "Always"
+      "executionMode": "Always"
     },
     {
       "type": "Paragraph",

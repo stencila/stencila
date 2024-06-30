@@ -549,15 +549,15 @@
       ]
     },
     {
-      "@id": "stencila:autoExec",
+      "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
-      "rdfs:label": "autoExec",
-      "rdfs:comment": "Under which circumstances the code should be automatically executed.",
+      "rdfs:label": "executionMode",
+      "rdfs:comment": "Under which circumstances the code should be executed.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:AutomaticExecution"
+        "@id": "stencila:ExecutionMode"
       }
     },
     {

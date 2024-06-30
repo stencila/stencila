@@ -30,20 +30,19 @@ impl Executable for MathBlock {
             }
         }
 
-        let code = self.code.trim();
-        if !code.is_empty() {
+        if !self.code.trim().is_empty() {
             let lang = self
                 .math_language
                 .as_ref()
                 .map_or("tex".to_string(), |lang| lang.to_lowercase());
 
             let (mathml, messages) = if lang == "mathml" {
-                (Some(code.to_string()), None)
+                (Some(self.code.to_string()), None)
             } else {
                 let (mathml, messages) = executor
                     .kernels()
                     .await
-                    .execute(code, Some(&lang))
+                    .execute(&self.code, Some(&lang))
                     .await
                     .map_or_else(
                         |error| (None, vec![error_to_compilation_message(error)]),

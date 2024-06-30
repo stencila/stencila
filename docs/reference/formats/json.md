@@ -169,11 +169,14 @@ Support and degree of loss for node types:
 | [ReplaceInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_inline.md)             | 🟢 No loss | 🟢 No loss |       |
 | [StringOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_operation.md)         | 🟢 No loss | 🟢 No loss |       |
 | [StringPatch](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_patch.md)                 | 🟢 No loss | 🟢 No loss |       |
+| [SuggestionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_block.md)         | 🟢 No loss | 🟢 No loss |       |
+| [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | 🟢 No loss | 🟢 No loss |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss | 🟢 No loss |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss | 🟢 No loss |       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | 🟢 No loss | 🟢 No loss |       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | 🟢 No loss | 🟢 No loss |       |
+| [InstructionModel](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/instruction_model.md)       | 🟢 No loss | 🟢 No loss |       |
 | [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | 🟢 No loss | 🟢 No loss |       |
 | [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | 🟢 No loss | 🟢 No loss |       |
 | [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | 🟢 No loss | 🟢 No loss |       |

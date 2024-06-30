@@ -82,7 +82,7 @@ CLI subcommands and global options
 
    Allows more fine-grained control over which log entries are shown. To additionally see lower level entries for a specific crates use syntax such as `tokio=debug`.
 
-  Default value: `globset=warn,hyper=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,tokio=info,tungstenite=info`
+  Default value: `globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
    When `auto`, uses `simple` for terminals and `json` for non-TTY devices.
@@ -428,7 +428,7 @@ Execute a document
    By default, instructions that have a suggestion that has been rejected, will be re-executed. Use this flag to skip re-execution of these instructions.
 * `--dry-run` — Prepare, but do not actually perform, execution tasks
 
-   Currently only supported by assistants where is is useful for debugging the rendering of system prompts without making a potentially slow API request.
+   Currently only supported by assistants where it is useful for debugging the rendering of system prompts without making a potentially slow API request.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-r`, `--render` — For executable nodes, only encode outputs, not source properties
@@ -503,7 +503,7 @@ Equivalent to the `execute` command with the `--render` flag.
    By default, instructions that have a suggestion that has been rejected, will be re-executed. Use this flag to skip re-execution of these instructions.
 * `--dry-run` — Prepare, but do not actually perform, execution tasks
 
-   Currently only supported by assistants where is is useful for debugging the rendering of system prompts without making a potentially slow API request.
+   Currently only supported by assistants where it is useful for debugging the rendering of system prompts without making a potentially slow API request.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-r`, `--render` — For executable nodes, only encode outputs, not source properties

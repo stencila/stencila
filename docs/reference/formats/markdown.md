@@ -183,11 +183,14 @@ Support and degree of loss for node types:
 | [ReplaceInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_inline.md)             | ⚠️ High loss |            | Encoded as `[[replace {{content}}>>{{replacement}}]]` |
 | [StringOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_operation.md)         | ⚠️ High loss |            |                                                       |
 | [StringPatch](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_patch.md)                 | ⚠️ High loss |            |                                                       |
+| [SuggestionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_block.md)         | ⚠️ High loss |            | Encoded using implemented function                    |
+| [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | ⚠️ High loss |            | Encoded using implemented function                    |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | ⚠️ High loss |            |                                                       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | ⚠️ High loss |            |                                                       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | ⚠️ High loss |            |                                                       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | ⚠️ High loss |            |                                                       |
+| [InstructionModel](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/instruction_model.md)       | ⚠️ High loss |            |                                                       |
 | [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | ⚠️ High loss |            |                                                       |
 | [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | ⚠️ High loss |            |                                                       |
 | [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | ⚠️ High loss |            |                                                       |

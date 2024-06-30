@@ -6,6 +6,6 @@
     <p>With an array output<code executable="yes" language="python">[1, 2, 3]123</code>.</p>
     <p>With an object output<code executable="yes" language="python">dict(a=1,b=dict())1</code>.</p>
     <p>With no language specified and no output<code executable="yes">a + b</code>.</p>
-    <p>With automatic execution behavior specified and no output<code executable="yes" language="javascript">c * d</code>.</p>
+    <p>With execution mode specified and no output<code executable="yes" language="javascript">c * d</code>.</p>
   </body>
 </article>

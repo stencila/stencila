@@ -72,12 +72,13 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const toolTipStyles = css`
       &::part(body) {
-        --max-width: 24rem;
         color: ${(colors['black'] ?? 'black') as string};
         padding: 0;
         border-radius: 0;
         background-color: transparent;
         pointer-events: all;
+        min-width: 24rem;
+        max-width: 30rem;
       }
 
       &::part(base__arrow) {
@@ -99,7 +100,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     const headerStyles = this.collapsed && 'rounded-sm'
 
-    return html` <div
+    return html`<div
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
     >
@@ -109,6 +110,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
         class=${`${toolTipStyles}`}
         .open=${this.toggle}
         placement="bottom"
+        hoist
       >
         <div
           slot="content"

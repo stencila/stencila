@@ -21,7 +21,7 @@ import '../ui/nodes/properties/provenance/provenance'
 export class InstructionInline extends Instruction {
   override type: NodeType = 'InstructionInline'
 
-  override renderDynamicView() {
+  override render() {
     return html` <stencila-ui-inline-on-demand
       type="InstructionInline"
       view="dynamic"
@@ -30,7 +30,7 @@ export class InstructionInline extends Instruction {
       <div slot="body">
         <stencila-ui-node-execution-details
           type=${this.type}
-          auto-exec=${this.autoExec}
+          mode=${this.executionMode}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}

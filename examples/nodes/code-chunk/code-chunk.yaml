@@ -23,9 +23,9 @@ content:
   content:
   - type: Text
     value:
-      string: 'With language and autoExec:'
+      string: 'With language and execution mode:'
 - type: CodeChunk
-  autoExec: Always
+  executionMode: Always
   code:
     string: // Javascript
   programmingLanguage: js

@@ -144,7 +144,7 @@ impl Instruction {
             Instruction::Block(node) => {
                 for suggestion in node.suggestions.iter().flatten() {
                     // Note: this encodes suggestion content to Markdown. Using the
-                    // format used by the particular assistant e.g. HTML may be more appropriate 
+                    // format used by the particular assistant e.g. HTML may be more appropriate
                     let md = to_markdown(&suggestion.content);
                     messages.push(InstructionMessage::assistant(md));
 

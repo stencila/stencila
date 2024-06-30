@@ -6,13 +6,13 @@ use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
-    Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
-    ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
-    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
-    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
-    QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock,
-    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
-    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Emphasis, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
+    Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
+    ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
+    NodeType, Note, Paragraph, Parameter, ProvenanceCount, QuoteBlock, QuoteInline, ReplaceBlock,
+    ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
+    SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
+    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -61,7 +61,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         detail: Option<String>,
         execution: Option<TextNodeExecution>,
         provenance: Option<Vec<ProvenanceCount>>,
-    ) {
+    ) -> &mut TextNode {
         let range = match self.poshmap.node_id_to_range16(&node_id) {
             Some(range) => range16_to_range(range),
             None => {
@@ -86,9 +86,12 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             name,
             detail,
             execution,
+            is_active: None,
             provenance,
             children: Vec::new(),
-        })
+        });
+
+        self.stack.last_mut().expect("just pushed")
     }
 
     fn exit_node(&mut self) {
@@ -110,6 +113,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             _ => {}
         };
 
+        // Break walk because `variant` visited above
         WalkControl::Break
     }
 
@@ -149,6 +153,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             ThematicBreak
         );
 
+        // Break walk because `variant` visited above
         WalkControl::Break
     }
 
@@ -196,13 +201,13 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             VideoObject
         );
 
+        // Break walk because `variant` visited above
         WalkControl::Break
     }
 
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         let execution = if block.execution_duration.is_some() {
             Some(TextNodeExecution {
-                status: ExecutionStatus::Succeeded,
                 duration: block.execution_duration.clone(),
                 ended: block.execution_ended.clone(),
                 authors: block.authors.clone(),
@@ -225,13 +230,13 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&block.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
     fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
         let execution = if inline.execution_duration.is_some() {
             Some(TextNodeExecution {
-                status: ExecutionStatus::Succeeded,
                 duration: inline.execution_duration.clone(),
                 ended: inline.execution_ended.clone(),
                 authors: inline.authors.clone(),
@@ -254,14 +259,35 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&inline.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
-        self.enter_node(clause.node_type(), clause.node_id(), None, None, None, None);
+        let execution = Some(TextNodeExecution {
+            status: clause.options.execution_status.clone(),
+            required: clause.options.execution_required.clone(),
+            duration: clause.options.execution_duration.clone(),
+            ended: clause.options.execution_ended.clone(),
+            messages: clause.options.execution_messages.clone(),
+            ..Default::default()
+        });
+
+        let provenance = clause.provenance.clone();
+
+        let node = self.enter_node(
+            clause.node_type(),
+            clause.node_id(),
+            None,
+            None,
+            execution,
+            provenance,
+        );
+        node.is_active = clause.is_active;
         self.visit(&clause.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
@@ -277,6 +303,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&list_item.content);
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
@@ -292,6 +319,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.visit(&table_row.cells);
         self.exit_node();
 
+        // Break walk because `cells` already visited above
         WalkControl::Break
     }
 
@@ -309,6 +337,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.in_table_cell = false;
         self.exit_node();
 
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 }
@@ -332,6 +361,7 @@ impl Inspect for Article {
             // we do not want these displayed on the first line in code lenses etc
             execution: None,
             provenance: None,
+            is_active: None,
             children: Vec::new(),
         });
 
@@ -370,17 +400,16 @@ impl Inspect for CodeChunk {
             Some(detail)
         };
 
-        let execution = self
-            .options
-            .execution_status
-            .as_ref()
-            .map(|execution_status| TextNodeExecution {
-                status: execution_status.clone(),
-                duration: self.options.execution_duration.clone(),
-                ended: self.options.execution_ended.clone(),
-                messages: self.options.execution_messages.clone(),
-                ..Default::default()
-            });
+        let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
+            messages: self.options.execution_messages.clone(),
+            ..Default::default()
+        });
 
         let provenance = self.provenance.clone();
 
@@ -584,17 +613,15 @@ macro_rules! executable {
             fn inspect(&self, inspector: &mut Inspector) {
                 // eprintln!("INSPECT EXEC {}", self.node_id());
 
-                let execution = if let Some(execution_status) = &self.options.execution_status {
-                    Some(TextNodeExecution{
-                        status: execution_status.clone(),
-                        duration: self.options.execution_duration.clone(),
-                        ended: self.options.execution_ended.clone(),
-                        messages: self.options.execution_messages.clone(),
-                        ..Default::default()
-                    })
-                } else {
-                    None
-                };
+                let execution = Some(TextNodeExecution{
+                    mode: self.execution_mode.clone(),
+                    status: self.options.execution_status.clone(),
+                    required: self.options.execution_required.clone(),
+                    duration: self.options.execution_duration.clone(),
+                    ended: self.options.execution_ended.clone(),
+                    messages: self.options.execution_messages.clone(),
+                    ..Default::default()
+                });
 
                 inspector.enter_node(self.node_type(), self.node_id(), None, None, execution, None);
                 inspector.visit(self);
@@ -621,17 +648,15 @@ macro_rules! executable_with_provenance {
             fn inspect(&self, inspector: &mut Inspector) {
                 // eprintln!("INSPECT EXEC PROV {}", self.node_id());
 
-                let execution = if let Some(execution_status) = &self.options.execution_status {
-                    Some(TextNodeExecution{
-                        status: execution_status.clone(),
-                        duration: self.options.execution_duration.clone(),
-                        ended: self.options.execution_ended.clone(),
-                        messages: self.options.execution_messages.clone(),
-                        ..Default::default()
-                    })
-                } else {
-                    None
-                };
+                let execution =  Some(TextNodeExecution{
+                    mode: self.execution_mode.clone(),
+                    status: self.options.execution_status.clone(),
+                    required: self.options.execution_required.clone(),
+                    duration: self.options.execution_duration.clone(),
+                    ended: self.options.execution_ended.clone(),
+                    messages: self.options.execution_messages.clone(),
+                    ..Default::default()
+                });
 
                 let provenance = self.provenance.clone();
 

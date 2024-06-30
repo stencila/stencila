@@ -13,6 +13,7 @@ import {
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
+import '../../buttons/icon'
 
 const colours = resolveConfig(tailwindConfig).theme.colors
 
@@ -47,23 +48,17 @@ export class UINodeExecutionCommands extends UIBaseClass {
       `text-${this.ui.textColour}`,
     ])
 
-    const buttonClasses = css`
-      &::part(base) {
-        --sl-spacing-x-small: 0;
-      }
-    `
-
     return html`
       <div class=${containerClasses}>
         <sl-tooltip content="Execute this node">
-          <sl-icon-button
+          <sl-icon
             name="play"
             library="stencila"
             @click=${(e: Event) => {
               this.emitEvent(e, 'only')
             }}
-            class=${`${buttonClasses} text-black hover:text-black/80`}
-          ></sl-icon-button>
+            class="hover:text-gray-900"
+          ></sl-icon>
         </sl-tooltip>
         ${this.renderDropdown()}
       </div>

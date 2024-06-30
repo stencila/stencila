@@ -1,67 +1,158 @@
 import * as vscode from "vscode";
 
-export const pendingDecoration = vscode.window.createTextEditorDecorationType({
-  // TODO: set colors to greyish
-  // Grey indicator in overview ruler
-  // Use the right lane because it is for diagnostics
-  overviewRulerColor: "#28a31f",
-  overviewRulerLane: vscode.OverviewRulerLane.Right,
+const unexecuted = "0deg";
+const unexecutedMid = `hsl(${unexecuted} 0% 50%)`;
+const unexecutedLight = `hsl(${unexecuted} 0% 95%)`;
+const unexecutedDark = `hsl(${unexecuted} 0% 5%)`;
 
-  // Styling for the inline text
-  dark: {
-    after: {
-      color: "#28a31f",
-      backgroundColor: "hsl(115deg 100% 5%)",
+export const unexecutedDecoration =
+  vscode.window.createTextEditorDecorationType({
+    overviewRulerColor: unexecutedMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: unexecutedMid,
+        backgroundColor: unexecutedLight,
+      },
     },
-  },
+    dark: {
+      after: {
+        color: unexecutedMid,
+        backgroundColor: unexecutedDark,
+      },
+    },
+  });
+
+const stale = "45deg";
+const staleMid = `hsl(${stale} 100% 50%)`;
+const staleLight = `hsl(${stale} 100% 95%)`;
+const staleDark = `hsl(${stale} 100% 5%)`;
+
+export const staleDecoration = vscode.window.createTextEditorDecorationType({
+  overviewRulerColor: staleMid,
+  overviewRulerLane: vscode.OverviewRulerLane.Right,
   light: {
     after: {
-      color: "#28a31f",
-      backgroundColor: "hsl(115deg 100% 95%)",
+      color: staleMid,
+      backgroundColor: staleLight,
+    },
+  },
+  dark: {
+    after: {
+      color: staleMid,
+      backgroundColor: staleDark,
     },
   },
 });
+
+const pending = "180deg";
+const pendingMid = `hsl(${pending} 100% 30%)`;
+const pendingLight = `hsl(${pending} 100% 95%)`;
+const pendingDark = `hsl(${pending} 100% 5%)`;
+
+export const pendingDecoration = vscode.window.createTextEditorDecorationType({
+  overviewRulerColor: pendingMid,
+  overviewRulerLane: vscode.OverviewRulerLane.Right,
+  light: {
+    after: {
+      color: pendingMid,
+      backgroundColor: pendingLight,
+    },
+  },
+  dark: {
+    after: {
+      color: pendingMid,
+      backgroundColor: pendingDark,
+    },
+  },
+});
+
+const running = "230deg";
+const runningMid = `hsl(${running} 100% 50%)`;
+const runningLight = `hsl(${running} 100% 95%)`;
+const runningDark = `hsl(${running} 100% 5%)`;
 
 export const runningDecoration = vscode.window.createTextEditorDecorationType({
-  // TODO: set colors to blueish
-  // Blue indicator in overview ruler
-  // Use the right lane because it is for diagnostics
-  overviewRulerColor: "#28a31f",
+  overviewRulerColor: runningMid,
   overviewRulerLane: vscode.OverviewRulerLane.Right,
-
-  // Styling for the inline text
-  dark: {
-    after: {
-      color: "#28a31f",
-      backgroundColor: "hsl(115deg 100% 5%)",
-    },
-  },
   light: {
     after: {
-      color: "#28a31f",
-      backgroundColor: "hsl(115deg 100% 95%)",
+      color: runningMid,
+      backgroundColor: runningLight,
+    },
+  },
+  dark: {
+    after: {
+      color: runningMid,
+      backgroundColor: runningDark,
     },
   },
 });
 
-export const succeededDecoration = vscode.window.createTextEditorDecorationType({
-  // TODO: check these colors
-  // Green indicator in overview ruler
-  // Use the right lane because it is for diagnostics
-  overviewRulerColor: "#28a31f",
-  overviewRulerLane: vscode.OverviewRulerLane.Right,
+const skipped = "160deg";
+const skippedMid = `hsl(${skipped} 100% 30%)`;
+const skippedLight = `hsl(${skipped} 100% 95%)`;
+const skippedDark = `hsl(${skipped} 100% 5%)`;
 
-  // Styling for the inline text
-  dark: {
-    after: {
-      color: "#28a31f",
-      backgroundColor: "hsl(115deg 100% 5%)",
+export const skippedDecoration = vscode.window.createTextEditorDecorationType(
+  {
+    overviewRulerColor: skippedMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: skippedMid,
+        backgroundColor: skippedLight,
+      },
     },
-  },
+    dark: {
+      after: {
+        color: skippedMid,
+        backgroundColor: skippedDark,
+      },
+    },
+  }
+);
+
+const succeeded = "120deg";
+const succeededMid = `hsl(${succeeded} 100% 30%)`;
+const succeededLight = `hsl(${succeeded} 100% 95%)`;
+const succeededDark = `hsl(${succeeded} 100% 5%)`;
+
+export const succeededDecoration = vscode.window.createTextEditorDecorationType(
+  {
+    overviewRulerColor: succeededMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: succeededMid,
+        backgroundColor: succeededLight,
+      },
+    },
+    dark: {
+      after: {
+        color: succeededMid,
+        backgroundColor: succeededDark,
+      },
+    },
+  }
+);
+
+const active = "260deg";
+const activeMid = `hsl(${active} 100% 80%)`;
+
+export const activeDecoration = vscode.window.createTextEditorDecorationType({
+  overviewRulerColor: activeMid,
+  overviewRulerLane: vscode.OverviewRulerLane.Right,
   light: {
     after: {
-      color: "#28a31f",
-      backgroundColor: "hsl(115deg 100% 95%)",
+      color: activeMid,
+      backgroundColor: `hsl(${active} 100% 50% / 5%)`,
+    },
+  },
+  dark: {
+    after: {
+      color: activeMid,
+      backgroundColor: `hsl(${active} 100% 50% / 30%)`,
     },
   },
 });

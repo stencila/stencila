@@ -2,23 +2,28 @@ import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
 import {
+  activeDecoration,
   pendingDecoration,
   runningDecoration,
+  skippedDecoration,
+  staleDecoration,
   succeededDecoration,
+  unexecutedDecoration,
 } from "./decorations";
-
-type ExecutionStatus =
-  | "Pending"
-  | "Running"
-  | "Succeeded"
-  | "Warnings"
-  | "Errors"
-  | "Exception";
 
 interface Status {
   range: vscode.Range;
-  status: ExecutionStatus;
-  details: string;
+  // The status being reported. Note that this is a combination
+  // of both `ExecutionStatus` and `ExecutionRequired` ("Unexecuted" & "Stale")
+  status:
+    | "Unexecuted"
+    | "Stale"
+    | "Skipped"
+    | "Pending"
+    | "Running"
+    | "Succeeded"
+    | "Active";
+  message: string;
 }
 
 /**
@@ -37,7 +42,11 @@ export function registerNotifications(client: LanguageClient) {
         return;
       }
 
-      const statusToRange = ({ range, status, details }: Status) => {
+      const statusToRange = ({
+        range,
+        status,
+        message,
+      }: Status): vscode.DecorationOptions => {
         const startLine = range.start.line;
         const lineLength = editor.document.lineAt(startLine).text.length;
         const position = new vscode.Position(startLine, lineLength);
@@ -47,14 +56,15 @@ export function registerNotifications(client: LanguageClient) {
           range: decorationRange,
           renderOptions: {
             after: {
-              contentText: " " + (details ?? status),
+              contentText: message ?? status,
+              margin: "1em",
             },
           },
         };
       };
 
       const decorationsFor = (
-        status: ExecutionStatus,
+        status: Status["status"],
         decoration: vscode.TextEditorDecorationType
       ) => {
         editor.setDecorations(
@@ -63,9 +73,13 @@ export function registerNotifications(client: LanguageClient) {
         );
       };
 
+      decorationsFor("Unexecuted", unexecutedDecoration);
+      decorationsFor("Stale", staleDecoration);
       decorationsFor("Pending", pendingDecoration);
+      decorationsFor("Skipped", skippedDecoration);
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
+      decorationsFor("Active", activeDecoration);
     }
   );
 }

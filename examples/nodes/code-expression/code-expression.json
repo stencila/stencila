@@ -85,13 +85,13 @@
       "content": [
         {
           "type": "Text",
-          "value": "With automatic execution behavior specified and no output "
+          "value": "With execution mode specified and no output "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "javascript",
           "code": "c * d",
-          "autoExec": "Never"
+          "executionMode": "Locked"
         },
         { "type": "Text", "value": "." }
       ]

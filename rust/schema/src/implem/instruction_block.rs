@@ -64,7 +64,7 @@ impl MarkdownCodec for InstructionBlock {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, auto_exec))
+            .merge_losses(lost_options!(self, id, execution_mode))
             .merge_losses(lost_exec_options!(self))
             .push_semis()
             .push_str(" ")

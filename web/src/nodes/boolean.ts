@@ -22,32 +22,12 @@ export class Boolean extends Entity {
   private bodyStyles = apply(['w-full'])
 
   /**
-   * In static view just render the value
-   */
-  override renderStaticView() {
-    return html`<slot></slot>`
-  }
-
-  /**
    * In dynamic view, render a node card with the value in the content slot.
    */
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand type="Boolean" view="dynamic">
         <div slot="content" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  /**
-   * In source view, render the same as dynamic view, including the
-   * value since that won't be a present in the source usually (given this
-   * node type is normally only present in `CodeChunk.outputs` and `CodeExpression.output`).
-   */
-  override renderSourceView() {
-    return html`
-      <stencila-ui-block-on-demand type="Boolean" view="source">
-        <div slot="body" class=${this.bodyStyles}><slot></slot></div>
       </stencila-ui-block-on-demand>
     `
   }

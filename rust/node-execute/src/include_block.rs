@@ -7,9 +7,16 @@ impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending IncludeBlock {node_id}");
 
-        pending_impl!(executor, &node_id);
+        if executor.should_execute(
+            &node_id,
+            &self.execution_mode,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            tracing::trace!("Pending IncludeBlock {node_id}");
+            pending_impl!(executor, &node_id);
+        }
 
         // Continue to mark executable nodes in `content` as pending
         WalkControl::Continue
@@ -19,18 +26,17 @@ impl Executable for IncludeBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(
+        if !executor.should_execute(
             &node_id,
-            &self.auto_exec,
+            &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping IncludeBlock {node_id}");
-
+            tracing::trace!("Skipping IncludeBlock {node_id}");
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing IncludeBlock {node_id}");
+        tracing::debug!("Executing IncludeBlock {node_id}");
 
         executor.patch(
             &node_id,
@@ -114,7 +120,7 @@ impl Executable for IncludeBlock {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 

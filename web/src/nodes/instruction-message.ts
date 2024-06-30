@@ -13,7 +13,7 @@ import { Entity } from './entity'
 @customElement('stencila-instruction-message')
 @withTwind()
 export class InstructionMessage extends Entity {
-  override renderDynamicView() {
+  override render() {
     // TODO: Currently just showing `parts` property, not `role`, `authors` and `provenance`.
     return html`<slot name="parts"></slot>`
   }

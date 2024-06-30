@@ -350,32 +350,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
-    let (to_value, from_value) = match enum_name.to_string().as_str() {
-        "Inline" | "Block" | "Node" => (
-            quote! {
-                Ok(PatchValue::#enum_name(self.clone()))
-            },
-            quote! {
-                match value {
-                    PatchValue::#enum_name(value) => Ok(value),
-                    PatchValue::Json(value) => Ok(serde_json::from_value(value)?),
-                    _ => bail!("Invalid value for `{}`", stringify!(#enum_name))
-                }
-            },
-        ),
-        _ => (
-            quote! {
-                Ok(PatchValue::Json(serde_json::to_value(self)?))
-            },
-            quote! {
-                match value {
-                    PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
-                    _ => bail!("Invalid patch value for `{}`", stringify!(#enum_name))
-                }
-            },
-        ),
-    };
-
+    let mut is_unit = false;
     let mut authorship_variants = TokenStream::new();
     let mut provenance_variants = TokenStream::new();
     let mut similarity_variants = TokenStream::new();
@@ -407,6 +382,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 });
             }
             Fields::Unit => {
+                is_unit = true;
                 authorship_variants.extend(quote! {
                     Self::#variant_name => Ok(()),
                 });
@@ -428,6 +404,49 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             }
         };
     }
+
+    let (to_value, from_value) = match enum_name.to_string().as_str() {
+        "Inline" | "Block" | "Node" => (
+            quote! {
+                Ok(PatchValue::#enum_name(self.clone()))
+            },
+            quote! {
+                match value {
+                    PatchValue::#enum_name(value) => Ok(value),
+                    PatchValue::Json(value) => Ok(serde_json::from_value(value)?),
+                    _ => bail!("Invalid value for `{}`", stringify!(#enum_name))
+                }
+            },
+        ),
+        _ => {
+            if is_unit {
+                (
+                    quote! {
+                        Ok(PatchValue::String(self.to_string()))
+                    },
+                    quote! {
+                        match value {
+                            PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+                            PatchValue::String(string) => Ok(string.parse()?),
+                            _ => bail!("Invalid patch value for unit enum `{}`", stringify!(#enum_name))
+                        }
+                    },
+                )
+            } else {
+                (
+                    quote! {
+                        Ok(PatchValue::Json(serde_json::to_value(self)?))
+                    },
+                    quote! {
+                        match value {
+                            PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+                            _ => bail!("Invalid patch value for enum `{}`", stringify!(#enum_name))
+                        }
+                    },
+                )
+            }
+        }
+    };
 
     quote! {
         impl PatchNode for #enum_name {
