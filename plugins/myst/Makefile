@@ -15,6 +15,10 @@ endif
 test: install
 	npm test
 
+# Build package
+build: install
+	npm run build
+
 # Clean up development artifacts
 clean:
 	rm -rf ./dist

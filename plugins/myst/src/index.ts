@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
-import { Codec, type DecodeInfo, Plugin } from "@stencila/plugin";
+import { Codec, type DecodeInfo, type EncodeInfo, Plugin } from "@stencila/plugin";
 import type { Node } from "@stencila/types";
 
 import { decode } from "./decode/index.js";
+import { encode } from "./encode/index.js";
 
 /**
  * An codec for decoding from MyST to Stencila Schema nodes
@@ -11,6 +12,10 @@ import { decode } from "./decode/index.js";
 class MySTCodec extends Codec {
   fromString(content: string): [Node, DecodeInfo] {
     return decode(content);
+  }
+
+  toString(node: Node): [string, EncodeInfo] {
+    return encode(node)
   }
 }
 
@@ -21,13 +26,10 @@ class MySTPlugin extends Plugin {
   constructor() {
     super();
 
-    // @ts-expect-error TODO: Add `codec` to `Plugin`
     this.codecs = {
-      myst: MySTCodec,
+      myst: new MySTCodec(),
     };
   }
 }
 
-if (require.main === module) {
-  new MySTPlugin().run().catch(console.error);
-}
+new MySTPlugin().run().catch(console.error)

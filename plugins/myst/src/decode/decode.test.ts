@@ -5,18 +5,20 @@ import { expect, it } from "vitest";
 
 import { decode } from "./index.js";
 
-it("decodes fixtures as expected", () => {
-  const fixtures = path.join(__dirname, "..", "fixtures");
-  const snapshots = path.join(__dirname, "..", "snapshots");
+// Automatically test all.md files in the fixtures directory against the snapshots
+const fixtures = path.join(__dirname, "..", "fixtures");
+const snapshots = path.join(__dirname, "..", "snapshots");
 
-  for (const file of readdirSync(fixtures).filter(
-    (file) => path.extname(file) === ".md"
-  )) {
-    const myst = readFileSync(path.join(fixtures, file), "utf8");
-    const [node, info] = decode(myst);
+const files = readdirSync(fixtures).filter(
+  (file) => path.extname(file) === ".md"
+);
 
-    const json = JSON.stringify(node, null, "  ");
-    const snapshot = path.join(snapshots, file.replace(".md", ".json"));
-    expect(json).toMatchFileSnapshot(snapshot);
-  }
+it.each(files)("decodes %s as expected", (file) => {
+  const myst = readFileSync(path.join(fixtures, file), "utf8");
+  const [node, info] = decode(myst);
+
+  const snapshotFilename = path.join(snapshots, file.replace(".md", ".json"));
+
+  const json = JSON.stringify(node, null, "  ");
+  expect(json).toMatchFileSnapshot(snapshotFilename);
 });

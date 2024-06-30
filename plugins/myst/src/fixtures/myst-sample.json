@@ -1,0 +1,445 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeBlock",
+      "code": "title: Working with MyST Markdown\nsubtitle: A live demo\nauthors:\n  - name: Rowan Cockett\n    orcid: 0000-0002-7859-8394\n    affiliations:\n      - Executable Books\nlicense: CC-BY-4.0",
+      "programmingLanguage": "yaml"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "MyST makes Markdown more "
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": "extensible"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " & "
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": "powerful"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " to support an\necosystem of tools for computational narratives, technical documentation,\nand open scientific communication. You can "
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": "edit this demo"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": " including the "
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": "frontmatter"
+            }
+          ],
+          "target": "https://mystmd.org/guide/frontmatter"
+        },
+        {
+          "type": "Text",
+          "value": " to change the title!!"
+        }
+      ]
+    },
+    {
+      "type": "Admonition",
+      "admonitionType": "Important",
+      "title": [
+        {
+          "type": "Text",
+          "value": "Our Values"
+        }
+      ],
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "We believe in a community-driven approach of open-source tools that are\ncomposable and extensible. You can find out how to be involved in developing MyST Markdown by getting involved in the "
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "ExecutableBooks"
+                }
+              ],
+              "target": "https://executablebooks.org/"
+            },
+            {
+              "type": "Text",
+              "value": " project."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "MyST allows you to create figures with rich cross-references, scientific citations, and export to many commonly used document formats, including ("
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": "websites like this one"
+            }
+          ],
+          "target": "https://mystmd.org/guide/quickstart-myst-websites"
+        },
+        {
+          "type": "Text",
+          "value": ", "
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": "PDFs & "
+            },
+            {
+              "type": "MathInline",
+              "code": "\\LaTeX"
+            }
+          ],
+          "target": "https://mystmd.org/guide/creating-pdf-documents"
+        },
+        {
+          "type": "Text",
+          "value": ", "
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": "Microsoft Word"
+            }
+          ],
+          "target": "https://mystmd.org/guide/creating-word-documents"
+        },
+        {
+          "type": "Text",
+          "value": ", and "
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": "JATS XML"
+            }
+          ],
+          "target": "https://mystmd.org/guide/creating-jats-xml"
+        },
+        {
+          "type": "Text",
+          "value": ")."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "For example, we have included a figure below ("
+        },
+        {
+          "type": "Link",
+          "content": [],
+          "target": "#my-fig"
+        },
+        {
+          "type": "Text",
+          "value": "), "
+        },
+        {
+          "type": "Link",
+          "content": [],
+          "target": "#example-table"
+        },
+        {
+          "type": "Text",
+          "value": " as well as "
+        },
+        {
+          "type": "Link",
+          "content": [],
+          "target": "#maxwell"
+        },
+        {
+          "type": "Text",
+          "value": ", a cross-reference to Maxwell’s equations.\nYou can click on these and see the preview of the reference immediately."
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Including Figures and Images"
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "name": "my-fig",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "ImageObject",
+              "description": {
+                "type": "Text",
+                "value": "Random image of the beach or ocean!"
+              },
+              "contentUrl": "https://source.unsplash.com/random/400x200?beach,ocean"
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Relaxing at the beach 🏝 🌊 😎"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "label": "my-fig"
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Including Math and Equations"
+        }
+      ]
+    },
+    {
+      "type": "MathBlock",
+      "code": "\\begin{aligned}\n\\nabla \\times \\vec{e}+\\frac{\\partial \\vec{b}}{\\partial t}&=0 \\\\\n\\nabla \\times \\vec{h}-\\vec{j}&=\\vec{s}\\_{e}\n\\end{aligned}",
+      "label": "maxwell"
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Including Tables"
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "name": "example-table",
+      "content": [
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "This is a nice table!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Table",
+          "rows": [
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "HeaderCell",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": "Training"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "cellType": "HeaderCell",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": "Validation"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "rowType": "HeaderRow"
+            },
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "DataCell",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": "0"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "cellType": "DataCell",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": "5"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "DataCell",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": "13720"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "cellType": "DataCell",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": "2744"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "label": "example-table"
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Callouts"
+        }
+      ]
+    },
+    {
+      "type": "Admonition",
+      "admonitionType": "Note",
+      "title": [
+        {
+          "type": "Text",
+          "value": "Note"
+        }
+      ],
+      "isFolded": true,
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "This is initially hidden, and can be clicked to be opened when you are viewing the content."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
