@@ -20,7 +20,12 @@ import { CodeExecutable } from './code-executable'
 export class ForBlock extends CodeExecutable {
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="ForBlock" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="ForBlock"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
             node-id=${this.id}

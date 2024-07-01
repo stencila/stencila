@@ -60,7 +60,12 @@ export class IfBlockClause extends CodeExecutable {
 
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="IfBlockClause" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="IfBlockClause"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body" class="h-full">
           <stencila-ui-node-authors type="IfBlockClause">
             <stencila-ui-node-provenance slot="provenance">

@@ -1,7 +1,8 @@
 import { consume } from '@lit/context'
+import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
-import { state } from 'lit/decorators'
+import { state, property } from 'lit/decorators'
 
 import {
   DocPreviewContext,
@@ -29,6 +30,15 @@ type NodeColours = Pick<
   'borderColour' | 'colour' | 'textColour'
 >
 
+const NON_CARD_NODES: NodeType[] = [
+  'Article',
+  'ListItem',
+  'TableCell',
+  'TableRow',
+  'Text',
+  'SuggestionBlock',
+]
+
 /**
  * A Mixin that provides a "chip" to allow for a card to have its visibility
  * toggled on and off.
@@ -36,13 +46,25 @@ type NodeColours = Pick<
 export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
   superClass: T
 ) => {
-  class ToggleMixin extends superClass {
+  abstract class ToggleMixin extends superClass {
     @consume({ context: documentPreviewContext, subscribe: true })
     @state()
     protected docViewContext: DocPreviewContext
 
     @state()
     protected toggle: boolean = false
+
+    /**
+     * the depth of the current `Node`
+     */
+    @property({ type: Object })
+    depth: number
+
+    /**
+     * the string of ancestors for the `Node`
+     */
+    @property({ type: String })
+    ancestors: string
 
     /**
      * Used to allow clients to override css classes (tailwind) to change the
@@ -63,6 +85,32 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     }
     // ---------------------
 
+    private static Y_OFFSET_INCREMENT_VALUE: number = 5
+
+    private static MAX_INCREMENTS: number = 4
+
+    private calculateChipOffset() {
+      let offset: number = 0
+      if (
+        this.ancestors &&
+        this.depth > 1 &&
+        this.constructor.name !== 'UIInlineOnDemand' // exclude 'inline' chips
+      ) {
+        const ancestors = (this.ancestors.split('.') as NodeType[]) ?? []
+        const maxOffset =
+          ToggleMixin.Y_OFFSET_INCREMENT_VALUE * ToggleMixin.MAX_INCREMENTS
+        ancestors.forEach((node) => {
+          if (offset >= maxOffset) {
+            return
+          }
+          if (NON_CARD_NODES.indexOf(node) === -1) {
+            offset += ToggleMixin.Y_OFFSET_INCREMENT_VALUE
+          }
+        })
+      }
+      return offset
+    }
+
     protected toggleChip() {
       this.toggle = !this.toggle
       this.dispatchToggleEvent()
@@ -81,6 +129,8 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     protected renderChip(icons: [string, string], colours: NodeColours) {
       const { colour, borderColour, textColour } = colours
       const [library, icon] = icons
+
+      const yOffset = this.calculateChipOffset()
 
       const styles = apply([
         this.docViewContext.nodeChipState === 'hidden' && 'pointer-events-none',
@@ -102,7 +152,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
         `fill-black text-black`,
         `hover:bg-[${borderColour}] hover:border-[${colour}]`,
         'absolute',
-        'top-0',
+        `top-[${!this.toggle ? yOffset : 0}px]`,
       ])
 
       return html`

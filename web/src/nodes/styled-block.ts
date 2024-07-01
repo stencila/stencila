@@ -23,10 +23,12 @@ export class StyledBlock extends Styled {
   override render() {
     this.adoptCss()
 
-    return html` <stencila-ui-block-on-demand
+    return html`<stencila-ui-block-on-demand
       type="StyledBlock"
       view="dynamic"
       .canAnimate=${false}
+      depth=${this.depth}
+      ancestors=${this.ancestors}
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">

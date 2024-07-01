@@ -26,7 +26,12 @@ export class Section extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand type="Section" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="Section"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Section">
             <stencila-ui-node-provenance slot="provenance">

@@ -42,6 +42,8 @@ export class CodeChunk extends CodeExecutable {
       type="CodeChunk"
       view="dynamic"
       programming-language="${this.programmingLanguage}"
+      depth=${this.depth}
+      ancestors=${this.ancestors}
       node-id=${this.id}
     >
       <span slot="header-right">
