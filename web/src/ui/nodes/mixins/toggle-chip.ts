@@ -37,7 +37,7 @@ const NON_CARD_NODES: NodeType[] = [
   'TableRow',
   'Text',
   'SuggestionBlock',
-] as const
+]
 
 /**
  * A Mixin that provides a "chip" to allow for a card to have its visibility
