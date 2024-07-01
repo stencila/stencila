@@ -5,6 +5,16 @@
   "displayName": "Stencila",
   "description": "Programmable, reproducible, interactive documents",
   "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "Stencila and contributors",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/stencila.git"
+  },
   "engines": {
     "vscode": "^1.88.0"
   },
@@ -458,7 +468,8 @@
     "compile": "npm run compile-cli && npm run compile-dist && npm run compile-syntaxes && npm run compile-walkthroughs && npm run compile-ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "package": "vsce package"
   },
   "dependencies": {
     "vscode-languageclient": "9.0.1"
@@ -471,6 +482,7 @@
     "@typescript-eslint/parser": "^7.4.0",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "2.29.0",
     "eslint": "^8.57.0",
     "js-yaml": "^4.1.0",
     "typescript": "^5.3.3"

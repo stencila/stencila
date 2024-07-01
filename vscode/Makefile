@@ -1,11 +1,14 @@
 all: fix test build
 
 # Install dependencies
+# Note: this package is not currently part of the repo's npm
+# workspace and so, unlike other packages in this repo, the
+# install is done in this folder.
 install:
 ifdef CI
-	cd .. && npm ci --ignore-scripts
+	npm ci
 else
-	cd .. && npm install --ignore-scripts
+	npm install
 endif
 
 # Make formatting and linting fixes
@@ -23,6 +26,10 @@ test: install
 # Compile (build in development mode)
 compile: install
 	npm run compile
+
+# Package into a vsix file for current platform
+package: install
+	npm run package
 
 # Clean up development artifacts
 clean:
