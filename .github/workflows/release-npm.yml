@@ -1,4 +1,4 @@
-# Workflow for creating releases
+# Workflow for creating releases of NPM packages
 #
 # This workflow is triggered by the `version.yml` workflow when a version
 # tag is created (one starting with `v`).

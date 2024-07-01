@@ -1,4 +1,4 @@
-# Workflow for creating a release of Python packages
+# Workflow for creating releases of Python packages
 
 name: Release Python packages
 
