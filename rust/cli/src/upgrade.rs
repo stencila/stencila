@@ -153,8 +153,8 @@ impl GithubRelease {
             "{}{}",
             folder_name,
             match OS {
-                "linux" => ".tar.xz",
-                "macos" => ".tar.xz",
+                "linux" => ".tar.gz",
+                "macos" => ".tar.gz",
                 "windows" => ".zip",
                 _ => bail!("Unsupported OS"),
             }

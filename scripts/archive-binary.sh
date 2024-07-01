@@ -21,5 +21,7 @@ if [[ "$(uname)" == *CYGWIN* || "$(uname)" == *MINGW* ]]; then
     7z a "$DIR.zip" "$DIR"
 else
     cp "$TARGET/release/$BINARY" "$DIR"
-    tar -cJf "$DIR.tar.xz" "$DIR"
+    # Previously we created a .xz archive but changed to a .gz archive for more widespread support
+    # (e.g. gzip is supported in Node.js standard library)
+    tar -czf "$DIR.tar.gz" "$DIR"
 fi;

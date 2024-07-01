@@ -37,9 +37,9 @@ if [ "${OS}" = "Linux" ] || [ "${OS}" = "Darwin" ]; then
     fi
     
     echo "Downloading Stencila CLI $VERSION for platform $TARGET_TRIPLE"
-    curl -sL "https://github.com/stencila/stencila/releases/download/$VERSION/cli-$VERSION-$TARGET_TRIPLE.tar.xz" | tar xJ -O "cli-$VERSION-$TARGET_TRIPLE/stencila" > stencila || {
+    curl -sL "https://github.com/stencila/stencila/releases/download/$VERSION/cli-$VERSION-$TARGET_TRIPLE.tar.gz" | tar xz -O "cli-$VERSION-$TARGET_TRIPLE/stencila" > stencila || {
         echo 
-        echo "There was an error downloading cli-$VERSION-$TARGET_TRIPLE.tar.xz"
+        echo "There was an error downloading cli-$VERSION-$TARGET_TRIPLE.tar.gz"
         echo "It may be that binaries are not available for the latest release yet."
         echo "Please wait, or try a previous version at https://github.com/stencila/stencila/releases."
         echo
