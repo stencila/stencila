@@ -15,6 +15,15 @@ import { Entity } from './entity'
 export class InstructionMessage extends Entity {
   override render() {
     // TODO: Currently just showing `parts` property, not `role`, `authors` and `provenance`.
-    return html`<slot name="parts"></slot>`
+    return html`
+      <div>
+        <div class="py-2">
+          <slot name="parts"></slot>
+        </div>
+        <div>
+          <slot name="authors"></slot>
+        </div>
+      </div>
+    `
   }
 }

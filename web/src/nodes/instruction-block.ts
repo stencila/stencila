@@ -66,12 +66,9 @@ export class InstructionBlock extends Instruction {
         <stencila-ui-node-instruction-messages type=${this.type}>
           <slot name="messages"></slot>
         </stencila-ui-node-instruction-messages>
-
-        <stencila-ui-node-instruction-suggestions type=${this.type}>
-          <slot name="suggestions"></slot>
-        </stencila-ui-node-instruction-suggestions>
       </div>
       <div slot="content" class="w-full">
+        <slot name="suggestions"></slot>
         <slot name="content"></slot>
       </div>
     </stencila-ui-block-on-demand>`
