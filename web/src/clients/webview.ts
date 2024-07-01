@@ -1,34 +1,44 @@
-import { InlineTypeList } from '@stencila/types'
-
 import { Entity } from '../nodes/entity'
+import { NodeId } from '../types'
 import { ChipToggleInterface } from '../ui/nodes/mixins/toggle-chip'
 import { UIBaseClass } from '../ui/nodes/mixins/ui-base-class'
 
-type MessageType = 'scroll-to-element' | 'scroll-track'
+/**
+ * A message received from VSCode by the web view
+ */
+type ReceivedMessage = ViewNodeMessage
 
-type MessagePayload = {
-  type: MessageType
-  payload: {
-    // the id of the node to scroll the view to
-    scrollTarget?: string
-  }
+interface ViewNodeMessage {
+  type: 'view-node'
+  nodeId: NodeId
 }
 
-type VSCodeMessage = {
+/**
+ * A message sent by the web view to VSCode
+ *
+ * TODO: This needs to be made consistent with the messages sent
+ * by the other clients, in particular the WebSocket client.
+ */
+type SentMessage = {
   command: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [k: string]: any
 }
 
 interface VSCode {
-  postMessage(message: VSCodeMessage): void
+  postMessage(message: SentMessage): void
 }
 
-// make sure the compiler is aware of the existing `vscode` api instance
+/**
+ * The VSCode API instance in the web view window
+ *
+ * Must be instantiated using `const vscode = acquireVsCodeApi()` in
+ * the HTML of the view.
+ */
 declare const vscode: VSCode
 
 /**
- * a client object to allow for sending recie
+ * A client for sending and receiving messages to/from VSCode within a web view
  */
 export class WebViewClient {
   constructor(element: HTMLElement) {
@@ -39,52 +49,40 @@ export class WebViewClient {
   private element: HTMLElement
 
   /**
-   * Sends message to webview panel, via the vscode api instance
-   */
-  static postMessage(message: VSCodeMessage) {
-    vscode.postMessage(message)
-  }
-
-  /**
-   * add an event listener to the window instance for 'message'
-   * events from the webview panel
+   * Add an event listener to the window instance for 'message'
+   * events from the web view panel
    *
-   * nb. any class methods used for/in the event callback must be bound to `this`
+   * Note: any class methods used for/in the event callback must be bound to `this`
    * if they wish to use properties of `this`. using arrow function
    * syntax when declaring methods will achieve this.
    */
   private setWindowListener() {
-    window.addEventListener('message', this.receiveMessage)
+    window.addEventListener('message', this.receiveMessage.bind(this))
   }
 
   /**
-   * Handles 'message' events sent from vscode to the `window`.
-   * uses the event data to determine which handler fucntion to use.
-   * @param e `Event` instance with `data` property carrying payload
-   * @returns `void`
+   * Receive a 'message' event sent from VSCode to the web view `window`
+   *
+   * Note: must be an arrow function!
+   *
+   * @param event `Event` instance with `data` property carrying message
    */
-  // !!!must be arrow function
-  private receiveMessage = (e: Event & { data: MessagePayload }) => {
-    const { type, payload } = e.data
+  private receiveMessage({ data }: Event & { data: ReceivedMessage }) {
+    const { type } = data
 
     switch (type) {
-      case 'scroll-to-element':
-        if (payload.scrollTarget) {
-          this.handleScroll(payload.scrollTarget)
-        }
-        break
+      case 'view-node':
+        return this.handleViewNodeMessage(data)
       default:
-        return
+        throw new Error(`Unhandled received message type: ${type}`)
     }
   }
 
   /**
-   * handles the 'scroll-to-element' message event
-   * @param scrollTarget #id of target node
+   * Handle a received `ViewNodeMessage` message
    */
-  // !!!must be arrow function
-  private handleScroll = (scrollTarget: string) => {
-    const targetEl = this.element.querySelector(`#${scrollTarget}`) as Entity
+  private handleViewNodeMessage({ nodeId }: ViewNodeMessage) {
+    const targetEl = this.element.querySelector(`#${nodeId}`) as Entity
     if (targetEl) {
       targetEl.scrollIntoView({
         block: 'start',
@@ -92,17 +90,19 @@ export class WebViewClient {
         behavior: 'smooth',
       })
 
-      let cardType = 'stencila-ui-block-on-demand'
-
-      if (InlineTypeList.includes(scrollTarget.constructor.name)) {
-        cardType = 'stencila-ui-inline-on-demand'
-      }
-      const card = targetEl.shadowRoot.querySelector(cardType) as UIBaseClass &
-        ChipToggleInterface
-
+      const card = targetEl.shadowRoot.querySelector(
+        'stencila-ui-block-on-demand, stencila-ui-inline-on-demand'
+      ) as UIBaseClass & ChipToggleInterface
       if (card) {
         card.openCard()
       }
     }
+  }
+
+  /**
+   * Send a message to the web view panel, via the vscode api instance
+   */
+  static sendMessage(message: SentMessage) {
+    vscode.postMessage(message)
   }
 }

@@ -43,11 +43,11 @@ export async function createDocumentViewPanel(
 
     panel.reveal();
 
-    // if `nodeId` param is defined, scroll webview to target node.
+    // If `nodeId` param is defined, scroll webview to target node.
     if (nodeId) {
-      panel.webview.postMessage({ 
-        type: 'scroll-to-element', 
-        payload: { scrollTarget: nodeId }
+      panel.webview.postMessage({
+        type: "view-node",
+        nodeId,
       });
     }
 
@@ -145,27 +145,29 @@ export async function createDocumentViewPanel(
 
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);
-  
+
   // Handle when the webview is disposed
   panel.onDidDispose(() => {
     documentViewPanels.delete(documentUri);
   }, null);
-    
-  // if `nodeId` param is defined, scroll webview panel to target node.
+
+  // If `nodeId` param is defined, scroll webview panel to target node.
   if (nodeId) {
-    panel.webview.postMessage({ 
-      type: 'scroll-to-element', 
-      payload: { scrollTarget: nodeId }
+    panel.webview.postMessage({
+      type: "view-node",
+      nodeId,
     });
   }
 
   // Handle messages from the webview
   panel.webview.onDidReceiveMessage(
-    message => {
+    (message) => {
       switch (message.command) {
-        case 'error':
+        case "error":
           vscode.window.showErrorMessage(message.text);
           return;
+        default:
+          throw new Error(`Unhandled message: ${message}`);
       }
     },
     undefined,
@@ -173,10 +175,4 @@ export async function createDocumentViewPanel(
   );
 
   return panel;
-}
-
-export function addScroll () {
-  vscode.window.onDidChangeTextEditorVisibleRanges(e => {
-
-  });
 }
