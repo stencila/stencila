@@ -41,7 +41,7 @@
         "src/themes/default.css",
         "src/views/vscode.ts"
       ],
-      "distDir": "../vscode/dist"
+      "distDir": "../vscode/out/web"
     }
   },
   "staticFiles": [

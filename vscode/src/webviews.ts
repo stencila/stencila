@@ -10,10 +10,16 @@ import { LanguageClient } from "vscode-languageclient/node";
  * This is necessary to load Shoelace and Stencila icons from the right place.
  */
 export function patchWebViewJs(extensionUri: vscode.Uri) {
-  const filePath = path.join(extensionUri.fsPath, "dist", "views", "vscode.js");
+  const filePath = path.join(
+    extensionUri.fsPath,
+    "out",
+    "web",
+    "views",
+    "vscode.js"
+  );
   const content = readFileSync(filePath, "utf8").replace(
     "VSCODE_BASE_URL",
-    `https://file+.vscode-resource.vscode-cdn.net${extensionUri.fsPath}/dist`
+    `https://file+.vscode-resource.vscode-cdn.net${extensionUri.fsPath}/out/web`
   );
   writeFileSync(filePath, content, "utf8");
 }
@@ -56,9 +62,8 @@ export async function createDocumentViewPanel(
 
   const filename = path.basename(documentUri.fsPath);
 
-  // TODO: For deployment we will need to pull the web dist into the extension
-  // folder rather than reaching out and getting it!
-  const webDist = vscode.Uri.joinPath(context.extensionUri, "dist");
+  // Folder containing bundled JS and other assets for the web view
+  const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
 
   const panel = vscode.window.createWebviewPanel(
     "document-view",
