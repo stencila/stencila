@@ -72,9 +72,9 @@ content:
   content:
   - type: Text
     value:
-      string: 'With automatic execution behavior specified and no output '
+      string: 'With execution mode specified and no output '
   - type: CodeExpression
-    autoExec: Never
+    executionMode: Locked
     code:
       string: c * d
     programmingLanguage: javascript

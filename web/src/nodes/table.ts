@@ -16,36 +16,25 @@ import '../ui/nodes/properties/provenance/provenance'
 @withTwind()
 export class Table extends Entity {
   /**
-   * render table and any additional content
-   */
-  override renderStaticView() {
-    return html`
-      <slot name="content">
-        <slot name="rows"></slot>
-        <slot></slot>
-      </slot>
-    `
-  }
-
-  /**
    * render table and any additional content,
    * as well as `authors` inside a node card
    */
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand
         type="Table"
         view="dynamic"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        node-id=${this.id}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Table">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-          <stencila-ui-node-provenance type="Table">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
         </div>
         <div class="content" slot="content">
           <slot name="caption"></slot>

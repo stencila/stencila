@@ -5,7 +5,7 @@
     <code executable="yes">No language</code>
     <p>With language:</p>
     <code executable="yes" language="python"># Some python code&#10;a = 3</code>
-    <p>With language and autoExec:</p>
+    <p>With language and execution mode:</p>
     <code executable="yes" language="js">// Javascript</code>
     <p>With label:</p>
     <code executable="yes"># Chunk 1A</code>

@@ -20,15 +20,7 @@ export class IncludeBlock extends Executable {
 
   // TODO: render the source field properly, currently using placeholder
 
-  override renderStaticView() {
-    return html`
-      <stencila-ui-node-card type="IncludeBlock">
-        <div slot="body"><span>source: </span><span>${this.source}</span></div>
-      </stencila-ui-node-card>
-    `
-  }
-
-  override renderDynamicView() {
+  override render() {
     return html`
       <stencila-ui-block-on-demand
         type="IncludeBlock"
@@ -37,28 +29,18 @@ export class IncludeBlock extends Executable {
         ancestors=${this.ancestors}
       >
         <div slot="body">
+          <stencila-ui-node-authors type="IncludeBlock">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
           <div><span>source: </span><span>${this.source}</span></div>
-          <slot name="authors"></slot>
         </div>
         <div slot="content">
           <slot name="output"></slot>
         </div>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  override renderVisualView() {
-    return this.renderDynamicView()
-  }
-
-  override renderSourceView() {
-    return html`
-      <stencila-ui-node-card
-        type="IncludeBlock"
-      >
-        <div slot="body">icon</span><span>${this.source}</span></div>
-        <slot name="authors"></slot>
-      </stencila-ui-node-card>
     `
   }
 }

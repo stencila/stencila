@@ -1,0 +1,142 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ExecutionMode.schema.json",
+  "@id": "stencila:ExecutionMode",
+  "title": "ExecutionMode",
+  "extends": [
+    "Enumeration"
+  ],
+  "category": "flow",
+  "description": "Under which circumstances the document node should be executed.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "Text.schema.json"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "anyOf": [
+    {
+      "@id": "stencila:Always",
+      "description": "Always execute the node when the document or ancestor node is executed.\nUse this for nodes that you want to always be executed, even if they, or\ntheir upstream dependencies, are not stale.\n",
+      "const": "Always"
+    },
+    {
+      "@id": "stencila:Auto",
+      "description": "Automatically execute the node if it is stale and is an upstream dependency of a node\nthat is to be executed, or is a downstream dependant of a node that has been executed.\n",
+      "const": "Auto"
+    },
+    {
+      "@id": "stencila:Necessary",
+      "description": "Execute the node when necessary (i.e. if it is stale) when the document or ancestor node is executed.",
+      "const": "Necessary"
+    },
+    {
+      "@id": "stencila:Locked",
+      "description": "Do not execute the node. Requires that the node is unlocked first to be executed.\n",
+      "const": "Locked"
+    }
+  ],
+  "default": "Necessary"
+}

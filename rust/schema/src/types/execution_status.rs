@@ -17,6 +17,9 @@ pub enum ExecutionStatus {
     /// Execution of the node has been skipped because it is unnecessary.
     Skipped,
 
+    /// Execution of the node has been skipped because it is locked.
+    Locked,
+
     /// Execution of the node has been skipped because it has code, or other property, that is empty.
     Empty,
 

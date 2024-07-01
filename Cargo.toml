@@ -14,3 +14,7 @@ strip = true
 lto = true
 codegen-units = 1
 panic = "abort"
+
+[workspace.dependencies]
+cached = { version = "0.51.4", features = ["async"] }
+quick-xml = "0.32.0"

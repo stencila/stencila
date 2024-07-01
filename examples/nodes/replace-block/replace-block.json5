@@ -50,7 +50,7 @@
     },
     {
       type: "ReplaceBlock",
-      suggestionStatus: "Accepted",
+      feedback: "Some feedback",
       content: [
         {
           type: "Paragraph",
@@ -69,32 +69,6 @@
             {
               type: "Text",
               value: { string: "Accepted new paragraph" }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      type: "ReplaceBlock",
-      suggestionStatus: "Rejected",
-      content: [
-        {
-          type: "Paragraph",
-          content: [
-            {
-              type: "Text",
-              value: { string: "Old paragraph" }
-            }
-          ]
-        }
-      ],
-      replacement: [
-        {
-          type: "Paragraph",
-          content: [
-            {
-              type: "Text",
-              value: { string: "Rejected new paragraph" }
             }
           ]
         }

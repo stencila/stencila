@@ -18,29 +18,14 @@
     },
     {
       "type": "InsertBlock",
-      "suggestionStatus": "Accepted",
+      "feedback": "Some feedback on suggestion",
       "content": [
         {
           "type": "Paragraph",
           "content": [
             {
               "type": "Text",
-              "value": "Accepted inserted paragraph"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "InsertBlock",
-      "suggestionStatus": "Rejected",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": "Rejected inserted paragraph"
+              "value": "Proposed inserted paragraph with feedback"
             }
           ]
         }

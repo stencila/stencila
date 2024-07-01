@@ -3,7 +3,6 @@ import { type AdmonitionType } from "./AdmonitionType.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRoleName } from "./AuthorRoleName.js";
-import { type AutomaticExecution } from "./AutomaticExecution.js";
 import { type Brand } from "./Brand.js";
 import { type CitationIntent } from "./CitationIntent.js";
 import { type CitationMode } from "./CitationMode.js";
@@ -18,17 +17,20 @@ import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
+import { type ExecutionMode } from "./ExecutionMode.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
 import { type Figure } from "./Figure.js";
 import { type FormDeriveAction } from "./FormDeriveAction.js";
 import { type Grant } from "./Grant.js";
 import { type ImageObject } from "./ImageObject.js";
+import { type InstructionType } from "./InstructionType.js";
 import { type LabelType } from "./LabelType.js";
 import { type ListItem } from "./ListItem.js";
 import { type ListOrder } from "./ListOrder.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type MessageLevel } from "./MessageLevel.js";
+import { type MessageRole } from "./MessageRole.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type NoteType } from "./NoteType.js";
 import { type Organization } from "./Organization.js";
@@ -59,7 +61,6 @@ export type ThingType =
   Article |
   AudioObject |
   AuthorRoleName |
-  AutomaticExecution |
   Brand |
   CitationIntent |
   CitationMode |
@@ -74,17 +75,20 @@ export type ThingType =
   Enumeration |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
+  ExecutionMode |
   ExecutionRequired |
   ExecutionStatus |
   Figure |
   FormDeriveAction |
   Grant |
   ImageObject |
+  InstructionType |
   LabelType |
   ListItem |
   ListOrder |
   MediaObject |
   MessageLevel |
+  MessageRole |
   MonetaryGrant |
   NoteType |
   Organization |

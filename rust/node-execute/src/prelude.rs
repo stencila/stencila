@@ -3,12 +3,12 @@ use std::hash::{Hash, Hasher};
 use common::seahash::SeaHasher;
 pub use common::{eyre::Report, tracing};
 pub use parsers::ParseInfo;
-use schema::CompilationMessage;
 pub use schema::{
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
     WalkNode,
 };
+use schema::{CompilationDigest, CompilationMessage};
 
 pub(crate) use crate::{Executable, Executor};
 
@@ -73,8 +73,36 @@ pub fn execution_status(messages: &Option<Vec<ExecutionMessage>>) -> ExecutionSt
     }
 }
 
-/// Create a value for `execution_required` from an `ExecutionStatus`
-pub fn execution_required(status: &ExecutionStatus) -> ExecutionRequired {
+/// Create a value for `execution_required` based on execution and compilation digests
+pub fn execution_required_digests(
+    execution_digest: &Option<CompilationDigest>,
+    compilation_digest: &CompilationDigest,
+) -> ExecutionRequired {
+    // If there is no execution digest then execution is required because
+    // it has never been executed
+    let Some(execution_digest) = execution_digest else {
+        return ExecutionRequired::NeverExecuted;
+    };
+
+    // If the compilation digest has a semantic digest then compare it to previous
+    if let Some(semantic_digest) = compilation_digest.semantic_digest {
+        return if Some(semantic_digest) != execution_digest.semantic_digest {
+            ExecutionRequired::SemanticsChanged
+        } else {
+            ExecutionRequired::No
+        };
+    }
+
+    // Fallback to comparing the state digests
+    if compilation_digest.state_digest != execution_digest.state_digest {
+        ExecutionRequired::StateChanged
+    } else {
+        ExecutionRequired::No
+    }
+}
+
+/// Create a value for `execution_required` based on an `ExecutionStatus`
+pub fn execution_required_status(status: &ExecutionStatus) -> ExecutionRequired {
     match status {
         ExecutionStatus::Errors | ExecutionStatus::Exceptions => ExecutionRequired::ExecutionFailed,
         _ => ExecutionRequired::No,

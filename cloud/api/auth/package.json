@@ -1,0 +1,18 @@
+{
+  "name": "auth",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@types/cookie": "0.6.0"
+  },
+  "dependencies": {
+    "cookie": "0.6.0",
+    "jose": "5.5.0"
+  }
+}

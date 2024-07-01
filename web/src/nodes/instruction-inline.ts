@@ -21,7 +21,7 @@ import '../ui/nodes/properties/provenance/provenance'
 export class InstructionInline extends Instruction {
   override type: NodeType = 'InstructionInline'
 
-  override renderDynamicView() {
+  override render() {
     return html` <stencila-ui-inline-on-demand
       type="InstructionInline"
       view="dynamic"
@@ -30,7 +30,7 @@ export class InstructionInline extends Instruction {
       <div slot="body">
         <stencila-ui-node-execution-details
           type=${this.type}
-          auto-exec=${this.autoExec}
+          mode=${this.executionMode}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}
@@ -43,11 +43,11 @@ export class InstructionInline extends Instruction {
         </stencila-ui-node-execution-details>
 
         <stencila-ui-node-authors type="InstructionInline">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-        <stencila-ui-node-provenance type="InstructionInline">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
         <stencila-ui-node-execution-messages
           type=${this.type}
           warning-count=${this.warningCount}
@@ -61,7 +61,7 @@ export class InstructionInline extends Instruction {
         </stencila-ui-node-instruction-messages>
       </div>
       <span slot="content">
-        <slot name="suggestion"></slot>
+        <slot name="suggestions"></slot>
       </span>
     </stencila-ui-inline-on-demand>`
   }

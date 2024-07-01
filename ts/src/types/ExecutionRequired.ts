@@ -5,6 +5,7 @@
 export type ExecutionRequired =
   'No' |
   'NeverExecuted' |
+  'StateChanged' |
   'SemanticsChanged' |
   'DependenciesChanged' |
   'DependenciesFailed' |

@@ -16,22 +16,12 @@ Another new paragraph
 
 :::
 
-::: replace accepted
+::: replace Some feedback
 
 Old paragraph
 
 ::: with
 
 Accepted new paragraph
-
-:::
-
-::: replace rejected
-
-Old paragraph
-
-::: with
-
-Rejected new paragraph
 
 :::

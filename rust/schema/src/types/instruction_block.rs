@@ -2,24 +2,26 @@
 
 use crate::prelude::*;
 
-use super::author::Author;
-use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
+use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
+use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::instruction_message::InstructionMessage;
+use super::instruction_model::InstructionModel;
+use super::instruction_type::InstructionType;
 use super::integer::Integer;
-use super::provenance_count::ProvenanceCount;
 use super::string::String;
-use super::suggestion_block_type::SuggestionBlockType;
+use super::suggestion_block::SuggestionBlock;
 use super::timestamp::Timestamp;
+use super::unsigned_integer::UnsignedInteger;
 
 /// An instruction to edit some block content.
 #[skip_serializing_none]
@@ -29,7 +31,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "InstructionBlock")]
-#[patch(authors_on = "self")]
+#[patch(apply_with = "InstructionBlock::apply_patch_op")]
 pub struct InstructionBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -41,12 +43,17 @@ pub struct InstructionBlock {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be automatically executed.
-    #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
+    /// Under which circumstances the code should be executed.
+    #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub auto_exec: Option<AutomaticExecution>,
+    pub execution_mode: Option<ExecutionMode>,
+
+    /// The type of instruction.
+    #[serde(alias = "instruction-type", alias = "instruction_type")]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    pub instruction_type: InstructionType,
 
     /// Messages involved in the instruction.
     #[serde(alias = "message")]
@@ -56,7 +63,7 @@ pub struct InstructionBlock {
     #[dom(elem = "div")]
     pub messages: Vec<InstructionMessage>,
 
-    /// An identifier for the agent assigned to perform the instruction
+    /// An identifier for the assistant assigned to perform the instruction
     #[patch(format = "md")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
@@ -64,20 +71,20 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub assignee: Option<String>,
 
-    /// The authors of the instruction.
-    #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(authors)]
+    /// The name, and other options, for the model that the assistant should use to generate suggestions.
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
-    pub authors: Option<Vec<Author>>,
+    pub model: Option<Box<InstructionModel>>,
 
-    /// A summary of the provenance of the messages and content within the instruction.
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(provenance)]
+    /// The number of suggestions to generate for the instruction
+    #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
-    pub provenance: Option<Vec<ProvenanceCount>>,
+    pub replicates: Option<UnsignedInteger>,
+
+    /// Whether suggestions should be hidden in source views such as Markdown.
+    #[serde(alias = "hide-suggestions", alias = "hide_suggestions")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub hide_suggestions: Option<Boolean>,
 
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -90,12 +97,14 @@ pub struct InstructionBlock {
     #[dom(elem = "div")]
     pub content: Option<Vec<Block>>,
 
-    /// A suggestion for the instruction
+    /// Suggestions for the instruction
+    #[serde(alias = "suggestion")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
     #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
-    pub suggestion: Option<SuggestionBlockType>,
+    pub suggestions: Option<Vec<SuggestionBlock>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -219,8 +228,9 @@ impl InstructionBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(messages: Vec<InstructionMessage>) -> Self {
+    pub fn new(instruction_type: InstructionType, messages: Vec<InstructionMessage>) -> Self {
         Self {
+            instruction_type,
             messages,
             ..Default::default()
         }

@@ -1,0 +1,27 @@
+title: ExecutionMode
+'@id': stencila:ExecutionMode
+extends: Enumeration
+category: flow
+description: Under which circumstances the document node should be executed.
+default: Necessary
+anyOf:
+  - const: Always
+    '@id': stencila:Always
+    description: |
+      Always execute the node when the document or ancestor node is executed.
+      Use this for nodes that you want to always be executed, even if they, or
+      their upstream dependencies, are not stale.
+  - const: Auto
+    '@id': stencila:Auto
+    description: |
+      Automatically execute the node if it is stale and is an upstream dependency of a node
+      that is to be executed, or is a downstream dependant of a node that has been executed.
+  - const: Necessary
+    '@id': stencila:Necessary
+    description:
+      Execute the node when necessary (i.e. if it is stale) when the document or ancestor
+      node is executed.
+  - const: Locked
+    '@id': stencila:Locked
+    description: |
+      Do not execute the node. Requires that the node is unlocked first to be executed.

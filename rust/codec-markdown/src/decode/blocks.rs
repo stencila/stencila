@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use markdown::{mdast, unist::Position};
 use winnow::{
-    ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
+    ascii::{alphanumeric1, digit1, multispace0, multispace1, space0, Caseless},
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
     token::{take_till, take_until, take_while},
     IResult, Located, PResult, Parser,
@@ -11,11 +9,11 @@ use winnow::{
 use codec::{
     common::{indexmap::IndexMap, tracing},
     schema::{
-        Admonition, AdmonitionType, AutomaticExecution, Block, CallArgument, CallBlock, Claim,
-        CodeBlock, CodeChunk, DeleteBlock, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, LabelType, List,
-        ListItem, ListOrder, MathBlock, ModifyBlock, Paragraph, QuoteBlock, ReplaceBlock, Section,
-        StyledBlock, SuggestionBlockType, SuggestionStatus, Table, TableCell, TableRow,
+        Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock, CodeChunk,
+        DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
+        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
+        ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
         TableRowType, Text, ThematicBreak,
     },
 };
@@ -23,8 +21,8 @@ use codec::{
 use super::{
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
-        assignee, attrs, name, node_to_from_str, node_to_string, primitive_node,
-        take_until_unbalanced,
+        assignee, attrs, execution_mode, instruction_type, model, name, node_to_string,
+        primitive_node, take_until_unbalanced,
     },
     Context,
 };
@@ -141,13 +139,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                         }
                                     }
 
-                                    matches!(
-                                        last_block,
-                                        Block::InsertBlock(..)
-                                            | Block::DeleteBlock(..)
-                                            | Block::ReplaceBlock(..)
-                                            | Block::ModifyBlock(..)
-                                    )
+                                    matches!(last_block, Block::SuggestionBlock(..))
                                 } else {
                                     false
                                 };
@@ -162,29 +154,19 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                     )
                                 {
                                     let (node_id, suggestion) = match blocks.pop() {
-                                        Some(Block::InsertBlock(block)) => (
-                                            block.node_id(),
-                                            SuggestionBlockType::InsertBlock(block),
-                                        ),
-                                        Some(Block::DeleteBlock(block)) => (
-                                            block.node_id(),
-                                            SuggestionBlockType::DeleteBlock(block),
-                                        ),
-                                        Some(Block::ReplaceBlock(block)) => (
-                                            block.node_id(),
-                                            SuggestionBlockType::ReplaceBlock(block),
-                                        ),
-                                        Some(Block::ModifyBlock(block)) => (
-                                            block.node_id(),
-                                            SuggestionBlockType::ModifyBlock(block),
-                                        ),
+                                        Some(Block::SuggestionBlock(block)) => {
+                                            (block.node_id(), block)
+                                        }
                                         _ => unreachable!(),
                                     };
                                     if let Some(Block::InstructionBlock(instruct)) =
                                         blocks.last_mut()
                                     {
                                         // Associate the suggestion with the instruction
-                                        instruct.suggestion = Some(suggestion);
+                                        match instruct.suggestions.as_mut() {
+                                            Some(suggestions) => suggestions.push(suggestion),
+                                            None => instruct.suggestions = Some(vec![suggestion]),
+                                        };
 
                                         // Extend the instruction to the end of the suggestion
                                         context.map_extend(instruct.node_id(), node_id);
@@ -312,6 +294,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
                 table,
                 for_block,
                 instruction_block,
+                suggestion_block,
                 delete_block,
                 insert_block,
                 replace_block,
@@ -363,14 +346,14 @@ fn call_block(input: &mut Located<&str>) -> PResult<Block> {
         ),
     )
     .map(|(source, args, options)| {
-        let mut options: HashMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+        let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
         Block::CallBlock(CallBlock {
             source: source.trim().to_string(),
             arguments: args.unwrap_or_default(),
-            media_type: options.remove("format").flatten().map(node_to_string),
-            select: options.remove("select").flatten().map(node_to_string),
-            auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
+            media_type: options.swap_remove("format").flatten().map(node_to_string),
+            select: options.swap_remove("select").flatten().map(node_to_string),
+            execution_mode: execution_mode_from_options(options),
             ..Default::default()
         })
     })
@@ -384,13 +367,13 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
         (take_while(1.., |c| c != '{'), opt(attrs)),
     )
     .map(|(source, attrs)| {
-        let mut options: HashMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
+        let mut options: IndexMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
 
         Block::IncludeBlock(IncludeBlock {
             source: source.trim().to_string(),
-            media_type: options.remove("format").flatten().map(node_to_string),
-            select: options.remove("select").flatten().map(node_to_string),
-            auto_exec: options.remove("auto").flatten().and_then(node_to_from_str),
+            media_type: options.swap_remove("format").flatten().map(node_to_string),
+            select: options.swap_remove("select").flatten().map(node_to_string),
+            execution_mode: execution_mode_from_options(options),
             ..Default::default()
         })
     })
@@ -495,16 +478,13 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
         ),
     )
     .map(|((variable, expr), options)| {
-        let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+        let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
         Block::ForBlock(ForBlock {
             variable: variable.into(),
             code: expr.trim().into(),
             programming_language: options.first().map(|(name, _)| name.to_string()),
-            auto_exec: options
-                .swap_remove("auto")
-                .flatten()
-                .and_then(node_to_from_str),
+            execution_mode: execution_mode_from_options(options),
             ..Default::default()
         })
     })
@@ -526,17 +506,14 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
         opt(preceded(multispace0, attrs)),
     )
         .map(|(tag, expr, options)| {
-            let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+            let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
             (
                 tag == "if",
                 IfBlockClause {
                     code: expr.trim().into(),
                     programming_language: options.first().map(|(name, _)| name.to_string()),
-                    auto_exec: options
-                        .swap_remove("auto")
-                        .flatten()
-                        .and_then(node_to_from_str),
+                    execution_mode: execution_mode_from_options(options),
                     ..Default::default()
                 },
             )
@@ -550,65 +527,111 @@ fn instruction_block_shortcut(input: &mut Located<&str>) -> PResult<Block> {
         ("/", multispace0),
         (
             opt(delimited('@', assignee, multispace0)),
-            opt(alt((
-                (
-                    take_until(0.., ':'),
-                    (take_while(3.., ':'), multispace0, opt("with")).value(true),
-                ),
-                (take_while(0.., |_| true), "".value(false)),
-            ))),
+            opt(take_while(1.., |_| true)),
         ),
     )
-    .map(
-        |(assignee, message): (Option<&str>, Option<(&str, bool)>)| {
-            let (text, content) = message.unwrap_or_default();
-            Block::InstructionBlock(InstructionBlock {
-                messages: vec![InstructionMessage::from(text.trim())],
-                content: if content { Some(Vec::new()) } else { None },
-                assignee: assignee.map(String::from),
-                ..Default::default()
-            })
-        },
-    )
+    .map(|(assignee, message): (Option<&str>, Option<&str>)| {
+        let text = message.unwrap_or_default();
+        Block::InstructionBlock(InstructionBlock {
+            messages: vec![InstructionMessage::from(text.trim())],
+            content: None,
+            assignee: assignee.map(String::from),
+            ..Default::default()
+        })
+    })
     .parse_next(input)
 }
 
 /// Start an [`InstructionBlock`]
 fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        ("do", multispace0),
-        (
-            opt(delimited('@', assignee, multispace0)),
-            opt(alt((
-                (
-                    take_until(0.., ':'),
-                    (take_while(3.., ':'), multispace0, opt("with")).value(true),
-                ),
-                (take_while(0.., |_| true), "".value(false)),
-            ))),
-        ),
+    (
+        terminated(instruction_type, multispace0),
+        opt(delimited('@', assignee, multispace0)),
+        opt(delimited(
+            ('[', multispace0),
+            model,
+            (multispace0, ']', multispace0),
+        )),
+        separated(0.., (alt(('x', 't', 'q', 's', 'c')), digit1), multispace1),
+        opt(alt((
+            (
+                take_until(0.., ':'),
+                (take_while(3.., ':'), multispace0).value(false),
+            ),
+            (take_while(0.., |_| true), "".value(true)),
+        ))),
     )
-    .map(
-        |(assignee, message): (Option<&str>, Option<(&str, bool)>)| {
-            let (text, content) = message.unwrap_or_default();
-            Block::InstructionBlock(InstructionBlock {
-                messages: vec![InstructionMessage::from(text.trim())],
-                content: if content { Some(Vec::new()) } else { None },
-                assignee: assignee.map(String::from),
-                ..Default::default()
-            })
-        },
-    )
-    .parse_next(input)
+        .map(
+            |(instruction_type, assignee, name, options, message): (
+                _,
+                _,
+                _,
+                Vec<(char, &str)>,
+                _,
+            )| {
+                let (text, has_content) = message.unwrap_or_default();
+
+                let mut replicates: Option<u64> = None;
+                let mut temperature: Option<u64> = None;
+                let mut quality_weight: Option<u64> = None;
+                let mut speed_weight: Option<u64> = None;
+                let mut cost_weight: Option<u64> = None;
+                for (tag, value) in options {
+                    let value = value.parse().ok();
+                    match tag {
+                        'x' => replicates = value,
+                        't' => temperature = value,
+                        'q' => quality_weight = value,
+                        's' => speed_weight = value,
+                        'c' => cost_weight = value,
+                        _ => {}
+                    }
+                }
+
+                let model = if name.is_some()
+                    || temperature.is_some()
+                    || quality_weight.is_some()
+                    || speed_weight.is_some()
+                    || cost_weight.is_some()
+                {
+                    Some(Box::new(InstructionModel {
+                        name: name.map(String::from),
+                        temperature,
+                        quality_weight,
+                        speed_weight,
+                        cost_weight,
+                        ..Default::default()
+                    }))
+                } else {
+                    None
+                };
+
+                Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    messages: vec![InstructionMessage::from(text.trim())],
+                    content: if has_content { Some(Vec::new()) } else { None },
+                    assignee: assignee.map(String::from),
+                    replicates,
+                    model,
+                    ..Default::default()
+                })
+            },
+        )
+        .parse_next(input)
 }
 
-/// Parse a suggestion status
-fn suggestion_status(input: &mut Located<&str>) -> PResult<SuggestionStatus> {
-    alt((
-        alt(("accepted", "accept")).map(|_| SuggestionStatus::Accepted),
-        alt(("rejected", "reject")).map(|_| SuggestionStatus::Rejected),
-        alt(("proposed", "propose")).map(|_| SuggestionStatus::Proposed),
-    ))
+/// Parse a [`SuggestionBlock`] node
+fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
+    preceded(
+        (alt(("suggestion", "suggest")), multispace0),
+        opt(take_while(1.., |_| true)),
+    )
+    .map(|feedback| {
+        Block::SuggestionBlock(SuggestionBlock {
+            feedback: feedback.map(String::from),
+            ..Default::default()
+        })
+    })
     .parse_next(input)
 }
 
@@ -616,11 +639,11 @@ fn suggestion_status(input: &mut Located<&str>) -> PResult<SuggestionStatus> {
 fn insert_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (alt(("insert", "ins")), multispace0),
-        opt(suggestion_status),
+        opt(take_while(1.., |_| true)),
     )
-    .map(|suggestion_status| {
+    .map(|feedback| {
         Block::InsertBlock(InsertBlock {
-            suggestion_status,
+            feedback: feedback.map(String::from),
             ..Default::default()
         })
     })
@@ -631,11 +654,11 @@ fn insert_block(input: &mut Located<&str>) -> PResult<Block> {
 fn delete_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (alt(("delete", "del")), multispace0),
-        opt(suggestion_status),
+        opt(take_while(1.., |_| true)),
     )
-    .map(|suggestion_status| {
+    .map(|feedback| {
         Block::DeleteBlock(DeleteBlock {
-            suggestion_status,
+            feedback: feedback.map(String::from),
             ..Default::default()
         })
     })
@@ -646,12 +669,12 @@ fn delete_block(input: &mut Located<&str>) -> PResult<Block> {
 fn replace_block(input: &mut Located<&str>) -> PResult<Block> {
     delimited(
         (alt(("replace", "rep")), multispace0),
-        opt(suggestion_status),
+        opt(take_while(1.., |_| true)),
         opt(delimited(multispace0, "::: with", multispace0)),
     )
-    .map(|suggestion_status| {
+    .map(|feedback| {
         Block::ReplaceBlock(ReplaceBlock {
-            suggestion_status,
+            feedback: feedback.map(String::from),
             ..Default::default()
         })
     })
@@ -662,12 +685,12 @@ fn replace_block(input: &mut Located<&str>) -> PResult<Block> {
 fn modify_block(input: &mut Located<&str>) -> PResult<Block> {
     delimited(
         (alt(("modify", "mod")), multispace0),
-        opt(suggestion_status),
+        opt(take_while(1.., |_| true)),
         opt(delimited(multispace0, "::: with", multispace0)),
     )
-    .map(|suggestion_status| {
+    .map(|feedback| {
         Block::ModifyBlock(ModifyBlock {
-            suggestion_status,
+            feedback: feedback.map(String::from),
             ..Default::default()
         })
     })
@@ -737,7 +760,8 @@ enum Divider {
 
 /// Finalize a block by assigning children etc
 fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context) {
-    if let Block::DeleteBlock(DeleteBlock { content, .. })
+    if let Block::SuggestionBlock(SuggestionBlock { content, .. })
+    | Block::DeleteBlock(DeleteBlock { content, .. })
     | Block::InsertBlock(InsertBlock { content, .. })
     | Block::Claim(Claim { content, .. })
     | Block::Section(Section { content, .. })
@@ -752,7 +776,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             if let Block::CodeChunk(inner) = child {
                 let node_id = inner.node_id();
                 chunk.programming_language = inner.programming_language;
-                chunk.auto_exec = inner.auto_exec;
+                chunk.execution_mode = inner.execution_mode;
                 chunk.code = inner.code;
 
                 // Remove the inner code chunk from the mapping
@@ -895,17 +919,14 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
     }
 }
 
-/// Parse a suggestion status
-fn parse_auto_exec(input: &mut &str) -> PResult<AutomaticExecution> {
-    preceded(
-        ("auto", multispace0, '=', multispace0),
-        alt((
-            "always".map(|_| AutomaticExecution::Always),
-            "needed".map(|_| AutomaticExecution::Needed),
-            "never".map(|_| AutomaticExecution::Never),
-        )),
-    )
-    .parse_next(input)
+/// Get the execution mode from block options
+fn execution_mode_from_options(options: IndexMap<&str, Option<Node>>) -> Option<ExecutionMode> {
+    for (name, value) in options {
+        if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+            return name.parse().ok();
+        }
+    }
+    None
 }
 
 /// Transform an MDAST node to a Stencila `Block`
@@ -941,7 +962,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
                     } else {
                         lang
                     },
-                    auto_exec: parse_auto_exec(&mut meta).ok(),
+                    execution_mode: execution_mode(&mut meta).ok(),
                     is_invisible,
                     ..Default::default()
                 })
@@ -1202,7 +1223,8 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{ClaimType, Node};
+    use codec::schema::{ClaimType, ExecutionMode, Node};
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -1381,14 +1403,14 @@ mod tests {
         // With more complex expression and language and auto exec
         assert_eq!(
             for_block(&mut Located::new(
-                "for row in select * from table { sql, auto=never }"
+                "for row in select * from table { sql, auto }"
             ))
             .unwrap(),
             Block::ForBlock(ForBlock {
                 variable: "row".to_string(),
                 code: "select * from table".into(),
                 programming_language: Some("sql".to_string()),
-                auto_exec: Some(AutomaticExecution::Never),
+                execution_mode: Some(ExecutionMode::Auto),
                 ..Default::default()
             })
         );
@@ -1466,7 +1488,10 @@ mod tests {
     fn test_instruction_block_shortcut() {
         assert_eq!(
             block(&mut Located::new("/ @insert-code-chunk summarise")).unwrap(),
-            block(&mut Located::new("::: do @insert-code-chunk summarise")).unwrap(),
+            block(&mut Located::new(
+                "::: new @insert-code-chunk summarise\n:::"
+            ))
+            .unwrap(),
         );
     }
 

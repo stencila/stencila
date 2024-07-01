@@ -5,14 +5,12 @@ category: flow
 abstract: true
 description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 core:
-  - autoExec
+  - executionMode
 properties:
-  autoExec:
-    '@id': stencila:autoExec
-    description: Under which circumstances the code should be automatically executed.
-    aliases:
-      - auto
-    $ref: AutomaticExecution
+  executionMode:
+    '@id': stencila:executionMode
+    description: Under which circumstances the code should be executed.
+    $ref: ExecutionMode
     strip: [execution]
     patch:
       formats: [md]

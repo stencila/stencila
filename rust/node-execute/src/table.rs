@@ -6,7 +6,7 @@ impl Executable for Table {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling Table {node_id}");
+        tracing::trace!("Compiling Table {node_id}");
 
         executor.table_count += 1;
 

@@ -6,44 +6,48 @@ content:
     value:
       string: 'An insert instruction with no assignee:'
 - type: InstructionBlock
+  instructionType: New
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
       value:
-        string: insert a 4x10 table
+        string: a 4x10 table
 - type: Paragraph
   content:
   - type: Text
     value:
       string: 'An insert instruction with an assignee:'
 - type: InstructionBlock
+  instructionType: New
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
       value:
         string: top five highest mountains, with height in metres
-  assignee: insert-table
+  assignee: table
 - type: Paragraph
   content:
   - type: Text
     value:
       string: An insert instruction with an assignee but a blank instruction
 - type: InstructionBlock
+  instructionType: New
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
       value:
         string: ''
-  assignee: insert-code-chunk
+  assignee: code-chunk
 - type: Paragraph
   content:
   - type: Text
     value:
       string: 'An edit instruction (has content) with no assignee:'
 - type: InstructionBlock
+  instructionType: Edit
   messages:
   - type: InstructionMessage
     parts:
@@ -62,6 +66,7 @@ content:
     value:
       string: 'An edit instruction with an assignee:'
 - type: InstructionBlock
+  instructionType: Edit
   messages:
   - type: InstructionMessage
     parts:
@@ -81,15 +86,16 @@ content:
     value:
       string: 'An insert instruction with an assignee and a suggestion:'
 - type: InstructionBlock
+  instructionType: New
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
       value:
         string: analyze data
-  assignee: insert-code-chunk
-  suggestion:
-    type: InsertBlock
+  assignee: code-chunk
+  suggestions:
+  - type: SuggestionBlock
     content:
     - type: CodeChunk
       code:
@@ -100,6 +106,7 @@ content:
     value:
       string: 'An edit instruction with a suggestion:'
 - type: InstructionBlock
+  instructionType: Edit
   messages:
   - type: InstructionMessage
     parts:
@@ -112,10 +119,9 @@ content:
     - type: Text
       value:
         string: A rather long winded paragraph.
-  suggestion:
-    type: ReplaceBlock
-    content: []
-    replacement:
+  suggestions:
+  - type: SuggestionBlock
+    content:
     - type: Paragraph
       content:
       - type: Text

@@ -88,7 +88,7 @@
     },
     {
       "type": "CodeChunk",
-      "code": "import numpy as np\n\na1 = np.array([True, False], dtype=np.bool_)\na2 = np.array([-1, 0, 1], dtype=np.int_)\na3 = np.array([1, 2 , 3], dtype=np.uint)\na4 = np.array([1.23, 4.56], dtype=np.float_)\n\nprint(a1, a2, a3, a4)",
+      "code": "import numpy as np\n\na1 = np.array([True, False], dtype=np.bool_)\na2 = np.array([-1, 0, 1], dtype=np.int_)\na3 = np.array([1, 2 , 3], dtype=np.uint)\na4 = np.array([1.23, 4.56], dtype=np.float64)\n\nprint(a1, a2, a3, a4)",
       "programmingLanguage": "python",
       "outputs": [
         [

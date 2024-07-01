@@ -72,6 +72,7 @@ export type NodeType =
   | "InstructionBlock"
   | "InstructionInline"
   | "InstructionMessage"
+  | "InstructionModel"
   | "IntegerValidator"
   | "Link"
   | "List"
@@ -114,6 +115,8 @@ export type NodeType =
   | "StyledBlock"
   | "StyledInline"
   | "Subscript"
+  | "SuggestionBlock"
+  | "SuggestionInline"
   | "Superscript"
   | "Table"
   | "TableCell"
@@ -204,6 +207,7 @@ export const NodeTypeList = [
   "InstructionBlock",
   "InstructionInline",
   "InstructionMessage",
+  "InstructionModel",
   "IntegerValidator",
   "Link",
   "List",
@@ -246,6 +250,8 @@ export const NodeTypeList = [
   "StyledBlock",
   "StyledInline",
   "Subscript",
+  "SuggestionBlock",
+  "SuggestionInline",
   "Superscript",
   "Table",
   "TableCell",

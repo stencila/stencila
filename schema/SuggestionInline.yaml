@@ -3,8 +3,9 @@ title: SuggestionInline
 nick: sgi
 extends: Suggestion
 category: edits
-abstract: true
 description: Abstract base type for nodes that indicate a suggested change to inline content.
+markdown:
+  derive: false
 required:
   - content
 properties:

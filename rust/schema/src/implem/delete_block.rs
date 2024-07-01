@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, DeleteBlock, SuggestionStatus};
+use crate::{prelude::*, DeleteBlock};
 
 impl MarkdownCodec for DeleteBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
@@ -10,20 +10,19 @@ impl MarkdownCodec for DeleteBlock {
             .push_semis()
             .push_str(" delete");
 
-        if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
-            &self.suggestion_status
-        {
-            context.push_str(" ").push_prop_str(
-                NodeProperty::SuggestionStatus,
-                &status.to_string().to_lowercase(),
-            );
+        if let Some(feedback) = &self.feedback {
+            context
+                .push_str(" ")
+                .push_prop_str(NodeProperty::Feedback, feedback);
         }
 
         context
             .push_str("\n\n")
+            .increase_depth()
             .push_prop_fn(NodeProperty::Content, |context| {
                 self.content.to_markdown(context)
             })
+            .decrease_depth()
             .push_semis()
             .newline()
             .exit_node()

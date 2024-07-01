@@ -224,7 +224,7 @@ console.log(a, b, c, d)",
         assert_eq!(
             messages[0].code_location,
             Some(CodeLocation {
-                start_line: Some(1),
+                start_line: Some(0),
                 ..Default::default()
             })
         );
@@ -238,8 +238,44 @@ console.log(a, b, c, d)",
         assert_eq!(
             messages[0].code_location,
             Some(CodeLocation {
-                start_line: Some(1),
-                start_column: Some(1),
+                start_line: Some(0),
+                start_column: Some(0),
+                ..Default::default()
+            })
+        );
+        assert_eq!(outputs, vec![]);
+
+        // Nested
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+function foo() {
+    bar()
+}
+foo()
+"#,
+            )
+            .await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
+        assert_eq!(messages[0].message, "bar is not defined");
+        assert_eq!(
+            messages[0].stack_trace.as_deref(),
+            Some(
+                r#"code:3
+    bar()
+    ^
+
+ReferenceError: bar is not defined
+    at foo (code:3:5)
+    at code:5:1
+"#
+            )
+        );
+        assert_eq!(
+            messages[0].code_location,
+            Some(CodeLocation {
+                start_line: Some(2),
+                start_column: Some(4),
                 ..Default::default()
             })
         );
@@ -252,8 +288,8 @@ console.log(a, b, c, d)",
         assert_eq!(
             messages[0].code_location,
             Some(CodeLocation {
-                start_line: Some(2),
-                start_column: Some(5),
+                start_line: Some(1),
+                start_column: Some(4),
                 ..Default::default()
             })
         );

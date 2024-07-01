@@ -67,6 +67,7 @@ import { type InsertInline } from "./InsertInline.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type InstructionInline } from "./InstructionInline.js";
 import { type InstructionMessage } from "./InstructionMessage.js";
+import { type InstructionModel } from "./InstructionModel.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
 import { type Link } from "./Link.js";
@@ -111,6 +112,8 @@ import { type Strong } from "./Strong.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type StyledInline } from "./StyledInline.js";
 import { type Subscript } from "./Subscript.js";
+import { type SuggestionBlock } from "./SuggestionBlock.js";
+import { type SuggestionInline } from "./SuggestionInline.js";
 import { type Superscript } from "./Superscript.js";
 import { type Table } from "./Table.js";
 import { type TableCell } from "./TableCell.js";
@@ -204,6 +207,7 @@ export type Node =
   InstructionBlock |
   InstructionInline |
   InstructionMessage |
+  InstructionModel |
   IntegerValidator |
   Link |
   List |
@@ -246,6 +250,8 @@ export type Node =
   StyledBlock |
   StyledInline |
   Subscript |
+  SuggestionBlock |
+  SuggestionInline |
   Superscript |
   Table |
   TableCell |
@@ -335,6 +341,7 @@ export function node(other: Node): Node {
     case "InstructionBlock":
     case "InstructionInline":
     case "InstructionMessage":
+    case "InstructionModel":
     case "IntegerValidator":
     case "Link":
     case "List":
@@ -377,6 +384,8 @@ export function node(other: Node): Node {
     case "StyledBlock":
     case "StyledInline":
     case "Subscript":
+    case "SuggestionBlock":
+    case "SuggestionInline":
     case "Superscript":
     case "Table":
     case "TableCell":

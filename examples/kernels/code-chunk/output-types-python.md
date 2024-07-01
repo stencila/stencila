@@ -12,7 +12,7 @@ import numpy as np
 a1 = np.array([True, False], dtype=np.bool_)
 a2 = np.array([-1, 0, 1], dtype=np.int_)
 a3 = np.array([1, 2 , 3], dtype=np.uint)
-a4 = np.array([1.23, 4.56], dtype=np.float_)
+a4 = np.array([1.23, 4.56], dtype=64)
 
 print(a1, a2, a3, a4)
 ```

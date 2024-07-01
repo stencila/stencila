@@ -216,6 +216,9 @@
       "$ref": "InstructionMessage.schema.json"
     },
     {
+      "$ref": "InstructionModel.schema.json"
+    },
+    {
       "$ref": "IntegerValidator.schema.json"
     },
     {
@@ -340,6 +343,12 @@
     },
     {
       "$ref": "Subscript.schema.json"
+    },
+    {
+      "$ref": "SuggestionBlock.schema.json"
+    },
+    {
+      "$ref": "SuggestionInline.schema.json"
     },
     {
       "$ref": "Superscript.schema.json"

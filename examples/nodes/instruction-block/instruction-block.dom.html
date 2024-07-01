@@ -5,11 +5,11 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An insert instruction with no assignee:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
-            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.InstructionMessage>insert a 4x10 table</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.InstructionMessage>a 4x10 table</stencila-text>
           </div>
         </stencila-instruction-message>
       </div>
@@ -19,7 +19,7 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An insert instruction with an assignee:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article assignee=insert-table>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New assignee=table>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
@@ -33,7 +33,7 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An insert instruction with an assignee but a blank instruction</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article assignee=insert-code-chunk>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New assignee=code-chunk>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
@@ -48,7 +48,7 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An edit instruction (has content) with no assignee:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
@@ -69,7 +69,7 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An edit instruction with an assignee:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article assignee=anne>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit assignee=anne>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
@@ -90,7 +90,7 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An insert instruction with an assignee and a suggestion:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article assignee=insert-code-chunk>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New assignee=code-chunk>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
@@ -98,13 +98,13 @@
           </div>
         </stencila-instruction-message>
       </div>
-      <div slot=suggestion>
-        <stencila-insert-block id=xxx depth=2 ancestors=Article.InstructionBlock>
+      <div slot=suggestions>
+        <stencila-suggestion-block id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=content>
-            <stencila-code-chunk id=xxx depth=3 ancestors=Article.InstructionBlock.InsertBlock code='some code'>
+            <stencila-code-chunk id=xxx depth=3 ancestors=Article.InstructionBlock.SuggestionBlock code='some code'>
             </stencila-code-chunk>
           </div>
-        </stencila-insert-block>
+        </stencila-suggestion-block>
       </div>
     </stencila-instruction-block>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
@@ -112,7 +112,7 @@
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>An edit instruction with a suggestion:</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
       <div slot=messages>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
@@ -127,16 +127,16 @@
           </p>
         </stencila-paragraph>
       </div>
-      <div slot=suggestion>
-        <stencila-replace-block id=xxx depth=2 ancestors=Article.InstructionBlock>
-          <div slot=replacement>
-            <stencila-paragraph id=xxx depth=3 ancestors=Article.InstructionBlock.ReplaceBlock>
+      <div slot=suggestions>
+        <stencila-suggestion-block id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <div slot=content>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.InstructionBlock.SuggestionBlock>
               <p slot=content>
-                <stencila-text id=xxx depth=4 ancestors=Article.InstructionBlock.ReplaceBlock.Paragraph>A paragraph.</stencila-text>
+                <stencila-text id=xxx depth=4 ancestors=Article.InstructionBlock.SuggestionBlock.Paragraph>A paragraph.</stencila-text>
               </p>
             </stencila-paragraph>
           </div>
-        </stencila-replace-block>
+        </stencila-suggestion-block>
       </div>
     </stencila-instruction-block>
   </section>

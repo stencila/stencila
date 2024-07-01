@@ -1,19 +1,21 @@
 An insert instruction with no assignee:
 
-::: do insert a 4x10 table
+::: new a 4x10 table
+:::
 
 An insert instruction with an assignee:
 
-::: do @insert-table top five highest mountains, with height in metres
+::: new @table top five highest mountains, with height in metres
+:::
 
 An insert instruction with an assignee but a blank instruction
 
-::: do @insert-code-chunk 
+::: new @code-chunk 
+:::
 
 An edit instruction (has content) with no assignee:
 
-::: do improve this paragraph
-::: with
+::: edit improve this paragraph
 
 The paragraph to be improved.
 
@@ -21,8 +23,7 @@ The paragraph to be improved.
 
 An edit instruction with an assignee:
 
-::: do @anne please improve this paragraph
-::: with
+::: edit @anne please improve this paragraph
 
 Another paragraph to be improved.
 
@@ -30,9 +31,10 @@ Another paragraph to be improved.
 
 An insert instruction with an assignee and a suggestion:
 
-::: do @insert-code-chunk analyze data
+::: new @code-chunk analyze data
+:::
 
-::: insert
+::: suggest
 
 ```exec
 some code
@@ -42,15 +44,13 @@ some code
 
 An edit instruction with a suggestion:
 
-::: do more succinct
-::: with
+::: edit more succinct
 
 A rather long winded paragraph.
 
 :::
 
-::: replace
-::: with
+::: suggest
 
 A paragraph.
 

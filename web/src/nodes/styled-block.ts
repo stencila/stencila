@@ -1,4 +1,3 @@
-import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -17,25 +16,11 @@ import { Styled } from './styled'
  */
 @customElement('stencila-styled-block')
 export class StyledBlock extends Styled {
-  private contentCSS = apply(['w-full', '-mx-4'])
-  /**
-   * In static view just render the `content` with styles applied
-   */
-  override renderStaticView() {
-    this.adoptCss()
-
-    return html`<div class="styled">
-      <div class="${this.classes}">
-        <slot name="content"></slot>
-      </div>
-    </div>`
-  }
-
   /**
    * In dynamic view, in addition to what is in static view, render a node card
    * with authors and code read-only.
    */
-  override renderDynamicView() {
+  override render() {
     this.adoptCss()
 
     return html`<stencila-ui-block-on-demand
@@ -47,11 +32,11 @@ export class StyledBlock extends Styled {
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
-        <stencila-ui-node-provenance type="StyledBlock">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
 
         <stencila-ui-node-code
           type="StyledBlock"
@@ -69,35 +54,5 @@ export class StyledBlock extends Styled {
         </div>
       </div>
     </stencila-ui-block-on-demand>`
-  }
-
-  /**
-   * In source view just render authors
-   *
-   * TODO: Also render compiled CSS and styled content to help with debugging?
-   */
-  override renderSourceView() {
-    this.adoptCss()
-
-    return html` <stencila-ui-block-in-flow type="StyledBlock" view="source">
-      <div slot="body">
-        <stencila-ui-node-authors type="StyledBlock">
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
-
-        <stencila-ui-node-code
-          type="StyledBlock"
-          code=${this.code}
-          language=${this.styleLanguage}
-          read-only
-        >
-        </stencila-ui-node-code>
-      </div>
-      <div slot="content" class=${`styled ${this.contentCSS}`}>
-        <div class="${this.classes}">
-          <slot name="content"></slot>
-        </div>
-      </div>
-    </stencila-ui-block-in-flow>`
   }
 }

@@ -20,7 +20,6 @@ export class UINodeCollapsibleAnimation extends LitElement {
       transition:
         max-height 400ms cubic-bezier(0, 1, 0, 1),
         opacity 800ms;
-      transform: translate3d(0, 0, 0);
     }
 
     :host(.opened) div {
@@ -29,7 +28,6 @@ export class UINodeCollapsibleAnimation extends LitElement {
       transition:
         max-height 700ms ease-in-out,
         opacity 400ms;
-      transform: translate3d(0, 0, 0);
       overflow: visible;
     }
   `

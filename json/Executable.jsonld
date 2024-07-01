@@ -18,15 +18,15 @@
       }
     },
     {
-      "@id": "stencila:autoExec",
+      "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
-      "rdfs:label": "autoExec",
-      "rdfs:comment": "Under which circumstances the code should be automatically executed.",
+      "rdfs:label": "executionMode",
+      "rdfs:comment": "Under which circumstances the code should be executed.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:AutomaticExecution"
+        "@id": "stencila:ExecutionMode"
       }
     },
     {
@@ -170,9 +170,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionEnded",
       "rdfs:comment": "The timestamp when the last execution ended.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Timestamp"
       }
@@ -182,9 +187,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionDuration",
       "rdfs:comment": "Duration of the last execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Duration"
       }

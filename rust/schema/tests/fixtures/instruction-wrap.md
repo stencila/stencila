@@ -7,8 +7,7 @@ A great conclusion.
 ===
 Some okay text.
 
-::: do more succinct
-::: with
+::: edit more succinct
 
 A rather long winded paragraph.
 

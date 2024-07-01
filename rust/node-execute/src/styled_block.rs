@@ -21,14 +21,13 @@ impl Executable for StyledBlock {
 
         tracing::trace!("Compiling StyledBlock {node_id}");
 
-        let code = self.code.trim();
-        if !code.is_empty() {
+        if !self.code.trim().is_empty() {
             let lang = self.style_language.as_deref().or(Some("style"));
 
             let (result, messages) = executor
                 .kernels()
                 .await
-                .execute(code, lang)
+                .execute(self.code.trim(), lang)
                 .await
                 .map_or_else(
                     |error| (None, vec![error_to_compilation_message(error)]),

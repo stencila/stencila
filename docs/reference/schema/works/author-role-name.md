@@ -11,6 +11,7 @@ The `AuthorRoleName` type has these members:
 - `Importer`
 - `Writer`
 - `Verifier`
+- `Accepter`
 - `Instructor`
 - `Prompter`
 - `Generator`

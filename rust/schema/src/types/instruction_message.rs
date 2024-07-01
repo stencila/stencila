@@ -2,10 +2,10 @@
 
 use crate::prelude::*;
 
-use super::block::Block;
-use super::message_level::MessageLevel;
+use super::author::Author;
 use super::message_part::MessagePart;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
+use super::message_role::MessageRole;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
 /// A message within an `Instruction`.
@@ -15,6 +15,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "InstructionMessage")]
+#[patch(authors_on = "self")]
 pub struct InstructionMessage {
     /// The type of this item.
     pub r#type: MustBe!("InstructionMessage"),
@@ -24,6 +25,9 @@ pub struct InstructionMessage {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The role of the message in the conversation.
+    pub role: Option<MessageRole>,
+
     /// Parts of the message.
     #[serde(alias = "part")]
     #[serde(deserialize_with = "one_or_many")]
@@ -31,38 +35,23 @@ pub struct InstructionMessage {
     #[dom(elem = "div")]
     pub parts: Vec<MessagePart>,
 
-    /// Content of the message.
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[walk]
-    #[patch(format = "all")]
-    #[dom(elem = "div")]
-    pub content: Option<Vec<Block>>,
-
     /// The authors of the message.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[dom(elem = "div")]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    #[strip(authors)]
+    #[dom(elem = "span")]
+    pub authors: Option<Vec<Author>>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<InstructionMessageOptions>,
+    /// A summary of the provenance of the messages and content within the instruction.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// A unique identifier for a node within a document
     
     #[serde(skip)]
     pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct InstructionMessageOptions {
-    /// The severity level of the message.
-    pub level: Option<MessageLevel>,
 }
 
 impl InstructionMessage {

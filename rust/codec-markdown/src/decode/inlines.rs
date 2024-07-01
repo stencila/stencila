@@ -3,7 +3,7 @@ use std::{collections::HashMap, ops::Range};
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{multispace0, multispace1, space0},
-    combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
+    combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated},
     stream::{Located, Stream},
     token::{take, take_until, take_while},
     PResult, Parser,
@@ -18,16 +18,17 @@ use codec::{
         ImageObject, Inline, InsertInline, InstructionInline, InstructionMessage, IntegerValidator,
         Link, MathInline, ModifyInline, Node, NodeType, Note, NoteType, NumberValidator, Parameter,
         ParameterOptions, QuoteInline, ReplaceInline, Strikeout, StringValidator, Strong,
-        StyledInline, Subscript, SuggestionInlineType, Superscript, Text, TimeValidator,
+        StyledInline, Subscript, SuggestionInline, Superscript, Text, TimeValidator,
         TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
 use super::{
     shared::{
-        assignee, attrs, name, node_to_from_str, node_to_option_date, node_to_option_datetime,
-        node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
-        node_to_option_timestamp, node_to_string, take_until_unbalanced,
+        assignee, attrs, instruction_type, name, node_to_from_str, node_to_option_date,
+        node_to_option_datetime, node_to_option_duration, node_to_option_i64,
+        node_to_option_number, node_to_option_time, node_to_option_timestamp, node_to_string,
+        take_until_unbalanced,
     },
     Context,
 };
@@ -108,6 +109,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                                 content: Some(content),
                                 ..
                             })
+                            | Inline::SuggestionInline(SuggestionInline { content, .. })
                             | Inline::InsertInline(InsertInline { content, .. })
                             | Inline::DeleteInline(DeleteInline { content, .. }),
                         ) => {
@@ -136,24 +138,15 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                         Some(Inline::InstructionInline(..))
                     ) {
                         let (node_id, suggestion) = match inlines.pop() {
-                            Some(Inline::InsertInline(inline)) => {
-                                (inline.node_id(), SuggestionInlineType::InsertInline(inline))
-                            }
-                            Some(Inline::DeleteInline(inline)) => {
-                                (inline.node_id(), SuggestionInlineType::DeleteInline(inline))
-                            }
-                            Some(Inline::ReplaceInline(inline)) => (
-                                inline.node_id(),
-                                SuggestionInlineType::ReplaceInline(inline),
-                            ),
-                            Some(Inline::ModifyInline(inline)) => {
-                                (inline.node_id(), SuggestionInlineType::ModifyInline(inline))
-                            }
+                            Some(Inline::SuggestionInline(inline)) => (inline.node_id(), inline),
                             _ => unreachable!(),
                         };
                         if let Some(Inline::InstructionInline(instruct)) = inlines.last_mut() {
                             // Associate the suggestion with the instruction
-                            instruct.suggestion = Some(suggestion);
+                            match instruct.suggestions.as_mut() {
+                                Some(suggestions) => suggestions.push(suggestion),
+                                None => instruct.suggestions = Some(vec![suggestion]),
+                            };
 
                             // Extend the instruction to the end of the suggestion
                             context.map_extend(instruct.node_id(), node_id);
@@ -175,7 +168,8 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
             Inline::InstructionInline(InstructionInline {
                 content: Some(..),
                 ..
-            }) | Inline::InsertInline(..)
+            }) | Inline::SuggestionInline(..)
+                | Inline::InsertInline(..)
                 | Inline::DeleteInline(..)
                 | Inline::ReplaceInline(..)
                 | Inline::ModifyInline(..)
@@ -334,10 +328,10 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             superscript,
             underline,
             instruction_inline,
+            suggestion_inline,
             insert_inline,
             delete_inline,
             replace_inline,
-            modify_inline,
             edit_with,
             edit_end,
             string,
@@ -377,17 +371,15 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
 
         let mut lang = None;
         let mut exec = false;
-        let mut auto_exec = None;
+        let mut execution_mode = None;
 
         for (name, value) in options {
             if name == "exec" {
                 exec = true
+            } else if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+                execution_mode = name.parse().ok()
             } else if lang.is_none() && value.is_none() {
                 lang = Some(name.to_string());
-            } else if name == "auto" {
-                if let Some(value) = value {
-                    auto_exec = node_to_string(value).parse().ok()
-                }
             }
         }
 
@@ -395,7 +387,7 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
             Inline::CodeExpression(CodeExpression {
                 code: code.into(),
                 programming_language: lang,
-                auto_exec,
+                execution_mode,
                 ..Default::default()
             })
         } else if matches!(
@@ -441,7 +433,7 @@ fn double_braces(input: &mut Located<&str>) -> PResult<Inline> {
             Inline::CodeExpression(CodeExpression {
                 code: code.into(),
                 programming_language: options.first().map(|(lang, ..)| lang.to_string()),
-                auto_exec: options
+                execution_mode: options
                     .swap_remove("auto")
                     .flatten()
                     .and_then(node_to_from_str),
@@ -794,19 +786,20 @@ fn underline(input: &mut Located<&str>) -> PResult<Inline> {
 
 /// Parse a string into a `InstructionInline` node
 fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
-    preceded(
-        terminated("[[do", multispace0),
+    (
+        delimited("[[", instruction_type, multispace0),
         (opt(delimited('@', assignee, multispace1)), take_until_edit),
     )
-    .map(|(assignee, (text, term))| {
-        Inline::InstructionInline(InstructionInline {
-            messages: vec![InstructionMessage::from(text.trim())],
-            content: (term == EDIT_WITH).then_some(Vec::new()),
-            assignee: assignee.map(|handle| handle.to_string()),
-            ..Default::default()
+        .map(|(instruction_type, (assignee, (text, term)))| {
+            Inline::InstructionInline(InstructionInline {
+                instruction_type,
+                messages: vec![InstructionMessage::from(text.trim())],
+                content: (term == EDIT_WITH).then_some(Vec::new()),
+                assignee: assignee.map(|handle| handle.to_string()),
+                ..Default::default()
+            })
         })
-    })
-    .parse_next(input)
+        .parse_next(input)
 }
 
 /// Take characters until `EDIT_WITH` or `EDIT_END`
@@ -822,6 +815,13 @@ fn take_until_edit<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, &'stat
         last = char;
     }
     Ok((input.next_slice(input.len()), EDIT_END))
+}
+
+/// Parse a string into a `SuggestionInline` node
+fn suggestion_inline(input: &mut Located<&str>) -> PResult<Inline> {
+    (EDIT_START, "suggest", ' ')
+        .map(|_| Inline::SuggestionInline(SuggestionInline::default()))
+        .parse_next(input)
 }
 
 /// Parse a string into a `InsertInline` node
@@ -842,13 +842,6 @@ fn delete_inline(input: &mut Located<&str>) -> PResult<Inline> {
 fn replace_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (EDIT_START, alt(("replace", "rep")), ' ')
         .map(|_| Inline::ReplaceInline(ReplaceInline::default()))
-        .parse_next(input)
-}
-
-/// Parse a string into a `ModifyInline` node
-fn modify_inline(input: &mut Located<&str>) -> PResult<Inline> {
-    (EDIT_START, alt(("modify", "mod")), ' ')
-        .map(|_| Inline::ModifyInline(ModifyInline::default()))
         .parse_next(input)
 }
 
@@ -920,7 +913,7 @@ pub(super) fn mds_to_string(mds: &[mdast::Node]) -> String {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::AutomaticExecution;
+    use codec::schema::ExecutionMode;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
@@ -932,14 +925,14 @@ mod tests {
         code_attrs(&mut Located::new("`a + b`{}")).unwrap();
         code_attrs(&mut Located::new("`a + b`{python}")).unwrap();
         code_attrs(&mut Located::new("`a + b`{python exec}")).unwrap();
-        code_attrs(&mut Located::new("`a + b`{python exec auto=always}")).unwrap();
+        code_attrs(&mut Located::new("`a + b`{python exec always}")).unwrap();
 
         assert_eq!(
-            code_attrs(&mut Located::new("`a + b`{javascript exec auto=never}")).unwrap(),
+            code_attrs(&mut Located::new("`a + b`{javascript exec auto}")).unwrap(),
             Inline::CodeExpression(CodeExpression {
                 code: "a + b".into(),
                 programming_language: Some("javascript".into()),
-                auto_exec: Some(AutomaticExecution::Never),
+                execution_mode: Some(ExecutionMode::Auto),
                 ..Default::default()
             })
         );
@@ -960,15 +953,15 @@ mod tests {
 
     #[test]
     fn test_instruction_inline() {
-        instruction_inline(&mut Located::new("[[do something]]")).unwrap();
+        instruction_inline(&mut Located::new("[[new something]]")).unwrap();
 
-        let ins = inlines("before [[do something]] after");
+        let ins = inlines("before [[new something]] after");
         assert_eq!(ins.len(), 3);
         assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
         assert!(matches!(ins[1].0, Inline::InstructionInline(..)));
         assert_eq!(ins[2].0, Inline::Text(Text::from(" after")));
 
-        let ins = inlines("before [[do something >> this]] after");
+        let ins = inlines("before [[edit something >> this]] after");
         assert_eq!(ins.len(), 5);
         assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
         assert!(matches!(ins[1].0, Inline::InstructionInline(..)));

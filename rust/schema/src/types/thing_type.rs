@@ -6,7 +6,6 @@ use super::admonition_type::AdmonitionType;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::author_role_name::AuthorRoleName;
-use super::automatic_execution::AutomaticExecution;
 use super::brand::Brand;
 use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
@@ -21,17 +20,20 @@ use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
+use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::figure::Figure;
 use super::form_derive_action::FormDeriveAction;
 use super::grant::Grant;
 use super::image_object::ImageObject;
+use super::instruction_type::InstructionType;
 use super::label_type::LabelType;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
 use super::media_object::MediaObject;
 use super::message_level::MessageLevel;
+use super::message_role::MessageRole;
 use super::monetary_grant::MonetaryGrant;
 use super::note_type::NoteType;
 use super::organization::Organization;
@@ -67,8 +69,6 @@ pub enum ThingType {
 
     AuthorRoleName(AuthorRoleName),
 
-    AutomaticExecution(AutomaticExecution),
-
     Brand(Brand),
 
     CitationIntent(CitationIntent),
@@ -97,6 +97,8 @@ pub enum ThingType {
 
     ExecutionDependencyRelation(ExecutionDependencyRelation),
 
+    ExecutionMode(ExecutionMode),
+
     ExecutionRequired(ExecutionRequired),
 
     ExecutionStatus(ExecutionStatus),
@@ -109,6 +111,8 @@ pub enum ThingType {
 
     ImageObject(ImageObject),
 
+    InstructionType(InstructionType),
+
     LabelType(LabelType),
 
     ListItem(ListItem),
@@ -118,6 +122,8 @@ pub enum ThingType {
     MediaObject(MediaObject),
 
     MessageLevel(MessageLevel),
+
+    MessageRole(MessageRole),
 
     MonetaryGrant(MonetaryGrant),
 

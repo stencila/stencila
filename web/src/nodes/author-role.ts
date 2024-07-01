@@ -48,8 +48,6 @@ export class AuthorRole extends Entity {
         timestamp=${this.lastModified}
         details=${this.details}
       ></stencila-ui-node-author>
-
-      <div hidden><slot></slot></div>
     `
   }
 }

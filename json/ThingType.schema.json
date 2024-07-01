@@ -15,9 +15,6 @@
       "$ref": "AuthorRoleName.schema.json"
     },
     {
-      "$ref": "AutomaticExecution.schema.json"
-    },
-    {
       "$ref": "Brand.schema.json"
     },
     {
@@ -60,6 +57,9 @@
       "$ref": "ExecutionDependencyRelation.schema.json"
     },
     {
+      "$ref": "ExecutionMode.schema.json"
+    },
+    {
       "$ref": "ExecutionRequired.schema.json"
     },
     {
@@ -78,6 +78,9 @@
       "$ref": "ImageObject.schema.json"
     },
     {
+      "$ref": "InstructionType.schema.json"
+    },
+    {
       "$ref": "LabelType.schema.json"
     },
     {
@@ -91,6 +94,9 @@
     },
     {
       "$ref": "MessageLevel.schema.json"
+    },
+    {
+      "$ref": "MessageRole.schema.json"
     },
     {
       "$ref": "MonetaryGrant.schema.json"

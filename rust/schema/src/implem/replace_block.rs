@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, ReplaceBlock, SuggestionStatus};
+use crate::{prelude::*, ReplaceBlock};
 
 impl MarkdownCodec for ReplaceBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
@@ -10,13 +10,10 @@ impl MarkdownCodec for ReplaceBlock {
             .push_semis()
             .push_str(" replace");
 
-        if let Some(status @ (SuggestionStatus::Accepted | SuggestionStatus::Rejected)) =
-            &self.suggestion_status
-        {
-            context.push_str(" ").push_prop_str(
-                NodeProperty::SuggestionStatus,
-                &status.to_string().to_lowercase(),
-            );
+        if let Some(feedback) = &self.feedback {
+            context
+                .push_str(" ")
+                .push_prop_str(NodeProperty::Feedback, feedback);
         }
 
         if self.content.is_empty() {
@@ -32,9 +29,11 @@ impl MarkdownCodec for ReplaceBlock {
         context
             .push_semis()
             .push_str(" with\n\n")
+            .increase_depth()
             .push_prop_fn(NodeProperty::Replacement, |context| {
                 self.replacement.to_markdown(context)
             })
+            .decrease_depth()
             .push_semis()
             .newline()
             .exit_node()

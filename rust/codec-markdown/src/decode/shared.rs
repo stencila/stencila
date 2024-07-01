@@ -11,7 +11,9 @@ use winnow::{
     Located, PResult, Parser,
 };
 
-use codec::schema::{Date, DateTime, Duration, Node, Time, Timestamp};
+use codec::schema::{
+    Date, DateTime, Duration, ExecutionMode, InstructionType, Node, Time, Timestamp,
+};
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
 
@@ -27,12 +29,48 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
         .parse_next(input)
 }
 
-/// Parse the name of an assignee of an instruction (e.g. `insert-image-object`, `openai/gpt-4`, `joe@example.org`)
+/// Parse a execution mode
+pub(super) fn execution_mode(input: &mut &str) -> PResult<ExecutionMode> {
+    alt(("always", "auto", "locked", "lock"))
+        .map(|typ| match typ {
+            "always" => ExecutionMode::Always,
+            "auto" => ExecutionMode::Auto,
+            "locked" | "lock" => ExecutionMode::Locked,
+            _ => unreachable!(),
+        })
+        .parse_next(input)
+}
+
+/// Parse an instruction type
+pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<InstructionType> {
+    alt(("new", "edit", "update"))
+        .map(|typ| match typ {
+            "new" => InstructionType::New,
+            "edit" => InstructionType::Edit,
+            "update" => InstructionType::Update,
+            _ => unreachable!(),
+        })
+        .parse_next(input)
+}
+
+/// Parse the name of an assignee of an instruction (e.g. `insert-image-object`, `joe@example.org`)
 pub(super) fn assignee<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     (
         take_while(1.., |c: char| c.is_ascii_alphabetic()),
         take_while(0.., |c: char| {
             c.is_ascii_alphanumeric() || "_-/.@".contains(c)
+        }),
+    )
+        .recognize()
+        .parse_next(input)
+}
+
+/// Parse the name of a model of an instruction (e.g. `openai/gpt4`)
+pub(super) fn model<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+    (
+        take_while(1.., |c: char| c.is_ascii_alphabetic()),
+        take_while(0.., |c: char| {
+            c.is_ascii_alphanumeric() || "_-/".contains(c)
         }),
     )
         .recognize()

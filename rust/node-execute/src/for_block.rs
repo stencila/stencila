@@ -7,7 +7,7 @@ impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling ForBlock {node_id}");
+        tracing::trace!("Compiling ForBlock {node_id}");
 
         let language = self.programming_language.as_deref().unwrap_or_default();
         let ParseInfo {
@@ -25,9 +25,14 @@ impl Executable for ForBlock {
             }
         }
 
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &compilation_digest);
         executor.patch(
             &node_id,
-            [set(NodeProperty::CompilationDigest, compilation_digest)],
+            [
+                set(NodeProperty::CompilationDigest, compilation_digest),
+                set(NodeProperty::ExecutionRequired, execution_required),
+            ],
         );
 
         // Walk over `otherwise` here because this function returns `Break` so it
@@ -44,9 +49,16 @@ impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending ForBlock {node_id}");
 
-        pending_impl!(executor, &node_id);
+        if executor.should_execute(
+            &node_id,
+            &self.execution_mode,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            tracing::trace!("Pending ForBlock {node_id}");
+            pending_impl!(executor, &node_id);
+        }
 
         // Break to avoid making executable nodes in `content` as pending
         WalkControl::Break
@@ -56,18 +68,17 @@ impl Executable for ForBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(
+        if !executor.should_execute(
             &node_id,
-            &self.auto_exec,
+            &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping ForBlock {node_id}");
-
+            tracing::trace!("Skipping ForBlock {node_id}");
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing ForBlock {node_id}");
+        tracing::debug!("Executing ForBlock {node_id}");
 
         executor.patch(
             &node_id,
@@ -85,8 +96,7 @@ impl Executable for ForBlock {
 
         let compilation_digest = self.options.compilation_digest.clone();
         let variable = self.variable.trim();
-        let code = self.code.trim();
-        if !(variable.is_empty() && code.is_empty()) {
+        if !(variable.is_empty() && self.code.trim().is_empty()) {
             is_empty = false;
 
             // Evaluate code in kernels to get the iterable
@@ -94,7 +104,7 @@ impl Executable for ForBlock {
                 .kernels
                 .write()
                 .await
-                .evaluate(code, self.programming_language.as_deref())
+                .evaluate(&self.code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (
@@ -188,12 +198,16 @@ impl Executable for ForBlock {
                 };
 
                 // Execute the iteration
+                // Temporarily remove any executor node ids so that nodes within
+                // the iteration content are executed.
+                let node_ids = executor.node_ids.take();
                 if let Err(error) = iteration.walk_async(executor).await {
                     messages.push(error_to_execution_message(
                         "While executing iteration",
                         error,
                     ));
                 }
+                executor.node_ids = node_ids;
             }
 
             // Remove the loop's variable (if it was set)
@@ -225,7 +239,7 @@ impl Executable for ForBlock {
 
         if !is_empty {
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 

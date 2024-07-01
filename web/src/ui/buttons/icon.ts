@@ -70,7 +70,7 @@ export class UIIconButton extends LitElement {
    * If consumer prefers to supply their own colours, then we can ignore what
    * the colours that have been set up here.
    */
-  @property({ type: Boolean })
+  @property({ type: Boolean, attribute: 'ignore-colours' })
   ignoreColours: boolean = false
 
   override render() {
@@ -127,7 +127,7 @@ export class UIIconButton extends LitElement {
     const classes = apply([
       'transition-all duration-300 ease-in-out',
       'stroke-none',
-      !this.ignoreColours ? stateColour[state] : '',
+      !this.ignoreColours ? stateColour[state] : 'fill-current',
       !this.ignoreColours
         ? state !== 'active'
           ? 'group-hover:fill-grey-900'

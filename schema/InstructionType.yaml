@@ -1,0 +1,14 @@
+title: InstructionType
+"@id": stencila:InstructionType
+extends: Enumeration
+category: works
+description: The type of an instruction.
+proptest: {}
+default: New
+anyOf:
+  - const: New
+    "@id": stencila:New
+  - const: Edit
+    "@id": stencila:Edit
+  - const: Update
+    "@id": stencila:Update

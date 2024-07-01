@@ -11,8 +11,8 @@ impl DomCodec for CodeChunk {
 
         context.enter_node(self.node_type(), self.node_id());
 
-        if let Some(auto_exec) = &self.auto_exec {
-            context.push_attr("auto-exec", &auto_exec.to_string());
+        if let Some(execution_mode) = &self.execution_mode {
+            context.push_attr("execution-mode", &execution_mode.to_string());
         }
 
         self.code.to_dom_attr("code", context);
@@ -159,10 +159,11 @@ impl MarkdownCodec for CodeChunk {
 
         context.push_str("exec");
 
-        if let Some(auto) = &self.auto_exec {
-            context
-                .push_str(" auto=")
-                .push_prop_str(NodeProperty::AutoExec, &auto.to_string().to_lowercase());
+        if let Some(mode) = &self.execution_mode {
+            context.push_str(" ").push_prop_str(
+                NodeProperty::ExecutionMode,
+                &mode.to_string().to_lowercase(),
+            );
         }
 
         context

@@ -198,13 +198,14 @@ impl Kernels {
 
     /// Create a kernel instance
     ///
-    /// The `language` argument can be the name of a kernel or a programming language
+    /// The `language` argument can be the name of a kernel or a programming language.
+    /// If `language` is `None` then the default language is used.
     async fn create_instance(
         &mut self,
         language: Option<&str>,
     ) -> Result<Arc<Mutex<Box<dyn KernelInstance>>>> {
         tracing::debug!(
-            "Creating kernel instance for language {}",
+            "Creating kernel instance for language {:?}",
             language.unwrap_or_default()
         );
 

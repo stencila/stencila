@@ -30,7 +30,7 @@ export class UINodeSimpleProperty extends LitElement {
         <sl-icon
           name=${this.iconName}
           library=${this.iconLibrary}
-          class="text-base text-black"
+          class="text-base"
         ></sl-icon>
       </div>
       <div class="grow">

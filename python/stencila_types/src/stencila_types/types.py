@@ -75,19 +75,10 @@ class AuthorRoleName(StrEnum):
     Importer = "Importer"
     Writer = "Writer"
     Verifier = "Verifier"
+    Accepter = "Accepter"
     Instructor = "Instructor"
     Prompter = "Prompter"
     Generator = "Generator"
-
-
-class AutomaticExecution(StrEnum):
-    """
-    Under which circumstances the document node should be automatically executed.
-    """
-
-    Never = "Never"
-    Needed = "Needed"
-    Always = "Always"
 
 
 class CitationIntent(StrEnum):
@@ -237,6 +228,17 @@ class ExecutionDependencyRelation(StrEnum):
     Uses = "Uses"
 
 
+class ExecutionMode(StrEnum):
+    """
+    Under which circumstances the document node should be executed.
+    """
+
+    Always = "Always"
+    Auto = "Auto"
+    Necessary = "Necessary"
+    Locked = "Locked"
+
+
 class ExecutionRequired(StrEnum):
     """
     Whether, and why, the execution of a node is required or not.
@@ -244,6 +246,7 @@ class ExecutionRequired(StrEnum):
 
     No = "No"
     NeverExecuted = "NeverExecuted"
+    StateChanged = "StateChanged"
     SemanticsChanged = "SemanticsChanged"
     DependenciesChanged = "DependenciesChanged"
     DependenciesFailed = "DependenciesFailed"
@@ -262,6 +265,7 @@ class ExecutionStatus(StrEnum):
     Scheduled = "Scheduled"
     Pending = "Pending"
     Skipped = "Skipped"
+    Locked = "Locked"
     Empty = "Empty"
     Running = "Running"
     Succeeded = "Succeeded"
@@ -281,6 +285,16 @@ class FormDeriveAction(StrEnum):
     Update = "Update"
     Delete = "Delete"
     UpdateOrDelete = "UpdateOrDelete"
+
+
+class InstructionType(StrEnum):
+    """
+    The type of an instruction.
+    """
+
+    New = "New"
+    Edit = "Edit"
+    Update = "Update"
 
 
 class LabelType(StrEnum):
@@ -313,6 +327,16 @@ class MessageLevel(StrEnum):
     Warning = "Warning"
     Error = "Error"
     Exception = "Exception"
+
+
+class MessageRole(StrEnum):
+    """
+    The role of a message.
+    """
+
+    System = "System"
+    User = "User"
+    Assistant = "Assistant"
 
 
 class NoteType(StrEnum):
@@ -547,8 +571,8 @@ class Executable(Entity):
 
     type: Literal["Executable"] = "Executable"
 
-    auto_exec: AutomaticExecution | None = None
-    """Under which circumstances the code should be automatically executed."""
+    execution_mode: ExecutionMode | None = None
+    """Under which circumstances the code should be executed."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the content, semantics and dependencies of the node."""
@@ -600,6 +624,21 @@ class Suggestion(Entity):
 
     suggestion_status: SuggestionStatus | None = None
     """The status of the suggestion including whether it is proposed, accepted, or rejected."""
+
+    authors: list[Author] | None = None
+    """The authors of the suggestion"""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the suggestion."""
+
+    execution_duration: Duration | None = None
+    """Time taken to generate the suggestion."""
+
+    execution_ended: Timestamp | None = None
+    """The timestamp when the generation ended."""
+
+    feedback: str | None = None
+    """Feedback on the suggestion"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -706,17 +745,23 @@ class Instruction(Executable):
 
     type: Literal["Instruction"] = "Instruction"
 
+    instruction_type: InstructionType
+    """The type of instruction."""
+
     messages: list[InstructionMessage]
     """Messages involved in the instruction."""
 
     assignee: str | None = None
-    """An identifier for the agent assigned to perform the instruction"""
+    """An identifier for the assistant assigned to perform the instruction"""
 
-    authors: list[Author] | None = None
-    """The authors of the instruction."""
+    model: InstructionModel | None = None
+    """The name, and other options, for the model that the assistant should use to generate suggestions."""
 
-    provenance: list[ProvenanceCount] | None = None
-    """A summary of the provenance of the messages and content within the instruction."""
+    replicates: UnsignedInteger | None = None
+    """The number of suggestions to generate for the instruction"""
+
+    hide_suggestions: bool | None = None
+    """Whether suggestions should be hidden in source views such as Markdown."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1247,16 +1292,16 @@ class CodeLocation(Entity):
     """The source of the code, a file path, label or URL."""
 
     start_line: UnsignedInteger | None = None
-    """The 1-based index if the first line on which the error occurred."""
+    """The 0-based index if the first line on which the error occurred."""
 
     start_column: UnsignedInteger | None = None
-    """The 1-based index if the first column on which the error occurred."""
+    """The 0-based index if the first column on which the error occurred."""
 
     end_line: UnsignedInteger | None = None
-    """The 1-based index if the last line on which the error occurred."""
+    """The 0-based index if the last line on which the error occurred."""
 
     end_column: UnsignedInteger | None = None
-    """The 1-based index if the last column on which the error occurred."""
+    """The 0-based index if the last column on which the error occurred."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1846,8 +1891,8 @@ class InstructionBlock(Instruction):
     content: list[Block] | None = None
     """The content to which the instruction applies."""
 
-    suggestion: SuggestionBlockType | None = None
-    """A suggestion for the instruction"""
+    suggestions: list[SuggestionBlock] | None = None
+    """Suggestions for the instruction"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1861,8 +1906,8 @@ class InstructionInline(Instruction):
     content: list[Inline] | None = None
     """The content to which the instruction applies."""
 
-    suggestion: SuggestionInlineType | None = None
-    """A suggestion for the instruction"""
+    suggestions: list[SuggestionInline] | None = None
+    """Suggestions for the instruction"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1873,17 +1918,44 @@ class InstructionMessage(Entity):
 
     type: Literal["InstructionMessage"] = "InstructionMessage"
 
+    role: MessageRole | None = None
+    """The role of the message in the conversation."""
+
     parts: list[MessagePart]
     """Parts of the message."""
 
-    content: list[Block] | None = None
-    """Content of the message."""
-
-    authors: list[Person | Organization | SoftwareApplication] | None = None
+    authors: list[Author] | None = None
     """The authors of the message."""
 
-    level: MessageLevel | None = None
-    """The severity level of the message."""
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the messages and content within the instruction."""
+
+
+@dataclass(kw_only=True, repr=False)
+class InstructionModel(Entity):
+    """
+    The name and execution options for the generative model used for an instruction.
+    """
+
+    type: Literal["InstructionModel"] = "InstructionModel"
+
+    name: str | None = None
+    """The name of the model."""
+
+    quality_weight: UnsignedInteger | None = None
+    """The relative weighting given to model quality (0-100)."""
+
+    speed_weight: UnsignedInteger | None = None
+    """The relative weighting given to model speed (0-100)."""
+
+    cost_weight: UnsignedInteger | None = None
+    """The relative weighting given to model cost (0-100)."""
+
+    temperature: UnsignedInteger | None = None
+    """The temperature option for model inference (0-100)."""
+
+    random_seed: int | None = None
+    """The random seed used for the model (if possible)"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2827,6 +2899,7 @@ Block = Union[
     ReplaceBlock,
     Section,
     StyledBlock,
+    SuggestionBlock,
     Table,
     ThematicBreak,
 ]
@@ -2932,6 +3005,7 @@ Inline = Union[
     Strikeout,
     Strong,
     Subscript,
+    SuggestionInline,
     Superscript,
     Text,
     Time,
@@ -3032,6 +3106,7 @@ Node = Union[
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
+    InstructionModel,
     IntegerValidator,
     Link,
     List,
@@ -3074,6 +3149,8 @@ Node = Union[
     StyledBlock,
     StyledInline,
     Subscript,
+    SuggestionBlock,
+    SuggestionInline,
     Superscript,
     Table,
     TableCell,
@@ -3097,34 +3174,11 @@ Union type for all types in this schema, including primitives and entities
 """
 
 
-SuggestionBlockType = Union[
-    DeleteBlock,
-    InsertBlock,
-    ModifyBlock,
-    ReplaceBlock,
-]
-"""
-Union type for all types that are descended from `SuggestionBlock`
-"""
-
-
-SuggestionInlineType = Union[
-    DeleteInline,
-    InsertInline,
-    ModifyInline,
-    ReplaceInline,
-]
-"""
-Union type for all types that are descended from `SuggestionInline`
-"""
-
-
 ThingType = Union[
     AdmonitionType,
     Article,
     AudioObject,
     AuthorRoleName,
-    AutomaticExecution,
     Brand,
     CitationIntent,
     CitationMode,
@@ -3139,17 +3193,20 @@ ThingType = Union[
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
+    ExecutionMode,
     ExecutionRequired,
     ExecutionStatus,
     Figure,
     FormDeriveAction,
     Grant,
     ImageObject,
+    InstructionType,
     LabelType,
     ListItem,
     ListOrder,
     MediaObject,
     MessageLevel,
+    MessageRole,
     MonetaryGrant,
     NoteType,
     Organization,
@@ -3277,6 +3334,7 @@ TYPES = [
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
+    InstructionModel,
     IntegerValidator,
     Link,
     List,
@@ -3346,8 +3404,6 @@ UNIONS = [
     MessagePart,
     Node,
     Primitive,
-    SuggestionBlockType,
-    SuggestionInlineType,
     ThingType,
     Validator,
 ]
@@ -3359,7 +3415,6 @@ ANON_UNIONS = [
     File | Directory,
     Grant | MonetaryGrant,
     Person | Organization,
-    Person | Organization | SoftwareApplication,
     PostalAddress | str,
     PropertyValue | str,
     SoftwareSourceCode | SoftwareApplication | str,

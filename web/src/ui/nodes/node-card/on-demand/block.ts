@@ -34,7 +34,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
     return html`<div class=${`ui-block-on-demand ${cardStyles}`}>
       <div class="relative">
         <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
-          ${this.renderHeader()} ${this.renderBody()}
+          ${this.renderHeader()} ${this.renderAnimatedCardBody()}
         </stencila-ui-collapsible-animation>
         <div class=${`animated-content`}>${this.renderContent()}</div>
       </div>
@@ -42,12 +42,12 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
+      'border-b border-black/20',
+      `text-[${this.ui.textColour}]`,
+      `bg-[${this.ui.colour}]`,
     ])
 
     return html`<div class=${bodyStyles}>
@@ -57,7 +57,6 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override renderContent() {
     const contentStyles = apply([
-      'relative',
       'transition-[padding] ease-in-out duration-[250ms]',
       this.toggle && 'p-3',
     ])
@@ -66,24 +65,14 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
         ${this.renderChip(this.getIcon(), this.ui)}
         <div class="content-block ${contentStyles}">
-          <slot name="content" class="w-full"></slot>
+          <slot name="content" class="relative w-full"></slot>
         </div>
       </div>
     `
   }
 
-  protected override toggleCardDisplay() {
+  protected toggleCardDisplay() {
     this.toggle = !this.toggle
-
-    this.shadowRoot.dispatchEvent(
-      new CustomEvent(`toggle-${this.nodeId}`, {
-        bubbles: true,
-        composed: true,
-        detail: {
-          cardOpen: this.toggle,
-          nodeId: this.nodeId,
-        },
-      })
-    )
+    this.dispatchToggleEvent()
   }
 }

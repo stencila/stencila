@@ -7,10 +7,10 @@ impl Executable for InstructionInline {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending InstructionInline {node_id}");
+        tracing::trace!("Pending InstructionInline {node_id}");
 
         if executor.should_execute_instruction_inline(&node_id, self) {
-            tracing::debug!("Pending InstructionInline {node_id}");
+            tracing::trace!("Pending InstructionInline {node_id}");
 
             pending_impl!(executor, &node_id);
         }
@@ -24,12 +24,12 @@ impl Executable for InstructionInline {
         let node_id = self.node_id();
 
         if !executor.should_execute_instruction_inline(&node_id, self) {
-            tracing::debug!("Skipping InstructionInline {node_id}");
+            tracing::trace!("Skipping InstructionInline {node_id}");
 
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing InstructionInline {node_id}");
+        tracing::debug!("Executing InstructionInline {node_id}");
 
         executor.patch(
             &node_id,
@@ -55,7 +55,7 @@ impl Executable for InstructionInline {
             {
                 Ok(output) => (
                     Some(output.authors.clone()),
-                    Some(output.to_suggestion_inline(self.content.is_none())),
+                    Some(output.to_suggestion_inline()),
                     Vec::new(),
                 ),
                 Err(error) => (
@@ -84,7 +84,7 @@ impl Executable for InstructionInline {
                 // Set the suggestion
                 executor.patch(
                     &node_id,
-                    [set(NodeProperty::Suggestion, suggestion.clone())],
+                    [push(NodeProperty::Suggestions, suggestion.clone())],
                 );
 
                 // Execute the suggestion
@@ -102,7 +102,7 @@ impl Executable for InstructionInline {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 

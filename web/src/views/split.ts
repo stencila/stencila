@@ -5,7 +5,6 @@ import { customElement, property } from 'lit/decorators'
 import { withTwind } from '../twind'
 import type { DocumentAccess, DocumentId } from '../types'
 
-import './source'
 import './dynamic'
 
 import '../ui/split-drag'

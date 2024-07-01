@@ -191,6 +191,15 @@
       "$ref": "StyledBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `SuggestionBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "SuggestionBlock.schema.json"
+    },
+    {
       "$ref": "Table.schema.json"
     },
     {

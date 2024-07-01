@@ -16,9 +16,8 @@ use common::{
 use context::Context;
 use kernels::Kernels;
 use schema::{
-    AutomaticExecution, Block, CompilationDigest, Inline, InstructionBlock, InstructionInline,
-    Node, NodeId, NodeProperty, Patch, PatchOp, PatchPath, SuggestionBlockType,
-    SuggestionInlineType, SuggestionStatus, VisitorAsync, WalkControl, WalkNode,
+    Block, CompilationDigest, ExecutionMode, Inline, InstructionBlock, InstructionInline, Node,
+    NodeId, NodeProperty, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -208,7 +207,7 @@ pub struct ExecuteOptions {
 
     /// Prepare, but do not actually perform, execution tasks
     ///
-    /// Currently only supported by assistants where is is useful for debugging the
+    /// Currently only supported by assistants where it is useful for debugging the
     /// rendering of system prompts without making a potentially slow API request.
     #[arg(long)]
     pub dry_run: bool,
@@ -308,58 +307,38 @@ impl Executor {
         self.context.clone()
     }
 
-    /// Should the executor execute a code-based node (a node derived from `CodeExecutable`)
-    pub fn should_execute_code(
+    /// Should the executor execute a node
+    pub fn should_execute(
         &self,
         node_id: &NodeId,
-        auto_exec: &Option<AutomaticExecution>,
+        execution_mode: &Option<ExecutionMode>,
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> bool {
-        if self.options.force_all {
+        if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
             return true;
         }
 
+        if matches!(execution_mode, Some(ExecutionMode::Locked)) {
+            return false;
+        }
+
         if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return true;
-            }
+            return node_ids.contains(node_id);
         }
 
         if self.options.skip_code {
             return false;
         }
 
-        match auto_exec {
-            Some(AutomaticExecution::Never) => false,
-            Some(AutomaticExecution::Always) => true,
-            Some(AutomaticExecution::Needed) | None => {
-                (compilation_digest.is_none() && execution_digest.is_none())
-                    || compilation_digest != execution_digest
-            }
-        }
+        // If the node has never been executed (both digests are none),
+        // or if the digest has changed since last executed, then execute
+        // the node
+        (compilation_digest.is_none() && execution_digest.is_none())
+            || compilation_digest != execution_digest
     }
 
-    /// Should the executor execute an `Instruction` based on the the
-    /// status of its suggestion.
-    pub fn should_execute_instruction(&self, status: &Option<SuggestionStatus>) -> bool {
-        let Some(status) = status else {
-            // Re-execute unreviewed only if `force_unreviewed`
-            return self.options.force_unreviewed;
-        };
-
-        use SuggestionStatus::*;
-        match status {
-            // Re-execute proposed only if `force_unreviewed`
-            Proposed => self.options.force_unreviewed,
-            // Re-execute accepted only if `force_accepted`
-            Accepted => self.options.force_accepted,
-            // Re-execute rejected unless `skip_reject`
-            Rejected => self.options.skip_rejected,
-        }
-    }
-
-    /// Should the executor execute an `InstructionBlock`
+    /// Should the executor execute an `InstructionBlock`ss
     #[allow(unreachable_code, unused_variables)]
     pub fn should_execute_instruction_block(
         &self,
@@ -369,37 +348,25 @@ impl Executor {
         // TODO: reinstate the logic of this function
         return true;
 
-        if self.options.force_all {
+        if self.options.force_all
+            || matches!(instruction.execution_mode, Some(ExecutionMode::Always))
+        {
             return true;
         }
 
-        if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return true;
-            }
+        if matches!(instruction.execution_mode, Some(ExecutionMode::Locked)) {
+            return false;
         }
 
-        let suggestion = &instruction.suggestion;
+        if let Some(node_ids) = &self.node_ids {
+            return node_ids.contains(node_id);
+        }
 
-        // Respect `skip_instructions`
         if self.options.skip_instructions {
             return false;
         }
 
-        let Some(suggestion) = suggestion else {
-            // Execute instructions without suggestions
-            return true;
-        };
-
-        use SuggestionBlockType::*;
-        let status = match suggestion {
-            DeleteBlock(block) => &block.suggestion_status,
-            InsertBlock(block) => &block.suggestion_status,
-            ModifyBlock(block) => &block.suggestion_status,
-            ReplaceBlock(block) => &block.suggestion_status,
-        };
-
-        self.should_execute_instruction(status)
+        true
     }
 
     /// Should the executor execute an `InstructionInline`
@@ -408,37 +375,25 @@ impl Executor {
         node_id: &NodeId,
         instruction: &InstructionInline,
     ) -> bool {
-        if self.options.force_all {
+        if self.options.force_all
+            || matches!(instruction.execution_mode, Some(ExecutionMode::Always))
+        {
             return true;
         }
 
-        if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return true;
-            }
+        if matches!(instruction.execution_mode, Some(ExecutionMode::Locked)) {
+            return false;
         }
 
-        let suggestion = &instruction.suggestion;
+        if let Some(node_ids) = &self.node_ids {
+            return node_ids.contains(node_id);
+        }
 
-        // Respect `skip_instructions`
         if self.options.skip_instructions {
             return false;
         }
 
-        let Some(suggestion) = suggestion else {
-            // Execute instructions without suggestions
-            return true;
-        };
-
-        use SuggestionInlineType::*;
-        let status = match suggestion {
-            DeleteInline(inline) => &inline.suggestion_status,
-            InsertInline(inline) => &inline.suggestion_status,
-            ModifyInline(inline) => &inline.suggestion_status,
-            ReplaceInline(inline) => &inline.suggestion_status,
-        };
-
-        self.should_execute_instruction(status)
+        true
     }
 
     /// Patch several properties of a node
@@ -509,16 +464,6 @@ impl VisitorAsync for Executor {
             }
         }
 
-        // If the executor has node ids (i.e. is only executing some nodes, not the entire
-        // document) then do not execute this node if it is not in the node ids.
-        if let Some(node_ids) = &self.node_ids {
-            if let Some(node_id) = &node.node_id() {
-                if !node_ids.contains(node_id) {
-                    return Ok(WalkControl::Continue);
-                }
-            }
-        }
-
         use Node::*;
         let control = match node {
             Article(node) => self.visit_executable(node).await,
@@ -539,16 +484,6 @@ impl VisitorAsync for Executor {
             Heading(node) => self.context.push_heading(node),
             Paragraph(node) => self.context.push_paragraph(node),
             _ => {}
-        }
-
-        // If the executor has node ids (i.e. is only executing some nodes, not the entire
-        // document) then do not execute this block if it is not in the node ids.
-        if let Some(node_ids) = &self.node_ids {
-            if let Some(node_id) = &block.node_id() {
-                if !node_ids.contains(node_id) {
-                    return Ok(WalkControl::Continue);
-                }
-            }
         }
 
         let control = match block {
@@ -578,16 +513,6 @@ impl VisitorAsync for Executor {
             MathInline(node) => self.context.push_math_inline(node),
             Text(node) => self.context.push_text(node),
             _ => {}
-        }
-
-        // If the executor has node ids (i.e. is only executing some nodes, not the entire
-        // document) then do not execute this inline if it is not in the node ids.
-        if let Some(node_ids) = &self.node_ids {
-            if let Some(node_id) = &inline.node_id() {
-                if !node_ids.contains(node_id) {
-                    return Ok(WalkControl::Continue);
-                }
-            }
         }
 
         let control = match inline {

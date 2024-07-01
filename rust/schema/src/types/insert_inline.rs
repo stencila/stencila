@@ -2,9 +2,13 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
+use super::duration::Duration;
 use super::inline::Inline;
+use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::suggestion_status::SuggestionStatus;
+use super::timestamp::Timestamp;
 
 /// A suggestion to insert some inline content.
 #[skip_serializing_none]
@@ -14,6 +18,7 @@ use super::suggestion_status::SuggestionStatus;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "InsertInline")]
+#[patch(authors_on = "self")]
 #[html(elem = "ins")]
 #[markdown(template = "[[insert {{content}}]]")]
 pub struct InsertInline {
@@ -33,6 +38,40 @@ pub struct InsertInline {
     #[patch(format = "md")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub suggestion_status: Option<SuggestionStatus>,
+
+    /// The authors of the suggestion
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(authors)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub authors: Option<Vec<Author>>,
+
+    /// A summary of the provenance of the content within the suggestion.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(provenance)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
+    pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// Time taken to generate the suggestion.
+    #[serde(alias = "execution-duration", alias = "execution_duration")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Duration::to_dom_attr")]
+    pub execution_duration: Option<Duration>,
+
+    /// The timestamp when the generation ended.
+    #[serde(alias = "execution-ended", alias = "execution_ended")]
+    #[strip(execution, timestamps)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Timestamp::to_dom_attr")]
+    pub execution_ended: Option<Timestamp>,
+
+    /// Feedback on the suggestion
+    #[patch(format = "md")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub feedback: Option<String>,
 
     /// The content that is suggested to be inserted, modified, replaced, or deleted.
     #[serde(deserialize_with = "one_or_many")]

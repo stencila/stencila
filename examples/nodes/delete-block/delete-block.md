@@ -4,14 +4,8 @@ Proposed deleted paragraph
 
 :::
 
-::: delete accepted
+::: delete Some feedback on suggestion
 
-Accepted deleted paragraph
-
-:::
-
-::: delete rejected
-
-Rejected deleted paragraph
+Proposed deleted paragraph with feedback
 
 :::

@@ -1,5 +1,5 @@
 import {
-  AutomaticExecution,
+  ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
@@ -15,8 +15,8 @@ import { ExecutionMessage } from './execution-message'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md
  */
 export abstract class Executable extends Entity {
-  @property({ attribute: 'auto-exec' })
-  autoExec?: AutomaticExecution
+  @property({ attribute: 'execution-mode' })
+  executionMode?: ExecutionMode
 
   @property({ attribute: 'execution-tags', type: Array })
   executionTags?: ExecutionTag[]
@@ -64,27 +64,29 @@ export abstract class Executable extends Entity {
           const slot = this.shadowRoot.querySelector(
             'slot[name="execution-messages"]'
           ) as HTMLSlotElement
-          const messages = (slot
-            .assignedElements()[0]
-            ?.querySelectorAll('stencila-execution-message') ??
-            []) as ExecutionMessage[]
+          if (slot) {
+            const messages = (slot
+              .assignedElements()[0]
+              ?.querySelectorAll('stencila-execution-message') ??
+              []) as ExecutionMessage[]
 
-          // Reset the message counts
-          this.messageCount = messages.length
-          this.warningCount = 0
-          this.errorCount = 0
+            // Reset the message counts
+            this.messageCount = messages.length
+            this.warningCount = 0
+            this.errorCount = 0
 
-          messages.forEach((message: ExecutionMessage) => {
-            switch (message.level) {
-              case 'Warning':
-                this.warningCount += 1
-                return
-              case 'Error':
-              case 'Exception':
-                this.errorCount += 1
-                return
-            }
-          })
+            messages.forEach((message: ExecutionMessage) => {
+              switch (message.level) {
+                case 'Warning':
+                  this.warningCount += 1
+                  return
+                case 'Error':
+                case 'Exception':
+                  this.errorCount += 1
+                  return
+              }
+            })
+          }
         }
       })
     })

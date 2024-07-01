@@ -19,11 +19,17 @@ export declare class ChipToggleInterface {
   protected toggle: boolean
   protected toggleChipPosition: string
   protected toggleChip: () => void
+  protected dispatchToggleEvent: () => void
+  public openCard: () => void
+  public closeCard: () => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Constructor<T> = new (...args: any[]) => T
-type NodeColours = Pick<ReturnType<typeof nodeUi>, 'borderColour' | 'colour'>
+type NodeColours = Pick<
+  ReturnType<typeof nodeUi>,
+  'borderColour' | 'colour' | 'textColour'
+>
 
 /**
  * A Mixin that provides a "chip" to allow for a card to have its visibility
@@ -58,8 +64,25 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
      */
     protected toggleChipPosition: string = ''
 
+    // ----------------------
+    // public methods for allow opening / closing the card externally.
+    public openCard() {
+      this.toggle = true
+      this.dispatchToggleEvent()
+    }
+
+    public closeCard() {
+      this.toggle = false
+      this.dispatchToggleEvent()
+    }
+    // ---------------------
+
     protected toggleChip() {
       this.toggle = !this.toggle
+      this.dispatchToggleEvent()
+    }
+
+    protected dispatchToggleEvent() {
       this.shadowRoot.dispatchEvent(
         new CustomEvent(`toggle-${this.nodeId}`, {
           bubbles: true,
@@ -70,7 +93,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     }
 
     protected renderChip(icons: [string, string], colours: NodeColours) {
-      const { colour, borderColour } = colours
+      const { colour, borderColour, textColour } = colours
       const [library, icon] = icons
 
       const yOffset = calculateChipOffset(
@@ -107,7 +130,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
             <sl-icon
               library=${this.toggle ? 'default' : library}
               name=${this.toggle ? 'chevron-down' : icon}
-              class="text-base"
+              class="text-base text-[${textColour}]"
             ></sl-icon>
           </div>
         </div>

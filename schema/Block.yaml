@@ -135,6 +135,12 @@ anyOf:
         skip: false
 
   - $ref: StyledBlock
+
+  - $ref: SuggestionBlock
+    proptest:
+      min:
+        description: Do not generate `SuggestionBlock` nodes in block content.
+        skip: true
   
   - $ref: Table
   

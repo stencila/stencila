@@ -43,7 +43,7 @@ async fn same() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range8(&p1.node_id),
-        Some(Range8::new(Position8::new(0, 0), Position8::new(0, 5)))
+        Some(Range8::new(Position8::new(0, 0), Position8::new(1, 0)))
     );
     assert_eq!(
         poshmap.position8_to_node_id(Position8::new(0, 5)),
@@ -52,7 +52,7 @@ async fn same() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range8(&p2.node_id),
-        Some(Range8::new(Position8::new(2, 0), Position8::new(2, 5)))
+        Some(Range8::new(Position8::new(2, 0), Position8::new(3, 0)))
     );
     assert_eq!(
         poshmap.position8_to_node_id(Position8::new(2, 5)),
@@ -97,7 +97,7 @@ async fn spacing() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range8(&p1.node_id),
-        Some(Range8::new(Position8::new(1, 0), Position8::new(1, 5)))
+        Some(Range8::new(Position8::new(1, 0), Position8::new(2, 0)))
     );
     assert_eq!(
         poshmap.position8_to_node_id(Position8::new(1, 5)),
@@ -106,7 +106,7 @@ async fn spacing() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range16(&p1.node_id),
-        Some(Range16::new(Position16::new(1, 0), Position16::new(1, 5)))
+        Some(Range16::new(Position16::new(1, 0), Position16::new(2, 0)))
     );
     assert_eq!(
         poshmap.position16_to_node_id(Position16::new(1, 5)),
@@ -115,7 +115,7 @@ async fn spacing() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range8(&p2.node_id),
-        Some(Range8::new(Position8::new(5, 0), Position8::new(5, 5)))
+        Some(Range8::new(Position8::new(5, 0), Position8::new(6, 0)))
     );
     assert_eq!(
         poshmap.position8_to_node_id(Position8::new(5, 5)),
@@ -124,7 +124,7 @@ async fn spacing() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range16(&p2.node_id),
-        Some(Range16::new(Position16::new(5, 0), Position16::new(5, 5)))
+        Some(Range16::new(Position16::new(5, 0), Position16::new(6, 0)))
     );
     assert_eq!(
         poshmap.position16_to_node_id(Position16::new(5, 5)),
@@ -169,7 +169,7 @@ async fn emoji() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range8(&p1.node_id),
-        Some(Range8::new(Position8::new(0, 0), Position8::new(0, 6)))
+        Some(Range8::new(Position8::new(0, 0), Position8::new(1, 0)))
     );
     assert_eq!(
         poshmap.position8_to_node_id(Position8::new(0, 6)),
@@ -178,7 +178,7 @@ async fn emoji() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range16(&p1.node_id),
-        Some(Range16::new(Position16::new(0, 0), Position16::new(0, 7)))
+        Some(Range16::new(Position16::new(0, 0), Position16::new(1, 0)))
     );
     assert_eq!(
         poshmap.position16_to_node_id(Position16::new(0, 7)),
@@ -187,7 +187,7 @@ async fn emoji() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range8(&p2.node_id),
-        Some(Range8::new(Position8::new(2, 0), Position8::new(2, 6)))
+        Some(Range8::new(Position8::new(2, 0), Position8::new(3, 0)))
     );
     assert_eq!(
         poshmap.position8_to_node_id(Position8::new(2, 6)),
@@ -196,7 +196,7 @@ async fn emoji() -> Result<()> {
 
     assert_eq!(
         poshmap.node_id_to_range16(&p2.node_id),
-        Some(Range16::new(Position16::new(2, 0), Position16::new(2, 7)))
+        Some(Range16::new(Position16::new(2, 0), Position16::new(3, 0)))
     );
     assert_eq!(
         poshmap.position16_to_node_id(Position16::new(2, 7)),

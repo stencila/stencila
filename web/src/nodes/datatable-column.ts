@@ -20,20 +20,6 @@ export class DatatableColumn extends Entity {
   @property({ type: Object })
   validator?: ArrayValidator
 
-  /**
-   * In static view just render the node card.
-   */
-  override renderStaticView() {
-    return this.render()
-  }
-
-  /**
-   * In dynamic view, render a node card in the content slot.
-   */
-  override renderDynamicView() {
-    return this.render()
-  }
-
   override render() {
     const itemsValidatorType = this.validator?.itemsValidator?.type
     const itemsType = itemsValidatorType

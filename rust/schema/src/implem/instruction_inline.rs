@@ -1,6 +1,34 @@
 use codec_info::{lost_exec_options, lost_options};
 
-use crate::{prelude::*, InstructionInline};
+use crate::{prelude::*, InstructionInline, SuggestionStatus};
+
+impl InstructionInline {
+    pub fn apply_patch_op(
+        &mut self,
+        path: &mut PatchPath,
+        op: &PatchOp,
+        _context: &mut PatchContext,
+    ) -> Result<bool> {
+        if path.is_empty() {
+            if let PatchOp::Choose(suggestion_id) = op {
+                for suggestion in self.suggestions.iter_mut().flatten() {
+                    if &suggestion.node_id() == suggestion_id {
+                        suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
+                        self.content = Some(suggestion.content.clone());
+                    } else if matches!(
+                        suggestion.suggestion_status,
+                        Some(SuggestionStatus::Accepted)
+                    ) {
+                        suggestion.suggestion_status = None;
+                    }
+                }
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+}
 
 impl MarkdownCodec for InstructionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
@@ -14,9 +42,11 @@ impl MarkdownCodec for InstructionInline {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, auto_exec))
+            .merge_losses(lost_options!(self, id, execution_mode))
             .merge_losses(lost_exec_options!(self))
-            .push_str("[[do ");
+            .push_str("[[")
+            .push_str(self.instruction_type.to_string().to_lowercase().as_str())
+            .push_str(" ");
 
         if let Some(assignee) = &self.assignee {
             context.push_str("@").push_str(assignee).push_str(" ");
@@ -40,10 +70,12 @@ impl MarkdownCodec for InstructionInline {
 
         context.push_str("]]");
 
-        if let Some(suggestion) = &self.suggestion {
-            context.push_prop_fn(NodeProperty::Suggestion, |context| {
-                suggestion.to_markdown(context)
-            });
+        if !self.hide_suggestions.unwrap_or_default() {
+            if let Some(suggestions) = &self.suggestions {
+                context.push_prop_fn(NodeProperty::Suggestions, |context| {
+                    suggestions.to_markdown(context)
+                });
+            }
         }
 
         context.exit_node();

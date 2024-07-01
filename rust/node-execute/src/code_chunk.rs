@@ -6,7 +6,7 @@ impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Compiling CodeChunk {node_id}");
+        tracing::trace!("Compiling CodeChunk {node_id}");
 
         // Some code chunks should be executed during "compile" to
         // enable live updates (e.g. Graphviz, Mermaid)
@@ -26,11 +26,14 @@ impl Executable for CodeChunk {
             self.programming_language.as_deref().unwrap_or_default(),
         );
 
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
         executor.patch(
             &node_id,
             [
                 set(NodeProperty::CompilationDigest, info.compilation_digest),
                 set(NodeProperty::ExecutionTags, info.execution_tags),
+                set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
 
@@ -56,9 +59,16 @@ impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending CodeChunk {node_id}");
 
-        pending_impl!(executor, &node_id);
+        if executor.should_execute(
+            &node_id,
+            &self.execution_mode,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            tracing::trace!("Pending CodeChunk {node_id}");
+            pending_impl!(executor, &node_id);
+        }
 
         WalkControl::Break
     }
@@ -67,18 +77,17 @@ impl Executable for CodeChunk {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_code(
+        if !executor.should_execute(
             &node_id,
-            &self.auto_exec,
+            &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::debug!("Skipping CodeChunk {node_id}");
-
+            tracing::trace!("Skipping CodeChunk {node_id}");
             return WalkControl::Break;
         }
 
-        tracing::trace!("Executing CodeChunk {node_id}");
+        tracing::debug!("Executing CodeChunk {node_id}");
 
         executor.patch(
             &node_id,
@@ -90,14 +99,13 @@ impl Executable for CodeChunk {
 
         let compilation_digest = self.options.compilation_digest.clone();
 
-        let code = self.code.trim();
-        if !code.is_empty() {
+        if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
             let (outputs, messages) = executor
                 .kernels()
                 .await
-                .execute(code, self.programming_language.as_deref())
+                .execute(&self.code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (
@@ -112,7 +120,7 @@ impl Executable for CodeChunk {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let required = execution_required(&status);
+            let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
