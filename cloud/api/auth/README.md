@@ -3,8 +3,12 @@
 This Cloudflare Worker provides the following endpoints at `api/auth`:
 
 - [signup](https://cloud.stencila.io/api/auth/signup)
+
 - [signin](https://cloud.stencila.io/api/auth/signin)
+
 - [signout](https://cloud.stencila.io/api/auth/signout)
+
+- [connect?app=<app>&user=<user>](https://cloud.stencila.io/api/auth/connect) for connecting GitHub, Google etc to your Stencila account
 
 These all redirect to https://accounts.stencila.io (hosted by our OAuth provider https://kinde.com). In addition, this worker has an OAuth `callback` endpoint to fetch and verify the user access token.
 
