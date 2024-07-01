@@ -43,9 +43,12 @@ export async function createDocumentViewPanel(
 
     panel.reveal();
 
-    // if `nodeId` param is defined, scroll webview to target node.
+    // If `nodeId` param is defined, scroll webview to target node.
     if (nodeId) {
-      panel.webview.postMessage({ scrollTarget: nodeId });
+      panel.webview.postMessage({
+        type: "view-node",
+        nodeId,
+      });
     }
 
     return panel;
@@ -87,25 +90,32 @@ export async function createDocumentViewPanel(
 
     // Note that that attribute view="dynamic" is used to
     // trigger Web Component to render as if they are in dynamic view
-    return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-      <title>Stencila: Document Preview</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
-      <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
-      <link rel="stylesheet" type="text/css" href="${viewCss}">
-      <script type="text/javascript" src="${viewJs}"></script>
-  </head>
-  <body style="background: white;">
-    <stencila-vscode-view view="dynamic" theme="default">
-      ${content}
-    </stencila-vscode-view>
-  </body>
-</html>`;
+    return `
+    <!DOCTYPE html>
+      <html lang="en">
+        <head>
+            <title>Stencila: Document Preview</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+            <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
+            <link rel="stylesheet" type="text/css" href="${viewCss}">
+            <script type="text/javascript" src="${viewJs}"></script>
+        </head>
+        <body style="background: white;">
+          <stencila-vscode-view view="dynamic" theme="default">
+            ${content}
+          </stencila-vscode-view>
+
+          <!-- set vscode api -->
+          <script>
+            const vscode = acquireVsCodeApi()
+          </script>
+        </body>
+    </html>
+  `;
   };
 
   const FORMAT = "dom.html";
@@ -135,22 +145,34 @@ export async function createDocumentViewPanel(
 
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);
-  
+
   // Handle when the webview is disposed
   panel.onDidDispose(() => {
     documentViewPanels.delete(documentUri);
   }, null);
-    
-  // if `nodeId` param is defined, scroll webview panel to target node.
+
+  // If `nodeId` param is defined, scroll webview panel to target node.
   if (nodeId) {
-    panel.webview.postMessage({ scrollTarget: nodeId });
+    panel.webview.postMessage({
+      type: "view-node",
+      nodeId,
+    });
   }
 
+  // Handle messages from the webview
+  panel.webview.onDidReceiveMessage(
+    (message) => {
+      switch (message.command) {
+        case "error":
+          vscode.window.showErrorMessage(message.text);
+          return;
+        default:
+          throw new Error(`Unhandled message: ${message}`);
+      }
+    },
+    undefined,
+    context.subscriptions
+  );
+
   return panel;
-}
-
-export function addScroll () {
-  vscode.window.onDidChangeTextEditorVisibleRanges(e => {
-
-  });
 }
