@@ -1,11 +1,11 @@
+# Patterns ignored throughout this repo
+.DS_Store
+.envrc
+.idea
 .parcel-cache
+.venv
 lcov.info
 node_modules
+
+# Path specific patterns ignored
 /target
-.DS_Store
-/.envrc
-/.idea
-/tags
-/python/.idea
-/python/.envrc
-python/stencila/.venv
