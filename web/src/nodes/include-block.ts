@@ -22,7 +22,12 @@ export class IncludeBlock extends Executable {
 
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="IncludeBlock" view="dynamic">
+      <stencila-ui-block-on-demand
+        type="IncludeBlock"
+        view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="IncludeBlock">
             <stencila-ui-node-provenance slot="provenance">

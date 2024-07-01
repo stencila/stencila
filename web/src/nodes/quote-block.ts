@@ -29,6 +29,8 @@ export class QuoteBlock extends Entity {
       <stencila-ui-block-on-demand
         type="QuoteBlock"
         view="dynamic"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
         node-id=${this.id}
       >
         <div slot="body">

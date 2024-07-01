@@ -16,7 +16,11 @@ import { Executable } from './executable'
 export class IfBlock extends Executable {
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="IfBlock">
+      <stencila-ui-block-on-demand
+        type="IfBlock"
+        depth=${this.depth}
+        ancestors=${this.ancestors}
+      >
         <span slot="header-right"></span>
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details

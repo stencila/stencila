@@ -108,6 +108,8 @@ export class Paragraph extends Entity {
         type="Paragraph"
         view="dynamic"
         node-id=${this.id}
+        depth=${this.depth}
+        ancestors=${this.ancestors}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">

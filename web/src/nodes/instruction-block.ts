@@ -25,6 +25,8 @@ export class InstructionBlock extends Instruction {
       type=${this.type}
       view="dynamic"
       node-id=${this.id}
+      depth=${this.depth}
+      ancestors=${this.ancestors}
     >
       <span slot="header-right">
         <stencila-ui-node-execution-commands
