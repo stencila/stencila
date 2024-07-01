@@ -91,7 +91,7 @@ export class UINodeAuthor extends LitElement {
   details?: string
 
   override render() {
-    return html`<div class="@container">
+    return html`<div class="@container w-full">
       <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
         <div class="flex flex-row flex-grow">
           <div class="flex items-center justify-center mr-2">
