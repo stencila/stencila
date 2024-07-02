@@ -35,6 +35,7 @@ pub enum Format {
     // Text formats
     Latex,
     Markdown,
+    Myst,
     Text,
     // Math languages
     AsciiMath,
@@ -119,6 +120,7 @@ impl Format {
             Mkv => "Matroska",
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
+            Myst => "MyST",
             Ogg => "Ogg Vorbis",
             Ogv => "Ogg Vorbis Video",
             Png => "PNG",
@@ -209,6 +211,7 @@ impl Format {
             "jsonld" | "json-ld" => JsonLd,
             "latex" => Latex,
             "markdown" | "md" => Markdown,
+            "myst" => Myst,
             "mkv" => Mkv,
             "mp3" => Mp3,
             "mp4" => Mp4,
@@ -368,6 +371,7 @@ impl Display for Format {
             Mkv => "mkv",
             Mp3 => "mp3",
             Mp4 => "mp4",
+            Myst => "myst",
             Ogg => "ogg",
             Ogv => "ogv",
             Png => "png",

@@ -1,0 +1,183 @@
+---
+source: rust/codecs/tests/specs.rs
+assertion_line: 29
+expression: specs
+---
+{
+  "cbor": {
+    "status": "stable",
+    "supports_from_formats": {
+      "cbor": "NoLoss",
+      "cbor.zstd": "NoLoss"
+    },
+    "supports_from_bytes": true,
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "cbor": "NoLoss",
+      "cbor.zstd": "NoLoss"
+    },
+    "supports_to_bytes": true,
+    "supports_to_string": false,
+    "supports_to_path": true
+  },
+  "debug": {
+    "status": "stable",
+    "supports_from_formats": {},
+    "supports_from_bytes": false,
+    "supports_from_string": false,
+    "supports_from_path": false,
+    "supports_to_formats": {
+      "debug": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "directory": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "directory": "NoLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "supports_to_formats": {},
+    "supports_to_bytes": false,
+    "supports_to_string": false,
+    "supports_to_path": false
+  },
+  "dom": {
+    "status": "under-development",
+    "supports_from_formats": {},
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "dom.html": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "html": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "html": "HighLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "html": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "jats": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "jats": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "jats": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "json": {
+    "status": "stable",
+    "supports_from_formats": {
+      "json": "NoLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "json": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "json5": {
+    "status": "stable",
+    "supports_from_formats": {
+      "json5": "NoLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "json5": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "jsonld": {
+    "status": "beta",
+    "supports_from_formats": {
+      "jsonld": "NoLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "jsonld": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "markdown": {
+    "status": "alpha",
+    "supports_from_formats": {
+      "markdown": "LowLoss",
+      "myst": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "markdown": "LowLoss",
+      "myst": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "text": {
+    "status": "alpha",
+    "supports_from_formats": {},
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "text": "HighLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "yaml": {
+    "status": "stable",
+    "supports_from_formats": {
+      "yaml": "NoLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "yaml": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  }
+}

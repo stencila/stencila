@@ -1,6 +1,8 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
 use codec_info::{Losses, Mapping, NodeId, NodeProperty, NodeType};
+use common::inflector::Inflector;
+use format::Format;
 
 pub use codec_markdown_derive::MarkdownCodec;
 
@@ -23,6 +25,9 @@ where
 
 #[derive(Default)]
 pub struct MarkdownEncodeContext {
+    /// The format to render to
+    pub format: Format,
+
     /// The render option of `codec::EncodeOptions`
     pub render: bool,
 
@@ -41,6 +46,9 @@ pub struct MarkdownEncodeContext {
     /// Should empty lines be prefixed?
     prefix_empty_lines: bool,
 
+    // The fence string for the current MyST directive
+    myst_fence_char: char,
+
     /// Node to position mapping
     pub mapping: Mapping,
 
@@ -55,6 +63,14 @@ pub struct MarkdownEncodeContext {
 }
 
 impl MarkdownEncodeContext {
+    pub fn new(format: Option<Format>, render: Option<bool>) -> Self {
+        Self {
+            format: format.unwrap_or(Format::Markdown),
+            render: render.unwrap_or_default(),
+            ..Default::default()
+        }
+    }
+
     /// Get the current insertion position (i.e. the number of characters in the content)
     fn char_index(&self) -> usize {
         self.content.chars().count()
@@ -234,6 +250,102 @@ impl MarkdownEncodeContext {
             self.mapping
                 .add(start, end, *node_type, node_id.clone(), Some(prop), None);
         }
+        self
+    }
+
+    /// Create a MyST directive
+    ///
+    /// See spec at https://mystmd.org/spec/overview#directives
+    pub fn myst_directive<A, O, C>(
+        &mut self,
+        fence: char,
+        name: &str,
+        args: A,
+        options: O,
+        content: C,
+    ) -> &mut Self
+    where
+        A: Fn(&mut Self),
+        O: Fn(&mut Self),
+        C: Fn(&mut Self),
+    {
+        // Fence
+        self.myst_fence_char = fence;
+        self.content.push_str(
+            &fence
+                .to_string()
+                .repeat(3 + self.depth * if fence == '`' { 1 } else { 2 }),
+        );
+
+        // Name
+        self.content.push('{');
+        self.content.push_str(name);
+        self.content.push('}');
+
+        // Args
+        args(self);
+
+        self.newline();
+
+        // Add options, and if any, or if semicolon fence, then add a separating line
+        let start = self.char_index();
+        options(self);
+        if fence == ':' || self.char_index() != start {
+            self.newline();
+        }
+
+        // Content
+        self.increase_depth();
+        content(self);
+        self.decrease_depth();
+
+        // Closing fence
+        let fence = self.myst_fence_char;
+        self.content.push_str(
+            &fence
+                .to_string()
+                .repeat(3 + self.depth * if fence == '`' { 1 } else { 2 }),
+        );
+        self.content.push('\n');
+
+        self
+    }
+
+    /// Push a property represented as a MyST directive option
+    ///
+    /// Write a line to the file with a kebab-cased property name and creates a new mapping
+    /// entry for the property.
+    pub fn myst_directive_option(
+        &mut self,
+        prop: NodeProperty,
+        name: Option<&str>,
+        value: &str,
+    ) -> &mut Self {
+        let name = name
+            .map(String::from)
+            .unwrap_or_else(|| prop.to_string().to_kebab_case());
+
+        self.push_str(":")
+            .push_str(&name)
+            .push_str(": ")
+            .push_prop_str(prop, value)
+            .newline()
+    }
+
+    /// Create a MyST role
+    ///
+    /// See spec at https://mystmd.org/spec/overview#roles
+    pub fn myst_role<C>(&mut self, name: &str, content: C) -> &mut Self
+    where
+        C: Fn(&mut Self),
+    {
+        self.content.push('{');
+        self.content.push_str(name);
+        self.content.push_str("}`");
+
+        content(self);
+
+        self.content.push('`');
         self
     }
 

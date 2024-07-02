@@ -12,6 +12,7 @@ use codec::{
         eyre::{bail, eyre, Result},
         serde_json, serde_yaml, tracing,
     },
+    format::Format,
     schema::{Article, Block, Inline, Node, NodeId, NodeType, VisitorMut, WalkControl},
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
@@ -23,11 +24,20 @@ mod inlines;
 mod shared;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
-pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
-    let mdast = to_mdast(md, &parse_options()).map_err(|error| eyre!(error))?;
+pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+    let format = options
+        .and_then(|options| options.format)
+        .unwrap_or(Format::Markdown);
+
+    let mdast = if matches!(format, Format::Myst) {
+        let md = myst_to_md(content);
+        to_mdast(&md, &parse_options())
+    } else {
+        to_mdast(content, &parse_options())
+    }
+    .map_err(|error| eyre!(error))?;
 
     let mut context = Context::default();
-
     let Some(mut node) = md_to_node(mdast, &mut context) else {
         bail!("No node decoded from Markdown")
     };
@@ -72,6 +82,51 @@ fn decode_inlines(md: &str) -> Vec<Inline> {
         }
         _ => vec![],
     }
+}
+
+/// Convert MyST colon-fenced directives to backtick-fenced directives
+///
+/// This conversion allows for more straightforward decoding in subsequent
+/// decoding steps because all MyST directives become code blocks.s
+fn myst_to_md(myst: &str) -> String {
+    fn colons_to_backticks(line: &str) -> String {
+        let chars = line.chars();
+
+        // Count the number of leading colons
+        let mut colons = 0;
+        for c in chars {
+            if c == ':' {
+                colons += 1
+            } else {
+                break;
+            }
+        }
+
+        // Replace colons with backticks such that there are more
+        // backticks when there are fewer colons (for descending nesting).
+        // Assumes no more than 30 colons.
+        let backticks = 30usize.saturating_sub(colons);
+        let backticks = "`".repeat(backticks);
+
+        [&backticks, &line[colons..]].concat()
+    }
+
+    let mut md = String::new();
+    let mut depth = 0;
+    for line in myst.lines() {
+        if line.starts_with(":::") && line.contains(":::{") {
+            depth += 1;
+            md.push_str(&colons_to_backticks(line));
+        } else if depth > 0 && line.starts_with(":::") {
+            depth -= 1;
+            md.push_str(&colons_to_backticks(line));
+        } else {
+            md.push_str(line);
+        };
+        md.push('\n');
+    }
+
+    md
 }
 
 /// Markdown parsing options

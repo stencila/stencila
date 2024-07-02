@@ -315,6 +315,7 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
     repeat(
         0..,
         alt((
+            myst_role,
             code_attrs,
             double_braces,
             cite_group,
@@ -329,9 +330,8 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             underline,
             instruction_inline,
             suggestion_inline,
-            insert_inline,
-            delete_inline,
-            replace_inline,
+            // Nested in another alt to avoid going over max size of tuple
+            alt((insert_inline, delete_inline, replace_inline)),
             edit_with,
             edit_end,
             string,
@@ -349,6 +349,26 @@ fn inlines_only(input: &str) -> Vec<Inline> {
         .into_iter()
         .map(|(inlines, ..)| inlines)
         .collect()
+}
+
+// Parse a MyST "role" into an inline
+fn myst_role(input: &mut Located<&str>) -> PResult<Inline> {
+    (
+        delimited('{', take_until(0.., '}'), '}'),
+        delimited('`', take_until(0.., '`'), '`'),
+    )
+        .map(|(name, value): (&str, &str)| {
+            if name == "eval" {
+                Inline::CodeExpression(CodeExpression {
+                    code: value.into(),
+                    ..Default::default()
+                })
+            } else {
+                // Fallback to just text
+                Inline::Text(Text::from(&["{", name, "}`", value, "}"].concat()))
+            }
+        })
+        .parse_next(input)
 }
 
 /// Parse inline code with optional attributes in curly braces e.g. `\`code\`{attr1 attr2}`

@@ -1270,6 +1270,7 @@ dependencies = [
  "codec-info",
  "codec-markdown-derive",
  "common",
+ "format",
 ]
 
 [[package]]
