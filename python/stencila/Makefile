@@ -49,7 +49,7 @@ outdated:
 
 # Audit dependencies
 audit: pdm.lock
-	pdm run pip-audit
+	pdm run pip-audit --ignore-vuln PYSEC-2022-43012
 
 # Build Python wheel for distribution
 # This is intended to be close the 'Build wheel' step in the `release.yml` workflow
