@@ -1048,7 +1048,6 @@ dependencies = [
  "server",
  "tracing-error",
  "tracing-subscriber",
- "yansi",
 ]
 
 [[package]]
