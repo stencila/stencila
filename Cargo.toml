@@ -17,4 +17,4 @@ panic = "abort"
 
 [workspace.dependencies]
 cached = { version = "0.51.4", features = ["async"] }
-quick-xml = "0.32.0"
+quick-xml = "0.35.0"

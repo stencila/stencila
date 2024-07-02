@@ -30,7 +30,7 @@ regex = "1.10.5"
 reqwest = { version = "0.12.5", features = ["json"] }
 seahash = "4.1.0"
 serde = { version = "1.0.199", features = ["derive", "rc"] }
-serde_json = { version = "1.0.119", features = ["preserve_order"] }
+serde_json = { version = "1.0.120", features = ["preserve_order"] }
 serde_with = "3.8.2"
 serde_yaml = "0.9.34"
 similar = { version = "2.5.0", features = ["serde", "unicode"] }
