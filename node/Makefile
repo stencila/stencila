@@ -9,6 +9,9 @@ lint:
 fix:
 	make -C stencila-node fix
 
+outdated:
+	make -C stencila-node outdated
+
 audit:
 	make -C stencila-node audit
 
