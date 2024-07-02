@@ -1,0 +1,6 @@
+start     end        offsets   node_type+property                   authorship
+     0     92        (0, 92)   Figure
+    94    204      (94, 112)   Figure
+   219    348     (125, 144)   Figure
+   206    353       (-13, 5)   Section
+     0    354      (-206, 1)   Article

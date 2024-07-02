@@ -1,0 +1,8 @@
+start     end        offsets   node_type+property                   authorship
+     0     32        (0, 32)   Paragraph
+    34     72       (34, 40)   IncludeBlock
+    75    107       (41, 35)   Paragraph
+   109    156       (34, 49)   IncludeBlock
+   159    172       (50, 16)   Paragraph
+   174    271       (15, 99)   IncludeBlock
+     0    273      (-174, 2)   Article

@@ -1,0 +1,15 @@
+start     end        offsets   node_type+property                   authorship
+    63     70       (63, 70)   CodeInline
+    85     92       (22, 22)   CodeInline
+    94    102        (9, 10)   CodeInline
+   107    118       (13, 16)   CodeInline
+     0    125      (-107, 7)   Paragraph
+   127    173      (127, 48)   Paragraph
+   175    323      (48, 150)   Figure
+   325    391      (150, 68)   Paragraph
+   393    457       (68, 66)   CodeChunk
+   459    467       (66, 10)   Paragraph
+   469    884      (10, 417)   Table
+   886    933      (417, 49)   Paragraph
+   935   1002       (49, 69)   CodeChunk
+     0   1003      (-935, 1)   Article

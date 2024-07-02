@@ -3,3 +3,8 @@ md:
     # Markdown does not support decoding spans that contain standard
     # inline node types such as `Emphasis` and `Link`s.
     skip: true
+
+myst:
+  decode:
+    # As for Markdown
+    skip: true

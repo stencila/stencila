@@ -1,0 +1,48 @@
+With no language:
+
+```{code-cell}
+No language
+```
+
+With language:
+
+```{code-cell} python
+# Some python code
+a = 3
+```
+
+With language and execution mode:
+
+```{code-cell} js
+:mode: always
+
+// Javascript
+```
+
+With label:
+
+```{code-cell}
+:label: 1A
+
+# Chunk 1A
+```
+
+Code figure with caption:
+
+```{code-cell} r
+:type: figure
+:label: 1
+:caption: Y against X.
+
+plot(y~x)
+```
+
+Code table with caption:
+
+```{code-cell} r
+:type: table
+:label: 1
+:caption: Some cars.
+
+head(mtcars)
+```

@@ -1,0 +1,7 @@
+start     end        offsets   node_type+property                   authorship
+     0     70        (0, 70)   Admonition
+    72    161       (72, 91)   Admonition
+   163    269      (91, 108)   Admonition
+   271    382     (108, 113)   Admonition
+   384    725     (113, 343)   Admonition
+     0    726      (-384, 1)   Article

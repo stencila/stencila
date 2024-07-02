@@ -1,0 +1,20 @@
+start     end        offsets   node_type+property                   authorship
+    35     39       (35, 39)   Note
+    43     47         (8, 8)   Note
+    51     55         (8, 8)   Note
+     0     56       (-51, 1)   Paragraph
+    99    103       (99, 47)   Note
+   107    111         (8, 8)   Note
+   115    119         (8, 8)   Note
+    58    120       (-57, 1)   Paragraph
+   128    138       (70, 18)   Paragraph
+   146    156       (18, 18)   Paragraph
+   164    175       (18, 19)   Paragraph
+   183    201       (19, 26)   Paragraph
+   207    224       (24, 23)   Paragraph
+   232    250       (25, 26)   Paragraph
+   256    284       (24, 34)   CodeBlock
+   292    310       (36, 26)   Paragraph
+   318    331       (26, 21)   Paragraph
+   316    331        (-2, 0)   QuoteBlock
+     0    332      (-316, 1)   Article

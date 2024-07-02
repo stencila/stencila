@@ -1,0 +1,10 @@
+start     end        offsets   node_type+property                   authorship
+     0     26        (0, 26)   Paragraph
+    28     62       (28, 36)   CallBlock
+    64     94       (36, 32)   Paragraph
+    96    141       (32, 47)   CallBlock
+   143    183       (47, 42)   Paragraph
+   185    238       (42, 55)   CallBlock
+   240    297       (55, 59)   Paragraph
+   299    415      (59, 118)   CallBlock
+     0    416      (-299, 1)   Article

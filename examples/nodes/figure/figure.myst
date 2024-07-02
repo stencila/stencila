@@ -1,0 +1,20 @@
+:::{figure} https://example.org/cat.jpg
+
+:::
+
+:::{figure} https://example.org/dog.jpg
+:label: 2
+
+A dog.
+
+:::
+
+::: section
+
+:::::{figure} https://example.org/mouse.jpg
+
+A figure of a mouse inside a section.
+
+:::::
+
+:::

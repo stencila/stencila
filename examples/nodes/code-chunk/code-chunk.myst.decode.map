@@ -1,0 +1,14 @@
+start     end        offsets   node_type+property                   authorship
+     0     17        (0, 17)   Paragraph
+    19     49       (19, 32)   CodeChunk
+    51     65       (32, 16)   Paragraph
+    67    117       (16, 52)   CodeChunk
+   119    152       (52, 35)   Paragraph
+   154    204       (35, 52)   CodeChunk
+   206    217       (52, 13)   Paragraph
+   219    260       (13, 43)   CodeChunk
+   262    287       (43, 27)   Paragraph
+   289    367       (27, 80)   CodeChunk
+   369    393       (80, 26)   Paragraph
+   395    473       (26, 80)   CodeChunk
+     0    474      (-395, 1)   Article

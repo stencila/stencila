@@ -34,6 +34,24 @@
     {
       "@type": "stencila:IncludeBlock",
       "stencila:source": "http://example.org/document.md"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "With options:"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:IncludeBlock",
+      "stencila:executionMode": "Always",
+      "stencila:source": "../paragraph/paragraph.md",
+      "encodingFormat": "text/markdown",
+      "stencila:select": "#para-1"
     }
   ]
 }

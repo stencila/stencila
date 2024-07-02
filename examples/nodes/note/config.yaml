@@ -3,8 +3,14 @@ compact.jats.xml:
     strip-types:
       # TODO: Implement decoding of <code> into `CodeBlock`
       - CodeBlock
+
 md:
   decode:
     # Markdown does not support decoding end or side notes.
     # Notes can not be stripped because they are inline. Therefore skip decode completely.
+    skip: true
+
+myst:
+  decode:
+    # As for Markdown
     skip: true

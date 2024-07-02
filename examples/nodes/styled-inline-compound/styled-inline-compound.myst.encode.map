@@ -1,0 +1,21 @@
+start     end        offsets   node_type+property                   authorship
+     0     57        (0, 57)   Text.value
+     0     57         (0, 0)   Text
+    59     67       (59, 10)   Text.value
+    59     67         (0, 0)   Text
+    59     67         (0, 0)   Emphasis.content
+    58     68        (-1, 1)   Emphasis
+    68     70        (10, 2)   Text.value
+    68     70         (0, 0)   Text
+    71     75         (3, 5)   Text.value
+    71     75         (0, 0)   Text
+    71     75         (0, 0)   Link.content
+    77     96        (6, 21)   Link.target
+    70     97        (-7, 1)   Link
+    58     97       (-12, 0)   StyledInline.content
+    99    112       (41, 15)   StyledInline.code
+    57    113       (-42, 1)   StyledInline
+     0    113       (-57, 0)   Paragraph.content
+     0    114         (0, 1)   Paragraph
+     0    115         (0, 1)   Article.content
+     0    115         (0, 0)   Article
