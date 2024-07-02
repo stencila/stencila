@@ -7,8 +7,8 @@ use async_openai::{
         ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
         ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
         ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-        CreateChatCompletionRequest, CreateImageRequestArgs, Image, ImageQuality, ImageSize,
-        ImageStyle, ImageUrl, ImageUrlDetail, ResponseFormat, Role, Stop,
+        CreateChatCompletionRequest, CreateImageRequestArgs, Image, ImageDetail, ImageQuality,
+        ImageSize, ImageStyle, ImageUrl, ResponseFormat, Stop,
     },
     Client,
 };
@@ -162,7 +162,6 @@ impl OpenAIModel {
             .iter()
             .map(|prompt| {
                 ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
-                    role: Role::System,
                     content: prompt.clone(),
                     ..Default::default()
                 })
@@ -178,18 +177,16 @@ impl OpenAIModel {
                                 MessagePart::Text(text) => {
                                     Some(ChatCompletionRequestMessageContentPart::Text(
                                         ChatCompletionRequestMessageContentPartText {
-                                            r#type: "text".to_string(),
                                             text: text.to_value_string(),
                                         },
                                     ))
                                 }
                                 MessagePart::ImageObject(ImageObject { content_url, .. }) => {
-                                    Some(ChatCompletionRequestMessageContentPart::Image(
+                                    Some(ChatCompletionRequestMessageContentPart::ImageUrl(
                                         ChatCompletionRequestMessageContentPartImage {
-                                            r#type: "image_url".to_string(),
                                             image_url: ImageUrl {
                                                 url: content_url.clone(),
-                                                detail: ImageUrlDetail::Auto,
+                                                detail: Some(ImageDetail::Auto),
                                             },
                                         },
                                     ))
@@ -206,7 +203,6 @@ impl OpenAIModel {
 
                         Some(ChatCompletionRequestMessage::User(
                             ChatCompletionRequestUserMessage {
-                                role: Role::User,
                                 content: ChatCompletionRequestUserMessageContent::Array(content),
                                 ..Default::default()
                             },
@@ -230,7 +226,6 @@ impl OpenAIModel {
 
                         Some(ChatCompletionRequestMessage::Assistant(
                             ChatCompletionRequestAssistantMessage {
-                                role: Role::Assistant,
                                 content: Some(content),
                                 ..Default::default()
                             },
@@ -247,7 +242,7 @@ impl OpenAIModel {
             presence_penalty: options.repeat_penalty,
             temperature: options.temperature,
             seed: options.seed.map(|seed| seed as i64),
-            max_tokens: options.max_tokens,
+            max_tokens: options.max_tokens.map(|tokens| tokens as u32),
             top_p: options.top_p,
             stop: options.stop.clone().map(Stop::String),
             ..Default::default()
