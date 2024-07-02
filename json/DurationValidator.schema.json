@@ -53,7 +53,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "type": "array",
@@ -67,7 +68,8 @@
       "$comment": "A duration is valid if it is greater than, or exactly equal to, `minimum`.\n",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "Duration.schema.json"
@@ -78,7 +80,8 @@
       "$comment": "A duration is valid if it is less than, or exactly equal to, `maximum`.\n",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "Duration.schema.json"

@@ -17,7 +17,7 @@ properties:
     $comment: |
       A date-time is valid if it is greater than, or exactly equal to, `minimum`.
     patch:
-      formats: [md]
+      formats: [md, myst]
   maximum:
     '@id': stencila:maximum
     $ref: DateTime
@@ -25,4 +25,4 @@ properties:
     $comment: |
       A date-time is valid if it is less than, or exactly equal to, `maximum`.
     patch:
-      formats: [md]
+      formats: [md, myst]

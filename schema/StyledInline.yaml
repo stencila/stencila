@@ -23,8 +23,6 @@ properties:
     type: array
     items:
       $ref: Inline
-    patch:
-      formats: [md]
     dom:
       elem: span
     proptest:

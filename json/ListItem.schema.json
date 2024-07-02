@@ -176,7 +176,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "type": "boolean"

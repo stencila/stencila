@@ -403,7 +403,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "serde": {
@@ -425,7 +426,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "serde": {
@@ -555,7 +557,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "dom": {

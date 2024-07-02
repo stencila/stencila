@@ -59,7 +59,7 @@ properties:
     description: A flag to indicate if this list item is checked.
     type: boolean
     patch:
-      formats: [md]
+      formats: [md, myst]
   position:
     "@id": schema:position
     description: The position of the item in a series or sequence of items.

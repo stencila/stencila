@@ -57,7 +57,8 @@
       "description": "The level of the heading.",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "proptest": {

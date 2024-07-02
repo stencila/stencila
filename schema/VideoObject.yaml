@@ -27,7 +27,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md]
+      formats: [md, myst]
     html:
       attr: alt
   thumbnail:

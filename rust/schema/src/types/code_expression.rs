@@ -20,7 +20,7 @@ use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::timestamp::Timestamp;
 
-/// An executable programming code expression.
+/// An executable code expression.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
@@ -50,7 +50,7 @@ pub struct CodeExpression {
 
     /// The code.
     #[strip(code)]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
@@ -62,10 +62,7 @@ pub struct CodeExpression {
     #[serde(alias = "programming-language", alias = "programming_language")]
     #[strip(code)]
     #[patch(format = "md")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Some(String::from("lang"))"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(cpp)|(js)|(py)|(r)|(ts)")"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
 

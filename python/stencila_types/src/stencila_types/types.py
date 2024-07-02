@@ -1262,10 +1262,16 @@ class CodeChunk(CodeExecutable):
 @dataclass(kw_only=True, repr=False)
 class CodeExpression(CodeExecutable):
     """
-    An executable programming code expression.
+    An executable code expression.
     """
 
     type: Literal["CodeExpression"] = "CodeExpression"
+
+    execution_mode: ExecutionMode | None = None
+    """Under which circumstances the code should be executed."""
+
+    programming_language: str | None = None
+    """The programming language of the code."""
 
     output: Node | None = None
     """The value of the expression when it was last evaluated."""

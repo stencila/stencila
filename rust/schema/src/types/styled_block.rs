@@ -32,7 +32,7 @@ pub struct StyledBlock {
     pub id: Option<String>,
 
     /// The code of the equation in the `styleLanguage`.
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
@@ -42,7 +42,7 @@ pub struct StyledBlock {
 
     /// The language used for the style specification e.g. css, tw
     #[serde(alias = "style-language", alias = "style_language")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(css)|(tw)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
@@ -66,7 +66,7 @@ pub struct StyledBlock {
     /// The content within the styled block
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[patch(format = "md")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
 

@@ -59,13 +59,13 @@ pub struct Claim {
 
     /// The type of the claim.
     #[serde(alias = "claim-type", alias = "claim_type")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[jats(attr = "content-type")]
     pub claim_type: ClaimType,
 
     /// A short label for the claim.
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[jats(elem = "label")]
     pub label: Option<String>,
@@ -234,7 +234,7 @@ pub struct ClaimOptions {
     /// Genre of the creative work, broadcast channel or group.
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub genre: Option<Vec<String>>,
 
@@ -242,7 +242,7 @@ pub struct ClaimOptions {
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,
 
@@ -292,7 +292,7 @@ pub struct ClaimOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,

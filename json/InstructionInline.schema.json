@@ -62,7 +62,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -301,7 +302,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "dom": {
@@ -318,7 +320,8 @@
       "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "proptest": {
@@ -342,7 +345,8 @@
       "description": "The name, and other options, for the model that the assistant should use to generate suggestions.",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "InstructionModel.schema.json"
@@ -352,7 +356,8 @@
       "description": "The number of suggestions to generate for the instruction",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "UnsignedInteger.schema.json"
@@ -404,7 +409,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "walk": true,

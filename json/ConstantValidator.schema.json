@@ -44,7 +44,8 @@
       "description": "The value that the node must have.",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "Node.schema.json"

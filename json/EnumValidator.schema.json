@@ -47,7 +47,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "serde": {

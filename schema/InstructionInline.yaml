@@ -43,6 +43,6 @@ properties:
       $ref: SuggestionInline
     walk: true
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: span

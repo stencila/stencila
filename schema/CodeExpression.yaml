@@ -3,7 +3,7 @@ title: CodeExpression
 nick: cde
 extends: CodeExecutable
 category: code
-description: An executable programming code expression.
+description: An executable code expression.
 $comment:
   Note that `CodeExpression` nodes lack the `executionPure` property that
   `CodeChunk` nodes have because they should be side-effect free.
@@ -17,6 +17,28 @@ proptest: {}
 core:
   - output
 properties:
+  programmingLanguage:
+    $comment: |
+      This is an override of the property spec from `CodeExecutable` which is necessary
+      because `patch.formats` should not include 'myst' (because MyST does not support options on "roles").
+    '@id': schema:programmingLanguage
+    description: The programming language of the code.
+    type: string
+    strip: [code]
+    patch:
+      formats: [md]
+    jats:
+      attr: language
+  executionMode:
+    $comment: |
+      This is an override of the property spec from `Executable` which is necessary
+      because `patch.formats` should not include 'myst' (because MyST does not support options on "roles").
+    '@id': stencila:executionMode
+    description: Under which circumstances the code should be executed.
+    $ref: ExecutionMode
+    strip: [execution]
+    patch:
+      formats: [md]
   output:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.

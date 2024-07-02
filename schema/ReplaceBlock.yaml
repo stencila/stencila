@@ -17,6 +17,6 @@ properties:
     items:
       $ref: Block
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: div

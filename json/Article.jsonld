@@ -553,9 +553,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
       "rdfs:comment": "Under which circumstances the code should be executed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExpression"
+        },
+        {
+          "@id": "stencila:Executable"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
       }

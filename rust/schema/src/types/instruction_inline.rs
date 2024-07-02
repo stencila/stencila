@@ -46,7 +46,7 @@ pub struct InstructionInline {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
@@ -58,13 +58,13 @@ pub struct InstructionInline {
     /// Messages involved in the instruction.
     #[serde(alias = "message")]
     #[serde(deserialize_with = "one_or_many")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub messages: Vec<InstructionMessage>,
 
     /// An identifier for the assistant assigned to perform the instruction
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
@@ -72,12 +72,12 @@ pub struct InstructionInline {
     pub assignee: Option<String>,
 
     /// The name, and other options, for the model that the assistant should use to generate suggestions.
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub model: Option<Box<InstructionModel>>,
 
     /// The number of suggestions to generate for the instruction
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub replicates: Option<UnsignedInteger>,
 
@@ -101,7 +101,7 @@ pub struct InstructionInline {
     #[serde(alias = "suggestion")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub suggestions: Option<Vec<SuggestionInline>>,

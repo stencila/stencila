@@ -49,7 +49,7 @@ pub struct ListItem {
 
     /// A flag to indicate if this list item is checked.
     #[serde(alias = "is-checked", alias = "is_checked")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_checked: Option<Boolean>,
 
