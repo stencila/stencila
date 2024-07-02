@@ -2,9 +2,9 @@ import { NodeType } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
+import { withTwind } from '../../../../twind'
 
-import './generic/collapsible'
+import '../generic/collapsible'
 
 /**
  * A component for displaying the `messages` property of `Instruction` nodes

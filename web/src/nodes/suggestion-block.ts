@@ -14,10 +14,11 @@ import { Entity } from './entity'
 @withTwind()
 export class SuggestionBlock extends Entity {
   override render() {
-    return html`<stencila-ui-block-on-demand
+    return html`<stencila-ui-block-in-flow
       type="SuggestionBlock"
       view="dynamic"
       node-id=${this.id}
+      ?collapsed=${true}
     >
       <div slot="body">
         <stencila-ui-node-authors type="SuggestionBlock">
@@ -30,6 +31,6 @@ export class SuggestionBlock extends Entity {
       <div slot="content" class="w-full">
         <slot name="content"></slot>
       </div>
-    </stencila-ui-block-on-demand>`
+    </stencila-ui-block-in-flow>`
   }
 }
