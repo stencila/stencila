@@ -1,6 +1,7 @@
 import { NodeType } from '@stencila/types'
+import { apply } from '@twind/core'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -20,6 +21,16 @@ import { Instruction } from './instruction'
 export class InstructionBlock extends Instruction {
   override type: NodeType = 'InstructionBlock'
 
+  @state()
+  private showSuggestions = true
+
+  /**
+   * toggle the visibilty of the suggestions
+   */
+  private toggleSuggestions() {
+    this.showSuggestions = !this.showSuggestions
+  }
+
   override render() {
     return html`<stencila-ui-block-on-demand
       type=${this.type}
@@ -28,7 +39,7 @@ export class InstructionBlock extends Instruction {
       depth=${this.depth}
       ancestors=${this.ancestors}
     >
-      <span slot="header-right">
+      <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands
           node-id=${this.id}
           type=${this.type}
@@ -70,9 +81,43 @@ export class InstructionBlock extends Instruction {
         </stencila-ui-node-instruction-messages>
       </div>
       <div slot="content" class="w-full">
-        <slot name="suggestions"></slot>
+        ${this.renderSuggestions()}
         <slot name="content"></slot>
       </div>
     </stencila-ui-block-on-demand>`
+  }
+
+  protected renderSuggestions() {
+    const styles = apply([
+      this.showSuggestions
+        ? 'opacity-100 max-h-[10000px]'
+        : 'opacity-0 max-h-0',
+      'transition-all',
+    ])
+
+    return html`
+      <div>
+        ${this.context.cardOpen ? this.renderSuggestionsToggle() : ''}
+        <div class=${styles}>
+          <slot name="suggestions"></slot>
+        </div>
+      </div>
+    `
+  }
+
+  protected renderSuggestionsToggle() {
+    return html`
+      <div>
+        <button
+          class="flex items-center gap-x-1 text-gray-300 hover:text-blue-500"
+          @click=${() => this.toggleSuggestions()}
+        >
+          <sl-icon name=${this.showSuggestions ? 'eye' : 'eye-slash'}></sl-icon>
+          <span class="text-sm">
+            ${this.showSuggestions ? 'Hide' : 'Show'}${' '}suggestions
+          </span>
+        </button>
+      </div>
+    `
   }
 }
