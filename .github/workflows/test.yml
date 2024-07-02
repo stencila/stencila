@@ -20,7 +20,7 @@ env:
   RUST_VERSION: "1.77.0"
   CARGO_TERM_COLOR: always
   NODE_VERSION: "20"
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   # Detect which folders have changes
