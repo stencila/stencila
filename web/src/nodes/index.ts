@@ -1,3 +1,4 @@
+import './admonition'
 import './array'
 import './article'
 import './author-role'
