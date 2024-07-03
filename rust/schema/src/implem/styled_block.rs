@@ -64,7 +64,7 @@ impl MarkdownCodec for StyledBlock {
         if matches!(context.format, Format::Myst) {
             context.myst_directive(
                 ':',
-                "styled",
+                "style",
                 |context| {
                     context
                         .push_str(" ")
