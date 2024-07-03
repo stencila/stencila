@@ -241,29 +241,21 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<(Inline, Optio
             let title = title.map(|title| vec![Inline::Text(Text::from(title))]);
             let caption = (!alt.is_empty()).then_some(vec![Inline::Text(Text::from(alt))]);
 
-            let inline = if let Ok(format) = Format::from_url(&content_url) {
-                if format.is_audio() {
-                    Inline::AudioObject(AudioObject {
-                        content_url,
-                        caption,
-                        title,
-                        ..Default::default()
-                    })
-                } else if format.is_video() {
-                    Inline::VideoObject(VideoObject {
-                        content_url,
-                        caption,
-                        title,
-                        ..Default::default()
-                    })
-                } else {
-                    Inline::ImageObject(ImageObject {
-                        content_url,
-                        caption,
-                        title,
-                        ..Default::default()
-                    })
-                }
+            let format = Format::from_url(&content_url);
+            let inline = if format.is_audio() {
+                Inline::AudioObject(AudioObject {
+                    content_url,
+                    caption,
+                    title,
+                    ..Default::default()
+                })
+            } else if format.is_video() {
+                Inline::VideoObject(VideoObject {
+                    content_url,
+                    caption,
+                    title,
+                    ..Default::default()
+                })
             } else {
                 Inline::ImageObject(ImageObject {
                     content_url,

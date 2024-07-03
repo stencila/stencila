@@ -160,7 +160,7 @@ impl Losses {
 
         if let LossesResponse::Write(path) = &response {
             let path = PathBuf::from(path);
-            let format = Format::from_path(&path)?;
+            let format = Format::from_path(&path);
             let content = match format {
                 Format::Json => serde_json::to_string_pretty(self)?,
                 Format::Yaml => serde_yaml::to_string(self)?,

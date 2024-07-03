@@ -237,21 +237,21 @@ impl Format {
     }
 
     /// Resolve a [`Format`] from a file path
-    pub fn from_path(path: &Path) -> Result<Self> {
+    pub fn from_path(path: &Path) -> Self {
         if path.is_dir() {
-            return Ok(Format::Directory);
+            return Format::Directory;
         }
 
         // Catch "double extensions" here
         let path_string = path.to_string_lossy();
         if path_string.ends_with(".dom.html") {
-            return Ok(Format::Dom);
+            return Format::Dom;
         }
         if path_string.ends_with(".jats.xml") {
-            return Ok(Format::Jats);
+            return Format::Jats;
         }
         if path_string.ends_with(".cbor.zst") {
-            return Ok(Format::CborZst);
+            return Format::CborZst;
         }
 
         let name = match path.extension() {
@@ -262,11 +262,11 @@ impl Format {
             },
         };
 
-        Ok(Self::from_name(&name.to_string_lossy()))
+        Self::from_name(&name.to_string_lossy())
     }
 
     /// Resolve a [`Format`] from a URL
-    pub fn from_url<S: AsRef<str>>(string: S) -> Result<Self> {
+    pub fn from_url<S: AsRef<str>>(string: S) -> Self {
         Self::from_path(&PathBuf::from(string.as_ref()))
     }
 
@@ -400,31 +400,26 @@ mod test {
     use super::*;
 
     #[test]
-    fn from_url() -> Result<()> {
-        assert_eq!(Format::from_url("Python")?, Format::Python);
-        assert_eq!(Format::from_url("python")?, Format::Python);
-        assert_eq!(Format::from_url("Py")?, Format::Python);
-        assert_eq!(Format::from_url("py")?, Format::Python);
+    fn from_url() {
+        assert_eq!(Format::from_url("Python"), Format::Python);
+        assert_eq!(Format::from_url("python"), Format::Python);
+        assert_eq!(Format::from_url("Py"), Format::Python);
+        assert_eq!(Format::from_url("py"), Format::Python);
 
-        assert_eq!(Format::from_url("cborZst")?, Format::CborZst);
-        assert_eq!(Format::from_url("cborzst")?, Format::CborZst);
+        assert_eq!(Format::from_url("cborZst"), Format::CborZst);
+        assert_eq!(Format::from_url("cborzst"), Format::CborZst);
 
-        assert_eq!(Format::from_url("mp3")?, Format::Mp3);
+        assert_eq!(Format::from_url("mp3"), Format::Mp3);
 
-        assert_eq!(Format::from_url("file.avi")?, Format::Avi);
+        assert_eq!(Format::from_url("file.avi"), Format::Avi);
 
-        assert_eq!(
-            Format::from_url("https://example.org/cat.mp4")?,
-            Format::Mp4
-        );
+        assert_eq!(Format::from_url("https://example.org/cat.mp4"), Format::Mp4);
 
         assert_eq!(
-            Format::from_url("file.foo")?,
+            Format::from_url("file.foo"),
             Format::Other("foo".to_string())
         );
-        assert_eq!(Format::from_url("foo")?, Format::Other("foo".to_string()));
-
-        Ok(())
+        assert_eq!(Format::from_url("foo"), Format::Other("foo".to_string()));
     }
 
     #[test]
