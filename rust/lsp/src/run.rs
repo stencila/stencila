@@ -80,21 +80,24 @@ pub async fn run() {
 
         router
             .request::<request::ExecuteCommand, _>(|state, params| {
-                let root_doc = params
+                let format_root_doc = params
                     .arguments
                     .first()
                     .and_then(|value| serde_json::from_value(value.clone()).ok())
                     .and_then(|uri| {
-                        state
-                            .documents
-                            .get(&uri)
-                            .map(|text_doc| (text_doc.root.clone(), text_doc.doc.clone()))
+                        state.documents.get(&uri).map(|text_doc| {
+                            (
+                                text_doc.format.clone(),
+                                text_doc.root.clone(),
+                                text_doc.doc.clone(),
+                            )
+                        })
                     });
                 let client = state.client.clone();
                 async move {
-                    match root_doc {
-                        Some((root, doc)) => {
-                            commands::execute_command(params, root, doc, client).await
+                    match format_root_doc {
+                        Some((format, root, doc)) => {
+                            commands::execute_command(params, format, root, doc, client).await
                         }
                         None => Ok(None),
                     }

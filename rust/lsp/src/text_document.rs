@@ -169,7 +169,6 @@ impl TextNode {
 /// A text document that has been opened by the language server
 pub(super) struct TextDocument {
     /// The format of the document
-    #[allow(unused)]
     pub format: Format,
 
     /// The source text of the document e.g. Markdown
