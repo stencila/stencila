@@ -17,8 +17,9 @@ use document::Document;
 #[tracing::instrument(skip(doc))]
 pub(crate) async fn request(
     doc: Arc<RwLock<Document>>,
+    format: Format,
 ) -> Result<Option<Vec<TextEdit>>, ResponseError> {
-    Ok(Some(vec![format_doc(doc, Format::Markdown).await?]))
+    Ok(Some(vec![format_doc(doc, format).await?]))
 }
 
 // Create a text edit to replace the whole text document

@@ -104,13 +104,13 @@ pub async fn run() {
 
         router.request::<request::Formatting, _>(|state, params| {
             let uri = params.text_document.uri;
-            let doc = state
+            let doc_format = state
                 .documents
                 .get(&uri)
-                .map(|text_doc| text_doc.doc.clone());
+                .map(|text_doc| (text_doc.doc.clone(), text_doc.format.clone()));
             async move {
-                match doc {
-                    Some(doc) => formatting::request(doc).await,
+                match doc_format {
+                    Some((doc, format)) => formatting::request(doc, format).await,
                     None => Ok(None),
                 }
             }

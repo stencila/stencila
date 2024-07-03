@@ -168,6 +168,10 @@ impl TextNode {
 
 /// A text document that has been opened by the language server
 pub(super) struct TextDocument {
+    /// The format of the document
+    #[allow(unused)]
+    pub format: Format,
+
     /// The source text of the document e.g. Markdown
     pub source: Arc<RwLock<String>>,
 
@@ -197,9 +201,7 @@ impl TextDocument {
         user: Option<Person>,
     ) -> Result<Self, Report> {
         let path = PathBuf::from(uri.path());
-        let format = path
-            .extension()
-            .map(|ext| ext.to_string_lossy().to_string());
+        let format = Format::from_path(&path);
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
@@ -212,7 +214,7 @@ impl TextDocument {
         let author_role = AuthorRole {
             author: schema::AuthorRoleAuthor::Person(person),
             role_name: AuthorRoleName::Writer,
-            format,
+            format: Some(format.name().to_string()),
             ..Default::default()
         };
 
@@ -225,23 +227,31 @@ impl TextDocument {
         let doc = Arc::new(RwLock::new(doc));
 
         let (update_sender, update_receiver) = mpsc::unbounded_channel();
-        let source_clone = source.clone();
-        let doc_clone = doc.clone();
-        tokio::spawn(async {
-            Self::update_task(update_receiver, source_clone, doc_clone, author_role).await;
-        });
+        
+        {
+            let format = format.clone();
+            let source = source.clone();
+            let doc = doc.clone();
+            tokio::spawn(async {
+                Self::update_task(update_receiver, format, source, doc, author_role).await;
+            });
+        }
 
-        let source_clone = source.clone();
-        let root_clone = root.clone();
-        tokio::spawn(async move {
-            Self::watch_task(watch_receiver, uri, source_clone, root_clone, client).await;
-        });
+        {
+            let format = format.clone();
+            let source = source.clone();
+            let root = root.clone();
+            tokio::spawn(async move {
+                Self::watch_task(watch_receiver, uri, format, source, root, client).await;
+            });
+        }
 
         if let Err(error) = update_sender.send(source_string) {
             tracing::error!("While sending initial source: {error}");
         }
 
         Ok(TextDocument {
+            format,
             source,
             root,
             doc,
@@ -261,6 +271,7 @@ impl TextDocument {
     /// - to avoid excessive compute decoding the document on each keypress
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<String>,
+        format: Format,
         source: Arc<RwLock<String>>,
         doc: Arc<RwLock<Document>>,
         author_role: AuthorRole,
@@ -301,7 +312,7 @@ impl TextDocument {
             let node = match codecs::from_str(
                 &new_source,
                 Some(DecodeOptions {
-                    format: Some(Format::Markdown),
+                    format: Some(format.clone()),
                     ..Default::default()
                 }),
             )
@@ -333,6 +344,7 @@ impl TextDocument {
     async fn watch_task(
         mut receiver: watch::Receiver<Node>,
         uri: Url,
+        format: Format,
         source: Arc<RwLock<String>>,
         root: Arc<RwLock<TextNode>>,
         mut client: ClientSocket,
@@ -344,13 +356,13 @@ impl TextDocument {
             let (generated, EncodeInfo { mapping, .. }) = match codecs::to_string_with_info(
                 &node,
                 Some(EncodeOptions {
-                    format: Some(Format::Markdown),
+                    format: Some(format.clone()),
                     ..Default::default()
                 }),
             )
             .await
             {
-                Ok(node) => node,
+                Ok(result) => result,
                 Err(error) => {
                     tracing::error!("While encoding document: {error}");
                     continue;
