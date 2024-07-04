@@ -65,90 +65,139 @@ impl MarkdownCodec for InstructionBlock {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, execution_mode))
-            .merge_losses(lost_exec_options!(self))
-            .push_semis()
-            .push_str(" ")
-            .push_str(self.instruction_type.to_string().to_lowercase().as_str())
-            .push_str(" ");
+            .merge_losses(lost_exec_options!(self));
 
-        if let Some(assignee) = &self.assignee {
-            context.push_str("@").push_str(assignee).push_str(" ");
-        }
+        let instruction_type = self.instruction_type.to_string().to_lowercase();
 
-        if let Some(model) = self.model.as_ref().and_then(|model| model.name.as_ref()) {
-            context.push_str("[").push_str(model).push_str("] ");
-        }
-
-        if let Some(replicates) = &self.replicates {
+        if matches!(context.format, Format::Myst) {
             context
-                .push_str("x")
-                .push_str(&replicates.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.temperature.as_ref())
-        {
-            context
-                .push_str("t")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.quality_weight.as_ref())
-        {
-            context
-                .push_str("q")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.speed_weight.as_ref())
-        {
-            context
-                .push_str("s")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.cost_weight.as_ref())
-        {
-            context
-                .push_str("c")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(part) = self
-            .messages
-            .last()
-            .and_then(|message| message.parts.first())
-        {
-            context
-                .push_prop_fn(NodeProperty::Messages, |context| part.to_markdown(context))
+                .myst_directive(
+                    ':',
+                    &instruction_type,
+                    |context| {
+                        if let Some(part) = self
+                            .messages
+                            .last()
+                            .and_then(|message| message.parts.first())
+                        {
+                            context
+                                .push_str(" ")
+                                .push_prop_fn(NodeProperty::Messages, |context| {
+                                    part.to_markdown(context)
+                                });
+                        }
+                    },
+                    |context| {
+                        if let Some(assignee) = &self.assignee {
+                            context.myst_directive_option(
+                                NodeProperty::Assignee,
+                                Some("assign"),
+                                &assignee,
+                            );
+                        }
+                        if let Some(reps) = &self.replicates {
+                            context.myst_directive_option(
+                                NodeProperty::Assignee,
+                                Some("reps"),
+                                &reps.to_string(),
+                            );
+                        }
+                    },
+                    |context| {
+                        if let Some(content) = &self.content {
+                            context.push_prop_fn(NodeProperty::Content, |context| {
+                                content.to_markdown(context)
+                            });
+                        }
+                    },
+                )
                 .newline();
-        }
-
-        if let Some(content) = &self.content {
+        } else {
             context
-                .newline()
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    content.to_markdown(context)
-                });
-        };
+                .push_semis()
+                .push_str(" ")
+                .push_str(&instruction_type)
+                .push_str(" ");
 
-        context.push_semis().newline().newline();
+            if let Some(assignee) = &self.assignee {
+                context.push_str("@").push_str(assignee).push_str(" ");
+            }
+
+            if let Some(model) = self.model.as_ref().and_then(|model| model.name.as_ref()) {
+                context.push_str("[").push_str(model).push_str("] ");
+            }
+
+            if let Some(replicates) = &self.replicates {
+                context
+                    .push_str("x")
+                    .push_str(&replicates.to_string())
+                    .push_str(" ");
+            }
+
+            if let Some(value) = self
+                .model
+                .as_ref()
+                .and_then(|model| model.temperature.as_ref())
+            {
+                context
+                    .push_str("t")
+                    .push_str(&value.to_string())
+                    .push_str(" ");
+            }
+
+            if let Some(value) = self
+                .model
+                .as_ref()
+                .and_then(|model| model.quality_weight.as_ref())
+            {
+                context
+                    .push_str("q")
+                    .push_str(&value.to_string())
+                    .push_str(" ");
+            }
+
+            if let Some(value) = self
+                .model
+                .as_ref()
+                .and_then(|model| model.speed_weight.as_ref())
+            {
+                context
+                    .push_str("s")
+                    .push_str(&value.to_string())
+                    .push_str(" ");
+            }
+
+            if let Some(value) = self
+                .model
+                .as_ref()
+                .and_then(|model| model.cost_weight.as_ref())
+            {
+                context
+                    .push_str("c")
+                    .push_str(&value.to_string())
+                    .push_str(" ");
+            }
+
+            if let Some(part) = self
+                .messages
+                .last()
+                .and_then(|message| message.parts.first())
+            {
+                context
+                    .push_prop_fn(NodeProperty::Messages, |context| part.to_markdown(context))
+                    .newline();
+            }
+
+            if let Some(content) = &self.content {
+                context
+                    .newline()
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        content.to_markdown(context)
+                    });
+            };
+
+            context.push_semis().newline().newline();
+        }
 
         if !self.hide_suggestions.unwrap_or_default() {
             if let Some(suggestions) = &self.suggestions {

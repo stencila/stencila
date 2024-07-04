@@ -275,8 +275,24 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
         // MDAST nodes that can be directly translated into blocks
         if let Some((block, position)) = md_to_block(md, context) {
-            context.map_position(&position, block.node_type(), block.node_id());
-            blocks.push(block);
+            if let Block::SuggestionBlock(suggestion) = block {
+                // MyST suggestion blocks (converted code blocks) need to be associated with
+                // the previous instruction
+                let suggestion_node_id = suggestion.node_id();
+                if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                    // Associate the suggestion with the instruction
+                    match instruct.suggestions.as_mut() {
+                        Some(suggestions) => suggestions.push(suggestion),
+                        None => instruct.suggestions = Some(vec![suggestion]),
+                    };
+
+                    // Extend the instruction to the end of the suggestion
+                    context.map_extend(instruct.node_id(), suggestion_node_id);
+                }
+            } else {
+                context.map_position(&position, block.node_type(), block.node_id());
+                blocks.push(block);
+            }
         };
     }
 
@@ -466,20 +482,35 @@ fn figure(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`ForBlock`] node
 fn for_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        ("for", multispace1),
-        (
-            separated_pair(
-                name,
-                (multispace1, "in", multispace1),
-                alt((
-                    delimited('`', take_until(0.., '`'), '`'),
-                    take_while(1.., |c| c != '{'),
-                )),
+    alt((
+        // Stencila Markdown
+        preceded(
+            ("for", multispace1),
+            (
+                separated_pair(
+                    name,
+                    (multispace1, "in", multispace1),
+                    alt((
+                        delimited('`', take_until(0.., '`'), '`'),
+                        take_while(1.., |c| c != '{'),
+                    )),
+                ),
+                opt(preceded(multispace0, attrs)),
             ),
-            opt(preceded(multispace0, attrs)),
         ),
-    )
+        // MyST
+        preceded(
+            ("{for}", multispace0),
+            (
+                separated_pair(
+                    name,
+                    (multispace1, "in", multispace1),
+                    take_while(1.., |c| c != '{'),
+                ),
+                "".value(None),
+            ),
+        ),
+    ))
     .map(|((variable, expr), options)| {
         let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
@@ -496,32 +527,45 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
 fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
-    (
-        delimited(
-            (take_while(3.., ':'), space0),
-            alt(("if", "elif")),
-            multispace1,
+    alt((
+        // Stencila Markdown
+        (
+            delimited(
+                (take_while(3.., ':'), space0),
+                alt(("if", "elif")),
+                multispace1,
+            ),
+            alt((
+                delimited('`', take_until(0.., '`'), '`'),
+                take_while(1.., |c| c != '{'),
+            )),
+            opt(preceded(multispace0, attrs)),
         ),
-        alt((
-            delimited('`', take_until(0.., '`'), '`'),
-            take_while(1.., |c| c != '{'),
-        )),
-        opt(preceded(multispace0, attrs)),
-    )
-        .map(|(tag, expr, options)| {
-            let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+        // MyST
+        (
+            delimited(
+                (take_while(3.., ':'), '{'),
+                alt(("if", "elif")),
+                ('}', multispace0),
+            ),
+            take_while(1.., |_| true),
+            "".value(None),
+        ),
+    ))
+    .map(|(tag, expr, options)| {
+        let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
-            (
-                tag == "if",
-                IfBlockClause {
-                    code: expr.trim().into(),
-                    programming_language: options.first().map(|(name, _)| name.to_string()),
-                    execution_mode: execution_mode_from_options(options),
-                    ..Default::default()
-                },
-            )
-        })
-        .parse_next(input)
+        (
+            tag == "if",
+            IfBlockClause {
+                code: expr.trim().into(),
+                programming_language: options.first().map(|(name, _)| name.to_string()),
+                execution_mode: execution_mode_from_options(options),
+                ..Default::default()
+            },
+        )
+    })
+    .parse_next(input)
 }
 
 /// Shortcut for an [`InstructionBlock`]
@@ -745,7 +789,7 @@ fn divider(input: &mut &str) -> PResult<Divider> {
     delimited(
         (take_while(3.., ':'), space0),
         alt((
-            "else".map(|_| Divider::Else),
+            alt(("else", "{else}")).map(|_| Divider::Else),
             "with".map(|_| Divider::With),
             "".map(|_| Divider::End),
         )),
@@ -1041,6 +1085,9 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
 }
 
 /// Transform a [`mdast::Code`] node to a block if it is a recognized MyST directive
+///
+/// Note that `if`, `elif`, `else`, and `for` directives are are handled elsewhere
+/// because they do not always have closing semicolons (e.g. if followed by a elif)
 fn myst_to_block(code: &mdast::Code) -> Option<Block> {
     // If no `lang` after backticks then not a MyST directive
     let lang = code.lang.as_deref()?;
@@ -1165,8 +1212,29 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             select: options.get("select").map(|select| select.to_string()),
             ..Default::default()
         }),
-        "styled" => Block::StyledBlock(StyledBlock {
-            code: code.meta.clone().unwrap_or_default().into(),
+        "new" | "edit" | "update" => {
+            let message = InstructionMessage::from(args.unwrap_or_default().trim());
+
+            Block::InstructionBlock(InstructionBlock {
+                instruction_type: name.parse().unwrap_or_default(),
+                messages: vec![message],
+                assignee: options.get("assign").map(|value| value.to_string()),
+                replicates: options.get("reps").and_then(|value| value.parse().ok()),
+                content: if !value.trim().is_empty() {
+                    Some(decode_blocks(&value))
+                } else {
+                    None
+                },
+                ..Default::default()
+            })
+        }
+        "suggest" => Block::SuggestionBlock(SuggestionBlock {
+            feedback: args.map(|value| value.to_string()),
+            content: decode_blocks(&value),
+            ..Default::default()
+        }),
+        "style" => Block::StyledBlock(StyledBlock {
+            code: args.clone().unwrap_or_default().into(),
             content: decode_blocks(&value),
             ..Default::default()
         }),
@@ -1177,6 +1245,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 lang.push(' ');
                 lang.push_str(rest);
             }
+
             Block::CodeBlock(CodeBlock {
                 programming_language: Some(lang),
                 code: value.into(),

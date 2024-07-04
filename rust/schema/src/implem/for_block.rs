@@ -28,19 +28,29 @@ impl MarkdownCodec for ForBlock {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_exec_options!(self))
+            .merge_losses(lost_exec_options!(self));
+
+        let (for_, else_) = if matches!(context.format, Format::Myst) {
+            ("{for} ", "{else}")
+        } else {
+            (" for ", " else")
+        };
+
+        context
             .push_semis()
-            .push_str(" for ")
+            .push_str(for_)
             .push_prop_str(NodeProperty::Variable, &self.variable)
             .push_str(" in ")
             .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
-        if let Some(lang) = &self.programming_language {
-            if !lang.is_empty() {
-                context
-                    .push_str(" {")
-                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
-                    .push_str("}");
+        if matches!(context.format, Format::Markdown) {
+            if let Some(lang) = &self.programming_language {
+                if !lang.is_empty() {
+                    context
+                        .push_str(" {")
+                        .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
+                        .push_str("}");
+                }
             }
         }
 
@@ -55,7 +65,8 @@ impl MarkdownCodec for ForBlock {
         if let Some(otherwise) = &self.otherwise {
             context
                 .push_semis()
-                .push_str(" else\n\n")
+                .push_str(else_)
+                .push_str("\n\n")
                 .increase_depth()
                 .push_prop_fn(NodeProperty::Otherwise, |context| {
                     otherwise.to_markdown(context)

@@ -114,7 +114,13 @@ fn myst_to_md(myst: &str) -> String {
     let mut md = String::new();
     let mut depth = 0;
     for line in myst.lines() {
-        if line.starts_with(":::") && line.contains(":::{") {
+        if line.starts_with(":::")
+            && line.contains(":::{")
+            && !(line.contains(":::{if}")
+                || line.contains(":::{elif}")
+                || line.contains(":::{else}")
+                || line.contains(":::{for}"))
+        {
             depth += 1;
             md.push_str(&colons_to_backticks(line));
         } else if depth > 0 && line.starts_with(":::") {
