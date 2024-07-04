@@ -46,9 +46,6 @@ pub struct MarkdownEncodeContext {
     /// Should empty lines be prefixed?
     prefix_empty_lines: bool,
 
-    // The fence string for the current MyST directive
-    myst_fence_char: char,
-
     /// Node to position mapping
     pub mapping: Mapping,
 
@@ -269,8 +266,7 @@ impl MarkdownEncodeContext {
         O: Fn(&mut Self),
         C: Fn(&mut Self),
     {
-        // Fence
-        self.myst_fence_char = fence;
+        // Opening fence
         self.content.push_str(
             &fence
                 .to_string()
@@ -300,7 +296,6 @@ impl MarkdownEncodeContext {
         self.decrease_depth();
 
         // Closing fence
-        let fence = self.myst_fence_char;
         self.content.push_str(
             &fence
                 .to_string()
