@@ -34,9 +34,11 @@ export class CodeBlock extends CodeStatic {
           <stencila-ui-node-code
             type="CodeBlock"
             code=${this.code}
-            code-authorship=${this.codeAuthorship}
+            .code-authorship=${this.codeAuthorship}
             language=${this.programmingLanguage}
             read-only
+            no-gutters
+            containerClasses="border border-black/20"
           >
           </stencila-ui-node-code>
         </div>

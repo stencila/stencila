@@ -33,6 +33,9 @@ import {
 @customElement('stencila-ui-node-code')
 @withTwind()
 export class UINodeCode extends LitElement {
+  /**
+   * The type of node whose code is being rendered
+   */
   @property()
   type: NodeType
 
@@ -43,10 +46,22 @@ export class UINodeCode extends LitElement {
   code: string
 
   /**
+   * The runs of authorship of the code
+   */
+  @property({ attribute: 'code-authorship', type: Array })
+  codeAuthorship?: AuthorshipRun[]
+
+  /**
    * The language of the code. Used to determine the syntax highlighting
    */
   @property()
   language: string
+
+  /**
+   * Whether line number and other gutters should be shown
+   */
+  @property({ type: Boolean, attribute: 'no-gutters' })
+  noGutters: boolean = false
 
   /**
    * Whether the code, and language, are readonly or not
@@ -55,16 +70,16 @@ export class UINodeCode extends LitElement {
   readOnly: boolean = false
 
   /**
-   * The runs of authorship of the code
-   */
-  @property({ attribute: 'code-authorship', type: Array })
-  codeAuthorship?: AuthorshipRun[]
-
-  /**
    * Whether the code shown be collapsed by default or not
    */
   @property({ type: Boolean })
   collapsed: boolean = false
+
+  /**
+   * Classes to apply to the editor container
+   */
+  @property()
+  containerClasses: string = 'border-t border-black/20'
 
   /**
    * A CodeMirror editor for the code
@@ -188,8 +203,7 @@ export class UINodeCode extends LitElement {
           ]
         : [],
       ...languageExtension,
-      this.type !== 'CodeBlock' ? [lineNumbers(), foldGutter()] : [],
-      // foldGutter(),
+      this.noGutters ? [] : [lineNumbers(), foldGutter()],
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       executionMessages ? executionMessageLinter(executionMessages) : [],
       stencilaTheme,
@@ -307,15 +321,12 @@ export class UINodeCode extends LitElement {
   }
 
   override render() {
+    const containerClasses = apply(['relative z-0', this.containerClasses])
+
     const contentClasses = apply([
       'text-black',
       this.collapsed ? 'max-h-0' : 'max-h-full',
       'transition-max-h duration-200',
-    ])
-
-    const containerClasses = apply([
-      'relative z-0',
-      `${this.type !== 'CodeBlock' ? 'border-t' : 'border'} border-black/20`,
     ])
 
     // Unable to use `<stencila-ui-node-collapsible-property>` for this as that prevents
