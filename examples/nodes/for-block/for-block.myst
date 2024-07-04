@@ -1,6 +1,6 @@
 A simple for loop
 
-::: for item in [1,2,3]
+:::{for} item in [1,2,3]
 
 This paragraph will be repeated with a different value for {eval}`item`
 
@@ -8,7 +8,7 @@ This paragraph will be repeated with a different value for {eval}`item`
 
 With a programming language specified
 
-::: for item in [1,2,3] {python}
+:::{for} item in [1,2,3]
 
 This content is repeated
 
@@ -16,9 +16,9 @@ This content is repeated
 
 Nested for loops
 
-::: for outer in [['a', 'b'], ['c', 'd']]
+:::{for} outer in [['a', 'b'], ['c', 'd']]
 
-::::: for inner in outer
+:::::{for} inner in outer
 
 This paragraph will be repeated for each inner item {eval}`inner`
 
@@ -28,11 +28,11 @@ This paragraph will be repeated for each inner item {eval}`inner`
 
 With an else clause
 
-::: for item in []
+:::{for} item in []
 
 This content is never shown
 
-::: else
+:::{else}
 
 There are no items
 
@@ -40,8 +40,8 @@ There are no items
 
 With no content in 'content' or 'otherwise'
 
-::: for item in []
+:::{for} item in []
 
-::: else
+:::{else}
 
 :::
