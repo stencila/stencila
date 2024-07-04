@@ -42,12 +42,12 @@ export interface EncodeOptions {
   losses?: string
 }
 /** Decode a Stencila Schema node from a string */
-export function fromString(input: string, options?: DecodeOptions | undefined | null): Promise<string>
+export declare function fromString(input: string, options?: DecodeOptions | undefined | null): Promise<string>
 /** Decode a Stencila Schema node from a file system path */
-export function fromPath(path: string, options?: DecodeOptions | undefined | null): Promise<string>
+export declare function fromPath(path: string, options?: DecodeOptions | undefined | null): Promise<string>
 /** Encode a Stencila Schema node to a string */
-export function toString(json: string, options?: EncodeOptions | undefined | null): Promise<string>
+export declare function toString(json: string, options?: EncodeOptions | undefined | null): Promise<string>
 /** Encode a Stencila Schema node to a filesystem path */
-export function toPath(json: string, path: string, options?: EncodeOptions | undefined | null): Promise<void>
+export declare function toPath(json: string, path: string, options?: EncodeOptions | undefined | null): Promise<void>
 /** Convert a document from one format to another */
-export function fromTo(input?: string | undefined | null, output?: string | undefined | null, decodeOptions?: DecodeOptions | undefined | null, encodeOptions?: EncodeOptions | undefined | null): Promise<string>
+export declare function fromTo(input?: string | undefined | null, output?: string | undefined | null, decodeOptions?: DecodeOptions | undefined | null, encodeOptions?: EncodeOptions | undefined | null): Promise<string>
