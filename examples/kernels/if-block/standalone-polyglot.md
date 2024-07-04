@@ -1,21 +1,25 @@
-::: if false {nodejs}
+::: if false {js}
 
-Node.js is wrong
+QuickJS is falsy
+
+::: elif false {nodejs}
+
+Node.js is falsy
 
 ::: elif False {python}
 
-Python is wrong
+Python is falsy
 
 ::: elif FALSE {r}
 
-R is wrong
+R is falsy
 
 ::: elif false {rhai}
 
-Rhai is wrong
+Rhai is falsy
 
 ::: else
 
-They are all right!
+They are all falsy!
 
 :::
