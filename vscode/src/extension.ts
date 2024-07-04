@@ -54,7 +54,10 @@ export async function activate(context: vscode.ExtensionContext) {
   };
   const clientOptions: LanguageClientOptions = {
     initializationOptions: { user },
-    documentSelector: [{ scheme: "file", language: "smd" }],
+    documentSelector: [
+      { language: "smd" },
+      { language: "myst" }
+    ],
     markdown: {
       isTrusted: true,
       supportHtml: true,

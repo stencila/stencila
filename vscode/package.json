@@ -33,6 +33,7 @@
     ],
     "activationEvents": [
       "onLanguage:smd",
+      "onLanguage:myst",
       "onCommand:stencila.walkthrough-file-open",
       "workspaceContains:**/*.smd"
     ],
@@ -166,105 +167,105 @@
       "commandPalette": [
         {
           "command": "stencila.view-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-curr",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-above",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-below",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-code",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-instruct",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.cancel-curr",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.cancel-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.lock-curr",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.unlock-curr",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.export-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         }
       ],
       "editor/title/run": [
         {
           "command": "stencila.view-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-code",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         },
         {
           "command": "stencila.invoke.run-instruct",
-          "when": "editorLangId == smd"
+          "when": "editorLangId == smd || editorLangId == myst"
         }
       ],
       "editor/context": [
         {
           "command": "stencila.invoke.run-curr",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "000-Stencila@1"
         },
         {
           "command": "stencila.invoke.run-above",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "000-Stencila@2"
         },
         {
           "command": "stencila.invoke.run-below",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "000-Stencila@3"
         },
         {
           "command": "stencila.invoke.lock-curr",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "000-Stencila@4"
         },
         {
           "command": "stencila.invoke.unlock-curr",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "000-Stencila@5"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "001-Stencila@1"
         },
         {
           "command": "stencila.invoke.export-doc",
-          "when": "editorLangId == smd",
+          "when": "editorLangId == smd || editorLangId == myst",
           "group": "001-Stencila@2"
         }
       ]
@@ -279,6 +280,16 @@
           ".smd"
         ],
         "configuration": "./syntaxes/smd/configuration.json"
+      },
+      {
+        "id": "myst",
+        "aliases": [
+          "MyST"
+        ],
+        "extensions": [
+          ".myst"
+        ],
+        "configuration": "./syntaxes/myst/configuration.jsonc"
       }
     ],
     "grammars": [
@@ -296,12 +307,31 @@
           "meta.embedded.language.tex": "latex",
           "meta.embedded.block.frontmatter": "yaml"
         }
+      },
+      {
+        "language": "myst",
+        "scopeName": "source.myst",
+        "path": "./syntaxes/myst/tmGrammar.json",
+        "embeddedLanguages": {
+          "source.js": "javascript",
+          "meta.embedded.language.css": "css",
+          "meta.embedded.language.javascript": "javascript",
+          "meta.embedded.language.python": "python",
+          "meta.embedded.language.r": "r",
+          "meta.embedded.language.sql": "sql",
+          "meta.embedded.language.tex": "latex",
+          "meta.embedded.block.frontmatter": "yaml"
+        }
       }
     ],
     "snippets": [
       {
         "language": "smd",
         "path": "./syntaxes/smd/snippets.json"
+      },
+      {
+        "language": "myst",
+        "path": "./syntaxes/myst/snippets.jsonc"
       }
     ],
     "themes": [
@@ -462,7 +492,7 @@
     "vscode:prepublish": "npm run compile",
     "compile-cli": "cargo build --bin stencila",
     "compile-dist": "cd ../web/ && npm run build:vscode",
-    "compile-syntaxes": "node syntaxes/smd/compile.js",
+    "compile-syntaxes": "node syntaxes/smd/compile.js && node syntaxes/myst/compile.js",
     "compile-ts": "tsc -p ./",
     "compile-walkthroughs": "node walkthroughs/compile.js",
     "compile": "npm run compile-cli && npm run compile-dist && npm run compile-syntaxes && npm run compile-walkthroughs && npm run compile-ts",
