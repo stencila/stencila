@@ -188,7 +188,7 @@ properties:
       type: string
     strip: [metadata]
     patch:
-      formats: [md]
+      formats: [md, myst]
     serde:
       deserializeWith: option_csv_or_array
   keywords:
@@ -201,7 +201,7 @@ properties:
       type: string
     strip: [metadata]
     patch:
-      formats: [md]
+      formats: [md, myst]
     serde:
       deserializeWith: option_csv_or_array
   isPartOf:
@@ -281,7 +281,7 @@ properties:
       $ref: Inline
     strip: [metadata]
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: h1
   version:

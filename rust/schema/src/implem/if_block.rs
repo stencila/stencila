@@ -20,15 +20,23 @@ impl MarkdownCodec for IfBlock {
             .merge_losses(lost_exec_options!(self));
 
         for (index, clause @ IfBlockClause { code, .. }) in self.clauses.iter().enumerate() {
+            let keyword = if index == 0 {
+                "if"
+            } else if code.is_empty() && index == self.clauses.len() - 1 {
+                "else"
+            } else {
+                "elif"
+            };
+
+            let start = if matches!(context.format, Format::Myst) {
+                ["{", keyword, if keyword == "else" { "}" } else { "} " }].concat()
+            } else {
+                [" ", keyword, " "].concat()
+            };
+
             context
                 .push_semis()
-                .push_str(if index == 0 {
-                    " if "
-                } else if code.is_empty() && index == self.clauses.len() - 1 {
-                    " else "
-                } else {
-                    " elif "
-                })
+                .push_str(&start)
                 .increase_depth()
                 .push_prop_fn(NodeProperty::Clauses, |context| clause.to_markdown(context))
                 .decrease_depth();

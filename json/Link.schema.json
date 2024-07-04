@@ -52,7 +52,8 @@
       "description": "The textual content of the link.",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "dom": {
@@ -87,7 +88,8 @@
       "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window).\n",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "html": {
@@ -105,7 +107,8 @@
       "$comment": "This property is analogous to the HTML `title` global attribute which\nrepresents [\"advisory information related to the element\"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)\n",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "html": {
@@ -121,7 +124,8 @@
       "description": "The relation between the target and the current thing.",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "html": {

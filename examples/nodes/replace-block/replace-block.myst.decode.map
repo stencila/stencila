@@ -1,0 +1,11 @@
+start     end        offsets   node_type+property                   authorship
+    13     26       (13, 26)   Paragraph
+    28     49       (15, 23)   Paragraph
+    61     74       (33, 25)   Paragraph
+    76    113       (15, 39)   CodeChunk
+   115    136       (39, 23)   Paragraph
+     0    141      (-115, 5)   ReplaceBlock
+   170    183      (170, 42)   Paragraph
+   195    217       (25, 34)   Paragraph
+   143    222       (-52, 5)   ReplaceBlock
+     0    223      (-143, 1)   Article

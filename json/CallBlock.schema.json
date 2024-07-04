@@ -57,7 +57,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -286,7 +287,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "proptest": {
@@ -321,6 +323,12 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
       "type": "string"
     },
     "select": {
@@ -329,6 +337,12 @@
       "strip": [
         "code"
       ],
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
       "type": "string"
     },
     "content": {
@@ -360,7 +374,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "dom": {

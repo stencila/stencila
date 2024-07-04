@@ -2,14 +2,25 @@
 
 import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
+import { ExecutionMode } from "./ExecutionMode.js";
 import { Node } from "./Node.js";
 
 /**
- * An executable programming code expression.
+ * An executable code expression.
  */
 export class CodeExpression extends CodeExecutable {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "CodeExpression";
+
+  /**
+   * Under which circumstances the code should be executed.
+   */
+  declare executionMode?: ExecutionMode;
+
+  /**
+   * The programming language of the code.
+   */
+  declare programmingLanguage?: string;
 
   /**
    * The value of the expression when it was last evaluated.

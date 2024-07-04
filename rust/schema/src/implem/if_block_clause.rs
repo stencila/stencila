@@ -9,12 +9,14 @@ impl MarkdownCodec for IfBlockClause {
             .merge_losses(lost_exec_options!(self))
             .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
-        if let Some(lang) = &self.programming_language {
-            if !lang.is_empty() {
-                context
-                    .push_str(" {")
-                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
-                    .push_str("}");
+        if matches!(context.format, Format::Markdown) {
+            if let Some(lang) = &self.programming_language {
+                if !lang.is_empty() {
+                    context
+                        .push_str(" {")
+                        .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
+                        .push_str("}");
+                }
             }
         }
 

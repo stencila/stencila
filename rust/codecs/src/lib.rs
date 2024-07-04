@@ -173,7 +173,7 @@ pub async fn from_path_with_info(
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {
         Some(format) => format,
-        None => Format::from_path(path)?,
+        None => Format::from_path(path),
     };
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
@@ -282,7 +282,7 @@ pub async fn to_path_with_info(
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {
         Some(format) => format,
-        None => Format::from_path(path)?,
+        None => Format::from_path(path),
     };
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Encode))?;

@@ -29,7 +29,7 @@ properties:
     description: The value of the text content
     $ref: Cord
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: none
     html:

@@ -69,6 +69,14 @@ export class UINodeAuthor extends LitElement {
   roleName?: AuthorRoleName
 
   /**
+   * The format the the author used
+   *
+   * Only available for `AuthorRole` authors.
+   */
+  @property()
+  format?: string
+
+  /**
    * The timestamp of the last modification made by the author in a particular role
    *
    * Only available for `AuthorRole` authors.
@@ -96,7 +104,10 @@ export class UINodeAuthor extends LitElement {
           <div class="grow flex flex-col justify-center">
             <span
               class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
-              >${this.roleName}</span
+              >${this.roleName}
+              ${this.format
+                ? html`<span class="opacity-60"> ${this.format}</span>`
+                : ''}</span
             >
             <span
               class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"

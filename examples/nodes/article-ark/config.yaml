@@ -26,4 +26,11 @@ compact.jats.xml:
 md:
   encode:
     strip-types:
+      # TODO: check why this needs to be stripped
+      - Figure
+
+myst:
+  encode:
+    strip-types:
+      # As for Markdown
       - Figure

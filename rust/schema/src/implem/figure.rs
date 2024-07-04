@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Figure};
+use crate::{prelude::*, transforms::blocks_to_inlines, Figure, ImageObject, Inline};
 
 use super::utils::caption_to_dom;
 
@@ -42,33 +42,60 @@ impl MarkdownCodec for Figure {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, authors, provenance))
-            .push_semis()
-            .push_str(" figure");
+            .merge_losses(lost_options!(self, id, authors, provenance));
 
-        if !self.label_automatically.unwrap_or(true) {
-            if let Some(label) = &self.label {
-                context.push_str(" ");
-                context.push_prop_str(NodeProperty::Label, label);
+        if matches!(context.format, Format::Myst) {
+            context.myst_directive(
+                ':',
+                "figure",
+                |context| {
+                    let inlines = blocks_to_inlines(self.content.clone());
+                    let mut urls = inlines.iter().filter_map(|inline| match inline {
+                        Inline::ImageObject(ImageObject { content_url, .. }) => Some(content_url),
+                        _ => None,
+                    });
+                    if let Some(url) = urls.next() {
+                        context.push_str(" ").push_str(url);
+                    }
+                },
+                |context| {
+                    if let Some(label) = &self.label {
+                        context.myst_directive_option(NodeProperty::Label, None, label);
+                    }
+                },
+                |context| {
+                    if let Some(caption) = &self.caption {
+                        caption.to_markdown(context);
+                    }
+                },
+            );
+        } else {
+            context.push_semis().push_str(" figure");
+
+            if !self.label_automatically.unwrap_or(true) {
+                if let Some(label) = &self.label {
+                    context.push_str(" ");
+                    context.push_prop_str(NodeProperty::Label, label);
+                }
             }
+
+            context.push_str("\n\n").increase_depth();
+
+            if let Some(caption) = &self.caption {
+                context.push_prop_fn(NodeProperty::Caption, |context| {
+                    caption.to_markdown(context)
+                });
+            }
+
+            context
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .decrease_depth()
+                .push_semis()
+                .newline();
         }
 
-        context.push_str("\n\n").increase_depth();
-
-        if let Some(caption) = &self.caption {
-            context.push_prop_fn(NodeProperty::Caption, |context| {
-                caption.to_markdown(context)
-            });
-        }
-
-        context
-            .push_prop_fn(NodeProperty::Content, |context| {
-                self.content.to_markdown(context)
-            })
-            .decrease_depth()
-            .push_semis()
-            .newline()
-            .exit_node()
-            .newline();
+        context.exit_node().newline();
     }
 }

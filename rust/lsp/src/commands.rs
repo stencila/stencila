@@ -93,6 +93,7 @@ pub(super) async fn execute_command(
     ExecuteCommandParams {
         command, arguments, ..
     }: ExecuteCommandParams,
+    format: Format,
     root: Arc<RwLock<TextNode>>,
     doc: Arc<RwLock<Document>>,
     mut client: ClientSocket,
@@ -325,7 +326,7 @@ pub(super) async fn execute_command(
 
                     // Currently this applies a whole document formatting.
                     // TODO: In the future this should be refined to only update the specific node.
-                    let edit = match format_doc(doc.clone(), Format::Markdown).await {
+                    let edit = match format_doc(doc.clone(), format.clone()).await {
                         Ok(edit) => edit,
                         Err(error) => {
                             tracing::error!("While formatting doc after command: {error}");

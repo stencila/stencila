@@ -1,0 +1,34 @@
+---
+funders:
+- type: Organization
+  name: Example Inc
+- type: Person
+  familyNames:
+  - Zenon
+  givenNames:
+  - Zorro
+authors:
+- type: Person
+  familyNames:
+  - Anderson
+  givenNames:
+  - Anne
+  honorificPrefix: Dr.
+- type: Organization
+  name: Acme Inc
+- type: Person
+  familyNames:
+  - Andrews
+dateCreated:
+  type: Date
+  value: 2001-01-01
+dateAccepted:
+  type: Date
+  value: 2011-11-11
+datePublished:
+  type: Date
+  value: 2022-02-22
+title: Adding metadata to articles in Stencila
+---
+
+An example article for testing metadata encoding in various formats. It illustrates Stencila's focus on the [Robustness Principle](https://en.wikipedia.org/wiki/Robustness_principle): <q>be conservative in what you do, be liberal in what you accept from others</q>. Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.

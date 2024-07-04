@@ -1,0 +1,37 @@
+// Based mostly on https://github.com/microsoft/vscode/blob/main/extensions/markdown-basics/language-configuration.json",
+{
+  "brackets": [
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"]
+  ],
+  "autoClosingPairs": [
+    // Currently does not autoclose curly brackets because it interferes
+    // with snippets for directive
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "'", "close": "'", "notIn": ["string"] },
+    { "open": "\"", "close": "\"", "notIn": ["string"] }
+  ],
+  "surroundingPairs": [
+    { "open": "{", "close": "}" },
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "'", "close": "'" },
+    { "open": "\"", "close": "\"" },
+    { "open": "`", "close": "`" },
+    { "open": "_", "close": "_" },
+    { "open": "*", "close": "*" }
+  ],
+  "folding": {
+    // Basic folding. More advanced folding may be provided by language server in future.",
+    "markers": {
+      "start": "^:{3,}\\{(table|figure|if|for|new|edit|update|suggest)\\}",
+      "end": "^:{3,}\\s*$"
+    }
+  },
+  "wordPattern": {
+    "pattern": "(\\p{Alphabetic}|\\p{Number}|\\p{Nonspacing_Mark})(((\\p{Alphabetic}|\\p{Number}|\\p{Nonspacing_Mark})|[_])?(\\p{Alphabetic}|\\p{Number}|\\p{Nonspacing_Mark}))*",
+    "flags": "ug"
+  }
+}

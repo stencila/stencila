@@ -3,3 +3,9 @@ compact.jats.xml:
     # TODO: implement encoding and decoding of `Table`
     strip-types:
       - Table
+
+myst:
+  decode:
+    strip-props:
+      # MyST does not currently support table notes
+      - Table.notes

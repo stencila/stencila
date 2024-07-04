@@ -10,3 +10,10 @@ md:
       # back in to prevent overwrite of in-memory properties
       - ModifyBlock.content
       - ModifyBlock.operations
+
+myst:
+  decode:
+    strip-props:
+      # As for Markdown
+      - ModifyBlock.content
+      - ModifyBlock.operations

@@ -20,7 +20,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md]
+      formats: [md, myst]
     proptest:
       min:
         description: Generate a fixed path.
@@ -43,16 +43,20 @@ properties:
     aliases:
       - encodingFormat
     description: Media type of the source content.
+    type: string
     $comment: |
       Typically expressed using a file name extensions (e.g. `md`) or a
       MIME type (e.g. `text/md`).
     strip: [code]
-    type: string
+    patch:
+      formats: [md, myst]
   select:
     '@id': stencila:select
     description: A query to select a subset of content from the source
-    strip: [code]
     type: string
+    strip: [code]
+    patch:
+      formats: [md, myst]
   content:
     '@id': stencila:content
     description: The structured content decoded from the source.

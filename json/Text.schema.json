@@ -54,7 +54,8 @@
       "description": "The value of the text content",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "dom": {

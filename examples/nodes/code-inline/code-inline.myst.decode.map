@@ -1,0 +1,6 @@
+start     end        offsets   node_type+property                   authorship
+    17     31       (17, 31)   CodeInline
+     0     32       (-17, 1)   Paragraph
+    49     64       (49, 32)   CodeInline
+    34     65       (-15, 1)   Paragraph
+     0     66       (-34, 1)   Article

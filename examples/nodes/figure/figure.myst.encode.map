@@ -1,0 +1,17 @@
+start     end        offsets   node_type+property                   authorship
+     0     45        (0, 45)   Figure
+    94     95       (94, 50)   Figure.label
+    97    103         (3, 8)   Text.value
+    97    103         (0, 0)   Text
+    97    103         (0, 0)   Paragraph.content
+    97    104         (0, 1)   Paragraph
+    46    109       (-51, 5)   Figure
+   168    205      (122, 96)   Text.value
+   168    205         (0, 0)   Text
+   168    205         (0, 0)   Paragraph.content
+   168    206         (0, 1)   Paragraph
+   123    213       (-45, 7)   Figure
+   123    214         (0, 1)   Section.content
+   110    218       (-13, 4)   Section
+     0    219      (-110, 1)   Article.content
+     0    219         (0, 0)   Article

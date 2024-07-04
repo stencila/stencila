@@ -8,3 +8,10 @@ md:
     strip-props:
       # Output properties are not supported in Markdown
       - CodeExpression.output
+myst:
+  encode:
+    strip-props:
+      # The following properties are not supported in MyST
+      - CodeExpression.programming_language
+      - CodeExpression.execution_mode
+      - CodeExpression.output

@@ -59,19 +59,39 @@ impl MarkdownCodec for StyledBlock {
                 compilation_messages,
                 css,
                 class_list
-            ))
-            .push_semis()
-            .push_str(" {")
-            .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
-            .push_str("}\n\n")
-            .increase_depth()
-            .push_prop_fn(NodeProperty::Content, |context| {
-                self.content.to_markdown(context)
-            })
-            .decrease_depth()
-            .push_semis()
-            .newline()
-            .exit_node()
-            .newline();
+            ));
+
+        if matches!(context.format, Format::Myst) {
+            context.myst_directive(
+                ':',
+                "style",
+                |context| {
+                    context
+                        .push_str(" ")
+                        .push_prop_str(NodeProperty::Code, &self.code);
+                },
+                |_| {},
+                |context| {
+                    context.push_prop_fn(NodeProperty::Content, |context| {
+                        self.content.to_markdown(context)
+                    });
+                },
+            );
+        } else {
+            context
+                .push_semis()
+                .push_str(" {")
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
+                .push_str("}\n\n")
+                .increase_depth()
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .decrease_depth()
+                .push_semis()
+                .newline();
+        }
+
+        context.exit_node().newline();
     }
 }

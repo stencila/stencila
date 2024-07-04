@@ -1,0 +1,16 @@
+start     end        offsets   node_type+property                   authorship
+    18     27       (18, 27)   Text.value
+    18     27         (0, 0)   Text
+    18     27         (0, 0)   Paragraph.content
+    18     28         (0, 1)   Paragraph
+    18     29         (0, 1)   Claim.content
+     0     33       (-18, 4)   Claim
+    64     77       (64, 44)   Claim.label
+    79    105       (15, 28)   Text.value
+    79    105         (0, 0)   Text
+    79    105         (0, 0)   Paragraph.content
+    79    106         (0, 1)   Paragraph
+    79    107         (0, 1)   Claim.content
+    35    111       (-44, 4)   Claim
+     0    113       (-35, 2)   Article.content
+     0    113         (0, 0)   Article

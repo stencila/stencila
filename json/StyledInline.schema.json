@@ -58,7 +58,8 @@
       "description": "The code of the equation in the `styleLanguage`.",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "jats": {
@@ -93,7 +94,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "jats": {
@@ -196,11 +198,6 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the span.",
-      "patch": {
-        "formats": [
-          "md"
-        ]
-      },
       "dom": {
         "elem": "span"
       },

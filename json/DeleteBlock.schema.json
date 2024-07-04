@@ -57,7 +57,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "SuggestionStatus.schema.json"
@@ -132,7 +133,8 @@
       "description": "Feedback on the suggestion",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "type": "string"

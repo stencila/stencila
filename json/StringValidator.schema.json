@@ -51,7 +51,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "type": "integer",
@@ -67,7 +68,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "type": "integer",
@@ -79,7 +81,8 @@
       "$comment": "A string is valid if it is matched by the regular expression.\n",
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "type": "string"

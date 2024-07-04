@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{alphanumeric1, digit1, multispace0, multispace1, space0, Caseless},
@@ -9,8 +11,8 @@ use winnow::{
 use codec::{
     common::{indexmap::IndexMap, tracing},
     schema::{
-        Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock, CodeChunk,
-        DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
+        CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
         LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
         ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
@@ -19,6 +21,7 @@ use codec::{
 };
 
 use super::{
+    decode_blocks, decode_inlines,
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
         assignee, attrs, execution_mode, instruction_type, model, name, node_to_string,
@@ -272,8 +275,24 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
         // MDAST nodes that can be directly translated into blocks
         if let Some((block, position)) = md_to_block(md, context) {
-            context.map_position(&position, block.node_type(), block.node_id());
-            blocks.push(block);
+            if let Block::SuggestionBlock(suggestion) = block {
+                // MyST suggestion blocks (converted code blocks) need to be associated with
+                // the previous instruction
+                let suggestion_node_id = suggestion.node_id();
+                if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                    // Associate the suggestion with the instruction
+                    match instruct.suggestions.as_mut() {
+                        Some(suggestions) => suggestions.push(suggestion),
+                        None => instruct.suggestions = Some(vec![suggestion]),
+                    };
+
+                    // Extend the instruction to the end of the suggestion
+                    context.map_extend(instruct.node_id(), suggestion_node_id);
+                }
+            } else {
+                context.map_position(&position, block.node_type(), block.node_id());
+                blocks.push(block);
+            }
         };
     }
 
@@ -463,20 +482,35 @@ fn figure(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`ForBlock`] node
 fn for_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        ("for", multispace1),
-        (
-            separated_pair(
-                name,
-                (multispace1, "in", multispace1),
-                alt((
-                    delimited('`', take_until(0.., '`'), '`'),
-                    take_while(1.., |c| c != '{'),
-                )),
+    alt((
+        // Stencila Markdown
+        preceded(
+            ("for", multispace1),
+            (
+                separated_pair(
+                    name,
+                    (multispace1, "in", multispace1),
+                    alt((
+                        delimited('`', take_until(0.., '`'), '`'),
+                        take_while(1.., |c| c != '{'),
+                    )),
+                ),
+                opt(preceded(multispace0, attrs)),
             ),
-            opt(preceded(multispace0, attrs)),
         ),
-    )
+        // MyST
+        preceded(
+            ("{for}", multispace0),
+            (
+                separated_pair(
+                    name,
+                    (multispace1, "in", multispace1),
+                    take_while(1.., |c| c != '{'),
+                ),
+                "".value(None),
+            ),
+        ),
+    ))
     .map(|((variable, expr), options)| {
         let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
@@ -493,32 +527,45 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
 fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
-    (
-        delimited(
-            (take_while(3.., ':'), space0),
-            alt(("if", "elif")),
-            multispace1,
+    alt((
+        // Stencila Markdown
+        (
+            delimited(
+                (take_while(3.., ':'), space0),
+                alt(("if", "elif")),
+                multispace1,
+            ),
+            alt((
+                delimited('`', take_until(0.., '`'), '`'),
+                take_while(1.., |c| c != '{'),
+            )),
+            opt(preceded(multispace0, attrs)),
         ),
-        alt((
-            delimited('`', take_until(0.., '`'), '`'),
-            take_while(1.., |c| c != '{'),
-        )),
-        opt(preceded(multispace0, attrs)),
-    )
-        .map(|(tag, expr, options)| {
-            let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+        // MyST
+        (
+            delimited(
+                (take_while(3.., ':'), '{'),
+                alt(("if", "elif")),
+                ('}', multispace0),
+            ),
+            take_while(1.., |_| true),
+            "".value(None),
+        ),
+    ))
+    .map(|(tag, expr, options)| {
+        let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
-            (
-                tag == "if",
-                IfBlockClause {
-                    code: expr.trim().into(),
-                    programming_language: options.first().map(|(name, _)| name.to_string()),
-                    execution_mode: execution_mode_from_options(options),
-                    ..Default::default()
-                },
-            )
-        })
-        .parse_next(input)
+        (
+            tag == "if",
+            IfBlockClause {
+                code: expr.trim().into(),
+                programming_language: options.first().map(|(name, _)| name.to_string()),
+                execution_mode: execution_mode_from_options(options),
+                ..Default::default()
+            },
+        )
+    })
+    .parse_next(input)
 }
 
 /// Shortcut for an [`InstructionBlock`]
@@ -742,7 +789,7 @@ fn divider(input: &mut &str) -> PResult<Divider> {
     delimited(
         (take_while(3.., ':'), space0),
         alt((
-            "else".map(|_| Divider::Else),
+            alt(("else", "{else}")).map(|_| Divider::Else),
             "with".map(|_| Divider::With),
             "".map(|_| Divider::End),
         )),
@@ -942,46 +989,9 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             position,
         ),
 
-        mdast::Node::Code(mdast::Code {
-            lang,
-            meta,
-            value,
-            position,
-        }) => {
-            let meta = meta.unwrap_or_default();
-            let is_exec = meta.starts_with("exec") || lang.as_deref() == Some("exec");
-            let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
-
-            let block = if is_exec {
-                let is_invisible = value.contains("@invisible").then_some(true);
-
-                Block::CodeChunk(CodeChunk {
-                    code: value.into(),
-                    programming_language: if lang.as_deref() == Some("exec") {
-                        None
-                    } else {
-                        lang
-                    },
-                    execution_mode: execution_mode(&mut meta).ok(),
-                    is_invisible,
-                    ..Default::default()
-                })
-            } else if matches!(
-                lang.as_deref(),
-                Some("asciimath") | Some("math") | Some("mathml") | Some("latex") | Some("tex")
-            ) {
-                Block::MathBlock(MathBlock {
-                    code: value.into(),
-                    math_language: lang,
-                    ..Default::default()
-                })
-            } else {
-                Block::CodeBlock(CodeBlock {
-                    code: value.into(),
-                    programming_language: lang,
-                    ..Default::default()
-                })
-            };
+        mdast::Node::Code(code) => {
+            let position = code.position.clone();
+            let block = myst_to_block(&code).unwrap_or_else(|| code_to_block(code));
 
             (block, position)
         }
@@ -1072,6 +1082,219 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             return None;
         }
     })
+}
+
+/// Transform a [`mdast::Code`] node to a block if it is a recognized MyST directive
+///
+/// Note that `if`, `elif`, `else`, and `for` directives are are handled elsewhere
+/// because they do not always have closing semicolons (e.g. if followed by a elif)
+fn myst_to_block(code: &mdast::Code) -> Option<Block> {
+    // If no `lang` after backticks then not a MyST directive
+    let lang = code.lang.as_deref()?;
+
+    // Attempt to get name of the directive from `lang`
+    let name = if lang.starts_with('{') && lang.ends_with('}') {
+        &lang[1..(lang.len() - 1)]
+    } else {
+        return None;
+    };
+
+    let args = code.meta.as_deref();
+
+    // Extract directive options and separate them from the value of the directive
+    let mut options: HashMap<&str, &str> = HashMap::new();
+    let mut value = String::new();
+    for line in code.value.lines() {
+        if line.starts_with(':') && line.chars().filter(|&c| c == ':').count() > 1 {
+            let (key, value) = line[1..].split_once(':').unwrap_or_default();
+            options.insert(key.trim(), value.trim());
+        } else {
+            value.push_str(line);
+            if !value.is_empty() {
+                value.push('\n');
+            }
+        }
+    }
+    if value.ends_with('\n') {
+        value.pop();
+    }
+
+    // Transform into a Stencila block based on the name
+
+    if let Some(claim_type) = name.strip_prefix("prf:") {
+        return Some(Block::Claim(Claim {
+            claim_type: claim_type.parse().unwrap_or_default(),
+            label: options.get("label").map(|label| label.to_string()),
+            content: decode_blocks(&value),
+            ..Default::default()
+        }));
+    }
+
+    Some(match name {
+        "admonition" | "attention" | "caution" | "danger" | "error" | "failure" | "hint"
+        | "important" | "info" | "note" | "seealso" | "success" | "tip" | "warning" => {
+            Block::Admonition(Admonition {
+                // Handle MyST admonition types for which there is not a 1:1 mapping,
+                // parse the rest
+                admonition_type: match name {
+                    "attention" => AdmonitionType::Important,
+                    "caution" => AdmonitionType::Warning,
+                    "hint" => AdmonitionType::Tip,
+                    "seealso" => AdmonitionType::Note,
+                    type_ => type_.parse().unwrap_or_default(),
+                },
+                content: decode_blocks(&value),
+                title: args.map(decode_inlines),
+                is_folded: options.get("class").map(|&class| class == "dropdown"),
+                ..Default::default()
+            })
+        }
+        "code-cell" | "mermaid" => {
+            let programming_language = match name {
+                "mermaid" => Some(name.to_string()),
+                _ => args.map(String::from),
+            };
+
+            Block::CodeChunk(CodeChunk {
+                code: value.into(),
+                programming_language,
+                execution_mode: options.get("mode").and_then(|mode| mode.parse().ok()),
+                label_type: options.get("type").and_then(|&type_| match type_ {
+                    "figure" => Some(LabelType::FigureLabel),
+                    "table" => Some(LabelType::TableLabel),
+                    _ => None,
+                }),
+                label: options.get("label").map(|label| label.to_string()),
+                label_automatically: options.contains_key("label").then_some(false),
+                caption: options
+                    .get("caption")
+                    .map(|&caption| decode_blocks(caption)),
+                ..Default::default()
+            })
+        }
+        "figure" => {
+            use shortcuts::{img, p};
+            let content = code
+                .meta
+                .as_ref()
+                .map(|url| vec![p([img(url)])])
+                .unwrap_or_default();
+            let caption = decode_blocks(&value);
+
+            Block::Figure(Figure {
+                label: options.get("label").map(|label| label.to_string()),
+                label_automatically: options.contains_key("label").then_some(false),
+                caption: (!caption.is_empty()).then_some(caption),
+                content,
+                ..Default::default()
+            })
+        }
+        "table" => {
+            let rows = if let Some(Block::Table(Table { rows, .. })) = decode_blocks(&value).first()
+            {
+                rows.clone()
+            } else {
+                Vec::new()
+            };
+
+            Block::Table(Table {
+                label: options.get("label").map(|label| label.to_string()),
+                label_automatically: options.contains_key("label").then_some(false),
+                caption: args.map(decode_blocks),
+                rows,
+                ..Default::default()
+            })
+        }
+        "include" => Block::IncludeBlock(IncludeBlock {
+            source: args.unwrap_or_default().to_string(),
+            execution_mode: options.get("mode").and_then(|mode| mode.parse().ok()),
+            media_type: options.get("format").map(|format| format.to_string()),
+            select: options.get("select").map(|select| select.to_string()),
+            ..Default::default()
+        }),
+        "new" | "edit" | "update" => {
+            let message = InstructionMessage::from(args.unwrap_or_default().trim());
+
+            Block::InstructionBlock(InstructionBlock {
+                instruction_type: name.parse().unwrap_or_default(),
+                messages: vec![message],
+                assignee: options.get("assign").map(|value| value.to_string()),
+                replicates: options.get("reps").and_then(|value| value.parse().ok()),
+                content: if !value.trim().is_empty() {
+                    Some(decode_blocks(&value))
+                } else {
+                    None
+                },
+                ..Default::default()
+            })
+        }
+        "suggest" => Block::SuggestionBlock(SuggestionBlock {
+            feedback: args.map(|value| value.to_string()),
+            content: decode_blocks(&value),
+            ..Default::default()
+        }),
+        "style" => Block::StyledBlock(StyledBlock {
+            code: args.clone().unwrap_or_default().into(),
+            content: decode_blocks(&value),
+            ..Default::default()
+        }),
+        _ => {
+            // Fallback to code block that will preserve
+            let mut lang = lang.to_string();
+            if let Some(rest) = args {
+                lang.push(' ');
+                lang.push_str(rest);
+            }
+
+            Block::CodeBlock(CodeBlock {
+                programming_language: Some(lang),
+                code: value.into(),
+                ..Default::default()
+            })
+        }
+    })
+}
+
+/// Transform a [`mdast::Code`] node to a Stencila [`Block`]
+fn code_to_block(code: mdast::Code) -> Block {
+    let mdast::Code {
+        lang, meta, value, ..
+    } = code;
+
+    let meta = meta.unwrap_or_default();
+    let is_exec = meta.starts_with("exec") || lang.as_deref() == Some("exec");
+    let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
+
+    if is_exec {
+        let is_invisible = value.contains("@invisible").then_some(true);
+
+        Block::CodeChunk(CodeChunk {
+            code: value.into(),
+            programming_language: if lang.as_deref() == Some("exec") {
+                None
+            } else {
+                lang
+            },
+            execution_mode: execution_mode(&mut meta).ok(),
+            is_invisible,
+            ..Default::default()
+        })
+    } else if matches!(
+        lang.as_deref(),
+        Some("asciimath") | Some("math") | Some("mathml") | Some("latex") | Some("tex")
+    ) {
+        Block::MathBlock(MathBlock {
+            code: value.into(),
+            math_language: lang,
+            ..Default::default()
+        })
+    } else {
+        Block::CodeBlock(CodeBlock {
+            code: value.into(),
+            programming_language: lang,
+            ..Default::default()
+        })
+    }
 }
 
 fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context) -> Block {

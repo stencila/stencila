@@ -23,6 +23,9 @@ export class AuthorRole extends Entity {
   @property({ attribute: 'role-name' })
   roleName: AuthorRoleName
 
+  @property()
+  format: string
+
   @property({ attribute: 'last-modified', type: Number })
   lastModified: number
 
@@ -45,6 +48,7 @@ export class AuthorRole extends Entity {
         _id=${this._id}
         name=${this.name}
         role=${this.roleName}
+        format=${this.format}
         timestamp=${this.lastModified}
         details=${this.details}
       ></stencila-ui-node-author>

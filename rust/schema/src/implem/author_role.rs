@@ -84,6 +84,10 @@ impl DomCodec for AuthorRole {
             .enter_node(self.node_type(), self.node_id())
             .push_attr("role-name", &self.role_name.to_string());
 
+        if let Some(format) = &self.format {
+            context.push_attr("format", &format);
+        }
+
         if let Some(last_modified) = &self.last_modified {
             Timestamp::to_dom_attr("last-modified", last_modified, context);
         }

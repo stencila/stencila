@@ -1,4 +1,5 @@
 use codec_info::{lost_exec_options, lost_options};
+use codec_markdown_trait::to_markdown;
 
 use crate::{prelude::*, CodeChunk, Duration, LabelType, Timestamp};
 
@@ -113,71 +114,123 @@ impl MarkdownCodec for CodeChunk {
             .merge_losses(lost_options!(self, id, outputs))
             .merge_losses(lost_exec_options!(self));
 
-        let wrapped = if self.label_type.is_some() || self.label.is_some() || self.caption.is_some()
-        {
-            context.push_semis();
+        if matches!(context.format, Format::Myst) {
+            context.myst_directive(
+                '`',
+                "code-cell",
+                |context| {
+                    if let Some(lang) = &self.programming_language {
+                        context
+                            .push_str(" ")
+                            .push_prop_str(NodeProperty::ProgrammingLanguage, lang);
+                    }
+                },
+                |context| {
+                    if let Some(execution_mode) = &self.execution_mode {
+                        context.myst_directive_option(
+                            NodeProperty::ExecutionMode,
+                            Some("mode"),
+                            &execution_mode.to_string().to_lowercase(),
+                        );
+                    }
 
-            if let Some(label_type) = &self.label_type {
-                context.push_str(match label_type {
-                    LabelType::FigureLabel => " figure",
-                    LabelType::TableLabel => " table",
-                });
-            } else {
-                context.push_str(" chunk");
-            }
+                    if let Some(label_type) = &self.label_type {
+                        context.myst_directive_option(
+                            NodeProperty::LabelType,
+                            Some("type"),
+                            match label_type {
+                                LabelType::FigureLabel => "figure",
+                                LabelType::TableLabel => "table",
+                            },
+                        );
+                    }
 
-            if !self.label_automatically.unwrap_or(true) {
-                if let Some(label) = &self.label {
-                    context.push_str(" ");
-                    context.push_prop_str(NodeProperty::Label, label);
-                }
-            }
+                    if let Some(label) = &self.label {
+                        context.myst_directive_option(NodeProperty::Label, None, label);
+                    }
 
-            context.push_str("\n\n");
-
-            true
-        } else {
-            false
-        };
-
-        if let Some(caption) = &self.caption {
-            context
-                .increase_depth()
-                .push_prop_fn(NodeProperty::Caption, |context| {
-                    caption.to_markdown(context)
-                })
-                .decrease_depth();
-        }
-
-        context.push_str("```");
-
-        if let Some(lang) = &self.programming_language {
-            context
-                .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
-                .push_str(" ");
-        }
-
-        context.push_str("exec");
-
-        if let Some(mode) = &self.execution_mode {
-            context.push_str(" ").push_prop_str(
-                NodeProperty::ExecutionMode,
-                &mode.to_string().to_lowercase(),
+                    if let Some(caption) = &self.caption {
+                        // Note: caption must be a single line
+                        let caption = to_markdown(caption).replace('\n', " ");
+                        context.myst_directive_option(NodeProperty::Caption, None, &caption);
+                    }
+                },
+                |context| {
+                    context.push_prop_fn(NodeProperty::Code, |context| {
+                        self.code.to_markdown(context);
+                        if !self.code.ends_with('\n') {
+                            context.newline();
+                        }
+                    });
+                },
             );
-        }
+        } else {
+            let wrapped =
+                if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {
+                    context.push_semis();
 
-        context
-            .newline()
-            .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
+                    if let Some(label_type) = &self.label_type {
+                        context.push_str(match label_type {
+                            LabelType::FigureLabel => " figure",
+                            LabelType::TableLabel => " table",
+                        });
+                    } else {
+                        context.push_str(" chunk");
+                    }
 
-        if !self.code.ends_with('\n') {
-            context.newline();
-        }
+                    if !self.label_automatically.unwrap_or(true) {
+                        if let Some(label) = &self.label {
+                            context.push_str(" ");
+                            context.push_prop_str(NodeProperty::Label, label);
+                        }
+                    }
 
-        context.push_str("```\n");
+                    context.push_str("\n\n");
 
-        if wrapped {
-            context.newline().push_semis().newline();
+                    true
+                } else {
+                    false
+                };
+
+            if let Some(caption) = &self.caption {
+                context
+                    .increase_depth()
+                    .push_prop_fn(NodeProperty::Caption, |context| {
+                        caption.to_markdown(context)
+                    })
+                    .decrease_depth();
+            }
+
+            context.push_str("```");
+
+            if let Some(lang) = &self.programming_language {
+                context
+                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
+                    .push_str(" ");
+            }
+
+            context.push_str("exec");
+
+            if let Some(mode) = &self.execution_mode {
+                context.push_str(" ").push_prop_str(
+                    NodeProperty::ExecutionMode,
+                    &mode.to_string().to_lowercase(),
+                );
+            }
+
+            context
+                .newline()
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
+
+            if !self.code.ends_with('\n') {
+                context.newline();
+            }
+
+            context.push_str("```\n");
+
+            if wrapped {
+                context.newline().push_semis().newline();
+            }
         }
 
         context.exit_node().newline();

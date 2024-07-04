@@ -19,7 +19,7 @@ properties:
     strip: [code]
     walk: true
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: div
     html:
