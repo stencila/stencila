@@ -121,12 +121,4 @@ export class UIAuthorsProvenance extends LitElement {
       ></stencila-chevron-button>
     </div>`
   }
-
-  // protected override firstUpdated(changedProperties: PropertyValues): void {
-  //   super.firstUpdated(changedProperties)
-
-  //   this.buttonRef.value.addEventListener('click', () => {
-  //     this.collapsed = !this.collapsed
-  //   })
-  // }
 }

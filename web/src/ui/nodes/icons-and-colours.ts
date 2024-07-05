@@ -1,4 +1,8 @@
-import type { MessageLevel, NodeType } from '@stencila/types'
+import {
+  type AdmonitionType,
+  type MessageLevel,
+  type NodeType,
+} from '@stencila/types'
 import tailwindConfig from 'tailwindcss/defaultConfig'
 import resolveConfig from 'tailwindcss/resolveConfig'
 
@@ -142,7 +146,7 @@ export const executionMessageUI = (
     case 'Error':
       return { colour: 'pink-900', icon: 'x-circle' }
     case 'Warning':
-      return { colour: 'orange-500', icon: 'exclamation-circle' }
+      return { colour: 'orange-500', icon: 'exclamation-triangle' }
     case 'Info':
       return { colour: 'green-900', icon: 'info-circle' }
     case 'Debug':
@@ -158,7 +162,7 @@ export const executionMessageUI = (
 
 // Provenance Highlight Colours ----------------------------
 
-export const provenanceOpacity = {
+const provenanceOpacity = {
   0: '1',
   1: '0.9',
   2: '0.8',
@@ -171,6 +175,41 @@ export type ProvenanceOpacityLevel = keyof typeof provenanceOpacity
 
 export const getProvenanceOpacity = (level: ProvenanceOpacityLevel) => {
   return provenanceOpacity[level]
+}
+
+// ---------------------------------------------------------
+
+// Admonition UI -------------------------------------------
+
+type AdmonitionTypeUI = {
+  baseColour: string
+  borderColour: string
+  textColour: string
+  icon: string
+  iconLibrary: string
+}
+
+const admonitionColours = (name: string) => ({
+  baseColour: colours[name][50],
+  borderColour: colours[name][500],
+  textColour: colours[name][800],
+})
+
+// prettier-ignore
+const admonitionUiMap: Record<AdmonitionType, AdmonitionTypeUI> = {
+  Note:      { ...admonitionColours('blue'),     ...shoelaceIcon('info-circle') },
+  Info:      { ...admonitionColours('blue'),     ...shoelaceIcon('info-circle') },
+  Tip:       { ...admonitionColours('green'),    ...shoelaceIcon('lightbulb') },
+  Important: { ...admonitionColours('blue'),     ...shoelaceIcon('exclamation-circle') },
+  Success:   { ...admonitionColours('green'),    ...shoelaceIcon('check-circle') },
+  Failure:   { ...admonitionColours('red'),      ...shoelaceIcon('x-circle') },
+  Warning:   { ...admonitionColours('yellow'),   ...shoelaceIcon('exclamation-triangle') },
+  Danger:    { ...admonitionColours('red'),      ...shoelaceIcon('exclamation-circle') },
+  Error:     { ...admonitionColours('red'),      ...shoelaceIcon('x-circle') },
+}
+
+export const admonitionUi = (type: AdmonitionType) => {
+  return admonitionUiMap[type]
 }
 
 // ---------------------------------------------------------

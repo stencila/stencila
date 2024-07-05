@@ -291,6 +291,12 @@ figure {
   }
 
   /* ----------------- */
+
+  stencila-admonition {
+    p {
+      @apply mt-0;
+    }
+  }
 }
 
 [view='dynamic'],
