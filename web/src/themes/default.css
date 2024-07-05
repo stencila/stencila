@@ -297,6 +297,12 @@ figure {
 
   /* ----------------- */
 
+  stencila-admonition {
+    p {
+      @apply mt-0;
+    }
+  }
+
   stencila-suggestion-block {
     [slot='content'] {
       color: var(--default-text-colour);

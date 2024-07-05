@@ -25,13 +25,15 @@ export class Paragraph extends Entity {
    * a list of parent nodes that can require different
    * behaviour/rendering of this node.
    */
-  static subscribedParentNodes: NodeType[] = [
+  private static subscribedParentNodes: NodeType[] = [
+    'Admonition',
+    'Claim',
+    'CodeChunk',
+    'Figure',
     'ListItem',
-    'TableCell',
     'QuoteBlock',
     'Table',
-    'Figure',
-    'CodeChunk',
+    'TableCell',
   ]
 
   /**
