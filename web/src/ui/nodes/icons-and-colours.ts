@@ -93,7 +93,9 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   
   InsertBlock:      { ...shoelaceIcon('plus-circle'),          ...nodeColours('lime')},
   ReplaceBlock:     { ...stencilaIcon('replace-block'),        ...nodeColours('orange')},
-  DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')}
+  DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')},
+
+  SuggestionBlock:  { ...shoelaceIcon('lightbulb'),            ...nodeColours('violet'),  title: 'Suggestion' }
 }
 
 /**

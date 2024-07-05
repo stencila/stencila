@@ -80,21 +80,24 @@ pub async fn run() {
 
         router
             .request::<request::ExecuteCommand, _>(|state, params| {
-                let root_doc = params
+                let format_root_doc = params
                     .arguments
                     .first()
                     .and_then(|value| serde_json::from_value(value.clone()).ok())
                     .and_then(|uri| {
-                        state
-                            .documents
-                            .get(&uri)
-                            .map(|text_doc| (text_doc.root.clone(), text_doc.doc.clone()))
+                        state.documents.get(&uri).map(|text_doc| {
+                            (
+                                text_doc.format.clone(),
+                                text_doc.root.clone(),
+                                text_doc.doc.clone(),
+                            )
+                        })
                     });
                 let client = state.client.clone();
                 async move {
-                    match root_doc {
-                        Some((root, doc)) => {
-                            commands::execute_command(params, root, doc, client).await
+                    match format_root_doc {
+                        Some((format, root, doc)) => {
+                            commands::execute_command(params, format, root, doc, client).await
                         }
                         None => Ok(None),
                     }
@@ -104,13 +107,13 @@ pub async fn run() {
 
         router.request::<request::Formatting, _>(|state, params| {
             let uri = params.text_document.uri;
-            let doc = state
+            let doc_format = state
                 .documents
                 .get(&uri)
-                .map(|text_doc| text_doc.doc.clone());
+                .map(|text_doc| (text_doc.doc.clone(), text_doc.format.clone()));
             async move {
-                match doc {
-                    Some(doc) => formatting::request(doc).await,
+                match doc_format {
+                    Some((doc, format)) => formatting::request(doc, format).await,
                     None => Ok(None),
                 }
             }

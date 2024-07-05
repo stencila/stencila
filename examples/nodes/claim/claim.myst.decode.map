@@ -1,0 +1,4 @@
+start     end        offsets   node_type+property                   authorship
+     0     80        (0, 80)   Claim
+    83    206      (83, 126)   Claim
+     0    208       (-83, 2)   Article

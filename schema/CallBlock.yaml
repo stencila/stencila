@@ -19,7 +19,7 @@ properties:
       $ref: CallArgument
     strip: [code]
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: div
     proptest:

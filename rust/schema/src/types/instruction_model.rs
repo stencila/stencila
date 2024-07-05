@@ -23,26 +23,26 @@ pub struct InstructionModel {
     pub id: Option<String>,
 
     /// The name of the model.
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     pub name: Option<String>,
 
     /// The relative weighting given to model quality (0-100).
     #[serde(alias = "quality-weight", alias = "quality_weight")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     pub quality_weight: Option<UnsignedInteger>,
 
     /// The relative weighting given to model speed (0-100).
     #[serde(alias = "speed-weight", alias = "speed_weight")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     pub speed_weight: Option<UnsignedInteger>,
 
     /// The relative weighting given to model cost (0-100).
     #[serde(alias = "cost-weight", alias = "cost_weight")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     pub cost_weight: Option<UnsignedInteger>,
 
     /// The temperature option for model inference (0-100).
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     pub temperature: Option<UnsignedInteger>,
 
     /// The random seed used for the model (if possible)

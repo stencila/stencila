@@ -28,7 +28,7 @@ properties:
     items:
       $ref: InstructionMessage
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: div
   assignee:
@@ -39,7 +39,7 @@ properties:
       This property is a string because on creation of the instruction the identifier has not yet been
       resolved into a person, organization, or software application.
     patch:
-      formats: [md]
+      formats: [md, myst]
     proptest:
       min:
         description: No assignee
@@ -55,13 +55,13 @@ properties:
     description: The name, and other options, for the model that the assistant should use to generate suggestions.
     $ref: InstructionModel
     patch:
-      formats: [md]
+      formats: [md, myst]
   replicates:
     '@id': stencila:replicates
     description: The number of suggestions to generate for the instruction
     $ref: UnsignedInteger
     patch:
-      formats: [md]
+      formats: [md, myst]
   hideSuggestions:
     '@id': stencila:hideSuggestions
     description: Whether suggestions should be hidden in source views such as Markdown.

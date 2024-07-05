@@ -24,7 +24,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: span
     proptest:
@@ -53,7 +53,7 @@ properties:
     # used here because it allows for intra-doc links using a #fragment only.
     format: uri-reference
     patch:
-      formats: [md]
+      formats: [md, myst]
     html:
       attr: href
     jats:
@@ -66,7 +66,7 @@ properties:
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
     type: string
     patch:
-      formats: [md]
+      formats: [md, myst]
     html:
       attr: title
     jats:
@@ -77,7 +77,7 @@ properties:
       The relation between the target and the current thing.
       # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
     patch:
-      formats: [md]
+      formats: [md, myst]
     type: string
     html:
       attr: rel

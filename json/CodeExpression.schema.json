@@ -8,7 +8,7 @@
     "CodeExecutable"
   ],
   "category": "code",
-  "description": "An executable programming code expression.",
+  "description": "An executable code expression.",
   "$comment": "Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.",
   "jats": {
     "elem": "code",
@@ -54,6 +54,7 @@
     "executionMode": {
       "@id": "stencila:executionMode",
       "description": "Under which circumstances the code should be executed.",
+      "$comment": "This is an override of the property spec from `Executable` which is necessary\nbecause `patch.formats` should not include 'myst' (because MyST does not support options on \"roles\").\n",
       "aliases": [
         "execution-mode",
         "execution_mode"
@@ -292,7 +293,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "jats": {
@@ -321,6 +323,7 @@
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
       "description": "The programming language of the code.",
+      "$comment": "This is an override of the property spec from `CodeExecutable` which is necessary\nbecause `patch.formats` should not include 'myst' (because MyST does not support options on \"roles\").\n",
       "aliases": [
         "programming-language",
         "programming_language"
@@ -335,24 +338,6 @@
       },
       "jats": {
         "attr": "language"
-      },
-      "proptest": {
-        "min": {
-          "description": "Generate a simple fixed string.",
-          "value": "Some(String::from(\"lang\"))"
-        },
-        "low": {
-          "description": "Generate one of the well known programming language short names.",
-          "strategy": "option::of(r\"(cpp)|(js)|(py)|(r)|(ts)\")"
-        },
-        "high": {
-          "description": "Generate a random string of up to 10 alphanumeric characters.",
-          "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
-        },
-        "max": {
-          "description": "Generate an arbitrary string.",
-          "strategy": "option::of(String::arbitrary())"
-        }
       },
       "type": "string"
     },

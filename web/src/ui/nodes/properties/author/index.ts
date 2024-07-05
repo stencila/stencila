@@ -69,6 +69,14 @@ export class UINodeAuthor extends LitElement {
   roleName?: AuthorRoleName
 
   /**
+   * The format the the author used
+   *
+   * Only available for `AuthorRole` authors.
+   */
+  @property()
+  format?: string
+
+  /**
    * The timestamp of the last modification made by the author in a particular role
    *
    * Only available for `AuthorRole` authors.
@@ -83,7 +91,7 @@ export class UINodeAuthor extends LitElement {
   details?: string
 
   override render() {
-    return html`<div class="@container">
+    return html`<div class="@container w-full">
       <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
         <div class="flex flex-row flex-grow">
           <div class="flex items-center justify-center mr-2">
@@ -96,7 +104,10 @@ export class UINodeAuthor extends LitElement {
           <div class="grow flex flex-col justify-center">
             <span
               class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
-              >${this.roleName}</span
+              >${this.roleName}
+              ${this.format
+                ? html`<span class="opacity-60"> ${this.format}</span>`
+                : ''}</span
             >
             <span
               class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"

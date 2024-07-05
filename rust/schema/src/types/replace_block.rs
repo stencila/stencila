@@ -33,7 +33,7 @@ pub struct ReplaceBlock {
     /// The status of the suggestion including whether it is proposed, accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub suggestion_status: Option<SuggestionStatus>,
 
@@ -67,7 +67,7 @@ pub struct ReplaceBlock {
     pub execution_ended: Option<Timestamp>,
 
     /// Feedback on the suggestion
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub feedback: Option<String>,
 
@@ -84,7 +84,7 @@ pub struct ReplaceBlock {
 
     /// The new replacement block content.
     #[serde(deserialize_with = "one_or_many")]
-    #[patch(format = "md")]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub replacement: Vec<Block>,

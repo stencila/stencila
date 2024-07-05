@@ -1,1 +1,1 @@
-An include of a sibling example: ../heading/heading.md An include of a remote document: http://example.org/document.md
+An include of a sibling example: ../heading/heading.md An include of a remote document: http://example.org/document.md With options: Always../paragraph/paragraph.mdtext/markdown#para-1

@@ -26,6 +26,22 @@
     {
       type: "IncludeBlock",
       source: "http:\/\/example.org\/document.md"
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "With options:" }
+        }
+      ]
+    },
+    {
+      type: "IncludeBlock",
+      executionMode: "Always",
+      source: "..\/paragraph\/paragraph.md",
+      mediaType: "text\/markdown",
+      select: "#para-1"
     }
   ]
 }

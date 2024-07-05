@@ -9,3 +9,9 @@ md:
     strip-props:
       # Not supported in Markdown
       - StyledBlock.style_language
+
+myst:
+  decode:
+    strip-props:
+      # As for Markdown
+      - StyledBlock.style_language

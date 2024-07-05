@@ -1,0 +1,5 @@
+start     end        offsets   node_type+property                   authorship
+    58     68       (58, 68)   Emphasis
+    70     97       (12, 29)   Link
+     0    113      (-70, 16)   Paragraph
+     0    114         (0, 1)   Article

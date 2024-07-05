@@ -429,7 +429,7 @@ impl EncodeOptions {
 
         let format = format_or_codec
             .map_or_else(
-                || output.and_then(|path| Format::from_path(path).ok()),
+                || output.map(Format::from_path),
                 |name| Some(Format::from_name(&name)),
             )
             .or(Some(default_format));

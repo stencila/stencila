@@ -26,7 +26,7 @@ impl Codec for MarkdownCodec {
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
-            Format::Markdown => LowLoss,
+            Format::Markdown | Format::Myst => LowLoss,
             _ => None,
         }
     }
@@ -34,7 +34,7 @@ impl Codec for MarkdownCodec {
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
-            Format::Markdown => LowLoss,
+            Format::Markdown | Format::Myst => LowLoss,
             _ => None,
         }
     }
@@ -106,8 +106,7 @@ impl Codec for MarkdownCodec {
     ) -> Result<(String, EncodeInfo)> {
         let options = options.unwrap_or_default();
 
-        let mut context = MarkdownEncodeContext::default();
-        context.render = options.render.unwrap_or_default();
+        let mut context = MarkdownEncodeContext::new(options.format, options.render);
 
         node.to_markdown(&mut context);
         if context.content.ends_with("\n\n") {

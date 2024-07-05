@@ -1,0 +1,24 @@
+start     end        offsets   node_type+property                   authorship
+     0     32        (0, 32)   Text.value
+     0     32         (0, 0)   Text
+     0     32         (0, 0)   Paragraph.content
+     0     33         (0, 1)   Paragraph
+    47     68       (47, 35)   IncludeBlock.source
+    34     73       (-13, 5)   IncludeBlock
+    75    107       (41, 34)   Text.value
+    75    107         (0, 0)   Text
+    75    107         (0, 0)   Paragraph.content
+    75    108         (0, 1)   Paragraph
+   122    152       (47, 44)   IncludeBlock.source
+   109    157       (-13, 5)   IncludeBlock
+   159    172       (50, 15)   Text.value
+   159    172         (0, 0)   Text
+   159    172         (0, 0)   Paragraph.content
+   159    173         (0, 1)   Paragraph
+   187    212       (28, 39)   IncludeBlock.source
+   220    226       (33, 14)   IncludeBlock.executionMode
+   236    249       (16, 23)   IncludeBlock.mediaType
+   259    266       (23, 17)   IncludeBlock.select
+   174    272       (-85, 6)   IncludeBlock
+     0    274      (-174, 2)   Article.content
+     0    274         (0, 0)   Article

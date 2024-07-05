@@ -59,6 +59,9 @@
           "@id": "stencila:CodeExecutable"
         },
         {
+          "@id": "stencila:CodeExpression"
+        },
+        {
           "@id": "stencila:CodeStatic"
         },
         {

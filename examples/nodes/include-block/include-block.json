@@ -27,6 +27,22 @@
     {
       "type": "IncludeBlock",
       "source": "http://example.org/document.md"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With options:"
+        }
+      ]
+    },
+    {
+      "type": "IncludeBlock",
+      "source": "../paragraph/paragraph.md",
+      "executionMode": "Always",
+      "mediaType": "text/markdown",
+      "select": "#para-1"
     }
   ]
 }

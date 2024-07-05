@@ -11,3 +11,9 @@ md:
     # Encoding/decoding of parameter to Markdown is not supported (source property)
     strip-props:
       - Parameter.value
+
+myst:
+  decode:
+    # As for Markdown
+    strip-props:
+      - Parameter.value

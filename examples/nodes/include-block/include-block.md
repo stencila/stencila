@@ -5,3 +5,7 @@ An include of a sibling example:
 An include of a remote document:
 
 ::: include http://example.org/document.md
+
+With options:
+
+::: include ../paragraph/paragraph.md { always format=text/markdown select=#para-1}

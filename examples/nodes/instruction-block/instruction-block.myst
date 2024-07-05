@@ -1,0 +1,65 @@
+An insert instruction with no assignee:
+
+:::{new} a 4x10 table
+
+:::
+
+An insert instruction with an assignee:
+
+:::{new} top five highest mountains, with height in metres
+:assign: table
+
+:::
+
+An insert instruction with an assignee but a blank instruction
+
+:::{new} 
+:assign: code-chunk
+
+:::
+
+An edit instruction (has content) with no assignee:
+
+:::{edit} improve this paragraph
+
+The paragraph to be improved.
+
+:::
+
+An edit instruction with an assignee:
+
+:::{edit} please improve this paragraph
+:assign: anne
+
+Another paragraph to be improved.
+
+:::
+
+An insert instruction with an assignee and a suggestion:
+
+:::{new} analyze data
+:assign: code-chunk
+
+:::
+
+:::{suggest}
+
+````{code-cell}
+some code
+````
+
+:::
+
+An edit instruction with a suggestion:
+
+:::{edit} more succinct
+
+A rather long winded paragraph.
+
+:::
+
+:::{suggest}
+
+A paragraph.
+
+:::

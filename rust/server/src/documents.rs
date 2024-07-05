@@ -159,8 +159,8 @@ fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
                 && path.is_file()
         })
         .sorted_by(|a, b| {
-            let a_format = Format::from_path(a).unwrap_or_default();
-            let b_format = Format::from_path(b).unwrap_or_default();
+            let a_format = Format::from_path(a);
+            let b_format = Format::from_path(b);
             match a_format.rank().cmp(&b_format.rank()) {
                 Ordering::Equal => {
                     let a_modified = std::fs::metadata(a)

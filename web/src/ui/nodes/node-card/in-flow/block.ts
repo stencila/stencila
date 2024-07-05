@@ -21,29 +21,32 @@ export class UIBlockInFlow extends UIBaseCard {
       'transition duration-400',
       'border border-[rgba(255,255,255,0)]',
       'rounded',
+      `text-[${this.ui.textColour}]`,
       this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
       this.ui.borderColour && `border-[${this.ui.borderColour}]`,
     ])
 
-    return html`<div class=${`${cardStyles}`}>
-      <div class="relative">
-        ${this.renderHeader()} ${this.renderAnimatedCardBody()}
+    const headerStyles = this.collapsed && 'rounded-sm'
+
+    return html`
+      <div class=${`${cardStyles}`}>
+        <div class="relative">
+          ${this.renderHeader(headerStyles)} ${this.renderAnimatedCardBody()}
+        </div>
+        <div>${this.renderContent()}</div>
       </div>
-    </div>`
+    `
   }
 
   protected override renderBody() {
-    const { colour, borderColour } = this.ui
-    const bodyStyles = apply([
-      'relative',
-      'w-full h-full',
-      `bg-[${colour}]`,
-      `border border-[${borderColour}] rounded-b`,
-    ])
+    const { colour } = this.ui
+    const bodyStyles = apply(['relative', 'w-full h-full', `bg-[${colour}]`])
 
-    return html`<div class=${bodyStyles}>
-      <slot name="body"></slot>
-    </div>`
+    return html`
+      <div class=${bodyStyles}>
+        <slot name="body"></slot>
+      </div>
+    `
   }
 
   protected override renderContent() {
@@ -54,8 +57,12 @@ export class UIBlockInFlow extends UIBaseCard {
       'px-3',
     ])
 
-    return html`<div class=${contentStyles}>
-      <slot name="content"></slot>
-    </div>`
+    return html`
+      <div class=${!this.displayContent ? 'hidden' : 'block'}>
+        <div class=${contentStyles}>
+          <slot name="content"></slot>
+        </div>
+      </div>
+    `
   }
 }

@@ -1,0 +1,113 @@
+// Code snippets for MyST
+//
+// Originally based on https://github.com/executablebooks/myst-vs-code/blob/faecfca8af7395ab207d1fffbcbde6ad836e03a8/snippets/directives.json
+// with many updates, additions and removals (that file was >4 years old when this one was created)
+{
+  // Admonitions
+  "Attention": {
+    "description": "An attention directive",
+    "prefix": [":::{attention}"],
+    "body": [":::{attention}", "", "${0:content}", "", ":::", ""],
+  },
+  "Caution": {
+    "description": "A caution directive",
+    "prefix": [":::{caution}"],
+    "body": [":::{caution}", "", "${0:content}", "", ":::", ""],
+  },
+  "Danger": {
+    "description": "A danger directive",
+    "prefix": [":::{danger}"],
+    "body": [":::{danger}", "", "${0:content}", "", ":::", ""],
+  },
+  "Error": {
+    "description": "An error directive",
+    "prefix": [":::{error}"],
+    "body": [":::{error}", "", "${0:content}", "", ":::", ""],
+  },
+  "Hint": {
+    "description": "A hint directive",
+    "prefix": [":::{hint}"],
+    "body": [":::{hint}", "", "${0:content}", "", ":::", ""],
+  },
+  "Important": {
+    "description": "An important directive",
+    "prefix": [":::{important}"],
+    "body": [":::{important}", "", "${0:content}", "", ":::", ""],
+  },
+  "Note": {
+    "description": "A note directive",
+    "prefix": [":::{note}"],
+    "body": [":::{note}", "", "${0:content}", "", ":::", ""],
+  },
+  "See Also": {
+    "description": "A see also directive",
+    "prefix": [":::{seealso}"],
+    "body": [":::{seealso}", "", "${0:content}", "", ":::", ""],
+  },
+  "Tip": {
+    "description": "A tip directive",
+    "prefix": [":::{tip}"],
+    "body": [":::{tip}", "", "${0:content}", "", ":::", ""],
+  },
+  "Warning": {
+    "description": "A warning directive",
+    "prefix": [":::{warning}"],
+    "body": [":::{warning}", "", "${0:content}", "", ":::", ""],
+  },
+  // Tables, figures
+  "Table": {
+    "description": "A table with a caption",
+    "prefix": [":::{table}"],
+    "body": [":::{table} ${2:caption}", "", "${0:content}", "", ":::", ""],
+  },
+  "Figure": {
+    "description": "A figure with a caption",
+    "prefix": [":::{figure}"],
+    "body": [
+      ":::{figure} ${1:path/to/image}",
+      "",
+      "${0:caption}",
+      "",
+      ":::",
+      "",
+    ],
+  },
+  // Code blocks and cells
+  "Code Block": {
+    "description": "A presentational code block",
+    "prefix": ["```{code}"],
+    "body": ["```{code} ${2:python}", "${0:code}", "```", ""],
+  },
+  "Code Cell": {
+    "description": "An executable code cell",
+    "prefix": ["```{code-cell}"],
+    "body": ["```{code-cell} ${2:python}", "${0:code}", "```", ""],
+  },
+  // Include
+  "Include": {
+    "description": "Include a file",
+    "prefix": [":::{include}"],
+    "body": [":::{include} ${0:source}", ":::", ""],
+  },
+  // Stencila's custom directives
+  "If Block": {
+    "description": "An if block",
+    "prefix": [":::{if}"],
+    "body": [":::{if} ${2:expr}", "", "${0:content}", "", ":::", ""],
+  },
+  "For Block": {
+    "description": "A for block",
+    "prefix": [":::{for}"],
+    "body": [":::{for} ${2:expr}", "", "${0:content}", "", ":::", ""],
+  },
+  "Instruction Block: New": {
+    "description": "An instruction to create a new node",
+    "prefix": [":::{new}"],
+    "body": [":::{new} ${2:instruction}", ":::", ""],
+  },
+  "Styled Block": {
+    "description": "A block of styled content",
+    "prefix": [":::{style}"],
+    "body": [":::{style} ${2:style}", "", "${0:content}", "", ":::", ""],
+  },
+}

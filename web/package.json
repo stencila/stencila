@@ -77,7 +77,7 @@
     "@codemirror/legacy-modes": "6.4.0",
     "@codemirror/lint": "^6.7.0",
     "@codemirror/state": "6.4.1",
-    "@codemirror/view": "6.28.2",
+    "@codemirror/view": "6.28.4",
     "@lit/context": "1.1.2",
     "@shoelace-style/shoelace": "2.15.1",
     "@stencila/types": "2.0.0-alpha.26",

@@ -1,12 +1,16 @@
 {
   "iconDefinitions": {
-    "_stencila_light": {
-      "iconPath": "./images/stencila-icon-32x32.svg"
+    "_stencila": {
+      "iconPath": "./stencila-icon-32x32.svg"
+    },
+    "_myst": {
+      "iconPath": "./myst-icon-128x128.png"
     }
   },
   "light": {
     "fileExtensions": {
-      "smd": "_stencila_light"
+      "smd": "_stencila",
+      "myst": "_myst"
     }
   }
 }

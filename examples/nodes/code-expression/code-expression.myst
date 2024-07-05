@@ -1,0 +1,11 @@
+With a number output {eval}`6 * 7`.
+
+With a string output {eval}`'a string'`.
+
+With an array output {eval}`[1, 2, 3]`.
+
+With an object output {eval}`dict(a=1,b=dict())`.
+
+With no language specified and no output {eval}`a + b`.
+
+With execution mode specified and no output {eval}`c * d`.

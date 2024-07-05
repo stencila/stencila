@@ -49,7 +49,8 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "md",
+          "myst"
         ]
       },
       "$ref": "ExecutionMode.schema.json"

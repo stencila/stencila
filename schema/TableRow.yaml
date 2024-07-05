@@ -22,7 +22,7 @@ properties:
       $ref: TableCell
     walk: true
     patch:
-      formats: [md]
+      formats: [md, myst]
     dom:
       elem: tr
     proptest:
@@ -43,4 +43,4 @@ properties:
     description: The type of row.
     $ref: TableRowType
     patch:
-      formats: [md]
+      formats: [md, myst]

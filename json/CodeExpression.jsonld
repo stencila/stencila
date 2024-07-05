@@ -12,7 +12,7 @@
       "@id": "stencila:CodeExpression",
       "@type": "rdfs:Class",
       "rdfs:label": "CodeExpression",
-      "rdfs:comment": "An executable programming code expression.",
+      "rdfs:comment": "An executable code expression.",
       "rdfs:subClassOf": {
         "@id": "stencila:CodeExecutable"
       }
@@ -22,9 +22,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
       "rdfs:comment": "Under which circumstances the code should be executed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExpression"
+        },
+        {
+          "@id": "stencila:Executable"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
       }
@@ -251,6 +256,9 @@
         },
         {
           "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeExpression"
         },
         {
           "@id": "stencila:CodeStatic"

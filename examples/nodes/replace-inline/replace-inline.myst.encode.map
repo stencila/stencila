@@ -1,0 +1,16 @@
+start     end        offsets   node_type+property                   authorship
+     0      5         (0, 5)   Text.value
+     0      5         (0, 0)   Text
+    15     18       (15, 13)   Text.value
+    15     18         (0, 0)   Text
+    15     18         (0, 0)   ReplaceInline.content
+    20     23         (5, 5)   Text.value
+    20     23         (0, 0)   Text
+    20     23         (0, 0)   ReplaceInline.replacement
+     5     25       (-15, 2)   ReplaceInline
+    25     31        (20, 6)   Text.value
+    25     31         (0, 0)   Text
+     0     31       (-25, 0)   Paragraph.content
+     0     32         (0, 1)   Paragraph
+     0     33         (0, 1)   Article.content
+     0     33         (0, 0)   Article

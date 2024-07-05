@@ -255,6 +255,13 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
+            String::from("myst"),
+            FormatConfig {
+                format: Format::Myst,
+                ..Default::default()
+            },
+        ),
+        (
             String::from("txt"),
             FormatConfig {
                 format: Format::Text,

@@ -1,0 +1,7 @@
+myst:
+  decode:
+    strip-props:
+      # Decoding of MyST `:class: dropdown` into `is_folded` is supported
+      # but always results in `true` (never false). So we need to strip it
+      # for this test. 
+      - Admonition.is_folded

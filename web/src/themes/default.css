@@ -17,9 +17,12 @@ body {
   padding: 3rem;
 
   /* custom properties */
+  --default-text-colour: #171817;
+
+  /* code */
   --code-font-family: 'IBM Plex Mono', monospace;
   --code-bg-colour: #f2f2f2;
-  --code-font-size: 0.875rem;
+  --code-font-size: 1rem;
 }
 
 figure {
@@ -35,7 +38,9 @@ figure {
 }
 
 [root] {
-  @apply text-black prose lg:prose-lg;
+  @apply prose lg:prose-lg;
+
+  color: var(--default-text-colour);
 
   > section {
     @apply min-w-80 w-full max-w-prose mx-auto;
@@ -295,6 +300,12 @@ figure {
   stencila-admonition {
     p {
       @apply mt-0;
+    }
+  }
+
+  stencila-suggestion-block {
+    [slot='content'] {
+      color: var(--default-text-colour);
     }
   }
 }

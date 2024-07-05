@@ -16,25 +16,25 @@ properties:
     description: The name of the model.
     type: string
     patch:
-      formats: [md]
+      formats: [md, myst]
   qualityWeight:
     '@id': stencila:qualityWeight
     description: The relative weighting given to model quality (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md]
+      formats: [md, myst]
   speedWeight:
     '@id': stencila:speedWeight
     description: The relative weighting given to model speed (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md]
+      formats: [md, myst]
   costWeight:
     '@id': stencila:costWeight
     description: The relative weighting given to model cost (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md]
+      formats: [md, myst]
   temperature:
     '@id': stencila:temperature
     description: The temperature option for model inference (0-100).
@@ -44,7 +44,7 @@ properties:
       to more diverse and creative outputs.
     $ref: UnsignedInteger
     patch:
-      formats: [md]
+      formats: [md, myst]
   randomSeed:
     '@id': stencila:randomSeed
     description: The random seed used for the model (if possible)
