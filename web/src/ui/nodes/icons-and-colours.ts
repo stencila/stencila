@@ -193,7 +193,7 @@ type AdmonitionTypeUI = {
 
 const admonitionColours = (name: string) => ({
   baseColour: colours[name][50],
-  borderColour: colours[name][500],
+  borderColour: colours[name][400],
   textColour: colours[name][800],
 })
 
