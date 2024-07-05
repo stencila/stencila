@@ -1,6 +1,6 @@
 import { AdmonitionType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { PropertyValueMap, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
@@ -32,6 +32,11 @@ export class Admonition extends Entity {
   @property({ attribute: 'is-folded' })
   isFolded?: 'true' | 'false'
 
+  /**
+   * Whether the admonition has a title.
+   *
+   * Used to generate a title using the `admonitionType` if necessary.
+   */
   @state()
   hasTitleSlot: boolean
 
@@ -43,21 +48,9 @@ export class Admonition extends Entity {
     }
   }
 
-  protected override firstUpdated(
-    _changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>
-  ): void {
-    super.firstUpdated(_changedProperties)
-
-    const slot = this.shadowRoot.querySelector(
-      'slot[name="title"]'
-    ) as HTMLSlotElement
-
-    if (slot) {
-      this.hasTitleSlot = slot.assignedElements().length > 0
-      slot.addEventListener('slotchange', () => {
-        this.hasTitleSlot = slot.assignedElements().length > 0
-      })
-    }
+  private onTitleSlotChange(event: Event): void {
+    const slot = event.target as HTMLSlotElement
+    this.hasTitleSlot = slot.assignedElements().length > 0
   }
 
   override render() {
@@ -108,22 +101,16 @@ export class Admonition extends Entity {
       <div class=${styles}>
         <sl-icon name=${icon} library=${iconLibrary}> </sl-icon>
         <div class="ml-2 flex-grow text-sm font-semibold">
-          <slot name="title"></slot>
-          ${
-            // use `admonitionType` as default title
-            !this.hasTitleSlot ? this.admonitionType : ''
-          }
+          <slot name="title" @slotchange=${this.onTitleSlotChange}></slot>
+          ${!this.hasTitleSlot ? this.admonitionType : ''}
         </div>
 
-        <!-- TODO: Chevron if this.isFolded is defined, downward if false, right if true -->
         ${this.isFolded !== undefined
           ? html`<stencila-chevron-button
               default-pos=${this.isFolded === 'true' ? 'left' : 'down'}
               slot="right-side"
               custom-class="flex items-center"
-              .clickEvent=${() => {
-                this.toggleIsFolded()
-              }}
+              .clickEvent=${() => this.toggleIsFolded()}
             ></stencila-chevron-button>`
           : ''}
       </div>
