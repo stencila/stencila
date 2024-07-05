@@ -13,6 +13,7 @@ mod code_block;
 mod code_chunk;
 mod code_expression;
 mod code_inline;
+mod code_location;
 mod cord;
 mod datatable;
 mod datatable_columns;

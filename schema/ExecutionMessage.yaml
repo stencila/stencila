@@ -35,7 +35,7 @@ properties:
     description: The location that the error occurred or other message emanated from.
     $ref: CodeLocation
     dom:
-      elem: span
+      with: CodeLocation::to_dom_attr
   stackTrace:
     '@id': stencila:stackTrace
     aliases:
