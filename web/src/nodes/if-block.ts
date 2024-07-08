@@ -20,6 +20,8 @@ export class IfBlock extends Executable {
         type="IfBlock"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        node-id=${this.id}
+        ?removeContentPadding=${true}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
@@ -62,7 +64,6 @@ export class IfBlock extends Executable {
         </div>
 
         <div slot="content">
-          <!-- TODO: remove padding because clauses have it around their content-->
           <slot name="clauses"></slot>
         </div>
       </stencila-ui-block-on-demand>

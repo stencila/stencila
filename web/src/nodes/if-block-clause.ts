@@ -1,8 +1,11 @@
+import { consume } from '@lit/context'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import { withTwind } from '../twind'
 import '../ui/nodes/card'
+
+import { withTwind } from '../twind'
+import { EntityContext, entityContext } from '../ui/nodes/context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { CodeExecutable } from './code-executable'
@@ -23,6 +26,17 @@ export class IfBlockClause extends CodeExecutable {
    */
   @property({ attribute: 'is-active' })
   isActive?: 'true' | 'false'
+
+  @state()
+  private isFolded: boolean = true
+
+  /**
+   * consumer for the parent `IfBlock` node's entity context
+   * used to check the card status of the
+   */
+  @consume({ context: entityContext, subscribe: true })
+  @state()
+  private ifBlockConsumer: EntityContext
 
   /**
    * Whether the clause has any content
@@ -62,6 +76,11 @@ export class IfBlockClause extends CodeExecutable {
     })
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback()
+    this.isFolded = this.isActive === 'false'
+  }
+
   override render() {
     const { colour, borderColour, textColour } = nodeUi('IfBlock')
 
@@ -79,45 +98,64 @@ export class IfBlockClause extends CodeExecutable {
     }
 
     const borderPosition = index == siblings.length - 1 ? '0' : 'b'
-
     return html`
       <!-- TODO: this header should hidden when the parent IfBlock is collapsed -->
-      <div
-        class="px-1 py-3 bg-[${colour}] border-${borderPosition} border-[${borderColour}]"
+      ${this.ifBlockConsumer.cardOpen
+        ? html`<div
+            class="p-3 flex items-center text-[${textColour}] bg-[${colour}] border-${borderPosition} border-[${borderColour}]"
+          >
+            <!-- TODO: add icon, preferably different for if, elif and else -->
+            <sl-icon
+              name=${label === 'else' ? 'node-minus' : 'node-plus'}
+              library="default"
+              class="text-lg"
+            >
+            </sl-icon>
+            <span
+              class="${isActive
+                ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
+                : ''} font-bold font-mono mx-3"
+              >${label}</span
+            >
+
+            <!-- TODO: improve appearance of this code: rounded borders?, minimum width or full width-->
+            <stencila-ui-node-code
+              type="IfBlock"
+              code=${this.code}
+              .code-authorship=${this.codeAuthorship}
+              language=${this.programmingLanguage}
+              read-only
+              no-gutters
+              containerClasses="inline-block border border-[${borderColour}]"
+              class=${label === 'else' ? 'hidden' : ''}
+            >
+              <slot name="execution-messages"></slot>
+            </stencila-ui-node-code>
+
+            <!-- TODO: use icon for lang if available, if not then the name in a pill or something -->
+            <span class="font-mono">${this.programmingLanguage ?? ''}</span>
+
+            <stencila-chevron-button
+              class="ml-auto"
+              default-pos=${this.isFolded ? 'left' : 'down'}
+              slot="right-side"
+              custom-class="flex items-center"
+              .clickEvent=${() => (this.isFolded = !this.isFolded)}
+            ></stencila-chevron-button>
+
+            <!-- TODO: Add a chevron to collapse/expand the content, regardless of if active or not -->
+          </div>`
+        : ''}
+      <stencila-ui-collapsible-animation
+        class=${!this.isFolded ? 'opened' : ''}
       >
-        <!-- TODO: add icon, preferably different for if, elif and else -->
-
-        <span class="${isActive
-          ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
-          : ''} font-bold font-mono text-[${textColour}] m-3"
-          >${label}</span>
-
-        <!-- TODO: improve appearance of this code: rounded borders?, minimum width or full width-->
-        <stencila-ui-node-code
-          type="IfBlock"
-          code=${this.code}
-          .code-authorship=${this.codeAuthorship}
-          language=${this.programmingLanguage}
-          read-only
-          no-gutters
-          containerClasses="inline-block border border-[${borderColour}]"
-          class=${label === 'else' ? 'hidden' : ''}
-        >
-          <slot name="execution-messages"></slot>
-        </stencila-ui-node-code>
-
-        <!-- TODO: use icon for lang if available, if not then the name in a pill or something -->
-        <span class="font-mono text-[${textColour}]">${this.programmingLanguage ?? ''}</span>
-
-        <!-- TODO: Add a chevron to collapse/expand the content, regardless of if active or not -->
-      </div>
-
-      <div class="p-1 ${isActive ? '' : 'hidden'}">
-        <p class="text-center text-grey-400 italic" contenteditable="false">
-          ${this.hasContent ? '' : 'No content'}
-        </p>
-        <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
-      </div>
+        <div class="p-3">
+          <p class="text-center text-grey-400 italic" contenteditable="false">
+            ${this.hasContent ? '' : 'No content'}
+          </p>
+          <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
+        </div>
+      </stencila-ui-collapsible-animation>
     `
   }
 }
