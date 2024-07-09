@@ -9,10 +9,15 @@ export declare class AvailableLanguagesInterface {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Constructor<T> = new (...args: any[]) => T
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AbstractContructor<T> = abstract new (...args: any[]) => T
+
 /**
  * A mixin that supplies available programming languages & their icons.
  */
-export const AvailableLanguagesMixin = <T extends Constructor<LitElement>>(
+export const AvailableLanguagesMixin = <
+  T extends Constructor<LitElement> | AbstractContructor<LitElement>,
+>(
   superClass: T
 ) => {
   class AvailableLanguages extends superClass {
