@@ -139,7 +139,6 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           >
         </span>
 
-        <!-- TODO: improve appearance of this code: rounded borders?, minimum width or full width-->
         <stencila-ui-node-code
           type="IfBlock"
           code=${this.code}
@@ -153,7 +152,6 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
 
-        <!-- TODO: use icon for lang if available, if not then the name in a pill or something -->
         ${this.renderLang()}
 
         <stencila-chevron-button
