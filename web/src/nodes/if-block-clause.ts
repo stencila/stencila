@@ -168,15 +168,23 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
   }
 
   protected renderLang() {
+    const { textColour } = nodeUi('IfBlock')
     if (this.programmingLanguage) {
       if (this.programmingLanguage in this.languages) {
         const lang =
           this.languages[this.programmingLanguage as AvailableLanguages]
         return html`
-          <sl-icon name=${lang.icon[0]} library=${lang.icon[1]}></sl-icon>
+          <sl-icon
+            class="text-lg"
+            name=${lang.icon[0]}
+            library=${lang.icon[1]}
+          ></sl-icon>
         `
       } else {
-        return html`<span class="font-mono">${this.programmingLanguage}</span>`
+        return html`<span
+          class="font-mono text-sm px-2 border border-[${textColour}] rounded-full"
+          >${this.programmingLanguage}</span
+        > `
       }
     }
     return ''
