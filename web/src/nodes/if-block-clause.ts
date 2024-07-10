@@ -2,7 +2,9 @@ import { consume } from '@lit/context'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import '../ui/nodes/card'
+import '../ui/nodes/properties/code/code'
+import '../ui/animation/collapsible'
+
 import { withTwind } from '../twind'
 import { AvailableLanguages } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/context'
@@ -28,16 +30,23 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
   @property({ attribute: 'is-active' })
   isActive?: 'true' | 'false'
 
-  @state()
-  private isFolded: boolean = true
-
   /**
-   * consumer for the parent `IfBlock` node's entity context
-   * used to check the card status of the
+   * Consumer for the parent `IfBlock` node's entity context
+   *
+   * Used to check whether the card for the `IfBlock` that this clause
+   * is a member of is open or not. If it is open, the content of
+   * all clauses should be visible. If it is closed, only the content
+   * of the active clauses should be visible.
    */
   @consume({ context: entityContext, subscribe: true })
   @state()
   private ifBlockConsumer: EntityContext
+
+  /**
+   * Whether the clause is folded (i.e. its content is hidden)
+   */
+  @state()
+  private isFolded: boolean = true
 
   /**
    * Whether the clause has any content
@@ -152,7 +161,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
 
-        ${this.renderLang()}
+        ${this.renderLanguage()}
 
         <stencila-chevron-button
           class="ml-auto"
@@ -165,25 +174,27 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
     `
   }
 
-  protected renderLang() {
-    const { textColour } = nodeUi('IfBlock')
+  protected renderLanguage() {
     if (this.programmingLanguage) {
-      if (this.programmingLanguage in this.languages) {
-        const lang =
-          this.languages[this.programmingLanguage as AvailableLanguages]
-        return html`
-          <sl-icon
-            class="text-lg"
-            name=${lang.icon[0]}
-            library=${lang.icon[1]}
-          ></sl-icon>
-        `
-      } else {
-        return html`<span
-          class="font-mono text-sm px-2 border border-[${textColour}] rounded-full"
-          >${this.programmingLanguage}</span
-        > `
-      }
+      const {
+        displayName,
+        icon: [iconName, iconLibrary],
+      } =
+        this.programmingLanguage in this.languages
+          ? this.languages[this.programmingLanguage as AvailableLanguages]
+          : {
+              displayName: this.programmingLanguage,
+              icon: this.languages['default'].icon,
+            }
+
+      return html`
+        <sl-icon
+          class="text-lg"
+          name=${iconName}
+          library=${iconLibrary}
+        ></sl-icon
+        ><span class="text-sm ml-1">${displayName}</span>
+      `
     }
     return ''
   }
