@@ -20,8 +20,17 @@ export class IfBlock extends Executable {
         type="IfBlock"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        node-id=${this.id}
+        ?removeContentPadding=${true}
       >
-        <span slot="header-right"></span>
+        <span slot="header-right">
+          <stencila-ui-node-execution-commands
+            type="IfBlock"
+            node-id=${this.id}
+          >
+          </stencila-ui-node-execution-commands>
+        </span>
+
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details
             type="IfBlock"
@@ -53,6 +62,7 @@ export class IfBlock extends Executable {
             <slot name="execution-messages"></slot>
           </stencila-ui-node-execution-messages>
         </div>
+
         <div slot="content">
           <slot name="clauses"></slot>
         </div>

@@ -8,7 +8,51 @@
       "clauses": [
         {
           "type": "IfBlockClause",
-          "code": "false",
+          "code": {
+            "string": "false"
+          },
+          "programmingLanguage": "js",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "QuickJS is falsy"
+                  }
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 10842557425490069685
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 10842557425490069685
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1720133120967,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 5,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "false"
+          },
           "programmingLanguage": "nodejs",
           "isActive": false,
           "content": [
@@ -17,28 +61,40 @@
               "content": [
                 {
                   "type": "Text",
-                  "value": "Node.js is wrong"
+                  "value": {
+                    "string": "Node.js is falsy"
+                  }
                 }
               ]
             }
           ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 10146776635162061319
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 10146776635162061319
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1714644393620,
+            "value": 1720133121112,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 170,
+            "value": 144,
             "timeUnit": "Millisecond"
           }
         },
         {
           "type": "IfBlockClause",
-          "code": "False",
+          "code": {
+            "string": "False"
+          },
           "programmingLanguage": "python",
           "isActive": false,
           "content": [
@@ -47,28 +103,40 @@
               "content": [
                 {
                   "type": "Text",
-                  "value": "Python is wrong"
+                  "value": {
+                    "string": "Python is falsy"
+                  }
                 }
               ]
             }
           ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 13742482793603365424
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 13742482793603365424
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1714644394116,
+            "value": 1720133121601,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 496,
+            "value": 489,
             "timeUnit": "Millisecond"
           }
         },
         {
           "type": "IfBlockClause",
-          "code": "FALSE",
+          "code": {
+            "string": "FALSE"
+          },
           "programmingLanguage": "r",
           "isActive": false,
           "content": [
@@ -77,28 +145,40 @@
               "content": [
                 {
                   "type": "Text",
-                  "value": "R is wrong"
+                  "value": {
+                    "string": "R is falsy"
+                  }
                 }
               ]
             }
           ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 15000900910887471719
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 15000900910887471719
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1714644394388,
+            "value": 1720133121859,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
             "type": "Duration",
-            "value": 271,
+            "value": 258,
             "timeUnit": "Millisecond"
           }
         },
         {
           "type": "IfBlockClause",
-          "code": "false",
+          "code": {
+            "string": "false"
+          },
           "programmingLanguage": "rhai",
           "isActive": false,
           "content": [
@@ -107,17 +187,27 @@
               "content": [
                 {
                   "type": "Text",
-                  "value": "Rhai is wrong"
+                  "value": {
+                    "string": "Rhai is falsy"
+                  }
                 }
               ]
             }
           ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 3301966588861366618
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 3301966588861366618
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1714644394391,
+            "value": 1720133121862,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
@@ -128,7 +218,9 @@
         },
         {
           "type": "IfBlockClause",
-          "code": "",
+          "code": {
+            "string": ""
+          },
           "isActive": true,
           "content": [
             {
@@ -136,17 +228,27 @@
               "content": [
                 {
                   "type": "Text",
-                  "value": "They are all right!"
+                  "value": {
+                    "string": "They are all falsy!"
+                  }
                 }
               ]
             }
           ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9336520420413539212
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9336520420413539212
+          },
           "executionCount": 1,
           "executionRequired": "No",
           "executionStatus": "Succeeded",
           "executionEnded": {
             "type": "Timestamp",
-            "value": 1714644394391,
+            "value": 1720133121862,
             "timeUnit": "Millisecond"
           },
           "executionDuration": {
@@ -156,17 +258,25 @@
           }
         }
       ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 14171230512661982567
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 14171230512661982567
+      },
       "executionCount": 1,
       "executionRequired": "No",
       "executionStatus": "Succeeded",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1714644394391,
+        "value": 1720133121862,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 941,
+        "value": 901,
         "timeUnit": "Millisecond"
       }
     }
@@ -176,12 +286,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1714644394391,
+    "value": 1720133121862,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 942,
+    "value": 901,
     "timeUnit": "Millisecond"
   }
 }

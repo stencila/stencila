@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { apply } from '@twind/core'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
 import '../../../animation/collapsible'
@@ -17,6 +17,9 @@ import { UIBaseCard } from '../base-card'
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
 export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
+  @property({ type: Boolean })
+  removeContentPadding = false
+
   protected override toggleChipPosition: string = ''
 
   override render() {
@@ -58,7 +61,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
   protected override renderContent() {
     const contentStyles = apply([
       'transition-[padding] ease-in-out duration-[250ms]',
-      this.toggle && 'p-3',
+      this.toggle && (this.removeContentPadding ? '' : 'p-3'),
     ])
 
     return html`

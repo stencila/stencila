@@ -78,7 +78,7 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-code
           type="CodeChunk"
           code=${this.code}
-          code-authorship=${this.codeAuthorship}
+          .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           read-only
         >
