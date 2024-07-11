@@ -134,12 +134,12 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
         class="p-3 flex items-center text-[${textColour}] bg-[${colour}] border-${borderPosition} border-[${borderColour}]"
       >
         <sl-icon
-          name=${label === 'else' ? 'node-minus' : 'node-plus'}
-          library="default"
-          class="text-lg"
+          name="clause-${label}"
+          library="stencila"
+          class="text-lg text-${textColour}"
         >
         </sl-icon>
-        <span class="font-bold font-mono mx-3 min-w-[4rem]">
+        <span class="font-bold font-mono mx-3 min-w-[3rem]">
           <span
             class="${this.isActive === 'true'
               ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
@@ -155,8 +155,10 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           language=${this.programmingLanguage}
           read-only
           no-gutters
-          containerClasses="inline-block border border-[${borderColour}] rounded overflow-hidden mr-2"
-          class=${label === 'else' ? 'hidden' : 'flex items-center'}
+          containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+          class=${label === 'else'
+            ? 'hidden'
+            : 'flex-grow flex items-center mr-4'}
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
@@ -188,12 +190,14 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
             }
 
       return html`
-        <sl-icon
-          class="text-lg"
-          name=${iconName}
-          library=${iconLibrary}
-        ></sl-icon
-        ><span class="text-sm ml-1">${displayName}</span>
+        <div class="mr-4 flex items-center">
+          <sl-icon
+            class="text-lg"
+            name=${iconName}
+            library=${iconLibrary}
+          ></sl-icon
+          ><span class="text-sm ml-1">${displayName}</span>
+        </div>
       `
     }
     return ''
