@@ -1,6 +1,6 @@
 [project]
 name = "stencila_plugin"
-version = "2.0.0a34"
+version = "2.0.0b1"
 description = "Library for building Stencila Plugins"
 readme = "README.md"
 authors = [
@@ -9,7 +9,7 @@ authors = [
 ]
 dependencies = [
     "aiohttp>=3.9.3",
-    "stencila-types==2.0.0a31",
+    "stencila-types==2.0.0b1",
 ]
 requires-python = ">=3.10"
 keywords = [

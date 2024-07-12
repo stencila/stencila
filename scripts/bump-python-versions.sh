@@ -43,7 +43,7 @@ sed -i -e "s/^version = .*/version = \"$STENCILA_PLUGIN_VERSION\"/" python/stenc
 # Update the versions in python/stencila (Python SDK)
 sed -i -e "s/stencila-types.*/stencila-types==$STENCILA_TYPES_VERSION\",/" python/stencila/pyproject.toml
 sed -i -e "s/^version = .*/version = \"$STENCILA_VERSION\"/" python/stencila/pyproject.toml
-sed -i -e "s/^version = .*/version = \"${STENCILA_VERSION//a/-alpha.}\"/" python/stencila/Cargo.toml
+sed -i -e "s/^version = .*/version = \"${STENCILA_VERSION//b/-beta.}\"/" python/stencila/Cargo.toml
 
 # Update the workspace Cargo.lock file so that above version change is propagated to it 
 cargo generate-lockfile

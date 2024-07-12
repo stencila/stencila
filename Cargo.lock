@@ -6328,7 +6328,7 @@ dependencies = [
 
 [[package]]
 name = "stencila"
-version = "2.0.0-alpha.26"
+version = "2.0.0-beta.1"
 dependencies = [
  "codecs",
  "common",
