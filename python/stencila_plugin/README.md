@@ -6,14 +6,14 @@
 
 This package provides tools for writing a [Stencila](https://github.com/stencila/stencila) plugin.
 Stencila plugins extend the functionality of Stencila, and are dynamically loaded at runtime.
-They communicate with the core Stencila app via JSON-RPC over a port, or via stdin/stdout.
+They communicate with the core Stencila app via JSON-RPC over stdin/stdout or HTTP.
 This package implements much of the core functionality for communication, and makes writing a plugin as simple as filling out a few python functions.
 
 ## ⚡ Usage
 
-The plugin can be installed via `pip`.
+This package can be installed via `pip`.
 
 `pip install stencila_plugin`
 
-An example of how to write a plugin can be seen in this [repo](https://github.com/stencila/plugin-example-python).
+An example of how to write a plugin using this package can be seen in this [repo](https://github.com/stencila/plugin-python-template).
 
