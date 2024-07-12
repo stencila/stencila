@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 model = { path = "../model" }
-async-openai = "0.23.0"
+async-openai = "0.23.4"
 cached = { workspace = true }

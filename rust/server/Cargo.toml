@@ -12,7 +12,7 @@ document = { path = "../document" }
 format = { path = "../format" }
 node-id = { path = "../node-id" }
 mime_guess = "2.0.5"
-rust-embed = { version = "8.3.0", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }
 secrets = { path = "../secrets" }
 tower-http = { version = "0.5.2", features = ["trace"] }
 

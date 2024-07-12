@@ -12,4 +12,4 @@ models-mistral = { path = "../models-mistral" }
 models-ollama = { path = "../models-ollama" }
 models-openai = { path = "../models-openai" }
 cached = { workspace = true }
-rust-embed = { version = "8.3.0", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }
