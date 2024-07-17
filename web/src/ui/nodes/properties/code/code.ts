@@ -321,7 +321,7 @@ export class UINodeCode extends LitElement {
   }
 
   override render() {
-    const containerClasses = apply(['relative z-0', this.containerClasses])
+    const containerClasses = apply([this.containerClasses])
 
     const contentClasses = apply([
       'text-black',
