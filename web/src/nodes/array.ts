@@ -8,7 +8,7 @@ import { withTwind } from '../twind'
 import { Entity } from './entity'
 
 import './array-item'
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/node-card/on-demand/in-line'
 
 /**
  * Web component representing a Stencila Schema `Array` node
@@ -23,11 +23,11 @@ import '../ui/nodes/node-card/on-demand/block'
 export class Array extends Entity {
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="Array" view="dynamic">
+      <stencila-ui-inline-on-demand type="Array" view="dynamic">
         <div slot="content">
           <slot></slot>
         </div>
-      </stencila-ui-block-on-demand>
+      </stencila-ui-inline-on-demand>
     `
   }
 }

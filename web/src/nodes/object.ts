@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/node-card/in-flow/block'
+import '../ui/nodes/node-card/on-demand/in-line'
 
 import { withTwind } from '../twind'
 
@@ -24,11 +24,11 @@ export class Object extends Entity {
    */
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="Object" view="dynamic">
+      <stencila-ui-inline-on-demand type="Object" view="dynamic">
         <div slot="content">
           <slot></slot>
         </div>
-      </stencila-ui-block-on-demand>
+      </stencila-ui-inline-on-demand>
     `
   }
 }

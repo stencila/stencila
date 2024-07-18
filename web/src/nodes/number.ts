@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/node-card/on-demand/in-line'
 
 import { withTwind } from '../twind'
 
@@ -26,9 +27,9 @@ export class Number extends Entity {
    */
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="Number" view="dynamic">
+      <stencila-ui-inline-on-demand type="Number" view="dynamic">
         <div slot="content" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-block-on-demand>
+      </stencila-ui-inline-on-demand>
     `
   }
 }
