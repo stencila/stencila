@@ -6,7 +6,7 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/node-card/on-demand/in-line'
 
 /**
  * Web component representing a Stencila Schema `Integer` node
@@ -26,9 +26,9 @@ export class Integer extends Entity {
    */
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="Integer" view="dynamic">
+      <stencila-ui-inline-on-demand type="Integer" view="dynamic">
         <div slot="content" class=${this.bodyStyles}><slot></slot></div>
-      </stencila-ui-block-on-demand>
+      </stencila-ui-inline-on-demand>
     `
   }
 }

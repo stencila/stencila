@@ -2,7 +2,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/node-card/on-demand/in-line'
 
 import { withTwind } from '../twind'
 
@@ -26,11 +26,11 @@ export class String extends Entity {
     const bodyStyles = apply(['w-full'])
 
     return html`
-      <stencila-ui-block-on-demand type="String" view="dynamic">
+      <stencila-ui-inline-on-demand type="String" view="dynamic">
         <div slot="content" class=${bodyStyles}>
           <q><slot></slot></q>
         </div>
-      </stencila-ui-block-on-demand>
+      </stencila-ui-inline-on-demand>
     `
   }
 }
