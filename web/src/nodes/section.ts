@@ -6,6 +6,7 @@ import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance/provenance'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+import { getOrdinalString } from '../utility/ordinal'
 
 import { Entity } from './entity'
 
@@ -63,7 +64,7 @@ export class Section extends Entity {
     return html`<div
         class="px-4 py-2 flex items-center text-[${textColour}] bg-[${colour}] border-[${borderColour}] font-sans text-sm"
       >
-        Iteration ${index + 1}
+        ${getOrdinalString(index + 1)} Iteration
       </div>
       <div class="p-3">
         <slot name="content"></slot>
