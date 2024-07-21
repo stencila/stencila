@@ -80,6 +80,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     const buttonStyles = css`
       &::part(base) {
+        color: ${this.ui.textColour};
         &:hover {
           color: inherit;
         }
