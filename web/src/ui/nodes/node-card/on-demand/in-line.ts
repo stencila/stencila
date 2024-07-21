@@ -52,6 +52,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       `text-[${this.ui.textColour}]`,
       `bg-[${this.ui.colour}]`,
       'rounded-b',
+      'overflow-hidden',
     ])
 
     return html`<div class=${bodyStyles}>
