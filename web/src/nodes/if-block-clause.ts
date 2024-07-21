@@ -1,4 +1,5 @@
 import { consume } from '@lit/context'
+import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
@@ -103,12 +104,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
       <stencila-ui-collapsible-animation
         class=${!this.isFolded ? 'opened' : ''}
       >
-        <div class="p-3">
-          <p class="text-center text-grey-400 italic" contenteditable="false">
-            ${this.hasContent ? '' : 'No content'}
-          </p>
-          <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
-        </div>
+        ${this.renderContent()}
       </stencila-ui-collapsible-animation>
     `
   }
@@ -136,10 +132,11 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
         <sl-icon
           name="clause-${label}"
           library="stencila"
-          class="text-lg text-${textColour}"
+          class="text-xl text-${textColour}"
         >
         </sl-icon>
-        <span class="font-bold font-mono mx-3 min-w-[3rem]">
+
+        <span class="text-[0.95rem] font-bold font-mono mx-3 min-w-[3rem]">
           <span
             class="${this.isActive === 'true'
               ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
@@ -196,10 +193,21 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
             name=${iconName}
             library=${iconLibrary}
           ></sl-icon
-          ><span class="text-sm ml-1">${displayName}</span>
+          ><span class="text-xs ml-1 font-sans">${displayName}</span>
         </div>
       `
     }
     return ''
+  }
+
+  protected renderContent() {
+    const styles = apply([this.ifBlockConsumer.cardOpen ? 'px-2 pb-4' : '', this.hasContent ? '' : 'pt-4'])
+
+    return html`<div class=${styles}>
+      ${this.hasContent
+        ? ''
+        : html`<stencila-ui-node-content-placeholder></stencila-ui-node-content-placeholder>`}
+      <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
+    </div>`
   }
 }
