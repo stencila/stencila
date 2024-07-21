@@ -13,14 +13,12 @@ use std::{
     time::Duration,
 };
 
-use kernel::Kernel;
-use model::Model;
 use semver::{Version, VersionReq};
 
 use app::{get_app_dir, DirType};
 use cli_utils::{
     table::{self, Attribute, Cell, Color},
-    ToStdout,
+    Code, ToStdout,
 };
 use common::{
     derive_more::Deref,
@@ -31,7 +29,6 @@ use common::{
     serde::{self, de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer},
     serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
-    serde_yaml,
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -42,9 +39,13 @@ use common::{
     which::which,
 };
 
-use assistants::PluginAssistant;
-use kernels::PluginKernel;
+use codec::{format::Format, Codec};
+use kernel::Kernel;
+use model::Model;
 
+use assistants::PluginAssistant;
+use codecs::PluginCodec;
+use kernels::PluginKernel;
 use list::{list, ListArgs};
 
 mod check;
@@ -58,6 +59,7 @@ mod uninstall;
 
 pub mod assistants;
 pub mod cli;
+pub mod codecs;
 pub mod kernels;
 
 /// The name of the manifest file within a plugin's installation
@@ -151,13 +153,17 @@ pub struct Plugin {
     #[serde(default)]
     linked: bool,
 
-    /// The execution kernels provided by the plugin
-    #[serde(default)]
-    kernels: Vec<PluginKernel>,
-
     /// The assistants provided by the plugin
     #[serde(default)]
     assistants: Vec<PluginAssistant>,
+
+    /// The codecs provided by the plugin
+    #[serde(default)]
+    codecs: Vec<PluginCodec>,
+
+    /// The execution kernels provided by the plugin
+    #[serde(default)]
+    kernels: Vec<PluginKernel>,
 }
 
 impl Plugin {
@@ -498,6 +504,21 @@ impl Plugin {
             .collect()
     }
 
+    /// Get a list of codecs provided by the plugin
+    ///
+    /// Each codec is bound to this plugin so that it can
+    /// be started (by starting the plugin first).
+    fn codecs(&self) -> Vec<Box<dyn Codec>> {
+        self.codecs
+            .clone()
+            .into_iter()
+            .map(|mut codec| {
+                codec.bind(self);
+                Box::new(codec) as Box<dyn Codec>
+            })
+            .collect()
+    }
+
     /// Get a list of kernels provided by the plugin
     ///
     /// Each kernel is bound to this plugin so that it can
@@ -516,6 +537,12 @@ impl Plugin {
     /// Start an instance of a plugin
     async fn start(&self, transport: Option<PluginTransport>) -> Result<PluginInstance> {
         PluginInstance::start(self, transport).await
+    }
+
+    /// Show the plugin as TOML
+    fn show(&self) -> Code {
+        let toml = toml::to_string(self).unwrap_or_else(|_| String::from("Unable to show plugin"));
+        Code::new(Format::Toml, &toml)
     }
 }
 
@@ -773,13 +800,6 @@ async fn plugins() -> Vec<Plugin> {
             tracing::warn!("While getting list of plugins: {error}");
             vec![]
         }
-    }
-}
-
-/// Implement `ToStdout` to display a plugin as YAML (may get more fancy in the future).
-impl ToStdout for Plugin {
-    fn to_terminal(&self) -> impl std::fmt::Display {
-        serde_yaml::to_string(self).unwrap_or_else(|_| String::from("Unable to show plugin"))
     }
 }
 

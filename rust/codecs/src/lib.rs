@@ -15,10 +15,12 @@ pub use codec::{
 };
 use node_strip::{StripNode, StripTargets};
 
+pub mod cli;
+
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
-    vec![
-        Box::new(codec_cbor::CborCodec),
+    let codecs = vec![
+        Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
         Box::new(codec_debug::DebugCodec),
         Box::new(codec_dom::DomCodec),
         Box::new(codec_directory::DirectoryCodec),
@@ -30,7 +32,13 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_markdown::MarkdownCodec),
         Box::new(codec_text::TextCodec),
         Box::new(codec_yaml::YamlCodec),
-    ]
+    ];
+
+    // TODO: make plugins a dependency and append codecs to list
+    //let provided_by_plugins = &mut plugins::codecs::list();
+    //codecs.append(provided_by_plugins);
+
+    codecs
 }
 
 /// Resolve whether an optional string is a codec

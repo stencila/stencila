@@ -1,8 +1,7 @@
-import { Block, Paragraph } from "@stencila/types";
-import type { Directive, FlowContent } from "myst-spec";
+import { Block, CodeBlock, Heading, Paragraph } from "@stencila/types";
+import type { FlowContent, Block as MySTBlock } from "myst-spec";
 
-import { mdsToInlines } from "./inlines.js";
-
+import { mdToInline, mdsToInlines } from "./inlines.js";
 /**
  * Transform MyST `Block` nodes to Stencila Schema `Block` nodes
  *
@@ -12,20 +11,27 @@ import { mdsToInlines } from "./inlines.js";
  * This is also an update of code in
  * https://github.com/stencila/encoda/blob/master/src/codecs/md/index.ts.
  */
-export function mdsToBlocks(mds: FlowContent[]): Block[] {
+export function mdsToBlocks(mds: (MySTBlock | FlowContent)[]): Block[] {
   return mds.map((md) => {
     switch (md.type) {
+      case "block":
+        // TODO: do we need to support multiple MySTBlock?
+        // Currently assuming only one at top level, see index.ts
+        throw new Error(`Not yet implemented: ${md.type}`);
+      case "mystDirective":
+        // Technically Directive should not exist after basicTransformations() in index.ts
+        throw new Error(`Not yet implemented: ${md.type}`);
       case "paragraph":
         return new Paragraph(mdsToInlines(md.children));
-      case "mystDirective":
-        return directiveToBlock(md);
+      case "heading":
+        return new Heading(md.depth, mdsToInlines(md.children));
+      case "code":
+        return new CodeBlock(md.value);
       case "admonition":
       case "blockquote":
-      case "code":
       case "container":
       case "definition":
       case "footnoteDefinition":
-      case "heading":
       case "html":
       case "list":
       case "math":
@@ -36,14 +42,4 @@ export function mdsToBlocks(mds: FlowContent[]): Block[] {
         throw new Error(`Not yet implemented: ${md.type}`);
     }
   });
-}
-
-/**
- * Transform a MyST `Directive` into a Stencila `Block` node
- */
-function directiveToBlock(directive: Directive): Block {
-  switch (directive.name) {
-    default:
-      throw new Error(`mystRole not yet implemented: ${directive.name}`);
-  }
 }

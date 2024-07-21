@@ -5,7 +5,7 @@ home = "https://github.com/stencila/stencila/tree/plugins/myst"
 install = "https://github.com/stencila/stencila/plugins/myst"
 runtime = "node>=16"
 transports = ["stdio", "http"]
-command = "npx run"
+command = "node dist/index.mjs"
 
 [[codecs]]
 name = "myst"

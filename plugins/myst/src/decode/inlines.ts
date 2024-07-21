@@ -1,12 +1,18 @@
 import {
   CodeInline,
   Emphasis,
+  ImageObject,
   Inline,
+  Link,
+  MathInline,
+  Strikeout,
   Strong,
+  Subscript,
+  Superscript,
   Text,
   Underline,
 } from "@stencila/types";
-import type { PhrasingContent, Role } from "myst-spec";
+import type { PhrasingContent } from "myst-spec";
 
 /**
  * Transform MyST `PhrasingContent` to Stencila Schema `Inline` nodes
@@ -18,7 +24,11 @@ import type { PhrasingContent, Role } from "myst-spec";
  * https://github.com/stencila/encoda/blob/master/src/codecs/md/index.ts.
  */
 export function mdsToInlines(mds: PhrasingContent[]): Inline[] {
-  return mds.map((md) => {
+  return mds.map((md) => mdToInline(md));
+}
+
+export function mdToInline(md: PhrasingContent): Inline {
+  {
     switch (md.type) {
       case "text":
         return new Text(md.value);
@@ -28,47 +38,36 @@ export function mdsToInlines(mds: PhrasingContent[]): Inline[] {
         return new Strong(mdsToInlines(md.children));
       case "inlineCode":
         return new CodeInline(md.value);
-      case "mystRole":
-        return roleToInline(md);
-      case "abbreviation":
+      case "underline":
+        return new Underline(mdsToInlines(md.children));
+      case "image":
+        return new ImageObject(md.url);
+      case "link":
+        return new Link(mdsToInlines(md.children), md.url);
+      case "inlineMath":
+        return new MathInline(md.value);
+      case "subscript":
+        return new Subscript(mdsToInlines(md.children));
+      case "superscript":
+        return new Superscript(mdsToInlines(md.children));
       case "break":
+        return new Text("\n");
+      case "delete":
+        return new Strikeout(mdsToInlines(md.children), md.value);
+      case "mystRole":
+        // Technically Roles should not exist after basicTransformations() in index.ts
+        throw new Error(`mdast inline type not yet implemented: ${md.type}`);
+      case "underline":
+        return new Underline(mdsToInlines(md.children));
+      case "abbreviation":
+      case "html":
       case "crossReference":
       case "footnoteReference":
-      case "html":
-      case "image":
       case "imageReference":
-      case "inlineCode":
-      case "inlineMath":
-      case "link":
       case "linkReference":
       case "subscript":
       case "superscript":
-      case "underline":
         throw new Error(`mdast inline type not yet implemented: ${md.type}`);
     }
   });
-}
-
-/**
- * Transform a MyST `Role` into a Stencila `Inline` node
- */
-function roleToInline(role: Role): Inline {
-  switch (role.name) {
-    case "u":
-    case "underline":
-      return underlineRoleToUnderline(role);
-    default:
-      throw new Error(`mystRole not yet implemented: ${role.name}`);
-  }
-}
-
-/**
- * Transform a MyST `Role` for underline into a Stencila `Underline` node
- */
-function underlineRoleToUnderline(role: Role): Underline {
-  if (role.children) {
-    return new Underline(mdsToInlines(role.children));
-  } else {
-    return new Underline([new Text(role.value ?? "")]);
-  }
 }

@@ -75,8 +75,8 @@ pub struct PluginAssistant {
     /// The plugin instance for this assistant. Used to avoid starting
     /// a new instance for each call to the assistant.
     ///
-    /// This needs to be a `Arc<Mutex>` because the `perform_task` method async
-    /// but is not `&mut self`. So, this is needed for "interior mutability" across
+    /// This needs to be a `Arc<Mutex>` because the `perform_task` method is async
+    /// but is not `&mut self`. As such, this is needed for "interior mutability" across
     /// calls to that method.
     #[serde(skip)]
     plugin_instance: Arc<Mutex<Option<PluginInstance>>>,

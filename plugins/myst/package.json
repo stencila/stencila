@@ -2,15 +2,16 @@
   "name": "@stencila/plugin-myst",
   "version": "0.1.0",
   "description": "A Stencila plugin for converting to/from MyST Markdown",
-  "main": "index.js",
-  "bin": {
-    "run": "index.js"
-  },
-  "type": "module",
+  "files": [
+    "stencila-plugin.toml",
+    "dist",
+    "src"
+  ],
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "build": "tsc"
+    "build": "tsup",
+    "start": "node dist/index.mjs"
   },
   "keywords": [
     "myst",
@@ -24,9 +25,17 @@
     "@stencila/plugin": "^2.0.0-alpha.1",
     "@stencila/types": "^2.0.0-alpha.25",
     "myst-parser": "^1.4.2",
-    "myst-spec": "^0.0.5"
+    "myst-spec": "^0.0.5",
+    "myst-transforms": "^1.3.13"
   },
   "devDependencies": {
+    "tsup": "^8.1.0",
     "vitest": "^1.6.0"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": "esm"
   }
 }

@@ -324,6 +324,7 @@ pub enum Command {
     Assistants(assistants::cli::Cli),
     Models(models::cli::Cli),
     Kernels(kernels::cli::Cli),
+    Codecs(codecs::cli::Cli),
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
 
@@ -691,6 +692,7 @@ impl Cli {
             Command::Assistants(assistants) => assistants.run().await?,
             Command::Models(models) => models.run().await?,
             Command::Kernels(kernels) => kernels.run().await?,
+            Command::Codecs(codecs) => codecs.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,
 

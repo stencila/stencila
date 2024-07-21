@@ -1,3 +1,4 @@
+use cli_utils::Code;
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -8,10 +9,10 @@ use crate::Plugin;
 
 /// Show details of a plugin
 #[tracing::instrument]
-pub async fn show(name: &str) -> Result<Plugin> {
+pub async fn show(name: &str) -> Result<Code> {
     tracing::debug!("Showing plugin `{name}`");
 
-    Plugin::read_manifest(name)
+    Plugin::read_manifest(name).map(|plugin| plugin.show())
 }
 
 /// Show details of a plugin
@@ -22,7 +23,7 @@ pub struct ShowArgs {
 }
 
 impl ShowArgs {
-    pub async fn run(self) -> Result<Plugin> {
+    pub async fn run(self) -> Result<Code> {
         show(&self.name).await
     }
 }
