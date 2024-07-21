@@ -125,24 +125,22 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
 
     const borderPosition = index === siblings.length - 1 ? '0' : 'b'
 
+    const iconStyles = apply([
+      `text-xl text-${textColour}`,
+      this.isActive === 'true'
+        ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
+        : '',
+    ])
+
     return html`
       <div
         class="p-3 flex items-center text-[${textColour}] bg-[${colour}] border-${borderPosition} border-[${borderColour}]"
       >
-        <sl-icon
-          name="clause-${label}"
-          library="stencila"
-          class="text-xl text-${textColour}"
-        >
+        <sl-icon name="clause-${label}" library="stencila" class=${iconStyles}>
         </sl-icon>
 
-        <span class="text-[0.95rem] font-bold font-mono mx-3 min-w-[3rem]">
-          <span
-            class="${this.isActive === 'true'
-              ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
-              : ''}"
-            >${label}</span
-          >
+        <span class="text-[0.95rem] font-bold font-mono ml-3 min-w-[3rem]">
+          ${label}
         </span>
 
         <stencila-ui-node-code
@@ -201,7 +199,10 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
   }
 
   protected renderContent() {
-    const styles = apply([this.ifBlockConsumer.cardOpen ? 'px-2 pb-4' : '', this.hasContent ? '' : 'pt-4'])
+    const styles = apply([
+      this.ifBlockConsumer.cardOpen ? 'px-2 pb-4' : '',
+      this.hasContent ? '' : 'pt-4',
+    ])
 
     return html`<div class=${styles}>
       ${this.hasContent
