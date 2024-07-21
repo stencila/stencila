@@ -1,1 +1,5 @@
-export type Cord = string;
+export type Cord = {
+  string: string;
+  authorship?: number[][];
+  type?: 'Cord'
+};
