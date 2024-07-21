@@ -1,4 +1,5 @@
 use cli_utils::{message, Message};
+use codec::schema::shortcuts;
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -37,6 +38,27 @@ pub async fn check(name: &str) -> Result<Message> {
     // Call methods that should be implemented by the plugin based on its
     // manifest. These calls will create a new instances of the plugin.
 
+    // Codecs
+    for codec in plugin.codecs() {
+        tracing::info!("Checking plugin `{name}` codec `{}`", codec.name());
+
+        // Create an article with a single paragraph (because it should be handled
+        // by almost all codecs).
+        use shortcuts::{art, p, t};
+        let node = art([p([t("Hello world")])]);
+
+        // Encode to a string
+        let (content, ..) = codec.to_string(&node, None).await?;
+
+        // Decode from string
+        let (decoded, ..) = codec.from_str(&content, None).await?;
+
+        // Check roundtrip conversion worked
+        if decoded != node {
+            tracing::error!("Roundtrip encode-decode failed");
+        }
+    }
+
     // Kernels
     for kernel in plugin.kernels() {
         tracing::info!("Checking plugin `{name}` kernel `{}`", kernel.name());
@@ -60,8 +82,11 @@ pub async fn check(name: &str) -> Result<Message> {
         instance.stop().await?;
     }
 
-    for asst in plugin.assistants() {
-        tracing::info!("Checking plugin `{name}` assistant `{}`", asst.name());
+    // Assistants
+    for assistant in plugin.assistants() {
+        tracing::info!("Checking plugin `{name}` assistant `{}`", assistant.name());
+
+        // Create a task for the assistant
         let instruction = Instruction::from(InstructionInline {
             messages: vec![InstructionMessage {
                 parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
@@ -70,10 +95,12 @@ pub async fn check(name: &str) -> Result<Message> {
             ..Default::default()
         });
         let task = GenerateTask::new(instruction, None);
-        let _output = asst
+
+        // Get the assistant to perform the task. Return value is not
+        // checked since that will depend upon implementation
+        assistant
             .perform_task(&task, &GenerateOptions::default())
             .await?;
-        // TODO: Do something with output.
     }
 
     Ok(message!(

@@ -10,6 +10,7 @@ proptest-high = ["codec/proptest-high"]
 proptest-max = ["codec/proptest-max"]
 
 [dependencies]
+cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
 codec-cbor = { path = "../codec-cbor" }
 codec-debug = { path = "../codec-debug" }

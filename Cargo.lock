@@ -1313,6 +1313,7 @@ dependencies = [
 name = "codecs"
 version = "0.0.0"
 dependencies = [
+ "cli-utils",
  "codec",
  "codec-cbor",
  "codec-debug",
@@ -4776,6 +4777,7 @@ dependencies = [
  "app",
  "assistant",
  "cli-utils",
+ "codec",
  "common",
  "common-dev",
  "kernel",
