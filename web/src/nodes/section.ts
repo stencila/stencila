@@ -1,3 +1,4 @@
+import { ContextConsumer } from '@lit/context'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -5,6 +6,7 @@ import { withTwind } from '../twind'
 import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance/provenance'
+import { entityContext, EntityContext } from '../ui/nodes/context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 import { getOrdinalString } from '../utility/ordinal'
 
@@ -21,10 +23,30 @@ export class Section extends Entity {
   @property({ attribute: 'section-type' })
   sectionType?: string
 
+  /**
+   * A consumer controller for the `EnityContext`,
+   * used to subscribe to the parent node's `EnityContext` if needed.
+   */
+  private parentContext: ContextConsumer<
+    { __context__: EntityContext },
+    this
+  > | null = null
+
   override render() {
     return this.sectionType === 'Iteration'
       ? this.renderIteration()
       : this.renderSection()
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    if (this.sectionType === 'Iteration') {
+      this.parentContext = new ContextConsumer(this, {
+        context: entityContext,
+        subscribe: true,
+      })
+    }
   }
 
   /**
@@ -61,12 +83,16 @@ export class Section extends Entity {
     const siblings = [...this.parentElement.children]
     const index = siblings.findIndex((elem) => elem === this)
 
+    const showHeader = this.parentContext && this.parentContext.value?.cardOpen
+
     return html`<div
-        class="px-4 py-2 flex items-center text-[${textColour}] bg-[${colour}] border-[${borderColour}] font-sans text-sm"
+        class="${showHeader
+          ? 'flex'
+          : 'hidden'} px-4 py-2 flex items-center text-[${textColour}] bg-[${colour}] border-[${borderColour}] font-sans text-sm"
       >
         ${getOrdinalString(index + 1)} Iteration
       </div>
-      <div class="p-3">
+      <div class="${showHeader ? 'p-3' : ''}">
         <slot name="content"></slot>
       </div>`
   }
