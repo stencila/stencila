@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import moment from 'moment'
+import prettyMilliseconds from 'pretty-ms'
 
 import { withTwind } from '../../../twind'
 
@@ -17,15 +17,19 @@ export class UINodeExecutionDuration extends LitElement {
 
   override render() {
     const value =
-      this.value === undefined || this.value === 0
+      this.value === undefined
         ? '-'
-        : moment.duration(this.value, 'ms').humanize()
+        : prettyMilliseconds(this.value, { separateMilliseconds: true })
+
+    const tooltip = `Last execution took ${
+      this.value === 0 ? 'less than a' : `${this.value}`
+    } millisecond${this.value > 1 ? 's' : ''}`
 
     return html`
       <stencila-ui-node-simple-property
         icon-name="stopwatch"
         icon-library="default"
-        tooltip-content="Duration of last execution"
+        tooltip-content=${tooltip}
       >
         ${value}
       </stencila-ui-node-simple-property>

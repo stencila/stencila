@@ -68,7 +68,7 @@
         "code_location"
       ],
       "dom": {
-        "elem": "span"
+        "with": "CodeLocation::to_dom_attr"
       },
       "$ref": "CodeLocation.schema.json"
     },

@@ -147,14 +147,15 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           code=${this.code}
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
+          execution-required=${this.executionRequired}
           read-only
           no-gutters
-          containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+          container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
           class=${label === 'else'
             ? 'hidden'
             : 'flex-grow flex items-center mr-1'}
         >
-          <slot name="execution-messages"></slot>
+          <slot name="execution-messages" slot="execution-messages"></slot>
         </stencila-ui-node-code>
 
         ${this.programmingLanguage

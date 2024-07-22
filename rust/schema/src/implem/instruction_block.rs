@@ -92,7 +92,7 @@ impl MarkdownCodec for InstructionBlock {
                             context.myst_directive_option(
                                 NodeProperty::Assignee,
                                 Some("assign"),
-                                &assignee,
+                                assignee,
                             );
                         }
                         if let Some(reps) = &self.replicates {

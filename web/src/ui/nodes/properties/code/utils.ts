@@ -1,60 +1,19 @@
-import { linter, Diagnostic } from '@codemirror/lint'
-import { Extension } from '@codemirror/state'
+import { Diagnostic } from '@codemirror/lint'
 import { EditorView, Decoration, hoverTooltip } from '@codemirror/view'
-import { MessageLevel } from '@stencila/types'
 
+import { ExecutionMessage } from '../../../../nodes/execution-message'
 import {
   ProvenanceOpacityLevel,
   getProvenanceOpacity,
 } from '../../icons-and-colours'
 import { getTooltipContent } from '../authorship/utils'
-import { ExecutionMessage } from '../execution-message'
 
 import type { AuthorshipMarker } from './types'
 
 /**
- * Convert the `ExecutionMessage.level` value into a @codemirror/lint `Severity` string
- * for the linting extension
- *
- * @param lvl `MessageLevel`
- * @returns 'Severity'
+ * Custom CSS for the Stencila extensions
  */
-const getMessageSeverity = (lvl: MessageLevel) =>
-  lvl === 'Error' || lvl === 'Exception'
-    ? 'error'
-    : lvl === 'Warning'
-      ? 'warning'
-      : 'info'
-
-/**
- * Returns a `linter` extension for a codemirror editor.
- * Creates a `Diagnostic` for each of the execution messages.
- * @param messages Array of `ExecutionMessage` objects
- * @returns codemirror linter `Extension`
- */
-const executionMessageLinter = (messages: ExecutionMessage[]): Extension =>
-  linter((view: EditorView) => {
-    const diagnostics: Diagnostic[] = []
-    const from = 0
-    const to = view.state.doc.length
-
-    messages.forEach((msg) => {
-      const severity = getMessageSeverity(msg.level)
-      diagnostics.push({
-        from,
-        to,
-        severity,
-        message: msg.message,
-      })
-    })
-
-    return diagnostics
-  })
-
-/**
- * Custom css for the stencila extensions
- */
-const stencilaTheme = EditorView.theme({
+export const stencilaTheme = EditorView.theme({
   '.cm-diagnostic': {
     fontFamily: 'Inter, mono',
     paddingLeft: '16px',
@@ -86,13 +45,62 @@ const stencilaTheme = EditorView.theme({
 })
 
 /**
- * Creates a set of codemirror mark type decorations from the
+ * Creates a set of CodeMirror mark type decorations from the
  * array of `AuthorshipMarkers`
  *
- * @param marks `AuthorshipMarker[]`
- * @returns `DecorationSet`
+ * @param marks ExecutionMessage[]
+ * @returns Diagnostic[]
  */
-const createAuthorshipDecorations = (marks: AuthorshipMarker[]) =>
+export const createLinterDiagnostics = (
+  view: EditorView,
+  messages: ExecutionMessage[]
+): Diagnostic[] => {
+  const doc = view.state.doc
+  return messages.map((msg): Diagnostic => {
+    let from = 0
+    let to = doc.length
+    if (msg.codeLocation) {
+      const [startLine, startCol, endLine, endCol] = msg.codeLocation
+      if (startLine >= 0) {
+        const startLineInfo = doc.line(startLine + 1)
+        from =
+          startCol >= 0 ? startLineInfo.from + startCol : startLineInfo.from
+        if (endLine >= 0) {
+          const endLineInfo = doc.line(endLine + 1)
+          to = endCol >= 0 ? endLineInfo.from + endCol : endLineInfo.to
+        } else {
+          to = startLineInfo.to
+        }
+      }
+    }
+
+    const level = msg.level
+    const severity =
+      level === 'Error' || level === 'Exception'
+        ? 'error'
+        : level === 'Warning'
+          ? 'warning'
+          : 'info'
+
+    const message = `${msg.errorType ?? level}: ${msg.message}`
+
+    return {
+      from,
+      to,
+      severity,
+      message,
+    }
+  })
+}
+
+/**
+ * Creates a set of CodeMirror mark type decorations from the
+ * array of `AuthorshipMarkers`
+ *
+ * @param marks AuthorshipMarker[]
+ * @returns DecorationSet
+ */
+export const createProvenanceDecorations = (marks: AuthorshipMarker[]) =>
   Decoration.set(
     marks.map((mark) => {
       return Decoration.mark({
@@ -110,42 +118,34 @@ const createAuthorshipDecorations = (marks: AuthorshipMarker[]) =>
 
 /**
  * Create a hover tooltip to display the authorship provenance information
- *
- * @param marks `AuthorshipMarker[]`
- * @returns `Extension`
  */
-const authorshipTooltip = (
+export const provenanceTooltip = (
   marks: AuthorshipMarker[],
-  messages: ExecutionMessage[] | null
+  diagnostics: Diagnostic[]
 ) =>
   hoverTooltip((_, pos) => {
-    // disable tooltip if execution messages are active, to avoid a merged tooltip
-    const hasMessages = messages !== null && messages.length > 0
-    if (!hasMessages) {
-      for (const mark of marks) {
-        if (pos >= mark.from && pos <= mark.to) {
-          return {
-            pos,
-            above: false,
-            arrow: true,
-            create: () => {
-              const dom = document.createElement('div')
-              dom.className = 'cm-provenance-tooltip'
+    // Disable tooltip if diagnostics are present, to avoid a merged tooltip
+    if (diagnostics.length > 0) {
+      return null
+    }
 
-              dom.textContent = getTooltipContent(mark.count, mark.provenance)
+    for (const mark of marks) {
+      if (pos >= mark.from && pos <= mark.to) {
+        return {
+          pos,
+          above: false,
+          arrow: true,
+          create: () => {
+            const dom = document.createElement('div')
+            dom.className = 'cm-provenance-tooltip'
 
-              return { dom, offset: { x: 0, y: 10 } }
-            },
-          }
+            dom.textContent = getTooltipContent(mark.count, mark.provenance)
+
+            return { dom, offset: { x: 0, y: 10 } }
+          },
         }
       }
     }
+
     return null
   })
-
-export {
-  executionMessageLinter,
-  stencilaTheme,
-  createAuthorshipDecorations as createProvenanceDecorations,
-  authorshipTooltip as provenanceTooltip,
-}

@@ -48,9 +48,9 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
     const bodyStyles = apply([
       'relative',
       'w-full h-full',
-      'border-b border-black/20',
-      `text-[${this.ui.textColour}]`,
       `bg-[${this.ui.colour}]`,
+      `border-b border-[${this.ui.borderColour}]`,
+      `text-[${this.ui.textColour}]`,
     ])
 
     return html`<div class=${bodyStyles}>

@@ -34,7 +34,7 @@ pub struct ExecutionMessage {
 
     /// The location that the error occurred or other message emanated from.
     #[serde(alias = "code-location", alias = "code_location")]
-    #[dom(elem = "span")]
+    #[dom(with = "CodeLocation::to_dom_attr")]
     pub code_location: Option<CodeLocation>,
 
     /// Stack trace leading up to the error.

@@ -226,7 +226,7 @@ impl TextDocument {
         let doc = Arc::new(RwLock::new(doc));
 
         let (update_sender, update_receiver) = mpsc::unbounded_channel();
-        
+
         {
             let format = format.clone();
             let source = source.clone();
