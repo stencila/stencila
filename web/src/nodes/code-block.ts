@@ -10,9 +10,6 @@ import { CodeStatic } from './code-static'
 
 @customElement('stencila-code-block')
 export class CodeBlock extends CodeStatic {
-  /**
-   * In dynamic view, also render the authors
-   */
   override render() {
     return html`
       <stencila-ui-block-on-demand
@@ -38,7 +35,7 @@ export class CodeBlock extends CodeStatic {
             language=${this.programmingLanguage}
             read-only
             no-gutters
-            containerClasses="border border-black/20"
+            container-classes=${`rounded-sm border border-gray-200`}
           >
           </stencila-ui-node-code>
         </div>

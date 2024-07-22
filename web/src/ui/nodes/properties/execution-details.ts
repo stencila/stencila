@@ -55,15 +55,15 @@ export class UINodeExecutionDetails extends LitElement {
   duration?: number
 
   override render() {
-    const { borderColour } = nodeUi(this.type)
+    const { colour, borderColour } = nodeUi(this.type)
 
     const classes = apply([
       'flex flex-row flex-wrap gap-3',
       'text-xs leading-tight',
       'min-h-[2.25rem]',
       'py-1.5 px-4',
-      `bg-[${borderColour}]`,
-      'border-t border-black/20',
+      `bg-[${colour}]`,
+      `border-t border-[${borderColour}]`,
       'font-sans',
     ])
 

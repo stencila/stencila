@@ -22,7 +22,7 @@ export class ForBlock extends CodeExecutable {
   variable: string
 
   override render() {
-    const { borderColour } = nodeUi('ForBlock')
+    const { colour, borderColour } = nodeUi('ForBlock')
 
     return html`
       <stencila-ui-block-on-demand
@@ -56,7 +56,7 @@ export class ForBlock extends CodeExecutable {
           </stencila-ui-node-execution-details>
 
           <div
-            class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${borderColour}] border-t border-black/20"
+            class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${colour}] border-t border-[${borderColour}]"
           >
             <span class="font-bold font-mono">for</span>
 
@@ -64,9 +64,10 @@ export class ForBlock extends CodeExecutable {
               type="ForBlock"
               code=${this.variable}
               language=${this.programmingLanguage}
+              execution-required=${this.executionRequired}
               read-only
               no-gutters
-              containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+              container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center"
             >
             </stencila-ui-node-code>
@@ -79,7 +80,7 @@ export class ForBlock extends CodeExecutable {
               language=${this.programmingLanguage}
               read-only
               no-gutters
-              containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+              container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center"
             >
             </stencila-ui-node-code>

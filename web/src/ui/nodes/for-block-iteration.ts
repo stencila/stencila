@@ -2,41 +2,52 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { withTwind } from '../../../twind'
-import { getOrdinalString } from '../../../utility/ordinal'
-import { nodeUi } from '../icons-and-colours'
+import { withTwind } from '../../twind'
+import { getOrdinalString } from '../../utility/ordinal'
 
-import '../../animation/collapsible'
+import { nodeUi } from './icons-and-colours'
 
-@customElement('stencila-ui-iteration-section')
+import '../animation/collapsible'
+
+@customElement('stencila-ui-for-block-iteration')
 @withTwind()
 export class ForBlockIteration extends LitElement {
   /**
-   * Whether or not the header element should be visible,
-   * Based on whether the `ForBlock` node card is open.
+   * Whether to show the header of the iteration
    */
   @property({ type: Boolean, attribute: 'show-header' })
   showHeader: boolean = false
 
+  /**
+   * The index of the iteration in the `ForBlock`
+   */
   @property({ type: Number, attribute: 'iteration-index' })
   iterationIndex: number
 
+  /**
+   * Whether this is the last iteration of the `ForBlock`
+   */
   @property({ type: Boolean, attribute: 'last-iteration' })
-  isLastItertation: boolean = false
+  isLastIteration: boolean = false
 
+  /**
+   * Whether the iteration is folded
+   */
   @state()
   private isFolded: boolean = false
 
   override render() {
-    const { colour, textColour } = nodeUi('ForBlock')
+    const { colour, borderColour, textColour } = nodeUi('ForBlock')
 
     const headerStyles = apply([
       `${this.showHeader ? 'flex items-center' : 'hidden'}`,
       'px-3 py-2',
-      `bg-[${colour}]`,
+      `bg-[${colour}]/40`,
       `text-[${textColour}] text-sm font-sans`,
       'cursor-pointer',
-      // this.isLastItertation && this.isFolded ? '' : 'border-b border-black/20',
+      this.iterationIndex === 0 ? '' : 'border-t',
+      this.isFolded ? '' : 'border-b',
+      `border-[${borderColour}]/50`,
     ])
 
     return html`
@@ -44,7 +55,7 @@ export class ForBlockIteration extends LitElement {
         class=${headerStyles}
         @click=${() => (this.isFolded = !this.isFolded)}
       >
-        <span>${getOrdinalString(this.iterationIndex + 1)} Iteration</span>
+        <span>${getOrdinalString(this.iterationIndex + 1)} iteration</span>
         <stencila-chevron-button
           class="ml-auto"
           default-pos=${this.isFolded ? 'left' : 'down'}

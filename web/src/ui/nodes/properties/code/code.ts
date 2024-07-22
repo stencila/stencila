@@ -18,6 +18,7 @@ import { customElement, property } from 'lit/decorators'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
 import '../../../buttons/chevron'
+import { nodeUi } from '../../icons-and-colours'
 
 import { AuthorshipRun, AuthorshipMarker as AuthorshipMarker } from './types'
 import {
@@ -89,8 +90,8 @@ export class UINodeCode extends LitElement {
   /**
    * Classes to apply to the editor container
    */
-  @property()
-  containerClasses: string = 'border-t border-black/20'
+  @property({ attribute: 'container-classes' })
+  containerClasses?: string
 
   /**
    * A CodeMirror editor for the code
@@ -378,7 +379,11 @@ export class UINodeCode extends LitElement {
   }
 
   override render() {
-    const containerClasses = apply([this.containerClasses])
+    const { borderColour } = nodeUi(this.type)
+
+    const containerClasses = apply([
+      this.containerClasses ?? `border-t border-[${borderColour}]`,
+    ])
 
     const contentClasses = apply([
       'text-black',
