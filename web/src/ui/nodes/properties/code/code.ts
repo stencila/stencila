@@ -329,13 +329,13 @@ export class UINodeCode extends LitElement {
       ) as ExecutionMessage[]
     }
 
-    this.executionDiagnostics =
-      this.executionRequired === 'SemanticsChanged' ||
-      this.executionRequired === 'StateChanged'
-        ? []
-        : createLinterDiagnostics(this.editorView, this.executionMessages)
-
     if (this.editorView) {
+      this.executionDiagnostics =
+        this.executionRequired === 'SemanticsChanged' ||
+        this.executionRequired === 'StateChanged'
+          ? []
+          : createLinterDiagnostics(this.editorView, this.executionMessages)
+
       const transaction = setDiagnostics(
         this.editorView.state,
         this.executionDiagnostics
