@@ -85,7 +85,7 @@ impl DomCodec for AuthorRole {
             .push_attr("role-name", &self.role_name.to_string());
 
         if let Some(format) = &self.format {
-            context.push_attr("format", &format);
+            context.push_attr("format", format);
         }
 
         if let Some(last_modified) = &self.last_modified {

@@ -1234,7 +1234,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             ..Default::default()
         }),
         "style" => Block::StyledBlock(StyledBlock {
-            code: args.clone().unwrap_or_default().into(),
+            code: args.unwrap_or_default().into(),
             content: decode_blocks(&value),
             ..Default::default()
         }),
