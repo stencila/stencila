@@ -118,17 +118,14 @@ export const createProvenanceDecorations = (marks: AuthorshipMarker[]) =>
 
 /**
  * Create a hover tooltip to display the authorship provenance information
- *
- * @param marks `AuthorshipMarker[]`
- * @returns `Extension`
  */
 export const provenanceTooltip = (
   marks: AuthorshipMarker[],
-  messages: ExecutionMessage[]
+  diagnostics: Diagnostic[]
 ) =>
   hoverTooltip((_, pos) => {
-    // Disable tooltip if execution messages are present, to avoid a merged tooltip
-    if (messages.length > 0) {
+    // Disable tooltip if diagnostics are present, to avoid a merged tooltip
+    if (diagnostics.length > 0) {
       return null
     }
 

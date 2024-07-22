@@ -153,6 +153,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           code=${this.code}
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
+          execution-required=${this.executionRequired}
           read-only
           no-gutters
           containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"

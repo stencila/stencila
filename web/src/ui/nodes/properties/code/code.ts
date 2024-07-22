@@ -7,12 +7,12 @@ import {
   LanguageSupport,
   StreamLanguage,
 } from '@codemirror/language'
-import { linter, setDiagnostics } from '@codemirror/lint'
+import { Diagnostic, linter, setDiagnostics } from '@codemirror/lint'
 import { EditorState, Extension } from '@codemirror/state'
 import { lineNumbers, EditorView } from '@codemirror/view'
-import { NodeType } from '@stencila/types'
+import { ExecutionRequired, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { ExecutionMessage } from '../../../../nodes/execution-message'
@@ -57,6 +57,16 @@ export class UINodeCode extends LitElement {
    */
   @property()
   language: string
+
+  /**
+   * Whether execution is required, and if so, the reason
+   *
+   * Used to ignore execution messages if there has been changes
+   * in the code since it was executed (in which case there could
+   * be inconsistencies between the code and the messages).
+   */
+  @property({ attribute: 'execution-required' })
+  executionRequired: ExecutionRequired
 
   /**
    * Whether line number and other gutters should be shown
@@ -174,12 +184,17 @@ export class UINodeCode extends LitElement {
   ]
 
   /**
-   * Execution messages associated with the code
+   * Execution messages
+   */
+  private executionMessages: ExecutionMessage[] = []
+
+  /**
+   * Execution diagnostics associated with the code
    *
    * This state is maintained because it is returned from the `LinterSource`
    * function that is passed to the linter (see below).
    */
-  private executionMessages: ExecutionMessage[] = []
+  private executionDiagnostics: Diagnostic[] = []
 
   /**
    * Get the CodeMirror editor extensions
@@ -194,12 +209,7 @@ export class UINodeCode extends LitElement {
       ? [await languageDescription.load()]
       : []
 
-    const linterExtension = [
-      linter((editorView) => {
-        // When the editor is idle, this function will be called to update diagnostics
-        return createLinterDiagnostics(editorView, this.executionMessages)
-      }),
-    ]
+    const linterExtension = [linter(() => this.executionDiagnostics)]
 
     const authorshipMarkers = this.getAuthorshipMarkers()
     const authorshipExtensions = authorshipMarkers
@@ -207,7 +217,7 @@ export class UINodeCode extends LitElement {
           EditorView.decorations.of(
             createProvenanceDecorations(authorshipMarkers)
           ),
-          provenanceTooltip(authorshipMarkers, this.executionMessages),
+          provenanceTooltip(authorshipMarkers, this.executionDiagnostics),
         ]
       : []
 
@@ -312,21 +322,29 @@ export class UINodeCode extends LitElement {
    * Updates the `executionMessages` property, generates linter
    * diagnostics for them, and updates the editor with those diagnostics
    */
-  private updateExecutionMessages(messagesElem: HTMLElement) {
-    this.executionMessages = Array.from(messagesElem.children ?? []).filter(
-      (message: ExecutionMessage) => message?.message?.length > 0
-    ) as ExecutionMessage[]
+  private updateExecutionMessages(messagesElem?: HTMLElement) {
+    if (messagesElem) {
+      this.executionMessages = Array.from(messagesElem.children ?? []).filter(
+        (message: ExecutionMessage) => message?.message?.length > 0
+      ) as ExecutionMessage[]
+    }
+
+    this.executionDiagnostics =
+      this.executionRequired === 'SemanticsChanged' ||
+      this.executionRequired === 'StateChanged'
+        ? []
+        : createLinterDiagnostics(this.editorView, this.executionMessages)
 
     if (this.editorView) {
       const transaction = setDiagnostics(
         this.editorView.state,
-        createLinterDiagnostics(this.editorView, this.executionMessages)
+        this.executionDiagnostics
       )
       this.editorView.dispatch(transaction)
     }
   }
 
-  override update(changedProperties: Map<string, string | boolean>) {
+  override update(changedProperties: PropertyValues) {
     super.update(changedProperties)
 
     if (changedProperties.has('language')) {
@@ -352,6 +370,10 @@ export class UINodeCode extends LitElement {
           })
         )
       }
+    }
+
+    if (changedProperties.has('executionRequired')) {
+      this.updateExecutionMessages()
     }
   }
 

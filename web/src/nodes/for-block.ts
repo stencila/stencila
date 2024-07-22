@@ -59,6 +59,7 @@ export class ForBlock extends CodeExecutable {
             type="ForBlock"
             code=${this.code}
             language=${this.programmingLanguage}
+            execution-required=${this.executionRequired}
             read-only
           >
             <slot name="execution-messages" slot="execution-messages"></slot>
