@@ -5,7 +5,6 @@ import { html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
-import { DocumentView } from '../../types'
 
 import { nodeUi } from './icons-and-colours'
 
@@ -24,14 +23,6 @@ export class UINodeCard extends LitElement {
    */
   @property()
   type: NodeType
-
-  /**
-   * The view that this card is within
-   *
-   * Used for adapting styling for the view.
-   */
-  @property()
-  view: DocumentView
 
   /**
    * Determine how to display the node-card. By default, we simply display the
@@ -83,7 +74,6 @@ export class UINodeCard extends LitElement {
       'transition duration-400',
       'border border-[transparent]',
       this.display && 'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : '',
       this.display === 'on-demand' &&
         this.toggle &&
         `border-[${this.ui.borderColour}]`,
@@ -133,7 +123,7 @@ export class UINodeCard extends LitElement {
       'gap-x-2',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}]`,
-      this.view === 'source' ? '' : 'rounded-t',
+      'rounded-t',
       'font-sans',
       'font-medium',
     ])

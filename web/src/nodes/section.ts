@@ -28,7 +28,6 @@ export class Section extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Section"
-        view="dynamic"
         depth=${this.depth}
         ancestors=${this.ancestors}
       >

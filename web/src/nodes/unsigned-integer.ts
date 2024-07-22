@@ -19,7 +19,7 @@ export class UnsignedInteger extends Entity {
    * In dynamic view, in addition to the value, render a node card.
    */
   override render() {
-    return html`<stencila-ui-node-card type="UnsignedInteger" view="dynamic"
+    return html`<stencila-ui-node-card type="UnsignedInteger"
       ><div slot="body"><slot></slot></div
     ></stencila-ui-node-card>`
   }

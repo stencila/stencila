@@ -40,7 +40,6 @@ export class CodeChunk extends CodeExecutable {
   override render() {
     return html`<stencila-ui-block-on-demand
       type="CodeChunk"
-      view="dynamic"
       programming-language="${this.programmingLanguage}"
       depth=${this.depth}
       ancestors=${this.ancestors}
@@ -53,6 +52,7 @@ export class CodeChunk extends CodeExecutable {
         >
         </stencila-ui-node-execution-commands>
       </span>
+
       <div slot="body">
         <stencila-ui-node-execution-details
           type="CodeChunk"
@@ -85,6 +85,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
       </div>
+
       <div slot="content">
         ${this.isInvisible
           ? ''

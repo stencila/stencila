@@ -22,7 +22,6 @@ export class ForBlock extends CodeExecutable {
     return html`
       <stencila-ui-block-on-demand
         type="ForBlock"
-        view="dynamic"
         depth=${this.depth}
         ancestors=${this.ancestors}
       >

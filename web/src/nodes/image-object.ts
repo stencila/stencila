@@ -27,7 +27,7 @@ export class ImageObject extends Entity {
    */
   override render() {
     return html`
-      <stencila-ui-block-on-demand type="ImageObject" view="dynamic">
+      <stencila-ui-block-on-demand type="ImageObject">
         <div slot="body"></div>
         <div slot="content" class=${this.imgStyles}>
           <slot></slot>

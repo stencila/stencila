@@ -28,7 +28,6 @@ export class CodeExpression extends CodeExecutable {
   override render() {
     return html`<stencila-ui-inline-on-demand
       type="CodeExpression"
-      view="dynamic"
       programming-language=${this.programmingLanguage}
     >
       <span slot="header-right">
@@ -63,7 +62,7 @@ export class CodeExpression extends CodeExecutable {
         <stencila-ui-node-code
           type="CodeExpression"
           code=${this.code}
-          code-authorship=${this.codeAuthorship}
+          .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           read-only
         >

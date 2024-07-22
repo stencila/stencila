@@ -23,7 +23,6 @@ export class Datatable extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Datatable"
-        view="dynamic"
         depth=${this.depth}
         ancestors=${this.ancestors}
       >

@@ -21,7 +21,6 @@ export class MathBlock extends Math {
     return html`
       <stencila-ui-block-on-demand
         type="MathBlock"
-        view="dynamic"
         depth=${this.depth}
         ancestors=${this.ancestors}
       >
@@ -36,7 +35,7 @@ export class MathBlock extends Math {
           <stencila-ui-node-code
             type="MathBlock"
             code=${this.code}
-            code-authorship=${this.codeAuthorship}
+            .code-authorship=${this.codeAuthorship}
             language=${this.mathLanguage ?? 'tex'}
             read-only
           >

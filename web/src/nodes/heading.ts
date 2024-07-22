@@ -28,7 +28,6 @@ export class Heading extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Heading"
-        view="dynamic"
         node-id=${this.id}
       >
         <div slot="body">

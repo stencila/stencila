@@ -25,7 +25,6 @@ export class StyledBlock extends Styled {
 
     return html`<stencila-ui-block-on-demand
       type="StyledBlock"
-      view="dynamic"
       .canAnimate=${false}
       depth=${this.depth}
       ancestors=${this.ancestors}
@@ -41,7 +40,7 @@ export class StyledBlock extends Styled {
         <stencila-ui-node-code
           type="StyledBlock"
           code=${this.code}
-          code-authorship=${this.codeAuthorship}
+          .code-authorship=${this.codeAuthorship}
           language=${this.styleLanguage}
           read-only
         >

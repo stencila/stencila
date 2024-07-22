@@ -24,7 +24,6 @@ export class List extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="List"
-        view="dynamic"
         depth=${this.depth}
         ancestors=${this.ancestors}
         node-id=${this.id}

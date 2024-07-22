@@ -108,7 +108,6 @@ export class Paragraph extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Paragraph"
-        view="dynamic"
         node-id=${this.id}
         depth=${this.depth}
         ancestors=${this.ancestors}

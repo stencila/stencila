@@ -27,7 +27,7 @@ export class Number extends Entity {
    */
   override render() {
     return html`
-      <stencila-ui-inline-on-demand type="Number" view="dynamic">
+      <stencila-ui-inline-on-demand type="Number">
         <div slot="content" class=${this.bodyStyles}><slot></slot></div>
       </stencila-ui-inline-on-demand>
     `
