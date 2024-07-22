@@ -32,6 +32,9 @@ export class ExecutionMessage extends Entity {
   @property({ attribute: 'stack-trace' })
   stackTrace?: string
 
+  @property({ attribute: 'code-location', type: Array })
+  codeLocation?: [number, number, number, number]
+
   override render() {
     return html`
       <stencila-ui-node-execution-message
