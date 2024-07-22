@@ -229,6 +229,7 @@ impl Format {
             "tailwind" => Tailwind,
             "tex" => Tex,
             "text" | "txt" => Text,
+            "toml" => Toml,
             "wav" => Wav,
             "webm" => WebM,
             "webp" => WebP,

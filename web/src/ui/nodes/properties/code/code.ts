@@ -7,23 +7,24 @@ import {
   LanguageSupport,
   StreamLanguage,
 } from '@codemirror/language'
+import { Diagnostic, linter, setDiagnostics } from '@codemirror/lint'
 import { EditorState, Extension } from '@codemirror/state'
 import { lineNumbers, EditorView } from '@codemirror/view'
-import { NodeType } from '@stencila/types'
+import { ExecutionRequired, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
 import '../../../buttons/chevron'
-import { ExecutionMessage } from '../execution-message'
 
 import { AuthorshipRun, AuthorshipMarker as AuthorshipMarker } from './types'
 import {
-  executionMessageLinter,
   createProvenanceDecorations,
   stencilaTheme,
   provenanceTooltip,
+  createLinterDiagnostics,
 } from './utils'
 
 /**
@@ -56,6 +57,16 @@ export class UINodeCode extends LitElement {
    */
   @property()
   language: string
+
+  /**
+   * Whether execution is required, and if so, the reason
+   *
+   * Used to ignore execution messages if there has been changes
+   * in the code since it was executed (in which case there could
+   * be inconsistencies between the code and the messages).
+   */
+  @property({ attribute: 'execution-required' })
+  executionRequired: ExecutionRequired
 
   /**
    * Whether line number and other gutters should be shown
@@ -120,7 +131,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'javascript',
-      alias: ['js'],
+      alias: ['js', 'nodejs'],
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
@@ -173,6 +184,19 @@ export class UINodeCode extends LitElement {
   ]
 
   /**
+   * Execution messages
+   */
+  private executionMessages: ExecutionMessage[] = []
+
+  /**
+   * Execution diagnostics associated with the code
+   *
+   * This state is maintained because it is returned from the `LinterSource`
+   * function that is passed to the linter (see below).
+   */
+  private executionDiagnostics: Diagnostic[] = []
+
+  /**
    * Get the CodeMirror editor extensions
    */
   private async getEditorExtensions(): Promise<Extension[]> {
@@ -181,31 +205,30 @@ export class UINodeCode extends LitElement {
       this.language,
       true
     )
-    let languageExtension: LanguageSupport[]
-    if (languageDescription) {
-      languageExtension = [await languageDescription.load()]
-    } else {
-      languageExtension = []
-    }
+    const languageExtension: LanguageSupport[] = languageDescription
+      ? [await languageDescription.load()]
+      : []
 
-    const executionMessages = this.getExecutionMessages()
+    const linterExtension = [linter(() => this.executionDiagnostics)]
+
     const authorshipMarkers = this.getAuthorshipMarkers()
+    const authorshipExtensions = authorshipMarkers
+      ? [
+          EditorView.decorations.of(
+            createProvenanceDecorations(authorshipMarkers)
+          ),
+          provenanceTooltip(authorshipMarkers, this.executionDiagnostics),
+        ]
+      : []
 
     return [
       EditorView.editable.of(!this.readOnly),
       EditorState.readOnly.of(this.readOnly),
-      authorshipMarkers
-        ? [
-            EditorView.decorations.of(
-              createProvenanceDecorations(authorshipMarkers)
-            ),
-            provenanceTooltip(authorshipMarkers, executionMessages),
-          ]
-        : [],
-      ...languageExtension,
-      this.noGutters ? [] : [lineNumbers(), foldGutter()],
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      executionMessages ? executionMessageLinter(executionMessages) : [],
+      ...languageExtension,
+      ...linterExtension,
+      ...authorshipExtensions,
+      this.noGutters ? [] : [lineNumbers(), foldGutter()],
       stencilaTheme,
     ]
   }
@@ -246,33 +269,6 @@ export class UINodeCode extends LitElement {
   }
 
   /**
-   * Looks for the `<span slot="execution-messages">` element within the
-   * hidden #messages element, returns `undefined` if messsages our not found
-   */
-  private getExecutionMessages(): ExecutionMessage[] | null {
-    const messageParentNode = this.shadowRoot
-      .querySelector('div#messages slot')
-      // @ts-expect-error "assignedElements method will will not detected"
-      .assignedElements({ flatten: true })
-      .find(
-        (el: HTMLElement) => el.slot === 'execution-messages'
-      ) as HTMLElement
-
-    if (messageParentNode) {
-      const messageObjects: ExecutionMessage[] = []
-      messageParentNode.childNodes.forEach((node) => {
-        if (node.nodeName.toLowerCase() === 'stencila-execution-message') {
-          messageObjects.push(node as ExecutionMessage)
-        }
-      })
-      if (messageObjects.length > 0) {
-        return messageObjects
-      }
-    }
-    return null
-  }
-
-  /**
    * Takes the string value of the `code-authorship` property and attempts to
    * parse it into JS, if successful will convert the elements in `CodeAuthorshipMarker` objects
    *
@@ -291,7 +287,64 @@ export class UINodeCode extends LitElement {
       : null
   }
 
-  override update(changedProperties: Map<string, string | boolean>) {
+  /**
+   * A mutation observer to update the `executionMessages` array when
+   * the `execution-messages` slot changes
+   */
+  private executionMessagesObserver: MutationObserver
+
+  /**
+   * Handle a change, including on initial load, of the `execution-messages` slot
+   */
+  private onExecutionMessagesSlotChange(event: Event) {
+    // Get the messages element
+    const messagesElem = (event.target as HTMLSlotElement).assignedElements({
+      flatten: true,
+    })[0] as HTMLElement
+
+    if (!messagesElem) {
+      return
+    }
+
+    // Update messages
+    this.updateExecutionMessages(messagesElem)
+
+    // Also update the messages when the element is mutated
+    this.executionMessagesObserver = new MutationObserver(() => {
+      this.updateExecutionMessages(messagesElem)
+    })
+    this.executionMessagesObserver.observe(messagesElem, {
+      childList: true,
+    })
+  }
+
+  /**
+   * Updates the `executionMessages` property, generates linter
+   * diagnostics for them, and updates the editor with those diagnostics
+   */
+  private updateExecutionMessages(messagesElem?: HTMLElement) {
+    if (messagesElem) {
+      this.executionMessages = Array.from(messagesElem.children ?? []).filter(
+        (message: ExecutionMessage) => message?.message?.length > 0
+      ) as ExecutionMessage[]
+    }
+
+    this.executionDiagnostics =
+      this.executionRequired === 'SemanticsChanged' ||
+      this.executionRequired === 'StateChanged'
+        ? []
+        : createLinterDiagnostics(this.editorView, this.executionMessages)
+
+    if (this.editorView) {
+      const transaction = setDiagnostics(
+        this.editorView.state,
+        this.executionDiagnostics
+      )
+      this.editorView.dispatch(transaction)
+    }
+  }
+
+  override update(changedProperties: PropertyValues) {
     super.update(changedProperties)
 
     if (changedProperties.has('language')) {
@@ -318,6 +371,10 @@ export class UINodeCode extends LitElement {
         )
       }
     }
+
+    if (changedProperties.has('executionRequired')) {
+      this.updateExecutionMessages()
+    }
   }
 
   override render() {
@@ -334,7 +391,12 @@ export class UINodeCode extends LitElement {
     return html`
       <div class=${containerClasses}>
         <div class=${contentClasses}>
-          <div hidden id="messages"><slot></slot></div>
+          <div hidden>
+            <slot
+              name="execution-messages"
+              @slotchange=${this.onExecutionMessagesSlotChange}
+            ></slot>
+          </div>
           <div id="codemirror" class="bg-gray-50"></div>
         </div>
       </div>
