@@ -1,12 +1,12 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-
 import '../ui/nodes/card'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { CodeExecutable } from './code-executable'
 
@@ -18,21 +18,28 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-for-block')
 @withTwind()
 export class ForBlock extends CodeExecutable {
+  @property()
+  variable: string
+
   override render() {
+    const { borderColour } = nodeUi('ForBlock')
+
     return html`
       <stencila-ui-block-on-demand
         type="ForBlock"
-        view="dynamic"
+        node-id=${this.id}
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?removeContentPadding=${true}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
-            node-id=${this.id}
             type="ForBlock"
+            node-id=${this.id}
           >
           </stencila-ui-node-execution-commands>
         </span>
+
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details
             type="ForBlock"
@@ -48,23 +55,44 @@ export class ForBlock extends CodeExecutable {
             <slot name="execution-dependants"></slot>
           </stencila-ui-node-execution-details>
 
+          <div
+            class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${borderColour}] border-t border-black/20"
+          >
+            <span class="font-bold font-mono">for</span>
+
+            <stencila-ui-node-code
+              type="ForBlock"
+              code=${this.variable}
+              language=${this.programmingLanguage}
+              read-only
+              no-gutters
+              containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+              class="flex-grow flex items-center"
+            >
+            </stencila-ui-node-code>
+
+            <span class="font-bold font-mono">in</span>
+
+            <stencila-ui-node-code
+              type="ForBlock"
+              code=${this.code}
+              language=${this.programmingLanguage}
+              read-only
+              no-gutters
+              containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+              class="flex-grow flex items-center"
+            >
+            </stencila-ui-node-code>
+          </div>
+
           <stencila-ui-node-authors type="ForBlock">
             <stencila-ui-node-provenance slot="provenance">
               <slot name="provenance"></slot>
             </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
-
-          <stencila-ui-node-code
-            type="ForBlock"
-            code=${this.code}
-            language=${this.programmingLanguage}
-            execution-required=${this.executionRequired}
-            read-only
-          >
-            <slot name="execution-messages" slot="execution-messages"></slot>
-          </stencila-ui-node-code>
         </div>
+
         <div slot="content">
           <slot name="iterations"></slot>
         </div>
