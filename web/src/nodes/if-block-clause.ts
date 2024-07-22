@@ -7,10 +7,9 @@ import '../ui/nodes/properties/code/code'
 import '../ui/animation/collapsible'
 
 import { withTwind } from '../twind'
-import { AvailableLanguages } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import { AvailableLanguagesMixin } from '../ui/nodes/mixins/language'
+import { AvailableLanguagesMixin } from '../ui/nodes/properties/language'
 
 import { CodeExecutable } from './code-executable'
 
@@ -158,7 +157,11 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
 
-        ${this.renderLanguage()}
+        ${this.programmingLanguage
+          ? html`<stencila-ui-node-programming-language
+              programming-language=${this.programmingLanguage}
+            ></stencila-ui-node-programming-language>`
+          : ''}
 
         <stencila-chevron-button
           class="ml-auto"
@@ -169,33 +172,6 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
         ></stencila-chevron-button>
       </div>
     `
-  }
-
-  protected renderLanguage() {
-    if (this.programmingLanguage) {
-      const {
-        displayName,
-        icon: [iconName, iconLibrary],
-      } =
-        this.programmingLanguage in this.languages
-          ? this.languages[this.programmingLanguage as AvailableLanguages]
-          : {
-              displayName: this.programmingLanguage,
-              icon: this.languages['default'].icon,
-            }
-
-      return html`
-        <div class="mr-4 flex items-center">
-          <sl-icon
-            class="text-lg"
-            name=${iconName}
-            library=${iconLibrary}
-          ></sl-icon
-          ><span class="text-xs ml-1 font-sans">${displayName}</span>
-        </div>
-      `
-    }
-    return ''
   }
 
   protected renderContent() {

@@ -34,19 +34,16 @@ export class CallArgument extends Parameter {
 
     const code =
       this.code?.length > 0 ? this.code : this.value?.toString() ?? ''
-    const language = this.programmingLanguage ?? this.code ? 'json' : 'js'
+
+    const language = this.programmingLanguage ?? this.code ? 'json5' : 'js'
 
     return html`
-      <div class="flex flex-row items-center p-1 gap-2 bg-[${borderColour}]">
-        <span>•</span>
-
+      <div class="flex flex-row items-center gap-1 p-1 bg-[${borderColour}]">
         <input
           class="flex-grow rounded-sm px-2 py-1 font-mono text-sm h-[2em]"
           readonly
           value=${this.name}
         />
-
-        <span>=</span>
 
         <stencila-ui-node-code
           type="CallBlock"
@@ -58,6 +55,12 @@ export class CallArgument extends Parameter {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
+
+        ${language
+          ? html`<stencila-ui-node-programming-language class="mr-3"
+              programming-language=${language}
+            ></stencila-ui-node-programming-language>`
+          : ''}
       </div>
     `
   }

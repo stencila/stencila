@@ -3,12 +3,13 @@ import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../../../twind'
-import { AvailableLanguages, ProgrammingLanguage } from '../../../types'
-import { AvailableLanguagesMixin } from '../mixins/language'
 import { UIBaseClass } from '../mixins/ui-base-class'
-
 import '../../animation/collapsible'
 import '../../buttons/chevron'
+import {
+  ProgrammingLanguage,
+  programmingLanguages,
+} from '../properties/programming-language'
 
 /**
  * UI Base Card
@@ -17,18 +18,20 @@ import '../../buttons/chevron'
  */
 @customElement('stencila-ui-base-card')
 @withTwind()
-export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
+export class UIBaseCard extends UIBaseClass {
+  /**
+   * The programming language of the node
+   *
+   * Used to customize the icon for the node
+   */
+  @property({ attribute: 'programming-language' })
+  programmingLanguage?: string
+
   /**
    * If the component can be collapsed, track whether it is in a collapsed state.
    */
   @property({ type: Boolean })
   collapsed?: boolean = false
-
-  /**
-   * Optional programming
-   */
-  @property({ type: String, attribute: 'programming-language' })
-  programmingLanguage?: string
 
   /**
    * Allows us to switch the animation on/off.
@@ -68,15 +71,14 @@ export class UIBaseCard extends AvailableLanguagesMixin(UIBaseClass) {
    * if the title _is_ a language.
    */
   protected getIcon(): [string, string] {
-    let lang: ProgrammingLanguage | undefined = this.languages['default']
     let library = this.ui.iconLibrary
     let icon = this.ui.icon
-    const hasLang = this.programmingLanguage && this.programmingLanguage
 
-    if (hasLang && this.programmingLanguage in this.languages) {
-      lang = this.languages[this.programmingLanguage as AvailableLanguages]
-      icon = lang.icon[0]
-      library = lang.icon[1]
+    if (this.programmingLanguage in programmingLanguages) {
+      [icon, library] =
+        programmingLanguages[
+          this.programmingLanguage as ProgrammingLanguage
+        ].icon
     }
 
     return [library, icon]

@@ -48,34 +48,3 @@ export type MainContextEvent =
   | 'stencila-view-change'
   | 'stencila-settings-toggle'
   | 'stencila-config-toggle'
-
-/**
- * Languages that are allowed to execute within Stencila and can have their
- * content displayed in node-cards.
- */
-
-export type AvailableLanguages =
-  | 'asciimath'
-  | 'bash'
-  | 'jinja'
-  | 'js'
-  | 'javascript'
-  | 'latex'
-  | 'mathml'
-  | 'node'
-  | 'py'
-  | 'python'
-  | 'r'
-  | 'rhai'
-  | 'shell'
-  | 'sql'
-  | 'tex'
-
-export type ProgrammingLanguage = {
-  displayName: string
-  icon: [string, string]
-}
-
-export type ProgrammingLanguages = {
-  [Name in AvailableLanguages | 'default']: ProgrammingLanguage
-}
