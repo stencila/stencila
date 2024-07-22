@@ -38,7 +38,7 @@ export class CallArgument extends Parameter {
     const language = this.programmingLanguage ?? this.code ? 'json5' : 'js'
 
     return html`
-      <div class="flex flex-row items-center gap-1 p-1 bg-[${borderColour}]">
+      <div class="flex flex-row items-center gap-1 p-2 bg-[${borderColour}]">
         <input
           class="flex-grow rounded-sm px-2 py-1 font-mono text-sm h-[2em]"
           readonly
@@ -57,7 +57,7 @@ export class CallArgument extends Parameter {
         </stencila-ui-node-code>
 
         ${language
-          ? html`<stencila-ui-node-programming-language class="mr-3"
+          ? html`<stencila-ui-node-programming-language
               programming-language=${language}
             ></stencila-ui-node-programming-language>`
           : ''}

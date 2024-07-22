@@ -110,7 +110,7 @@ export class IncludeBlock extends Executable {
     const { borderColour } = nodeUi(nodeType)
 
     return html`<div
-      class="flex flex-row p-1 bg-[${borderColour}] border-t border-black/20"
+      class="flex flex-row p-2 bg-[${borderColour}] border-t border-black/20"
     >
       <sl-tooltip
         content="Relative path or URL of the source document"
@@ -122,7 +122,7 @@ export class IncludeBlock extends Executable {
       <sl-tooltip
         content="Open source document in another tab"
         placement="top-end"
-        ><a class="inline-block pl-2 pr-1" href=${this.source} target="_blank">
+        ><a class="inline-block ml-2" href=${this.source} target="_blank">
           <sl-icon name="box-arrow-up-right"></sl-icon> </a
       ></sl-tooltip>
     </div>`

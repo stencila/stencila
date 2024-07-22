@@ -152,7 +152,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
           class=${label === 'else'
             ? 'hidden'
-            : 'flex-grow flex items-center mr-4'}
+            : 'flex-grow flex items-center mr-1'}
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
@@ -167,7 +167,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           class="ml-auto"
           default-pos=${this.isFolded ? 'left' : 'down'}
           slot="right-side"
-          custom-class="flex items-center"
+          custom-class="flex items-center ml-3"
           .clickEvent=${() => (this.isFolded = !this.isFolded)}
         ></stencila-chevron-button>
       </div>

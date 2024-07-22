@@ -105,13 +105,13 @@ export class UINodeContentPlaceholder extends LitElement {
           }
 
     return html`
-      <div class="mr-4 flex items-center">
+      <div class="flex items-center gap-1">
         <sl-icon
           class="text-lg"
           name=${iconName}
           library=${iconLibrary}
         ></sl-icon
-        ><span class="text-xs ml-1 font-sans">${displayName}</span>
+        ><span class="text-xs font-sans">${displayName}</span>
       </div>
     `
   }
