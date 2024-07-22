@@ -2,7 +2,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { MessageLevel } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../buttons/chevron'
@@ -24,10 +24,10 @@ export class ExecutionMessage extends LitElement {
   errorType?: string
 
   @property({ attribute: 'stack-trace' })
-  stackTrace: string
+  stackTrace?: string
 
-  @property({ type: Boolean })
-  messageCollapsed: boolean = true
+  @state()
+  private messageCollapsed: boolean = true
 
   private toggleCollapse = () => {
     this.messageCollapsed = !this.messageCollapsed
