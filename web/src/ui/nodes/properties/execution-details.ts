@@ -54,9 +54,6 @@ export class UINodeExecutionDetails extends LitElement {
   @property({ type: Number })
   duration?: number
 
-  @property({ attribute: 'header-bg' })
-  headerBg: string | undefined = undefined
-
   override render() {
     const { borderColour } = nodeUi(this.type)
 
