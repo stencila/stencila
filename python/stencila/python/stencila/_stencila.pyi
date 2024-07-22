@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Nokome Bentley
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import TypedDict
 
 class DecodeOptions(TypedDict):

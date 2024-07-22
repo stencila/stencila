@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Nokome Bentley
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from collections.abc import Iterable
 from typing import TypeAlias
 

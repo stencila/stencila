@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Nokome Bentley
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Stencila Types for Python
 
 [![stencila_types](https://img.shields.io/pypi/v/stencila_types.svg?logo=python&label=stencila_types&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8)](https://pypi.org/project/stencila_types/)

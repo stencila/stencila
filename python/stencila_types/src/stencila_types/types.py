@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Nokome Bentley
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Generated file; do not edit. See the Rust `schema-gen` crate.
 # We override the Literal `type` in each class so...
 # pyright: reportIncompatibleVariableOverride=false

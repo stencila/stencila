@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Nokome Bentley
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from stencila_types.types import Node
 from stencila_types.utilities import from_json, to_json
 

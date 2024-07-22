@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Nokome Bentley
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Internal utility functions
 
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
