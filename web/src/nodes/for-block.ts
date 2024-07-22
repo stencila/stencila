@@ -61,16 +61,8 @@ export class ForBlock extends CodeExecutable {
             language=${this.programmingLanguage}
             read-only
           >
+            <slot name="execution-messages" slot="execution-messages"></slot>
           </stencila-ui-node-code>
-
-          <stencila-ui-node-execution-messages
-            type="ForBlock"
-            message-count=${this.messageCount}
-            warning-count=${this.warningCount}
-            error-count=${this.errorCount}
-          >
-            <slot name="execution-messages"></slot>
-          </stencila-ui-node-execution-messages>
         </div>
         <div slot="content">
           <slot name="iterations"></slot>

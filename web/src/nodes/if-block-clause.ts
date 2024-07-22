@@ -160,7 +160,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
             ? 'hidden'
             : 'flex-grow flex items-center mr-4'}
         >
-          <slot name="execution-messages"></slot>
+          <slot name="execution-messages" slot="execution-messages"></slot>
         </stencila-ui-node-code>
 
         ${this.renderLanguage()}
