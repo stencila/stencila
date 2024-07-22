@@ -41,6 +41,8 @@ export class Section extends Entity {
   override connectedCallback(): void {
     super.connectedCallback()
 
+    // if section is a for block iteration,
+    // consume the context from the parent `ForBlock`
     if (this.sectionType === 'Iteration') {
       this.parentContext = new ContextConsumer(this, {
         context: entityContext,
