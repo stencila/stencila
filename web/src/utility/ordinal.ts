@@ -10,7 +10,7 @@ export const getOrdinalString = (num: number): string => {
     return `${num}st`
   }
   if (x === 2 && y !== 12) {
-    return `${num}2nd`
+    return `${num}nd`
   }
   if (x === 3 && y !== 13) {
     return `${num}rd`

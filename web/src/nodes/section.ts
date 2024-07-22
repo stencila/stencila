@@ -3,14 +3,14 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
+import { entityContext, EntityContext } from '../ui/nodes/context'
+
+import { Entity } from './entity'
+
 import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance/provenance'
-import { entityContext, EntityContext } from '../ui/nodes/context'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
-import { getOrdinalString } from '../utility/ordinal'
-
-import { Entity } from './entity'
+import '../ui/nodes/properties/iteration-section'
 
 /**
  * Web component representing a Stencila Schema `Section` node
@@ -78,22 +78,19 @@ export class Section extends Entity {
    * Render a section when it is an iteration of a `ForBlock`
    */
   private renderIteration() {
-    const { colour, borderColour, textColour } = nodeUi('ForBlock')
-
     const siblings = [...this.parentElement.children]
     const index = siblings.findIndex((elem) => elem === this)
 
     const showHeader = this.parentContext && this.parentContext.value?.cardOpen
 
-    return html`<div
-        class="${showHeader
-          ? 'flex'
-          : 'hidden'} px-4 py-2 flex items-center text-[${textColour}] bg-[${colour}] border-[${borderColour}] font-sans text-sm"
+    return html`
+      <stencila-ui-iteration-section
+        iteration-index=${index}
+        ?show-header=${showHeader}
+        ?last-iteration=${index === siblings.length - 1}
       >
-        ${getOrdinalString(index + 1)} Iteration
-      </div>
-      <div class="${showHeader ? 'p-3' : ''}">
         <slot name="content"></slot>
-      </div>`
+      </stencila-ui-iteration-section>
+    `
   }
 }

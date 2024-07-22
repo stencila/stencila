@@ -56,9 +56,9 @@ export class ForBlock extends CodeExecutable {
           </stencila-ui-node-execution-details>
 
           <div
-            class="flex flex-row pl-4 pt-2 bg-[${borderColour}] border-t border-black/20"
+            class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${borderColour}] border-t border-black/20"
           >
-            <span class="font-bold font-mono mr-3">for</span>
+            <span class="font-bold font-mono">for</span>
 
             <stencila-ui-node-code
               type="ForBlock"
@@ -67,10 +67,11 @@ export class ForBlock extends CodeExecutable {
               read-only
               no-gutters
               containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+              class="flex-grow flex items-center"
             >
             </stencila-ui-node-code>
 
-            <span class="font-bold font-mono mx-3">in</span>
+            <span class="font-bold font-mono">in</span>
 
             <stencila-ui-node-code
               type="ForBlock"
@@ -79,6 +80,7 @@ export class ForBlock extends CodeExecutable {
               read-only
               no-gutters
               containerClasses="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
+              class="flex-grow flex items-center"
             >
             </stencila-ui-node-code>
           </div>
