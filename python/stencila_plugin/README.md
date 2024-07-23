@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 Brett Calcott
+SPDX-FileCopyrightText: 2024 Nokome Bentley
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Stencila Plugin
 
 [![stencila_plugin](https://img.shields.io/pypi/v/stencila_plugin.svg?logo=python&label=stencila_plugin&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8)](https://pypi.org/project/stencila_plugin/)

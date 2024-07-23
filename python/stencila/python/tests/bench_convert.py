@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Nokome Bentley
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Performance benchmarking of functions in the `convert` module
 

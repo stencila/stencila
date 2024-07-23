@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Nokome Bentley
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Stencila SDK for Python
 
 **Bindings for using Stencila from Python**

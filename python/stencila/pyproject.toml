@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Nokome Bentley
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # See https://packaging.python.org/en/latest/specifications/declaring-project-metadata/ for `project` keys
 
 [project]
