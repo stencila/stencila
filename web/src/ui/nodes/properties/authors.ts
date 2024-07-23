@@ -48,6 +48,7 @@ export class UINodeAuthors extends LitElement {
       icon-name="authors"
       title="Authors"
       wrapper-css="${this.hasItems ? '' : 'hidden'}"
+      ?collapsed=${false}
     >
       <slot name="provenance" slot="header-content"></slot>
       <slot></slot>

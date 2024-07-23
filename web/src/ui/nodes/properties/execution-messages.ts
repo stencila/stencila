@@ -1,7 +1,7 @@
 import { MessageLevel, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { LitElement, PropertyValues, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import { executionMessageUI, nodeUi } from '../icons-and-colours'
@@ -17,14 +17,17 @@ export class UINodeExecutionMessages extends LitElement {
   @property()
   type: NodeType
 
-  @property({ type: Number, attribute: 'message-count' })
-  messageCount: number = 0
+  @state()
+  private hasMessages: boolean = false
 
-  @property({ type: Number, attribute: 'warning-count' })
-  warningCount: number = 0
+  private onSlotChange(event: Event): void {
+    const slot = event.target as HTMLSlotElement
+    this.hasMessages = slot.assignedElements({ flatten: true }).length > 0
+  }
 
-  @property({ type: Number, attribute: 'error-count' })
-  errorCount: number = 0
+  protected override firstUpdated(_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+  }
 
   override render() {
     return html`
@@ -32,22 +35,14 @@ export class UINodeExecutionMessages extends LitElement {
         type=${this.type}
         icon-name="terminal"
         icon-library="default"
-        wrapper-css=${this.messageCount > 0 ? '' : 'hidden'}
-        ?collapsed=${this.warningCount + this.errorCount == 0}
+        wrapper-css=${!this.hasMessages ? 'hidden' : ''}
+        ?collapsed=${false}
       >
         <div slot="title" class="flex justify-between mr-2">
-          <span class="text-sm">Messages</span>
-          <div class="flex">
-            ${this.warningCount > 0
-              ? this.renderLozenge('Warning', this.warningCount)
-              : ''}
-            ${this.errorCount > 0
-              ? this.renderLozenge('Error', this.errorCount)
-              : ''}
-          </div>
+          <span class="text-sm">Execution Messages</span>
         </div>
         <div slot="content" class="flex flex-col gap-y-3">
-          <slot></slot>
+          <slot @slotchange=${this.onSlotChange}></slot>
         </div>
       </stencila-ui-node-collapsible-property>
     `

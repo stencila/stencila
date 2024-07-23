@@ -23,7 +23,6 @@ export class MathInline extends Math {
       <stencila-ui-inline-on-demand
         style-content
         type="MathInline"
-        view="dynamic"
       >
         <div slot="body">
           <stencila-ui-node-authors type="MathInline">
@@ -36,7 +35,7 @@ export class MathInline extends Math {
           <stencila-ui-node-code
             type="MathInline"
             code=${this.code}
-            code-authorship=${this.codeAuthorship}
+            .code-authorship=${this.codeAuthorship}
             language=${this.mathLanguage ?? 'tex'}
             read-only
           >

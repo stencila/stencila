@@ -1,4 +1,5 @@
 import { consume } from '@lit/context'
+import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
@@ -6,10 +7,9 @@ import '../ui/nodes/properties/code/code'
 import '../ui/animation/collapsible'
 
 import { withTwind } from '../twind'
-import { AvailableLanguages } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import { AvailableLanguagesMixin } from '../ui/nodes/mixins/language'
+import { AvailableLanguagesMixin } from '../ui/nodes/properties/language'
 
 import { CodeExecutable } from './code-executable'
 
@@ -103,12 +103,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
       <stencila-ui-collapsible-animation
         class=${!this.isFolded ? 'opened' : ''}
       >
-        <div class="p-3">
-          <p class="text-center text-grey-400 italic" contenteditable="false">
-            ${this.hasContent ? '' : 'No content'}
-          </p>
-          <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
-        </div>
+        ${this.renderContent()}
       </stencila-ui-collapsible-animation>
     `
   }
@@ -129,23 +124,22 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
 
     const borderPosition = index === siblings.length - 1 ? '0' : 'b'
 
+    const iconStyles = apply([
+      `text-xl text-${textColour}`,
+      this.isActive === 'true'
+        ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
+        : '',
+    ])
+
     return html`
       <div
         class="p-3 flex items-center text-[${textColour}] bg-[${colour}] border-${borderPosition} border-[${borderColour}]"
       >
-        <sl-icon
-          name="clause-${label}"
-          library="stencila"
-          class="text-lg text-${textColour}"
-        >
+        <sl-icon name="clause-${label}" library="stencila" class=${iconStyles}>
         </sl-icon>
-        <span class="font-bold font-mono mx-3 min-w-[3rem]">
-          <span
-            class="${this.isActive === 'true'
-              ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
-              : ''}"
-            >${label}</span
-          >
+
+        <span class="text-[0.95rem] font-bold font-mono ml-3 min-w-[3rem]">
+          ${label}
         </span>
 
         <stencila-ui-node-code
@@ -159,48 +153,39 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
           class=${label === 'else'
             ? 'hidden'
-            : 'flex-grow flex items-center mr-4'}
+            : 'flex-grow flex items-center mr-1 max-w-[80%]'}
         >
           <slot name="execution-messages" slot="execution-messages"></slot>
         </stencila-ui-node-code>
 
-        ${this.renderLanguage()}
+        ${this.programmingLanguage
+          ? html`<stencila-ui-node-programming-language
+              programming-language=${this.programmingLanguage}
+            ></stencila-ui-node-programming-language>`
+          : ''}
 
         <stencila-chevron-button
           class="ml-auto"
           default-pos=${this.isFolded ? 'left' : 'down'}
           slot="right-side"
-          custom-class="flex items-center"
+          custom-class="flex items-center ml-3"
           .clickEvent=${() => (this.isFolded = !this.isFolded)}
         ></stencila-chevron-button>
       </div>
     `
   }
 
-  protected renderLanguage() {
-    if (this.programmingLanguage) {
-      const {
-        displayName,
-        icon: [iconName, iconLibrary],
-      } =
-        this.programmingLanguage in this.languages
-          ? this.languages[this.programmingLanguage as AvailableLanguages]
-          : {
-              displayName: this.programmingLanguage,
-              icon: this.languages['default'].icon,
-            }
+  protected renderContent() {
+    const styles = apply([
+      this.ifBlockConsumer.cardOpen ? 'px-2 pb-4' : '',
+      this.hasContent ? '' : 'pt-4',
+    ])
 
-      return html`
-        <div class="mr-4 flex items-center">
-          <sl-icon
-            class="text-lg"
-            name=${iconName}
-            library=${iconLibrary}
-          ></sl-icon
-          ><span class="text-sm ml-1">${displayName}</span>
-        </div>
-      `
-    }
-    return ''
+    return html`<div class=${styles}>
+      ${this.hasContent
+        ? ''
+        : html`<stencila-ui-node-content-placeholder></stencila-ui-node-content-placeholder>`}
+      <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
+    </div>`
   }
 }

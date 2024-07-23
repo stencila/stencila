@@ -86,8 +86,11 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
   CodeExpression:   { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
   
-  ForBlock:         { ...stencilaIcon('for-block'),            ...nodeColours('fuchsia')},
+  ForBlock:         { ...shoelaceIcon('repeat'),            ...nodeColours('fuchsia')},
   IfBlock:          { ...stencilaIcon('if-block'),             ...nodeColours('pink')},
+
+  IncludeBlock:     { ...shoelaceIcon('file-plus'),            ...nodeColours('sky')},
+  CallBlock:        { ...shoelaceIcon('file-play'),            ...nodeColours('lime')},
   
   InstructionBlock: { ...stencilaIcon('instruction-block'),    ...nodeColours('violet')},
   

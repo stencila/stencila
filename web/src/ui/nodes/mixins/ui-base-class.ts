@@ -2,7 +2,7 @@ import { NodeType } from '@stencila/types'
 import { LitElement } from 'lit'
 import { property } from 'lit/decorators'
 
-import { DocumentView, NodeId } from '../../../types'
+import { NodeId } from '../../../types'
 import { nodeUi } from '../icons-and-colours'
 
 /**
@@ -22,14 +22,6 @@ export class UIBaseClass extends LitElement {
    */
   @property({ attribute: 'node-id' })
   nodeId: NodeId
-
-  /**
-   * The view that this card is within
-   *
-   * Used for adapting styling for the view.
-   */
-  @property()
-  view: DocumentView
 
   /**
    * Internal copy of the ui attributes.

@@ -26,7 +26,7 @@ export class String extends Entity {
     const bodyStyles = apply(['w-full'])
 
     return html`
-      <stencila-ui-inline-on-demand type="String" view="dynamic">
+      <stencila-ui-inline-on-demand type="String">
         <div slot="content" class=${bodyStyles}>
           <q><slot></slot></q>
         </div>

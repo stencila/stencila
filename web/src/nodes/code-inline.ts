@@ -22,7 +22,6 @@ export class CodeInline extends CodeStatic {
       <stencila-ui-inline-on-demand
         disable-content-styles
         type="CodeInline"
-        view="dynamic"
         programming-language=${this.programmingLanguage}
       >
         <div slot="body">
@@ -36,7 +35,7 @@ export class CodeInline extends CodeStatic {
           <stencila-ui-node-code
             type="CodeInline"
             code=${this.code}
-            code-authorship=${this.codeAuthorship}
+            .code-authorship=${this.codeAuthorship}
             language=${this.programmingLanguage}
             read-only
           >

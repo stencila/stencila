@@ -4,36 +4,34 @@ import { customElement } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 import '../ui/nodes/card'
 
-import { Executable } from './executable'
+import { IncludeBlock } from './include-block'
 
 /**
- * Web component representing a Stencila Schema `IfBlock` node
+ * Web component representing a Stencila Schema `CallBlock` node
  *
- * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md
+ * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call-block.md
  */
-@customElement('stencila-if-block')
+@customElement('stencila-call-block')
 @withTwind()
-export class IfBlock extends Executable {
+export class CallBlock extends IncludeBlock {
   override render() {
     return html`
       <stencila-ui-block-on-demand
-        type="IfBlock"
+        type="CallBlock"
         depth=${this.depth}
         ancestors=${this.ancestors}
-        node-id=${this.id}
-        ?removeContentPadding=${true}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
-            type="IfBlock"
+            type="CallBlock"
             node-id=${this.id}
           >
           </stencila-ui-node-execution-commands>
         </span>
 
-        <div slot="body" class="h-full">
+        <div slot="body">
           <stencila-ui-node-execution-details
-            type="IfBlock"
+            type="CallBlock"
             mode=${this.executionMode}
             .tags=${this.executionTags}
             status=${this.executionStatus}
@@ -46,21 +44,22 @@ export class IfBlock extends Executable {
             <slot name="execution-dependants"></slot>
           </stencila-ui-node-execution-details>
 
-          <stencila-ui-node-authors type="IfBlock">
+          <stencila-ui-node-authors type="CallBlock">
             <stencila-ui-node-provenance slot="provenance">
               <slot name="provenance"></slot>
             </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
 
-          <stencila-ui-node-execution-messages type="IfBlock">
+          ${this.renderSource('CallBlock')}
+
+          <slot name="arguments"></slot>
+          <stencila-ui-node-execution-messages type=${'CallBlock'}>
             <slot name="execution-messages"></slot>
           </stencila-ui-node-execution-messages>
         </div>
 
-        <div slot="content">
-          <slot name="clauses"></slot>
-        </div>
+        <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `
   }

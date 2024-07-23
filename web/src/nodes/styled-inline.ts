@@ -25,7 +25,6 @@ export class StyledInline extends Styled {
 
     return html` <stencila-ui-inline-on-demand
       type="StyledInline"
-      view="dynamic"
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledInline">
@@ -38,7 +37,7 @@ export class StyledInline extends Styled {
         <stencila-ui-node-code
           type="StyledInline"
           code=${this.code}
-          code-authorship=${this.codeAuthorship}
+          .code-authorship=${this.codeAuthorship}
           language=${this.styleLanguage}
           read-only
         >

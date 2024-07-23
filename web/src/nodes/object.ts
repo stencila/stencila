@@ -24,7 +24,7 @@ export class Object extends Entity {
    */
   override render() {
     return html`
-      <stencila-ui-inline-on-demand type="Object" view="dynamic">
+      <stencila-ui-inline-on-demand type="Object">
         <div slot="content">
           <slot></slot>
         </div>

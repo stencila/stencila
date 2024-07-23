@@ -34,7 +34,6 @@ export class InstructionBlock extends Instruction {
   override render() {
     return html`<stencila-ui-block-on-demand
       type=${this.type}
-      view="dynamic"
       node-id=${this.id}
       depth=${this.depth}
       ancestors=${this.ancestors}
