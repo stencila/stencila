@@ -115,17 +115,21 @@ export class IncludeBlock extends Executable {
       <div
         class="flex flex-row gap-x-3 p-3 bg-[${colour}] border-t border-[${borderColour}]"
       >
-        <span class="font-mono">src:</span>
+        <span class="font-mono font-bold"
+          >${nodeType === 'IncludeBlock' ? 'include' : 'call'}</span
+        >
+
         <sl-tooltip
           content="Relative path or URL of the source document"
           placement="top-end"
         >
           <input
-            class="flex-grow rounded-sm px-2 font-mono text-sm h-[2em]"
+            class="flex-grow rounded-sm border border-[${borderColour}] px-2 font-mono h-[2em]"
             readonly
             value=${this.source}
           />
         </sl-tooltip>
+
         <sl-tooltip
           content="Open source document in another tab"
           placement="top-end"

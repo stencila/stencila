@@ -66,7 +66,7 @@ export class ForBlockIteration extends LitElement {
       <stencila-ui-collapsible-animation
         class=${this.showHeader ? (!this.isFolded ? 'opened' : '') : 'opened'}
       >
-        <div class="${this.showHeader ? 'p-3' : ''}">
+        <div class="p-3 ${this.showHeader ? 'pt-0' : ''}">
           <slot></slot>
         </div>
       </stencila-ui-collapsible-animation>

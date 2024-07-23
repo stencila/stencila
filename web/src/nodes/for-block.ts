@@ -58,7 +58,7 @@ export class ForBlock extends CodeExecutable {
           <div
             class="flex flex-row items-center gap-x-3 p-3 bg-[${colour}] border-t border-[${borderColour}]"
           >
-            <span class="font-bold font-mono">for</span>
+            <span class="font-mono font-bold">for</span>
 
             <stencila-ui-node-code
               type="ForBlock"
@@ -72,7 +72,7 @@ export class ForBlock extends CodeExecutable {
             >
             </stencila-ui-node-code>
 
-            <span class="font-bold font-mono">in</span>
+            <span class="font-mono font-bold">in</span>
 
             <stencila-ui-node-code
               type="ForBlock"
