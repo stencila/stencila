@@ -84,6 +84,12 @@ export class ForBlock extends CodeExecutable {
               class="flex-grow flex items-center"
             >
             </stencila-ui-node-code>
+
+            ${this.programmingLanguage
+              ? html`<stencila-ui-node-programming-language
+                  programming-language=${this.programmingLanguage}
+                ></stencila-ui-node-programming-language>`
+              : ''}
           </div>
 
           <stencila-ui-node-authors type="ForBlock">
@@ -92,6 +98,10 @@ export class ForBlock extends CodeExecutable {
             </stencila-ui-node-provenance>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
+
+          <stencila-ui-node-execution-messages type="IfBlock">
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
         </div>
 
         <div slot="content">

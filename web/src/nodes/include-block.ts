@@ -98,11 +98,7 @@ export class IncludeBlock extends Executable {
 
           ${this.renderSource('IncludeBlock')}
 
-          <stencila-ui-node-execution-messages
-            type=${'IncludeBlock'}
-            warning-count=${this.warningCount}
-            error-count=${this.errorCount}
-          >
+          <stencila-ui-node-execution-messages type=${'IncludeBlock'}>
             <slot name="execution-messages"></slot>
           </stencila-ui-node-execution-messages>
         </div>

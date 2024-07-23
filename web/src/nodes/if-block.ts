@@ -53,12 +53,7 @@ export class IfBlock extends Executable {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
 
-          <stencila-ui-node-execution-messages
-            type="IfBlock"
-            message-count=${this.messageCount}
-            warning-count=${this.warningCount}
-            error-count=${this.errorCount}
-          >
+          <stencila-ui-node-execution-messages type="IfBlock">
             <slot name="execution-messages"></slot>
           </stencila-ui-node-execution-messages>
         </div>

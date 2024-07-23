@@ -26,13 +26,6 @@ export class ExecutionMessage extends LitElement {
   @property({ attribute: 'stack-trace' })
   stackTrace?: string
 
-  // @state()
-  // private messageCollapsed: boolean = true
-
-  // private toggleCollapse = () => {
-  //   this.messageCollapsed = !this.messageCollapsed
-  // }
-
   static override styles = css`
     pre {
       text-wrap: wrap;
