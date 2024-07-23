@@ -98,7 +98,13 @@ export class IncludeBlock extends Executable {
 
           ${this.renderSource('IncludeBlock')}
 
-          <slot name="execution-messages"></slot>
+          <stencila-ui-node-execution-messages
+            type=${'IncludeBlock'}
+            warning-count=${this.warningCount}
+            error-count=${this.errorCount}
+          >
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
         </div>
 
         <div slot="content">${this.renderContent()}</div>
@@ -107,25 +113,33 @@ export class IncludeBlock extends Executable {
   }
 
   protected renderSource(nodeType: NodeType) {
-    const { borderColour } = nodeUi(nodeType)
+    const { borderColour, colour } = nodeUi(nodeType)
 
-    return html`<div
-      class="flex flex-row p-2 bg-[${borderColour}] border-t border-black/20"
-    >
-      <sl-tooltip
-        content="Relative path or URL of the source document"
-        placement="top-end"
+    return html`
+      <div
+        class="flex flex-row gap-x-3 p-3 bg-[${colour}] border-t border-[${borderColour}]"
       >
-        <input class="flex-grow rounded-sm px-2 font-mono text-sm h-[2em]" readonly value=${this.source} />
-      </sl-tooltip>
-
-      <sl-tooltip
-        content="Open source document in another tab"
-        placement="top-end"
-        ><a class="inline-block ml-2" href=${this.source} target="_blank">
-          <sl-icon name="box-arrow-up-right"></sl-icon> </a
-      ></sl-tooltip>
-    </div>`
+        <span class="font-mono">src:</span>
+        <sl-tooltip
+          content="Relative path or URL of the source document"
+          placement="top-end"
+        >
+          <input
+            class="flex-grow rounded-sm px-2 font-mono text-sm h-[2em]"
+            readonly
+            value=${this.source}
+          />
+        </sl-tooltip>
+        <sl-tooltip
+          content="Open source document in another tab"
+          placement="top-end"
+        >
+          <a class="flex items-center" href=${this.source} target="_blank">
+            <sl-icon name="box-arrow-up-right"></sl-icon>
+          </a>
+        </sl-tooltip>
+      </div>
+    `
   }
 
   protected renderContent() {

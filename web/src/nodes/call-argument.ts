@@ -30,7 +30,7 @@ export class CallArgument extends Parameter {
   programmingLanguage?: string
 
   override render() {
-    const { borderColour } = nodeUi('CallBlock')
+    const { borderColour, textColour } = nodeUi('CallBlock')
 
     const code =
       this.code?.length > 0 ? this.code : this.value?.toString() ?? ''
@@ -38,20 +38,23 @@ export class CallArgument extends Parameter {
     const language = this.programmingLanguage ?? this.code ? 'json5' : 'js'
 
     return html`
-      <div class="flex flex-row items-center gap-1 p-2 bg-[${borderColour}]">
+      <div
+        class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${borderColour}]"
+      >
         <input
-          class="flex-grow rounded-sm px-2 py-1 font-mono text-sm h-[2em]"
+          class="flex-grow max-w-[50%] rounded-sm px-2 py-1 font-mono text-sm h-[2em]"
           readonly
           value=${this.name}
         />
-
+        <span class="text-lg font-mono">${':'}</span>
         <stencila-ui-node-code
           type="CallBlock"
           code=${code}
           language=${language}
           read-only
           no-gutters
-          containerClasses="inline-block w-full border border-[${borderColour}] rounded-sm overflow-hidden"
+          class="flex items-center flex-grow"
+          container-classes="inline-block w-full border border-[${textColour}]/20 rounded overflow-hidden"
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>

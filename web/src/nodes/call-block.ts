@@ -54,8 +54,13 @@ export class CallBlock extends IncludeBlock {
           ${this.renderSource('CallBlock')}
 
           <slot name="arguments"></slot>
-
-          <slot name="execution-messages"></slot>
+          <stencila-ui-node-execution-messages
+            type=${'CallBlock'}
+            warning-count=${this.warningCount}
+            error-count=${this.errorCount}
+          >
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
         </div>
 
         <div slot="content">${this.renderContent()}</div>
