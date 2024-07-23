@@ -153,7 +153,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
           container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
           class=${label === 'else'
             ? 'hidden'
-            : 'flex-grow flex items-center mr-1'}
+            : 'flex-grow flex items-center mr-1 max-w-[80%]'}
         >
           <slot name="execution-messages" slot="execution-messages"></slot>
         </stencila-ui-node-code>

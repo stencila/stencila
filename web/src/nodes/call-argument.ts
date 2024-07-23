@@ -42,7 +42,7 @@ export class CallArgument extends Parameter {
         class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${borderColour}]"
       >
         <input
-          class="flex-grow max-w-[50%] rounded-sm px-2 py-1 font-mono text-sm h-[2em]"
+          class="w-1/3 rounded-sm px-2 py-1 font-mono text-sm h-[2em] text-ellipsis"
           readonly
           value=${this.name}
         />
@@ -53,8 +53,8 @@ export class CallArgument extends Parameter {
           language=${language}
           read-only
           no-gutters
-          class="flex items-center flex-grow"
-          container-classes="inline-block w-full border border-[${textColour}]/20 rounded overflow-hidden"
+          class="flex items-center flex-grow max-w-[50%]"
+          container-classes="inline-block w-full border border-[${textColour}]/20 rounded overflow-hidden text-ellipsis"
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-code>
