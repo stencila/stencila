@@ -113,6 +113,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
 
     const siblings = [...this.parentElement.children]
     const index = siblings.findIndex((elem) => elem === this)
+
     let label
     if (index === 0) {
       label = 'if'
@@ -122,7 +123,12 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
       label = 'elif'
     }
 
-    const borderPosition = index === siblings.length - 1 ? '0' : 'b'
+    const headerStyle = apply([
+      'p-3 flex items-center',
+      `text-[${textColour}] bg-[${colour}] border-[${borderColour}]`,
+      index == 0 ? '' : 'border-t',
+      this.isFolded ? '' : 'border-b',
+    ])
 
     const iconStyles = apply([
       `text-xl text-${textColour}`,
@@ -132,9 +138,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
     ])
 
     return html`
-      <div
-        class="p-3 flex items-center text-[${textColour}] bg-[${colour}] border-${borderPosition} border-[${borderColour}]"
-      >
+      <div class=${headerStyle}>
         <sl-icon name="clause-${label}" library="stencila" class=${iconStyles}>
         </sl-icon>
 
