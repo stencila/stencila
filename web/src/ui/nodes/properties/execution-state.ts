@@ -25,18 +25,18 @@ export class UINodeExecutionState extends LitElement {
   count: number
 
   override render() {
-    const statusString =
+    const [statusString, tooltipContent] =
       this.required === 'NeverExecuted' || !this.count
-        ? 'Not Executed'
-        : this.status
+        ? ['Not Executed', 'Node has not been executed yet']
+        : [this.status, 'Status of the last execution']
 
-    // TODO: Decided how best to coalesce (or not) `status` and `required` including
+    // TODO: Decide how best to coalesce (or not) `status` and `required` including
     // labels and iconography. Currently, only status is being shown.
     return html`
       <stencila-ui-node-simple-property
         icon-name="lightning"
         icon-library="default"
-        tooltip-content="The status of the last execution"
+        tooltip-content=${tooltipContent}
       >
         <span>${statusString}</span>
       </stencila-ui-node-simple-property>
