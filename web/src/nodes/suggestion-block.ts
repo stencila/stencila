@@ -1,5 +1,6 @@
+import { SuggestionStatus } from '@stencila/types'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -13,6 +14,18 @@ import { Entity } from './entity'
 @customElement('stencila-suggestion-block')
 @withTwind()
 export class SuggestionBlock extends Entity {
+  @property({ attribute: 'suggestion-status' })
+  suggestionStatus: SuggestionStatus
+
+  @property({ attribute: 'execution-ended', type: Number })
+  executionEnded?: number
+
+  @property({ attribute: 'execution-duration', type: Number })
+  executionDuration?: number
+
+  @property()
+  feedback?: string
+
   override render() {
     return html`<stencila-ui-block-in-flow
       type="SuggestionBlock"
