@@ -49,15 +49,20 @@ export class WebViewClient {
   private element: HTMLElement
 
   /**
-   * Add an event listener to the window instance for 'message'
-   * events from the web view panel
+   * Add event listeners to the window instance
    *
    * Note: any class methods used for/in the event callback must be bound to `this`
-   * if they wish to use properties of `this`. using arrow function
+   * if they wish to use properties of `this`. Using arrow function
    * syntax when declaring methods will achieve this.
    */
   private setWindowListener() {
-    window.addEventListener('message', this.receiveMessage.bind(this))
+    //  Listener for 'message' events from the VSCode webview panel to the webview window
+    window.addEventListener('message', (event) => this.receiveMessage(event))
+
+    //  Listener for document commands from the view to send to the VSCode webview panel
+    window.addEventListener('stencila-document-command', (event: CustomEvent) =>
+      vscode.postMessage(event.detail)
+    )
   }
 
   /**
@@ -97,12 +102,5 @@ export class WebViewClient {
         card.openCard()
       }
     }
-  }
-
-  /**
-   * Send a message to the web view panel, via the vscode api instance
-   */
-  static sendMessage(message: SentMessage) {
-    vscode.postMessage(message)
   }
 }

@@ -1,9 +1,14 @@
+import { NodeType } from '@stencila/types'
+
 import type { DocumentAccess, DocumentId, NodeId } from '../types'
 
 import { RestClient } from './rest'
 
 /**
  * A command to send to a document
+ *
+ * Note that this must be consistent with the Rust enum
+ * named `Command` in `rust/document/src/lib.rs`.
  */
 export interface DocumentCommand {
   /**
@@ -17,6 +22,15 @@ export interface DocumentCommand {
     | 'interrupt-nodes'
 
   /**
+   * The type of the node that the command is being executed on.
+   *
+   * This is not of the Rust `Command` enum but is required for
+   * compatibility with the LSP which uses the convention of prefixing
+   * most command args with the document URI and the node type.
+   */
+  nodeType?: NodeType
+
+  /**
    * Node ids, where applicable
    */
   nodeIds?: NodeId[]
@@ -24,7 +38,7 @@ export interface DocumentCommand {
   /**
    * The scope for the command
    */
-  scope?: 'only' | 'plus-after' | 'plus-upstream-downstream'
+  scope?: 'only' | 'plus-before' | 'plus-after' | 'plus-upstream-downstream'
 }
 
 /**

@@ -93,8 +93,6 @@ export async function createDocumentViewPanel(
       vscode.Uri.joinPath(webDist, "views", "vscode.js")
     );
 
-    // Note that that attribute view="dynamic" is used to
-    // trigger Web Component to render as if they are in dynamic view
     return `
     <!DOCTYPE html>
       <html lang="en">
@@ -110,11 +108,9 @@ export async function createDocumentViewPanel(
             <script type="text/javascript" src="${viewJs}"></script>
         </head>
         <body style="background: white;">
-          <stencila-vscode-view view="dynamic" theme="default">
+          <stencila-vscode-view theme="default">
             ${content}
           </stencila-vscode-view>
-
-          <!-- set vscode api -->
           <script>
             const vscode = acquireVsCodeApi()
           </script>
@@ -165,15 +161,34 @@ export async function createDocumentViewPanel(
   }
 
   // Handle messages from the webview
+  // It is necessary to translate the names of the Stencila document
+  // command to the command and argument convention that the LSP uses
+  // TODO: import that from the `web` package
+  interface DocumentCommand {
+    command: string;
+    nodeType: string;
+    nodeIds: string[];
+    scope: string
+  }
   panel.webview.onDidReceiveMessage(
-    (message) => {
-      switch (message.command) {
-        case "error":
-          vscode.window.showErrorMessage(message.text);
-          return;
-        default:
-          throw new Error(`Unhandled message: ${message}`);
+    (command: DocumentCommand) => {
+      let name = command.command;
+      if (name === "execute-nodes") {
+        if (command.scope === "plus-before") {
+          name = "run-before";
+        } else if (command.scope === "plus-after") {
+          name = "run-after";
+        } else {
+          name = "run-node";
+        }
       }
+
+      vscode.commands.executeCommand(
+        `stencila.${name}`,
+        documentUri.toString(),
+        command.nodeType,
+        command.nodeIds[0]
+      );
     },
     undefined,
     context.subscriptions

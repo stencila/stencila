@@ -124,6 +124,9 @@ pub enum CommandScope {
     #[default]
     Only,
 
+    /// Listed nodes and any that appear before them in the document
+    PlusBefore,
+
     /// Listed nodes and any that appear after them in the document
     PlusAfter,
 

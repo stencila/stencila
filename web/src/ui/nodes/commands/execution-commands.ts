@@ -36,6 +36,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
     this.dispatchEvent(
       documentCommandEvent({
         command: 'execute-nodes',
+        nodeType: this.type,
         nodeIds: [this.nodeId],
         scope,
       })
@@ -50,7 +51,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     return html`
       <div class=${containerClasses}>
-        <sl-tooltip content="Execute this node">
+        <sl-tooltip content="Run this node">
           <sl-icon
             name="play"
             library="stencila"
@@ -128,12 +129,11 @@ export class UINodeExecutionCommands extends UIBaseClass {
         <sl-menu class="z-50">
           <sl-menu-item
             class="${itemStyles} ${itemPartStyles}"
-            @click=${(e: Event) =>
-              this.emitEvent(e, 'plus-upstream-downstream')}
+            @click=${(e: Event) => this.emitEvent(e, 'plus-before')}
           >
             <div class="flex items-center">
               <sl-icon name="skip-start" class="mr-1"></sl-icon>
-              Run all above
+              Run all above, then this
             </div>
           </sl-menu-item>
           <sl-menu-item
@@ -142,7 +142,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
           >
             <div class="flex items-center">
               <sl-icon name="skip-end" class="mr-1"></sl-icon>
-              Run all below
+              Run this, then all below
             </div>
           </sl-menu-item>
         </sl-menu>
