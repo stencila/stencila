@@ -38,7 +38,7 @@ export class CallArgument extends Parameter {
     const language = this.programmingLanguage ?? this.code ? 'json5' : 'js'
 
     return html`
-      <div class="flex flex-row items-center gap-x-3 px-3 py-2 bg-[${colour}]">
+      <div class="flex flex-row items-center gap-x-3 px-3 py-1 bg-[${colour}]">
         <input
           class="w-1/3 rounded-sm border border-[${borderColour}] px-2 py-1 font-mono h-[2em] text-ellipsis"
           readonly

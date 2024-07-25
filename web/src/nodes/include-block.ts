@@ -113,7 +113,7 @@ export class IncludeBlock extends Executable {
 
     return html`
       <div
-        class="flex flex-row gap-x-3 p-3 bg-[${colour}] border-t border-[${borderColour}]"
+        class="flex flex-row gap-x-3 px-3 py-1.5 bg-[${colour}] border-t border-[${borderColour}]"
       >
         <span class="font-mono font-bold"
           >${nodeType === 'IncludeBlock' ? 'include' : 'call'}</span

@@ -124,7 +124,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
     }
 
     const headerStyle = apply([
-      'p-3 flex items-center',
+      'px-3 py-1.5 flex items-center',
       `text-[${textColour}] bg-[${colour}] border-[${borderColour}]`,
       index == 0 ? '' : 'border-t',
       this.isFolded ? '' : 'border-b',
