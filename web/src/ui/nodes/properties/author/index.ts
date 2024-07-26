@@ -91,6 +91,23 @@ export class UINodeAuthor extends LitElement {
   details?: string
 
   override render() {
+    const roleLabel = (() => {
+      switch (this.roleName) {
+        case 'Instructor':
+          return 'Instructed'
+        case 'Prompter':
+          return 'Prompted'
+        case 'Generator':
+          return 'Generated'
+        case 'Accepter':
+          return 'Accepted'
+        case 'Writer':
+          return 'Wrote'
+        default:
+          return 'Contributed'
+      }
+    })()
+
     return html`<div class="@container w-full">
       <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
         <div class="flex flex-row flex-grow">
@@ -124,6 +141,7 @@ export class UINodeAuthor extends LitElement {
         >
           <stencila-ui-node-last-modified
             value=${this.timestamp}
+            role-label=${roleLabel}
           ></stencila-ui-node-last-modified>
         </div>
       </div>
