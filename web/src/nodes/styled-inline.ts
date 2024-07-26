@@ -23,9 +23,7 @@ export class StyledInline extends Styled {
   override render() {
     this.adoptCss()
 
-    return html` <stencila-ui-inline-on-demand
-      type="StyledInline"
-    >
+    return html` <stencila-ui-inline-on-demand type="StyledInline">
       <div slot="body">
         <stencila-ui-node-authors type="StyledInline">
           <stencila-ui-node-provenance slot="provenance">

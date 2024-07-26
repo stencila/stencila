@@ -142,9 +142,7 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
         <sl-icon name="clause-${label}" library="stencila" class=${iconStyles}>
         </sl-icon>
 
-        <span class="font-bold font-mono ml-3 min-w-[3rem]">
-          ${label}
-        </span>
+        <span class="font-bold font-mono ml-3 min-w-[3rem]"> ${label} </span>
 
         <stencila-ui-node-code
           type="IfBlock"

@@ -20,10 +20,7 @@ export class MathInline extends Math {
    */
   override render() {
     return html`
-      <stencila-ui-inline-on-demand
-        style-content
-        type="MathInline"
-      >
+      <stencila-ui-inline-on-demand style-content type="MathInline">
         <div slot="body">
           <stencila-ui-node-authors type="MathInline">
             <stencila-ui-node-provenance slot="provenance">

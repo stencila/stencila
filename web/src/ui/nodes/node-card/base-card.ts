@@ -75,7 +75,7 @@ export class UIBaseCard extends UIBaseClass {
     let icon = this.ui.icon
 
     if (this.programmingLanguage in programmingLanguages) {
-      [icon, library] =
+      ;[icon, library] =
         programmingLanguages[
           this.programmingLanguage as ProgrammingLanguage
         ].icon

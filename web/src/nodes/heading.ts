@@ -26,10 +26,7 @@ export class Heading extends Entity {
     // TODO: Add summary stats to card
 
     return html`
-      <stencila-ui-block-on-demand
-        type="Heading"
-        node-id=${this.id}
-      >
+      <stencila-ui-block-on-demand type="Heading" node-id=${this.id}>
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
             <stencila-ui-node-provenance slot="provenance">

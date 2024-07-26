@@ -30,7 +30,6 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       'border border-[transparent]',
       'rounded',
       'font-normal',
-      this.view === 'source' ? 'flex flex-col h-full' : '',
       this.toggle && `border-[${this.ui.borderColour}] my-2 mx-auto`,
     ])
 

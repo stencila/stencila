@@ -1,12 +1,8 @@
-import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
-
-import '../../node-card/section-header'
-import '../generic/collapsible-details'
 
 /**
  * A component for displaying the `provenance` property of a node.
