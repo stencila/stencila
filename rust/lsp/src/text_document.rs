@@ -168,6 +168,9 @@ impl TextNode {
 
 /// A text document that has been opened by the language server
 pub(super) struct TextDocument {
+    /// The author of the document
+    pub author: AuthorRole,
+
     /// The format of the document
     pub format: Format,
 
@@ -210,7 +213,7 @@ impl TextDocument {
             given_names: Some(vec!["Anonymous".to_string()]),
             ..Default::default()
         });
-        let author_role = AuthorRole {
+        let author = AuthorRole {
             author: schema::AuthorRoleAuthor::Person(person),
             role_name: AuthorRoleName::Writer,
             format: Some(format.name().to_string()),
@@ -231,8 +234,9 @@ impl TextDocument {
             let format = format.clone();
             let source = source.clone();
             let doc = doc.clone();
+            let author = author.clone();
             tokio::spawn(async {
-                Self::update_task(update_receiver, format, source, doc, author_role).await;
+                Self::update_task(update_receiver, format, source, doc, author).await;
             });
         }
 
@@ -250,6 +254,7 @@ impl TextDocument {
         }
 
         Ok(TextDocument {
+            author,
             format,
             source,
             root,

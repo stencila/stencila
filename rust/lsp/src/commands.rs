@@ -34,8 +34,8 @@ use common::{
 use document::{Command, CommandNodes, CommandScope, Document};
 use node_execute::ExecuteOptions;
 use schema::{
-    NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue,
-    SuggestionStatus,
+    AuthorRole, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue,
+    SuggestionStatus, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -91,6 +91,7 @@ pub(super) async fn execute_command(
     ExecuteCommandParams {
         command, arguments, ..
     }: ExecuteCommandParams,
+    author: AuthorRole,
     format: Format,
     root: Arc<RwLock<TextNode>>,
     doc: Arc<RwLock<Document>>,
@@ -102,6 +103,11 @@ pub(super) async fn execute_command(
     let file_name = PathBuf::from(&uri.to_string())
         .file_name()
         .map_or_else(String::new, |name| name.to_string_lossy().to_string());
+
+    let author = AuthorRole {
+        last_modified: Some(Timestamp::now()),
+        ..author
+    };
 
     let (title, command, cancellable, update_after) = match command.as_str() {
         RUN_NODE => {
@@ -202,6 +208,7 @@ pub(super) async fn execute_command(
                 Command::PatchNode(Patch {
                     node_id: Some(instruction_id),
                     ops: vec![(PatchPath::new(), PatchOp::Accept(suggestion_id))],
+                    authors: Some(vec![author]),
                     ..Default::default()
                 }),
                 false,
