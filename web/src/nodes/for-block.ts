@@ -55,6 +55,17 @@ export class ForBlock extends CodeExecutable {
             <slot name="execution-dependants"></slot>
           </stencila-ui-node-execution-details>
 
+          <stencila-ui-node-execution-messages type="ForBlock">
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
+
+          <stencila-ui-node-authors type="ForBlock">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
+
           <div
             class="flex flex-row items-center gap-x-3 px-3 py-1.5 bg-[${colour}] border-t border-[${borderColour}]"
           >
@@ -91,17 +102,6 @@ export class ForBlock extends CodeExecutable {
                 ></stencila-ui-node-programming-language>`
               : ''}
           </div>
-
-          <stencila-ui-node-authors type="ForBlock">
-            <stencila-ui-node-provenance slot="provenance">
-              <slot name="provenance"></slot>
-            </stencila-ui-node-provenance>
-            <slot name="authors"></slot>
-          </stencila-ui-node-authors>
-
-          <stencila-ui-node-execution-messages type="ForBlock">
-            <slot name="execution-messages"></slot>
-          </stencila-ui-node-execution-messages>
         </div>
 
         <div slot="content">

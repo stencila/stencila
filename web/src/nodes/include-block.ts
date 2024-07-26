@@ -89,6 +89,10 @@ export class IncludeBlock extends Executable {
             <slot name="execution-dependants"></slot>
           </stencila-ui-node-execution-details>
 
+          <stencila-ui-node-execution-messages type=${'IncludeBlock'}>
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
+
           <stencila-ui-node-authors type="IncludeBlock">
             <stencila-ui-node-provenance slot="provenance">
               <slot name="provenance"></slot>
@@ -97,10 +101,6 @@ export class IncludeBlock extends Executable {
           </stencila-ui-node-authors>
 
           ${this.renderSource('IncludeBlock')}
-
-          <stencila-ui-node-execution-messages type=${'IncludeBlock'}>
-            <slot name="execution-messages"></slot>
-          </stencila-ui-node-execution-messages>
         </div>
 
         <div slot="content">${this.renderContent()}</div>
