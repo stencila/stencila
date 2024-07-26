@@ -62,7 +62,3 @@ properties:
     $ref: UnsignedInteger
     patch:
       formats: [md, myst]
-  hideSuggestions:
-    '@id': stencila:hideSuggestions
-    description: Whether suggestions should be hidden in source views such as Markdown.
-    type: boolean

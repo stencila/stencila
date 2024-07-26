@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
@@ -80,11 +79,6 @@ pub struct InstructionInline {
     #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub replicates: Option<UnsignedInteger>,
-
-    /// Whether suggestions should be hidden in source views such as Markdown.
-    #[serde(alias = "hide-suggestions", alias = "hide_suggestions")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub hide_suggestions: Option<Boolean>,
 
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]

@@ -38,11 +38,6 @@ export class Instruction extends Executable {
    */
   replicates?: UnsignedInteger;
 
-  /**
-   * Whether suggestions should be hidden in source views such as Markdown.
-   */
-  hideSuggestions?: boolean;
-
   constructor(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";

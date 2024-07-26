@@ -352,15 +352,6 @@
         ]
       },
       "$ref": "UnsignedInteger.schema.json"
-    },
-    "hideSuggestions": {
-      "@id": "stencila:hideSuggestions",
-      "description": "Whether suggestions should be hidden in source views such as Markdown.",
-      "aliases": [
-        "hide-suggestions",
-        "hide_suggestions"
-      ],
-      "type": "boolean"
     }
   }
 }

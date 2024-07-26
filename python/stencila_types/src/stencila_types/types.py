@@ -760,9 +760,6 @@ class Instruction(Executable):
     replicates: UnsignedInteger | None = None
     """The number of suggestions to generate for the instruction"""
 
-    hide_suggestions: bool | None = None
-    """Whether suggestions should be hidden in source views such as Markdown."""
-
 
 @dataclass(kw_only=True, repr=False)
 class Mark(Entity):

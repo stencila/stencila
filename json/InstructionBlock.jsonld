@@ -277,18 +277,6 @@
       }
     },
     {
-      "@id": "stencila:hideSuggestions",
-      "@type": "rdfs:Property",
-      "rdfs:label": "hideSuggestions",
-      "rdfs:comment": "Whether suggestions should be hidden in source views such as Markdown.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
-    },
-    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
