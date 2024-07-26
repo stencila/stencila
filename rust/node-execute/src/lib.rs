@@ -16,8 +16,8 @@ use common::{
 use context::Context;
 use kernels::Kernels;
 use schema::{
-    Block, CompilationDigest, ExecutionMode, Inline, InstructionBlock, InstructionInline, Node,
-    NodeId, NodeProperty, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
+    Block, CompilationDigest, ExecutionMode, Inline, Node, NodeId, NodeProperty, Patch, PatchOp,
+    PatchPath, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -338,50 +338,18 @@ impl Executor {
             || compilation_digest != execution_digest
     }
 
-    /// Should the executor execute an `InstructionBlock`ss
+    /// Should the executor execute an `Instruction`
     #[allow(unreachable_code, unused_variables)]
-    pub fn should_execute_instruction_block(
+    pub fn should_execute_instruction(
         &self,
         node_id: &NodeId,
-        instruction: &InstructionBlock,
+        execution_mode: &Option<ExecutionMode>,
     ) -> bool {
-        // TODO: reinstate the logic of this function
-        return true;
-
-        if self.options.force_all
-            || matches!(instruction.execution_mode, Some(ExecutionMode::Always))
-        {
+        if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
             return true;
         }
 
-        if matches!(instruction.execution_mode, Some(ExecutionMode::Locked)) {
-            return false;
-        }
-
-        if let Some(node_ids) = &self.node_ids {
-            return node_ids.contains(node_id);
-        }
-
-        if self.options.skip_instructions {
-            return false;
-        }
-
-        true
-    }
-
-    /// Should the executor execute an `InstructionInline`
-    pub fn should_execute_instruction_inline(
-        &self,
-        node_id: &NodeId,
-        instruction: &InstructionInline,
-    ) -> bool {
-        if self.options.force_all
-            || matches!(instruction.execution_mode, Some(ExecutionMode::Always))
-        {
-            return true;
-        }
-
-        if matches!(instruction.execution_mode, Some(ExecutionMode::Locked)) {
+        if matches!(execution_mode, Some(ExecutionMode::Locked)) {
             return false;
         }
 

@@ -108,11 +108,11 @@ pub struct CommandNodes {
     node_ids: Vec<NodeId>,
 
     /// The scope for the command
-    scope: Option<CommandScope>,
+    scope: CommandScope,
 }
 
 impl CommandNodes {
-    pub fn new(node_ids: Vec<NodeId>, scope: Option<CommandScope>) -> Self {
+    pub fn new(node_ids: Vec<NodeId>, scope: CommandScope) -> Self {
         Self { node_ids, scope }
     }
 }

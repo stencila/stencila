@@ -1,38 +1,38 @@
 use codec_info::{lost_exec_options, lost_options};
 
-use crate::{
-    authorship, prelude::*, AuthorRole, AuthorRoleName, InstructionBlock, SuggestionStatus,
-};
+use crate::{prelude::*, InstructionBlock, SuggestionStatus};
 
 impl InstructionBlock {
     pub fn apply_patch_op(
         &mut self,
         path: &mut PatchPath,
         op: &PatchOp,
-        _context: &mut PatchContext,
+        context: &mut PatchContext,
     ) -> Result<bool> {
         if path.is_empty() {
-            if let PatchOp::Choose(suggestion_id) = op {
-                for suggestion in self.suggestions.iter_mut().flatten() {
-                    if &suggestion.node_id() == suggestion_id {
-                        suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
+            if let PatchOp::Accept(suggestion_id) = op {
+                // Accept the suggestion and remove any other suggestions that have not been explicitly accepted or rejected,
+                // or which have no feedback
+                if let Some(suggestions) = &mut self.suggestions {
+                    suggestions.retain_mut(|suggestion| {
+                        if &suggestion.node_id() == suggestion_id {
+                            suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
 
-                        let mut content = suggestion.content.clone();
-                        authorship(
-                            &mut content,
-                            vec![AuthorRole::anon(AuthorRoleName::Generator)],
-                        )?;
-                        self.content = Some(content);
-                    } else if matches!(
-                        suggestion.suggestion_status,
-                        Some(SuggestionStatus::Accepted)
-                    ) {
-                        suggestion.suggestion_status = None;
-                    }
-                }
+                            let content = suggestion.content.clone();
+                            // TODO: add a the current author (from the context) with the accepter role
+                            self.content = Some(content);
+                        }
 
-                if self.hide_suggestions.is_none() {
-                    self.hide_suggestions = Some(true);
+                        if matches!(
+                            suggestion.suggestion_status,
+                            None | Some(SuggestionStatus::Proposed)
+                        ) || suggestion.feedback.is_none()
+                        {
+                            false
+                        } else {
+                            true
+                        }
+                    })
                 }
 
                 return Ok(true);
@@ -40,11 +40,36 @@ impl InstructionBlock {
         } else if matches!(
             path.front(),
             Some(PatchSlot::Property(NodeProperty::Suggestions))
-        ) {
-            // Ignore any patch on suggestions if suggestions are hidden.
-            // Prevents suggestions being cleared when patching from Markdown when suggestions are hidden.
-            if self.hide_suggestions == Some(true) {
-                return Ok(true);
+        ) && matches!(context.format, Some(Format::Markdown | Format::Myst))
+        {
+            // Manually apply remove and clear patches on suggestions.
+            // Prevent accepted and rejected suggestions, which are not encoded to Markdown,
+            // from being deleted (because they may be archived).
+            if let Some(suggestions) = &mut self.suggestions {
+                if let PatchOp::Remove(indices) = op {
+                    let mut index = 0usize;
+                    suggestions.retain(|suggestion| {
+                        let retain = matches!(
+                            suggestion.suggestion_status,
+                            Some(SuggestionStatus::Accepted | SuggestionStatus::Rejected)
+                        ) || !indices.contains(&index);
+
+                        index += 1;
+
+                        retain
+                    });
+                    return Ok(true);
+                }
+
+                if matches!(op, PatchOp::Clear) {
+                    suggestions.retain(|suggestion| {
+                        matches!(
+                            suggestion.suggestion_status,
+                            Some(SuggestionStatus::Accepted | SuggestionStatus::Rejected)
+                        )
+                    });
+                    return Ok(true);
+                }
             }
         }
 
@@ -199,12 +224,10 @@ impl MarkdownCodec for InstructionBlock {
             context.push_semis().newline().newline();
         }
 
-        if !self.hide_suggestions.unwrap_or_default() {
-            if let Some(suggestions) = &self.suggestions {
-                context.push_prop_fn(NodeProperty::Suggestions, |context| {
-                    suggestions.to_markdown(context)
-                });
-            }
+        if let Some(suggestions) = &self.suggestions {
+            context.push_prop_fn(NodeProperty::Suggestions, |context| {
+                suggestions.to_markdown(context)
+            });
         }
 
         context.exit_node();

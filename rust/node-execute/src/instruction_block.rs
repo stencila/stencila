@@ -9,7 +9,7 @@ impl Executable for InstructionBlock {
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if executor.should_execute_instruction_block(&node_id, self) {
+        if executor.should_execute_instruction(&node_id, &self.execution_mode) {
             tracing::trace!("Pending InstructionBlock {node_id}");
 
             pending_impl!(executor, &node_id);
@@ -23,7 +23,22 @@ impl Executable for InstructionBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_instruction_block(&node_id, self) {
+        // If any of the suggestions is in the executing node ids, it means that
+        // this instruction needs to be re-executed
+        // TODO: add the suggestion to the messages of the instruction, possibly
+        // including feedback.
+        let has_revisions =
+            if let (Some(node_ids), Some(suggestions)) = (&executor.node_ids, &self.suggestions) {
+                node_ids.iter().any(|node_id| {
+                    suggestions
+                        .iter()
+                        .any(|suggestion| node_id == &suggestion.node_id())
+                })
+            } else {
+                false
+            };
+
+        if !has_revisions && !executor.should_execute_instruction(&node_id, &self.execution_mode) {
             tracing::trace!("Skipping InstructionBlock {node_id}");
 
             // Continue to execute executable nodes in `content` and/or `suggestion`
@@ -56,10 +71,7 @@ impl Executable for InstructionBlock {
                 // Update the suggestions (to only those retained) and ensure they are visible
                 executor.patch(
                     &node_id,
-                    [
-                        set(NodeProperty::Suggestions, suggestions.clone()),
-                        none(NodeProperty::HideSuggestions),
-                    ],
+                    [set(NodeProperty::Suggestions, suggestions.clone())],
                 );
             }
         }
@@ -131,6 +143,7 @@ impl Executable for InstructionBlock {
                         let ended = Some(ended);
                         suggestion.execution_duration = duration;
                         suggestion.execution_ended = ended;
+                        suggestion.suggestion_status = Some(SuggestionStatus::Proposed);
                     }
 
                     (suggestion, messages)
@@ -160,7 +173,6 @@ impl Executable for InstructionBlock {
                 &node_id,
                 [
                     set(NodeProperty::Suggestions, Some(suggestions)),
-                    none(NodeProperty::HideSuggestions),
                     set(NodeProperty::ExecutionStatus, status),
                     set(NodeProperty::ExecutionRequired, required),
                     set(NodeProperty::ExecutionMessages, messages),

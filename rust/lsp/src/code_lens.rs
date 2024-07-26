@@ -12,10 +12,7 @@ use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio
 use schema::{NodeType, ProvenanceCategory};
 
 use crate::{
-    commands::{
-        ACCEPT_NODE, CANCEL_NODE, CHOOSE_NODE, HIDE_SUGGESTIONS_NODE, REJECT_NODE, RUN_NODE,
-        SHOW_SUGGESTIONS_NODE,
-    },
+    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, REVISE_NODE, RUN_NODE},
     text_document::TextNode,
 };
 
@@ -53,6 +50,11 @@ pub(crate) async fn request(
                     command: None,
                     data: Some(json!([command, uri, node_type, node_id])),
                 };
+                let lens_with_parent = |command: &str| CodeLens {
+                    range: *range,
+                    command: None,
+                    data: Some(json!([command, uri, node_type, node_id, parent_id])),
+                };
 
                 let mut lenses = match node_type {
                     // Executable block nodes
@@ -69,28 +71,14 @@ pub(crate) async fn request(
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::InstructionBlock => {
-                        vec![
-                            lens(RUN_NODE),
-                            lens(HIDE_SUGGESTIONS_NODE),
-                            lens(SHOW_SUGGESTIONS_NODE),
-                            lens(VIEW_NODE),
-                        ]
+                        vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     // Block suggestions
                     NodeType::SuggestionBlock => {
                         vec![
-                            CodeLens {
-                                range: *range,
-                                command: None,
-                                data: Some(json!([
-                                    CHOOSE_NODE,
-                                    uri,
-                                    node_type,
-                                    node_id,
-                                    parent_id
-                                ])),
-                            },
+                            lens_with_parent(ACCEPT_NODE),
                             lens(REJECT_NODE),
+                            lens(REVISE_NODE),
                             lens(VIEW_NODE),
                         ]
                     }
@@ -168,22 +156,21 @@ pub(crate) async fn resolve(
     let command = match command.as_str() {
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
-        HIDE_SUGGESTIONS_NODE => Command::new(
-            "$(eye-closed) Hide suggestion".to_string(),
-            command,
-            arguments,
-        ),
-        SHOW_SUGGESTIONS_NODE => {
-            Command::new("$(eye) Show suggestions".to_string(), command, arguments)
-        }
-        CHOOSE_NODE => {
+        ACCEPT_NODE | REJECT_NODE | REVISE_NODE => {
             if let (Some(arguments), Some(parent_id)) = (arguments.as_mut(), data.next()) {
                 arguments.push(json!(parent_id));
             }
-            Command::new("$(thumbsup) Accept".to_string(), command, arguments)
+
+            let title = match command.as_str() {
+                ACCEPT_NODE => "$(thumbsup) Accept",
+                REJECT_NODE => "$(thumbsdown) Reject",
+                REVISE_NODE => "$(redo) Revise",
+                _ => unreachable!(),
+            }
+            .to_string();
+
+            Command::new(title, command, arguments)
         }
-        ACCEPT_NODE => Command::new("$(thumbsup) Accept".to_string(), command, arguments),
-        REJECT_NODE => Command::new("$(thumbsdown) Reject".to_string(), command, arguments),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
         PROV_NODE => Command::new(
             data.next().unwrap_or_default().to_string(),

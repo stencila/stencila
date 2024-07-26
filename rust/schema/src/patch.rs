@@ -438,8 +438,8 @@ pub enum PatchOp {
     /// Clear a vector
     Clear,
 
-    /// Choose a node from a set of candidate children
-    Choose(NodeId),
+    /// Accept a suggestion in an instruction
+    Accept(NodeId),
 }
 
 /// A value in a patch operation

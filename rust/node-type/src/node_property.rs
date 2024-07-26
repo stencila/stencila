@@ -106,7 +106,6 @@ pub enum NodeProperty {
     Funders,
     Genre,
     GivenNames,
-    HideSuggestions,
     Hint,
     HonorificPrefix,
     HonorificSuffix,

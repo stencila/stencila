@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, SuggestionBlock};
+use crate::{prelude::*, SuggestionBlock, SuggestionStatus};
 
 impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -14,6 +14,14 @@ impl SuggestionBlock {
 
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        // Do not encode accepted or rejected suggestions
+        if matches!(
+            self.suggestion_status,
+            Some(SuggestionStatus::Accepted | SuggestionStatus::Rejected),
+        ) {
+            return;
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));

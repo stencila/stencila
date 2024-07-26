@@ -10,10 +10,11 @@ impl InstructionInline {
         _context: &mut PatchContext,
     ) -> Result<bool> {
         if path.is_empty() {
-            if let PatchOp::Choose(suggestion_id) = op {
+            if let PatchOp::Accept(suggestion_id) = op {
                 for suggestion in self.suggestions.iter_mut().flatten() {
                     if &suggestion.node_id() == suggestion_id {
                         suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
+                        // TODO: add a the current author (from the context) with the accepter role
                         self.content = Some(suggestion.content.clone());
                     } else if matches!(
                         suggestion.suggestion_status,
@@ -70,12 +71,10 @@ impl MarkdownCodec for InstructionInline {
 
         context.push_str("]]");
 
-        if !self.hide_suggestions.unwrap_or_default() {
-            if let Some(suggestions) = &self.suggestions {
-                context.push_prop_fn(NodeProperty::Suggestions, |context| {
-                    suggestions.to_markdown(context)
-                });
-            }
+        if let Some(suggestions) = &self.suggestions {
+            context.push_prop_fn(NodeProperty::Suggestions, |context| {
+                suggestions.to_markdown(context)
+            });
         }
 
         context.exit_node();
