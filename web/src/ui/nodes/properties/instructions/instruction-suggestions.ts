@@ -21,10 +21,8 @@ export class UINodeInstructionSuggestions extends LitElement {
         type=${this.type}
         icon-name="lightbulb"
         icon-library="default"
+        header-title="Suggestions"
       >
-        <div slot="title">
-          <span>Suggestions</span>
-        </div>
         <div slot="content" class="px-3 pb-2 font-sans text-sm">
           <slot></slot>
         </div>

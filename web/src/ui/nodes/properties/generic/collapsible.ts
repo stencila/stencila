@@ -4,7 +4,6 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import '../../../buttons/chevron'
-import '../../node-card/section-header'
 import { ShoelaceIconLibraries } from '../../../../shoelace'
 import { withTwind } from '../../../../twind'
 import { nodeUi } from '../../icons-and-colours'
@@ -21,6 +20,9 @@ export class UINodeCollapsibleProperty extends LitElement {
   @property({ attribute: 'icon-library' })
   iconLibrary: ShoelaceIconLibraries = 'stencila'
 
+  @property({ attribute: 'header-title' })
+  headerTitle: string
+
   @property({ type: Boolean })
   collapsed: boolean
 
@@ -28,35 +30,51 @@ export class UINodeCollapsibleProperty extends LitElement {
   wrapperCSS: string | undefined = undefined
 
   override render() {
-    const { borderColour: headerBg } = nodeUi(this.type)
+    const { colour, borderColour } = nodeUi(this.type)
+
+    const headerStyles = apply([
+      'flex flex-row items-center',
+      'h-9',
+      'px-4 py-1',
+      'font-sans not-italic',
+      `border-t border-[${borderColour}]`,
+      !this.collapsed && `border-b`,
+      `bg-[${colour}]`,
+      'cursor-pointer',
+    ])
 
     const contentClasses = apply([
       this.collapsed ? 'max-h-0 overflow-hidden' : 'max-h-[150000px]',
       'transition-max-h duration-200',
+      `bg-white/50`,
     ])
 
     return html`
       <div class=${`${this.wrapperCSS ?? ''}`}>
-        <stencila-ui-node-card-section-header
-          .clickEvent=${() => {
+        <div
+          class=${headerStyles}
+          @click=${() => {
             this.collapsed = !this.collapsed
           }}
-          icon-name=${this.iconName}
-          icon-library=${this.iconLibrary}
-          headerBg=${headerBg}
         >
-          <div slot="title">
-            <slot name="title"></slot>
-          </div>
-          <div slot="content">
-            <slot name="header-content"></slot>
-          </div>
+          <sl-icon
+            name=${this.iconName}
+            library=${this.iconLibrary}
+            class="text-base"
+          ></sl-icon>
+
+          <span class="grow ml-2 select-none text-xs">
+            <span>${this.headerTitle}</span>
+          </span>
+
+          <slot name="header-content"></slot>
+
           <stencila-chevron-button
             default-pos=${this.collapsed ? 'left' : 'down'}
-            slot="right-side"
             custom-class="flex items-center"
           ></stencila-chevron-button>
-        </stencila-ui-node-card-section-header>
+        </div>
+
         <div class=${contentClasses}>
           <slot name="content"></slot>
         </div>

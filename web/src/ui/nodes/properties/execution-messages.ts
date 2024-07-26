@@ -1,6 +1,6 @@
 import { MessageLevel, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, PropertyValues, html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
@@ -25,22 +25,16 @@ export class UINodeExecutionMessages extends LitElement {
     this.hasMessages = slot.assignedElements({ flatten: true }).length > 0
   }
 
-  protected override firstUpdated(_changedProperties: PropertyValues): void {
-    super.firstUpdated(_changedProperties)
-  }
-
   override render() {
     return html`
       <stencila-ui-node-collapsible-property
         type=${this.type}
         icon-name="terminal"
         icon-library="default"
+        header-title="Messages"
         wrapper-css=${!this.hasMessages ? 'hidden' : ''}
-        ?collapsed=${false}
+        ?collapsed=${this.hasMessages}
       >
-        <div slot="title" class="flex justify-between mr-2">
-          <span class="text-sm">Execution Messages</span>
-        </div>
         <div slot="content" class="flex flex-col gap-y-3">
           <slot @slotchange=${this.onSlotChange}></slot>
         </div>

@@ -18,14 +18,12 @@ export class UINodeSuggestion extends LitElement {
   override render() {
     return html`
       <stencila-ui-node-collapsible-property
-        .collapsed=${false}
         type=${this.type}
         icon-name="plus-square"
         icon-library="default"
+        header-title="Suggestion"
+        ?collapsed=${false}
       >
-        <div slot="title">
-          <span>Suggestion</span>
-        </div>
         <div class="p-3 bg-white theme-content" slot="content">
           <slot></slot>
         </div>

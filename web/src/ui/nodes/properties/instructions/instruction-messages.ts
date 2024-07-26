@@ -21,10 +21,8 @@ export class UINodeInstructionMessages extends LitElement {
         type=${this.type}
         icon-name="list-task"
         icon-library="default"
+        header-title="Instructions"
       >
-        <div slot="title">
-          <span>Instructions</span>
-        </div>
         <div slot="content" class="p-3 font-sans text-sm">
           <slot></slot>
         </div>

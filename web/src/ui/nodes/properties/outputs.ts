@@ -30,10 +30,10 @@ export class UiNodeOutputs extends LitElement {
         type=${this.type}
         icon-name="output"
         icon-library="stencila"
+        header-title="Outputs"
         wrapper-css=${this.hasItems ? '' : 'hidden'}
         .collapsed=${false}
       >
-        <span slot="title">Outputs</span>
         <div slot="content" class="px-4 py-3 flex flex-col gap-y-1">
           <slot></slot>
         </div>

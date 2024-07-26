@@ -11,9 +11,6 @@ import { executionMessageUI } from '../icons-and-colours'
 @customElement('stencila-ui-node-execution-message')
 @withTwind()
 export class ExecutionMessage extends LitElement {
-  // Height for message body when collapsed
-  // private BASE_HEIGHT = 32 as const
-
   @property()
   level: MessageLevel
 

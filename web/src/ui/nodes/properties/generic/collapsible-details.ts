@@ -26,6 +26,9 @@ export class UINodeCollapsibleDetails extends LitElement {
   @property({ attribute: 'icon-library' })
   iconLibrary: ShoelaceIconLibraries = 'stencila'
 
+  @property({ attribute: 'header-title' })
+  headerTitle: string
+
   @property({ type: Boolean })
   collapsed: boolean = true
 
@@ -46,10 +49,10 @@ export class UINodeCollapsibleDetails extends LitElement {
         type=${this.type}
         icon-name=${this.iconName}
         icon-library=${this.iconLibrary}
-        .collapsed=${this.collapsed}
+        header-title=${this.headerTitle}
+        ?collapsed=${this.collapsed}
         wrapper-css=${this.wrapperCss}
       >
-        <div slot="title" class="not-italic">${this.title}</div>
         <slot name="header-content" slot="header-content"></slot>
         <div class="px-4 py-3 not-italic" slot="content">
           <slot></slot>
