@@ -315,15 +315,17 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             fn apply(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
                 #call_apply_with
 
-                let Some(PatchSlot::Property(property)) = path.pop_front() else {
-                    bail!("Invalid patch path for `{}`", stringify!(#struct_name));
-                };
-
                 #call_update_authors
 
-                match (property) {
-                    #apply_fields
-                    _ => #unmatched_field
+                if !matches!(op, PatchOp::Nothing) {
+                    let Some(PatchSlot::Property(property)) = path.pop_front() else {
+                        bail!("Invalid patch path for `{}`", stringify!(#struct_name));
+                    };
+
+                    match (property) {
+                        #apply_fields
+                        _ => #unmatched_field
+                    }
                 }
 
                 #call_release_authors

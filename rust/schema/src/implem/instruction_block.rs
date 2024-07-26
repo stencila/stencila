@@ -1,6 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
+use common::tracing;
 
-use crate::{prelude::*, InstructionBlock, SuggestionStatus};
+use crate::{patch, prelude::*, InstructionBlock, SuggestionStatus};
 
 impl InstructionBlock {
     pub fn apply_patch_op(
@@ -11,15 +12,21 @@ impl InstructionBlock {
     ) -> Result<bool> {
         if path.is_empty() {
             if let PatchOp::Accept(suggestion_id) = op {
-                // Accept the suggestion and remove any other suggestions that have not been explicitly accepted or rejected,
-                // or which have no feedback
+                // Accept the suggestion and remove any other suggestions that have not been explicitly
+                // accepted or rejected, or which have no feedback
                 if let Some(suggestions) = &mut self.suggestions {
                     suggestions.retain_mut(|suggestion| {
                         if &suggestion.node_id() == suggestion_id {
                             suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
 
-                            let content = suggestion.content.clone();
-                            // TODO: add a the current author (from the context) with the accepter role
+                            let accepter_patch = context.authors_as_accepters();
+                            let mut content = suggestion.content.clone();
+                            for node in &mut content {
+                                if let Err(error) = patch(node, accepter_patch.clone()) {
+                                    tracing::error!("While accepting block suggestion: {error}");
+                                }
+                            }
+
                             self.content = Some(content);
                         }
 

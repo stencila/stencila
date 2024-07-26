@@ -1,28 +1,47 @@
 use codec_info::{lost_exec_options, lost_options};
+use common::tracing;
 
-use crate::{prelude::*, InstructionInline, SuggestionStatus};
+use crate::{patch, prelude::*, InstructionInline, SuggestionStatus};
 
 impl InstructionInline {
     pub fn apply_patch_op(
         &mut self,
         path: &mut PatchPath,
         op: &PatchOp,
-        _context: &mut PatchContext,
+        context: &mut PatchContext,
     ) -> Result<bool> {
         if path.is_empty() {
             if let PatchOp::Accept(suggestion_id) = op {
-                for suggestion in self.suggestions.iter_mut().flatten() {
-                    if &suggestion.node_id() == suggestion_id {
-                        suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
-                        // TODO: add a the current author (from the context) with the accepter role
-                        self.content = Some(suggestion.content.clone());
-                    } else if matches!(
-                        suggestion.suggestion_status,
-                        Some(SuggestionStatus::Accepted)
-                    ) {
-                        suggestion.suggestion_status = None;
-                    }
+                // Accept the suggestion and remove any other suggestions that have not been explicitly
+                // accepted or rejected, or which have no feedback
+                if let Some(suggestions) = &mut self.suggestions {
+                    suggestions.retain_mut(|suggestion| {
+                        if &suggestion.node_id() == suggestion_id {
+                            suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
+
+                            let accepter_patch = context.authors_as_accepters();
+                            let mut content = suggestion.content.clone();
+                            for node in &mut content {
+                                if let Err(error) = patch(node, accepter_patch.clone()) {
+                                    tracing::error!("While accepting inline suggestion: {error}");
+                                }
+                            }
+
+                            self.content = Some(content);
+                        }
+
+                        if matches!(
+                            suggestion.suggestion_status,
+                            None | Some(SuggestionStatus::Proposed)
+                        ) || suggestion.feedback.is_none()
+                        {
+                            false
+                        } else {
+                            true
+                        }
+                    })
                 }
+
                 return Ok(true);
             }
         }

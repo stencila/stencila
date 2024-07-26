@@ -16,14 +16,14 @@ use node_id::NodeId;
 use node_type::NodeProperty;
 
 use crate::{
-    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, Block, CordOp, Inline,
-    Node, ProvenanceCount, Timestamp,
+    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block,
+    CordOp, Inline, Node, ProvenanceCount, Timestamp,
 };
 
 /// Assign authorship to a node
 ///
 /// Intended to be used only to initialize authorship information
-/// on an node that has none. Will overwrite and existing authorship.
+/// on an node that has none. Will overwrite any existing authorship.
 pub fn authorship<T: PatchNode>(node: &mut T, authors: Vec<AuthorRole>) -> Result<()> {
     let mut context = PatchContext {
         authors: Some(authors),
@@ -261,6 +261,15 @@ impl PatchContext {
     /// Update the authors of a node
     ///
     /// Called during calls to `authorship` and `patch` for nodes that have an `authors` property.
+    ///
+    /// # Parameters
+    ///
+    /// - `authors`: the `authors` property of the node
+    ///
+    /// - `take`: whether the authors of the context should be "taken" (i.e. no applied to child nodes
+    ///    of the current node)
+    ///
+    /// - `overwrite`: whether to overwrite (i.e. reset) the current `authors` property of the node
     pub fn update_authors(
         &mut self,
         authors: &mut Option<Vec<Author>>,
@@ -287,7 +296,7 @@ impl PatchContext {
                     .collect(),
             );
 
-            // Set the author id to the first author and mark authors as "taken"
+            // Set the author id to the first author
             self.author_index = Some(0u8);
         } else if let Some(existing_authors) = authors {
             // The node has existing authors: if an author role is already present
@@ -357,6 +366,29 @@ impl PatchContext {
                 })
         } else {
             None
+        }
+    }
+
+    /// Get the context authors but with a different role name
+    pub fn authors_with_role(&self, role_name: AuthorRoleName) -> Option<Vec<AuthorRole>> {
+        self.authors.as_ref().map(|authors| {
+            authors
+                .iter()
+                .map(|author| AuthorRole {
+                    role_name: role_name.clone(),
+                    ..author.clone()
+                })
+                .collect()
+        })
+    }
+
+    /// Create a patch to accept
+    pub fn authors_as_accepters(&self) -> Patch {
+        Patch {
+            ops: vec![(PatchPath::new(), PatchOp::Nothing)],
+            format: self.format.clone(),
+            authors: self.authors_with_role(AuthorRoleName::Accepter),
+            ..Default::default()
         }
     }
 
@@ -438,8 +470,13 @@ pub enum PatchOp {
     /// Clear a vector
     Clear,
 
-    /// Accept a suggestion in an instruction
+    /// Accept a suggestion for an instruction
     Accept(NodeId),
+
+    /// Do no operation
+    /// Used to be able to apply patches which only update
+    /// the `authors` list of a node (e.g. when a node is accepted)
+    Nothing,
 }
 
 /// A value in a patch operation
