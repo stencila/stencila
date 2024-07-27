@@ -49,18 +49,16 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
-    /// The type of instruction.
+    /// The type of instruction describing the operation to be performed.
     #[serde(alias = "instruction-type", alias = "instruction_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub instruction_type: InstructionType,
 
-    /// Messages involved in the instruction.
-    #[serde(alias = "message")]
-    #[serde(deserialize_with = "one_or_many")]
+    /// The instruction message, possibly including images, audio, or other media.
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
-    pub messages: Vec<InstructionMessage>,
+    pub message: Option<InstructionMessage>,
 
     /// An identifier for the assistant assigned to perform the instruction
     #[patch(format = "md", format = "myst")]
@@ -222,10 +220,9 @@ impl InstructionBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(instruction_type: InstructionType, messages: Vec<InstructionMessage>) -> Self {
+    pub fn new(instruction_type: InstructionType) -> Self {
         Self {
             instruction_type,
-            messages,
             ..Default::default()
         }
     }

@@ -11,16 +11,15 @@
   "description": "Abstract base type for a document editing instruction.",
   "required": [
     "type",
-    "instructionType",
-    "messages"
+    "instructionType"
   ],
   "core": [
     "id",
     "executionMode",
+    "message",
     "assignee",
     "model",
-    "replicates",
-    "hideSuggestions"
+    "replicates"
   ],
   "properties": {
     "type": {
@@ -277,20 +276,16 @@
     },
     "instructionType": {
       "@id": "stencila:instructionType",
-      "description": "The type of instruction.",
+      "description": "The type of instruction describing the operation to be performed.",
       "aliases": [
         "instruction-type",
         "instruction_type"
       ],
       "$ref": "InstructionType.schema.json"
     },
-    "messages": {
-      "@id": "stencila:messages",
-      "description": "Messages involved in the instruction.",
-      "$comment": "This array of messages starts with the initial instruction from the\nuser and includes responses from the agent performing the instruction,\nand potentially further instructions for refinement by the user.\n",
-      "aliases": [
-        "message"
-      ],
+    "message": {
+      "@id": "stencila:message",
+      "description": "The instruction message, possibly including images, audio, or other media.",
       "patch": {
         "formats": [
           "md",
@@ -300,10 +295,7 @@
       "dom": {
         "elem": "div"
       },
-      "type": "array",
-      "items": {
-        "$ref": "InstructionMessage.schema.json"
-      }
+      "$ref": "InstructionMessage.schema.json"
     },
     "assignee": {
       "@id": "stencila:assignee",

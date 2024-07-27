@@ -48,6 +48,9 @@
         },
         {
           "@id": "stencila:ExecutionMessage"
+        },
+        {
+          "@id": "stencila:Instruction"
         }
       ],
       "schema:rangeIncludes": {

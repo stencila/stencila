@@ -267,7 +267,7 @@ impl Model for PluginAssistant {
             GenerateOutput::from_plugin(output, self, &format, task.instruction(), options).await?;
 
         // Add the prompter role, if any. Intentionally appended, not prepended, so that
-        // the generator is the primary author
+        // the generator is the primary author of the generated content
         if let Some(prompter_role) = prompter_role {
             output.authors.push(prompter_role);
         }

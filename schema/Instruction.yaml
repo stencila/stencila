@@ -6,33 +6,26 @@ category: edits
 description: Abstract base type for a document editing instruction.
 required:
   - instructionType
-  - messages
 core:
+  - message
   - assignee
   - model
   - replicates
-  - hideSuggestions
 properties:
   instructionType:
-    '@id': stencila:instructionType
-    description: The type of instruction.
+    "@id": stencila:instructionType
+    description: The type of instruction describing the operation to be performed.
     $ref: InstructionType
-  messages:
-    '@id': stencila:messages
-    description: Messages involved in the instruction.
-    $comment: |
-      This array of messages starts with the initial instruction from the
-      user and includes responses from the agent performing the instruction,
-      and potentially further instructions for refinement by the user.
-    type: array
-    items:
-      $ref: InstructionMessage
+  message:
+    "@id": stencila:message
+    description: The instruction message, possibly including images, audio, or other media.
+    $ref: InstructionMessage
     patch:
       formats: [md, myst]
     dom:
       elem: div
   assignee:
-    '@id': stencila:assignee
+    "@id": stencila:assignee
     description: An identifier for the assistant assigned to perform the instruction
     type: string
     $comment: |
@@ -51,13 +44,13 @@ properties:
         description: Generate an arbitrary assignee id using any characters
         strategy: option::of(String::arbitrary())
   model:
-    '@id': stencila:model
+    "@id": stencila:model
     description: The name, and other options, for the model that the assistant should use to generate suggestions.
     $ref: InstructionModel
     patch:
       formats: [md, myst]
   replicates:
-    '@id': stencila:replicates
+    "@id": stencila:replicates
     description: The number of suggestions to generate for the instruction
     $ref: UnsignedInteger
     patch:

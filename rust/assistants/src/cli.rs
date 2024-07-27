@@ -106,11 +106,12 @@ struct Execute {
 
 impl Execute {
     async fn run(self) -> Result<()> {
-        let mut instruction = InstructionBlock::new(
-            InstructionType::New,
-            vec![InstructionMessage::user(self.instruction)],
-        );
-        instruction.assignee = Some(self.name);
+        let instruction = InstructionBlock {
+            instruction_type: InstructionType::New,
+            assignee: Some(self.name),
+            message: Some(InstructionMessage::from(self.instruction)),
+            ..Default::default()
+        };
 
         let context = Context::default();
         let options = GenerateOptions::default();

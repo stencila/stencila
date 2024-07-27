@@ -12,7 +12,7 @@
       "@id": "stencila:InstructionType",
       "@type": "rdfs:Class",
       "rdfs:label": "InstructionType",
-      "rdfs:comment": "The type of an instruction.",
+      "rdfs:comment": "The type of an instruction describing the operation to be performed.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

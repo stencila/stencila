@@ -76,10 +76,10 @@ impl Instruction {
     /// Create an inline instruction from some text
     pub fn inline_text<S: AsRef<str>>(text: S) -> Self {
         Instruction::Inline(InstructionInline {
-            messages: vec![InstructionMessage {
+            message: Some(InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
-            }],
+            }),
             ..Default::default()
         })
     }
@@ -90,10 +90,10 @@ impl Instruction {
         content: C,
     ) -> Self {
         Instruction::Inline(InstructionInline {
-            messages: vec![InstructionMessage {
+            message: Some(InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
-            }],
+            }),
             content: Some(content.into_iter().collect()),
             ..Default::default()
         })
@@ -102,10 +102,10 @@ impl Instruction {
     /// Create a block instruction from some text
     pub fn block_text<S: AsRef<str>>(text: S) -> Self {
         Instruction::Block(InstructionBlock {
-            messages: vec![InstructionMessage {
+            message: Some(InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
-            }],
+            }),
             ..Default::default()
         })
     }
@@ -116,13 +116,21 @@ impl Instruction {
         content: C,
     ) -> Self {
         Instruction::Block(InstructionBlock {
-            messages: vec![InstructionMessage {
+            message: Some(InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
-            }],
+            }),
             content: Some(content.into_iter().collect()),
             ..Default::default()
         })
+    }
+
+    /// Get the type of the instruction
+    pub fn instruction_type(&self) -> schema::InstructionType {
+        match self {
+            Instruction::Block(block) => block.instruction_type.clone(),
+            Instruction::Inline(inline) => inline.instruction_type.clone(),
+        }
     }
 
     /// Get the assignee of the instruction (if any)
@@ -134,11 +142,18 @@ impl Instruction {
     }
 
     /// Get the messages of the instruction
+    ///
+    /// This function constructs a vector of messages from the initial message and
+    /// the content and feedback of suggestions.
     pub fn messages(&self) -> Vec<InstructionMessage> {
-        let mut messages = match self {
-            Instruction::Block(block) => block.messages.clone(),
-            Instruction::Inline(inline) => inline.messages.clone(),
-        };
+        let mut messages = vec![match self {
+            Instruction::Block(block) => block.message.clone(),
+            Instruction::Inline(inline) => inline.message.clone(),
+        }
+        .unwrap_or_else(|| {
+            // TODO: use instruction type
+            InstructionMessage::user("")
+        })];
 
         match self {
             Instruction::Block(node) => {
@@ -1321,6 +1336,8 @@ pub fn test_task_repeat_word() -> GenerateTask {
             "When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".to_string(),
         ),
         instruction: Instruction::from(InstructionInline {
+            /*
+            TODO: reinstate this
             messages: vec![
                 InstructionMessage {
                     role: Some(MessageRole::User),
@@ -1338,6 +1355,7 @@ pub fn test_task_repeat_word() -> GenerateTask {
                     ..Default::default()
                 },
             ],
+            */
             ..Default::default()
         }),
         ..Default::default()

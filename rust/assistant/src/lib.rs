@@ -28,8 +28,7 @@ use model::{
     format::Format,
     merge::Merge,
     schema::{AuthorRoleName, InstructionMessage, MessagePart, NodeType},
-    Embeddings, GenerateOutput, GenerateTask, Instruction, InstructionType, Model, ModelIO,
-    ModelType,
+    Embeddings, GenerateOutput, GenerateTask, InstructionType, Model, ModelIO, ModelType,
 };
 
 /// Default preference rank
@@ -521,7 +520,7 @@ impl Model for SpecializedAssistant {
 
             GenerateOutput::empty(self)?
         } else if self.models.is_empty() {
-            // No modelss, so simply render the template into output.
+            // No models, so simply render the template into output.
             // This differs from `options.dry_run` in that the prompt is decoded into nodes
             // (including transformations associated with `expected_nodes`) in the call to `from_text`.
             task.prepare(None, content_format.as_ref(), self.system_prompt.as_ref())
@@ -561,14 +560,18 @@ impl Model for SpecializedAssistant {
 
                         // Add the error to the instruction messages so that the assistant
                         // can use it to try to correct
-                        let message = InstructionMessage {
+                        let _message = InstructionMessage {
                             parts: vec![MessagePart::Text(format!("Error: {error}").into())],
                             ..Default::default()
                         };
+                        /*
+                        TODO: GenerateTask may need to have an array of messages that it retains
+                        and updates
                         match task.instruction_mut() {
                             Instruction::Block(instr) => instr.messages.push(message),
                             Instruction::Inline(instr) => instr.messages.push(message),
                         }
+                        */
                     }
                 }
             }

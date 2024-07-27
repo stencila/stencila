@@ -88,10 +88,10 @@ pub async fn check(name: &str) -> Result<Message> {
 
         // Create a task for the assistant
         let instruction = Instruction::from(InstructionInline {
-            messages: vec![InstructionMessage {
+            message: Some(InstructionMessage {
                 parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
                 ..Default::default()
-            }],
+            }),
             ..Default::default()
         });
         let task = GenerateTask::new(instruction, None);

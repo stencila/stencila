@@ -289,7 +289,7 @@ class FormDeriveAction(StrEnum):
 
 class InstructionType(StrEnum):
     """
-    The type of an instruction.
+    The type of an instruction describing the operation to be performed.
     """
 
     New = "New"
@@ -746,10 +746,10 @@ class Instruction(Executable):
     type: Literal["Instruction"] = "Instruction"
 
     instruction_type: InstructionType
-    """The type of instruction."""
+    """The type of instruction describing the operation to be performed."""
 
-    messages: list[InstructionMessage]
-    """Messages involved in the instruction."""
+    message: InstructionMessage | None = None
+    """The instruction message, possibly including images, audio, or other media."""
 
     assignee: str | None = None
     """An identifier for the assistant assigned to perform the instruction"""

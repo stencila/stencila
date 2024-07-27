@@ -331,7 +331,6 @@
     "memberOf": "schema:memberOf",
     "members": "schema:member",
     "message": "stencila:message",
-    "messages": "stencila:messages",
     "minItems": "stencila:minItems",
     "minLength": "stencila:minLength",
     "minimum": "stencila:minimum",

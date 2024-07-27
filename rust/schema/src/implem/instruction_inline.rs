@@ -72,12 +72,10 @@ impl MarkdownCodec for InstructionInline {
             context.push_str("@").push_str(assignee).push_str(" ");
         }
 
-        if let Some(part) = self
-            .messages
-            .first()
-            .and_then(|message| message.parts.first())
-        {
-            context.push_prop_fn(NodeProperty::Message, |context| part.to_markdown(context));
+        if let Some(message) = &self.message {
+            context.push_prop_fn(NodeProperty::Message, |context| {
+                message.to_markdown(context)
+            });
         }
 
         if let Some(content) = &self.content {
@@ -86,7 +84,7 @@ impl MarkdownCodec for InstructionInline {
                 .push_prop_fn(NodeProperty::Content, |context| {
                     content.to_markdown(context)
                 });
-        };
+        }
 
         context.push_str("]]");
 

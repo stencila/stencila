@@ -14,14 +14,14 @@ export class Instruction extends Executable {
   type: "Instruction";
 
   /**
-   * The type of instruction.
+   * The type of instruction describing the operation to be performed.
    */
   instructionType: InstructionType;
 
   /**
-   * Messages involved in the instruction.
+   * The instruction message, possibly including images, audio, or other media.
    */
-  messages: InstructionMessage[];
+  message?: InstructionMessage;
 
   /**
    * An identifier for the assistant assigned to perform the instruction
@@ -38,18 +38,17 @@ export class Instruction extends Executable {
    */
   replicates?: UnsignedInteger;
 
-  constructor(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<Instruction>) {
+  constructor(instructionType: InstructionType, options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";
     if (options) Object.assign(this, options);
     this.instructionType = instructionType;
-    this.messages = messages;
   }
 }
 
 /**
 * Create a new `Instruction`
 */
-export function instruction(instructionType: InstructionType, messages: InstructionMessage[], options?: Partial<Instruction>): Instruction {
-  return new Instruction(instructionType, messages, options);
+export function instruction(instructionType: InstructionType, options?: Partial<Instruction>): Instruction {
+  return new Instruction(instructionType, options);
 }

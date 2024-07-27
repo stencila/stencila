@@ -578,9 +578,8 @@ fn instruction_block_shortcut(input: &mut Located<&str>) -> PResult<Block> {
         ),
     )
     .map(|(assignee, message): (Option<&str>, Option<&str>)| {
-        let text = message.unwrap_or_default();
         Block::InstructionBlock(InstructionBlock {
-            messages: vec![InstructionMessage::from(text.trim())],
+            message: message.map(InstructionMessage::from),
             content: None,
             assignee: assignee.map(String::from),
             ..Default::default()
@@ -617,6 +616,9 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 _,
             )| {
                 let (text, has_content) = message.unwrap_or_default();
+
+                let text = text.trim();
+                let message = (!text.is_empty()).then(|| InstructionMessage::from(text));
 
                 let mut replicates: Option<u64> = None;
                 let mut temperature: Option<u64> = None;
@@ -655,7 +657,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 
                 Block::InstructionBlock(InstructionBlock {
                     instruction_type,
-                    messages: vec![InstructionMessage::from(text.trim())],
+                    message,
                     content: if has_content { Some(Vec::new()) } else { None },
                     assignee: assignee.map(String::from),
                     replicates,
@@ -1212,22 +1214,18 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             select: options.get("select").map(|select| select.to_string()),
             ..Default::default()
         }),
-        "new" | "edit" | "update" => {
-            let message = InstructionMessage::from(args.unwrap_or_default().trim());
-
-            Block::InstructionBlock(InstructionBlock {
-                instruction_type: name.parse().unwrap_or_default(),
-                messages: vec![message],
-                assignee: options.get("assign").map(|value| value.to_string()),
-                replicates: options.get("reps").and_then(|value| value.parse().ok()),
-                content: if !value.trim().is_empty() {
-                    Some(decode_blocks(&value))
-                } else {
-                    None
-                },
-                ..Default::default()
-            })
-        }
+        "new" | "edit" | "update" => Block::InstructionBlock(InstructionBlock {
+            instruction_type: name.parse().unwrap_or_default(),
+            message: args.map(InstructionMessage::from),
+            assignee: options.get("assign").map(|value| value.to_string()),
+            replicates: options.get("reps").and_then(|value| value.parse().ok()),
+            content: if !value.trim().is_empty() {
+                Some(decode_blocks(&value))
+            } else {
+                None
+            },
+            ..Default::default()
+        }),
         "suggest" => Block::SuggestionBlock(SuggestionBlock {
             feedback: args.map(|value| value.to_string()),
             content: decode_blocks(&value),

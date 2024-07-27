@@ -222,8 +222,8 @@ where
 
             // Get the first user text instruction. Ignore intermediate user messages involved in refinement.
             let user = instruction
-                .messages
-                .first()
+                .message
+                .as_ref()
                 .and_then(|message| message.parts.first())
                 .and_then(|part| match part {
                     MessagePart::Text(text) => Some(text.to_value_string()),

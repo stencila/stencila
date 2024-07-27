@@ -220,7 +220,7 @@
       "@id": "stencila:instructionType",
       "@type": "rdfs:Property",
       "rdfs:label": "instructionType",
-      "rdfs:comment": "The type of instruction.",
+      "rdfs:comment": "The type of instruction describing the operation to be performed.",
       "schema:domainIncludes": {
         "@id": "stencila:Instruction"
       },
@@ -229,13 +229,21 @@
       }
     },
     {
-      "@id": "stencila:messages",
+      "@id": "stencila:message",
       "@type": "rdfs:Property",
-      "rdfs:label": "messages",
-      "rdfs:comment": "Messages involved in the instruction.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
+      "rdfs:label": "message",
+      "rdfs:comment": "The instruction message, possibly including images, audio, or other media.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        },
+        {
+          "@id": "stencila:Instruction"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:InstructionMessage"
       }

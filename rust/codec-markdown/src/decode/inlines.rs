@@ -803,9 +803,12 @@ fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
         (opt(delimited('@', assignee, multispace1)), take_until_edit),
     )
         .map(|(instruction_type, (assignee, (text, term)))| {
+            let text = text.trim();
+            let message = (!text.is_empty()).then(|| InstructionMessage::from(text));
+
             Inline::InstructionInline(InstructionInline {
                 instruction_type,
-                messages: vec![InstructionMessage::from(text.trim())],
+                message,
                 content: (term == EDIT_WITH).then_some(Vec::new()),
                 assignee: assignee.map(|handle| handle.to_string()),
                 ..Default::default()

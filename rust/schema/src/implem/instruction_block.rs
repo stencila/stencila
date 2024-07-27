@@ -107,15 +107,11 @@ impl MarkdownCodec for InstructionBlock {
                     ':',
                     &instruction_type,
                     |context| {
-                        if let Some(part) = self
-                            .messages
-                            .last()
-                            .and_then(|message| message.parts.first())
-                        {
+                        if let Some(message) = &self.message {
                             context
                                 .push_str(" ")
-                                .push_prop_fn(NodeProperty::Messages, |context| {
-                                    part.to_markdown(context)
+                                .push_prop_fn(NodeProperty::Message, |context| {
+                                    message.to_markdown(context)
                                 });
                         }
                     },
@@ -210,13 +206,11 @@ impl MarkdownCodec for InstructionBlock {
                     .push_str(" ");
             }
 
-            if let Some(part) = self
-                .messages
-                .last()
-                .and_then(|message| message.parts.first())
-            {
+            if let Some(message) = &self.message {
                 context
-                    .push_prop_fn(NodeProperty::Messages, |context| part.to_markdown(context))
+                    .push_prop_fn(NodeProperty::Message, |context| {
+                        message.to_markdown(context)
+                    })
                     .newline();
             }
 
