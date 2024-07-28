@@ -29,7 +29,11 @@ export class SuggestionBlock extends Entity {
   feedback?: string
 
   override render() {
+    const showSuggestion =
+      !this.suggestionStatus || this.suggestionStatus === 'Proposed'
+
     return html`<stencila-ui-block-in-flow
+      class=${!showSuggestion ? 'hidden' : ''}
       type="SuggestionBlock"
       node-id=${this.id}
       ?collapsed=${true}
