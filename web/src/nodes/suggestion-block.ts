@@ -33,6 +33,12 @@ export class SuggestionBlock extends Entity {
       ?collapsed=${true}
     >
       <div slot="body">
+        <stencila-ui-node-execution-details
+          type="SuggestionBlock"
+          ended=${this.executionEnded}
+          duration=${this.executionDuration}
+        >
+        </stencila-ui-node-execution-details>
         <stencila-ui-node-authors type="SuggestionBlock">
           <stencila-ui-node-provenance slot="provenance">
             <slot name="provenance"></slot>
