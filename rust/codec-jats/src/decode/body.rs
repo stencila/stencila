@@ -5,7 +5,7 @@ use codec::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeInline,
         Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline, Text,
+        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline,
         ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
@@ -219,13 +219,13 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     record_attrs_lost(path, node, ["href", "mimetype", "mime-subtype"], losses);
 
-    let mut caption = None;
+    let mut caption: Option<Vec<Inline>> = None;
     let mut description = None;
     for child in node.children() {
         let tag = child.tag_name().name();
         match tag {
             "alt-text" => caption = child.text().map(|content| vec![t(content)]),
-            "long-desc" => description = child.text().map(Text::from),
+            "long-desc" => description = child.text().map(Cord::from),
             _ => record_node_lost(path, &child, losses),
         }
     }

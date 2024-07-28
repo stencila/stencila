@@ -16,7 +16,7 @@ properties:
   description:
     "@id": schema:description
     description: A description of the item.
-    $ref: Text
+    $ref: Cord
     strip: [metadata]
   identifiers:
     "@id": schema:identifier
