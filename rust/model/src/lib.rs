@@ -808,7 +808,7 @@ impl GenerateOutput {
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
     pub async fn from_text(
-        assistant: &dyn Model,
+        model: &dyn Model,
         format: &Format,
         instruction: &Instruction,
         options: &GenerateOptions,
@@ -911,7 +911,7 @@ impl GenerateOutput {
         }
 
         Ok(Self {
-            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
+            authors: vec![model.to_author_role(AuthorRoleName::Generator)],
             kind: GenerateKind::Text,
             format,
             content: text,
@@ -920,7 +920,7 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url(assistant: &dyn Model, media_type: &str, url: String) -> Result<Self> {
+    pub async fn from_url(model: &dyn Model, media_type: &str, url: String) -> Result<Self> {
         let format = Format::from_media_type(media_type).unwrap_or(Format::Unknown);
 
         let media_type = Some(media_type.to_string());
@@ -953,7 +953,7 @@ impl GenerateOutput {
         let nodes = Nodes::Inlines(vec![node]);
 
         Ok(Self {
-            authors: vec![assistant.to_author_role(AuthorRoleName::Generator)],
+            authors: vec![model.to_author_role(AuthorRoleName::Generator)],
             kind: GenerateKind::Url,
             format,
             content: url,
@@ -964,7 +964,7 @@ impl GenerateOutput {
     /// Update output after it has been deserialized from a plugin based assistant
     pub async fn from_plugin(
         other: Self,
-        assistant: &dyn Model,
+        model: &dyn Model,
         format: &Format,
         instruction: &Instruction,
         options: &GenerateOptions,
@@ -974,17 +974,17 @@ impl GenerateOutput {
         } else {
             match other.kind {
                 GenerateKind::Text => {
-                    Self::from_text(assistant, format, instruction, options, other.content).await?
+                    Self::from_text(model, format, instruction, options, other.content).await?
                 }
                 GenerateKind::Url => {
-                    Self::from_url(assistant, &format.media_type(), other.content).await?
+                    Self::from_url(model, &format.media_type(), other.content).await?
                 }
             }
         };
 
         output
             .authors
-            .push(assistant.to_author_role(AuthorRoleName::Generator));
+            .push(model.to_author_role(AuthorRoleName::Generator));
 
         Ok(output)
     }
