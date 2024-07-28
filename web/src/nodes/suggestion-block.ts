@@ -6,6 +6,8 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/commands/suggestion-commands'
+
 /**
  * Web component representing a Stencila Schema `SuggestionBlock` node
  *
@@ -32,6 +34,13 @@ export class SuggestionBlock extends Entity {
       node-id=${this.id}
       ?collapsed=${true}
     >
+      <span slot="header-right">
+        <stencila-ui-suggestion-commands
+          node-id=${this.id}
+          type="SuggestionBlock"
+        >
+        </stencila-ui-suggestion-commnads>
+      </span>
       <div slot="body">
         <stencila-ui-node-execution-details
           type="SuggestionBlock"

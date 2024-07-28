@@ -4,7 +4,6 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
