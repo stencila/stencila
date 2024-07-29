@@ -10,8 +10,8 @@ use model::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::MessagePart,
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
+    schema::{MessagePart, MessageRole},
+    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
 /// The base URL for the Anthropic API
@@ -24,8 +24,11 @@ const API_VERSION: &str = "2023-06-01";
 const API_KEY: &str = "ANTHROPIC_API_KEY";
 
 /// An model running on Anthropic
+///
+/// See https://docs.anthropic.com/en/api/messages for the API that this
+/// is targeting.
 pub struct AnthropicModel {
-    /// The name of the model including its version e.g. "claude-2.1"
+    /// The name of the model including its version
     model: String,
 
     /// The context length of the model
@@ -37,9 +40,9 @@ pub struct AnthropicModel {
 
 impl AnthropicModel {
     /// Create an Anthropic model
-    fn new(model: String, context_length: usize) -> Self {
+    fn new(model: &str, context_length: usize) -> Self {
         Self {
-            model,
+            model: model.into(),
             context_length,
             client: Client::new(),
         }
@@ -68,21 +71,31 @@ impl Model for AnthropicModel {
         &[ModelIO::Text]
     }
 
-    async fn perform_task(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
-        let system = match &task.system_prompt() {
-            Some(prompt) => prompt.clone(),
-            None => String::new(),
-        };
-
+    async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
+        let mut system = None;
         let messages = task
-            .instruction_messages()
+            .messages
             .iter()
-            .map(|message| {
-                println!("{message:#?}");
+            .filter_map(|message| {
+                if matches!(message.role, Some(MessageRole::System)) {
+                    let text = message
+                        .parts
+                        .iter()
+                        .filter_map(|part| match part {
+                            MessagePart::Text(text) => Some(text.to_value_string()),
+                            _ => {
+                                tracing::warn!(
+                                    "System message part `{part}` is ignored by model `{}`",
+                                    self.name()
+                                );
+                                None
+                            }
+                        })
+                        .join("\n");
+                    system = Some(text);
+
+                    return None;
+                }
 
                 let role = message
                     .role
@@ -101,7 +114,7 @@ impl Model for AnthropicModel {
                         }),
                         _ => {
                             tracing::warn!(
-                                "User message part `{part}` is ignored by assistant `{}`",
+                                "User message part `{part}` is ignored by model `{}`",
                                 self.name()
                             );
                             None
@@ -109,20 +122,24 @@ impl Model for AnthropicModel {
                     })
                     .collect_vec();
 
-                Message { role, content }
+                Some(Message { role, content })
             })
             .collect_vec();
 
         let request = MessagesRequest {
             model: self.model.clone(),
-            system,
-            max_tokens: options.max_tokens.unwrap_or(1024),
-            temperature: options.temperature,
             messages,
+            system,
+            // Required parameter. See here for a list of max supported by each model
+            // https://docs.anthropic.com/en/docs/about-claude/models#model-comparison
+            max_tokens: task.max_tokens.unwrap_or(4096),
+            temperature: task.temperature,
+            top_k: task.top_k,
+            top_p: task.top_p,
         };
 
-        if options.dry_run {
-            return GenerateOutput::empty(self);
+        if task.dry_run {
+            return ModelOutput::empty(self);
         }
 
         let response = self
@@ -147,7 +164,7 @@ impl Model for AnthropicModel {
             .map(|part| part.text)
             .join("\n\n");
 
-        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
+        ModelOutput::from_text(self, &task.format, text).await
     }
 }
 
@@ -165,16 +182,14 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     }
 
     let models = [
+        ("claude-3-5-sonnet-20240620", 200_000),
         ("claude-3-opus-20240229", 200_000),
         ("claude-3-sonnet-20240229", 200_000),
         ("claude-3-haiku-20240307", 200_000),
-        ("claude-2.1", 200_000),
-        ("claude-2.0", 100_000),
-        ("claude-instant-1.2", 100_000),
     ]
     .into_iter()
     .map(|(model, context_length)| {
-        Arc::new(AnthropicModel::new(model.to_string(), context_length)) as Arc<dyn Model>
+        Arc::new(AnthropicModel::new(model, context_length)) as Arc<dyn Model>
     })
     .collect();
 
@@ -210,10 +225,12 @@ struct Message {
 #[serde(crate = "model::common::serde")]
 struct MessagesRequest {
     model: String,
-    system: String,
+    messages: Vec<Message>,
+    system: Option<String>,
     max_tokens: u16,
     temperature: Option<f32>,
-    messages: Vec<Message>,
+    top_k: Option<u32>,
+    top_p: Option<f32>,
 }
 
 /// A Messages API response body
@@ -251,12 +268,10 @@ mod tests {
             return Ok(());
         }
 
-        let model = &list().await?[0];
-        let output = model
-            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
-            .await?;
+        let model = AnthropicModel::new("claude-3-5-sonnet-20240620", 0);
+        let output = model.perform_task(&test_task_repeat_word()).await?;
 
-        assert_eq!(output.content, "HELLO".to_string());
+        assert_eq!(output.content.trim(), "HELLO".to_string());
 
         Ok(())
     }

@@ -13,10 +13,10 @@ use model::{
         tracing,
     },
     schema::{ImageObject, MessagePart, MessageRole},
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
+    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
-const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
+const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1beta";
 
 /// The name of the env var or secret for the API key
 const API_KEY: &str = "GOOGLE_AI_API_KEY";
@@ -34,9 +34,9 @@ struct GoogleModel {
 
 impl GoogleModel {
     /// Create a Google AI model
-    fn new(model: String, context_length: usize) -> Self {
+    fn new(model: &str, context_length: usize) -> Self {
         Self {
-            model,
+            model: model.into(),
             context_length,
             client: Client::new(),
         }
@@ -70,30 +70,32 @@ impl Model for GoogleModel {
     }
 
     #[tracing::instrument(skip(self))]
-    async fn perform_task(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
+    async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
+        let mut system_instruction = None;
         let contents = task
-            .system_prompt()
+            .messages
             .iter()
-            .flat_map(|prompt| {
-                // There is no "system" role and successive user prompts are not
-                // allowed so separate any system prompt with a fake model response.
-                vec![
-                    Content {
-                        role: Some(Role::User),
-                        parts: vec![Part::text(prompt)],
-                    },
-                    Content {
-                        role: Some(Role::Model),
-                        parts: vec![Part::text("I understand those high level instructions and will follow them.")],
-                    }
-                ]
-                .into_iter()
-            })
-            .chain(task.instruction_messages().iter().map(|message| {
+            .flat_map(|message| {
+                if matches!(message.role, Some(MessageRole::System)) {
+                    let parts = message
+                        .parts
+                        .iter()
+                        .filter_map(|part| match part {
+                            MessagePart::Text(text) => Some(Part::text(&text.value)),
+                            _ => {
+                                tracing::warn!(
+                                    "System message part `{part}` is ignored by model `{}`",
+                                    self.name()
+                                );
+                                None
+                            }
+                        })
+                        .collect_vec();
+                    system_instruction = Some(Content { role: None, parts });
+
+                    return None;
+                }
+
                 let role = match message.role.clone().unwrap_or_default() {
                     MessageRole::Assistant => Some(Role::Model),
                     MessageRole::User => Some(Role::User),
@@ -128,23 +130,24 @@ impl Model for GoogleModel {
                     })
                     .collect();
 
-                Content { role, parts }
-            }))
-            .collect();
+                Some(Content { role, parts })
+            })
+            .collect_vec();
 
         let request = GenerateContentRequest {
             contents,
+            system_instruction,
             generation_config: Some(GenerationConfig {
-                max_output_tokens: options.max_tokens,
-                temperature: options.temperature,
-                top_p: options.top_p,
-                top_k: options.top_k,
+                max_output_tokens: task.max_tokens,
+                temperature: task.temperature,
+                top_p: task.top_p,
+                top_k: task.top_k,
                 ..Default::default()
             }),
         };
 
-        if options.dry_run {
-            return GenerateOutput::empty(self);
+        if task.dry_run {
+            return ModelOutput::empty(self);
         }
 
         let response = self
@@ -175,15 +178,12 @@ impl Model for GoogleModel {
         match content {
             Part {
                 text: Some(text), ..
-            } => {
-                GenerateOutput::from_text(self, task.format(), task.instruction(), options, text)
-                    .await
-            }
+            } => ModelOutput::from_text(self, &task.format, text).await,
             Part {
                 inline_data: Some(Blob { mime_type, data }),
                 ..
             } => {
-                GenerateOutput::from_url(self, &mime_type, format!("{};base64,{}", mime_type, data))
+                ModelOutput::from_url(self, &mime_type, format!("{};base64,{}", mime_type, data))
                     .await
             }
             _ => bail!("Unexpected response content part"),
@@ -220,6 +220,7 @@ struct ModelSpec {
 #[serde(rename_all = "camelCase", crate = "model::common::serde")]
 struct GenerateContentRequest {
     contents: Vec<Content>,
+    system_instruction: Option<Content>,
     generation_config: Option<GenerationConfig>,
 }
 
@@ -356,12 +357,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .filter(|model| !model.name.starts_with("models/embedding-"))
         .sorted_by(|a, b| a.name.cmp(&b.name))
         .map(|model| {
-            let name = model
-                .name
-                .strip_prefix("models/")
-                .unwrap_or(&model.name)
-                .to_string();
-
+            let name = model.name.strip_prefix("models/").unwrap_or(&model.name);
             let context_length = model.input_token_limit.unwrap_or(4_096);
 
             Arc::new(GoogleModel::new(name, context_length)) as Arc<dyn Model>
@@ -395,12 +391,10 @@ mod tests {
             return Ok(());
         }
 
-        let model = &list().await?[0];
-        let output = model
-            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
-            .await?;
+        let model = GoogleModel::new("gemini-1.5-pro-001", 0);
+        let output = model.perform_task(&test_task_repeat_word()).await?;
 
-        assert_eq!(output.content, "HELLO".to_string());
+        assert_eq!(output.content.trim(), "HELLO".to_string());
 
         Ok(())
     }

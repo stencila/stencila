@@ -9,7 +9,7 @@ use model::{
         itertools::Itertools,
         tracing,
     },
-    GenerateTask, Model,
+    ModelTask, Model,
 };
 
 pub mod cli;
@@ -39,7 +39,7 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
 }
 
 /// Get a model
-pub async fn get(name: &str, task: &GenerateTask) -> Result<Arc<dyn Model>> {
+pub async fn get(name: &str, task: &ModelTask) -> Result<Arc<dyn Model>> {
     let models = list().await;
 
     let model = models

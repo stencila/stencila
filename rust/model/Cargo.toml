@@ -5,13 +5,7 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app" }
-codec-markdown-trait = { path = "../codec-markdown-trait" }
-codec-text-trait = { path = "../codec-text-trait" }
-codecs = { path = "../codecs" }
 common = { path = "../common" }
-context = { path = "../context" }
-fastembed = { version = "3.9.1", optional = true }
 format = { path = "../format" }
-merge = "0.1.0"
 schema = { path = "../schema" }
 secrets = { path = "../secrets" }

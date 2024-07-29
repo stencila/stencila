@@ -23,7 +23,7 @@ use model::{
         tracing,
     },
     schema::{ImageObject, MessagePart, MessageRole},
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
+    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType,
 };
 
 /// The name of the env var or secret for the API key
@@ -120,21 +120,10 @@ impl Model for OpenAIModel {
         &self.outputs
     }
 
-    async fn perform_task(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
-        use ModelIO::*;
-        match (task.input(), task.output()) {
-            (Text, Text) => self.chat_completion(task, options).await,
-            (Text, Image) => self.create_image(task, options).await,
-            _ => bail!(
-                "{} to {} is not supported by model `{}`",
-                task.input(),
-                task.output(),
-                self.name()
-            ),
+    async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
+        match task.kind {
+            ModelTaskKind::MessageGeneration => self.message_generation(task).await,
+            ModelTaskKind::ImageGeneration => self.image_generation(task).await,
         }
     }
 }
@@ -149,109 +138,110 @@ impl OpenAIModel {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn chat_completion(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
+    async fn message_generation(&self, task: &ModelTask) -> Result<ModelOutput> {
         tracing::debug!("Sending chat completion request");
 
-        // Create messages
         let messages = task
-            .system_prompt()
+            .messages
             .iter()
-            .map(|prompt| {
-                ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
-                    content: prompt.clone(),
-                    ..Default::default()
-                })
-            })
-            .chain(task.instruction_messages().iter().filter_map(|message| {
-                match message.role.clone().unwrap_or_default() {
-                    MessageRole::System => None,
-                    MessageRole::User => {
-                        let content = message
-                            .parts
-                            .iter()
-                            .filter_map(|part| match part {
-                                MessagePart::Text(text) => {
-                                    Some(ChatCompletionRequestMessageContentPart::Text(
-                                        ChatCompletionRequestMessageContentPartText {
-                                            text: text.to_value_string(),
-                                        },
-                                    ))
-                                }
-                                MessagePart::ImageObject(ImageObject { content_url, .. }) => {
-                                    Some(ChatCompletionRequestMessageContentPart::ImageUrl(
-                                        ChatCompletionRequestMessageContentPartImage {
-                                            image_url: ImageUrl {
-                                                url: content_url.clone(),
-                                                detail: Some(ImageDetail::Auto),
-                                            },
-                                        },
-                                    ))
-                                }
-                                _ => {
-                                    tracing::warn!(
-                                        "User message part `{part}` is ignored by model `{}`",
-                                        self.name()
-                                    );
-                                    None
-                                }
-                            })
-                            .collect_vec();
-
-                        Some(ChatCompletionRequestMessage::User(
-                            ChatCompletionRequestUserMessage {
-                                content: ChatCompletionRequestUserMessageContent::Array(content),
-                                ..Default::default()
-                            },
-                        ))
-                    }
-                    MessageRole::Assistant => {
-                        let content = message
+            .map(|message| match message.role.clone().unwrap_or_default() {
+                MessageRole::System => {
+                    ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
+                        content: message
                             .parts
                             .iter()
                             .filter_map(|part| match part {
                                 MessagePart::Text(text) => Some(text.to_value_string()),
                                 _ => {
                                     tracing::warn!(
-                                        "Assistant message part `{part}` is ignored by model `{}`",
+                                        "System message part `{part}` is ignored by model `{}`",
                                         self.name()
                                     );
                                     None
                                 }
                             })
-                            .join("");
-
-                        Some(ChatCompletionRequestMessage::Assistant(
-                            ChatCompletionRequestAssistantMessage {
-                                content: Some(content),
-                                ..Default::default()
-                            },
-                        ))
-                    }
+                            .join("\n\n"),
+                        ..Default::default()
+                    })
                 }
-            }))
+                MessageRole::User => {
+                    let content = message
+                        .parts
+                        .iter()
+                        .filter_map(|part| match part {
+                            MessagePart::Text(text) => {
+                                Some(ChatCompletionRequestMessageContentPart::Text(
+                                    ChatCompletionRequestMessageContentPartText {
+                                        text: text.to_value_string(),
+                                    },
+                                ))
+                            }
+                            MessagePart::ImageObject(ImageObject { content_url, .. }) => {
+                                Some(ChatCompletionRequestMessageContentPart::ImageUrl(
+                                    ChatCompletionRequestMessageContentPartImage {
+                                        image_url: ImageUrl {
+                                            url: content_url.clone(),
+                                            detail: Some(ImageDetail::Auto),
+                                        },
+                                    },
+                                ))
+                            }
+                            _ => {
+                                tracing::warn!(
+                                    "User message part `{part}` is ignored by model `{}`",
+                                    self.name()
+                                );
+                                None
+                            }
+                        })
+                        .collect_vec();
+
+                    ChatCompletionRequestMessage::User(ChatCompletionRequestUserMessage {
+                        content: ChatCompletionRequestUserMessageContent::Array(content),
+                        ..Default::default()
+                    })
+                }
+                MessageRole::Assistant => {
+                    let content = message
+                        .parts
+                        .iter()
+                        .filter_map(|part| match part {
+                            MessagePart::Text(text) => Some(text.to_value_string()),
+                            _ => {
+                                tracing::warn!(
+                                    "Assistant message part `{part}` is ignored by model `{}`",
+                                    self.name()
+                                );
+                                None
+                            }
+                        })
+                        .join("");
+
+                    ChatCompletionRequestMessage::Assistant(ChatCompletionRequestAssistantMessage {
+                        content: Some(content),
+                        ..Default::default()
+                    })
+                }
+            })
             .collect();
 
         // Create the request
         let request = CreateChatCompletionRequest {
             model: self.model.clone(),
             messages,
-            presence_penalty: options.repeat_penalty,
-            temperature: options.temperature,
-            seed: options.seed.map(|seed| seed as i64),
-            max_tokens: options.max_tokens.map(|tokens| tokens as u32),
-            top_p: options.top_p,
-            stop: options.stop.clone().map(Stop::String),
+            presence_penalty: task.repeat_penalty,
+            temperature: task.temperature,
+            seed: task.seed.map(|seed| seed as i64),
+            max_tokens: task.max_tokens.map(|tokens| tokens as u32),
+            top_p: task.top_p,
+            stop: task.stop.clone().map(Stop::String),
             ..Default::default()
         };
 
-        // Warn about ignored options
+        // Warn about ignored task options
         macro_rules! ignore_option {
             ($name:ident) => {
-                if options.$name.is_some() {
+                if task.$name.is_some() {
                     tracing::warn!(
                         "Option `{}` is ignored by model `{}` for chat completion",
                         stringify!($name),
@@ -276,6 +266,10 @@ impl OpenAIModel {
             top_k
         );
 
+        if task.dry_run {
+            return ModelOutput::empty(self);
+        }
+
         // Send the request
         let client = Self::client()?;
         let mut response = client.chat().create(request).await?;
@@ -287,20 +281,16 @@ impl OpenAIModel {
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
+        ModelOutput::from_text(self, &task.format, text).await
     }
 
     #[tracing::instrument(skip_all)]
-    async fn create_image(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
-        tracing::debug!("Sending create image request");
+    async fn image_generation(&self, task: &ModelTask) -> Result<ModelOutput> {
+        tracing::debug!("Sending image generation request");
 
         // Create a prompt from the last message (assumed to be a user message)
         let prompt = task
-            .instruction_messages()
+            .messages
             .last()
             .map(|message| {
                 message
@@ -324,7 +314,7 @@ impl OpenAIModel {
         let mut request = CreateImageRequestArgs::default();
         let request = request.prompt(prompt).response_format(ResponseFormat::Url);
 
-        if let Some((w, h)) = options.image_size {
+        if let Some((w, h)) = task.image_size {
             match (w, h) {
                 (256, 256) => {
                     request.size(ImageSize::S256x256);
@@ -345,7 +335,7 @@ impl OpenAIModel {
             };
         }
 
-        if let Some(quality) = &options.image_quality {
+        if let Some(quality) = &task.image_quality {
             match quality.to_lowercase().as_str() {
                 "std" | "standard" => {
                     request.quality(ImageQuality::Standard);
@@ -357,7 +347,7 @@ impl OpenAIModel {
             };
         }
 
-        if let Some(style) = &options.image_style {
+        if let Some(style) = &task.image_style {
             match style.to_lowercase().as_str() {
                 "nat" | "natural" => {
                     request.style(ImageStyle::Natural);
@@ -371,10 +361,10 @@ impl OpenAIModel {
 
         let request = request.build()?;
 
-        // Warn about ignored options
+        // Warn about ignored task options
         macro_rules! ignore_option {
             ($name:ident) => {
-                if options.$name.is_some() {
+                if task.$name.is_some() {
                     tracing::warn!(
                         "Option `{}` is ignored by model `{}` for text-to-image generation",
                         stringify!($name),
@@ -405,8 +395,8 @@ impl OpenAIModel {
             top_p
         );
 
-        if options.dry_run {
-            return GenerateOutput::empty(self);
+        if task.dry_run {
+            return ModelOutput::empty(self);
         }
 
         // Send the request
@@ -421,7 +411,7 @@ impl OpenAIModel {
 
         match image.as_ref() {
             Image::Url { url, .. } => {
-                GenerateOutput::from_url(self, "image/png", url.to_string()).await
+                ModelOutput::from_url(self, "image/png", url.to_string()).await
             }
             _ => bail!("Unexpected image type"),
         }
@@ -524,11 +514,9 @@ mod tests {
             .iter()
             .find(|model| model.title().starts_with("GPT"))
             .unwrap();
-        let output = model
-            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
-            .await?;
+        let output = model.perform_task(&test_task_repeat_word()).await?;
 
-        assert_eq!(output.content, "HELLO".to_string());
+        assert_eq!(output.content.trim(), "HELLO".to_string());
 
         Ok(())
     }

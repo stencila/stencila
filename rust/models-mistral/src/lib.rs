@@ -13,7 +13,7 @@ use model::{
         tracing,
     },
     schema::{MessagePart, MessageRole},
-    secrets, GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
+    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -34,9 +34,9 @@ struct MistralModel {
 
 impl MistralModel {
     /// Create a Mistral model
-    fn new(model: String, context_length: usize) -> Self {
+    fn new(model: &str, context_length: usize) -> Self {
         Self {
-            model,
+            model: model.into(),
             context_length,
             client: Client::new(),
         }
@@ -66,19 +66,11 @@ impl Model for MistralModel {
     }
 
     #[tracing::instrument(skip(self))]
-    async fn perform_task(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
+    async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
         let messages = task
-            .system_prompt()
+            .messages
             .iter()
-            .map(|prompt| ChatMessage {
-                role: ChatRole::System,
-                content: prompt.clone(),
-            })
-            .chain(task.instruction_messages().iter().map(|message| {
+            .map(|message| {
                 let role = match message.role.clone().unwrap_or_default() {
                     MessageRole::Assistant => ChatRole::Assistant,
                     MessageRole::System => ChatRole::System,
@@ -101,20 +93,20 @@ impl Model for MistralModel {
                     .join("");
 
                 ChatMessage { role, content }
-            }))
+            })
             .collect();
 
         let request = ChatCompletionRequest {
             model: self.model.clone(),
             messages,
-            temperature: options.temperature,
-            top_p: options.top_p,
-            max_tokens: options.max_tokens,
-            random_seed: options.seed,
+            temperature: task.temperature,
+            top_p: task.top_p,
+            max_tokens: task.max_tokens,
+            random_seed: task.seed,
         };
 
-        if options.dry_run {
-            return GenerateOutput::empty(self);
+        if task.dry_run {
+            return ModelOutput::empty(self);
         }
 
         let response = self
@@ -133,7 +125,7 @@ impl Model for MistralModel {
 
         let text = response.choices.swap_remove(0).message.content;
 
-        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
+        ModelOutput::from_text(self, &task.format, text).await
     }
 }
 
@@ -210,7 +202,7 @@ enum ChatRole {
 
 /// Get a list of available Mistral assistants
 ///
-/// Returns an empty list, if the `MISTRAL_API_KEY` env var is not set.
+/// Returns an empty list if the `MISTRAL_API_KEY` env var is not set.
 ///
 /// Memoized for an hour to reduce the number of times that the
 /// remote API need to be called to get a list of available models.
@@ -242,10 +234,11 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
                 "mistral-tiny" => 4_096,
                 "mistral-small" => 8_192,
                 "mistral-medium" => 32_768,
+                "mistral-large" => 128_000,
                 _ => 4_096,
             };
 
-            Arc::new(MistralModel::new(model, context_length)) as Arc<dyn Model>
+            Arc::new(MistralModel::new(&model, context_length)) as Arc<dyn Model>
         })
         .collect();
 
@@ -276,12 +269,10 @@ mod tests {
             return Ok(());
         }
 
-        let model = &list().await?[0];
-        let output = model
-            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
-            .await?;
+        let model = MistralModel::new("mistral-large-latest", 0);
+        let output = model.perform_task(&test_task_repeat_word()).await?;
 
-        assert!(output.content.starts_with("HELLO"));
+        assert_eq!(output.content.trim(), "HELLO");
 
         Ok(())
     }

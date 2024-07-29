@@ -17,7 +17,7 @@ use model::{
         tracing,
     },
     schema::{self, ImageObject, MessagePart},
-    GenerateOptions, GenerateOutput, GenerateTask, Model, ModelIO, ModelType,
+    Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
 /// A model running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -118,16 +118,11 @@ impl Model for OllamaModel {
         &[ModelIO::Text]
     }
 
-    async fn perform_task(
-        &self,
-        task: &GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<GenerateOutput> {
+    async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
         let messages = task
-            .system_prompt()
+            .messages
             .iter()
-            .map(|prompt| ChatMessage::new(MessageRole::System, prompt.clone()))
-            .chain(task.instruction_messages().iter().map(|message| {
+            .map(|message| {
                 let role = match message.role.clone().unwrap_or_default() {
                     schema::MessageRole::Assistant => MessageRole::Assistant,
                     schema::MessageRole::System => MessageRole::System,
@@ -170,17 +165,17 @@ impl Model for OllamaModel {
                         Some(images)
                     },
                 }
-            }))
+            })
             .collect();
 
         let mut request = ChatMessageRequest::new(self.model.clone(), messages);
 
         // Map options to Ollama options
-        let mut opts = GenerationOptions::default();
+        let mut options = GenerationOptions::default();
         macro_rules! map_option {
             ($from:ident, $to:ident) => {
-                if let Some(value) = &options.$from {
-                    opts = opts.$to(value.clone());
+                if let Some(value) = &task.$from {
+                    options = options.$to(value.clone());
                 }
             };
             ($name:ident) => {
@@ -189,7 +184,7 @@ impl Model for OllamaModel {
         }
         macro_rules! ignore_option {
             ($name:ident) => {
-                if options.$name.is_some() {
+                if task.$name.is_some() {
                     tracing::warn!(
                         "Option `{}` is ignored by model `{}` for text-to-text generation",
                         stringify!($name),
@@ -209,11 +204,11 @@ impl Model for OllamaModel {
         map_option!(repeat_penalty);
         map_option!(temperature);
         map_option!(seed);
-        if let Some(value) = &options.stop {
-            opts = opts.stop(vec![value.clone()]);
+        if let Some(value) = &task.stop {
+            options = options.stop(vec![value.clone()]);
         }
-        if let Some(value) = options.max_tokens {
-            opts = opts.num_predict(value as i32);
+        if let Some(value) = task.max_tokens {
+            options = options.num_predict(value as i32);
         }
         map_option!(tfs_z);
         map_option!(top_k);
@@ -222,10 +217,10 @@ impl Model for OllamaModel {
         ignore_option!(image_quality);
         ignore_option!(image_style);
 
-        request.options = Some(opts);
+        request.options = Some(options);
 
-        if options.dry_run {
-            return GenerateOutput::empty(self);
+        if task.dry_run {
+            return ModelOutput::empty(self);
         }
 
         let response = self
@@ -239,7 +234,7 @@ impl Model for OllamaModel {
             .map(|message| message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(self, task.format(), task.instruction(), options, text).await
+        ModelOutput::from_text(self, &task.format, text).await
     }
 }
 
@@ -290,12 +285,9 @@ mod tests {
         let Some(model) = list.first() else {
             return Ok(());
         };
+        let output = model.perform_task(&test_task_repeat_word()).await?;
 
-        let output = model
-            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
-            .await?;
-
-        assert_eq!(output.content, "HELLO".to_string());
+        assert_eq!(output.content.trim(), "HELLO".to_string());
 
         Ok(())
     }
