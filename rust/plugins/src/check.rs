@@ -7,8 +7,8 @@ use common::{
 };
 use kernel::schema::{Node, Null};
 use model::{
-    schema::{InstructionInline, InstructionMessage, MessagePart},
-    GenerateOptions, GenerateTask, Instruction,
+    schema::{InstructionMessage, MessagePart},
+    ModelTask,
 };
 
 use crate::Plugin;
@@ -82,25 +82,22 @@ pub async fn check(name: &str) -> Result<Message> {
         instance.stop().await?;
     }
 
-    // Assistants
-    for assistant in plugin.assistants() {
-        tracing::info!("Checking plugin `{name}` assistant `{}`", assistant.name());
+    // Models
+    for model in plugin.models() {
+        tracing::info!("Checking plugin `{name}` model `{}`", model.name());
 
-        // Create a task for the assistant
-        let instruction = Instruction::from(InstructionInline {
-            message: Some(InstructionMessage {
+        // Create a task for the model
+        let task = ModelTask {
+            messages: vec![InstructionMessage {
                 parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
                 ..Default::default()
-            }),
+            }],
             ..Default::default()
-        });
-        let task = GenerateTask::new(instruction, None);
+        };
 
-        // Get the assistant to perform the task. Return value is not
+        // Get the model to perform the task. Return value is not
         // checked since that will depend upon implementation
-        assistant
-            .perform_task(&task, &GenerateOptions::default())
-            .await?;
+        model.perform_task(&task).await?;
     }
 
     Ok(message!(

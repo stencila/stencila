@@ -19,12 +19,11 @@ from stencila_types.types import (
 )
 from stencila_types.utilities import from_value, make_stencila_converter
 
-from .assistant import (
-    Assistant,
-    AssistantId,
-    GenerateOptions,
-    GenerateOutput,
-    GenerateTask,
+from .model import (
+    Model,
+    ModelName,
+    ModelOutput,
+    ModelTask,
 )
 from .kernel import Kernel, KernelId, KernelInstance, KernelName
 
@@ -197,27 +196,16 @@ class Plugin:
         if kernel:
             await kernel.remove_variable(name)
 
-    async def assistant_system_prompt(
-        self, task: GenerateTask, options: GenerateOptions, assistant: AssistantId
-    ) -> str | None:
-        instance = self.assistants.get(assistant)
-        # Error?
-        if instance is None:
-            return None
-        task = structure(task, GenerateTask)
-        options = structure(options, GenerateOptions)
-        return await instance.system_prompt(task, options)
-
-    async def assistant_perform_task(
-        self, task: dict[str, Any], options: dict[str, Any], assistant: AssistantId
-    ) -> GenerateOutput:
-        instance = self.assistants.get(assistant)
+    async def model_perform_task(
+        self, task: dict[str, Any], options: dict[str, Any], model: ModelId
+    ) -> ModelOutput:
+        instance = self.models.get(model)
         if instance is None:
             # TODO: Unclear how errors are handled here.
             return None
 
-        task = structure(task, GenerateTask)
-        options = structure(options, GenerateOptions)
+        task = structure(task, ModelTask)
+        options = structure(options, ModelOptions)
         return await instance.perform_task(task, options)
 
     async def run(self) -> None:

@@ -10,7 +10,7 @@ use schema::InstructionMessage;
 
 /// The kind of generative model task
 #[derive(Debug, Default, Display, Clone, Copy, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
 pub enum ModelTaskKind {
     /// Given a list of input messages, generate the next message in a conversation
     ///

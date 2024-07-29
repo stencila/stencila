@@ -463,7 +463,7 @@ class Thing(Entity):
     alternate_names: list[str] | None = None
     """Alternate names (aliases) for the item."""
 
-    description: Text | None = None
+    description: Cord | None = None
     """A description of the item."""
 
     identifiers: list[PropertyValue | str] | None = None
@@ -1041,6 +1041,24 @@ class Article(CreativeWork, Executable):
 
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Assistant(CreativeWork, Executable):
+    """
+    An assistant.
+    """
+
+    type: Literal["Assistant"] = "Assistant"
+
+    instruction_types: list[InstructionType]
+    """The types of instructions that the assistant supports"""
+
+    node_types: list[str]
+    """The types of nodes that the assistant supports"""
+
+    content: list[Block]
+    """The content of the article."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2913,6 +2931,7 @@ Union type in block content node types.
 
 CreativeWorkType = Union[
     Article,
+    Assistant,
     AudioObject,
     Claim,
     Collection,
@@ -3050,6 +3069,7 @@ Node = Union[
     ArrayHint,
     ArrayValidator,
     Article,
+    Assistant,
     AudioObject,
     AuthorRole,
     BooleanValidator,
@@ -3180,6 +3200,7 @@ Union type for all types in this schema, including primitives and entities
 ThingType = Union[
     AdmonitionType,
     Article,
+    Assistant,
     AudioObject,
     AuthorRoleName,
     Brand,
@@ -3282,6 +3303,7 @@ TYPES = [
     ArrayHint,
     ArrayValidator,
     Article,
+    Assistant,
     AudioObject,
     AuthorRole,
     BooleanValidator,

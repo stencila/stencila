@@ -43,10 +43,10 @@ use codec::{format::Format, Codec};
 use kernel::Kernel;
 use model::Model;
 
-use assistants::PluginAssistant;
 use codecs::PluginCodec;
 use kernels::PluginKernel;
 use list::{list, ListArgs};
+use models::PluginModel;
 
 mod check;
 mod disable;
@@ -57,10 +57,10 @@ mod list;
 mod show;
 mod uninstall;
 
-pub mod assistants;
 pub mod cli;
 pub mod codecs;
 pub mod kernels;
+pub mod models;
 
 /// The name of the manifest file within a plugin's installation
 /// directory. Changing this value will break existing installations.
@@ -153,10 +153,6 @@ pub struct Plugin {
     #[serde(default)]
     linked: bool,
 
-    /// The assistants provided by the plugin
-    #[serde(default)]
-    assistants: Vec<PluginAssistant>,
-
     /// The codecs provided by the plugin
     #[serde(default)]
     codecs: Vec<PluginCodec>,
@@ -164,6 +160,10 @@ pub struct Plugin {
     /// The execution kernels provided by the plugin
     #[serde(default)]
     kernels: Vec<PluginKernel>,
+
+    /// The models provided by the plugin
+    #[serde(default)]
+    models: Vec<PluginModel>,
 }
 
 impl Plugin {
@@ -489,21 +489,6 @@ impl Plugin {
         )
     }
 
-    /// Get a list of assistants provided by the plugin
-    ///
-    /// Each assistant is bound to this plugin so that it can
-    /// be started (by starting the plugin first).
-    fn assistants(&self) -> Vec<Arc<dyn Model>> {
-        self.assistants
-            .clone()
-            .into_iter()
-            .map(|mut assistant| {
-                assistant.bind(self);
-                Arc::new(assistant) as Arc<dyn Model>
-            })
-            .collect()
-    }
-
     /// Get a list of codecs provided by the plugin
     ///
     /// Each codec is bound to this plugin so that it can
@@ -530,6 +515,21 @@ impl Plugin {
             .map(|mut kernel| {
                 kernel.bind(self);
                 Box::new(kernel) as Box<dyn Kernel>
+            })
+            .collect()
+    }
+
+    /// Get a list of models provided by the plugin
+    ///
+    /// Each model is bound to this plugin so that it can
+    /// be started (by starting the plugin first).
+    fn models(&self) -> Vec<Arc<dyn Model>> {
+        self.models
+            .clone()
+            .into_iter()
+            .map(|mut model| {
+                model.bind(self);
+                Arc::new(model) as Arc<dyn Model>
             })
             .collect()
     }

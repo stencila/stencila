@@ -12,15 +12,9 @@ import {
   Variable,
 } from "@stencila/types";
 
-import {
-  Assistant,
-  AssistantName,
-  GenerateOptions,
-  GenerateOutput,
-  GenerateTask,
-} from "./assistant.js";
 import { Codec, CodecName, DecodeInfo, EncodeInfo } from "./codec.js";
 import { KernelInstanceName, KernelName, Kernel } from "./kernel.js";
+import { Model, ModelName, ModelOutput, ModelTask } from "./model.js";
 
 /**
  * A base plugin class for Stencila plugins built with Node.js
@@ -45,9 +39,9 @@ export class Plugin {
   kernelInstances: Record<KernelInstanceName, Kernel> = {};
 
   /**
-   * The assistants the plugin provides
+   * The models the plugin provides
    */
-  assistants: Record<AssistantName, Assistant> = {};
+  models: Record<ModelName, Model> = {};
 
   /**
    * Get the health of the plugin
@@ -296,57 +290,27 @@ export class Plugin {
   }
 
   /**
-   * JSON-RPC interface for `Assistant.systemPrompt`
-   *
-   * @param {Object}
-   * @param task The task to create a system prompt template for
-   * @param options Options for generation
-   * @param assistant The name of the assistant that should create the system prompt
-   *
-   * @return string
-   */
-  protected async assistant_system_prompt({
-    task,
-    options,
-    assistant,
-  }: {
-    task: GenerateTask;
-    options: GenerateOptions;
-    assistant: AssistantName;
-  }): Promise<string> {
-    const instance = this.assistants[assistant];
-    if (instance === undefined) {
-      throw new Error(`No assistant named '${assistant}'`);
-    }
-
-    return await instance.systemPrompt(task, options);
-  }
-
-  /**
-   * JSON-RPC interface for `Assistant.performTask`
+   * JSON-RPC interface for `Model.performTask`
    *
    * @param {Object}
    * @param task The task to perform
-   * @param options Options for generation
-   * @param assistant The name of the assistant that should perform the task
+   * @param assistant The name of the model that should perform the task
    *
-   * @return GenerateOutput
+   * @return ModelOutput
    */
-  protected async assistant_perform_task({
+  protected async model_perform_task({
     task,
-    options,
-    assistant,
+    model,
   }: {
-    task: GenerateTask;
-    options: GenerateOptions;
-    assistant: AssistantName;
-  }): Promise<GenerateOutput> {
-    const instance = this.assistants[assistant];
+    task: ModelTask;
+    model: ModelName;
+  }): Promise<ModelOutput> {
+    const instance = this.models[model];
     if (instance === undefined) {
-      throw new Error(`No assistant named '${assistant}'`);
+      throw new Error(`No model named '${model}'`);
     }
 
-    return await instance.performTask(task, options);
+    return await instance.performTask(task);
   }
 
   /**
@@ -385,7 +349,7 @@ export class Plugin {
     function errorResponse(
       id: string | null,
       code: number,
-      message: string,
+      message: string
     ): string {
       return JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } });
     }
@@ -457,7 +421,7 @@ export class Plugin {
                 jsonrpc: "2.0",
                 error: { code: -32603, message: "Internal error" },
                 id: null,
-              }),
+              })
             );
           }
         });
@@ -481,7 +445,7 @@ export class Plugin {
     } else if (protocol == "http") {
       this.listenHttp(
         parseInt(process.env.STENCILA_PORT!),
-        process.env.STENCILA_TOKEN!,
+        process.env.STENCILA_TOKEN!
       );
     } else {
       throw Error(`Unknown protocol: ${protocol}`);
