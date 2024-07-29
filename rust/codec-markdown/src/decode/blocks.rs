@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use markdown::{mdast, unist::Position};
 use winnow::{
@@ -14,9 +14,9 @@ use codec::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
-        ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
-        TableRowType, Text, ThematicBreak,
+        InstructionType, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
+        Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table,
+        TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 
@@ -573,15 +573,17 @@ fn instruction_block_shortcut(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         ("/", multispace0),
         (
-            opt(delimited('@', assignee, multispace0)),
+            alt(("new", "edit", "update")),
+            opt(preceded((multispace0, '@'), assignee)),
             opt(take_while(1.., |_| true)),
         ),
     )
-    .map(|(assignee, message): (Option<&str>, Option<&str>)| {
+    .map(|(instruction_type, assignee, message)| {
         Block::InstructionBlock(InstructionBlock {
-            message: message.map(InstructionMessage::from),
-            content: None,
+            instruction_type: InstructionType::from_str(instruction_type).unwrap_or_default(),
             assignee: assignee.map(String::from),
+            message: message.map(|message| InstructionMessage::from(message.trim())),
+            content: None,
             ..Default::default()
         })
     })
@@ -618,7 +620,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 let (text, has_content) = message.unwrap_or_default();
 
                 let text = text.trim();
-                let message = (!text.is_empty()).then(|| InstructionMessage::from(text));
+                let message = (!text.is_empty()).then(|| InstructionMessage::from(text.trim()));
 
                 let mut replicates: Option<u64> = None;
                 let mut temperature: Option<u64> = None;

@@ -141,11 +141,13 @@ impl MarkdownCodec for InstructionBlock {
                 )
                 .newline();
         } else {
-            context
-                .push_semis()
-                .push_str(" ")
-                .push_str(&instruction_type)
-                .push_str(" ");
+            if self.content.is_some() {
+                context.push_semis().push_str(" ");
+            } else {
+                context.push_str("/ ");
+            }
+
+            context.push_str(&instruction_type).push_str(" ");
 
             if let Some(assignee) = &self.assignee {
                 context.push_str("@").push_str(assignee).push_str(" ");
@@ -222,7 +224,11 @@ impl MarkdownCodec for InstructionBlock {
                     });
             };
 
-            context.push_semis().newline().newline();
+            if self.content.is_some() {
+                context.push_semis().newline();
+            }
+
+            context.newline();
         }
 
         if let Some(suggestions) = &self.suggestions {
