@@ -11,17 +11,15 @@
         {
           type: "InstructionInline",
           instructionType: "New",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "insert an inline" }
-                }
-              ]
-            }
-          ]
+          message: {
+            type: "InstructionMessage",
+            parts: [
+              {
+                type: "Text",
+                value: { string: "insert an inline" }
+              }
+            ]
+          }
         },
         {
           type: "Text",
@@ -39,17 +37,15 @@
         {
           type: "InstructionInline",
           instructionType: "New",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "improve this" }
-                }
-              ]
-            }
-          ],
+          message: {
+            type: "InstructionMessage",
+            parts: [
+              {
+                type: "Text",
+                value: { string: "improve this" }
+              }
+            ]
+          },
           content: [
             {
               type: "Text",
@@ -73,17 +69,15 @@
         {
           type: "InstructionInline",
           instructionType: "New",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "equation for surface area of cube" }
-                }
-              ]
-            }
-          ],
+          message: {
+            type: "InstructionMessage",
+            parts: [
+              {
+                type: "Text",
+                value: { string: "equation for surface area of cube" }
+              }
+            ]
+          },
           assignee: "insert-inline-math"
         },
         {
@@ -93,17 +87,6 @@
         {
           type: "InstructionInline",
           instructionType: "New",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "" }
-                }
-              ]
-            }
-          ],
           assignee: "insert-math-inline"
         },
         {
@@ -113,17 +96,15 @@
         {
           type: "InstructionInline",
           instructionType: "Edit",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "please improve this" }
-                }
-              ]
-            }
-          ],
+          message: {
+            type: "InstructionMessage",
+            parts: [
+              {
+                type: "Text",
+                value: { string: "please improve this" }
+              }
+            ]
+          },
           assignee: "joe",
           content: [
             {
@@ -148,17 +129,15 @@
         {
           type: "InstructionInline",
           instructionType: "New",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "area of circle" }
-                }
-              ]
-            }
-          ],
+          message: {
+            type: "InstructionMessage",
+            parts: [
+              {
+                type: "Text",
+                value: { string: "area of circle" }
+              }
+            ]
+          },
           assignee: "insert-inline-math",
           suggestions: [
             {
@@ -179,17 +158,15 @@
         {
           type: "InstructionInline",
           instructionType: "Edit",
-          messages: [
-            {
-              type: "InstructionMessage",
-              parts: [
-                {
-                  type: "Text",
-                  value: { string: "improve" }
-                }
-              ]
-            }
-          ],
+          message: {
+            type: "InstructionMessage",
+            parts: [
+              {
+                type: "Text",
+                value: { string: "improve" }
+              }
+            ]
+          },
           content: [
             {
               type: "Text",

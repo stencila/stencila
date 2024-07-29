@@ -12,12 +12,10 @@
         {
           "type": "InstructionInline",
           "instructionType": "New",
-          "messages": [
-            {
-              "type": "InstructionMessage",
-              "parts": [{ "type": "Text", "value": "insert an inline" }]
-            }
-          ]
+          "message": {
+            "type": "InstructionMessage",
+            "parts": [{ "type": "Text", "value": "insert an inline" }]
+          }
         },
         {
           "type": "Text",
@@ -35,12 +33,10 @@
         {
           "type": "InstructionInline",
           "instructionType": "New",
-          "messages": [
-            {
-              "type": "InstructionMessage",
-              "parts": [{ "type": "Text", "value": "improve this" }]
-            }
-          ],
+          "message": {
+            "type": "InstructionMessage",
+            "parts": [{ "type": "Text", "value": "improve this" }]
+          },
           "content": [
             {
               "type": "Text",
@@ -65,14 +61,12 @@
           "type": "InstructionInline",
           "instructionType": "New",
           "assignee": "insert-inline-math",
-          "messages": [
-            {
-              "type": "InstructionMessage",
-              "parts": [
-                { "type": "Text", "value": "equation for surface area of cube" }
-              ]
-            }
-          ]
+          "message": {
+            "type": "InstructionMessage",
+            "parts": [
+              { "type": "Text", "value": "equation for surface area of cube" }
+            ]
+          }
         },
         {
           "type": "Text",
@@ -81,13 +75,7 @@
         {
           "type": "InstructionInline",
           "instructionType": "New",
-          "assignee": "insert-math-inline",
-          "messages": [
-            {
-              "type": "InstructionMessage",
-              "parts": [{ "type": "Text", "value": "" }]
-            }
-          ]
+          "assignee": "insert-math-inline"
         },
         {
           "type": "Text",
@@ -97,12 +85,10 @@
           "type": "InstructionInline",
           "instructionType": "Edit",
           "assignee": "joe",
-          "messages": [
-            {
-              "type": "InstructionMessage",
-              "parts": [{ "type": "Text", "value": "please improve this" }]
-            }
-          ],
+          "message": {
+            "type": "InstructionMessage",
+            "parts": [{ "type": "Text", "value": "please improve this" }]
+          },
           "content": [
             {
               "type": "Text",
@@ -127,16 +113,16 @@
           "type": "InstructionInline",
           "instructionType": "New",
           "assignee": "insert-inline-math",
-          "messages": [
+          "message": {
+            "type": "InstructionMessage",
+            "parts": [{ "type": "Text", "value": "area of circle" }]
+          },
+          "suggestions": [
             {
-              "type": "InstructionMessage",
-              "parts": [{ "type": "Text", "value": "area of circle" }]
+              "type": "SuggestionInline",
+              "content": [{ "type": "MathInline", "code": "2 /pi r^2" }]
             }
-          ],
-          "suggestions": [{
-            "type": "SuggestionInline",
-            "content": [{ "type": "MathInline", "code": "2 /pi r^2" }]
-          }]
+          ]
         },
         {
           "type": "Text",
@@ -145,17 +131,17 @@
         {
           "type": "InstructionInline",
           "instructionType": "Edit",
-          "messages": [
-            {
-              "type": "InstructionMessage",
-              "parts": [{ "type": "Text", "value": "improve" }]
-            }
-          ],
+          "message": {
+            "type": "InstructionMessage",
+            "parts": [{ "type": "Text", "value": "improve" }]
+          },
           "content": [{ "type": "Text", "value": "existing content" }],
-          "suggestions": [{
-            "type": "SuggestionInline",
-            "content": [{ "type": "Text", "value": "improved content" }]
-          }]
+          "suggestions": [
+            {
+              "type": "SuggestionInline",
+              "content": [{ "type": "Text", "value": "improved content" }]
+            }
+          ]
         },
         {
           "type": "Text",

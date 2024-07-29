@@ -4,7 +4,7 @@
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph with an instruction to insert content</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New>
-          <div slot=messages>
+          <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
                 <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>insert an inline</stencila-text>
@@ -19,7 +19,7 @@
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph with an instruction to edit some existing content:</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New>
-          <div slot=messages>
+          <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
                 <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>improve this</stencila-text>
@@ -37,7 +37,7 @@
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Instructions with an assignee:</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New assignee=insert-inline-math>
-          <div slot=messages>
+          <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
                 <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>equation for surface area of cube</stencila-text>
@@ -47,18 +47,10 @@
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>with a blank instruction</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New assignee=insert-math-inline>
-          <div slot=messages>
-            <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
-              <div slot=parts>
-                <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>
-                </stencila-text>
-              </div>
-            </stencila-instruction-message>
-          </div>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>and</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit assignee=joe>
-          <div slot=messages>
+          <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
                 <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>please improve this</stencila-text>
@@ -76,7 +68,7 @@
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Instructions with a suggestion:</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=New assignee=insert-inline-math>
-          <div slot=messages>
+          <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
                 <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>area of circle</stencila-text>
@@ -94,7 +86,7 @@
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>and</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit>
-          <div slot=messages>
+          <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
                 <stencila-text id=xxx depth=4 ancestors=Article.Paragraph.InstructionInline.InstructionMessage>improve</stencila-text>

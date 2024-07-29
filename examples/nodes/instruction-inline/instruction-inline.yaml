@@ -7,8 +7,8 @@ content:
       string: 'A paragraph with an instruction to insert content '
   - type: InstructionInline
     instructionType: New
-    messages:
-    - type: InstructionMessage
+    message:
+      type: InstructionMessage
       parts:
       - type: Text
         value:
@@ -23,8 +23,8 @@ content:
       string: 'A paragraph with an instruction to edit some existing content: '
   - type: InstructionInline
     instructionType: New
-    messages:
-    - type: InstructionMessage
+    message:
+      type: InstructionMessage
       parts:
       - type: Text
         value:
@@ -43,8 +43,8 @@ content:
       string: 'Instructions with an assignee: '
   - type: InstructionInline
     instructionType: New
-    messages:
-    - type: InstructionMessage
+    message:
+      type: InstructionMessage
       parts:
       - type: Text
         value:
@@ -55,20 +55,14 @@ content:
       string: ' with a blank instruction '
   - type: InstructionInline
     instructionType: New
-    messages:
-    - type: InstructionMessage
-      parts:
-      - type: Text
-        value:
-          string: ''
     assignee: insert-math-inline
   - type: Text
     value:
       string: ' and '
   - type: InstructionInline
     instructionType: Edit
-    messages:
-    - type: InstructionMessage
+    message:
+      type: InstructionMessage
       parts:
       - type: Text
         value:
@@ -88,8 +82,8 @@ content:
       string: 'Instructions with a suggestion: '
   - type: InstructionInline
     instructionType: New
-    messages:
-    - type: InstructionMessage
+    message:
+      type: InstructionMessage
       parts:
       - type: Text
         value:
@@ -106,8 +100,8 @@ content:
       string: ' and '
   - type: InstructionInline
     instructionType: Edit
-    messages:
-    - type: InstructionMessage
+    message:
+      type: InstructionMessage
       parts:
       - type: Text
         value:

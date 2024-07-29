@@ -2,22 +2,22 @@
   <p>
     <span>An insert instruction with no assignee:</span>
   </p>
-  <stencila-instruction-block instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"a 4x10 table"}}]}]'>
+  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"a 4x10 table"}}]}'>
   </stencila-instruction-block>
   <p>
     <span>An insert instruction with an assignee:</span>
   </p>
-  <stencila-instruction-block instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"top five highest mountains, with height in metres"}}]}]' assignee='table'>
+  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"top five highest mountains, with height in metres"}}]}' assignee='table'>
   </stencila-instruction-block>
   <p>
     <span>An insert instruction with an assignee but a blank instruction</span>
   </p>
-  <stencila-instruction-block instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":""}}]}]' assignee='code-chunk'>
+  <stencila-instruction-block instruction-type='New' assignee='code-chunk'>
   </stencila-instruction-block>
   <p>
     <span>An edit instruction (has content) with no assignee:</span>
   </p>
-  <stencila-instruction-block instruction-type='Edit' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this paragraph"}}]}]'>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this paragraph"}}]}'>
     <p>
       <span>The paragraph to be improved.</span>
     </p>
@@ -25,7 +25,7 @@
   <p>
     <span>An edit instruction with an assignee:</span>
   </p>
-  <stencila-instruction-block instruction-type='Edit' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"please improve this paragraph"}}]}]' assignee='anne'>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"please improve this paragraph"}}]}' assignee='anne'>
     <p>
       <span>Another paragraph to be improved.</span>
     </p>
@@ -33,12 +33,12 @@
   <p>
     <span>An insert instruction with an assignee and a suggestion:</span>
   </p>
-  <stencila-instruction-block instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"analyze data"}}]}]' assignee='code-chunk' suggestions='[{"type":"SuggestionBlock","content":[{"type":"CodeChunk","code":{"string":"some code"}}]}]'>
+  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"analyze data"}}]}' assignee='code-chunk' suggestions='[{"type":"SuggestionBlock","content":[{"type":"CodeChunk","code":{"string":"some code"}}]}]'>
   </stencila-instruction-block>
   <p>
     <span>An edit instruction with a suggestion:</span>
   </p>
-  <stencila-instruction-block instruction-type='Edit' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"more succinct"}}]}]' suggestions='[{"type":"SuggestionBlock","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"A paragraph."}}]}]}]'>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"more succinct"}}]}' suggestions='[{"type":"SuggestionBlock","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"A paragraph."}}]}]}]'>
     <p>
       <span>A rather long winded paragraph.</span>
     </p>

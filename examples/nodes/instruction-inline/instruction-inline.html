@@ -1,36 +1,36 @@
 <article>
   <p>
     <span>A paragraph with an instruction to insert content</span>
-    <stencila-instruction-inline instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"insert an inline"}}]}]'>
+    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"insert an inline"}}]}'>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>A paragraph with an instruction to edit some existing content:</span>
-    <stencila-instruction-inline instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this"}}]}]'>
+    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this"}}]}'>
       <span>existing content</span>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>Instructions with an assignee:</span>
-    <stencila-instruction-inline instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"equation for surface area of cube"}}]}]' assignee='insert-inline-math'>
+    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"equation for surface area of cube"}}]}' assignee='insert-inline-math'>
     </stencila-instruction-inline>
     <span>with a blank instruction</span>
-    <stencila-instruction-inline instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":""}}]}]' assignee='insert-math-inline'>
+    <stencila-instruction-inline instruction-type='New' assignee='insert-math-inline'>
     </stencila-instruction-inline>
     <span>and</span>
-    <stencila-instruction-inline instruction-type='Edit' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"please improve this"}}]}]' assignee='joe'>
+    <stencila-instruction-inline instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"please improve this"}}]}' assignee='joe'>
       <span>existing content</span>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>Instructions with a suggestion:</span>
-    <stencila-instruction-inline instruction-type='New' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"area of circle"}}]}]' assignee='insert-inline-math' suggestions='[{"type":"SuggestionInline","content":[{"type":"MathInline","code":{"string":"2 /pi r^2"}}]}]'>
+    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"area of circle"}}]}' assignee='insert-inline-math' suggestions='[{"type":"SuggestionInline","content":[{"type":"MathInline","code":{"string":"2 /pi r^2"}}]}]'>
     </stencila-instruction-inline>
     <span>and</span>
-    <stencila-instruction-inline instruction-type='Edit' messages='[{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve"}}]}]' suggestions='[{"type":"SuggestionInline","content":[{"type":"Text","value":{"string":"improved content"}}]}]'>
+    <stencila-instruction-inline instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve"}}]}' suggestions='[{"type":"SuggestionInline","content":[{"type":"Text","value":{"string":"improved content"}}]}]'>
       <span>existing content</span>
     </stencila-instruction-inline>
     <span>.</span>

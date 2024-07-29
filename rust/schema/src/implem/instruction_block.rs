@@ -141,13 +141,11 @@ impl MarkdownCodec for InstructionBlock {
                 )
                 .newline();
         } else {
-            if self.content.is_some() {
-                context.push_semis().push_str(" ");
-            } else {
-                context.push_str("/ ");
-            }
-
-            context.push_str(&instruction_type).push_str(" ");
+            context
+                .push_semis()
+                .push_str(" ")
+                .push_str(&instruction_type)
+                .push_str(" ");
 
             if let Some(assignee) = &self.assignee {
                 context.push_str("@").push_str(assignee).push_str(" ");
@@ -209,24 +207,29 @@ impl MarkdownCodec for InstructionBlock {
             }
 
             if let Some(message) = &self.message {
-                context
-                    .push_prop_fn(NodeProperty::Message, |context| {
-                        message.to_markdown(context)
-                    })
-                    .newline();
+                context.push_prop_fn(NodeProperty::Message, |context| {
+                    message.to_markdown(context)
+                });
             }
 
             if let Some(content) = &self.content {
+                if !content.is_empty() {
+                    context.newline();
+                }
+
                 context
                     .newline()
                     .push_prop_fn(NodeProperty::Content, |context| {
                         content.to_markdown(context)
                     });
-            };
 
-            if self.content.is_some() {
-                context.push_semis().newline();
-            }
+                // Closing semis are only necessary if more than one
+                if content.len() > 1 {
+                    context.push_semis().newline();
+                }
+            } else {
+                context.newline();
+            };
 
             context.newline();
         }

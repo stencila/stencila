@@ -13,7 +13,7 @@ use codec::{
         serde_json, serde_yaml, tracing,
     },
     format::Format,
-    schema::{Article, Block, Inline, Node, NodeId, NodeType, VisitorMut, WalkControl},
+    schema::{Article, Assistant, Block, Inline, Node, NodeId, NodeType, VisitorMut, WalkControl},
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
 
@@ -37,19 +37,21 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
     }
     .map_err(|error| eyre!(error))?;
 
+    // Decode Markdown to blocks
     let mut context = Context::default();
-    let Some(mut node) = md_to_node(mdast, &mut context) else {
+    let Some(Node::Article(Article { content, .. })) = md_to_node(mdast, &mut context) else {
         bail!("No node decoded from Markdown")
     };
 
-    if let Some(Node::Article(front)) = context.frontmatter() {
-        if let Node::Article(body) = node {
-            node = Node::Article(Article {
-                content: body.content,
-                ..front
-            });
-        }
-    }
+    // Decode frontmatter (which may have a `type`, but defaults to `Article`)
+    let frontmatter = context.frontmatter();
+    let mut node = if let Some(Node::Article(rest)) = frontmatter {
+        Node::Article(Article { content, ..rest })
+    } else if let Some(Node::Assistant(rest)) = frontmatter {
+        Node::Assistant(Assistant { content, ..rest })
+    } else {
+        Node::Article(Article::new(content))
+    };
 
     if !context.footnotes.is_empty() {
         context.visit(&mut node);
@@ -244,7 +246,13 @@ impl Context {
         // Deserialize YAML to a value, and add `type: Article` if necessary
         let mut value = match serde_yaml::from_str(yaml) {
             Ok(serde_json::Value::Object(mut value)) => {
-                if value.get("type").is_none() {
+                if let Some(typ) = value.get("type").and_then(|typ| typ.as_str()) {
+                    // Ensure that `content` is present for types that require it, so that
+                    // `serde_json::from_value` succeeds
+                    if matches!(typ, "Article" | "Assistant") && value.get("content").is_none() {
+                        value.insert("content".to_string(), serde_json::Value::Array(vec![]));
+                    }
+                } else {
                     value.insert(
                         "type".to_string(),
                         serde_json::Value::String("Article".to_string()),
@@ -282,8 +290,8 @@ impl Context {
             (None, None)
         };
 
-        // Deserialize to a `Node` not that `type` is ensured to be present
-        let Ok(mut node) = serde_json::from_value(value) else {
+        // Deserialize to a `Node`: note that `type` is ensured to be present
+        let Ok(mut node) = serde_json::from_value::<Node>(value) else {
             tracing::warn!("Error while parsing YAML frontmatter, will be ignored",);
             return None;
         };

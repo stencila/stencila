@@ -1,17 +1,14 @@
 An insert instruction with no assignee:
 
 ::: new a 4x10 table
-:::
 
 An insert instruction with an assignee:
 
 ::: new @table top five highest mountains, with height in metres
-:::
 
 An insert instruction with an assignee but a blank instruction
 
 ::: new @code-chunk 
-:::
 
 An edit instruction (has content) with no assignee:
 
@@ -19,7 +16,6 @@ An edit instruction (has content) with no assignee:
 
 The paragraph to be improved.
 
-:::
 
 An edit instruction with an assignee:
 
@@ -27,12 +23,10 @@ An edit instruction with an assignee:
 
 Another paragraph to be improved.
 
-:::
 
 An insert instruction with an assignee and a suggestion:
 
 ::: new @code-chunk analyze data
-:::
 
 ::: suggest
 
@@ -48,7 +42,6 @@ An edit instruction with a suggestion:
 
 A rather long winded paragraph.
 
-:::
 
 ::: suggest
 

@@ -13,7 +13,7 @@ An insert instruction with an assignee:
 
 An insert instruction with an assignee but a blank instruction
 
-:::{new} 
+:::{new}
 :assign: code-chunk
 
 :::

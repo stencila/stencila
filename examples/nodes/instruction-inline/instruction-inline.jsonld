@@ -17,19 +17,17 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "New",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "insert an inline"
-                  }
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": [
+              {
+                "@type": "Text",
+                "value": {
+                  "string": "insert an inline"
                 }
-              ]
-            }
-          ]
+              }
+            ]
+          }
         },
         {
           "@type": "Text",
@@ -51,19 +49,17 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "New",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "improve this"
-                  }
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": [
+              {
+                "@type": "Text",
+                "value": {
+                  "string": "improve this"
                 }
-              ]
-            }
-          ],
+              }
+            ]
+          },
           "stencila:content": [
             {
               "@type": "Text",
@@ -93,19 +89,17 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "New",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "equation for surface area of cube"
-                  }
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": [
+              {
+                "@type": "Text",
+                "value": {
+                  "string": "equation for surface area of cube"
                 }
-              ]
-            }
-          ],
+              }
+            ]
+          },
           "stencila:assignee": "insert-inline-math"
         },
         {
@@ -117,19 +111,6 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "New",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": ""
-                  }
-                }
-              ]
-            }
-          ],
           "stencila:assignee": "insert-math-inline"
         },
         {
@@ -141,19 +122,17 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Edit",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "please improve this"
-                  }
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": [
+              {
+                "@type": "Text",
+                "value": {
+                  "string": "please improve this"
                 }
-              ]
-            }
-          ],
+              }
+            ]
+          },
           "stencila:assignee": "joe",
           "stencila:content": [
             {
@@ -184,19 +163,17 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "New",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "area of circle"
-                  }
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": [
+              {
+                "@type": "Text",
+                "value": {
+                  "string": "area of circle"
                 }
-              ]
-            }
-          ],
+              }
+            ]
+          },
           "stencila:assignee": "insert-inline-math",
           "stencila:suggestions": [
             {
@@ -221,19 +198,17 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Edit",
-          "stencila:messages": [
-            {
-              "@type": "stencila:InstructionMessage",
-              "hasParts": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "improve"
-                  }
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": [
+              {
+                "@type": "Text",
+                "value": {
+                  "string": "improve"
                 }
-              ]
-            }
-          ],
+              }
+            ]
+          },
           "stencila:content": [
             {
               "@type": "Text",

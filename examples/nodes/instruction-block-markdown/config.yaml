@@ -1,0 +1,6 @@
+md:
+  canonical: true
+
+compact.jats.xml:
+  decode:
+    skip: true

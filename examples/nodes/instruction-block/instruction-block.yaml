@@ -7,8 +7,8 @@ content:
       string: 'An insert instruction with no assignee:'
 - type: InstructionBlock
   instructionType: New
-  messages:
-  - type: InstructionMessage
+  message:
+    type: InstructionMessage
     parts:
     - type: Text
       value:
@@ -20,8 +20,8 @@ content:
       string: 'An insert instruction with an assignee:'
 - type: InstructionBlock
   instructionType: New
-  messages:
-  - type: InstructionMessage
+  message:
+    type: InstructionMessage
     parts:
     - type: Text
       value:
@@ -34,12 +34,6 @@ content:
       string: An insert instruction with an assignee but a blank instruction
 - type: InstructionBlock
   instructionType: New
-  messages:
-  - type: InstructionMessage
-    parts:
-    - type: Text
-      value:
-        string: ''
   assignee: code-chunk
 - type: Paragraph
   content:
@@ -48,8 +42,8 @@ content:
       string: 'An edit instruction (has content) with no assignee:'
 - type: InstructionBlock
   instructionType: Edit
-  messages:
-  - type: InstructionMessage
+  message:
+    type: InstructionMessage
     parts:
     - type: Text
       value:
@@ -67,8 +61,8 @@ content:
       string: 'An edit instruction with an assignee:'
 - type: InstructionBlock
   instructionType: Edit
-  messages:
-  - type: InstructionMessage
+  message:
+    type: InstructionMessage
     parts:
     - type: Text
       value:
@@ -87,8 +81,8 @@ content:
       string: 'An insert instruction with an assignee and a suggestion:'
 - type: InstructionBlock
   instructionType: New
-  messages:
-  - type: InstructionMessage
+  message:
+    type: InstructionMessage
     parts:
     - type: Text
       value:
@@ -107,8 +101,8 @@ content:
       string: 'An edit instruction with a suggestion:'
 - type: InstructionBlock
   instructionType: Edit
-  messages:
-  - type: InstructionMessage
+  message:
+    type: InstructionMessage
     parts:
     - type: Text
       value:

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::collections::HashMap;
 
 use markdown::{mdast, unist::Position};
 use winnow::{
@@ -147,7 +147,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                     false
                                 };
 
-                                // If the the block before this one was an instruction and this is a suggestion
+                                // If the block before this one was an instruction and this is a suggestion
                                 // then associate the two. Also extend the range of the mapping for the
                                 // instruction to the end of the suggestion.
                                 if is_suggestion
@@ -243,7 +243,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     } else if let Ok(block) = block(&mut Located::new(value.as_str())) {
                         // If this is the start of a "fenced div" block then push it on to
                         // blocks and add a boundary marker for its children.
-                        // This clause must come after `::: else` and others above to avoid `div_section`
+                        // This clause must come after `::: else` and others above to avoid `section`
                         // prematurely matching.
 
                         // Only add a boundary for blocks that will have children to collect
@@ -294,6 +294,24 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 blocks.push(block);
             }
         };
+
+        // If the previous block was an instruction that requires content (e.g an `edit` or an `update`)
+        // and that block does not yet have content then make the current block the content of that instruction
+        if let Some(Block::InstructionBlock(InstructionBlock {
+            instruction_type: InstructionType::Edit | InstructionType::Update,
+            content,
+            ..
+        })) = blocks.iter().rev().nth(1)
+        {
+            if content.iter().flatten().count() == 0 {
+                let last = blocks.pop().expect("Guaranteed by previous being present");
+                if let Some(Block::InstructionBlock(InstructionBlock { content, .. })) =
+                    blocks.last_mut()
+                {
+                    *content = Some(vec![last]);
+                }
+            }
+        }
     }
 
     blocks
@@ -301,31 +319,28 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
 /// Parse a "div": a paragraph starting with at least three semicolons
 fn block(input: &mut Located<&str>) -> PResult<Block> {
-    alt((
-        instruction_block_shortcut,
-        preceded(
-            (take_while(3.., ':'), space0),
-            alt((
-                call_block,
-                include_block,
-                code_chunk,
-                figure,
-                table,
-                for_block,
-                instruction_block,
-                suggestion_block,
-                delete_block,
-                insert_block,
-                replace_block,
-                modify_block,
-                claim,
-                styled_block,
-                // Section parser is permissive of label so needs to
-                // come last to avoid prematurely matching others above
-                div_section,
-            )),
-        ),
-    ))
+    preceded(
+        (take_while(3.., ':'), space0),
+        alt((
+            call_block,
+            include_block,
+            code_chunk,
+            figure,
+            table,
+            for_block,
+            instruction_block,
+            suggestion_block,
+            delete_block,
+            insert_block,
+            replace_block,
+            modify_block,
+            claim,
+            styled_block,
+            // Section parser is permissive of label so needs to
+            // come last to avoid prematurely matching others above
+            div_section,
+        )),
+    )
     .parse_next(input)
 }
 
@@ -568,28 +583,6 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
     .parse_next(input)
 }
 
-/// Shortcut for an [`InstructionBlock`]
-fn instruction_block_shortcut(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        ("/", multispace0),
-        (
-            alt(("new", "edit", "update")),
-            opt(preceded((multispace0, '@'), assignee)),
-            opt(take_while(1.., |_| true)),
-        ),
-    )
-    .map(|(instruction_type, assignee, message)| {
-        Block::InstructionBlock(InstructionBlock {
-            instruction_type: InstructionType::from_str(instruction_type).unwrap_or_default(),
-            assignee: assignee.map(String::from),
-            message: message.map(|message| InstructionMessage::from(message.trim())),
-            content: None,
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
 /// Start an [`InstructionBlock`]
 fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
@@ -621,6 +614,12 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 
                 let text = text.trim();
                 let message = (!text.is_empty()).then(|| InstructionMessage::from(text.trim()));
+
+                let content = if has_content && !matches!(instruction_type, InstructionType::New) {
+                    Some(Vec::new())
+                } else {
+                    None
+                };
 
                 let mut replicates: Option<u64> = None;
                 let mut temperature: Option<u64> = None;
@@ -660,7 +659,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 Block::InstructionBlock(InstructionBlock {
                     instruction_type,
                     message,
-                    content: if has_content { Some(Vec::new()) } else { None },
+                    content,
                     assignee: assignee.map(String::from),
                     replicates,
                     model,
@@ -908,7 +907,15 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             tracing::error!("Expected if block to have at least one clause but there was none");
         }
     } else if let Block::InstructionBlock(InstructionBlock { content, .. }) = parent {
-        *content = Some(children);
+        if let Some(blocks) = content {
+            if blocks.is_empty() && children.is_empty() {
+                *content = None;
+            } else {
+                blocks.append(&mut children);
+            }
+        } else {
+            *content = (!children.is_empty()).then_some(children);
+        }
     } else if let Block::ReplaceBlock(replace_block) = parent {
         // At the end of replace block `::with` so set replacement
         replace_block.replacement = children;
@@ -1704,17 +1711,6 @@ mod tests {
                     ..Default::default()
                 }
             )
-        );
-    }
-
-    #[test]
-    fn test_instruction_block_shortcut() {
-        assert_eq!(
-            block(&mut Located::new("/ @insert-code-chunk summarise")).unwrap(),
-            block(&mut Located::new(
-                "::: new @insert-code-chunk summarise\n:::"
-            ))
-            .unwrap(),
         );
     }
 

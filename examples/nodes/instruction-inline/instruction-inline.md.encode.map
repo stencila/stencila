@@ -1,8 +1,14 @@
 start     end        offsets   node_type+property                   authorship
      0     50        (0, 50)   Text.value
      0     50         (0, 0)   Text
-    56     72       (56, 22)   Text.value
+    56     56        (56, 6)   InstructionMessage.id
+    56     56         (0, 0)   InstructionMessage.role
+    56     72        (0, 16)   Text.value
     56     72         (0, 0)   Text
+    56     72         (0, 0)   InstructionMessage.parts
+    72     72        (16, 0)   InstructionMessage.authors
+    72     72         (0, 0)   InstructionMessage.provenance
+    56     72       (-16, 0)   InstructionMessage
     56     72         (0, 0)   InstructionInline.message
     50     74        (-6, 2)   InstructionInline
     74     75        (24, 1)   Text.value
@@ -11,8 +17,14 @@ start     end        offsets   node_type+property                   authorship
      0     76         (0, 1)   Paragraph
     77    140       (77, 64)   Text.value
     77    140         (0, 0)   Text
-   146    158       (69, 18)   Text.value
+   146    146        (69, 6)   InstructionMessage.id
+   146    146         (0, 0)   InstructionMessage.role
+   146    158        (0, 12)   Text.value
    146    158         (0, 0)   Text
+   146    158         (0, 0)   InstructionMessage.parts
+   158    158        (12, 0)   InstructionMessage.authors
+   158    158         (0, 0)   InstructionMessage.provenance
+   146    158       (-12, 0)   InstructionMessage
    146    158         (0, 0)   InstructionInline.message
    160    176       (14, 18)   Text.value
    160    176         (0, 0)   Text
@@ -24,20 +36,29 @@ start     end        offsets   node_type+property                   authorship
     77    180         (0, 1)   Paragraph
    181    212      (104, 32)   Text.value
    181    212         (0, 0)   Text
-   238    271       (57, 59)   Text.value
+   238    238       (57, 26)   InstructionMessage.id
+   238    238         (0, 0)   InstructionMessage.role
+   238    271        (0, 33)   Text.value
    238    271         (0, 0)   Text
+   238    271         (0, 0)   InstructionMessage.parts
+   271    271        (33, 0)   InstructionMessage.authors
+   271    271         (0, 0)   InstructionMessage.provenance
+   238    271       (-33, 0)   InstructionMessage
    238    271         (0, 0)   InstructionInline.message
    212    273       (-26, 2)   InstructionInline
    273    299       (61, 26)   Text.value
    273    299         (0, 0)   Text
-   325    325       (52, 26)   Text.value
-   325    325         (0, 0)   Text
-   325    325         (0, 0)   InstructionInline.message
-   299    327       (-26, 2)   InstructionInline
+   299    327       (26, 28)   InstructionInline
    327    332        (28, 5)   Text.value
    327    332         (0, 0)   Text
-   344    363       (17, 31)   Text.value
+   344    344       (17, 12)   InstructionMessage.id
+   344    344         (0, 0)   InstructionMessage.role
+   344    363        (0, 19)   Text.value
    344    363         (0, 0)   Text
+   344    363         (0, 0)   InstructionMessage.parts
+   363    363        (19, 0)   InstructionMessage.authors
+   363    363         (0, 0)   InstructionMessage.provenance
+   344    363       (-19, 0)   InstructionMessage
    344    363         (0, 0)   InstructionInline.message
    365    381       (21, 18)   Text.value
    365    381         (0, 0)   Text
@@ -49,8 +70,14 @@ start     end        offsets   node_type+property                   authorship
    181    385         (0, 1)   Paragraph
    386    418      (205, 33)   Text.value
    386    418         (0, 0)   Text
-   444    458       (58, 40)   Text.value
+   444    444       (58, 26)   InstructionMessage.id
+   444    444         (0, 0)   InstructionMessage.role
+   444    458        (0, 14)   Text.value
    444    458         (0, 0)   Text
+   444    458         (0, 0)   InstructionMessage.parts
+   458    458        (14, 0)   InstructionMessage.authors
+   458    458         (0, 0)   InstructionMessage.provenance
+   444    458       (-14, 0)   InstructionMessage
    444    458         (0, 0)   InstructionInline.message
    471    480       (27, 22)   MathInline.code
    470    481        (-1, 1)   MathInline
@@ -60,8 +87,14 @@ start     end        offsets   node_type+property                   authorship
    418    483       (-42, 0)   InstructionInline
    483    488        (65, 5)   Text.value
    483    488         (0, 0)   Text
-   495    502       (12, 14)   Text.value
+   495    495        (12, 7)   InstructionMessage.id
+   495    495         (0, 0)   InstructionMessage.role
+   495    502         (0, 7)   Text.value
    495    502         (0, 0)   Text
+   495    502         (0, 0)   InstructionMessage.parts
+   502    502         (7, 0)   InstructionMessage.authors
+   502    502         (0, 0)   InstructionMessage.provenance
+   495    502        (-7, 0)   InstructionMessage
    495    502         (0, 0)   InstructionInline.message
    504    520        (9, 18)   Text.value
    504    520         (0, 0)   Text

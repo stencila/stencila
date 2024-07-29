@@ -1,0 +1,227 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Example using Markdown as canonical format to test alternative ways to write instruction blocks."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Heading",
+      "stencila:level": 1,
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Instruction type: new"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "No closing fence:"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "New"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Closing fence at end of line"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "New"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Closing fence on new line at end of same paragraph"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "New"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Closing fence as new paragraph (this would be unusual)"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "New"
+    },
+    {
+      "@type": "stencila:Heading",
+      "stencila:level": 1,
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Instruction type: edit"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "No closing fence:"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "Edit",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "Paragraph to edit #1"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Closing fence at end of line  (this would be unusual)"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "Edit",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "Paragraph to edit #2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Closing fence on new line at end of same paragraph (this would be unusual)"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "Edit",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "Paragraph to edit #3"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Closing fence as new paragraph, to bound content"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "Edit",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "Paragraph to edit #4"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "Paragraph to edit #5"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
