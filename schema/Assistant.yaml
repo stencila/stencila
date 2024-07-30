@@ -1,0 +1,31 @@
+title: Assistant
+"@id": stencila:Assistant
+extends: [CreativeWork, Executable]
+category: works
+description: An assistant for creating and editing document content.
+required:
+  - name
+  - version
+  - instructionTypes
+  - nodeTypes
+  - description
+  - content
+properties:
+  instructionTypes:
+    "@id": stencila:instructionTypes
+    description: The types of instructions that the assistant supports
+    type: array
+    items:
+      $ref: InstructionType
+  nodeTypes:
+    "@id": stencila:nodeTypes
+    description: The types of nodes that the assistant supports
+    type: array
+    items:
+      type: string
+  content:
+    "@id": stencila:content
+    description: The content of the assistant's prompt template.
+    type: array
+    items:
+      $ref: Block
