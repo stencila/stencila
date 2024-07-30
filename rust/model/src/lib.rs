@@ -21,7 +21,7 @@ pub use secrets;
 
 mod output;
 mod task;
-pub use output::ModelOutput;
+pub use output::{ModelOutput, ModelOutputKind};
 pub use task::{ModelTask, ModelTaskKind};
 
 /// The type of provider of a model
