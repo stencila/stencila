@@ -1,6 +1,6 @@
 use schema::{CodeExpression, ExecutionMode};
 
-use crate::{interrupt_impl, pending_impl, prelude::*};
+use crate::{interrupt_impl, pending_impl, prelude::*, Phase};
 
 impl Executable for CodeExpression {
     #[tracing::instrument(skip_all)]
@@ -96,19 +96,23 @@ impl Executable for CodeExpression {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.patch(
-                &node_id,
-                [
-                    set(NodeProperty::Output, output),
-                    set(NodeProperty::ExecutionStatus, status.clone()),
-                    set(NodeProperty::ExecutionRequired, required),
-                    set(NodeProperty::ExecutionMessages, messages),
-                    set(NodeProperty::ExecutionDuration, duration),
-                    set(NodeProperty::ExecutionEnded, ended),
-                    set(NodeProperty::ExecutionCount, count),
-                    set(NodeProperty::ExecutionDigest, compilation_digest),
-                ],
-            );
+            if matches!(executor.phase, Phase::ExecuteOnly) {
+                self.output = Some(Box::new(output));
+            } else {
+                executor.patch(
+                    &node_id,
+                    [
+                        set(NodeProperty::Output, output),
+                        set(NodeProperty::ExecutionStatus, status.clone()),
+                        set(NodeProperty::ExecutionRequired, required),
+                        set(NodeProperty::ExecutionMessages, messages),
+                        set(NodeProperty::ExecutionDuration, duration),
+                        set(NodeProperty::ExecutionEnded, ended),
+                        set(NodeProperty::ExecutionCount, count),
+                        set(NodeProperty::ExecutionDigest, compilation_digest),
+                    ],
+                );
+            }
         } else {
             executor.patch(
                 &node_id,

@@ -25,6 +25,7 @@ type NodeIds = Vec<NodeId>;
 mod prelude;
 
 mod article;
+mod assistant;
 mod call_block;
 mod code_chunk;
 mod code_expression;
@@ -45,7 +46,7 @@ pub async fn compile(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: UnboundedSender<Patch>,
+    patch_sender: Option<UnboundedSender<Patch>>,
     node_ids: Option<NodeIds>,
     options: Option<ExecuteOptions>,
 ) -> Result<()> {
@@ -59,7 +60,7 @@ pub async fn execute(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: UnboundedSender<Patch>,
+    patch_sender: Option<UnboundedSender<Patch>>,
     node_ids: Option<NodeIds>,
     options: Option<ExecuteOptions>,
 ) -> Result<()> {
@@ -74,7 +75,7 @@ pub async fn interrupt(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: UnboundedSender<Patch>,
+    patch_sender: Option<UnboundedSender<Patch>>,
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
@@ -130,7 +131,7 @@ pub struct Executor {
     ///
     /// Patches reflecting the state of nodes during execution should be sent
     /// on this channel.
-    patch_sender: UnboundedSender<Patch>,
+    patch_sender: Option<UnboundedSender<Patch>>,
 
     /// The nodes that should be executed
     ///
@@ -221,6 +222,7 @@ enum Phase {
     Compile,
     Pending,
     Execute,
+    ExecuteOnly,
     Interrupt,
 }
 
@@ -229,7 +231,7 @@ impl Executor {
     fn new(
         home: PathBuf,
         kernels: Arc<RwLock<Kernels>>,
-        patch_sender: UnboundedSender<Patch>,
+        patch_sender: Option<UnboundedSender<Patch>>,
         node_ids: Option<NodeIds>,
         options: Option<ExecuteOptions>,
     ) -> Self {
@@ -389,6 +391,10 @@ impl Executor {
     where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
+        let Some(sender) = &self.patch_sender else {
+            return;
+        };
+
         let ops = pairs
             .into_iter()
             .map(|(property, op)| (PatchPath::from(property), op))
@@ -401,7 +407,7 @@ impl Executor {
             ops,
         };
 
-        if let Err(error) = self.patch_sender.send(patch) {
+        if let Err(error) = sender.send(patch) {
             tracing::error!("When sending execution node patch: {error}")
         }
     }
@@ -411,7 +417,7 @@ impl Executor {
         match self.phase {
             Phase::Compile => node.compile(self).await,
             Phase::Pending => node.pending(self).await,
-            Phase::Execute => node.execute(self).await,
+            Phase::Execute | Phase::ExecuteOnly => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
         }
     }

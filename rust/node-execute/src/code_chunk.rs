@@ -1,6 +1,6 @@
 use schema::{CodeChunk, LabelType, NodeProperty};
 
-use crate::{interrupt_impl, pending_impl, prelude::*};
+use crate::{interrupt_impl, pending_impl, prelude::*, Phase};
 
 impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
@@ -124,19 +124,23 @@ impl Executable for CodeChunk {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            executor.patch(
-                &node_id,
-                [
-                    set(NodeProperty::Outputs, outputs),
-                    set(NodeProperty::ExecutionStatus, status.clone()),
-                    set(NodeProperty::ExecutionRequired, required),
-                    set(NodeProperty::ExecutionMessages, messages),
-                    set(NodeProperty::ExecutionDuration, duration),
-                    set(NodeProperty::ExecutionEnded, ended),
-                    set(NodeProperty::ExecutionCount, count),
-                    set(NodeProperty::ExecutionDigest, compilation_digest),
-                ],
-            );
+            if matches!(executor.phase, Phase::ExecuteOnly) {
+                self.outputs = outputs;
+            } else {
+                executor.patch(
+                    &node_id,
+                    [
+                        set(NodeProperty::Outputs, outputs),
+                        set(NodeProperty::ExecutionStatus, status.clone()),
+                        set(NodeProperty::ExecutionRequired, required),
+                        set(NodeProperty::ExecutionMessages, messages),
+                        set(NodeProperty::ExecutionDuration, duration),
+                        set(NodeProperty::ExecutionEnded, ended),
+                        set(NodeProperty::ExecutionCount, count),
+                        set(NodeProperty::ExecutionDigest, compilation_digest),
+                    ],
+                );
+            }
         } else {
             executor.patch(
                 &node_id,

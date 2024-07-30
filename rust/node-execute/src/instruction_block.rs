@@ -1,8 +1,8 @@
-use assistants::assistant::GenerateOptions;
-use common::futures::future;
-use schema::{authorship, InstructionBlock, SuggestionStatus};
+use codec_markdown_trait::to_markdown;
+use common::{futures::future, itertools::Itertools};
+use schema::{AuthorRole, InstructionBlock, SuggestionStatus};
 
-use crate::{interrupt_impl, pending_impl, prelude::*};
+use crate::{assistant::execute_assistant, interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -76,92 +76,71 @@ impl Executable for InstructionBlock {
             }
         }
 
-        let replicates = self.replicates.unwrap_or(1) as usize;
-
         let started = Timestamp::now();
 
+        let replicates = self.replicates.unwrap_or(1) as usize;
+
+        let node_types = self
+            .content
+            .iter()
+            .flatten()
+            .map(|block| block.node_type().to_string())
+            .collect_vec();
+
+        let mut assistant =
+            assistants::find(&self.assignee, &self.instruction_type, &Some(node_types))
+                .await
+                .unwrap();
+        let assistant_name = assistant.name.clone();
+        tracing::trace!("Using {assistant_name}");
+
+        let content = self.content.as_ref().map(|content| to_markdown(content));
+
+        execute_assistant(
+            &mut assistant,
+            &self.instruction_type,
+            content,
+            &executor.home,
+        )
+        .await
+        .unwrap();
+
+        let prompter: AuthorRole = assistant.clone().into();
+        let system_prompt = assistants::render(assistant).await.unwrap();
+        tracing::debug!("{assistant_name} rendered prompt:\n\n{system_prompt}");
+
         // Create a future for each replicate
-        let temperature = self
-            .model
-            .as_ref()
-            .and_then(|model| model.temperature)
-            .map(|temp| (temp as f32 / 100.).min(100.));
-        let dry_run = executor.options.dry_run;
-        let context = executor.context().await;
         let mut futures = Vec::new();
         for _ in 0..replicates {
+            let prompter = prompter.clone();
+            let system_prompt = system_prompt.to_string();
             let instruction = self.clone();
-            let context = context.clone();
-            futures.push(async {
-                let started = Timestamp::now();
-
-                // Get the `assistants` crate to execute this instruction
-                let (authors, mut suggestion, mut messages) = match assistants::execute_instruction(
-                    instruction,
-                    context,
-                    GenerateOptions {
-                        temperature,
-                        dry_run,
-                        ..Default::default()
-                    },
+            futures.push(async move {
+                assistants::execute_instruction_block(
+                    AuthorRole::default(),
+                    prompter,
+                    &system_prompt,
+                    &instruction,
                 )
                 .await
-                {
-                    Ok(output) => (
-                        Some(output.authors.clone()),
-                        Some(output.to_suggestion_block()),
-                        Vec::new(),
-                    ),
-                    Err(error) => (
-                        None,
-                        None,
-                        vec![error_to_execution_message(
-                            "While performing instruction",
-                            error,
-                        )],
-                    ),
-                };
-
-                if let Some(suggestion) = suggestion.as_mut() {
-                    // Apply authorship to the suggestion.
-                    // Do this here, rather than by adding the authors to the patch
-                    // so that the authors are not added to the instruction itself
-                    if let Some(authors) = authors {
-                        if let Err(error) = authorship(suggestion, authors) {
-                            messages.push(error_to_execution_message(
-                                "Unable to assign authorship to suggestion",
-                                error,
-                            ));
-                        }
-                    }
-
-                    // Record execution time for the suggestion
-                    let ended = Timestamp::now();
-                    let duration = Some(execution_duration(&started, &ended));
-                    let ended = Some(ended);
-                    suggestion.execution_duration = duration;
-                    suggestion.execution_ended = ended;
-                    suggestion.suggestion_status = Some(SuggestionStatus::Proposed);
-                }
-
-                (suggestion, messages)
             })
         }
 
-        // Wait for all suggestions to be generated and collect them and any messages
+        // Wait for all suggestions to be generated and collect them and any error messages
         let mut suggestions = self.suggestions.clone().unwrap_or_default();
         let mut messages = Vec::new();
-        for mut replicate in future::join_all(futures).await {
-            if let Some(suggestion) = replicate.0 {
-                suggestions.push(suggestion);
+        for result in future::join_all(futures).await {
+            match result {
+                Ok(suggestion) => suggestions.push(suggestion),
+                Err(error) => messages.push(error_to_execution_message(
+                    "While performing instruction",
+                    error,
+                )),
             }
-            messages.append(&mut replicate.1);
         }
-
         let messages = (!messages.is_empty()).then_some(messages);
 
         let ended = Timestamp::now();
-
         let status = execution_status(&messages);
         let required = execution_required_status(&status);
         let duration = execution_duration(&started, &ended);

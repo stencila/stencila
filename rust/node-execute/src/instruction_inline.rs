@@ -1,4 +1,3 @@
-use assistants::assistant::GenerateOptions;
 use schema::{authorship, InstructionInline};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
@@ -42,10 +41,13 @@ impl Executable for InstructionInline {
         let started = Timestamp::now();
 
         // Get the `assistants` crate to execute this instruction
+        /*
+        TODO: reinstate based on approach for instruction blocks
+
         let (authors, suggestion, mut messages) = match assistants::execute_instruction(
             self.clone(),
             executor.context().await,
-            GenerateOptions {
+            ModelTaskOptions {
                 dry_run: executor.options.dry_run,
                 ..Default::default()
             },
@@ -66,6 +68,7 @@ impl Executable for InstructionInline {
                 )],
             ),
         };
+        
 
         if let Some(mut suggestion) = suggestion {
             // Apply authorship to the suggestion.
@@ -116,6 +119,7 @@ impl Executable for InstructionInline {
                 set(NodeProperty::ExecutionCount, count),
             ],
         );
+        */
 
         WalkControl::Break
     }
