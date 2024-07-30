@@ -7,6 +7,8 @@ $comment: |
   This is an implementation of schema.org [`Organization`](https://schema.org/Organization).
 jats:
   elem: institution
+core:
+  - name
 properties:
   address:
     '@id': schema:address

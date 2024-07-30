@@ -12,6 +12,8 @@ $comment: |
   the system/language package manager to resolve the rest.
 required:
   - name
+core:
+  - version
 properties:
   softwareRequirements:
     '@id': schema:softwareRequirements

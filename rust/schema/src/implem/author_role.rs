@@ -111,10 +111,9 @@ impl DomCodec for AuthorRole {
 
                 (person.node_type(), name)
             }
-            AuthorRoleAuthor::Organization(org) => (
-                org.node_type(),
-                org.options.name.clone().unwrap_or_default(),
-            ),
+            AuthorRoleAuthor::Organization(org) => {
+                (org.node_type(), org.name.clone().unwrap_or_default())
+            }
             AuthorRoleAuthor::SoftwareApplication(app) => (app.node_type(), app.name.clone()),
             AuthorRoleAuthor::Thing(thing) => (
                 thing.node_type(),
@@ -127,10 +126,7 @@ impl DomCodec for AuthorRole {
 
         if let AuthorRoleAuthor::Person(person) = &self.author {
             if let Some(affs) = &person.affiliations.as_ref() {
-                let details = affs
-                    .iter()
-                    .filter_map(|org| org.options.name.clone())
-                    .join(", ");
+                let details = affs.iter().filter_map(|org| org.name.clone()).join(", ");
                 context.push_attr("details", &details);
             }
         } else if let AuthorRoleAuthor::SoftwareApplication(app) = &self.author {
@@ -139,7 +135,7 @@ impl DomCodec for AuthorRole {
             }
 
             if let Some(version) = &app.options.software_version.clone().or_else(|| {
-                app.options.version.as_ref().map(|version| match version {
+                app.version.as_ref().map(|version| match version {
                     StringOrNumber::String(string) => string.clone(),
                     StringOrNumber::Number(number) => number.to_string(),
                 })

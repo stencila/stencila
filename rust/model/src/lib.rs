@@ -152,10 +152,7 @@ pub trait Model: Sync + Send {
         SoftwareApplication {
             id: Some(self.name()),
             name: self.title(),
-            options: Box::new(SoftwareApplicationOptions {
-                version: Some(StringOrNumber::String(self.version())),
-                ..Default::default()
-            }),
+            version: Some(StringOrNumber::String(self.version())),
             ..Default::default()
         }
     }
@@ -168,13 +165,10 @@ pub trait Model: Sync + Send {
         SoftwareApplication {
             id: Some(self.name()),
             name: self.title(),
+            version: Some(StringOrNumber::String(self.version())),
             options: Box::new(SoftwareApplicationOptions {
-                version: Some(StringOrNumber::String(self.version())),
                 publisher: Some(PersonOrOrganization::Organization(Organization {
-                    options: Box::new(OrganizationOptions {
-                        name: Some(self.publisher()),
-                        ..Default::default()
-                    }),
+                    name: Some(self.publisher()),
                     ..Default::default()
                 })),
                 ..Default::default()

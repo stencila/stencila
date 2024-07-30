@@ -225,7 +225,6 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                             .chain(person.family_names.iter().flatten())
                             .join(" "),
                         Author::Organization(org) => org
-                            .options
                             .name
                             .clone()
                             .or(org.options.legal_name.clone())
@@ -234,7 +233,7 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                             let mut name = app.name.clone();
                             if let Some(version) =
                                 &app.options.software_version.clone().or_else(|| {
-                                    app.options.version.as_ref().map(|version| match version {
+                                    app.version.as_ref().map(|version| match version {
                                         StringOrNumber::String(string) => string.clone(),
                                         StringOrNumber::Number(number) => number.to_string(),
                                     })
