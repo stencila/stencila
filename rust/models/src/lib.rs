@@ -86,7 +86,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
         .as_ref()
         .and_then(|model| model.name_pattern.as_deref())
     {
-        Some(pattern) => Some(Regex::new(&pattern)?),
+        Some(pattern) => Some(Regex::new(pattern)?),
         None => None,
     };
     let mut models = models

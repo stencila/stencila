@@ -233,7 +233,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
             ((model.starts_with("codestral") && parts.len() == 2) || parts.len() >= 3)
                 && parts
                     .last()
-                    .map(|&version| version.starts_with("2"))
+                    .map(|&version| version.starts_with('2'))
                     .unwrap_or(false)
         })
         .sorted_by(|a, b| a.id.cmp(&b.id))

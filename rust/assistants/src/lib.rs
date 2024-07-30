@@ -61,7 +61,7 @@ pub async fn list_builtin() -> Result<Vec<Assistant>> {
     for (filename, content) in
         Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
     {
-        let (.., ext) = filename.split_once(".").unwrap_or_default();
+        let (.., ext) = filename.split_once('.').unwrap_or_default();
 
         // TODO: Remove this when all assistants ported
         if ext != "smd" {
@@ -140,7 +140,7 @@ async fn list_local() -> Result<Vec<Assistant>> {
 pub async fn find(
     assignee: &Option<String>,
     instruction_type: &InstructionType,
-    node_types: &Option<Vec<String>>,
+    _node_types: &Option<Vec<String>>,
 ) -> Result<Assistant> {
     let assistants = list().await;
 

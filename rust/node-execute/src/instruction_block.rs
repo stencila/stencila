@@ -94,7 +94,7 @@ impl Executable for InstructionBlock {
         let assistant_name = assistant.name.clone();
         tracing::trace!("Using {assistant_name}");
 
-        let content = self.content.as_ref().map(|content| to_markdown(content));
+        let content = self.content.as_ref().map(to_markdown);
 
         execute_assistant(
             &mut assistant,

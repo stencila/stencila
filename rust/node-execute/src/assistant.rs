@@ -23,7 +23,7 @@ pub async fn execute_assistant(
     content: Option<String>,
     home: &Path,
 ) -> Result<()> {
-    let mut kernels = Kernels::new(&home);
+    let mut kernels = Kernels::new(home);
     kernels.create_instance(Some("quickjs")).await?;
     kernels
         .set("instruction", &instruction(instruction_type, content))

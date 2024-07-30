@@ -1,4 +1,4 @@
-use schema::{authorship, InstructionInline};
+use schema::InstructionInline;
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -38,7 +38,7 @@ impl Executable for InstructionInline {
             ],
         );
 
-        let started = Timestamp::now();
+        let _started = Timestamp::now();
 
         // Get the `assistants` crate to execute this instruction
         /*
@@ -68,7 +68,7 @@ impl Executable for InstructionInline {
                 )],
             ),
         };
-        
+
 
         if let Some(mut suggestion) = suggestion {
             // Apply authorship to the suggestion.
