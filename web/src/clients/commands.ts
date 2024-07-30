@@ -20,6 +20,9 @@ export interface DocumentCommand {
     | 'execute-nodes'
     | 'interrupt-document'
     | 'interrupt-nodes'
+    | 'accept-node'
+    | 'reject-node'
+    | 'revise-node'
 
   /**
    * The type of the node that the command is being executed on.
@@ -39,6 +42,11 @@ export interface DocumentCommand {
    * The scope for the command
    */
   scope?: 'only' | 'plus-before' | 'plus-after' | 'plus-upstream-downstream'
+
+  /**
+   * Instructions for assisntants
+   */
+  instruction?: string
 }
 
 /**
