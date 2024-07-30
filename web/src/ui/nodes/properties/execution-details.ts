@@ -70,24 +70,36 @@ export class UINodeExecutionDetails extends LitElement {
     return html`
       <div class="@container">
         <div class=${`${classes}`}>
-          <stencila-ui-node-execution-state
-            status=${this.status}
-            required=${this.required}
-            count=${this.count}
-          ></stencila-ui-node-execution-state>
-          ${this.count > 0
-            ? html`<stencila-ui-node-execution-count
-                  value=${this.count}
-                ></stencila-ui-node-execution-count>
-                <stencila-ui-node-execution-ended
-                  value=${this.ended}
-                ></stencila-ui-node-execution-ended>
-                <stencila-ui-node-execution-duration
-                  value=${this.duration}
-                ></stencila-ui-node-execution-duration>`
-            : ''}
+          ${this.type !== 'SuggestionBlock'
+            ? this.renderAllDetails()
+            : this.renderTimeAndDuration()}
         </div>
       </div>
+    `
+  }
+
+  protected renderAllDetails() {
+    return html`<stencila-ui-node-execution-state
+        status=${this.status}
+        required=${this.required}
+        count=${this.count}
+      ></stencila-ui-node-execution-state>
+      ${this.count > 0
+        ? html`<stencila-ui-node-execution-count
+              value=${this.count}
+            ></stencila-ui-node-execution-count>
+            ${this.renderTimeAndDuration()}`
+        : ''}`
+  }
+
+  protected renderTimeAndDuration() {
+    return html`
+      <stencila-ui-node-execution-ended
+        value=${this.ended}
+      ></stencila-ui-node-execution-ended>
+      <stencila-ui-node-execution-duration
+        value=${this.duration}
+      ></stencila-ui-node-execution-duration>
     `
   }
 }
