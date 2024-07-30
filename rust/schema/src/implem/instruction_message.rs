@@ -1,26 +1,29 @@
-use crate::{InstructionMessage, MessagePart, MessageRole};
+use crate::{Author, InstructionMessage, MessagePart, MessageRole};
 
 impl InstructionMessage {
-    pub fn system<S: AsRef<str>>(value: S) -> Self {
+    pub fn system<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
             role: Some(MessageRole::System),
             parts: vec![MessagePart::from(value)],
+            authors,
             ..Default::default()
         }
     }
 
-    pub fn user<S: AsRef<str>>(value: S) -> Self {
+    pub fn user<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
             role: Some(MessageRole::User),
             parts: vec![MessagePart::from(value)],
+            authors,
             ..Default::default()
         }
     }
 
-    pub fn assistant<S: AsRef<str>>(value: S) -> Self {
+    pub fn assistant<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
             role: Some(MessageRole::Assistant),
             parts: vec![MessagePart::from(value)],
+            authors,
             ..Default::default()
         }
     }
