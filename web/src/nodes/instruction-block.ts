@@ -27,7 +27,7 @@ export class InstructionBlock extends Instruction {
   /**
    * toggle the visibilty of the suggestions
    */
-  private toggleSuggestions() {
+  protected toggleSuggestions() {
     this.showSuggestions = !this.showSuggestions
   }
 
@@ -96,26 +96,9 @@ export class InstructionBlock extends Instruction {
 
     return html`
       <div>
-        ${this.context.cardOpen ? this.renderSuggestionsToggle() : ''}
         <div class=${styles}>
           <slot name="suggestions"></slot>
         </div>
-      </div>
-    `
-  }
-
-  protected renderSuggestionsToggle() {
-    return html`
-      <div>
-        <button
-          class="flex items-center gap-x-1 text-gray-300 hover:text-blue-500"
-          @click=${() => this.toggleSuggestions()}
-        >
-          <sl-icon name=${this.showSuggestions ? 'eye' : 'eye-slash'}></sl-icon>
-          <span class="text-sm">
-            ${this.showSuggestions ? 'Hide' : 'Show'}${' '}suggestions
-          </span>
-        </button>
       </div>
     `
   }

@@ -132,32 +132,46 @@ export class UINodeSuggestionCommands extends UIBaseClass {
       'max-w-[24rem]',
       'transform -translate-y-full',
       `bg-[${this.ui.borderColour}]`,
-      'p-2',
+      'p-1',
       `text-[${this.ui.textColour}] text-sm`,
       'rounded shadow',
       'cursor-auto',
     ])
+
+    const submitRevision = (e: Event) => {
+      this.emitEvent(e, 'revise', this.inputRef.value.value)
+      this.reviseStatus = 'pending'
+      this.inputRef.value.value = ''
+      this.showInstructInput = false
+    }
 
     return html`
       <div class=${containerStyles} @click=${(e: Event) => e.stopPropagation()}>
         <div class="flex flex-row items-center text-sm">
           <textarea
             ${ref(this.inputRef)}
-            class="mx-2 px-1 text-gray-800 text-xs rounded-sm resize-none"
+            class="mr-2 px-1 text-gray-800 text-xs rounded-sm resize-none outline-black"
             cols="40"
             rows="3"
             placeholder="Provide feedback or leave empty for machine generated feedback"
             ?disabled=${this.reviseStatus === 'pending'}
-          ></textarea>
-          <sl-icon
-            name="arrow-repeat"
-            class="text-lg hover:text-gray-500 cursor-pointer ${this
-              .reviseStatus === 'pending' && 'animate-spin'}"
-            @click=${(e: Event) => {
-              this.emitEvent(e, 'revise', this.inputRef.value.value)
-              this.reviseStatus = 'pending'
+            @keydown=${(e: KeyboardEvent) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                submitRevision(e)
+              }
             }}
-          ></sl-icon>
+          ></textarea>
+          <button
+            @click=${submitRevision}
+            class="flex items-center cursor-pointer hover:text-gray-500"
+          >
+            <sl-icon
+              name="arrow-repeat"
+              class="text-lg"
+              ?disabled=${this.reviseStatus === 'pending'}
+            ></sl-icon>
+          </button>
         </div>
       </div>
     `
