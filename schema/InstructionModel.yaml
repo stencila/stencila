@@ -2,18 +2,19 @@ title: InstructionModel
 "@id": stencila:InstructionModel
 nick: ism
 extends: Entity
-description: The name and execution options for the generative model used for an instruction.
+description: Model selection criteria and execution options for the generative model used for an instruction.
 core:
-  - name
+  - namePattern
   - qualityWeight
   - speedWeight
   - costWeight
+  - scoreThreshold
   - temperature
   - randomSeed
 properties:
-  name:
-    '@id': schema:name
-    description: The name of the model.
+  namePattern:
+    '@id': stencila:namePattern
+    description: A regular expression to select models by name.
     type: string
     patch:
       formats: [md, myst]
@@ -32,6 +33,12 @@ properties:
   costWeight:
     '@id': stencila:costWeight
     description: The relative weighting given to model cost (0-100).
+    $ref: UnsignedInteger
+    patch:
+      formats: [md, myst]
+  scoreThreshold:
+    '@id': stencila:scoreThreshold
+    description: The score threshold for models (0-100).
     $ref: UnsignedInteger
     patch:
       formats: [md, myst]

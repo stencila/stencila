@@ -305,10 +305,18 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         {
             if content.iter().flatten().count() == 0 {
                 let last = blocks.pop().expect("Guaranteed by previous being present");
+
+                if let (Some(instruction_id), Some(last_id)) = (
+                    blocks.last().and_then(|block| block.node_id()),
+                    last.node_id(),
+                ) {
+                    context.map_extend(instruction_id, last_id);
+                };
+
                 if let Some(Block::InstructionBlock(InstructionBlock { content, .. })) =
                     blocks.last_mut()
                 {
-                    *content = Some(vec![last]);
+                    content.replace(vec![last]);
                 }
             }
         }
@@ -593,7 +601,11 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             model,
             (multispace0, ']', multispace0),
         )),
-        separated(0.., (alt(('x', 't', 'q', 's', 'c')), digit1), multispace1),
+        separated(
+            0..,
+            (alt(('x', 'y', 't', 'q', 's', 'c')), digit1),
+            multispace1,
+        ),
         opt(alt((
             (
                 take_until(0.., ':'),
@@ -603,7 +615,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         ))),
     )
         .map(
-            |(instruction_type, assignee, name, options, message): (
+            |(instruction_type, assignee, name_pattern, options, message): (
                 _,
                 _,
                 _,
@@ -622,6 +634,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 };
 
                 let mut replicates: Option<u64> = None;
+                let mut score_threshold: Option<u64> = None;
                 let mut temperature: Option<u64> = None;
                 let mut quality_weight: Option<u64> = None;
                 let mut speed_weight: Option<u64> = None;
@@ -630,6 +643,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     let value = value.parse().ok();
                     match tag {
                         'x' => replicates = value,
+                        'y' => score_threshold = value,
                         't' => temperature = value,
                         'q' => quality_weight = value,
                         's' => speed_weight = value,
@@ -638,14 +652,16 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     }
                 }
 
-                let model = if name.is_some()
+                let model = if name_pattern.is_some()
+                    || score_threshold.is_some()
                     || temperature.is_some()
                     || quality_weight.is_some()
                     || speed_weight.is_some()
                     || cost_weight.is_some()
                 {
                     Some(Box::new(InstructionModel {
-                        name: name.map(String::from),
+                        name_pattern: name_pattern.map(String::from),
+                        score_threshold,
                         temperature,
                         quality_weight,
                         speed_weight,

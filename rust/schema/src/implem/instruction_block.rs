@@ -130,6 +130,24 @@ impl MarkdownCodec for InstructionBlock {
                                 &reps.to_string(),
                             );
                         }
+                        if let Some(thresh) =
+                            &self.model.as_ref().and_then(|model| model.score_threshold)
+                        {
+                            context.myst_directive_option(
+                                NodeProperty::Assignee,
+                                Some("thresh"),
+                                &thresh.to_string(),
+                            );
+                        }
+                        if let Some(temp) =
+                            &self.model.as_ref().and_then(|model| model.temperature)
+                        {
+                            context.myst_directive_option(
+                                NodeProperty::Assignee,
+                                Some("temp"),
+                                &temp.to_string(),
+                            );
+                        }
                     },
                     |context| {
                         if let Some(content) = &self.content {
@@ -151,7 +169,11 @@ impl MarkdownCodec for InstructionBlock {
                 context.push_str("@").push_str(assignee).push_str(" ");
             }
 
-            if let Some(model) = self.model.as_ref().and_then(|model| model.name.as_ref()) {
+            if let Some(model) = self
+                .model
+                .as_ref()
+                .and_then(|model| model.name_pattern.as_ref())
+            {
                 context.push_str("[").push_str(model).push_str("] ");
             }
 
@@ -159,6 +181,17 @@ impl MarkdownCodec for InstructionBlock {
                 context
                     .push_str("x")
                     .push_str(&replicates.to_string())
+                    .push_str(" ");
+            }
+
+            if let Some(value) = self
+                .model
+                .as_ref()
+                .and_then(|model| model.score_threshold.as_ref())
+            {
+                context
+                    .push_str("y")
+                    .push_str(&value.to_string())
                     .push_str(" ");
             }
 
