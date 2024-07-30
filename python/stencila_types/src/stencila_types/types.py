@@ -1046,7 +1046,7 @@ class Article(CreativeWork, Executable):
 @dataclass(kw_only=True, repr=False)
 class Assistant(CreativeWork, Executable):
     """
-    An assistant.
+    An assistant for creating and editing document content.
     """
 
     type: Literal["Assistant"] = "Assistant"
@@ -1058,7 +1058,7 @@ class Assistant(CreativeWork, Executable):
     """The types of nodes that the assistant supports"""
 
     content: list[Block]
-    """The content of the article."""
+    """The content of the assistant's prompt template."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1955,13 +1955,13 @@ class InstructionMessage(Entity):
 @dataclass(kw_only=True, repr=False)
 class InstructionModel(Entity):
     """
-    The name and execution options for the generative model used for an instruction.
+    Model selection criteria and execution options for the generative model used for an instruction.
     """
 
     type: Literal["InstructionModel"] = "InstructionModel"
 
-    name: str | None = None
-    """The name of the model."""
+    name_pattern: str | None = None
+    """A regular expression to select models by name."""
 
     quality_weight: UnsignedInteger | None = None
     """The relative weighting given to model quality (0-100)."""
@@ -1971,6 +1971,9 @@ class InstructionModel(Entity):
 
     cost_weight: UnsignedInteger | None = None
     """The relative weighting given to model cost (0-100)."""
+
+    score_threshold: UnsignedInteger | None = None
+    """The score threshold for models (0-100)."""
 
     temperature: UnsignedInteger | None = None
     """The temperature option for model inference (0-100)."""

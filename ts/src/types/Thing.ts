@@ -1,9 +1,9 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 import { ImageObject } from "./ImageObject.js";
 import { PropertyValueOrString } from "./PropertyValueOrString.js";
-import { Text } from "./Text.js";
 
 /**
  * The most generic type of item.
@@ -20,7 +20,7 @@ export class Thing extends Entity {
   /**
    * A description of the item.
    */
-  description?: Text;
+  description?: Cord;
 
   /**
    * Any kind of identifier for any kind of Thing.

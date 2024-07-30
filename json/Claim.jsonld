@@ -38,7 +38,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "stencila:Cord"
       }
     },
     {
@@ -99,9 +99,6 @@
         },
         {
           "@id": "stencila:Function"
-        },
-        {
-          "@id": "stencila:InstructionModel"
         },
         {
           "@id": "stencila:Parameter"
@@ -612,6 +609,9 @@
         },
         {
           "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Assistant"
         },
         {
           "@id": "stencila:Cite"

@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::article::Article;
+use super::assistant::Assistant;
 use super::audio_object::AudioObject;
 use super::claim::Claim;
 use super::collection::Collection;
@@ -26,6 +27,8 @@ use super::video_object::VideoObject;
 pub enum CreativeWorkType {
     #[default]
     Article(Article),
+
+    Assistant(Assistant),
 
     AudioObject(AudioObject),
 

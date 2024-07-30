@@ -2,11 +2,11 @@
 
 use crate::prelude::*;
 
+use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::primitive::Primitive;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::text::Text;
 
 /// A property-value pair.
 #[skip_serializing_none]
@@ -56,7 +56,7 @@ pub struct PropertyValueOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

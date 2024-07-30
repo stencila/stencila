@@ -7,6 +7,7 @@ use super::array::Array;
 use super::array_hint::ArrayHint;
 use super::array_validator::ArrayValidator;
 use super::article::Article;
+use super::assistant::Assistant;
 use super::audio_object::AudioObject;
 use super::author_role::AuthorRole;
 use super::boolean::Boolean;
@@ -164,6 +165,8 @@ pub enum Node {
     ArrayValidator(ArrayValidator),
 
     Article(Article),
+
+    Assistant(Assistant),
 
     AudioObject(AudioObject),
 

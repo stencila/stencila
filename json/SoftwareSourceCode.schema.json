@@ -17,7 +17,8 @@
   "core": [
     "id",
     "codeRepository",
-    "targetProducts"
+    "targetProducts",
+    "version"
   ],
   "properties": {
     "type": {
@@ -65,7 +66,7 @@
       "strip": [
         "metadata"
       ],
-      "$ref": "Text.schema.json"
+      "$ref": "Cord.schema.json"
     },
     "identifiers": {
       "@id": "schema:identifier",

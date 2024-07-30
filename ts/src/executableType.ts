@@ -2,6 +2,7 @@
 
 export type ExecutableType =
   | "Article"
+  | "Assistant"
   | "Button"
   | "CallArgument"
   | "CallBlock"
@@ -20,6 +21,7 @@ export type ExecutableType =
 
 export const ExecutableTypeList = [
   "Article",
+  "Assistant",
   "Button",
   "CallArgument",
   "CallBlock",

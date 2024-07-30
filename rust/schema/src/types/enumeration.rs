@@ -2,10 +2,10 @@
 
 use crate::prelude::*;
 
+use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::text::Text;
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
@@ -48,7 +48,7 @@ pub struct EnumerationOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

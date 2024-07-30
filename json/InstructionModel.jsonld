@@ -12,54 +12,19 @@
       "@id": "stencila:InstructionModel",
       "@type": "rdfs:Class",
       "rdfs:label": "InstructionModel",
-      "rdfs:comment": "The name and execution options for the generative model used for an instruction.",
+      "rdfs:comment": "Model selection criteria and execution options for the generative model used for an instruction.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "schema:name",
+      "@id": "stencila:namePattern",
       "@type": "rdfs:Property",
-      "rdfs:label": "name",
-      "rdfs:comment": "The name of the model.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Thing"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:DatatableColumn"
-        },
-        {
-          "@id": "stencila:DatatableColumnHint"
-        },
-        {
-          "@id": "stencila:Directory"
-        },
-        {
-          "@id": "stencila:ExecutionTag"
-        },
-        {
-          "@id": "stencila:File"
-        },
-        {
-          "@id": "stencila:Function"
-        },
-        {
-          "@id": "stencila:InstructionModel"
-        },
-        {
-          "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "stencila:Variable"
-        }
-      ],
+      "rdfs:label": "namePattern",
+      "rdfs:comment": "A regular expression to select models by name.",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -93,6 +58,18 @@
       "@type": "rdfs:Property",
       "rdfs:label": "costWeight",
       "rdfs:comment": "The relative weighting given to model cost (0-100).",
+      "schema:domainIncludes": {
+        "@id": "stencila:InstructionModel"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:scoreThreshold",
+      "@type": "rdfs:Property",
+      "rdfs:label": "scoreThreshold",
+      "rdfs:comment": "The score threshold for models (0-100).",
       "schema:domainIncludes": {
         "@id": "stencila:InstructionModel"
       },

@@ -13,6 +13,7 @@ export type NodeType =
   | "ArrayHint"
   | "ArrayValidator"
   | "Article"
+  | "Assistant"
   | "AudioObject"
   | "AuthorRole"
   | "BooleanValidator"
@@ -148,6 +149,7 @@ export const NodeTypeList = [
   "ArrayHint",
   "ArrayValidator",
   "Article",
+  "Assistant",
   "AudioObject",
   "AuthorRole",
   "BooleanValidator",

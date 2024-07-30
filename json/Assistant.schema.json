@@ -1,31 +1,28 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/Claim.schema.json",
-  "@id": "schema:Claim",
-  "title": "Claim",
+  "$id": "https://stencila.org/Assistant.schema.json",
+  "@id": "stencila:Assistant",
+  "title": "Assistant",
   "extends": [
-    "CreativeWork"
+    "CreativeWork",
+    "Executable"
   ],
   "category": "works",
-  "description": "A claim represents specific reviewable facts or statements.",
-  "$comment": "Usually displayed as a block element and can have a label and title.\nIn the context of a scholarly article this could be a theorem or proof.\nSee also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).\n",
-  "jats": {
-    "elem": "statement"
-  },
-  "markdown": {
-    "derive": false
-  },
-  "proptest": {},
+  "description": "An assistant for creating and editing document content.",
   "required": [
     "type",
-    "claimType",
+    "type",
+    "name",
+    "version",
+    "instructionTypes",
+    "nodeTypes",
+    "description",
     "content"
   ],
   "core": [
     "id",
-    "label",
-    "authors",
-    "provenance"
+    "id",
+    "executionMode"
   ],
   "properties": {
     "type": {
@@ -594,12 +591,15 @@
         }
       ]
     },
-    "claimType": {
-      "@id": "stencila:claimType",
-      "description": "The type of the claim.",
+    "executionMode": {
+      "@id": "stencila:executionMode",
+      "description": "Under which circumstances the code should be executed.",
       "aliases": [
-        "claim-type",
-        "claim_type"
+        "execution-mode",
+        "execution_mode"
+      ],
+      "strip": [
+        "execution"
       ],
       "patch": {
         "formats": [
@@ -607,46 +607,257 @@
           "myst"
         ]
       },
-      "jats": {
-        "attr": "content-type"
-      },
-      "$ref": "ClaimType.schema.json"
+      "$ref": "ExecutionMode.schema.json"
     },
-    "label": {
-      "@id": "stencila:label",
-      "description": "A short label for the claim.",
-      "patch": {
-        "formats": [
-          "md",
-          "myst"
-        ]
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the content, semantics and dependencies of the node.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "skip": true
       },
-      "jats": {
-        "elem": "label"
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the code.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
       },
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
+    "executionDigest": {
+      "@id": "stencila:executionDigest",
+      "description": "The `compilationDigest` of the node when it was last executed.",
+      "aliases": [
+        "execution-digest",
+        "execution_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "skip": true
+      },
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "executionDependencies": {
+      "@id": "stencila:executionDependencies",
+      "description": "The upstream dependencies of this node.",
+      "aliases": [
+        "execution-dependencies",
+        "execution_dependencies",
+        "executionDependency",
+        "execution-dependency",
+        "execution_dependency"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependency.schema.json"
+      }
+    },
+    "executionDependants": {
+      "@id": "stencila:executionDependants",
+      "description": "The downstream dependants of this node.",
+      "aliases": [
+        "execution-dependants",
+        "execution_dependants",
+        "executionDependant",
+        "execution-dependant",
+        "execution_dependant"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependant.schema.json"
+      }
+    },
+    "executionTags": {
+      "@id": "stencila:executionTags",
+      "description": "Tags in the code which affect its execution.",
+      "aliases": [
+        "execution-tags",
+        "execution_tags",
+        "executionTag",
+        "execution-tag",
+        "execution_tag"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionTag.schema.json"
+      }
+    },
+    "executionCount": {
+      "@id": "stencila:executionCount",
+      "description": "A count of the number of times that the node has been executed.",
+      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "aliases": [
+        "execution-count",
+        "execution_count"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "executionRequired": {
+      "@id": "stencila:executionRequired",
+      "description": "Whether, and why, the code requires execution or re-execution.",
+      "aliases": [
+        "execution-required",
+        "execution_required"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionRequired.schema.json"
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the most recent, including any current, execution.",
+      "aliases": [
+        "execution-status",
+        "execution_status"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionStatus.schema.json"
+    },
+    "executionActor": {
+      "@id": "stencila:executionActor",
+      "description": "The id of the actor that the node was last executed by.",
+      "aliases": [
+        "execution-actor",
+        "execution_actor"
+      ],
+      "strip": [
+        "execution"
+      ],
       "type": "string"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the last execution ended.",
+      "aliases": [
+        "execution-ended",
+        "execution_ended"
+      ],
+      "strip": [
+        "execution",
+        "timestamps"
+      ],
+      "dom": {
+        "with": "Timestamp::to_dom_attr"
+      },
+      "$ref": "Timestamp.schema.json"
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Duration of the last execution.",
+      "aliases": [
+        "execution-duration",
+        "execution_duration"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "with": "Duration::to_dom_attr"
+      },
+      "$ref": "Duration.schema.json"
+    },
+    "executionMessages": {
+      "@id": "stencila:executionMessages",
+      "description": "Messages emitted while executing the node.",
+      "aliases": [
+        "execution-messages",
+        "execution_messages",
+        "executionMessage",
+        "execution-message",
+        "execution_message"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionMessage.schema.json"
+      }
+    },
+    "instructionTypes": {
+      "@id": "stencila:instructionTypes",
+      "description": "The types of instructions that the assistant supports",
+      "aliases": [
+        "instruction-types",
+        "instruction_types",
+        "instructionType",
+        "instruction-type",
+        "instruction_type"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "InstructionType.schema.json"
+      }
+    },
+    "nodeTypes": {
+      "@id": "stencila:nodeTypes",
+      "description": "The types of nodes that the assistant supports",
+      "aliases": [
+        "node-types",
+        "node_types",
+        "nodeType",
+        "node-type",
+        "node_type"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "content": {
       "@id": "stencila:content",
-      "description": "Content of the claim, usually a single paragraph.",
-      "$comment": "Most claims will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
-      "dom": {
-        "elem": "aside"
-      },
-      "proptest": {
-        "min": {
-          "description": "Generate a single arbitrary paragraph.",
-          "strategy": "vec_paragraphs(1)"
-        },
-        "low": {
-          "description": "Generate up to two arbitrary, non-recursive, block nodes.",
-          "strategy": "vec_blocks_non_recursive(2)"
-        },
-        "max": {
-          "description": "Generate up to four arbitrary, non-recursive, block nodes.",
-          "strategy": "vec_blocks_non_recursive(4)"
-        }
-      },
+      "description": "The content of the assistant's prompt template.",
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

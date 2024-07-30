@@ -7,6 +7,9 @@
       "$ref": "Article.schema.json"
     },
     {
+      "$ref": "Assistant.schema.json"
+    },
+    {
       "$ref": "AudioObject.schema.json"
     },
     {

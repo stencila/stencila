@@ -4,12 +4,12 @@ use crate::prelude::*;
 
 use super::brand::Brand;
 use super::contact_point::ContactPoint;
+use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::person_or_organization::PersonOrOrganization;
 use super::postal_address_or_string::PostalAddressOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::text::Text;
 
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
@@ -27,6 +27,10 @@ pub struct Organization {
     #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// The name of the item.
+    #[strip(metadata)]
+    pub name: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -53,7 +57,7 @@ pub struct OrganizationOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
@@ -66,10 +70,6 @@ pub struct OrganizationOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
-
-    /// The name of the item.
-    #[strip(metadata)]
-    pub name: Option<String>,
 
     /// The URL of the item.
     #[strip(metadata)]

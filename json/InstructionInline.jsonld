@@ -306,6 +306,9 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Assistant"
+        },
+        {
           "@id": "stencila:Cite"
         },
         {

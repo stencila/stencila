@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
+use super::cord::Cord;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -100,7 +101,7 @@ pub struct ImageObjectOptions {
     /// A description of the item.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

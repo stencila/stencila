@@ -7,16 +7,17 @@
   "extends": [
     "Entity"
   ],
-  "description": "The name and execution options for the generative model used for an instruction.",
+  "description": "Model selection criteria and execution options for the generative model used for an instruction.",
   "required": [
     "type"
   ],
   "core": [
     "id",
-    "name",
+    "namePattern",
     "qualityWeight",
     "speedWeight",
     "costWeight",
+    "scoreThreshold",
     "temperature",
     "randomSeed"
   ],
@@ -39,9 +40,13 @@
       },
       "type": "string"
     },
-    "name": {
-      "@id": "schema:name",
-      "description": "The name of the model.",
+    "namePattern": {
+      "@id": "stencila:namePattern",
+      "description": "A regular expression to select models by name.",
+      "aliases": [
+        "name-pattern",
+        "name_pattern"
+      ],
       "patch": {
         "formats": [
           "md",
@@ -86,6 +91,21 @@
       "aliases": [
         "cost-weight",
         "cost_weight"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "scoreThreshold": {
+      "@id": "stencila:scoreThreshold",
+      "description": "The score threshold for models (0-100).",
+      "aliases": [
+        "score-threshold",
+        "score_threshold"
       ],
       "patch": {
         "formats": [

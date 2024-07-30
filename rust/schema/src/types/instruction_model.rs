@@ -6,7 +6,7 @@ use super::integer::Integer;
 use super::string::String;
 use super::unsigned_integer::UnsignedInteger;
 
-/// The name and execution options for the generative model used for an instruction.
+/// Model selection criteria and execution options for the generative model used for an instruction.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
@@ -22,9 +22,10 @@ pub struct InstructionModel {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The name of the model.
+    /// A regular expression to select models by name.
+    #[serde(alias = "name-pattern", alias = "name_pattern")]
     #[patch(format = "md", format = "myst")]
-    pub name: Option<String>,
+    pub name_pattern: Option<String>,
 
     /// The relative weighting given to model quality (0-100).
     #[serde(alias = "quality-weight", alias = "quality_weight")]
@@ -40,6 +41,11 @@ pub struct InstructionModel {
     #[serde(alias = "cost-weight", alias = "cost_weight")]
     #[patch(format = "md", format = "myst")]
     pub cost_weight: Option<UnsignedInteger>,
+
+    /// The score threshold for models (0-100).
+    #[serde(alias = "score-threshold", alias = "score_threshold")]
+    #[patch(format = "md", format = "myst")]
+    pub score_threshold: Option<UnsignedInteger>,
 
     /// The temperature option for model inference (0-100).
     #[patch(format = "md", format = "myst")]

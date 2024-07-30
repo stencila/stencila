@@ -43,6 +43,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ArrayValidator.prototype);
     case "Article":
       return Object.setPrototypeOf(value, types.Article.prototype);
+    case "Assistant":
+      return Object.setPrototypeOf(value, types.Assistant.prototype);
     case "AudioObject":
       return Object.setPrototypeOf(value, types.AudioObject.prototype);
     case "AuthorRole":

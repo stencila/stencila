@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Article } from "./Article.js";
+import { type Assistant } from "./Assistant.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Claim } from "./Claim.js";
 import { type Collection } from "./Collection.js";
@@ -25,6 +26,7 @@ import { type VideoObject } from "./VideoObject.js";
  */
 export type CreativeWorkType =
   Article |
+  Assistant |
   AudioObject |
   Claim |
   Collection |
@@ -48,6 +50,7 @@ export type CreativeWorkType =
 export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
   switch(other.type) {
     case "Article":
+    case "Assistant":
     case "AudioObject":
     case "Claim":
     case "Collection":

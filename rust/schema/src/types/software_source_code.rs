@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
+use super::cord::Cord;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -42,6 +43,10 @@ pub struct SoftwareSourceCode {
     /// The name of the item.
     #[strip(metadata)]
     pub name: String,
+
+    /// The version of the creative work.
+    #[strip(metadata)]
+    pub version: Option<StringOrNumber>,
 
     /// The computer programming language.
     #[serde(alias = "programming-language", alias = "programming_language")]
@@ -81,7 +86,7 @@ pub struct SoftwareSourceCodeOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
@@ -251,10 +256,6 @@ pub struct SoftwareSourceCodeOptions {
     #[patch(format = "md", format = "myst")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
-
-    /// The version of the creative work.
-    #[strip(metadata)]
-    pub version: Option<StringOrNumber>,
 
     /// What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
     #[serde(alias = "code-sample-type", alias = "code_sample_type")]

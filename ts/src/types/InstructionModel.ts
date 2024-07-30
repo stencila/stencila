@@ -5,16 +5,16 @@ import { Integer } from "./Integer.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
- * The name and execution options for the generative model used for an instruction.
+ * Model selection criteria and execution options for the generative model used for an instruction.
  */
 export class InstructionModel extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "InstructionModel";
 
   /**
-   * The name of the model.
+   * A regular expression to select models by name.
    */
-  name?: string;
+  namePattern?: string;
 
   /**
    * The relative weighting given to model quality (0-100).
@@ -30,6 +30,11 @@ export class InstructionModel extends Entity {
    * The relative weighting given to model cost (0-100).
    */
   costWeight?: UnsignedInteger;
+
+  /**
+   * The score threshold for models (0-100).
+   */
+  scoreThreshold?: UnsignedInteger;
 
   /**
    * The temperature option for model inference (0-100).

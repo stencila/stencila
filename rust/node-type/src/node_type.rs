@@ -21,6 +21,7 @@ pub enum NodeType {
     ArrayHint,
     ArrayValidator,
     Article,
+    Assistant,
     AudioObject,
     AuthorRole,
     BooleanValidator,

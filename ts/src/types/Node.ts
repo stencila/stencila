@@ -7,6 +7,7 @@ import { type Array } from "./Array.js";
 import { type ArrayHint } from "./ArrayHint.js";
 import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
+import { type Assistant } from "./Assistant.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRole } from "./AuthorRole.js";
 import { type BooleanValidator } from "./BooleanValidator.js";
@@ -148,6 +149,7 @@ export type Node =
   ArrayHint |
   ArrayValidator |
   Article |
+  Assistant |
   AudioObject |
   AuthorRole |
   BooleanValidator |
@@ -282,6 +284,7 @@ export function node(other: Node): Node {
     case "ArrayHint":
     case "ArrayValidator":
     case "Article":
+    case "Assistant":
     case "AudioObject":
     case "AuthorRole":
     case "BooleanValidator":

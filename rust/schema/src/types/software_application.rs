@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
+use super::cord::Cord;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -41,6 +42,10 @@ pub struct SoftwareApplication {
     #[strip(metadata)]
     pub name: String,
 
+    /// The version of the creative work.
+    #[strip(metadata)]
+    pub version: Option<StringOrNumber>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
@@ -66,7 +71,7 @@ pub struct SoftwareApplicationOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
@@ -236,10 +241,6 @@ pub struct SoftwareApplicationOptions {
     #[patch(format = "md", format = "myst")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
-
-    /// The version of the creative work.
-    #[strip(metadata)]
-    pub version: Option<StringOrNumber>,
 
     /// Requirements for application, including shared libraries that are not included in the application distribution.
     #[serde(alias = "software-requirements", alias = "software_requirements", alias = "softwareRequirement", alias = "software-requirement", alias = "software_requirement")]

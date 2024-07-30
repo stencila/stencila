@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::admonition_type::AdmonitionType;
 use super::article::Article;
+use super::assistant::Assistant;
 use super::audio_object::AudioObject;
 use super::author_role_name::AuthorRoleName;
 use super::brand::Brand;
@@ -64,6 +65,8 @@ pub enum ThingType {
     AdmonitionType(AdmonitionType),
 
     Article(Article),
+
+    Assistant(Assistant),
 
     AudioObject(AudioObject),
 

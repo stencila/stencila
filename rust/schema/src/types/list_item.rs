@@ -4,12 +4,12 @@ use crate::prelude::*;
 
 use super::block::Block;
 use super::boolean::Boolean;
+use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::integer::Integer;
 use super::node::Node;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::text::Text;
 
 /// A single item in a list.
 #[skip_serializing_none]
@@ -85,7 +85,7 @@ pub struct ListItemOptions {
     /// A description of the item.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

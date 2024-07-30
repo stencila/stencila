@@ -60,9 +60,6 @@
           "@id": "stencila:Function"
         },
         {
-          "@id": "stencila:InstructionModel"
-        },
-        {
           "@id": "stencila:Parameter"
         },
         {
@@ -120,6 +117,9 @@
         },
         {
           "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Assistant"
         },
         {
           "@id": "stencila:Cite"

@@ -2,13 +2,13 @@
 
 use crate::prelude::*;
 
+use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::organization::Organization;
 use super::person_or_organization::PersonOrOrganization;
 use super::postal_address_or_string::PostalAddressOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::text::Text;
 
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
@@ -66,7 +66,7 @@ pub struct PersonOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Text>,
+    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

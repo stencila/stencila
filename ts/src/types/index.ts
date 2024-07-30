@@ -6,6 +6,7 @@ export * from "./Array.js";
 export * from "./ArrayHint.js";
 export * from "./ArrayValidator.js";
 export * from "./Article.js";
+export * from "./Assistant.js";
 export * from "./AudioObject.js";
 export * from "./Author.js";
 export * from "./AuthorRole.js";
