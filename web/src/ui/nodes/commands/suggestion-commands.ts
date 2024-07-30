@@ -141,7 +141,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
 
     return html`
       <div class=${containerStyles} @click=${(e: Event) => e.stopPropagation()}>
-        <div class="flex flex-row items-center mt-1 text-sm">
+        <div class="flex flex-row items-center text-sm">
           <sl-icon name="instruction-block" library="stencila"></sl-icon>
           <input
             ${ref(this.inputRef)}
