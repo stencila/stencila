@@ -139,8 +139,7 @@ impl MarkdownCodec for InstructionBlock {
                                 &thresh.to_string(),
                             );
                         }
-                        if let Some(temp) =
-                            &self.model.as_ref().and_then(|model| model.temperature)
+                        if let Some(temp) = &self.model.as_ref().and_then(|model| model.temperature)
                         {
                             context.myst_directive_option(
                                 NodeProperty::Assignee,

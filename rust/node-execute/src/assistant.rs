@@ -10,7 +10,7 @@ use crate::{prelude::*, Phase};
  * Execute an assistant.
  *
  * This is not `impl Executable for Assistant` because we need to pass through
- * additional information such as the instruction type and content. Also 
+ * additional information such as the instruction type and content. Also
  * allows us to have a fallible function and any error to be attached to the
  * calling instruction.
  *
