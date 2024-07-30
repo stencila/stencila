@@ -354,7 +354,17 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 
     let models = models
         .into_iter()
-        .filter(|model| !model.name.starts_with("models/embedding-"))
+        .filter(|model| {
+            // Only include gemini models with numeric version (not
+            // un-versioned or latest)
+            let parts = model.name.split('-').collect_vec();
+            model.name.starts_with("models/gemini")
+                && parts.len() == 4
+                && parts
+                    .last()
+                    .map(|&version| version != "latest")
+                    .unwrap_or(false)
+        })
         .sorted_by(|a, b| a.name.cmp(&b.name))
         .map(|model| {
             let name = model.name.strip_prefix("models/").unwrap_or(&model.name);

@@ -444,6 +444,19 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .filter_map(|model| {
             let name = model.id;
 
+            // Exclude model names that are not versioned
+            if name == "gpt-3.5-turbo"
+                || name == "gpt-3.5-turbo-instruct"
+                || name == "gpt-4"
+                || name == "gpt-4-turbo"
+                || name == "gpt-4o"
+                || name == "gpt-4o-mini"
+                || name == "tts-1"
+                || name == "tts-1-hd"
+            {
+                return None;
+            }
+
             let context_length =
                 if name.starts_with("gpt-4-1106") || name.starts_with("gpt-4-vision") {
                     128_000

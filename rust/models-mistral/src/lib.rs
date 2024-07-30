@@ -227,10 +227,19 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 
     let models = models
         .into_iter()
-        .filter(|model| !model.id.ends_with("-embed"))
+        .filter(|ModelSpec { id: model }| {
+            // Only include models with numeric version (not un-versioned or latest)
+            let parts = model.split('-').collect_vec();
+            ((model.starts_with("codestral") && parts.len() == 2) || parts.len() >= 3)
+                && parts
+                    .last()
+                    .map(|&version| version.starts_with("2"))
+                    .unwrap_or(false)
+        })
         .sorted_by(|a, b| a.id.cmp(&b.id))
         .map(|ModelSpec { id: model }| {
-            let context_length = match model.as_str() {
+            let (name, _version) = model.rsplit_once('-').unwrap_or_default();
+            let context_length = match name {
                 "mistral-tiny" => 4_096,
                 "mistral-small" => 8_192,
                 "mistral-medium" => 32_768,
