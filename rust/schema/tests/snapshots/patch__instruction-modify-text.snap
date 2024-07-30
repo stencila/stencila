@@ -19,29 +19,29 @@ old:
   content:
     - type: InstructionBlock
       instructionType: Edit
-      messages:
-        - type: InstructionMessage
-          parts:
-            - type: Text
-              value:
-                string: more succinct
-                authorship:
-                  - - 1
-                    - 0
-                    - 0
-                    - 13
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
-          provenance:
-            - type: ProvenanceCount
-              provenanceCategory: Hw
-              characterCount: 13
-              characterPercent: 100
+      message:
+        type: InstructionMessage
+        parts:
+          - type: Text
+            value:
+              string: more succinct
+              authorship:
+                - - 1
+                  - 0
+                  - 0
+                  - 13
+        authors:
+          - type: AuthorRole
+            author:
+              type: Person
+              givenNames:
+                - Alice
+            roleName: Importer
+        provenance:
+          - type: ProvenanceCount
+            provenanceCategory: Hw
+            characterCount: 13
+            characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -70,12 +70,12 @@ new:
   content:
     - type: InstructionBlock
       instructionType: Edit
-      messages:
-        - type: InstructionMessage
-          parts:
-            - type: Text
-              value:
-                string: more succinct
+      message:
+        type: InstructionMessage
+        parts:
+          - type: Text
+            value:
+              string: more succinct
       content:
         - type: Paragraph
           content:
@@ -105,29 +105,29 @@ merged:
   content:
     - type: InstructionBlock
       instructionType: Edit
-      messages:
-        - type: InstructionMessage
-          parts:
-            - type: Text
-              value:
-                string: more succinct
-                authorship:
-                  - - 1
-                    - 0
-                    - 0
-                    - 13
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
-          provenance:
-            - type: ProvenanceCount
-              provenanceCategory: Hw
-              characterCount: 13
-              characterPercent: 100
+      message:
+        type: InstructionMessage
+        parts:
+          - type: Text
+            value:
+              string: more succinct
+              authorship:
+                - - 1
+                  - 0
+                  - 0
+                  - 13
+        authors:
+          - type: AuthorRole
+            author:
+              type: Person
+              givenNames:
+                - Alice
+            roleName: Importer
+        provenance:
+          - type: ProvenanceCount
+            provenanceCategory: Hw
+            characterCount: 13
+            characterPercent: 100
       content:
         - type: Paragraph
           content:

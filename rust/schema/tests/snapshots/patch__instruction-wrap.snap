@@ -93,12 +93,12 @@ new:
             string: Some okay text.
     - type: InstructionBlock
       instructionType: Edit
-      messages:
-        - type: InstructionMessage
-          parts:
-            - type: Text
-              value:
-                string: more succinct
+      message:
+        type: InstructionMessage
+        parts:
+          - type: Text
+            value:
+              string: more succinct
       content:
         - type: Paragraph
           content:
@@ -155,29 +155,29 @@ merged:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Edit
-      messages:
-        - type: InstructionMessage
-          parts:
-            - type: Text
-              value:
-                string: more succinct
-                authorship:
-                  - - 1
-                    - 0
-                    - 0
-                    - 13
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Bob
-              roleName: Writer
-          provenance:
-            - type: ProvenanceCount
-              provenanceCategory: Hw
-              characterCount: 13
-              characterPercent: 100
+      message:
+        type: InstructionMessage
+        parts:
+          - type: Text
+            value:
+              string: more succinct
+              authorship:
+                - - 1
+                  - 0
+                  - 0
+                  - 13
+        authors:
+          - type: AuthorRole
+            author:
+              type: Person
+              givenNames:
+                - Bob
+            roleName: Writer
+        provenance:
+          - type: ProvenanceCount
+            provenanceCategory: Hw
+            characterCount: 13
+            characterPercent: 100
       content:
         - type: Paragraph
           content:
@@ -229,12 +229,12 @@ ops:
         - - 1
           - type: InstructionBlock
             instructionType: Edit
-            messages:
-              - type: InstructionMessage
-                parts:
-                  - type: Text
-                    value:
-                      string: more succinct
+            message:
+              type: InstructionMessage
+              parts:
+                - type: Text
+                  value:
+                    string: more succinct
             content:
               - type: Paragraph
                 content:

@@ -29,29 +29,29 @@ old:
                 - 23
         - type: InstructionInline
           instructionType: New
-          messages:
-            - type: InstructionMessage
-              parts:
-                - type: Text
-                  value:
-                    string: equation for surface area of cube
-                    authorship:
-                      - - 1
-                        - 0
-                        - 0
-                        - 33
-              authors:
-                - type: AuthorRole
-                  author:
-                    type: Person
-                    givenNames:
-                      - Alice
-                  roleName: Importer
-              provenance:
-                - type: ProvenanceCount
-                  provenanceCategory: Hw
-                  characterCount: 33
-                  characterPercent: 100
+          message:
+            type: InstructionMessage
+            parts:
+              - type: Text
+                value:
+                  string: equation for surface area of cube
+                  authorship:
+                    - - 1
+                      - 0
+                      - 0
+                      - 33
+            authors:
+              - type: AuthorRole
+                author:
+                  type: Person
+                  givenNames:
+                    - Alice
+                roleName: Importer
+            provenance:
+              - type: ProvenanceCount
+                provenanceCategory: Hw
+                characterCount: 33
+                characterPercent: 100
           assignee: math
         - type: Text
           value:
@@ -93,12 +93,12 @@ new:
             string: "The area of a cube is: "
         - type: InstructionInline
           instructionType: New
-          messages:
-            - type: InstructionMessage
-              parts:
-                - type: Text
-                  value:
-                    string: insert equation for surface area of cube
+          message:
+            type: InstructionMessage
+            parts:
+              - type: Text
+                value:
+                  string: insert equation for surface area of cube
         - type: Text
           value:
             string: ".\nFollowed by "
@@ -140,39 +140,39 @@ merged:
                 - 23
         - type: InstructionInline
           instructionType: New
-          messages:
-            - type: InstructionMessage
-              parts:
-                - type: Text
-                  value:
-                    string: insert equation for surface area of cube
-                    authorship:
-                      - - 1
-                        - 1
-                        - 0
-                        - 7
-                      - - 1
-                        - 0
-                        - 0
-                        - 33
-              authors:
-                - type: AuthorRole
-                  author:
-                    type: Person
-                    givenNames:
-                      - Alice
-                  roleName: Importer
-                - type: AuthorRole
-                  author:
-                    type: Person
-                    givenNames:
-                      - Bob
-                  roleName: Writer
-              provenance:
-                - type: ProvenanceCount
-                  provenanceCategory: Hw
-                  characterCount: 40
-                  characterPercent: 100
+          message:
+            type: InstructionMessage
+            parts:
+              - type: Text
+                value:
+                  string: insert equation for surface area of cube
+                  authorship:
+                    - - 1
+                      - 1
+                      - 0
+                      - 7
+                    - - 1
+                      - 0
+                      - 0
+                      - 33
+            authors:
+              - type: AuthorRole
+                author:
+                  type: Person
+                  givenNames:
+                    - Alice
+                roleName: Importer
+              - type: AuthorRole
+                author:
+                  type: Person
+                  givenNames:
+                    - Bob
+                roleName: Writer
+            provenance:
+              - type: ProvenanceCount
+                provenanceCategory: Hw
+                characterCount: 40
+                characterPercent: 100
         - type: Text
           value:
             string: ".\nFollowed by "
@@ -214,8 +214,7 @@ ops:
       - 0
       - content
       - 1
-      - messages
-      - 0
+      - message
       - parts
       - 0
       - value

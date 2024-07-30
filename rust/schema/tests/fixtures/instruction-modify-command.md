@@ -1,8 +1,8 @@
 An insert instruction with an assignee:
 
-/ @table top five highest mountains, with height in metres
+::: new @table top five highest mountains, with height in metres
 
 ===
 An insert instruction with an assignee:
 
-/ @table top five highest mountains, with height in feet
+::: new @table top five highest mountains, with height in feet
