@@ -90,7 +90,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
           e.stopImmediatePropagation()
         }}
       >
-        <sl-tooltip content="Accept Suggestion">
+        <sl-tooltip content="Accept suggestion">
           <sl-icon
             name="hand-thumbs-up"
             @click=${(e: Event) => {
@@ -99,7 +99,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             class="hover:text-gray-900"
           ></sl-icon>
         </sl-tooltip>
-        <sl-tooltip content="Reject Suggestion">
+        <sl-tooltip content="Reject suggestion">
           <sl-icon
             name="hand-thumbs-down"
             @click=${(e: Event) => {
@@ -109,12 +109,11 @@ export class UINodeSuggestionCommands extends UIBaseClass {
           ></sl-icon>
         </sl-tooltip>
         <sl-tooltip
-          content="Revision instruction"
+          content="Revise suggestion with feedback"
           style="--show-delay: 1000ms;"
         >
           <sl-icon
-            name="instruction-block"
-            library="stencila"
+            name="arrow-repeat"
             @click=${() => {
               this.showInstructInput = !this.showInstructInput
             }}
@@ -142,25 +141,23 @@ export class UINodeSuggestionCommands extends UIBaseClass {
     return html`
       <div class=${containerStyles} @click=${(e: Event) => e.stopPropagation()}>
         <div class="flex flex-row items-center text-sm">
-          <sl-icon name="instruction-block" library="stencila"></sl-icon>
-          <input
+          <textarea
             ${ref(this.inputRef)}
-            class="w-42 mx-2 px-1 text-black rounded-sm"
-            type="text"
-            placeholder="further instructions"
+            class="mx-2 px-1 text-gray-800 text-xs rounded-sm resize-none"
+            cols="40"
+            rows="3"
+            placeholder="Provide feedback or leave empty for machine generated feedback"
             ?disabled=${this.reviseStatus === 'pending'}
-          />
-          <sl-tooltip content="Revise Suggestion">
-            <sl-icon
-              name="arrow-repeat"
-              class="text-lg hover:text-gray-500 cursor-pointer ${this
-                .reviseStatus === 'pending' && 'animate-spin'}"
-              @click=${(e: Event) => {
-                this.emitEvent(e, 'revise', this.inputRef.value.value)
-                this.reviseStatus = 'pending'
-              }}
-            ></sl-icon>
-          </sl-tooltip>
+          ></textarea>
+          <sl-icon
+            name="arrow-repeat"
+            class="text-lg hover:text-gray-500 cursor-pointer ${this
+              .reviseStatus === 'pending' && 'animate-spin'}"
+            @click=${(e: Event) => {
+              this.emitEvent(e, 'revise', this.inputRef.value.value)
+              this.reviseStatus = 'pending'
+            }}
+          ></sl-icon>
         </div>
       </div>
     `
