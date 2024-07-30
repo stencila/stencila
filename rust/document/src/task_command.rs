@@ -57,7 +57,7 @@ impl Document {
                                 home.clone(),
                                 root.clone(),
                                 kernels.clone(),
-                                patch_sender.clone(),
+                                Some(patch_sender.clone()),
                                 None,
                             )
                             .await
@@ -88,7 +88,7 @@ impl Document {
                                 home.clone(),
                                 root.clone(),
                                 kernels.clone(),
-                                patch_sender.clone(),
+                                Some(patch_sender.clone()),
                                 Some(node_ids.clone()),
                             )
                             .await
@@ -127,7 +127,7 @@ impl Document {
                 CompileDocument => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            compile(home, root, kernels, patch_sender, None, None).await
+                            compile(home, root, kernels, Some(patch_sender), None, None).await
                         {
                             tracing::error!("While compiling document: {error}");
                             CommandStatus::Failed
@@ -142,7 +142,8 @@ impl Document {
                 ExecuteDocument(options) => {
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            execute(home, root, kernels, patch_sender, None, Some(options)).await
+                            execute(home, root, kernels, Some(patch_sender), None, Some(options))
+                                .await
                         {
                             tracing::error!("While executing document: {error}");
                             CommandStatus::Failed
@@ -163,7 +164,7 @@ impl Document {
                             home,
                             root,
                             kernels,
-                            patch_sender,
+                            Some(patch_sender),
                             Some(node_ids),
                             Some(options),
                         )
