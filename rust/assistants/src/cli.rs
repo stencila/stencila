@@ -1,20 +1,22 @@
 use cli_utils::{
-    table::{self, Attribute, Cell, Color},
+    table::{self, Attribute, Cell},
     Code, ToStdout,
 };
+use common::itertools::Itertools;
 use model::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
         serde_yaml,
     },
-    context::Context,
     format::Format,
-    schema::{InstructionBlock, InstructionMessage, InstructionType},
-    GenerateOptions, ModelAvailability, ModelType,
+    schema::{
+        Assistant, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionBlock,
+        InstructionMessage, InstructionModel, InstructionType, StringOrNumber, Thing, Timestamp,
+    },
 };
 
-use crate::execute_instruction;
+use crate::{execute_instruction_block, find, render};
 
 /// Manage assistants
 #[derive(Debug, Parser)]
@@ -52,32 +54,39 @@ struct List;
 impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
-        table.set_header(["Name", "Provider", "Version", "Description"]);
+        table.set_header([
+            "Name",
+            "Version",
+            "Instructions",
+            "Node types",
+            "Description",
+        ]);
 
-        for assistant in super::list(true).await {
-            use ModelAvailability::*;
-            let availability = assistant.availability();
+        for Assistant {
+            name,
+            version,
+            instruction_types,
+            node_types,
+            description,
+            ..
+        } in super::list().await
+        {
+            let version = match version {
+                StringOrNumber::String(version) => version,
+                StringOrNumber::Number(version) => version.to_string(),
+            };
 
             table.add_row([
-                Cell::new(assistant.name()).add_attribute(Attribute::Bold),
-                match assistant.r#type() {
-                    ModelType::Builtin => Cell::new("builtin").fg(Color::Green),
-                    ModelType::Local => Cell::new("local").fg(Color::Cyan),
-                    ModelType::Remote => Cell::new("remote").fg(Color::Magenta),
-                    ModelType::Plugin(name) => {
-                        Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
-                    }
-                },
-                match availability {
-                    Available => Cell::new(assistant.version()),
-                    _ => match availability {
-                        Available => Cell::new(availability).fg(Color::Green),
-                        Disabled => Cell::new(availability).fg(Color::DarkBlue),
-                        Installable => Cell::new(availability).fg(Color::Cyan),
-                        Unavailable => Cell::new(availability).fg(Color::Grey),
-                    },
-                },
-                Cell::new(assistant.description().unwrap_or_default()),
+                Cell::new(name).add_attribute(Attribute::Bold),
+                Cell::new(version),
+                Cell::new(
+                    instruction_types
+                        .iter()
+                        .map(|typ| typ.to_string())
+                        .join(", "),
+                ),
+                Cell::new(node_types.join(", ")),
+                Cell::new(description.as_str()),
             ]);
         }
 
@@ -93,35 +102,70 @@ impl List {
 #[derive(Debug, Args)]
 #[clap(alias = "exec")]
 struct Execute {
-    /// The name of the assistant to execute the instruction
+    /// The text of the instruction
+    instruction: String,
+
+    /// The name of the assistant assigned to the instruction
     ///
-    /// For example, `stencila/insert-code-chunk` or `mistral/mistral-medium`.
+    /// For example, `stencila/paragraph` or `my-org/abstract`.
     /// For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`.
     /// See `stencila assistants list` for a list of available assistants.
-    name: String,
+    #[arg(long, short)]
+    assignee: Option<String>,
 
-    /// The instruction to execute
-    instruction: String,
+    /// The regex pattern to filter model names by
+    #[arg(long, short = 'm')]
+    name_pattern: Option<String>,
+
+    /// The threshold score for selecting a model to use
+    #[arg(long, short = 'y')]
+    score_threshold: Option<u64>,
 }
 
 impl Execute {
     async fn run(self) -> Result<()> {
-        let instruction = InstructionBlock {
-            instruction_type: InstructionType::New,
-            assignee: Some(self.name),
-            message: Some(InstructionMessage::from(self.instruction)),
+        let instructor = AuthorRole {
+            role_name: AuthorRoleName::Instructor,
+            author: AuthorRoleAuthor::Thing(Thing::default()),
+            last_modified: Some(Timestamp::now()),
             ..Default::default()
         };
 
-        let context = Context::default();
-        let options = GenerateOptions::default();
-        let output = execute_instruction(instruction.clone(), context, options).await?;
+        let instruction = InstructionBlock {
+            instruction_type: InstructionType::New,
+            message: Some(InstructionMessage::user(
+                self.instruction,
+                Some(vec![Author::AuthorRole(instructor.clone())]),
+            )),
+            assignee: self.assignee,
+            model: Some(Box::new(InstructionModel {
+                name_pattern: self.name_pattern,
+                score_threshold: self.score_threshold,
+                ..Default::default()
+            })),
+            ..Default::default()
+        };
+
+        let assistant = find(&instruction.assignee, &instruction.instruction_type, &None).await?;
+
+        let prompter = AuthorRole {
+            last_modified: Some(Timestamp::now()),
+            ..assistant.clone().into()
+        };
+
+        let system_message = render(assistant).await?;
+
+        let suggestion =
+            execute_instruction_block(instructor, prompter, &system_message, &instruction).await?;
 
         println!("Instruction");
         Code::new(Format::Yaml, &serde_yaml::to_string(&instruction)?).to_stdout();
 
-        println!("Output");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
+        println!("System prompt (no context)");
+        Code::new(Format::Markdown, &system_message).to_stdout();
+
+        println!("Suggestion");
+        Code::new(Format::Yaml, &serde_yaml::to_string(&suggestion)?).to_stdout();
 
         Ok(())
     }

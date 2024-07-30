@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app" }
-assistant = { path = "../assistant" }
 cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
 common = { path = "../common" }

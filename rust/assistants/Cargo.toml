@@ -4,9 +4,13 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-assistant = { path = "../assistant" }
+app = { path = "../app" }
+cached = { workspace = true }
 cli-utils = { path = "../cli-utils" }
+codec-markdown-trait = {path = "../codec-markdown-trait" }
+codecs = {path = "../codecs" }
 common = { path = "../common" }
 model = { path = "../model" }
 models = { path = "../models" }
 plugins = { path = "../plugins" }
+rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }
