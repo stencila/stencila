@@ -3,6 +3,7 @@
 mod admonition;
 mod array;
 mod article;
+mod assistant;
 mod author;
 mod author_role;
 mod block;
