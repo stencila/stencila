@@ -185,7 +185,7 @@ impl Packages {
         table.set_header(["Package", "Version"]);
 
         for package in packages {
-            let version = match package.options.version.unwrap_or_default() {
+            let version = match package.version.unwrap_or_default() {
                 StringOrNumber::String(version) => version,
                 StringOrNumber::Number(version) => version.to_string(),
             };
