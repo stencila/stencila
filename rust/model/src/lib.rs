@@ -9,8 +9,8 @@ use common::{
 
 use schema::{
     AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionMessage, MessagePart, MessageRole,
-    Organization, OrganizationOptions, PersonOrOrganization, SoftwareApplication,
-    SoftwareApplicationOptions, StringOrNumber, Timestamp,
+    Organization, PersonOrOrganization, SoftwareApplication, SoftwareApplicationOptions,
+    StringOrNumber, Timestamp,
 };
 
 // Export crates for the convenience of dependant crates
