@@ -13,7 +13,8 @@ use async_lsp::{
 };
 
 use codecs::Positions;
-use common::{itertools::Itertools, tokio::sync::RwLock};
+use common::{inflector::Inflector, tokio::sync::RwLock};
+use schema::Assistant;
 
 use crate::utils::position_to_position16;
 
@@ -58,15 +59,16 @@ pub(super) async fn request(
 
 /// Provide completion list for assignees of an instruction
 async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseError> {
-    let items = assistants::list(false)
+    let items = assistants::list()
         .await
         .iter()
-        // Filter out the generic assistants and this that are not available
-        .filter(|assistant| assistant.preference_rank() > 0 && assistant.is_available())
-        // Sort by descending order of preference rank
-        .sorted_by(|a, b| a.preference_rank().cmp(&b.preference_rank()).reverse())
         .map(|assistant| {
-            let name = assistant.name();
+            let Assistant {
+                name,
+                version,
+                description,
+                ..
+            } = assistant;
 
             // This attempts to maintain consistency with the symbols used for
             // `DocumentSymbols` for various node types
@@ -87,17 +89,15 @@ async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseErr
             let label = if let Some(name) = name.strip_prefix("stencila/") {
                 name.to_string()
             } else {
-                name
+                name.to_string()
             };
 
-            let detail = Some(format!("{} v{}", assistant.title(), assistant.version()));
+            let detail = Some(format!("{} v{}", name.to_title_case(), version));
 
-            let documentation = assistant.description().map(|desc| {
-                Documentation::MarkupContent(MarkupContent {
-                    kind: MarkupKind::Markdown,
-                    value: desc,
-                })
-            });
+            let documentation = Some(Documentation::MarkupContent(MarkupContent {
+                kind: MarkupKind::Markdown,
+                value: description.to_string(),
+            }));
 
             CompletionItem {
                 kind: Some(kind),
