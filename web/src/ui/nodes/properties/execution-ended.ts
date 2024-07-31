@@ -20,7 +20,7 @@ export class UINodeExecutionEnded extends UINodeTimestampProperty {
         icon-name="clock"
         icon-library="default"
         tooltip-content="${isoFormat
-          ? `Last execution ended at ${isoFormat}`
+          ? `Last executed at ${isoFormat}`
           : 'No previous executions'}"
       >
         ${this.relativeTime}
