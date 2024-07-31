@@ -156,7 +156,8 @@ impl Execute {
         let system_message = render(assistant).await?;
 
         let suggestion =
-            execute_instruction_block(instructor, prompter, &system_message, &instruction).await?;
+            execute_instruction_block(vec![instructor], prompter, &system_message, &instruction)
+                .await?;
 
         println!("Instruction");
         Code::new(Format::Yaml, &serde_yaml::to_string(&instruction)?).to_stdout();

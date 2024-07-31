@@ -1,6 +1,6 @@
 use codec_markdown_trait::to_markdown;
 use common::{futures::future, itertools::Itertools};
-use schema::{AuthorRole, InstructionBlock, SuggestionStatus};
+use schema::{AuthorRole, AuthorRoleName, InstructionBlock, SuggestionStatus};
 
 use crate::{assistant::execute_assistant, interrupt_impl, pending_impl, prelude::*};
 
@@ -78,6 +78,17 @@ impl Executable for InstructionBlock {
 
         let started = Timestamp::now();
 
+        // The authors of the suggestion, initialized with the authors of the instruction
+        let mut instructors = Vec::new();
+        if let Some(message) = &self.message {
+            for author in message.authors.iter().flatten() {
+                instructors.push(AuthorRole {
+                    last_modified: Some(Timestamp::now()),
+                    ..author.clone().into_author_role(AuthorRoleName::Instructor)
+                });
+            }
+        }
+
         let replicates = self.replicates.unwrap_or(1) as usize;
 
         let node_types = self
@@ -103,21 +114,27 @@ impl Executable for InstructionBlock {
             &executor.home,
         )
         .await
-        .unwrap();
+        .unwrap(); // TODO: avoid this unwrap!
 
-        let prompter: AuthorRole = assistant.clone().into();
-        let system_prompt = assistants::render(assistant).await.unwrap();
+        let system_prompt = assistants::render(assistant.clone()).await.unwrap();
         tracing::debug!("{assistant_name} rendered prompt:\n\n{system_prompt}");
+
+        // Add the assistant as a prompter
+        let prompter = AuthorRole {
+            last_modified: Some(Timestamp::now()),
+            ..assistant.into()
+        };
 
         // Create a future for each replicate
         let mut futures = Vec::new();
         for _ in 0..replicates {
+            let instructors = instructors.clone();
             let prompter = prompter.clone();
             let system_prompt = system_prompt.to_string();
             let instruction = self.clone();
             futures.push(async move {
                 assistants::execute_instruction_block(
-                    AuthorRole::default(),
+                    instructors,
                     prompter,
                     &system_prompt,
                     &instruction,

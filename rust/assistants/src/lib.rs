@@ -193,7 +193,7 @@ pub async fn render(assistant: Assistant) -> Result<String> {
  * Execute an `InstructionBlock`
  */
 pub async fn execute_instruction_block(
-    instructor: AuthorRole,
+    mut instructors: Vec<AuthorRole>,
     prompter: AuthorRole,
     system_prompt: &str,
     instruction: &InstructionBlock,
@@ -306,7 +306,8 @@ pub async fn execute_instruction_block(
     suggestion.suggestion_status = Some(SuggestionStatus::Proposed);
 
     // Apply authorship to the suggestion.
-    authors.append(&mut vec![instructor, prompter]);
+    authors.append(&mut instructors);
+    authors.push(prompter);
     authorship(&mut suggestion, authors)?;
 
     Ok(suggestion)
