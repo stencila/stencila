@@ -49,6 +49,8 @@ properties:
     $ref: InstructionModel
     patch:
       formats: [md, myst]
+    dom:
+      elem: div
   replicates:
     "@id": stencila:replicates
     description: The number of suggestions to generate for the instruction

@@ -71,6 +71,7 @@ pub struct InstructionBlock {
     /// The name, and other options, for the model that the assistant should use to generate suggestions.
     #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub model: Option<Box<InstructionModel>>,
 
     /// The number of suggestions to generate for the instruction

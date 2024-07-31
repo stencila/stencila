@@ -332,6 +332,9 @@
           "myst"
         ]
       },
+      "dom": {
+        "elem": "div"
+      },
       "$ref": "InstructionModel.schema.json"
     },
     "replicates": {
