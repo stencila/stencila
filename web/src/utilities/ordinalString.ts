@@ -2,7 +2,7 @@
  * Returns the ordinal string for the number provided,
  * eg '1st', '3rd', '113th' etc...
  */
-export const getOrdinalString = (num: number): string => {
+export const ordinalString = (num: number): string => {
   const x = num % 10,
     y = num % 100
 
