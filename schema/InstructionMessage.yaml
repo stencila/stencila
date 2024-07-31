@@ -4,6 +4,8 @@ nick: ime
 extends: Entity
 category: edits
 description: A message within an `Instruction`.
+markdown:
+  derive: false
 required:
   - parts
 core:

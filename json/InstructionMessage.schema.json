@@ -9,6 +9,9 @@
   ],
   "category": "edits",
   "description": "A message within an `Instruction`.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "parts"
