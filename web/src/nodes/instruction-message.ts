@@ -5,6 +5,9 @@ import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/provenance/provenance'
+
 /**
  * Web component representing a Stencila Schema `InstructionMessage` node
  *
@@ -14,15 +17,18 @@ import { Entity } from './entity'
 @withTwind()
 export class InstructionMessage extends Entity {
   override render() {
-    // TODO: Currently just showing `parts` property, not `role`, `authors` and `provenance`.
     return html`
       <div>
         <div class="py-2">
           <slot name="parts"></slot>
         </div>
-        <div>
+
+        <stencila-ui-node-authors type="InstructionMessage">
+          <stencila-ui-node-provenance slot="provenance">
+            <slot name="provenance"></slot>
+          </stencila-ui-node-provenance>
           <slot name="authors"></slot>
-        </div>
+        </stencila-ui-node-authors>
       </div>
     `
   }
