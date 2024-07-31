@@ -25,7 +25,7 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
         take_while(1.., |c: char| c.is_ascii_alphabetic() || c == '_'),
         take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_'),
     )
-        .recognize()
+        .take()
         .parse_next(input)
 }
 
@@ -61,7 +61,7 @@ pub(super) fn assignee<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
             c.is_ascii_alphanumeric() || "_-/.@".contains(c)
         }),
     )
-        .recognize()
+        .take()
         .parse_next(input)
 }
 
@@ -73,7 +73,7 @@ pub(super) fn model<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
             c.is_ascii_alphanumeric() || "_-/".contains(c)
         }),
     )
-        .recognize()
+        .take()
         .parse_next(input)
 }
 
@@ -109,7 +109,7 @@ pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> PResult<Vec<(&'s str, O
         separated(
             0..,
             attr,
-            alt(((multispace0, ',', multispace0).recognize(), multispace1)),
+            alt(((multispace0, ',', multispace0).take(), multispace1)),
         ),
         (multispace0, '}'),
     )
@@ -191,7 +191,7 @@ fn double_quoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
 /// Excludes character that may be significant in places that this is used.
 fn unquoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
     take_while(1.., |c: char| c != ' ' && c != '}')
-        .recognize()
+        .take()
         .map(|value: &str| Node::String(value.to_string()))
         .parse_next(input)
 }
@@ -199,7 +199,7 @@ fn unquoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
 /// Parse a YYYY-mm-ddTHH::MM::SS datetime
 fn datetime_node(input: &mut Located<&str>) -> PResult<Node> {
     terminated((date_node, 'T', time_node), opt('Z'))
-        .recognize()
+        .take()
         .map(|str: &str| Node::DateTime(DateTime::new(str.to_string())))
         .parse_next(input)
 }
@@ -215,7 +215,7 @@ fn digits2<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
 /// Parse a YYYY-mm-dd date
 fn date_node(input: &mut Located<&str>) -> PResult<Node> {
     (digits4, '-', digits2, '-', digits2)
-        .recognize()
+        .take()
         .map(|str: &str| Node::Date(Date::new(str.to_string())))
         .parse_next(input)
 }
@@ -223,7 +223,7 @@ fn date_node(input: &mut Located<&str>) -> PResult<Node> {
 /// Parse a HH::MM::SS time
 fn time_node(input: &mut Located<&str>) -> PResult<Node> {
     (digits2, ':', digits2, ':', digits2)
-        .recognize()
+        .take()
         .map(|str: &str| Node::Time(Time::new(str.to_string())))
         .parse_next(input)
 }
@@ -231,7 +231,7 @@ fn time_node(input: &mut Located<&str>) -> PResult<Node> {
 /// Parse a JSON5-style square bracketed array into an `Array` node
 fn array_node(input: &mut Located<&str>) -> PResult<Node> {
     let json5 = ('[', take_until_unbalanced('[', ']'), ']')
-        .recognize()
+        .take()
         .parse_next(input)?;
     Node::from_json5(json5).map_err(|_| ErrMode::from_error_kind(input, ErrorKind::Verify))
 }
@@ -239,7 +239,7 @@ fn array_node(input: &mut Located<&str>) -> PResult<Node> {
 /// Parse a JSON5-style curly braced object into an `Object` node
 fn object_node(input: &mut Located<&str>) -> PResult<Node> {
     let json5 = ('{', take_until_unbalanced('{', '}'), '}')
-        .recognize()
+        .take()
         .parse_next(input)?;
     Node::from_json5(json5).map_err(|_| ErrMode::from_error_kind(input, ErrorKind::Verify))
 }
@@ -490,7 +490,7 @@ mod tests {
 
         assert_eq!(
             ('{', take_until_unbalanced('{', '}'), '}')
-                .recognize()
+                .take()
                 .parse_next(&mut Located::new("{a:1, b:2}"))
                 .unwrap(),
             "{a:1, b:2}"
