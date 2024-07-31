@@ -25,12 +25,6 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   private showReviseInput: boolean = false
 
   /**
-   * Status variable for the revise command
-   */
-  @state()
-  private reviseStatus: 'idle' | 'pending' = 'idle'
-
-  /**
    * Ref for the revision input
    */
   private reviseInputRef: Ref<HTMLInputElement> = createRef()
@@ -133,6 +127,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
         <sl-tooltip
           content="Revise suggestion with feedback"
           style="--show-delay: 1000ms;"
+          ?disabled=${this.showReviseInput}
         >
           <sl-icon
             name="arrow-repeat"
@@ -142,16 +137,15 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             class="hover:text-gray-900"
           ></sl-icon>
         </sl-tooltip>
-        ${this.renderInstructInput()}
+        ${this.renderReviseInput()}
       </div>
     `
   }
 
-  private renderInstructInput() {
+  private renderReviseInput() {
     const containerStyles = apply([
       !this.showReviseInput && 'hidden',
       'absolute -top-[100%] right-0 z-50',
-      'max-w-[24rem]',
       'transform -translate-y-full',
       `bg-[${this.ui.borderColour}]`,
       'p-1',
@@ -160,9 +154,14 @@ export class UINodeSuggestionCommands extends UIBaseClass {
       'cursor-auto',
     ])
 
-    const submitRevision = (e: Event) => {
+    const textAreaStyles = apply([
+      'mr-2 px-1 rounded-sm resize-none',
+      `outline-[${this.ui.textColour}]`,
+      'text-gray-700 text-[0.85rem]',
+    ])
+
+    const submit = (e: Event) => {
       this.emitEvent(e, 'revise', this.reviseInputRef.value.value)
-      this.reviseStatus = 'pending'
       this.reviseInputRef.value.value = ''
       this.showReviseInput = false
     }
@@ -172,27 +171,22 @@ export class UINodeSuggestionCommands extends UIBaseClass {
         <div class="flex flex-row items-center text-sm">
           <textarea
             ${ref(this.reviseInputRef)}
-            class="mr-2 px-1 text-gray-800 text-xs rounded-sm resize-none outline-black"
-            cols="40"
-            rows="3"
-            placeholder="Provide feedback or leave empty for machine generated feedback"
-            ?disabled=${this.reviseStatus === 'pending'}
+            class=${textAreaStyles}
+            cols="45"
+            rows="2"
+            placeholder="Add feedback or leave empty for auto generated feedback"
             @keydown=${(e: KeyboardEvent) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
-                submitRevision(e)
+                submit(e)
               }
             }}
           ></textarea>
           <button
-            @click=${submitRevision}
+            @click=${submit}
             class="flex items-center cursor-pointer hover:text-gray-500"
           >
-            <sl-icon
-              name="arrow-repeat"
-              class="text-lg"
-              ?disabled=${this.reviseStatus === 'pending'}
-            ></sl-icon>
+            <sl-icon name="arrow-repeat" class="text-lg"></sl-icon>
           </button>
         </div>
       </div>
