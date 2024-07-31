@@ -7,10 +7,8 @@ start     end        offsets   node_type+property                   authorship
    381    418       (31, 39)   Paragraph
    468    501       (87, 83)   Paragraph
    503    559       (35, 58)   Paragraph
-   610    631      (107, 72)   CodeChunk
-   597    636       (-13, 5)   SuggestionBlock
-   638    676       (41, 40)   Paragraph
-   704    735       (66, 59)   Paragraph
-   750    762       (46, 27)   Paragraph
-   737    767       (-13, 5)   SuggestionBlock
-     0    768      (-737, 1)   Article
+   612    633      (109, 74)   CodeChunk
+   636    674       (24, 41)   Paragraph
+   702    733       (66, 59)   Paragraph
+   750    762       (48, 29)   Paragraph
+     0    764      (-750, 2)   Article

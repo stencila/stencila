@@ -249,11 +249,13 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                         // This clause must come after `::: else` and others above to avoid `section`
                         // prematurely matching.
 
-                        // Collect
+                        // Collect the next block into content for instructions and suggestions
+                        // where content capacity has already been set to 1
                         if let Block::InstructionBlock(InstructionBlock {
                             content: Some(content),
                             ..
-                        }) = &block
+                        })
+                        | Block::SuggestionBlock(SuggestionBlock { content, .. }) = &block
                         {
                             if content.capacity() == 1 {
                                 collect_index = index + 1;
@@ -305,8 +307,8 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             }
         }
 
-        // If the previous block was an instruction with content capacity of one,
-        // then make the current block the content of that instruction
+        // If the previous block was an instruction or suggestion with content capacity of one,
+        // then make the current block the content
         if collect_index == index && !blocks.is_empty() {
             let last = blocks.pop().expect("Should not be empty");
 
@@ -317,12 +319,41 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 context.map_extend(previous_id, last_id);
             };
 
-            if let Some(Block::InstructionBlock(InstructionBlock {
-                content: Some(content),
-                ..
-            })) = blocks.last_mut()
+            if let Some(
+                Block::InstructionBlock(InstructionBlock {
+                    content: Some(content),
+                    ..
+                })
+                | Block::SuggestionBlock(SuggestionBlock { content, .. }),
+            ) = blocks.last_mut()
             {
                 content.push(last);
+            }
+
+            // If the blocks now end with instruction and suggestion then assign the
+            // suggestion to the instruction
+            if let (Some(Block::InstructionBlock(..)), Some(Block::SuggestionBlock(..))) =
+                (blocks.iter().nth_back(1), blocks.last())
+            {
+                if let (Some(previous_id), Some(last_id)) = (
+                    blocks.iter().nth_back(1).and_then(|block| block.node_id()),
+                    blocks.last().and_then(|block| block.node_id()),
+                ) {
+                    context.map_extend(previous_id, last_id);
+                };
+
+                if let Some(Block::SuggestionBlock(suggestion)) = blocks.pop() {
+                    if let Some(Block::InstructionBlock(InstructionBlock { suggestions, .. })) =
+                        blocks.last_mut()
+                    {
+                        match suggestions {
+                            Some(suggestions) => suggestions.push(suggestion),
+                            None => {
+                                suggestions.replace(vec![suggestion]);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -701,9 +732,26 @@ fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
         (alt(("suggestion", "suggest")), multispace0),
         opt(take_while(1.., |_| true)),
     )
-    .map(|feedback| {
+    .map(|feedback: Option<&str>| {
+        let (feedback, capacity) = match feedback {
+            Some(feedback) => {
+                let feedback = feedback.trim();
+                let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix(">") {
+                    (feedback.trim_end(), 1)
+                } else {
+                    (feedback, 2)
+                };
+
+                ((!feedback.is_empty()).then_some(feedback), capacity)
+            }
+            None => (None, 2),
+        };
+
+        let content = Vec::with_capacity(capacity);
+
         Block::SuggestionBlock(SuggestionBlock {
             feedback: feedback.map(String::from),
+            content,
             ..Default::default()
         })
     })

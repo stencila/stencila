@@ -63,33 +63,33 @@ start     end        offsets   node_type+property                   authorship
    581    593         (0, 0)   InstructionMessage.parts
    581    593         (0, 0)   InstructionMessage
    581    593         (0, 0)   InstructionBlock.message
-   618    627       (37, 34)   CodeChunk.code
-   610    632        (-8, 5)   CodeChunk
-   610    633         (0, 1)   SuggestionBlock.content
-   597    637       (-13, 4)   SuggestionBlock
-   597    638         (0, 1)   InstructionBlock.suggestions
-   561    637      (-36, -1)   InstructionBlock
-   638    676       (77, 39)   Text.value
-   638    676         (0, 0)   Text
-   638    676         (0, 0)   Paragraph.content
-   638    677         (0, 1)   Paragraph
-   687    700       (49, 23)   Text.value
-   687    700         (0, 0)   Text
-   687    700         (0, 0)   InstructionMessage.parts
-   687    700         (0, 0)   InstructionMessage
-   687    700         (0, 0)   InstructionBlock.message
-   704    735       (17, 35)   Text.value
-   704    735         (0, 0)   Text
-   704    735         (0, 0)   Paragraph.content
-   704    736         (0, 1)   Paragraph
-   704    737         (0, 1)   InstructionBlock.content
-   750    762       (46, 25)   Text.value
+   620    629       (39, 36)   CodeChunk.code
+   612    634        (-8, 5)   CodeChunk
+   612    635         (0, 1)   SuggestionBlock.content
+   597    634      (-15, -1)   SuggestionBlock
+   597    636         (0, 2)   InstructionBlock.suggestions
+   561    635      (-36, -1)   InstructionBlock
+   636    674       (75, 39)   Text.value
+   636    674         (0, 0)   Text
+   636    674         (0, 0)   Paragraph.content
+   636    675         (0, 1)   Paragraph
+   685    698       (49, 23)   Text.value
+   685    698         (0, 0)   Text
+   685    698         (0, 0)   InstructionMessage.parts
+   685    698         (0, 0)   InstructionMessage
+   685    698         (0, 0)   InstructionBlock.message
+   702    733       (17, 35)   Text.value
+   702    733         (0, 0)   Text
+   702    733         (0, 0)   Paragraph.content
+   702    734         (0, 1)   Paragraph
+   702    735         (0, 1)   InstructionBlock.content
+   750    762       (48, 27)   Text.value
    750    762         (0, 0)   Text
    750    762         (0, 0)   Paragraph.content
    750    763         (0, 1)   Paragraph
    750    764         (0, 1)   SuggestionBlock.content
-   737    768       (-13, 4)   SuggestionBlock
-   737    769         (0, 1)   InstructionBlock.suggestions
-   678    768      (-59, -1)   InstructionBlock
-     0    769      (-678, 1)   Article.content
-     0    769         (0, 0)   Article
+   735    763      (-15, -1)   SuggestionBlock
+   735    765         (0, 2)   InstructionBlock.suggestions
+   676    764      (-59, -1)   InstructionBlock
+     0    765      (-676, 1)   Article.content
+     0    765         (0, 0)   Article

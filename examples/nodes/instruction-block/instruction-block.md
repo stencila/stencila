@@ -26,13 +26,12 @@ An insert instruction with an assignee and a suggestion:
 
 ::: new @code-chunk analyze data |
 
-::: suggest
+::: suggest >
 
 ```exec
 some code
 ```
 
-:::
 
 An edit instruction with a suggestion:
 
@@ -40,8 +39,7 @@ An edit instruction with a suggestion:
 
 A rather long winded paragraph.
 
-::: suggest
+::: suggest >
 
 A paragraph.
 
-:::
