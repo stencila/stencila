@@ -187,7 +187,7 @@ export async function createDocumentViewPanel(
         `stencila.${name}`,
         documentUri.toString(),
         command.nodeType,
-        command.nodeIds[0]
+        ...command.nodeIds
       );
     },
     undefined,
