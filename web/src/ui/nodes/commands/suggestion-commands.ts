@@ -44,22 +44,33 @@ export class UINodeSuggestionCommands extends UIBaseClass {
     }
   }
 
+  /**
+   * Focus the revise input if it is shown
+   *
+   * This should only place the focus on the input if the window
+   * is open because otherwise it can take away the focus from the
+   * editor in VSCode.
+   */
   protected override update(changedProperties: PropertyValues): void {
     super.update(changedProperties)
-    if (changedProperties.has('showReviseInput')) {
+    if (changedProperties.has('showReviseInput') && this.showReviseInput) {
       this.reviseInputRef.value.focus()
     }
   }
 
+  /**
+   * Add a click event to the window to hide the input pop up when user clicks outside.
+   */
   override connectedCallback(): void {
-    // add a click event to the window to hide the input pop up when user clicks outside.
     super.connectedCallback()
     window.addEventListener('click', this.hideReviseInput.bind(this))
   }
 
+  /**
+   * Cleanup the window event listener when component is unmounted.
+   */
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    // cleanup the window event listener when component is unmounted.
     window.removeEventListener('click', this.hideReviseInput.bind(this))
   }
 
