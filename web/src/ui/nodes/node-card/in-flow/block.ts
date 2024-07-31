@@ -22,7 +22,7 @@ export class UIBlockInFlow extends UIBaseCard {
       'border border-[rgba(255,255,255,0)]',
       'rounded',
       `text-[${this.ui.textColour}]`,
-      this.view === 'source' ? 'flex flex-col h-full' : 'my-2',
+      'my-2',
       this.ui.borderColour && `border-[${this.ui.borderColour}]`,
     ])
 

@@ -33,12 +33,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
   `
 
   override render() {
-    const cardStyles = apply([
-      'group',
-      'transition duration-400',
-      'rounded',
-      this.view === 'source' ? 'flex flex-col h-full' : '',
-    ])
+    const cardStyles = apply(['group', 'transition duration-400', 'rounded'])
 
     return html`<div class=${`ui-inline-on-demand ${cardStyles}`}>
       ${this.renderContentContainer()}

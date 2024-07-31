@@ -16,19 +16,19 @@ export class InstructionModel extends Entity {
   @property()
   namePattern?: string
 
-  @property({type: Number})
+  @property({ type: Number })
   qualityWeight?: number
 
-  @property({type: Number})
+  @property({ type: Number })
   speedWeight?: number
 
-  @property({type: Number})
+  @property({ type: Number })
   costWeight?: number
 
-  @property({type: Number})
+  @property({ type: Number })
   minimumScore?: number
 
-  @property({type: Number})
+  @property({ type: Number })
   temperature?: number
 
   override render() {
