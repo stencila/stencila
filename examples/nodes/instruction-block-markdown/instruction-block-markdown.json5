@@ -16,7 +16,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "Instruction type: new" }
+          value: { string: "New instruction" }
         }
       ]
     },
@@ -25,7 +25,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "No closing fence:" }
+          value: { string: "No content, closing pipe:" }
         }
       ]
     },
@@ -38,39 +38,57 @@
       content: [
         {
           type: "Text",
-          value: { string: "Closing fence at end of line" }
+          value: { string: "Single new block:" }
         }
       ]
     },
     {
       type: "InstructionBlock",
-      instructionType: "New"
+      instructionType: "New",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "New paragraph #1" }
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Paragraph",
       content: [
         {
           type: "Text",
-          value: { string: "Closing fence on new line at end of same paragraph" }
+          value: { string: "Multiple new blocks:" }
         }
       ]
     },
     {
       type: "InstructionBlock",
-      instructionType: "New"
-    },
-    {
-      type: "Paragraph",
+      instructionType: "New",
       content: [
         {
-          type: "Text",
-          value: { string: "Closing fence as new paragraph (this would be unusual)" }
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "New paragraph #2" }
+            }
+          ]
+        },
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "New paragraph #3" }
+            }
+          ]
         }
       ]
-    },
-    {
-      type: "InstructionBlock",
-      instructionType: "New"
     },
     {
       type: "Heading",
@@ -78,7 +96,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "Instruction type: edit" }
+          value: { string: "Edit instruction" }
         }
       ]
     },
@@ -87,7 +105,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "No closing fence:" }
+          value: { string: "Edit next block:" }
         }
       ]
     },
@@ -111,55 +129,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "Closing fence at end of line  (this would be unusual)" }
-        }
-      ]
-    },
-    {
-      type: "InstructionBlock",
-      instructionType: "Edit",
-      content: [
-        {
-          type: "Paragraph",
-          content: [
-            {
-              type: "Text",
-              value: { string: "Paragraph to edit #2" }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      type: "Paragraph",
-      content: [
-        {
-          type: "Text",
-          value: { string: "Closing fence on new line at end of same paragraph (this would be unusual)" }
-        }
-      ]
-    },
-    {
-      type: "InstructionBlock",
-      instructionType: "Edit",
-      content: [
-        {
-          type: "Paragraph",
-          content: [
-            {
-              type: "Text",
-              value: { string: "Paragraph to edit #3" }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      type: "Paragraph",
-      content: [
-        {
-          type: "Text",
-          value: { string: "Closing fence as new paragraph, to bound content" }
+          value: { string: "Edit muliple blocks:" }
         }
       ]
     },

@@ -19,7 +19,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Instruction type: new"
+            "string": "New instruction"
           }
         }
       ]
@@ -30,7 +30,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "No closing fence:"
+            "string": "No content, closing pipe:"
           }
         }
       ]
@@ -45,14 +45,27 @@
         {
           "type": "Text",
           "value": {
-            "string": "Closing fence at end of line"
+            "string": "Single new block:"
           }
         }
       ]
     },
     {
       "type": "InstructionBlock",
-      "instructionType": "New"
+      "instructionType": "New",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "New paragraph #1"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "Paragraph",
@@ -60,29 +73,38 @@
         {
           "type": "Text",
           "value": {
-            "string": "Closing fence on new line at end of same paragraph"
+            "string": "Multiple new blocks:"
           }
         }
       ]
     },
     {
       "type": "InstructionBlock",
-      "instructionType": "New"
-    },
-    {
-      "type": "Paragraph",
+      "instructionType": "New",
       "content": [
         {
-          "type": "Text",
-          "value": {
-            "string": "Closing fence as new paragraph (this would be unusual)"
-          }
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "New paragraph #2"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "New paragraph #3"
+              }
+            }
+          ]
         }
       ]
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "New"
     },
     {
       "type": "Heading",
@@ -91,7 +113,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Instruction type: edit"
+            "string": "Edit instruction"
           }
         }
       ]
@@ -102,7 +124,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "No closing fence:"
+            "string": "Edit next block:"
           }
         }
       ]
@@ -130,63 +152,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Closing fence at end of line  (this would be unusual)"
-          }
-        }
-      ]
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "Edit",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "Paragraph to edit #2"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Closing fence on new line at end of same paragraph (this would be unusual)"
-          }
-        }
-      ]
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "Edit",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "Paragraph to edit #3"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Closing fence as new paragraph, to bound content"
+            "string": "Edit muliple blocks:"
           }
         }
       ]

@@ -14,9 +14,9 @@ use codec::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        InstructionType, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
-        Paragraph, QuoteBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table,
-        TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
+        ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
+        TableRowType, Text, ThematicBreak,
     },
 };
 
@@ -44,7 +44,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         }
     }
 
-    'mds: for md in mds {
+    let mut collect_index = usize::MAX;
+    for (index, md) in mds.into_iter().enumerate() {
+        let mut is_handled = false;
+
         // Parse "fenced div" paragraphs (starting with `:::`) and handle them specially...
         'fenced: {
             if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
@@ -177,7 +180,8 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                 }
                             }
                         }
-                        continue 'mds;
+
+                        is_handled = true;
                     } else if let Ok((is_if, if_clause)) =
                         if_elif(&mut Located::new(value.as_str()))
                     {
@@ -203,8 +207,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
                             blocks.push(Block::IfBlock(if_block));
                             boundaries.push(blocks.len());
-
-                            continue 'mds;
                         } else {
                             // This is an `::: elif` so end the mapping for the previous `IfBlockClause`
                             // and start a new one
@@ -231,7 +233,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                 if_block.clauses.push(if_clause);
 
                                 boundaries.push(blocks.len());
-                                continue 'mds;
                             } else {
                                 // There was no parent `IfBlock` so issue a warning and do not `continue`
                                 // (so that the paragraph will be added as is). Also add the children
@@ -240,21 +241,27 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                 blocks.append(&mut children);
                             }
                         }
+
+                        is_handled = true;
                     } else if let Ok(block) = block(&mut Located::new(value.as_str())) {
-                        // If this is the start of a "fenced div" block then push it on to
+                        // This is the start of a "fenced div" block so push it on to
                         // blocks and add a boundary marker for its children.
                         // This clause must come after `::: else` and others above to avoid `section`
                         // prematurely matching.
 
-                        // Only add a boundary for blocks that will have children to collect
-                        if matches!(
-                            block,
-                            Block::IncludeBlock(..)
-                                | Block::CallBlock(..)
-                                | Block::InstructionBlock(InstructionBlock { content: None, .. })
-                        ) {
-                            context.map_position(position, block.node_type(), block.node_id());
-                        } else {
+                        // Collect
+                        if let Block::InstructionBlock(InstructionBlock {
+                            content: Some(content),
+                            ..
+                        }) = &block
+                        {
+                            if content.capacity() == 1 {
+                                collect_index = index + 1;
+                            }
+                        }
+
+                        // Only add a boundary for blocks that are expected to have a closing fence
+                        if !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..)) {
                             boundaries.push(blocks.len() + 1);
                             if let (Some(position), Some(node_id)) = (position, block.node_id()) {
                                 context.map_start(
@@ -263,61 +270,59 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                     node_id,
                                 );
                             }
+                        } else {
+                            context.map_position(position, block.node_type(), block.node_id());
                         }
 
                         blocks.push(block);
-
-                        continue 'mds;
+                        is_handled = true;
                     }
                 }
             }
         }
 
         // MDAST nodes that can be directly translated into blocks
-        if let Some((block, position)) = md_to_block(md, context) {
-            if let Block::SuggestionBlock(suggestion) = block {
-                // MyST suggestion blocks (converted code blocks) need to be associated with
-                // the previous instruction
-                let suggestion_node_id = suggestion.node_id();
-                if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
-                    // Associate the suggestion with the instruction
-                    match instruct.suggestions.as_mut() {
-                        Some(suggestions) => suggestions.push(suggestion),
-                        None => instruct.suggestions = Some(vec![suggestion]),
-                    };
+        if !is_handled {
+            if let Some((block, position)) = md_to_block(md, context) {
+                if let Block::SuggestionBlock(suggestion) = block {
+                    // MyST suggestion blocks (converted code blocks) need to be associated with
+                    // the previous instruction
+                    let suggestion_node_id = suggestion.node_id();
+                    if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
+                        // Associate the suggestion with the instruction
+                        match instruct.suggestions.as_mut() {
+                            Some(suggestions) => suggestions.push(suggestion),
+                            None => instruct.suggestions = Some(vec![suggestion]),
+                        };
 
-                    // Extend the instruction to the end of the suggestion
-                    context.map_extend(instruct.node_id(), suggestion_node_id);
+                        // Extend the instruction to the end of the suggestion
+                        context.map_extend(instruct.node_id(), suggestion_node_id);
+                    }
+                } else {
+                    context.map_position(&position, block.node_type(), block.node_id());
+                    blocks.push(block);
                 }
-            } else {
-                context.map_position(&position, block.node_type(), block.node_id());
-                blocks.push(block);
             }
-        };
+        }
 
-        // If the previous block was an instruction that requires content (e.g an `edit` or an `update`)
-        // and that block does not yet have content then make the current block the content of that instruction
-        if let Some(Block::InstructionBlock(InstructionBlock {
-            instruction_type: InstructionType::Edit | InstructionType::Update,
-            content,
-            ..
-        })) = blocks.iter().rev().nth(1)
-        {
-            if content.iter().flatten().count() == 0 {
-                let last = blocks.pop().expect("Guaranteed by previous being present");
+        // If the previous block was an instruction with content capacity of one,
+        // then make the current block the content of that instruction
+        if collect_index == index && !blocks.is_empty() {
+            let last = blocks.pop().expect("Should not be empty");
 
-                if let (Some(instruction_id), Some(last_id)) = (
-                    blocks.last().and_then(|block| block.node_id()),
-                    last.node_id(),
-                ) {
-                    context.map_extend(instruction_id, last_id);
-                };
+            if let (Some(previous_id), Some(last_id)) = (
+                blocks.last().and_then(|block| block.node_id()),
+                last.node_id(),
+            ) {
+                context.map_extend(previous_id, last_id);
+            };
 
-                if let Some(Block::InstructionBlock(InstructionBlock { content, .. })) =
-                    blocks.last_mut()
-                {
-                    content.replace(vec![last]);
-                }
+            if let Some(Block::InstructionBlock(InstructionBlock {
+                content: Some(content),
+                ..
+            })) = blocks.last_mut()
+            {
+                content.push(last);
             }
         }
     }
@@ -606,13 +611,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             (alt(('x', 'y', 't', 'q', 's', 'c')), digit1),
             multispace1,
         ),
-        opt(alt((
-            (
-                take_until(0.., ':'),
-                (take_while(3.., ':'), multispace0).value(false),
-            ),
-            (take_while(0.., |_| true), "".value(true)),
-        ))),
+        opt(take_while(0.., |_| true)),
     )
         .map(
             |(instruction_type, assignee, name_pattern, options, message): (
@@ -622,16 +621,26 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 Vec<(char, &str)>,
                 _,
             )| {
-                let (text, has_content) = message.unwrap_or_default();
+                let (message, capacity) = match message {
+                    Some(message) => {
+                        let message = message.trim();
+                        let (message, capacity) = if let Some(message) = message.strip_suffix("|") {
+                            (message.trim_end(), None)
+                        } else if let Some(message) = message.strip_suffix(">") {
+                            (message.trim_end(), Some(1))
+                        } else {
+                            (message, Some(2))
+                        };
 
-                let text = text.trim();
-                let message = (!text.is_empty()).then(|| InstructionMessage::from(text.trim()));
-
-                let content = if has_content && !matches!(instruction_type, InstructionType::New) {
-                    Some(Vec::new())
-                } else {
-                    None
+                        (
+                            (!message.is_empty()).then_some(InstructionMessage::from(message)),
+                            capacity,
+                        )
+                    }
+                    None => (None, Some(2)),
                 };
+
+                let content = capacity.map(|capacity| Vec::with_capacity(capacity));
 
                 let mut replicates: Option<u64> = None;
                 let mut minimum_score: Option<u64> = None;

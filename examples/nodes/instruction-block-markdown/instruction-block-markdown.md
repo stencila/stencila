@@ -1,48 +1,36 @@
 Example using Markdown as canonical format to test alternative ways to write instruction blocks.
 
-# Instruction type: new
+# New instruction
 
-No closing fence:
+No content, closing pipe:
+
+::: new |
+
+Single new block:
+
+::: new >
+
+New paragraph #1
+
+Multiple new blocks:
 
 ::: new
 
-Closing fence at end of line
+New paragraph #2
 
-::: new :::
+New paragraph #3
 
-Closing fence on new line at end of same paragraph
-
-::: new
 :::
 
-Closing fence as new paragraph (this would be unusual)
+# Edit instruction
 
-::: new
+Edit next block:
 
-:::
-
-# Instruction type: edit
-
-No closing fence:
-
-::: edit
+::: edit >
 
 Paragraph to edit #1
 
-Closing fence at end of line  (this would be unusual)
-
-::: edit :::
-
-Paragraph to edit #2
-
-Closing fence on new line at end of same paragraph (this would be unusual)
-
-::: edit
-:::
-
-Paragraph to edit #3
-
-Closing fence as new paragraph, to bound content
+Edit muliple blocks:
 
 ::: edit
 
