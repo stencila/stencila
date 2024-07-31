@@ -131,7 +131,7 @@ impl MarkdownCodec for InstructionBlock {
                             );
                         }
                         if let Some(thresh) =
-                            &self.model.as_ref().and_then(|model| model.score_threshold)
+                            &self.model.as_ref().and_then(|model| model.minimum_score)
                         {
                             context.myst_directive_option(
                                 NodeProperty::Assignee,
@@ -186,7 +186,7 @@ impl MarkdownCodec for InstructionBlock {
             if let Some(value) = self
                 .model
                 .as_ref()
-                .and_then(|model| model.score_threshold.as_ref())
+                .and_then(|model| model.minimum_score.as_ref())
             {
                 context
                     .push_str("y")

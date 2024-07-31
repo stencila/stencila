@@ -634,7 +634,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 };
 
                 let mut replicates: Option<u64> = None;
-                let mut score_threshold: Option<u64> = None;
+                let mut minimum_score: Option<u64> = None;
                 let mut temperature: Option<u64> = None;
                 let mut quality_weight: Option<u64> = None;
                 let mut speed_weight: Option<u64> = None;
@@ -643,7 +643,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     let value = value.parse().ok();
                     match tag {
                         'x' => replicates = value,
-                        'y' => score_threshold = value,
+                        'y' => minimum_score = value,
                         't' => temperature = value,
                         'q' => quality_weight = value,
                         's' => speed_weight = value,
@@ -653,7 +653,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 }
 
                 let model = if name_pattern.is_some()
-                    || score_threshold.is_some()
+                    || minimum_score.is_some()
                     || temperature.is_some()
                     || quality_weight.is_some()
                     || speed_weight.is_some()
@@ -661,7 +661,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 {
                     Some(Box::new(InstructionModel {
                         name_pattern: name_pattern.map(String::from),
-                        score_threshold,
+                        minimum_score,
                         temperature,
                         quality_weight,
                         speed_weight,

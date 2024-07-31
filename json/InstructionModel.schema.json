@@ -17,7 +17,7 @@
     "qualityWeight",
     "speedWeight",
     "costWeight",
-    "scoreThreshold",
+    "minimumScore",
     "temperature",
     "randomSeed"
   ],
@@ -100,12 +100,12 @@
       },
       "$ref": "UnsignedInteger.schema.json"
     },
-    "scoreThreshold": {
-      "@id": "stencila:scoreThreshold",
-      "description": "The score threshold for models (0-100).",
+    "minimumScore": {
+      "@id": "stencila:minimumScore",
+      "description": "The minimum score for models to be selected (0-100).",
       "aliases": [
-        "score-threshold",
-        "score_threshold"
+        "minimum-score",
+        "minimum_score"
       ],
       "patch": {
         "formats": [

@@ -1972,8 +1972,8 @@ class InstructionModel(Entity):
     cost_weight: UnsignedInteger | None = None
     """The relative weighting given to model cost (0-100)."""
 
-    score_threshold: UnsignedInteger | None = None
-    """The score threshold for models (0-100)."""
+    minimum_score: UnsignedInteger | None = None
+    """The minimum score for models to be selected (0-100)."""
 
     temperature: UnsignedInteger | None = None
     """The temperature option for model inference (0-100)."""

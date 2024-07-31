@@ -119,7 +119,7 @@ struct Execute {
 
     /// The threshold score for selecting a model to use
     #[arg(long, short = 'y')]
-    score_threshold: Option<u64>,
+    minimum_score: Option<u64>,
 }
 
 impl Execute {
@@ -140,7 +140,7 @@ impl Execute {
             assignee: self.assignee,
             model: Some(Box::new(InstructionModel {
                 name_pattern: self.name_pattern,
-                score_threshold: self.score_threshold,
+                minimum_score: self.minimum_score,
                 ..Default::default()
             })),
             ..Default::default()

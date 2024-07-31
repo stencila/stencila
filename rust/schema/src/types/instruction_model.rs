@@ -42,10 +42,10 @@ pub struct InstructionModel {
     #[patch(format = "md", format = "myst")]
     pub cost_weight: Option<UnsignedInteger>,
 
-    /// The score threshold for models (0-100).
-    #[serde(alias = "score-threshold", alias = "score_threshold")]
+    /// The minimum score for models to be selected (0-100).
+    #[serde(alias = "minimum-score", alias = "minimum_score")]
     #[patch(format = "md", format = "myst")]
-    pub score_threshold: Option<UnsignedInteger>,
+    pub minimum_score: Option<UnsignedInteger>,
 
     /// The temperature option for model inference (0-100).
     #[patch(format = "md", format = "myst")]
