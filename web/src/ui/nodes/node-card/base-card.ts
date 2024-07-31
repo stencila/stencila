@@ -75,6 +75,7 @@ export class UIBaseCard extends UIBaseClass {
     let icon = this.ui.icon
 
     if (this.programmingLanguage in programmingLanguages) {
+      // eslint-disable-next-line
       ;[icon, library] =
         programmingLanguages[
           this.programmingLanguage as ProgrammingLanguage
