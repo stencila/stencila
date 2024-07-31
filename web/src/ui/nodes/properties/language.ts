@@ -1,9 +1,10 @@
 import { LitElement } from 'lit'
 
-import { ProgrammingLanguages } from '../../../types'
-
 export declare class AvailableLanguagesInterface {
-  protected languages: ProgrammingLanguages
+  protected languages: Record<
+    string,
+    { displayName: string; icon: [string, string] }
+  >
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,7 +22,7 @@ export const AvailableLanguagesMixin = <
   superClass: T
 ) => {
   class AvailableLanguages extends superClass {
-    protected languages: ProgrammingLanguages = {
+    protected languages = {
       asciimath: {
         displayName: 'AsciiMath',
         icon: ['code-block', 'stencila'],
