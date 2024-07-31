@@ -6,10 +6,11 @@ import {
   Person,
   Text,
   Thing,
+  cord,
 } from "../index.js";
 
 test("new Article", () => {
-  const n = new Article([new Paragraph([new Text("Hello world!")])]);
+  const n = new Article([new Paragraph([new Text(cord("Hello world!"))])]);
 
   expect(n).toBeInstanceOf(Article);
   expect(n).toBeInstanceOf(CreativeWork);
@@ -22,7 +23,7 @@ test("new Article", () => {
 });
 
 test("new Article with options", () => {
-  const n = new Article([new Paragraph([new Text("Hello world!")])], {
+  const n = new Article([new Paragraph([new Text(cord("Hello world!"))])], {
     authors: [
       new Person({
         givenNames: ["Alice"],
