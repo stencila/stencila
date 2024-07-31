@@ -14,7 +14,7 @@ use async_lsp::{
 
 use codecs::Positions;
 use common::{inflector::Inflector, tokio::sync::RwLock};
-use schema::Assistant;
+use schema::{Assistant, StringOrNumber};
 
 use crate::utils::position_to_position16;
 
@@ -90,6 +90,11 @@ async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseErr
                 name.to_string()
             } else {
                 name.to_string()
+            };
+
+            let version = match version {
+                StringOrNumber::String(version) => version.to_string(),
+                StringOrNumber::Number(version) => version.to_string()
             };
 
             let detail = Some(format!("{} v{}", name.to_title_case(), version));
