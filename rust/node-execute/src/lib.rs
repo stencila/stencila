@@ -334,8 +334,7 @@ impl Executor {
         }
 
         // If the node has never been executed (both digests are none),
-        // or if the digest has changed since last executed, then execute
-        // the node
+        // or if the digest has changed since last executed, then execute the node
         (compilation_digest.is_none() && execution_digest.is_none())
             || compilation_digest != execution_digest
     }
@@ -346,6 +345,8 @@ impl Executor {
         &self,
         node_id: &NodeId,
         execution_mode: &Option<ExecutionMode>,
+        compilation_digest: &Option<CompilationDigest>,
+        execution_digest: &Option<CompilationDigest>,
     ) -> bool {
         if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
             return true;
@@ -363,7 +364,10 @@ impl Executor {
             return false;
         }
 
-        true
+        // If the node has never been executed (both digests are none),
+        // or if the digest has changed since last executed, then execute the node
+        (compilation_digest.is_none() && execution_digest.is_none())
+            || compilation_digest != execution_digest
     }
 
     /// Patch several properties of a node

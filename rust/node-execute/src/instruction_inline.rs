@@ -8,7 +8,7 @@ impl Executable for InstructionInline {
         let node_id = self.node_id();
         tracing::trace!("Pending InstructionInline {node_id}");
 
-        if executor.should_execute_instruction(&node_id, &self.execution_mode) {
+        if executor.should_execute_instruction(&node_id, &self.execution_mode, &None, &None) {
             tracing::trace!("Pending InstructionInline {node_id}");
 
             pending_impl!(executor, &node_id);
@@ -22,7 +22,7 @@ impl Executable for InstructionInline {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_instruction(&node_id, &self.execution_mode) {
+        if !executor.should_execute_instruction(&node_id, &self.execution_mode, &None, &None) {
             tracing::trace!("Skipping InstructionInline {node_id}");
 
             return WalkControl::Break;
