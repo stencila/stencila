@@ -716,8 +716,12 @@ impl PatchNode for String {
     fn from_value(value: PatchValue) -> Result<Self> {
         match value {
             PatchValue::String(value) => Ok(value),
+            PatchValue::Json(value) => match value {
+                serde_json::Value::String(string) => Ok(string),
+                _ => Ok(value.to_string()),
+            },
             PatchValue::Node(Node::String(value)) => Ok(value),
-            _ => bail!("Invalid value `{value:?}` for `{}`", type_name::<Self>()),
+            _ => bail!("Invalid value `{value:?}` for string"),
         }
     }
 
