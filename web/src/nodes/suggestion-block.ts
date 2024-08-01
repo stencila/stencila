@@ -46,6 +46,7 @@ export class SuggestionBlock extends Entity {
           type="SuggestionBlock"
           node-id=${this.id}
           instruction-id=${instructionId}
+          feedback=${this.feedback}
         >
         </stencila-ui-suggestion-commands>
       </span>

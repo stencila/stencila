@@ -77,7 +77,6 @@ export async function createDocumentViewPanel(
   panel.iconPath = vscode.Uri.joinPath(
     context.extensionUri,
     "icons",
-    "images",
     "stencila-icon-32x32.svg"
   );
 
@@ -166,9 +165,10 @@ export async function createDocumentViewPanel(
   // TODO: import that from the `web` package
   interface DocumentCommand {
     command: string;
-    nodeType: string;
-    nodeIds: string[];
-    scope: string
+    nodeType?: string;
+    nodeIds?: string[];
+    nodeProperty?: [string, unknown];
+    scope?: string;
   }
   panel.webview.onDidReceiveMessage(
     (command: DocumentCommand) => {
@@ -187,7 +187,8 @@ export async function createDocumentViewPanel(
         `stencila.${name}`,
         documentUri.toString(),
         command.nodeType,
-        ...command.nodeIds
+        ...(command.nodeIds ? command.nodeIds : []),
+        ...(command.nodeProperty ? command.nodeProperty : [])
       );
     },
     undefined,

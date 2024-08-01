@@ -20,6 +20,7 @@ export interface DocumentCommand {
     | 'execute-nodes'
     | 'interrupt-document'
     | 'interrupt-nodes'
+    | 'patch-node'
     | 'accept-node'
     | 'reject-node'
     | 'revise-node'
@@ -39,14 +40,14 @@ export interface DocumentCommand {
   nodeIds?: NodeId[]
 
   /**
+   * Node property name and value (for `patch-node`)
+   */
+  nodeProperty?: [string, unknown]
+
+  /**
    * The scope for the command
    */
   scope?: 'only' | 'plus-before' | 'plus-after' | 'plus-upstream-downstream'
-
-  /**
-   * Instructions for assisntants
-   */
-  instruction?: string
 }
 
 /**

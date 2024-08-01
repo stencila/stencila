@@ -13,10 +13,16 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   /**
    * The id of the parent instruction
    *
-   * Needed for the `accept-node` event.
+   * Needed for emitting the `accept-node` command.
    */
   @property({ attribute: 'instruction-id' })
   instructionId: string
+
+  /**
+   * The current feedback on the suggestion
+   */
+  @property()
+  feedback?: string
 
   /**
    * Toggle the tooltip containing the input for the revise command
@@ -71,24 +77,40 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   /**
    * Emit a custom event to perform a command on the suggestion
    */
-  private emitEvent(
-    e: Event,
-    command: 'accept' | 'reject' | 'revise',
-    instruction?: string
-  ) {
+  private emitEvent(e: Event, command: 'accept' | 'reject' | 'revise') {
     e.stopImmediatePropagation()
 
+    const nodeType = this.type
     const nodeIds =
       command === 'accept' ? [this.nodeId, this.instructionId] : [this.nodeId]
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: `${command}-node`,
-        nodeType: this.type,
-        nodeIds,
-        instruction: command === 'revise' ? instruction : undefined,
-      })
-    )
+    if (command === 'revise') {
+      if (this.feedback) {
+        this.dispatchEvent(
+          documentCommandEvent({
+            command: 'patch-node',
+            nodeType,
+            nodeIds,
+            nodeProperty: ['feedback', this.feedback],
+          })
+        )
+      }
+      this.dispatchEvent(
+        documentCommandEvent({
+          command: 'revise-node',
+          nodeType,
+          nodeIds,
+        })
+      )
+    } else {
+      this.dispatchEvent(
+        documentCommandEvent({
+          command: `${command}-node`,
+          nodeType,
+          nodeIds,
+        })
+      )
+    }
   }
 
   protected override render() {
@@ -156,13 +178,13 @@ export class UINodeSuggestionCommands extends UIBaseClass {
 
     const textAreaStyles = apply([
       'mr-2 px-1 rounded-sm resize-none',
-      `outline-[${this.ui.textColour}]`,
+      `outline-[${this.ui.textColour}]/50`,
       'text-gray-700 text-[0.85rem]',
     ])
 
     const submit = (e: Event) => {
-      this.emitEvent(e, 'revise', this.reviseInputRef.value.value)
-      this.reviseInputRef.value.value = ''
+      this.feedback = this.reviseInputRef.value.value
+      this.emitEvent(e, 'revise')
       this.showReviseInput = false
     }
 
@@ -174,14 +196,16 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             class=${textAreaStyles}
             cols="45"
             rows="2"
-            placeholder="Add feedback or leave empty for auto generated feedback"
+            placeholder="Add feedback or leave empty for generated feedback"
             @keydown=${(e: KeyboardEvent) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
                 submit(e)
               }
             }}
-          ></textarea>
+          >
+${this.feedback}</textarea
+          >
           <button
             @click=${submit}
             class="flex items-center cursor-pointer hover:text-gray-500"
