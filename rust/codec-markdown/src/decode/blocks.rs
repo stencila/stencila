@@ -25,7 +25,7 @@ use super::{
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
         assignee, attrs, execution_mode, instruction_type, model, name, node_to_string,
-        primitive_node, take_until_unbalanced,
+        primitive_node, string_to_instruction_message, take_until_unbalanced,
     },
     Context,
 };
@@ -663,13 +663,12 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                             (message, Some(2))
                         };
 
-                        (
-                            (!message.is_empty()).then_some(InstructionMessage::from(message)),
-                            capacity,
-                        )
+                        ((!message.is_empty()).then_some(message), capacity)
                     }
                     None => (None, Some(2)),
                 };
+
+                let message = message.map(string_to_instruction_message);
 
                 let content = capacity.map(Vec::with_capacity);
 

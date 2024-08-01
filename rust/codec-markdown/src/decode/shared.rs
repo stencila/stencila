@@ -2,6 +2,7 @@
 
 use std::str::FromStr;
 
+use markdown::mdast;
 use winnow::{
     ascii::{dec_int, float, multispace0, multispace1, take_escaped, Caseless},
     combinator::{alt, delimited, not, opt, peek, separated, separated_pair, terminated},
@@ -12,10 +13,13 @@ use winnow::{
 };
 
 use codec::schema::{
-    Date, DateTime, Duration, ExecutionMode, InstructionType, Node, Time, Timestamp,
+    Date, DateTime, Duration, ExecutionMode, ImageObject, InstructionMessage, InstructionType,
+    MessagePart, Node, Time, Timestamp,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
+
+use crate::decode::inlines::mds_to_string;
 
 /// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
@@ -311,6 +315,64 @@ pub fn node_to_option_duration(node: Node) -> Option<Duration> {
     match node {
         Node::Duration(duration) => Some(duration),
         _ => None,
+    }
+}
+
+/// Parse a string into an [`InstructionMessage`]
+///
+/// Parses the string as Markdown and splits images into separate
+/// message parts.
+pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
+    use markdown::{to_mdast, ParseOptions};
+    use mdast::Node;
+
+    let Ok(Node::Root(root)) = to_mdast(&md, &ParseOptions::default()) else {
+        return InstructionMessage::from(md);
+    };
+
+    let Some(Node::Paragraph(mdast::Paragraph { children, .. })) = root.children.first().cloned()
+    else {
+        return InstructionMessage::from(md);
+    };
+
+    let mut parts = Vec::with_capacity(1);
+
+    let mut text = String::new();
+    for node in children {
+        match node {
+            Node::Image(image) => {
+                if !text.is_empty() {
+                    parts.push(MessagePart::from(text.drain(..)))
+                }
+                let content_url = if image.url.starts_with("https://")
+                    || image.url.starts_with("http://")
+                    || image.url.starts_with("data:image/")
+                {
+                    image.url
+                } else {
+                    ["file://", &image.url].concat()
+                };
+
+                parts.push(MessagePart::ImageObject(ImageObject {
+                    content_url,
+                    ..Default::default()
+                }))
+            }
+            Node::Text(node) => {
+                text += &node.value;
+            }
+            _ => {
+                text += &mds_to_string(&[node]);
+            }
+        }
+    }
+    if !text.is_empty() {
+        parts.push(MessagePart::from(text.drain(..)))
+    }
+
+    InstructionMessage {
+        parts,
+        ..Default::default()
     }
 }
 
