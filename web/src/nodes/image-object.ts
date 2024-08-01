@@ -4,8 +4,6 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/card'
-
 import { Entity } from './entity'
 
 /**
@@ -22,17 +20,26 @@ export class ImageObject extends Entity {
     }
   `
 
-  /**
-   * In dynamic view, in addition to the image, render a node card.
-   */
   override render() {
-    return html`
-      <stencila-ui-block-on-demand type="ImageObject">
-        <div slot="body"></div>
-        <div slot="content" class=${this.imgStyles}>
-          <slot></slot>
-        </div>
-      </stencila-ui-block-on-demand>
-    `
+    return this.ancestors.endsWith('.CodeChunk')
+      ? html`
+          <stencila-ui-block-on-demand type="ImageObject">
+            <div slot="content" class=${this.imgStyles}>
+              <slot></slot>
+            </div>
+          </stencila-ui-block-on-demand>
+        `
+      : html`
+          <stencila-ui-inline-on-demand type="ImageObject">
+            <div slot="body">
+              <stencila-ui-node-authors type="ImageObject">
+                <slot name="authors"></slot>
+              </stencila-ui-node-authors>
+            </div>
+            <div slot="content" class=${this.imgStyles}>
+              <slot></slot>
+            </div>
+          </stencila-ui-inline-on-demand>
+        `
   }
 }
