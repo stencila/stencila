@@ -1,20 +1,13 @@
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { LitElement, PropertyValues, html } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../twind'
 
 @customElement('stencila-image-drop-container')
 @withTwind()
 export class ImageDropContainer extends LitElement {
-  @property()
-  dropEvent: (e: DragEvent) => void
-
-  /**
-   *  List of accepted file mime types
-   */
-  static acceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml']
-
   private preventDefaults = (e: DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -34,28 +27,70 @@ export class ImageDropContainer extends LitElement {
 
   private handleDrop = (e: DragEvent) => {
     this.preventDefaults(e)
-
-    this.dropEvent && this.dropEvent(e)
+    console.log('drop')
+    this.dropEvent(e)
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
+  private fileInputRef: Ref<HTMLInputElement> = createRef()
 
-    const container = this.shadowRoot.querySelector('div.drop-container')
+  static acceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml']
 
+  @state()
+  files: File[] = []
+
+  private dropEvent = (e: DragEvent) => {
+    const dt = e.dataTransfer
+    const files = dt.files
+
+    ;[...files].forEach((file) => {
+      if (ImageDropContainer.acceptedFileTypes.includes(file.type)) {
+        this.files.push(file)
+      }
+    })
+  }
+
+  protected override firstUpdated(_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+
+    const container = this.shadowRoot.querySelector('.drop-container')
     // apply all necesesary event listeners
-    container.addEventListener('dragover', this.preventDefaults)
-    container.addEventListener('dragenter', this.handleDragEnter)
-    container.addEventListener('dragleave', this.handleDragLeave)
-    container.addEventListener('drop', this.handleDrop)
+    if (container) {
+      container.addEventListener('dragover', this.preventDefaults)
+      container.addEventListener('dragenter', this.handleDragEnter)
+      container.addEventListener('dragleave', this.handleDragLeave)
+      container.addEventListener('drop', this.handleDrop)
+    }
   }
 
-  protected override render() {
-    const styles = apply(['border border-black/20 rounded-md', 'p-2'])
+  override render() {
+    const styles = apply([
+      'h-full',
+      'p-2',
+      'border-2 border-dashed border-black/20 rounded-md',
+    ])
 
     return html`
       <div class="drop-container ${styles}">
-        <slot></slot>
+        <div>
+          Drag and Drop Images, or
+          <button
+            class="underline hover:text-gray-500"
+            @click=${() => this.fileInputRef.value?.click()}
+          >
+            click here
+          </button>
+          to browse
+        </div>
+        <input
+          ${ref(this.fileInputRef)}
+          type="file"
+          hidden
+          multiple
+          @change=${(e: Event) => {
+            // @ts-expect-error "EventTarget does not have `files` property"
+            this.files.push(...e.target.files)
+          }}
+        />
       </div>
     `
   }

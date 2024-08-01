@@ -1,7 +1,10 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { withTwind } from '../twind'
+import type { ImageDropContainer } from '../ui/inputs/imagedrop'
+import '../ui/inputs/imagedrop'
 
 import { Entity } from './entity'
 
@@ -16,11 +19,21 @@ import '../ui/nodes/properties/provenance/provenance'
 @customElement('stencila-instruction-message')
 @withTwind()
 export class InstructionMessage extends Entity {
+  /**
+   * ref for the images-drop component,
+   * use `this.imageDropRef.value.files` to get the `Files[]`
+   */
+  protected imageDropRef: Ref<ImageDropContainer> = createRef()
+
   override render() {
     return html`
       <div>
-        <div class="py-2">
+        <div class="flex justify-between px-3 py-2">
           <slot name="parts"></slot>
+          <stencila-image-drop-container
+            ${ref(this.imageDropRef)}
+            class="w-1/4 text-xs"
+          ></stencila-image-drop-container>
         </div>
 
         <stencila-ui-node-authors type="InstructionMessage">

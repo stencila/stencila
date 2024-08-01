@@ -93,6 +93,7 @@ export class InstructionBlock extends Instruction {
     const inputStyles = apply([
       'text-sm text-black',
       'ml-2 px-2',
+      'max-w-[33%]',
       'outline-black',
       `border border-[${borderColour}] rounded-sm`,
     ])
