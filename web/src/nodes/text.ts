@@ -26,6 +26,7 @@ export class Text extends Entity {
         'px-1',
         'text-black text-sm',
         `border border-[${borderColour}] rounded-sm`,
+        'outline-black',
         'resize-none',
       ])
       return html`
