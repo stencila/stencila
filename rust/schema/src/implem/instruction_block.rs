@@ -131,7 +131,7 @@ impl MarkdownCodec for InstructionBlock {
                             );
                         }
                         if let Some(thresh) =
-                            &self.model.as_ref().and_then(|model| model.score_threshold)
+                            &self.model.as_ref().and_then(|model| model.minimum_score)
                         {
                             context.myst_directive_option(
                                 NodeProperty::Assignee,
@@ -186,7 +186,7 @@ impl MarkdownCodec for InstructionBlock {
             if let Some(value) = self
                 .model
                 .as_ref()
-                .and_then(|model| model.score_threshold.as_ref())
+                .and_then(|model| model.minimum_score.as_ref())
             {
                 context
                     .push_str("y")
@@ -245,25 +245,27 @@ impl MarkdownCodec for InstructionBlock {
             }
 
             if let Some(content) = &self.content {
-                if !content.is_empty() {
-                    context.newline();
-                }
+                if content.is_empty() {
+                    context.push_str(" |").newline().newline();
+                } else {
+                    if content.len() == 1 {
+                        context.push_str(" >");
+                    }
 
-                context
-                    .newline()
-                    .push_prop_fn(NodeProperty::Content, |context| {
-                        content.to_markdown(context)
-                    });
+                    context
+                        .newline()
+                        .newline()
+                        .push_prop_fn(NodeProperty::Content, |context| {
+                            content.to_markdown(context)
+                        });
 
-                // Closing semis are only necessary if more than one
-                if content.len() > 1 {
-                    context.push_semis().newline();
+                    if content.len() > 1 {
+                        context.push_semis().newline().newline();
+                    }
                 }
             } else {
-                context.newline();
-            };
-
-            context.newline();
+                context.push_str(" |").newline().newline();
+            }
         }
 
         if let Some(suggestions) = &self.suggestions {

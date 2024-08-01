@@ -3,33 +3,37 @@
     <span>Example using Markdown as canonical format to test alternative ways to write instruction blocks.</span>
   </p>
   <h1>
-    <span>Instruction type: new</span>
+    <span>New instruction</span>
   </h1>
   <p>
-    <span>No closing fence:</span>
+    <span>No content, closing pipe:</span>
   </p>
   <stencila-instruction-block instruction-type='New'>
   </stencila-instruction-block>
   <p>
-    <span>Closing fence at end of line</span>
+    <span>Single new block:</span>
   </p>
   <stencila-instruction-block instruction-type='New'>
+    <p>
+      <span>New paragraph #1</span>
+    </p>
   </stencila-instruction-block>
   <p>
-    <span>Closing fence on new line at end of same paragraph</span>
+    <span>Multiple new blocks:</span>
   </p>
   <stencila-instruction-block instruction-type='New'>
-  </stencila-instruction-block>
-  <p>
-    <span>Closing fence as new paragraph (this would be unusual)</span>
-  </p>
-  <stencila-instruction-block instruction-type='New'>
+    <p>
+      <span>New paragraph #2</span>
+    </p>
+    <p>
+      <span>New paragraph #3</span>
+    </p>
   </stencila-instruction-block>
   <h1>
-    <span>Instruction type: edit</span>
+    <span>Edit instruction</span>
   </h1>
   <p>
-    <span>No closing fence:</span>
+    <span>Edit next block:</span>
   </p>
   <stencila-instruction-block instruction-type='Edit'>
     <p>
@@ -37,23 +41,7 @@
     </p>
   </stencila-instruction-block>
   <p>
-    <span>Closing fence at end of line  (this would be unusual)</span>
-  </p>
-  <stencila-instruction-block instruction-type='Edit'>
-    <p>
-      <span>Paragraph to edit #2</span>
-    </p>
-  </stencila-instruction-block>
-  <p>
-    <span>Closing fence on new line at end of same paragraph (this would be unusual)</span>
-  </p>
-  <stencila-instruction-block instruction-type='Edit'>
-    <p>
-      <span>Paragraph to edit #3</span>
-    </p>
-  </stencila-instruction-block>
-  <p>
-    <span>Closing fence as new paragraph, to bound content</span>
+    <span>Edit muliple blocks:</span>
   </p>
   <stencila-instruction-block instruction-type='Edit'>
     <p>

@@ -8,7 +8,7 @@ core:
   - qualityWeight
   - speedWeight
   - costWeight
-  - scoreThreshold
+  - minimumScore
   - temperature
   - randomSeed
 properties:
@@ -36,9 +36,9 @@ properties:
     $ref: UnsignedInteger
     patch:
       formats: [md, myst]
-  scoreThreshold:
-    '@id': stencila:scoreThreshold
-    description: The score threshold for models (0-100).
+  minimumScore:
+    '@id': stencila:minimumScore
+    description: The minimum score for models to be selected (0-100).
     $ref: UnsignedInteger
     patch:
       formats: [md, myst]

@@ -32,9 +32,9 @@ export class InstructionModel extends Entity {
   costWeight?: UnsignedInteger;
 
   /**
-   * The score threshold for models (0-100).
+   * The minimum score for models to be selected (0-100).
    */
-  scoreThreshold?: UnsignedInteger;
+  minimumScore?: UnsignedInteger;
 
   /**
    * The temperature option for model inference (0-100).

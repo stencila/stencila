@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { getClosest } from '../utilities/getClosest'
 
 import { Entity } from './entity'
 
@@ -32,6 +33,8 @@ export class SuggestionBlock extends Entity {
     const showSuggestion =
       !this.suggestionStatus || this.suggestionStatus === 'Proposed'
 
+    const instructionId = getClosest(this, 'stencila-instruction-block').id
+
     return html`<stencila-ui-block-in-flow
       class=${!showSuggestion ? 'hidden' : ''}
       type="SuggestionBlock"
@@ -40,11 +43,14 @@ export class SuggestionBlock extends Entity {
     >
       <span slot="header-right">
         <stencila-ui-suggestion-commands
-          node-id=${this.id}
           type="SuggestionBlock"
+          node-id=${this.id}
+          instruction-id=${instructionId}
+          feedback=${this.feedback}
         >
-        </stencila-ui-suggestion-commnads>
+        </stencila-ui-suggestion-commands>
       </span>
+
       <div slot="body">
         <stencila-ui-node-execution-details
           type="SuggestionBlock"
@@ -52,6 +58,7 @@ export class SuggestionBlock extends Entity {
           duration=${this.executionDuration}
         >
         </stencila-ui-node-execution-details>
+
         <stencila-ui-node-authors type="SuggestionBlock">
           <stencila-ui-node-provenance slot="provenance">
             <slot name="provenance"></slot>
@@ -59,6 +66,7 @@ export class SuggestionBlock extends Entity {
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
       </div>
+
       <div slot="content" class="w-full">
         <slot name="content"></slot>
       </div>

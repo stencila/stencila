@@ -3,7 +3,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
-import { getOrdinalString } from '../../utility/ordinal'
+import { ordinalString } from '../../utilities/ordinalString'
 
 import { nodeUi } from './icons-and-colours'
 
@@ -55,7 +55,7 @@ export class ForBlockIteration extends LitElement {
         class=${headerStyles}
         @click=${() => (this.isFolded = !this.isFolded)}
       >
-        <span>${getOrdinalString(this.iterationIndex + 1)} iteration</span>
+        <span>${ordinalString(this.iterationIndex + 1)} iteration</span>
         <stencila-chevron-button
           class="ml-auto"
           default-pos=${this.isFolded ? 'left' : 'down'}

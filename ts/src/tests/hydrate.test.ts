@@ -10,7 +10,7 @@ test("hydrate", () => {
         content: [
           {
             type: "Text",
-            value: "Hello world!",
+            value: { string: "Hello world!" },
           },
         ],
       },
@@ -27,5 +27,5 @@ test("hydrate", () => {
   expect(n.content[0].content[0]).toBeInstanceOf(Text);
 
   // @ts-expect-error type of block and type of inline unknown
-  expect(n.content[0].content[0].value).toBe("Hello world!");
+  expect(n.content[0].content[0].value.string).toBe("Hello world!");
 });

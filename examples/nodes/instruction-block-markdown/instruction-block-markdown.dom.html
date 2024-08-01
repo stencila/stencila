@@ -7,45 +7,57 @@
     </stencila-paragraph>
     <stencila-heading id=xxx depth=1 ancestors=Article level=1>
       <h1 slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Instruction type: new</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Heading>New instruction</stencila-text>
       </h1>
     </stencila-heading>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>No closing fence:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>No content, closing pipe:</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New>
     </stencila-instruction-block>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Closing fence at end of line</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Single new block:</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>New paragraph #1</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
     </stencila-instruction-block>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Closing fence on new line at end of same paragraph</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Multiple new blocks:</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New>
-    </stencila-instruction-block>
-    <stencila-paragraph id=xxx depth=1 ancestors=Article>
-      <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Closing fence as new paragraph (this would be unusual)</stencila-text>
-      </p>
-    </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=New>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>New paragraph #2</stencila-text>
+          </p>
+        </stencila-paragraph>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>New paragraph #3</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
     </stencila-instruction-block>
     <stencila-heading id=xxx depth=1 ancestors=Article level=1>
       <h1 slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Instruction type: edit</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Edit instruction</stencila-text>
       </h1>
     </stencila-heading>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>No closing fence:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Edit next block:</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
@@ -59,35 +71,7 @@
     </stencila-instruction-block>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Closing fence at end of line  (this would be unusual)</stencila-text>
-      </p>
-    </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
-      <div slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>Paragraph to edit #2</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
-    </stencila-instruction-block>
-    <stencila-paragraph id=xxx depth=1 ancestors=Article>
-      <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Closing fence on new line at end of same paragraph (this would be unusual)</stencila-text>
-      </p>
-    </stencila-paragraph>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
-      <div slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>Paragraph to edit #3</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
-    </stencila-instruction-block>
-    <stencila-paragraph id=xxx depth=1 ancestors=Article>
-      <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Closing fence as new paragraph, to bound content</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Edit muliple blocks:</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>

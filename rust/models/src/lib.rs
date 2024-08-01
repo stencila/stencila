@@ -126,19 +126,17 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
         model_scores.push((model, score))
     }
 
-    // Filter out models below threshold score
-    let threshold_score = task
+    // Filter out models below min score
+    let min_score = task
         .instruction_model
         .as_ref()
-        .and_then(|model| model.score_threshold)
-        .map(|threshold| threshold as f32)
+        .and_then(|model| model.minimum_score)
+        .map(|min| min as f32)
         .unwrap_or(95.);
 
     let mut models = model_scores
         .into_iter()
-        .filter_map(|(model, score)| {
-            ((score / max_score) * 100. >= threshold_score).then_some(model)
-        })
+        .filter_map(|(model, score)| ((score / max_score) * 100. >= min_score).then_some(model))
         .collect_vec();
 
     // Randomly select one of the filtered models

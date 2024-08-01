@@ -3,28 +3,20 @@ start     end        offsets   node_type+property                   authorship
      0     39         (0, 0)   Text
      0     39         (0, 0)   Paragraph.content
      0     40         (0, 1)   Paragraph
-    50     50       (50, 10)   InstructionMessage.id
-    50     50         (0, 0)   InstructionMessage.role
-    50     62        (0, 12)   Text.value
+    50     62       (50, 22)   Text.value
     50     62         (0, 0)   Text
     50     62         (0, 0)   InstructionMessage.parts
-    62     62        (12, 0)   InstructionMessage.authors
-    62     62         (0, 0)   InstructionMessage.provenance
-    50     62       (-12, 0)   InstructionMessage
+    50     62         (0, 0)   InstructionMessage
     50     62         (0, 0)   InstructionBlock.message
     41     68        (-9, 6)   InstructionBlock
     69    108       (28, 40)   Text.value
     69    108         (0, 0)   Text
     69    108         (0, 0)   Paragraph.content
     69    109         (0, 1)   Paragraph
-   119    119       (50, 10)   InstructionMessage.id
-   119    119         (0, 0)   InstructionMessage.role
-   119    168        (0, 49)   Text.value
+   119    168       (50, 59)   Text.value
    119    168         (0, 0)   Text
    119    168         (0, 0)   InstructionMessage.parts
-   168    168        (49, 0)   InstructionMessage.authors
-   168    168         (0, 0)   InstructionMessage.provenance
-   119    168       (-49, 0)   InstructionMessage
+   119    168         (0, 0)   InstructionMessage
    119    168         (0, 0)   InstructionBlock.message
    178    183       (59, 15)   InstructionBlock.assignee
    110    189       (-68, 6)   InstructionBlock
@@ -38,14 +30,10 @@ start     end        offsets   node_type+property                   authorship
    289    340         (0, 0)   Text
    289    340         (0, 0)   Paragraph.content
    289    341         (0, 1)   Paragraph
-   352    352       (63, 11)   InstructionMessage.id
-   352    352         (0, 0)   InstructionMessage.role
-   352    374        (0, 22)   Text.value
+   352    374       (63, 33)   Text.value
    352    374         (0, 0)   Text
    352    374         (0, 0)   InstructionMessage.parts
-   374    374        (22, 0)   InstructionMessage.authors
-   374    374         (0, 0)   InstructionMessage.provenance
-   352    374       (-22, 0)   InstructionMessage
+   352    374         (0, 0)   InstructionMessage
    352    374         (0, 0)   InstructionBlock.message
    376    405       (24, 31)   Text.value
    376    405         (0, 0)   Text
@@ -57,14 +45,10 @@ start     end        offsets   node_type+property                   authorship
    412    449         (0, 0)   Text
    412    449         (0, 0)   Paragraph.content
    412    450         (0, 1)   Paragraph
-   461    461       (49, 11)   InstructionMessage.id
-   461    461         (0, 0)   InstructionMessage.role
-   461    490        (0, 29)   Text.value
+   461    490       (49, 40)   Text.value
    461    490         (0, 0)   Text
    461    490         (0, 0)   InstructionMessage.parts
-   490    490        (29, 0)   InstructionMessage.authors
-   490    490         (0, 0)   InstructionMessage.provenance
-   461    490       (-29, 0)   InstructionMessage
+   461    490         (0, 0)   InstructionMessage
    461    490         (0, 0)   InstructionBlock.message
    500    504       (39, 14)   InstructionBlock.assignee
    506    539        (6, 35)   Text.value
@@ -77,14 +61,10 @@ start     end        offsets   node_type+property                   authorship
    546    602         (0, 0)   Text
    546    602         (0, 0)   Paragraph.content
    546    603         (0, 1)   Paragraph
-   613    613       (67, 10)   InstructionMessage.id
-   613    613         (0, 0)   InstructionMessage.role
-   613    625        (0, 12)   Text.value
+   613    625       (67, 22)   Text.value
    613    625         (0, 0)   Text
    613    625         (0, 0)   InstructionMessage.parts
-   625    625        (12, 0)   InstructionMessage.authors
-   625    625         (0, 0)   InstructionMessage.provenance
-   613    625       (-12, 0)   InstructionMessage
+   613    625         (0, 0)   InstructionMessage
    613    625         (0, 0)   InstructionBlock.message
    635    645       (22, 20)   InstructionBlock.assignee
    682    692       (47, 47)   CodeChunk.code
@@ -97,14 +77,10 @@ start     end        offsets   node_type+property                   authorship
    703    741         (0, 0)   Text
    703    741         (0, 0)   Paragraph.content
    703    742         (0, 1)   Paragraph
-   753    753       (50, 11)   InstructionMessage.id
-   753    753         (0, 0)   InstructionMessage.role
-   753    766        (0, 13)   Text.value
+   753    766       (50, 24)   Text.value
    753    766         (0, 0)   Text
    753    766         (0, 0)   InstructionMessage.parts
-   766    766        (13, 0)   InstructionMessage.authors
-   766    766         (0, 0)   InstructionMessage.provenance
-   753    766       (-13, 0)   InstructionMessage
+   753    766         (0, 0)   InstructionMessage
    753    766         (0, 0)   InstructionBlock.message
    768    799       (15, 33)   Text.value
    768    799         (0, 0)   Text

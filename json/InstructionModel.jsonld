@@ -66,10 +66,10 @@
       }
     },
     {
-      "@id": "stencila:scoreThreshold",
+      "@id": "stencila:minimumScore",
       "@type": "rdfs:Property",
-      "rdfs:label": "scoreThreshold",
-      "rdfs:comment": "The score threshold for models (0-100).",
+      "rdfs:label": "minimumScore",
+      "rdfs:comment": "The minimum score for models to be selected (0-100).",
       "schema:domainIncludes": {
         "@id": "stencila:InstructionModel"
       },

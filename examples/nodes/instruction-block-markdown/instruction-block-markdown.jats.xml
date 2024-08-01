@@ -2,15 +2,12 @@
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
     <p>Example using Markdown as canonical format to test alternative ways to write instruction blocks.</p>
-    <title level="1">Instruction type: new</title>
-    <p>No closing fence:</p>
-    <p>Closing fence at end of line</p>
-    <p>Closing fence on new line at end of same paragraph</p>
-    <p>Closing fence as new paragraph (this would be unusual)</p>
-    <title level="1">Instruction type: edit</title>
-    <p>No closing fence:</p>
-    <p>Closing fence at end of line  (this would be unusual)</p>
-    <p>Closing fence on new line at end of same paragraph (this would be unusual)</p>
-    <p>Closing fence as new paragraph, to bound content</p>
+    <title level="1">New instruction</title>
+    <p>No content, closing pipe:</p>
+    <p>Single new block:</p>
+    <p>Multiple new blocks:</p>
+    <title level="1">Edit instruction</title>
+    <p>Edit next block:</p>
+    <p>Edit muliple blocks:</p>
   </body>
 </article>

@@ -5,6 +5,7 @@ import {
   Person,
   article,
   block,
+  cord,
   organization,
   paragraph,
   person,
@@ -13,7 +14,7 @@ import {
 } from "../index.js";
 
 test("new Article with options", () => {
-  const n = article([paragraph([text("Hello world!")])], {
+  const n = article([paragraph([text(cord("Hello world!"))])], {
     authors: [
       person({
         givenNames: ["Alice"],
