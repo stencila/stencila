@@ -655,9 +655,9 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 let (message, capacity) = match message {
                     Some(message) => {
                         let message = message.trim();
-                        let (message, capacity) = if let Some(message) = message.strip_suffix("|") {
+                        let (message, capacity) = if let Some(message) = message.strip_suffix('|') {
                             (message.trim_end(), None)
-                        } else if let Some(message) = message.strip_suffix(">") {
+                        } else if let Some(message) = message.strip_suffix('>') {
                             (message.trim_end(), Some(1))
                         } else {
                             (message, Some(2))
@@ -671,7 +671,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     None => (None, Some(2)),
                 };
 
-                let content = capacity.map(|capacity| Vec::with_capacity(capacity));
+                let content = capacity.map(Vec::with_capacity);
 
                 let mut replicates: Option<u64> = None;
                 let mut minimum_score: Option<u64> = None;
@@ -736,7 +736,7 @@ fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
         let (feedback, capacity) = match feedback {
             Some(feedback) => {
                 let feedback = feedback.trim();
-                let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix(">") {
+                let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix('>') {
                     (feedback.trim_end(), 1)
                 } else {
                     (feedback, 2)
