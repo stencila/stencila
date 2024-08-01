@@ -10,14 +10,14 @@ async-trait = "0.1.81"
 bs58 = "0.5.1"
 chrono = { version = "0.4.38", features = ["serde"] }
 chrono-humanize = "0.2.3"
-clap = { version = "4.5.9", features = ["derive", "color"] }
+clap = { version = "4.5.13", features = ["derive", "color"] }
 derivative = "2.2.0"
 derive_more = "0.99.18"
 dirs = "5.0.1"
 eyre = "0.6.12"
 futures = "0.3.30"
 glob = "0.3.1"
-indexmap = { version = "2.2.6", features = ["serde"] }
+indexmap = { version = "2.3.0", features = ["serde"] }
 itertools = "0.13.0"
 maplit = "1.0.2"
 minijinja = { version = "1.0.21", features = ["loader", "json", "debug"] }
@@ -41,7 +41,7 @@ syn = "2.0.70"
 tar = "0.4.41"
 tempfile = "3.10.1"
 tokio = { version = "1.37.0", features = ["full", "tracing"] }
-toml = "0.8.14"
+toml = "0.8.19"
 tracing = { version = "0.1.40", features = ["log"] }
 type-safe-id = "0.3.0"
 uuid = { version = "1.10.0", features = ["v4"]}
