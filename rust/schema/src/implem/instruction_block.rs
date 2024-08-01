@@ -246,7 +246,7 @@ impl MarkdownCodec for InstructionBlock {
 
             if let Some(content) = &self.content {
                 if content.is_empty() {
-                    context.push_str(" |").newline().newline();
+                    context.push_str(" <").newline().newline();
                 } else {
                     if content.len() == 1 {
                         context.push_str(" >");
@@ -264,7 +264,7 @@ impl MarkdownCodec for InstructionBlock {
                     }
                 }
             } else {
-                context.push_str(" |").newline().newline();
+                context.push_str(" <").newline().newline();
             }
         }
 

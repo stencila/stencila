@@ -655,7 +655,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 let (message, capacity) = match message {
                     Some(message) => {
                         let message = message.trim();
-                        let (message, capacity) = if let Some(message) = message.strip_suffix('|') {
+                        let (message, capacity) = if let Some(message) = message.strip_suffix('<') {
                             (message.trim_end(), None)
                         } else if let Some(message) = message.strip_suffix('>') {
                             (message.trim_end(), Some(1))
@@ -736,7 +736,9 @@ fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
         let (feedback, capacity) = match feedback {
             Some(feedback) => {
                 let feedback = feedback.trim();
-                let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix('>') {
+                let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix('<') {
+                    (feedback.trim_end(), 0)
+                } else if let Some(feedback) = feedback.strip_suffix('>') {
                     (feedback.trim_end(), 1)
                 } else {
                     (feedback, 2)

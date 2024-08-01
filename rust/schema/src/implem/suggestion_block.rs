@@ -53,20 +53,24 @@ impl MarkdownCodec for SuggestionBlock {
                     .push_prop_str(NodeProperty::Feedback, feedback);
             }
 
-            if self.content.len() == 1 {
-                context.push_str(" >");
-            }
+            if self.content.is_empty() {
+                context.push_str(" <");
+            } else {
+                if self.content.len() == 1 {
+                    context.push_str(" >");
+                }
 
-            context
-                .push_str("\n\n")
-                .increase_depth()
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    self.content.to_markdown(context)
-                })
-                .decrease_depth();
+                context
+                    .push_str("\n\n")
+                    .increase_depth()
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        self.content.to_markdown(context)
+                    })
+                    .decrease_depth();
 
-            if self.content.len() > 1 {
-                context.push_colons().newline();
+                if self.content.len() > 1 {
+                    context.push_colons().newline();
+                }
             }
         }
 

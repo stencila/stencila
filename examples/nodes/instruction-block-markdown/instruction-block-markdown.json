@@ -30,7 +30,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "No content, closing pipe:"
+            "string": "No content:"
           }
         }
       ]
@@ -45,7 +45,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Single new block:"
+            "string": "Single block:"
           }
         }
       ]
@@ -73,7 +73,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Multiple new blocks:"
+            "string": "Multiple blocks:"
           }
         }
       ]
@@ -152,7 +152,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Edit muliple blocks:"
+            "string": "Edit multiple blocks:"
           }
         }
       ]

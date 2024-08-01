@@ -2,17 +2,17 @@ Example using Markdown as canonical format to test alternative ways to write ins
 
 # New instruction
 
-No content, closing pipe:
+No content:
 
-::: new |
+::: new <
 
-Single new block:
+Single block:
 
 ::: new >
 
 New paragraph #1
 
-Multiple new blocks:
+Multiple blocks:
 
 ::: new
 
@@ -30,7 +30,7 @@ Edit next block:
 
 Paragraph to edit #1
 
-Edit muliple blocks:
+Edit multiple blocks:
 
 ::: edit
 
