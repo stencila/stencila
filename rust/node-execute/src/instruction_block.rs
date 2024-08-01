@@ -1,6 +1,10 @@
+use std::path::Path;
+
 use codec_markdown_trait::to_markdown;
-use common::{futures::future, itertools::Itertools};
-use schema::{AuthorRole, AuthorRoleName, InstructionBlock, SuggestionStatus};
+use common::{eyre::Result, futures::future, itertools::Itertools};
+use schema::{
+    AuthorRole, AuthorRoleName, Block, InstructionBlock, InstructionType, SuggestionStatus,
+};
 
 use crate::{assistant::execute_assistant, interrupt_impl, pending_impl, prelude::*};
 
@@ -55,6 +59,9 @@ impl Executable for InstructionBlock {
             ],
         );
 
+        let started = Timestamp::now();
+
+        // Clean up existing suggestions and send related patches
         if let Some(suggestions) = self.suggestions.as_mut() {
             // Remove suggestions that do not have a status or feedback
             suggestions.retain(|suggestion| {
@@ -76,9 +83,42 @@ impl Executable for InstructionBlock {
             }
         }
 
-        let started = Timestamp::now();
+        // Find an assistant and generate a system prompt
+        let (prompter, system_prompt) = match generate_system_prompt(
+            &self.assignee,
+            &self.instruction_type,
+            &self.content,
+            &executor.home,
+        )
+        .await
+        {
+            Ok(result) => result,
+            Err(error) => {
+                executor.patch(
+                    &node_id,
+                    [
+                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Exceptions),
+                        set(
+                            NodeProperty::ExecutionRequired,
+                            ExecutionRequired::ExecutionFailed,
+                        ),
+                        set(
+                            NodeProperty::ExecutionMessages,
+                            vec![error_to_execution_message(
+                                "While rendering prompt for instruction",
+                                error,
+                            )],
+                        ),
+                    ],
+                );
 
-        // The authors of the suggestion, initialized with the authors of the instruction
+                return WalkControl::Break;
+            }
+        };
+
+        tracing::debug!("Using {prompter:?} prompt:\n\n{system_prompt}");
+
+        // Get the authors of the instruction
         let mut instructors = Vec::new();
         if let Some(message) = &self.message {
             for author in message.authors.iter().flatten() {
@@ -89,43 +129,8 @@ impl Executable for InstructionBlock {
             }
         }
 
-        let replicates = self.replicates.unwrap_or(1) as usize;
-
-        let node_types = self
-            .content
-            .iter()
-            .flatten()
-            .map(|block| block.node_type().to_string())
-            .collect_vec();
-
-        let mut assistant =
-            assistants::find(&self.assignee, &self.instruction_type, &Some(node_types))
-                .await
-                .unwrap();
-        let assistant_name = assistant.name.clone();
-        tracing::trace!("Using {assistant_name}");
-
-        let content = self.content.as_ref().map(to_markdown);
-
-        execute_assistant(
-            &mut assistant,
-            &self.instruction_type,
-            content,
-            &executor.home,
-        )
-        .await
-        .unwrap(); // TODO: avoid this unwrap!
-
-        let system_prompt = assistants::render(assistant.clone()).await.unwrap();
-        tracing::debug!("{assistant_name} rendered prompt:\n\n{system_prompt}");
-
-        // Add the assistant as a prompter
-        let prompter = AuthorRole {
-            last_modified: Some(Timestamp::now()),
-            ..assistant.into()
-        };
-
         // Create a future for each replicate
+        let replicates = self.replicates.unwrap_or(1) as usize;
         let mut futures = Vec::new();
         for _ in 0..replicates {
             let instructors = instructors.clone();
@@ -155,6 +160,7 @@ impl Executable for InstructionBlock {
                 )),
             }
         }
+
         let messages = (!messages.is_empty()).then_some(messages);
 
         let ended = Timestamp::now();
@@ -189,4 +195,32 @@ impl Executable for InstructionBlock {
         // Continue to interrupt executable nodes in `content`
         WalkControl::Continue
     }
+}
+
+/**
+ * Find an assistant for the instruction and render a prompt from it
+ */
+async fn generate_system_prompt(
+    assignee: &Option<String>,
+    instruction_type: &InstructionType,
+    content: &Option<Vec<Block>>,
+    home: &Path,
+) -> Result<(AuthorRole, String)> {
+    let node_types = content
+        .iter()
+        .flatten()
+        .map(|block| block.node_type().to_string())
+        .collect_vec();
+
+    let mut assistant = assistants::find(&assignee, instruction_type, &Some(node_types)).await?;
+    let prompter = AuthorRole {
+        last_modified: Some(Timestamp::now()),
+        ..assistant.clone().into()
+    };
+
+    let content = content.as_ref().map(to_markdown);
+    execute_assistant(&mut assistant, instruction_type, content, home).await?;
+    let prompt = assistants::render(assistant).await.unwrap();
+
+    Ok((prompter, prompt))
 }
