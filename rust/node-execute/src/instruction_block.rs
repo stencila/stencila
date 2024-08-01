@@ -271,7 +271,7 @@ async fn generate_system_prompt(
         .map(|block| block.node_type().to_string())
         .collect_vec();
 
-    let mut assistant = assistants::find(&assignee, instruction_type, &Some(node_types)).await?;
+    let mut assistant = assistants::find(assignee, instruction_type, &Some(node_types)).await?;
     let prompter = AuthorRole {
         last_modified: Some(Timestamp::now()),
         ..assistant.clone().into()

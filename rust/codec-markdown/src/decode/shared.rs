@@ -326,7 +326,7 @@ pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
     use markdown::{to_mdast, ParseOptions};
     use mdast::Node;
 
-    let Ok(Node::Root(root)) = to_mdast(&md, &ParseOptions::default()) else {
+    let Ok(Node::Root(root)) = to_mdast(md, &ParseOptions::default()) else {
         return InstructionMessage::from(md);
     };
 
