@@ -223,7 +223,7 @@ enum Phase {
     Compile,
     Pending,
     Execute,
-    ExecuteOnly,
+    ExecuteWithoutPatches,
     Interrupt,
 }
 
@@ -422,7 +422,7 @@ impl Executor {
         match self.phase {
             Phase::Compile => node.compile(self).await,
             Phase::Pending => node.pending(self).await,
-            Phase::Execute | Phase::ExecuteOnly => node.execute(self).await,
+            Phase::Execute | Phase::ExecuteWithoutPatches => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
         }
     }

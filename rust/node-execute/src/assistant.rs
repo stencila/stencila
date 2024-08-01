@@ -32,7 +32,7 @@ pub async fn execute_assistant(
     let kernels = Arc::new(RwLock::new(kernels));
     let mut executor = Executor::new(home.to_path_buf(), kernels, None, None, None);
 
-    executor.phase = Phase::ExecuteOnly;
+    executor.phase = Phase::ExecuteWithoutPatches;
     assistant.content.walk_async(&mut executor).await?;
 
     Ok(())
