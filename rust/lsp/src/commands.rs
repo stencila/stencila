@@ -40,6 +40,8 @@ use schema::{
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
+pub(super) const PATCH_NODE: &str = "stencila.patch-node";
+
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
 pub(super) const RUN_DOC: &str = "stencila.run-doc";
@@ -64,6 +66,7 @@ pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
     [
+        PATCH_NODE,
         RUN_NODE,
         RUN_CURR,
         RUN_DOC,
@@ -110,6 +113,29 @@ pub(super) async fn execute_command(
     };
 
     let (title, command, cancellable, update_after) = match command.as_str() {
+        PATCH_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            let property = node_property_arg(args.next())?;
+            let value = args.next();
+
+            let value = match value {
+                Some(value) => PatchValue::Json(value),
+                None => PatchValue::None,
+            };
+
+            (
+                "Patching node".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(PatchPath::from(property), PatchOp::Set(value))],
+                    authors: Some(vec![author]),
+                    ..Default::default()
+                }),
+                false,
+                true,
+            )
+        }
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
@@ -354,7 +380,7 @@ fn node_type_arg(arg: Option<Value>) -> Result<NodeType, ResponseError> {
         .ok_or_else(|| {
             ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
-                "Node id argument missing or invalid".to_string(),
+                "Node type argument missing or invalid".to_string(),
             )
         })
 }
@@ -367,6 +393,18 @@ fn node_id_arg(arg: Option<Value>) -> Result<NodeId, ResponseError> {
             ResponseError::new(
                 ErrorCode::INVALID_REQUEST,
                 "Node id argument missing or invalid".to_string(),
+            )
+        })
+}
+
+/// Extract a Stencila [`NodeProperty`] from a command arg
+fn node_property_arg(arg: Option<Value>) -> Result<NodeProperty, ResponseError> {
+    arg.and_then(|value| value.as_str().map(String::from))
+        .and_then(|node_id| NodeProperty::from_str(&node_id).ok())
+        .ok_or_else(|| {
+            ResponseError::new(
+                ErrorCode::INVALID_REQUEST,
+                "Node property argument missing or invalid".to_string(),
             )
         })
 }
