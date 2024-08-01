@@ -100,10 +100,15 @@
     "prefix": [":::{for}"],
     "body": [":::{for} ${2:expr}", "", "${0:content}", "", ":::", ""],
   },
-  "Instruction Block: New": {
-    "description": "An instruction to create a new node",
+  "New Instruction": {
+    "description": "An instruction to generate new content",
     "prefix": [":::{new}"],
-    "body": [":::{new} ${2:instruction}", ":::", ""],
+    "body": [":::{new} ${0:instruction}", ":::", ""],
+  },
+  "Edit Instruction": {
+    "description": "An instruction to edit existing content",
+    "prefix": [":::{edit}"],
+    "body": [":::{edit} ${0:instruction}", ":::", ""],
   },
   "Styled Block": {
     "description": "A block of styled content",
