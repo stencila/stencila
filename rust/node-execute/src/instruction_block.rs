@@ -186,7 +186,8 @@ impl Executable for InstructionBlock {
         }
 
         // Create a future for each replicate
-        let replicates = self.replicates.unwrap_or(1) as usize;
+        // Note: to avoid accidentally generating many replicates, hard code max 10 here
+        let replicates = (self.replicates.unwrap_or(1) as usize).min(10);
         let mut futures = Vec::new();
         for _ in 0..replicates {
             let instructors = instructors.clone();
