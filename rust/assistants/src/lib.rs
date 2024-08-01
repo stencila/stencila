@@ -6,6 +6,7 @@ use app::{get_app_dir, DirType};
 use codec_markdown_trait::to_markdown;
 use codecs::{DecodeOptions, EncodeOptions, Format};
 use common::{eyre::eyre, tokio::fs::read_to_string};
+use images::ensure_http_or_data_uri;
 use rust_embed::RustEmbed;
 
 use model::{
@@ -17,8 +18,8 @@ use model::{
     },
     schema::{
         authorship, shortcuts::p, Article, Assistant, AudioObject, Author, AuthorRole, ImageObject,
-        Inline, InstructionBlock, InstructionMessage, InstructionType, Link, Node, SuggestionBlock,
-        SuggestionStatus, Timestamp, VideoObject,
+        Inline, InstructionBlock, InstructionMessage, InstructionType, Link, MessagePart, Node,
+        SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
 };
@@ -204,8 +205,22 @@ pub async fn execute_instruction_block(
         Some(vec![Author::AuthorRole(prompter.clone())]),
     )];
 
-    if let Some(message) = &instruction.message {
-        messages.push(message.clone())
+    // Ensure that any images in the message are fully resolved
+    if let Some(message) = instruction.message.clone() {
+        let parts = message
+            .parts
+            .into_iter()
+            .map(|part| {
+                Ok(match part {
+                    MessagePart::ImageObject(image) => MessagePart::ImageObject(ImageObject {
+                        content_url: ensure_http_or_data_uri(&image.content_url)?,
+                        ..image
+                    }),
+                    _ => part,
+                })
+            })
+            .collect::<Result<_>>()?;
+        messages.push(InstructionMessage { parts, ..message })
     }
 
     for suggestion in instruction.suggestions.iter().flatten() {
