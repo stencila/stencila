@@ -344,7 +344,8 @@ pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
                 if !text.is_empty() {
                     parts.push(MessagePart::from(text.drain(..)))
                 }
-                let content_url = if image.url.starts_with("https://")
+                let content_url = if image.url.starts_with("file://")
+                    || image.url.starts_with("https://")
                     || image.url.starts_with("http://")
                     || image.url.starts_with("data:image/")
                 {
