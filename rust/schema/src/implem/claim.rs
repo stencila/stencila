@@ -33,7 +33,7 @@ impl MarkdownCodec for Claim {
                 },
             );
         } else {
-            context.push_semis().push_str(" ").push_prop_str(
+            context.push_colons().push_str(" ").push_prop_str(
                 NodeProperty::ClaimType,
                 &self.claim_type.to_string().to_lowercase(),
             );
@@ -51,7 +51,7 @@ impl MarkdownCodec for Claim {
                     self.content.to_markdown(context)
                 })
                 .decrease_depth()
-                .push_semis();
+                .push_colons();
         }
 
         context.newline().exit_node().newline();

@@ -159,7 +159,7 @@ impl MarkdownCodec for InstructionBlock {
                 .newline();
         } else {
             context
-                .push_semis()
+                .push_colons()
                 .push_str(" ")
                 .push_str(&instruction_type)
                 .push_str(" ");
@@ -260,7 +260,7 @@ impl MarkdownCodec for InstructionBlock {
                         });
 
                     if content.len() > 1 {
-                        context.push_semis().newline().newline();
+                        context.push_colons().newline().newline();
                     }
                 }
             } else {

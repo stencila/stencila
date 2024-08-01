@@ -123,8 +123,8 @@ impl MarkdownEncodeContext {
         self
     }
 
-    /// Get the semicolons for a fenced div
-    pub fn push_semis(&mut self) -> &mut Self {
+    /// Push the colons for a fenced div onto the content
+    pub fn push_colons(&mut self) -> &mut Self {
         self.content.push_str(&":".repeat(3 + self.depth * 2));
         self
     }

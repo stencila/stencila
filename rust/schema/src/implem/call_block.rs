@@ -16,7 +16,7 @@ impl MarkdownCodec for CallBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, content))
             .merge_losses(lost_exec_options!(self))
-            .push_semis()
+            .push_colons()
             .push_str(" call ")
             .push_prop_str(NodeProperty::Source, &self.source);
 

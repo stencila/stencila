@@ -45,7 +45,7 @@ impl MarkdownCodec for SuggestionBlock {
                 },
             );
         } else {
-            context.push_semis().push_str(" suggest");
+            context.push_colons().push_str(" suggest");
 
             if let Some(feedback) = &self.feedback {
                 context
@@ -66,7 +66,7 @@ impl MarkdownCodec for SuggestionBlock {
                 .decrease_depth();
 
             if self.content.len() > 1 {
-                context.push_semis().newline();
+                context.push_colons().newline();
             }
         }
 

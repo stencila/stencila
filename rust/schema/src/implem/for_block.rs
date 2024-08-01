@@ -37,7 +37,7 @@ impl MarkdownCodec for ForBlock {
         };
 
         context
-            .push_semis()
+            .push_colons()
             .push_str(for_)
             .push_prop_str(NodeProperty::Variable, &self.variable)
             .push_str(" in ")
@@ -64,7 +64,7 @@ impl MarkdownCodec for ForBlock {
 
         if let Some(otherwise) = &self.otherwise {
             context
-                .push_semis()
+                .push_colons()
                 .push_str(else_)
                 .push_str("\n\n")
                 .increase_depth()
@@ -74,6 +74,6 @@ impl MarkdownCodec for ForBlock {
                 .decrease_depth();
         }
 
-        context.push_semis().newline().exit_node().newline();
+        context.push_colons().newline().exit_node().newline();
     }
 }
