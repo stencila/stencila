@@ -94,7 +94,7 @@ async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseErr
 
             let version = match version {
                 StringOrNumber::String(version) => version.to_string(),
-                StringOrNumber::Number(version) => version.to_string()
+                StringOrNumber::Number(version) => version.to_string(),
             };
 
             let detail = Some(format!("{} v{}", name.to_title_case(), version));
