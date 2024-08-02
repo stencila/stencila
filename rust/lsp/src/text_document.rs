@@ -7,13 +7,16 @@ use std::{ops::ControlFlow, path::PathBuf, sync::Arc};
 
 use async_lsp::{
     lsp_types::{
-        DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-        DidSaveTextDocumentParams, Position, Range, Url,
+        Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+        DidOpenTextDocumentParams, DidSaveTextDocumentParams, Position, PublishDiagnosticsParams,
+        Range, Url,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Format};
+use codecs::{
+    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, MessageLevel, Messages,
+};
 use common::{
     eyre::{bail, Report},
     tokio::{
@@ -231,12 +234,14 @@ impl TextDocument {
         let (update_sender, update_receiver) = mpsc::unbounded_channel();
 
         {
+            let uri = uri.clone();
             let format = format.clone();
             let source = source.clone();
             let doc = doc.clone();
             let author = author.clone();
+            let client = client.clone();
             tokio::spawn(async {
-                Self::update_task(update_receiver, format, source, doc, author).await;
+                Self::update_task(update_receiver, uri, format, source, doc, author, client).await;
             });
         }
 
@@ -275,15 +280,21 @@ impl TextDocument {
     /// - to avoid excessive compute decoding the document on each keypress
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<String>,
+        uri: Url,
         format: Format,
         source: Arc<RwLock<String>>,
         doc: Arc<RwLock<Document>>,
         author_role: AuthorRole,
+        client: ClientSocket,
     ) {
         // As a guide, average typing speed is around 200 chars per minute which means
         // 60000 / 200 = 300 milliseconds per character.
         const DEBOUNCE_DELAY_MILLIS: u64 = 500;
         let debounce = time::Duration::from_millis(DEBOUNCE_DELAY_MILLIS);
+
+        // Spawn a task to publish diagnostics related to decoding the source
+        let (messages_sender, messages_receiver) = mpsc::channel(24);
+        tokio::spawn(async move { Self::diagnostics_task(messages_receiver, uri, client).await });
 
         let mut latest_source = None;
         loop {
@@ -312,8 +323,8 @@ impl TextDocument {
             // Update the source
             *source.write().await = new_source.clone();
 
-            // Decode the document
-            let node = match codecs::from_str(
+            // Decode the source into a node
+            let (node, DecodeInfo { messages, .. }) = match codecs::from_str_with_info(
                 &new_source,
                 Some(DecodeOptions {
                     format: Some(format.clone()),
@@ -329,6 +340,19 @@ impl TextDocument {
                 }
             };
 
+            // Always send messages, even if empty (to clear any previous diagnostics)
+            let ok = messages
+                .iter()
+                .any(|message| matches!(message.level, MessageLevel::Error));
+            if let Err(error) = messages_sender.send(messages).await {
+                tracing::error!("While sending decoding messages: {error}");
+            };
+
+            // If there are any errors while decoding the source ignore this update
+            if !ok {
+                continue;
+            }
+
             // Update the Stencila document with the new node
             let doc = doc.write().await;
             if let Err(error) = doc
@@ -340,6 +364,78 @@ impl TextDocument {
                 .await
             {
                 tracing::error!("While updating node: {error}");
+            }
+        }
+    }
+
+    /// An async background task to publish diagnostics related to decoding the document
+    async fn diagnostics_task(
+        mut receiver: mpsc::Receiver<Messages>,
+        uri: Url,
+        mut client: ClientSocket,
+    ) {
+        // This is the delay before publishing diagnostics. It is additional to the delay in processing
+        // updates to source and is here so that the user has a chance to write valid syntax before getting
+        // warnings and errors related to incomplete syntax
+        const DEBOUNCE_DELAY_MILLIS: u64 = 1000;
+        let debounce = time::Duration::from_millis(DEBOUNCE_DELAY_MILLIS);
+
+        let mut latest_messages = None;
+        loop {
+            // Debounce updates
+            let messages = match tokio::time::timeout(debounce, receiver.recv()).await {
+                Ok(None) => {
+                    // Received nothing: sender has dropped so stop this task
+                    break;
+                }
+                Ok(Some(new_messages)) => {
+                    // Received new messages: if not empty then continue to wait for timeout
+                    // otherwise proceed with below so messages get cleared
+                    if new_messages.is_empty() {
+                        latest_messages = None;
+                        new_messages
+                    } else {
+                        latest_messages = Some(new_messages);
+                        continue;
+                    }
+                }
+                Err(..) => {
+                    // Timeout: if no new messages since last timeout then continue
+                    // otherwise proceed with below. Note that `take()` will `None`ify
+                    // the `messages`
+                    let Some(messages) = latest_messages.take() else {
+                        continue;
+                    };
+                    messages
+                }
+            };
+
+            let mut diagnostics = Vec::new();
+            for message in messages.0 {
+                let severity = Some(match message.level {
+                    MessageLevel::Warning => DiagnosticSeverity::WARNING,
+                    MessageLevel::Error => DiagnosticSeverity::ERROR,
+                });
+                let position = Position {
+                    line: message.start_line.unwrap_or_default() as u32,
+                    character: 0,
+                };
+                diagnostics.push(Diagnostic {
+                    severity,
+                    message: message.message,
+                    range: Range {
+                        start: position.clone(),
+                        end: position.clone(),
+                    },
+                    ..Default::default()
+                })
+            }
+            if let Err(error) = client.publish_diagnostics(PublishDiagnosticsParams {
+                uri: uri.clone(),
+                diagnostics,
+                version: None,
+            }) {
+                tracing::error!("While publishing diagnostics: {error}");
             }
         }
     }
