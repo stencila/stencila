@@ -1,7 +1,9 @@
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
 
@@ -32,8 +34,87 @@ export class InstructionModel extends Entity {
   temperature?: number
 
   override render() {
-    // TODO: render properties as <input>s (of appropriate type)
-    // Note that all the numbers have the range 0 to 100.
-    return html``
+    const { borderColour, colour } = nodeUi('InstructionBlock')
+
+    const styles = apply(
+      'flex flex-row items-center gap-3',
+      'px-3 py-1.5',
+      `bg-[${colour}]`,
+      'text-xs leading-tight font-sans',
+      `border-t border-[${borderColour}]`
+    )
+
+    const inputStyles = apply([
+      `border border-[${borderColour}] rounded-sm`,
+      `outline-[${borderColour}]/50`,
+      'text-sm text-gray-600',
+      'ml-2 p-0.5',
+    ])
+
+    return html`
+      <div class=${styles}>
+        <span>Model: </span>
+
+        <span class="flex flex-row items-center">
+          <sl-tooltip content="Model selection quality weighting">
+            <sl-icon class="text-base" name="star-fill"></sl-icon>
+            <input
+              class="${inputStyles}"
+              type="number"
+              min="0"
+              max="100"
+              value=${this.qualityWeight ?? 1}
+              readonly
+              disabled
+            />
+          </sl-tooltip>
+        </span>
+
+        <span class="flex flex-row items-center">
+          <sl-tooltip content="Model selection speed weighting">
+            <sl-icon class="text-base" name="speedometer"></sl-icon>
+            <input
+              class="${inputStyles}"
+              type="number"
+              min="0"
+              max="100"
+              value=${this.speedWeight ?? 1}
+              readonly
+              disabled
+            />
+          </sl-tooltip>
+        </span>
+
+        <span class="flex flex-row items-center">
+          <sl-tooltip content="Model selection cost weighting">
+            <sl-icon class="text-base" name="currency-dollar"></sl-icon>
+            <input
+              class="${inputStyles}"
+              type="number"
+              min="0"
+              max="100"
+              value=${this.costWeight ?? 1}
+              readonly
+              disabled
+            />
+          </sl-tooltip>
+        </span>
+
+        <span class="flex flex-row items-center">
+          <sl-tooltip content="Model inference temperature">
+            <sl-icon class="text-base" name="thermometer"></sl-icon>
+            <input
+              class="${inputStyles}"
+              type="number"
+              min="0"
+              max="100"
+              value=${this.temperature ?? 1}
+              readonly
+              disabled
+            />
+          </sl-tooltip>
+        </span>
+      </div>
+    `
   }
 }
