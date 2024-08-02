@@ -6,8 +6,6 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
 
-import { SoftwareIcon, assistantIcons, stencilaIcons } from './utils'
-
 import '../last-modified'
 
 /**
@@ -148,41 +146,29 @@ export class UINodeAuthor extends LitElement {
     </div>`
   }
 
-  /**
-   * Take the object's ID & split into application name & version. This assumes
-   * that a software application's $id has a format of `name/version` - where
-   * we have a forward slash to split strings from.
-   */
-  private splitID() {
-    return this.$id?.trim().split('/') ?? []
-  }
-
-  private getInitial() {
-    return this.name.charAt(0)
-  }
-
   private renderSoftwareIcon() {
-    const [application, version] = this.splitID()
-    const results = version?.split('-') ?? []
-    const action = results[0] ?? ''
+    const [provider] = this.$id?.trim().split('/') ?? []
 
-    let foundIcons: SoftwareIcon | undefined = undefined
+    // Providers for which an icon is defined
+    const iconName = ['anthropic', 'google', 'mistral', 'openai'].includes(
+      provider
+    )
+      ? provider
+      : undefined
 
-    if (application === 'stencila') {
-      foundIcons = stencilaIcons[action as keyof typeof stencilaIcons]
-    } else {
-      foundIcons = assistantIcons[application]
-    }
-
-    if (!foundIcons) {
+    if (!iconName) {
       return this.renderAvatar()
     }
 
     return html`<sl-icon
-      name=${foundIcons.icon}
-      library=${foundIcons.library}
+      name=${iconName}
+      library="stencila"
       class=${`text-2xl`}
     ></sl-icon>`
+  }
+
+  private renderOrgIcon() {
+    return html`<sl-icon name="building" class=${`text-xl m-auto`}></sl-icon>`
   }
 
   private renderAvatar() {
@@ -191,25 +177,19 @@ export class UINodeAuthor extends LitElement {
       'w-6 h-6',
       'overflow-clip',
       'rounded-full',
-      'bg-black',
-      // `bg-[${stc(this.name)}]`,
+      'bg-black/90',
     ])
     return html`<div class=${classes}>
       <span class="text-white text-xs leading-none m-auto mix-blend-difference"
-        >${this.getInitial()}</span
+        >${this.name.charAt(0)}</span
       >
     </div>`
   }
 
-  private renderOrgIcon() {
-    return html`<sl-icon name="building" class=${`text-xl m-auto`}></sl-icon>`
-  }
-
   private renderIconOrAvatar() {
     switch (this.type) {
-      case 'SoftwareApplication': {
+      case 'SoftwareApplication':
         return this.renderSoftwareIcon()
-      }
       case 'Organization':
         return this.renderOrgIcon()
       default:
