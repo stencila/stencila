@@ -1,6 +1,6 @@
 import { apply } from '@twind/core'
-import { html, LitElement, PropertyValues } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { html, LitElement, css } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
@@ -11,71 +11,47 @@ export class MessagePart extends LitElement {
   @property()
   type: 'text' | 'image'
 
-  @state()
-  instructionText: string
+  @property()
+  value: string
 
-  @state()
-  imgSrc: string
-
-  protected override firstUpdated(_changedProperties: PropertyValues): void {
-    super.firstUpdated(_changedProperties)
-  }
-
-  protected override render() {
-    if (this.type === 'image') {
-      return this.renderImage()
-    } else {
-      return this.renderText()
-    }
+  override render() {
+    return html`<div class="px-3 py-1.5">
+      ${this.type === 'image' ? this.renderImage() : this.renderText()}
+    </div>`
   }
 
   renderText() {
-    const { borderColour } = nodeUi('InstructionBlock')
-    const styles = apply([
-      'h-12 w-full',
-      'px-1 mt-2',
-      'text-black text-sm',
-      `border border-[${borderColour}] rounded-sm`,
-      'outline-black',
-      'resize-none',
+    const { textColour, borderColour } = nodeUi('InstructionBlock')
+
+    const textAreaStyles = apply([
+      'w-full m-auto resize-none',
+      `rounded-sm border border-[${borderColour}]`,
+      `outline-[${textColour}]/50`,
+      'px-2 py-1.5',
+      'font-sans text-gray-700 text-sm',
     ])
 
-    // extract text from hidden slot
-    return html`
-      <div class="text-xs w-full">
-        <label>Instruction Text:</label>
-        <textarea class=${styles}>${this.instructionText}</textarea>
-      </div>
-      <div hidden>
-        <slot
-          @slotchange=${(e: Event) => {
-            // @ts-expect-error Text node has data property
-            this.instructionText = e.target.assignedNodes()[0].data
-          }}
-        ></slot>
-      </div>
-    `
+    return html`<div class="flex items-start">
+      <sl-icon name="chat-square" class="mr-2"></sl-icon>
+      <textarea class=${textAreaStyles}>${this.value}</textarea>
+    </div>`
   }
 
   renderImage() {
-    // hide slot content to avoid default image styles
-    return html`
-      <div class="text-xs w-16 h-auto">
-        <label>img: </label>
-        <sl-tooltip content=${this.imgSrc}>
-          <img src=${this.imgSrc} class="w-full mt-2" />
-        </sl-tooltip>
-        <div hidden>
-          <slot
-            @slotchange=${(e: Event) => {
-              const img = (e.target as HTMLSlotElement).assignedElements()[0]
-              if (img.tagName.toLowerCase() === 'img') {
-                this.imgSrc = (img as HTMLImageElement).src
-              }
-            }}
-          ></slot>
-        </div>
+    const { borderColour } = nodeUi('InstructionBlock')
+
+    const divStyles = apply([
+      'w-full',
+      `rounded-sm border border-[${borderColour}]`,
+      'bg-white',
+      'p-2'
+    ])
+
+    return html`<div class="flex items-start">
+      <sl-icon name="image" class="mr-2"></sl-icon>
+      <div class=${divStyles}>
+        <img class="max-w-md mx-auto" src=${this.value} />
       </div>
-    `
+    </div>`
   }
 }

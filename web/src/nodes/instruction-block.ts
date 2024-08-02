@@ -52,8 +52,6 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        ${this.renderProperties()}
-
         <stencila-ui-node-execution-messages
           type="InstructionBlock"
           warning-count=${this.warningCount}
@@ -61,6 +59,8 @@ export class InstructionBlock extends Instruction {
         >
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
+
+        ${this.renderProperties()}
 
         <slot name="model"></slot>
 
@@ -70,8 +70,8 @@ export class InstructionBlock extends Instruction {
       </div>
 
       <div slot="content" class="w-full">
-        <slot name="suggestions"></slot>
         <slot name="content"></slot>
+        <slot name="suggestions"></slot>
       </div>
     </stencila-ui-block-on-demand>`
   }
@@ -91,29 +91,41 @@ export class InstructionBlock extends Instruction {
     )
 
     const inputStyles = apply([
-      'text-sm text-black',
-      'ml-2 px-2',
-      'w-auto max-w-[30%]',
-      'outline-black',
       `border border-[${borderColour}] rounded-sm`,
+      `outline-[${borderColour}]/50`,
+      'text-sm text-gray-600',
+      'ml-1 p-1',
     ])
 
     return html`
       <div class=${styles}>
-        <label>Assignee:</label>
-        <input
-          class="mr-3 ${inputStyles}"
-          type="text"
-          value=${this.assignee}
-          ?readonly=${true}
-        />
-        <label>Replicates:</label>
-        <input
-          class="${inputStyles}"
-          type="number"
-          value=${this.replicates}
-          ?readonly=${true}
-        />
+        <span class="grow">
+          <sl-tooltip content="Assistant assigned to perform the instruction">
+            <sl-icon class="text-base" name="at"></sl-icon>
+          </sl-tooltip>
+          <input
+            class="${inputStyles} w-[70%]"
+            type="text"
+            value=${this.assignee}
+            readonly
+            disabled
+          />
+        </span>
+
+        <span>
+          <sl-tooltip content="Number of suggestions to generate">
+            <sl-icon class="text-base" name="hash"></sl-icon>
+          </sl-tooltip>
+          <input
+            class="${inputStyles}"
+            type="number"
+            min="1"
+            max="10"
+            value=${this.replicates ?? 1}
+            readonly
+            disabled
+          />
+        </span>
       </div>
     `
   }

@@ -191,12 +191,6 @@ figure {
     }
   }
 
-  stencila-instruction-message {
-    [slot='parts'] {
-      @apply flex gap-x-2;
-    }
-  }
-
   stencila-list-item {
     stencila-paragraph {
       margin: 0;

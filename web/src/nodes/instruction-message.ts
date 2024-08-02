@@ -28,16 +28,14 @@ export class InstructionMessage extends Entity {
 
   override render() {
     return html`
-      <div>
-        <stencila-ui-node-authors type="InstructionMessage">
-          <stencila-ui-node-provenance slot="provenance">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
+      <slot name="parts"></slot>
 
-        <slot name="parts"></slot>
-      </div>
+      <stencila-ui-node-authors type="InstructionMessage">
+        <stencila-ui-node-provenance slot="provenance">
+          <slot name="provenance"></slot>
+        </stencila-ui-node-provenance>
+        <slot name="authors"></slot>
+      </stencila-ui-node-authors>
     `
   }
 
