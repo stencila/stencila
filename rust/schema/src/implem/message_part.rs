@@ -11,37 +11,17 @@ where
 
 impl DomCodec for MessagePart {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context.enter_elem("stencila-message-part");
+        let (r#type, value) = match self {
+            MessagePart::Text(text) => ("text", &text.value.string),
+            MessagePart::ImageObject(image) => ("image", &image.content_url),
+            MessagePart::AudioObject(audio) => ("audio", &audio.content_url),
+            MessagePart::VideoObject(video) => ("video", &video.content_url),
+        };
 
-        match self {
-            MessagePart::Text(text) => {
-                context
-                    .push_attr("type", "text")
-                    .push_text(&text.value.string);
-            }
-            MessagePart::ImageObject(image) => {
-                context
-                    .push_attr("type", "image")
-                    .enter_elem("img")
-                    .push_attr("src", &image.content_url)
-                    .exit_elem();
-            }
-            MessagePart::AudioObject(audio) => {
-                context
-                    .push_attr("type", "audio")
-                    .enter_elem("audio")
-                    .push_attr("src", &audio.content_url)
-                    .exit_elem();
-            }
-            MessagePart::VideoObject(video) => {
-                context
-                    .push_attr("type", "audio")
-                    .enter_elem("video")
-                    .push_attr("src", &video.content_url)
-                    .exit_elem();
-            }
-        }
-
-        context.exit_elem();
+        context
+            .enter_elem("stencila-message-part")
+            .push_attr("type", r#type)
+            .push_attr("value", value)
+            .exit_elem();
     }
 }
