@@ -17,6 +17,11 @@ impl FromStr for Author {
 }
 
 impl Author {
+    /**
+     * Create an [`AuthorRole`] from an author
+     *
+     * Note that this will intentionally change the `role_name` of any existing [`AuthorRole`].
+     */
     pub fn into_author_role(self, role_name: AuthorRoleName) -> AuthorRole {
         match self {
             Author::Person(person) => AuthorRole::person(person, role_name),

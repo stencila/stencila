@@ -35,7 +35,7 @@ impl MarkdownCodec for IfBlock {
             };
 
             context
-                .push_semis()
+                .push_colons()
                 .push_str(&start)
                 .increase_depth()
                 .push_prop_fn(NodeProperty::Clauses, |context| clause.to_markdown(context))
@@ -43,7 +43,7 @@ impl MarkdownCodec for IfBlock {
         }
 
         if !self.clauses.is_empty() {
-            context.push_semis().newline().exit_node().newline();
+            context.push_colons().newline().exit_node().newline();
         } else {
             context.exit_node();
         }

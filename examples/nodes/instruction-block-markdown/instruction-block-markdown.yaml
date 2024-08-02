@@ -15,14 +15,14 @@ content:
   content:
   - type: Text
     value:
-      string: 'No content, closing pipe:'
+      string: 'No content:'
 - type: InstructionBlock
   instructionType: New
 - type: Paragraph
   content:
   - type: Text
     value:
-      string: 'Single new block:'
+      string: 'Single block:'
 - type: InstructionBlock
   instructionType: New
   content:
@@ -35,7 +35,7 @@ content:
   content:
   - type: Text
     value:
-      string: 'Multiple new blocks:'
+      string: 'Multiple blocks:'
 - type: InstructionBlock
   instructionType: New
   content:
@@ -72,7 +72,7 @@ content:
   content:
   - type: Text
     value:
-      string: 'Edit muliple blocks:'
+      string: 'Edit multiple blocks:'
 - type: InstructionBlock
   instructionType: Edit
   content:

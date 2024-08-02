@@ -382,8 +382,9 @@ impl PatchContext {
         })
     }
 
-    /// Create a patch to accept
-    pub fn authors_as_accepters(&self) -> Patch {
+    /// Create a patch to accept a suggestion with the context authors
+    /// attributed as the acceptors.
+    pub fn authors_as_acceptors(&self) -> Patch {
         Patch {
             ops: vec![(PatchPath::new(), PatchOp::Nothing)],
             format: self.format.clone(),

@@ -70,7 +70,7 @@ impl MarkdownCodec for Figure {
                 },
             );
         } else {
-            context.push_semis().push_str(" figure");
+            context.push_colons().push_str(" figure");
 
             if !self.label_automatically.unwrap_or(true) {
                 if let Some(label) = &self.label {
@@ -92,7 +92,7 @@ impl MarkdownCodec for Figure {
                     self.content.to_markdown(context)
                 })
                 .decrease_depth()
-                .push_semis()
+                .push_colons()
                 .newline();
         }
 

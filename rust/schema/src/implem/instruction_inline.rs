@@ -19,7 +19,7 @@ impl InstructionInline {
                         if &suggestion.node_id() == suggestion_id {
                             suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
 
-                            let accepter_patch = context.authors_as_accepters();
+                            let accepter_patch = context.authors_as_acceptors();
                             let mut content = suggestion.content.clone();
                             for node in &mut content {
                                 if let Err(error) = patch(node, accepter_patch.clone()) {

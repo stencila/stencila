@@ -19,7 +19,7 @@ impl InstructionBlock {
                         if &suggestion.node_id() == suggestion_id {
                             suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
 
-                            let accepter_patch = context.authors_as_accepters();
+                            let accepter_patch = context.authors_as_acceptors();
                             let mut content = suggestion.content.clone();
                             for node in &mut content {
                                 if let Err(error) = patch(node, accepter_patch.clone()) {
@@ -159,7 +159,7 @@ impl MarkdownCodec for InstructionBlock {
                 .newline();
         } else {
             context
-                .push_semis()
+                .push_colons()
                 .push_str(" ")
                 .push_str(&instruction_type)
                 .push_str(" ");
@@ -246,7 +246,7 @@ impl MarkdownCodec for InstructionBlock {
 
             if let Some(content) = &self.content {
                 if content.is_empty() {
-                    context.push_str(" |").newline().newline();
+                    context.push_str(" <").newline().newline();
                 } else {
                     if content.len() == 1 {
                         context.push_str(" >");
@@ -260,11 +260,11 @@ impl MarkdownCodec for InstructionBlock {
                         });
 
                     if content.len() > 1 {
-                        context.push_semis().newline().newline();
+                        context.push_colons().newline().newline();
                     }
                 }
             } else {
-                context.push_str(" |").newline().newline();
+                context.push_str(" <").newline().newline();
             }
         }
 

@@ -7,7 +7,7 @@ impl MarkdownCodec for ModifyBlock {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .push_semis()
+            .push_colons()
             .push_str(" modify");
 
         if let Some(feedback) = &self.feedback {
@@ -26,7 +26,7 @@ impl MarkdownCodec for ModifyBlock {
                 });
         }
 
-        context.push_semis().push_str(" with\n\n");
+        context.push_colons().push_str(" with\n\n");
 
         let modified =
             ModifyOperation::apply_many(&self.operations, &self.content).unwrap_or_default();
@@ -36,7 +36,7 @@ impl MarkdownCodec for ModifyBlock {
                 modified.to_markdown(context)
             })
             .decrease_depth()
-            .push_semis()
+            .push_colons()
             .newline()
             .exit_node()
             .newline();

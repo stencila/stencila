@@ -914,7 +914,7 @@ pub(super) fn mds_to_string(mds: &[mdast::Node]) -> String {
             mdast::Node::InlineCode(mdast::InlineCode { value, .. }) => ["`", value, "`"].concat(),
             mdast::Node::InlineMath(mdast::InlineMath { value, .. }) => ["$", value, "$"].concat(),
             mdast::Node::Image(mdast::Image { url, alt, .. }) => {
-                ["[", alt, "](", url, ")"].concat()
+                ["![", alt, "](", url, ")"].concat()
             }
             mdast::Node::Link(mdast::Link { url, .. }) => url.clone(),
             mdast::Node::Strong(mdast::Strong { children, .. }) => {

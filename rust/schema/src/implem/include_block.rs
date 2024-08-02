@@ -51,7 +51,7 @@ impl MarkdownCodec for IncludeBlock {
             );
         } else {
             context
-                .push_semis()
+                .push_colons()
                 .push_str(" include ")
                 .push_prop_str(NodeProperty::Source, &self.source);
 

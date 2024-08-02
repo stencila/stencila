@@ -26,44 +26,49 @@ pub(crate) async fn request(
 
 /// Create a [`DocumentSymbol`] for a [`TextNode`]
 fn symbol(node: &TextNode) -> Option<DocumentSymbol> {
-    use NodeType::*;
-    let kind = match node.node_type {
-        // Primitive node types
-        Null => SymbolKind::NULL,
-        Boolean => SymbolKind::BOOLEAN,
-        Integer => SymbolKind::NUMBER,
-        Number => SymbolKind::NUMBER,
-        String => SymbolKind::STRING,
-        Array => SymbolKind::ARRAY,
-        Object => SymbolKind::OBJECT,
+    let kind = {
+        use NodeType::*;
+        match node.node_type {
+            // Primitive node types
+            Null => SymbolKind::NULL,
+            Boolean => SymbolKind::BOOLEAN,
+            Integer => SymbolKind::NUMBER,
+            Number => SymbolKind::NUMBER,
+            String => SymbolKind::STRING,
+            Array => SymbolKind::ARRAY,
+            Object => SymbolKind::OBJECT,
 
-        // Executable node types
-        CodeChunk | CodeExpression | IfBlockClause => SymbolKind::EVENT,
-        IfBlock => SymbolKind::CLASS,
-        ForBlock => SymbolKind::ENUM,
-        Parameter => SymbolKind::VARIABLE,
+            // Executable node types
+            CodeChunk | CodeExpression | IfBlockClause => SymbolKind::EVENT,
+            IfBlock => SymbolKind::CLASS,
+            ForBlock => SymbolKind::ENUM,
+            Parameter => SymbolKind::VARIABLE,
 
-        // Non-executable node types
-        Heading => SymbolKind::KEY,
-        Paragraph => SymbolKind::STRING,
-        CodeBlock | CodeInline => SymbolKind::OBJECT,
-        MathBlock | MathInline => SymbolKind::OPERATOR,
-        StyledBlock | StyledInline => SymbolKind::CONSTANT,
-        Table => SymbolKind::STRUCT,
+            // Non-executable node types
+            Heading => SymbolKind::KEY,
+            Paragraph => SymbolKind::STRING,
+            CodeBlock | CodeInline => SymbolKind::OBJECT,
+            MathBlock | MathInline => SymbolKind::OPERATOR,
+            StyledBlock | StyledInline => SymbolKind::CONSTANT,
+            Table => SymbolKind::STRUCT,
 
-        // Skip generating symbols for table cells and text nodes
-        // (of which there are likely to be many)
-        TableCell | Text => return None,
+            // Skip generating symbols for table cells and text nodes
+            // (of which there are likely to be many)
+            TableCell | Text => return None,
 
-        _ => SymbolKind::CONSTRUCTOR,
+            _ => SymbolKind::CONSTRUCTOR,
+        }
     };
 
     let name = node.name.clone();
 
     let detail = if let Some(detail) = &node.detail {
         const MAX_LEN: usize = 24;
-        if detail.len() > MAX_LEN && MAX_LEN > 3 {
-            Some(format!("{}...", &detail[..MAX_LEN - 3]))
+        if detail.chars().count() > MAX_LEN {
+            Some(format!(
+                "{}...",
+                &detail.chars().take(MAX_LEN - 3).collect::<String>()
+            ))
         } else {
             Some(detail.to_string())
         }

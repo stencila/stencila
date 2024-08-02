@@ -11,7 +11,6 @@
 
 pub use async_recursion;
 pub use async_trait;
-pub use base64;
 pub use bs58;
 pub use chrono;
 pub use chrono_humanize;

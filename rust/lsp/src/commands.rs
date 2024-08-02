@@ -156,7 +156,7 @@ pub(super) async fn execute_command(
                     "Running current node".to_string(),
                     Command::ExecuteNodes(CommandNodes::new(vec![node_id], CommandScope::Only)),
                     true,
-                    false,
+                    true,
                 )
             } else {
                 tracing::warn!("No node found at position {position:?}");

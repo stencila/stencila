@@ -7,7 +7,7 @@ impl MarkdownCodec for ReplaceBlock {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .push_semis()
+            .push_colons()
             .push_str(" replace");
 
         if let Some(feedback) = &self.feedback {
@@ -27,14 +27,14 @@ impl MarkdownCodec for ReplaceBlock {
         }
 
         context
-            .push_semis()
+            .push_colons()
             .push_str(" with\n\n")
             .increase_depth()
             .push_prop_fn(NodeProperty::Replacement, |context| {
                 self.replacement.to_markdown(context)
             })
             .decrease_depth()
-            .push_semis()
+            .push_colons()
             .newline()
             .exit_node()
             .newline();

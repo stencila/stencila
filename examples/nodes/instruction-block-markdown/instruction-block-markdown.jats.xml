@@ -3,11 +3,11 @@
   <body>
     <p>Example using Markdown as canonical format to test alternative ways to write instruction blocks.</p>
     <title level="1">New instruction</title>
-    <p>No content, closing pipe:</p>
-    <p>Single new block:</p>
-    <p>Multiple new blocks:</p>
+    <p>No content:</p>
+    <p>Single block:</p>
+    <p>Multiple blocks:</p>
     <title level="1">Edit instruction</title>
     <p>Edit next block:</p>
-    <p>Edit muliple blocks:</p>
+    <p>Edit multiple blocks:</p>
   </body>
 </article>

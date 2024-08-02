@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
-use common::{serde::{Deserialize, Serialize}, strum::{Display, EnumString}};
+use common::{serde::{Serialize, Deserialize}, strum::{EnumString, Display}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, EnumString, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

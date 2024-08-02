@@ -17,7 +17,7 @@ impl MarkdownCodec for InsertBlock {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .push_semis()
+            .push_colons()
             .push_str(" insert");
 
         if let Some(feedback) = &self.feedback {
@@ -33,7 +33,7 @@ impl MarkdownCodec for InsertBlock {
                 self.content.to_markdown(context)
             })
             .decrease_depth()
-            .push_semis()
+            .push_colons()
             .newline()
             .exit_node()
             .newline();

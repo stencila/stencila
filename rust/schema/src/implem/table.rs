@@ -225,7 +225,7 @@ impl MarkdownCodec for Table {
         } else {
             let wrapped = if self.label.is_some() || self.caption.is_some() || self.notes.is_some()
             {
-                context.push_semis().push_str(" table");
+                context.push_colons().push_str(" table");
 
                 if !self.label_automatically.unwrap_or(true) {
                     if let Some(label) = &self.label {
@@ -264,7 +264,7 @@ impl MarkdownCodec for Table {
                 if self.notes.is_none() {
                     context.newline();
                 }
-                context.push_semis().newline();
+                context.push_colons().newline();
             }
         }
 

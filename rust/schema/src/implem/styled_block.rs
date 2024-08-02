@@ -79,7 +79,7 @@ impl MarkdownCodec for StyledBlock {
             );
         } else {
             context
-                .push_semis()
+                .push_colons()
                 .push_str(" {")
                 .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
                 .push_str("}\n\n")
@@ -88,7 +88,7 @@ impl MarkdownCodec for StyledBlock {
                     self.content.to_markdown(context)
                 })
                 .decrease_depth()
-                .push_semis()
+                .push_colons()
                 .newline();
         }
 

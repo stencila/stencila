@@ -1,0 +1,11 @@
+[package]
+name = "images"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+base64 = { workspace = true }
+common = { path = "../common" }
+image = { version = "0.25.2", default-features = false, features = ["png", "jpeg", "gif"]}
+mime = { workspace = true }
+mime_guess = { workspace = true }

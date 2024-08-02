@@ -160,7 +160,7 @@ impl DomCodec for ImageObject {
         }
 
         if let Some(authors) = &self.options.authors {
-            context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+            context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
         }
 
         context.exit_node();

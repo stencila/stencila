@@ -167,7 +167,7 @@ impl MarkdownCodec for CodeChunk {
         } else {
             let wrapped =
                 if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {
-                    context.push_semis();
+                    context.push_colons();
 
                     if let Some(label_type) = &self.label_type {
                         context.push_str(match label_type {
@@ -229,7 +229,7 @@ impl MarkdownCodec for CodeChunk {
             context.push_str("```\n");
 
             if wrapped {
-                context.newline().push_semis().newline();
+                context.newline().push_colons().newline();
             }
         }
 
