@@ -125,8 +125,9 @@ export class IncludeBlock extends Executable {
         >
           <input
             class="flex-grow rounded-sm border border-[${borderColour}] px-2 font-mono h-[2em] outline-black"
-            readonly
             value=${this.source}
+            readonly
+            disabled
           />
         </sl-tooltip>
 
