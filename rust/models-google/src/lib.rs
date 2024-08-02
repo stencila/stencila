@@ -114,7 +114,7 @@ impl Model for GoogleModel {
                                 Some(Part::inline_data(mime_type, base64))
                             } else {
                                 tracing::warn!(
-                                    "Image does not appear to have a DataURI so was ignored by assistant `{}`",
+                                    "Image does not appear to have a DataURI so was ignored by model `{}`",
                                     self.id()
                                 );
                                 None
@@ -122,7 +122,7 @@ impl Model for GoogleModel {
                         },
                         _ => {
                             tracing::warn!(
-                                "User message part `{part}` is ignored by assistant `{}`",
+                                "User message part `{part}` is ignored by model `{}`",
                                 self.id()
                             );
                             None
