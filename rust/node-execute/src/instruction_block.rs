@@ -5,7 +5,7 @@ use codec_markdown_trait::to_markdown;
 use common::{eyre::Result, futures::future, itertools::Itertools};
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, CompilationDigest,
-    InstructionBlock, InstructionModel, InstructionType, SoftwareApplication, SuggestionStatus,
+    InstructionBlock, InstructionModel, InstructionType, SoftwareApplication,
 };
 
 use crate::{assistant::execute_assistant, interrupt_impl, pending_impl, prelude::*};
@@ -149,28 +149,6 @@ impl Executable for InstructionBlock {
         );
 
         let started = Timestamp::now();
-
-        // Clean up existing suggestions and send related patches
-        if let Some(suggestions) = self.suggestions.as_mut() {
-            // Remove suggestions that do not have a status or feedback
-            suggestions.retain(|suggestion| {
-                matches!(
-                    suggestion.suggestion_status,
-                    Some(SuggestionStatus::Accepted) | Some(SuggestionStatus::Rejected)
-                ) || suggestion.feedback.is_some()
-            });
-
-            if suggestions.is_empty() {
-                // Clear the suggestions if none left
-                executor.patch(&node_id, [clear(NodeProperty::Suggestions)])
-            } else {
-                // Update the suggestions (to only those retained) and ensure they are visible
-                executor.patch(
-                    &node_id,
-                    [set(NodeProperty::Suggestions, suggestions.clone())],
-                );
-            }
-        }
 
         // Find an assistant and generate a system prompt
         let (prompter, system_prompt) = match generate_system_prompt(
