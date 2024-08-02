@@ -181,32 +181,15 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             .to_string();
 
             if let Some(outputs) = &execution.outputs {
-                message.push_str(", with ");
+                message.push_str(" with ");
                 if outputs == &1 {
                     message.push_str("1 output");
                 } else {
                     message.push_str(&outputs.to_string());
                     message.push_str(" outputs");
                 }
-            }
-
-            if let Some(duration) = &execution.duration {
-                message.push_str(", in ");
-                message.push_str(&duration.humanize(true));
-            }
-
-            if let Some(ended) = &execution.ended {
-                let ended = ended.humanize(false);
-                if ended == "now ago" {
-                    message.push_str(", just now");
-                } else {
-                    message.push_str(", ");
-                    message.push_str(&ended);
-                }
-            }
-
-            if let Some(authors) = &execution.authors {
-                message.push_str(", by ");
+            } else if let Some(authors) = &execution.authors {
+                message.push_str(" by ");
                 let list = authors
                     .iter()
                     .filter_map(|author| match author {
@@ -248,6 +231,21 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                     })
                     .join(", ");
                 message.push_str(&list);
+            }
+
+            if let Some(duration) = &execution.duration {
+                message.push_str(", in ");
+                message.push_str(&duration.humanize(true));
+            }
+
+            if let Some(ended) = &execution.ended {
+                let ended = ended.humanize(false);
+                if ended == "now ago" {
+                    message.push_str(", just now");
+                } else {
+                    message.push_str(", ");
+                    message.push_str(&ended);
+                }
             }
 
             ("Succeeded".to_string(), message)

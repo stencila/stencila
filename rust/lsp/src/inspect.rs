@@ -6,13 +6,13 @@ use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
-    Emphasis, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
-    Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
-    ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
-    NodeType, Note, Paragraph, Parameter, ProvenanceCount, QuoteBlock, QuoteInline, ReplaceBlock,
-    ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
-    SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
-    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
+    ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
+    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
+    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
+    QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock,
+    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
+    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -208,6 +208,9 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         let execution = if block.execution_duration.is_some() {
             Some(TextNodeExecution {
+                // Although suggestions do not have a status we need to add
+                // on here so that a status notification is generated
+                status: Some(ExecutionStatus::Succeeded),
                 duration: block.execution_duration.clone(),
                 ended: block.execution_ended.clone(),
                 authors: block.authors.clone(),
@@ -237,6 +240,9 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
         let execution = if inline.execution_duration.is_some() {
             Some(TextNodeExecution {
+                // Although suggestions do not have a status we need to add
+                // on here so that a status notification is generated
+                status: Some(ExecutionStatus::Succeeded),
                 duration: inline.execution_duration.clone(),
                 ended: inline.execution_ended.clone(),
                 authors: inline.authors.clone(),
