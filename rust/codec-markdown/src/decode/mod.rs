@@ -13,21 +13,42 @@ use codec::{
         serde_json, serde_yaml, tracing,
     },
     format::Format,
-    schema::{Article, Assistant, Block, Inline, Node, NodeId, NodeType, VisitorMut, WalkControl},
+    schema::{
+        Article, Assistant, Block, Inline, Node, NodeId, NodeType, Null, VisitorMut, WalkControl,
+    },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
 
 use self::{blocks::mds_to_blocks, inlines::mds_to_inlines};
 
 mod blocks;
+mod check;
 mod inlines;
 mod shared;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
 pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     let format = options
-        .and_then(|options| options.format)
+        .as_ref()
+        .and_then(|options| options.format.clone())
         .unwrap_or(Format::Markdown);
+
+    // Check the content and return early if any messages and in strict mode
+    let messages = check::check(content, &format);
+    if !messages.is_empty() {
+        let strict = options
+            .and_then(|options| options.strict)
+            .unwrap_or_default();
+        if strict {
+            return Ok((
+                Node::Null(Null),
+                DecodeInfo {
+                    messages,
+                    ..Default::default()
+                },
+            ));
+        }
+    }
 
     let mdast = if matches!(format, Format::Myst) {
         let md = myst_to_md(content);
@@ -57,7 +78,13 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
         context.visit(&mut node);
     }
 
-    Ok((node, context.info()))
+    let info = DecodeInfo {
+        messages,
+        losses: context.losses,
+        mapping: context.mapping,
+    };
+
+    Ok((node, info))
 }
 
 /// Decode a string to blocks
@@ -303,14 +330,6 @@ impl Context {
         }
 
         Some(node)
-    }
-
-    /// Take the decoding info for the context
-    pub fn info(self) -> DecodeInfo {
-        DecodeInfo {
-            losses: self.losses,
-            mapping: self.mapping,
-        }
     }
 }
 

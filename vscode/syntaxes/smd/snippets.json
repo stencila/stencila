@@ -15,50 +15,19 @@
     "body": ["::: include ${1}"]
   },
   "Call Block": {
-    "description": "Execute another document and include the content.",
+    "description": "Execute another document and include its content.",
     "prefix": ["::: call"],
     "body": ["::: call ${1} ($2)"]
   },
-  "Do Block": {
-    "description": "Create an instruction to insert block content.",
-    "prefix": ["::: do"],
-    "body": ["::: do @${1:assignee} ${2:instruction}"]
+  "New Instruction": {
+    "description": "An instruction to generate new content.",
+    "prefix": ["::: new"],
+    "body": ["::: new ${1:assignee} ${0:instruction} <"]
   },
-  "Do Inline": {
-    "description": "Create an instruction to insert inline content.",
-    "prefix": ["[[ do"],
-    "body": ["[[ do @${1:assignee} ${2:instruction} "],
-    "$comment": "No closing brackets because configuration has autoClosingPairs for those so likely already present"
-  },
-  "Insert Block": {
-    "description": "Propose the insertion of block content.",
-    "prefix": ["::: insert"],
-    "body": ["::: insert", "", "$0", "", ":::"]
-  },
-  "Insert Inline": {
-    "description": "Propose the insertion of inline content.",
-    "prefix": ["[[insert"],
-    "body": ["[[insert $0"]
-  },
-  "Delete Block": {
-    "description": "Propose the deletion of block content.",
-    "prefix": ["::: delete"],
-    "body": ["::: delete"]
-  },
-  "Delete Inline": {
-    "description": "Propose the deletion of inline content.",
-    "prefix": ["[[delete"],
-    "body": ["[[delete"]
-  },
-  "Replace Block": {
-    "description": "Propose the replacement of block content.",
-    "prefix": ["::: replace"],
-    "body": ["::: replace"]
-  },
-  "Replace Inline": {
-    "description": "Propose the replacement of inline content.",
-    "prefix": ["[[replace"],
-    "body": ["[[replace"]
+  "Edit Instruction": {
+    "description": "An instruction to edit existing content.",
+    "prefix": ["::: edit"],
+    "body": ["::: edit ${0:instruction} >"]
   },
   "If Block": {
     "description": "Only show block content if the expression is true.",
@@ -66,12 +35,12 @@
     "body": ["::: if ${1:expression}", "", "$0", "", ":::"]
   },
   "Elif Block": {      
-    "description": "Only show block content if the preceeding 'if' conditions are false and its own condition is true.",
+    "description": "Only show block content if the preceding 'if' conditions are false and its own condition is true.",
     "prefix": ["::: elif"],
     "body": ["::: elif ${1:expression}", "", "$0", "", ":::"]
   },
   "Else Block": {
-    "description": "Only show block content if none of the preceeding conditions are true.",
+    "description": "Only show block content if none of the preceding conditions are true.",
     "prefix": ["::: else"],
     "body": ["::: else", "", "$0", "", ":::"]
   },

@@ -37,6 +37,7 @@ mod instruction_block;
 mod instruction_inline;
 mod math_block;
 mod math_inline;
+mod parameter;
 mod styled_block;
 mod styled_inline;
 mod table;
@@ -222,7 +223,7 @@ enum Phase {
     Compile,
     Pending,
     Execute,
-    ExecuteOnly,
+    ExecuteWithoutPatches,
     Interrupt,
 }
 
@@ -421,7 +422,7 @@ impl Executor {
         match self.phase {
             Phase::Compile => node.compile(self).await,
             Phase::Pending => node.pending(self).await,
-            Phase::Execute | Phase::ExecuteOnly => node.execute(self).await,
+            Phase::Execute | Phase::ExecuteWithoutPatches => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
         }
     }
@@ -465,7 +466,7 @@ impl VisitorAsync for Executor {
         }
 
         let control = match block {
-            // TODO: CallBlock(node) => self.visit_executable(node).await,
+            CallBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
             Figure(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,
@@ -497,7 +498,7 @@ impl VisitorAsync for Executor {
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
-            // TODO: Parameter(node) => self.visit_executable(node).await,
+            Parameter(node) => self.visit_executable(node).await,
             StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         };

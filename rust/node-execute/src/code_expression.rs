@@ -96,7 +96,7 @@ impl Executable for CodeExpression {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            if matches!(executor.phase, Phase::ExecuteOnly) {
+            if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
                 self.output = Some(Box::new(output));
             } else {
                 executor.patch(

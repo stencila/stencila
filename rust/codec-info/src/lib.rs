@@ -1,11 +1,13 @@
 mod losses;
 mod mapping;
+mod messages;
 mod poshmap;
 mod positions;
 mod shifter;
 
 pub use losses::*;
 pub use mapping::*;
+pub use messages::*;
 pub use poshmap::*;
 pub use positions::*;
 pub use shifter::*;
@@ -13,6 +15,9 @@ pub use shifter::*;
 /// Information which may be returned when decoding content to a node
 #[derive(Default)]
 pub struct DecodeInfo {
+    /// Any messages generated while decoding
+    pub messages: Messages,
+
     /// The losses when the decoding content to a node
     pub losses: Losses,
 
@@ -24,6 +29,7 @@ impl DecodeInfo {
     /// Create an empty set on decoding information
     pub fn none() -> Self {
         Self {
+            messages: Messages::none(),
             losses: Losses::none(),
             mapping: Mapping::none(),
         }
