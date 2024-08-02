@@ -5,9 +5,23 @@ import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../twind'
 
-@customElement('stencila-image-drop-container')
+@customElement('stencila-ui-image-upload')
 @withTwind()
-export class ImageDropContainer extends LitElement {
+export class UIImageUpload extends LitElement {
+  static acceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml']
+
+  /**
+   * The selected files
+   *
+   * TODO: Note that we do not get the the full path of the file
+   * and so it is necessary to use the JS FileReader to get
+   * the data
+   */
+  @state()
+  files: File[] = []
+
+  private fileInputRef: Ref<HTMLInputElement> = createRef()
+
   private preventDefaults = (e: DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -15,35 +29,23 @@ export class ImageDropContainer extends LitElement {
 
   private handleDragEnter = (e: DragEvent) => {
     this.preventDefaults(e)
-
-    console.log('drag enter')
   }
 
   private handleDragLeave = (e: DragEvent) => {
     this.preventDefaults(e)
-
-    console.log('drag leave')
   }
 
   private handleDrop = (e: DragEvent) => {
     this.preventDefaults(e)
-    console.log('drop')
     this.dropEvent(e)
   }
-
-  private fileInputRef: Ref<HTMLInputElement> = createRef()
-
-  static acceptedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml']
-
-  @state()
-  files: File[] = []
 
   private dropEvent = (e: DragEvent) => {
     const dt = e.dataTransfer
     const files = dt.files
 
     ;[...files].forEach((file) => {
-      if (ImageDropContainer.acceptedFileTypes.includes(file.type)) {
+      if (UIImageUpload.acceptedFileTypes.includes(file.type)) {
         this.files.push(file)
       }
     })
@@ -53,7 +55,6 @@ export class ImageDropContainer extends LitElement {
     super.firstUpdated(_changedProperties)
 
     const container = this.shadowRoot.querySelector('.drop-container')
-    // apply all necesesary event listeners
     if (container) {
       container.addEventListener('dragover', this.preventDefaults)
       container.addEventListener('dragenter', this.handleDragEnter)
@@ -63,34 +64,39 @@ export class ImageDropContainer extends LitElement {
   }
 
   override render() {
-    const styles = apply([
-      'h-full',
-      'p-2',
-      'border-2 border-dashed border-black/20 rounded-md',
-    ])
+    const styles = apply(['h-full', 'p-3', 'font-sans'])
+
+    console.log(this.files)
 
     return html`
       <div class="drop-container ${styles}">
-        <div>
-          Drag and Drop Images, or
+        <div class="flex items-center">
+          <sl-icon class="text-base mr-2" name="image"></sl-icon>
           <button
-            class="underline hover:text-gray-500"
+            class="hover:text-gray-800"
             @click=${() => this.fileInputRef.value?.click()}
           >
-            click here
+            Drag and drop, or click to add an image
           </button>
-          to browse
         </div>
+
         <input
           ${ref(this.fileInputRef)}
           type="file"
+          accept=${UIImageUpload.acceptedFileTypes.join(', ')}
           hidden
           multiple
           @change=${(e: Event) => {
+            // Must use spread operators and assignment here so that
+            // the files `@state` update is triggered to perform a rerender.
             // @ts-expect-error "EventTarget does not have `files` property"
-            this.files.push(...e.target.files)
+            this.files = [...this.files, ...e.target.files]
           }}
         />
+
+        <div class="mt-1 font-mono text-xs"></div>
+          ${this.files.map((file) => file.name).join(', ')}
+        </div>
       </div>
     `
   }
