@@ -4,8 +4,8 @@ use codec_cbor::r#trait::CborCodec;
 use codec_markdown_trait::to_markdown;
 use common::{eyre::Result, futures::future, itertools::Itertools};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, InstructionBlock, InstructionType,
-    SuggestionStatus,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, CompilationDigest,
+    InstructionBlock, InstructionModel, InstructionType, SoftwareApplication, SuggestionStatus,
 };
 
 use crate::{assistant::execute_assistant, interrupt_impl, pending_impl, prelude::*};
@@ -78,20 +78,53 @@ impl Executable for InstructionBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        // If any of the suggestions is in the executing node ids, it means that
-        // this instruction needs to be re-executed
-        let executing_a_suggestion =
+        // Get options which may be overridden if this is a suggestion
+        // Note: to avoid accidentally generating many replicates, hard code maximum 10 here
+        let mut replicates = (self.replicates.unwrap_or(1) as usize).min(10);
+        let mut model_id_pattern = self
+            .model
+            .as_ref()
+            .and_then(|model| model.id_pattern.clone())
+            .clone();
+
+        // If any of this instructions suggestions is in `executor.node_ids`, it indicates
+        // that a revision of the suggestion is required (i.e only the one replicate,
+        // and the model that generated the suggestion should be used again).
+        let is_revision =
             if let (Some(node_ids), Some(suggestions)) = (&executor.node_ids, &self.suggestions) {
-                node_ids.iter().any(|node_id| {
-                    suggestions
+                if let Some(suggestion) = suggestions.iter().find(|suggestion| {
+                    node_ids
                         .iter()
-                        .any(|suggestion| node_id == &suggestion.node_id())
-                })
+                        .any(|node_id| node_id == &suggestion.node_id())
+                }) {
+                    replicates = 1;
+                    model_id_pattern =
+                        suggestion
+                            .authors
+                            .iter()
+                            .flatten()
+                            .find_map(|author| match author {
+                                // Gets the first generator author having an id
+                                Author::AuthorRole(AuthorRole {
+                                    role_name: AuthorRoleName::Generator,
+                                    author:
+                                        AuthorRoleAuthor::SoftwareApplication(SoftwareApplication {
+                                            id: Some(id),
+                                            ..
+                                        }),
+                                    ..
+                                }) => Some(id.clone()),
+                                _ => None,
+                            });
+                    true
+                } else {
+                    false
+                }
             } else {
                 false
             };
 
-        if !executing_a_suggestion
+        if !is_revision
             && !executor.should_execute_instruction(
                 &node_id,
                 &self.execution_mode,
@@ -186,14 +219,29 @@ impl Executable for InstructionBlock {
         }
 
         // Create a future for each replicate
-        // Note: to avoid accidentally generating many replicates, hard code max 10 here
-        let replicates = (self.replicates.unwrap_or(1) as usize).min(10);
         let mut futures = Vec::new();
         for _ in 0..replicates {
+            // TODO: rather than repeating all this prep work to create a model task
+            // within `assistants::execute_instruction_block` it could be done
+            // once, and then clones and moved to each instruction.
             let instructors = instructors.clone();
             let prompter = prompter.clone();
             let system_prompt = system_prompt.to_string();
-            let instruction = self.clone();
+            let mut instruction = self.clone();
+            if let Some(id_pattern) = model_id_pattern.clone() {
+                // Apply the model id for revisions
+                let id_pattern = Some(id_pattern);
+                instruction.model = Some(Box::new(match instruction.model {
+                    Some(model) => InstructionModel {
+                        id_pattern,
+                        ..*model
+                    },
+                    None => InstructionModel {
+                        id_pattern,
+                        ..Default::default()
+                    },
+                }))
+            };
             futures.push(async move {
                 assistants::execute_instruction_block(
                     instructors,
