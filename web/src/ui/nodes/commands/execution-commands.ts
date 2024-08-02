@@ -1,5 +1,4 @@
-import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
-import '@shoelace-style/shoelace/dist/components/icon/icon'
+import '../../buttons/simple-icon'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
@@ -52,14 +51,13 @@ export class UINodeExecutionCommands extends UIBaseClass {
     return html`
       <div class=${containerClasses}>
         <sl-tooltip content="Run this node">
-          <sl-icon
+          <stencila-ui-simple-icon-button
             name="play"
             library="stencila"
-            @click=${(e: Event) => {
+            .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'only')
             }}
-            class="hover:text-gray-900"
-          ></sl-icon>
+          ></stencila-ui-simple-icon-button>
         </sl-tooltip>
         ${this.renderDropdown()}
       </div>

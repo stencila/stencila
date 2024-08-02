@@ -1,3 +1,4 @@
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -51,6 +52,8 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
+        ${this.renderProperties()}
+
         <stencila-ui-node-execution-messages
           type="InstructionBlock"
           warning-count=${this.warningCount}
@@ -71,5 +74,47 @@ export class InstructionBlock extends Instruction {
         <slot name="content"></slot>
       </div>
     </stencila-ui-block-on-demand>`
+  }
+
+  /**
+   * Render a ribbon style container with properties of the instruction
+   */
+  private renderProperties() {
+    const { borderColour, colour } = nodeUi('InstructionBlock')
+
+    const styles = apply(
+      'flex flex-row items-center',
+      'px-3 py-1.5',
+      `bg-[${colour}]`,
+      'text-xs leading-tight font-sans',
+      `border-t border-[${borderColour}]`
+    )
+
+    const inputStyles = apply([
+      'text-sm text-black',
+      'ml-2 px-2',
+      'w-auto max-w-[30%]',
+      'outline-black',
+      `border border-[${borderColour}] rounded-sm`,
+    ])
+
+    return html`
+      <div class=${styles}>
+        <label>Assignee:</label>
+        <input
+          class="mr-3 ${inputStyles}"
+          type="text"
+          value=${this.assignee}
+          ?readonly=${true}
+        />
+        <label>Replicates:</label>
+        <input
+          class="${inputStyles}"
+          type="number"
+          value=${this.replicates}
+          ?readonly=${true}
+        />
+      </div>
+    `
   }
 }

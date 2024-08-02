@@ -17,10 +17,6 @@ import { Entity } from './entity'
 @withTwind()
 export class Text extends Entity {
   override render() {
-    if (this.ancestors.endsWith('.InstructionMessage')) {
-      return html`<textarea>TODO: put text content of slot in here</textarea>`
-    }
-
     return html`<slot></slot>`
   }
 }

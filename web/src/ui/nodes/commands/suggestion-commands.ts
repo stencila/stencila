@@ -7,6 +7,8 @@ import { documentCommandEvent } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
+import '../../buttons/simple-icon'
+
 @customElement('stencila-ui-suggestion-commands')
 @withTwind()
 export class UINodeSuggestionCommands extends UIBaseClass {
@@ -129,35 +131,32 @@ export class UINodeSuggestionCommands extends UIBaseClass {
         }}
       >
         <sl-tooltip content="Accept suggestion">
-          <sl-icon
+          <stencila-ui-simple-icon-button
             name="hand-thumbs-up"
-            @click=${(e: Event) => {
+            .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'accept')
             }}
-            class="hover:text-gray-900"
-          ></sl-icon>
+          ></stencila-ui-simple-icon-button>
         </sl-tooltip>
         <sl-tooltip content="Reject suggestion">
-          <sl-icon
+          <stencila-ui-simple-icon-button
             name="hand-thumbs-down"
-            @click=${(e: Event) => {
+            .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'reject')
             }}
-            class="hover:text-gray-900"
-          ></sl-icon>
+          ></stencila-ui-simple-icon-button>
         </sl-tooltip>
         <sl-tooltip
           content="Revise suggestion with feedback"
           style="--show-delay: 1000ms;"
           ?disabled=${this.showReviseInput}
         >
-          <sl-icon
+          <stencila-ui-simple-icon-button
             name="arrow-repeat"
-            @click=${() => {
+            .clickEvent=${() => {
               this.showReviseInput = !this.showReviseInput
             }}
-            class="hover:text-gray-900"
-          ></sl-icon>
+          ></stencila-ui-simple-icon-button>
         </sl-tooltip>
         ${this.renderReviseInput()}
       </div>
@@ -203,15 +202,13 @@ export class UINodeSuggestionCommands extends UIBaseClass {
                 submit(e)
               }
             }}
+          ></textarea>
+          <stencila-ui-simple-icon-button
+            name="arrow-repeat"
+            custom-classes="text-lg"
+            .clickEvent=${submit}
           >
-${this.feedback}</textarea
-          >
-          <button
-            @click=${submit}
-            class="flex items-center cursor-pointer hover:text-gray-500"
-          >
-            <sl-icon name="arrow-repeat" class="text-lg"></sl-icon>
-          </button>
+          </stencila-ui-simple-icon-button>
         </div>
       </div>
     `

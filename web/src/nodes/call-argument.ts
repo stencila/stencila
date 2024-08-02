@@ -40,7 +40,7 @@ export class CallArgument extends Parameter {
     return html`
       <div class="flex flex-row items-center gap-x-3 px-3 py-1 bg-[${colour}]">
         <input
-          class="w-1/3 rounded-sm border border-[${borderColour}] px-2 py-1 font-mono h-[2em] text-ellipsis"
+          class="w-1/3 rounded-sm border border-[${borderColour}] px-2 py-1 font-mono h-[2em] text-ellipsis outline-black"
           readonly
           value=${this.name}
         />
