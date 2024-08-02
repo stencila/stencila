@@ -249,7 +249,7 @@ repository:
           (?:(?:x|y|q|s|c|t)\d+\s*)*
         )?
         (.*?)
-        ([|>])?
+        (<|>)?
         (?:\s*)
       $
     captures:
@@ -341,7 +341,7 @@ repository:
         \s*
         (suggest)
         (.*?)
-        ([|>])?
+        (>)?
         (?:\s*)
       $
     captures:
