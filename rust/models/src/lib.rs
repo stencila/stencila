@@ -64,7 +64,10 @@ fn score(name: &str) -> f32 {
 }
 
 /// Select a model based on selection criteria of the `InstructionModel`
+#[tracing::instrument]
 pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
+    tracing::trace!("Selecting a model for task");
+
     // Get the list of available models
     let models = list().await;
 
