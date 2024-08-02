@@ -339,17 +339,17 @@ impl TextDocument {
                     continue;
                 }
             };
-
-            // Always send messages, even if empty (to clear any previous diagnostics)
-            let ok = messages
+            let errors = messages
                 .iter()
                 .any(|message| matches!(message.level, MessageLevel::Error));
+
+            // Always send messages, even if empty (to clear any previous diagnostics)
             if let Err(error) = messages_sender.send(messages).await {
                 tracing::error!("While sending decoding messages: {error}");
             };
 
             // If there are any errors while decoding the source ignore this update
-            if !ok {
+            if errors {
                 continue;
             }
 
