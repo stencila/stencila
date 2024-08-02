@@ -6,7 +6,10 @@
   "nick": "msp",
   "category": "edits",
   "description": "A union type for a part of a message.",
-  "$comment": "This union type uses `Text`, instead of `string`, so that each type of par\nis an entity with a type and node id.\n",
+  "$comment": "This union type uses `Text`, instead of `string`, so that each type of part\nis an entity with a type and node id.\n",
+  "dom": {
+    "derive": false
+  },
   "anyOf": [
     {
       "$ref": "Text.schema.json"
