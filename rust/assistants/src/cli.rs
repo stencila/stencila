@@ -55,6 +55,7 @@ impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
         table.set_header([
+            "Id",
             "Name",
             "Version",
             "Instructions",
@@ -63,6 +64,7 @@ impl List {
         ]);
 
         for Assistant {
+            id,
             name,
             version,
             instruction_types,
@@ -77,7 +79,8 @@ impl List {
             };
 
             table.add_row([
-                Cell::new(name).add_attribute(Attribute::Bold),
+                Cell::new(id.unwrap_or_default()).add_attribute(Attribute::Bold),
+                Cell::new(name),
                 Cell::new(version),
                 Cell::new(
                     instruction_types
@@ -139,7 +142,7 @@ impl Execute {
             )),
             assignee: self.assignee,
             model: Some(Box::new(InstructionModel {
-                name_pattern: self.name_pattern,
+                id_pattern: self.name_pattern,
                 minimum_score: self.minimum_score,
                 ..Default::default()
             })),

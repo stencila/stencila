@@ -66,7 +66,7 @@ impl OpenAIModel {
 
 #[async_trait]
 impl Model for OpenAIModel {
-    fn name(&self) -> String {
+    fn id(&self) -> String {
         format!("openai/{}", self.model)
     }
 
@@ -74,11 +74,11 @@ impl Model for OpenAIModel {
         ModelType::Remote
     }
 
-    fn publisher(&self) -> String {
+    fn provider(&self) -> String {
         "OpenAI".to_string()
     }
 
-    fn title(&self) -> String {
+    fn name(&self) -> String {
         if self.model.starts_with("gpt") {
             "GPT".to_string()
         } else if self.model.starts_with("tts") {
@@ -155,7 +155,7 @@ impl OpenAIModel {
                                 _ => {
                                     tracing::warn!(
                                         "System message part `{part}` is ignored by model `{}`",
-                                        self.name()
+                                        self.id()
                                     );
                                     None
                                 }
@@ -189,7 +189,7 @@ impl OpenAIModel {
                             _ => {
                                 tracing::warn!(
                                     "User message part `{part}` is ignored by model `{}`",
-                                    self.name()
+                                    self.id()
                                 );
                                 None
                             }
@@ -210,7 +210,7 @@ impl OpenAIModel {
                             _ => {
                                 tracing::warn!(
                                     "Assistant message part `{part}` is ignored by model `{}`",
-                                    self.name()
+                                    self.id()
                                 );
                                 None
                             }
@@ -301,7 +301,7 @@ impl OpenAIModel {
                         _ => {
                             tracing::warn!(
                                 "Message part `{part}` is ignored by model `{}`",
-                                self.name()
+                                self.id()
                             );
                             None
                         }
@@ -525,7 +525,7 @@ mod tests {
         let list = list().await?;
         let model = list
             .iter()
-            .find(|model| model.title().starts_with("GPT"))
+            .find(|model| model.name().starts_with("GPT"))
             .unwrap();
         let output = model.perform_task(&test_task_repeat_word()).await?;
 

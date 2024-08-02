@@ -12,9 +12,9 @@ export class InstructionModel extends Entity {
   type: "InstructionModel";
 
   /**
-   * A regular expression to select models by name.
+   * A pattern to filter model ids by.
    */
-  namePattern?: string;
+  idPattern?: string;
 
   /**
    * The relative weighting given to model quality (0-100).

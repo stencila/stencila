@@ -1960,8 +1960,8 @@ class InstructionModel(Entity):
 
     type: Literal["InstructionModel"] = "InstructionModel"
 
-    name_pattern: str | None = None
-    """A regular expression to select models by name."""
+    id_pattern: str | None = None
+    """A pattern to filter model ids by."""
 
     quality_weight: UnsignedInteger | None = None
     """The relative weighting given to model quality (0-100)."""

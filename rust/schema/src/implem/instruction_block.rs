@@ -171,7 +171,7 @@ impl MarkdownCodec for InstructionBlock {
             if let Some(model) = self
                 .model
                 .as_ref()
-                .and_then(|model| model.name_pattern.as_ref())
+                .and_then(|model| model.id_pattern.as_ref())
             {
                 context.push_str("[").push_str(model).push_str("] ");
             }

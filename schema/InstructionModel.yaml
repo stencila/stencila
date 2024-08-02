@@ -4,7 +4,7 @@ nick: ism
 extends: Entity
 description: Model selection criteria and execution options for the generative model used for an instruction.
 core:
-  - namePattern
+  - idPattern
   - qualityWeight
   - speedWeight
   - costWeight
@@ -12,9 +12,9 @@ core:
   - temperature
   - randomSeed
 properties:
-  namePattern:
-    '@id': stencila:namePattern
-    description: A regular expression to select models by name.
+  idPattern:
+    '@id': stencila:idPattern
+    description: A pattern to filter model ids by.
     type: string
     patch:
       formats: [md, myst]

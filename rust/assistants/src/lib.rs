@@ -141,13 +141,13 @@ async fn list_local() -> Result<Vec<Assistant>> {
 pub async fn find(
     assignee: &Option<String>,
     instruction_type: &InstructionType,
-    _node_types: &Option<Vec<String>>,
+    node_types: &Option<Vec<String>>,
 ) -> Result<Assistant> {
     let assistants = list().await;
 
     // If there is an assignee then get it
     if let Some(assignee) = assignee {
-        let name = if assignee.contains('/') {
+        let id = if assignee.contains('/') {
             assignee.to_string()
         } else {
             ["stencila/", assignee].concat()
@@ -155,8 +155,8 @@ pub async fn find(
 
         return assistants
             .into_iter()
-            .find(|assistant| assistant.name == name)
-            .ok_or_else(|| eyre!("Unable to find assistant with name `{assignee}`"));
+            .find(|assistant| assistant.id.as_deref() == Some(&id))
+            .ok_or_else(|| eyre!("Unable to find assistant with id `{assignee}`"));
     }
 
     // Filter the assistants to those that support the instruction and node types

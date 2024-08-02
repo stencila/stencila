@@ -84,7 +84,7 @@ pub async fn check(name: &str) -> Result<Message> {
 
     // Models
     for model in plugin.models() {
-        tracing::info!("Checking plugin `{name}` model `{}`", model.name());
+        tracing::info!("Checking plugin `{name}` model `{}`", model.id());
 
         // Create a task for the model
         let task = ModelTask {

@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use model::{
     common::{
-        eyre::{bail, eyre, Result},
+        eyre::{bail, Result},
         futures::future::join_all,
         itertools::Itertools,
         rand::{self, Rng},
@@ -41,18 +41,6 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
     join_all(futures).await.into_iter().flatten().collect_vec()
 }
 
-/// Get a model by name
-pub async fn get(name: &str) -> Result<Arc<dyn Model>> {
-    let models = list().await;
-
-    let model = models
-        .iter()
-        .find(|model| model.name() == name)
-        .ok_or_else(|| eyre!("No model with name `{name}`"))?;
-
-    Ok(model.clone())
-}
-
 /// Get a score for a model
 ///
 /// Based on https://artificialanalysis.ai/leaderboards/models
@@ -84,9 +72,12 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     let regex = match task
         .instruction_model
         .as_ref()
-        .and_then(|model| model.name_pattern.as_deref())
+        .and_then(|model| model.id_pattern.as_deref())
     {
-        Some(pattern) => Some(Regex::new(pattern)?),
+        Some(pattern) => {
+            let regex = pattern.replace('.', r"\.").replace('*', "(.*?)");
+            Some(Regex::new(&regex)?)
+        }
         None => None,
     };
     let mut models = models
@@ -97,7 +88,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
             }
 
             if let Some(regex) = &regex {
-                if !regex.is_match(&model.name()) {
+                if !regex.is_match(&model.id()) {
                     return false;
                 }
             }
@@ -119,7 +110,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     let mut max_score = 0.;
     let mut model_scores = Vec::new();
     for model in models.into_iter() {
-        let score = score(&model.name());
+        let score = score(&model.id());
         if score > max_score {
             max_score = score;
         }

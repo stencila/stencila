@@ -76,7 +76,7 @@ impl OllamaModel {
 
 #[async_trait]
 impl Model for OllamaModel {
-    fn name(&self) -> String {
+    fn id(&self) -> String {
         format!("ollama/{}", self.model)
     }
 
@@ -84,12 +84,8 @@ impl Model for OllamaModel {
         ModelType::Local
     }
 
-    fn publisher(&self) -> String {
-        "Ollama".to_string()
-    }
-
-    fn title(&self) -> String {
-        let name = self.name();
+    fn name(&self) -> String {
+        let name = self.id();
         let name = name
             .rsplit_once('/')
             .map(|(.., name)| name.split_once(':').map_or(name, |(name, ..)| name))
@@ -98,7 +94,7 @@ impl Model for OllamaModel {
     }
 
     fn version(&self) -> String {
-        let name = self.name();
+        let name = self.id();
         let version = name
             .split_once(':')
             .map(|(.., version)| version)
@@ -143,14 +139,14 @@ impl Model for OllamaModel {
                             } else {
                                 tracing::warn!(
                                     "Image does not appear to have a DataURI so was ignored by model `{}`",
-                                    self.name()
+                                    self.id()
                                 );
                             }
                         }
                         _ => {
                             tracing::warn!(
                                 "Message part `{part}` is ignored by model `{}`",
-                                self.name()
+                                self.id()
                             );
                         }
                     }

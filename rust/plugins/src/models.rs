@@ -15,13 +15,13 @@ use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct PluginModel {
-    /// The name of the model
-    name: String,
+    /// The id of the model
+    id: String,
 
     /// The name of the model
     ///
-    /// Will be extracted from the name if not supplied
-    title: Option<String>,
+    /// Will be extracted from the id if not supplied
+    name: Option<String>,
 
     /// A description of the model
     description: Option<String>,
@@ -60,8 +60,8 @@ impl PluginModel {
 
 #[async_trait]
 impl Model for PluginModel {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn id(&self) -> String {
+        self.id.clone()
     }
 
     fn r#type(&self) -> ModelType {
@@ -98,9 +98,9 @@ impl Model for PluginModel {
         }
     }
 
-    fn title(&self) -> String {
-        self.title.clone().unwrap_or_else(|| {
-            let id = self.name.clone();
+    fn name(&self) -> String {
+        self.name.clone().unwrap_or_else(|| {
+            let id = self.id.clone();
             let name = id
                 .rsplit_once('/')
                 .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
@@ -159,7 +159,7 @@ impl Model for PluginModel {
             .call(
                 "model_perform_task",
                 Params {
-                    model: self.name.clone(),
+                    model: self.id.clone(),
                     task,
                 },
             )

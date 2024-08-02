@@ -13,7 +13,7 @@
   ],
   "core": [
     "id",
-    "namePattern",
+    "idPattern",
     "qualityWeight",
     "speedWeight",
     "costWeight",
@@ -40,12 +40,12 @@
       },
       "type": "string"
     },
-    "namePattern": {
-      "@id": "stencila:namePattern",
-      "description": "A regular expression to select models by name.",
+    "idPattern": {
+      "@id": "stencila:idPattern",
+      "description": "A pattern to filter model ids by.",
       "aliases": [
-        "name-pattern",
-        "name_pattern"
+        "id-pattern",
+        "id_pattern"
       ],
       "patch": {
         "formats": [

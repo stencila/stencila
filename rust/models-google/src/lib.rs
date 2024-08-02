@@ -45,7 +45,7 @@ impl GoogleModel {
 
 #[async_trait]
 impl Model for GoogleModel {
-    fn name(&self) -> String {
+    fn id(&self) -> String {
         format!("google/{}", self.model)
     }
 
@@ -85,7 +85,7 @@ impl Model for GoogleModel {
                             _ => {
                                 tracing::warn!(
                                     "System message part `{part}` is ignored by model `{}`",
-                                    self.name()
+                                    self.id()
                                 );
                                 None
                             }
@@ -115,7 +115,7 @@ impl Model for GoogleModel {
                             } else {
                                 tracing::warn!(
                                     "Image does not appear to have a DataURI so was ignored by assistant `{}`",
-                                    self.name()
+                                    self.id()
                                 );
                                 None
                             }
@@ -123,7 +123,7 @@ impl Model for GoogleModel {
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by assistant `{}`",
-                                self.name()
+                                self.id()
                             );
                             None
                         }

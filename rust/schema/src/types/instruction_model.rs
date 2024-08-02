@@ -22,10 +22,10 @@ pub struct InstructionModel {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// A regular expression to select models by name.
-    #[serde(alias = "name-pattern", alias = "name_pattern")]
+    /// A pattern to filter model ids by.
+    #[serde(alias = "id-pattern", alias = "id_pattern")]
     #[patch(format = "md", format = "myst")]
-    pub name_pattern: Option<String>,
+    pub id_pattern: Option<String>,
 
     /// The relative weighting given to model quality (0-100).
     #[serde(alias = "quality-weight", alias = "quality_weight")]

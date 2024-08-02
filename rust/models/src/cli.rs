@@ -1,4 +1,4 @@
-use cli_utils::table::{self, Attribute, Cell, CellAlignment, Color};
+use cli_utils::table::{self, Attribute, Cell, Color};
 use model::{
     common::{
         clap::{self, Args, Parser, Subcommand},
@@ -43,33 +43,28 @@ impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
         table.set_header([
-            "Name",
-            "Provider",
-            "Version",
-            "Context len.",
-            "Inputs",
-            "Outputs",
+            "Id", "Type", "Provider", "Name", "Version", "Inputs", "Outputs",
         ]);
 
-        for assistant in super::list().await {
+        for model in super::list().await {
             use ModelAvailability::*;
-            let availability = assistant.availability();
+            let availability = model.availability();
 
-            let inputs = assistant
+            let inputs = model
                 .supported_inputs()
                 .iter()
                 .map(|input| input.to_string())
                 .join(", ");
 
-            let outputs = assistant
+            let outputs = model
                 .supported_outputs()
                 .iter()
                 .map(|output| output.to_string())
                 .join(", ");
 
             table.add_row([
-                Cell::new(assistant.name()).add_attribute(Attribute::Bold),
-                match assistant.r#type() {
+                Cell::new(model.id()).add_attribute(Attribute::Bold),
+                match model.r#type() {
                     ModelType::Builtin => Cell::new("builtin").fg(Color::Green),
                     ModelType::Local => Cell::new("local").fg(Color::Cyan),
                     ModelType::Remote => Cell::new("remote").fg(Color::Magenta),
@@ -77,18 +72,16 @@ impl List {
                         Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
                     }
                 },
+                Cell::new(model.provider()),
+                Cell::new(model.name()),
                 match availability {
-                    Available => Cell::new(assistant.version()),
+                    Available => Cell::new(model.version()),
                     _ => match availability {
                         Available => Cell::new(availability).fg(Color::Green),
                         Disabled => Cell::new(availability).fg(Color::DarkBlue),
                         Installable => Cell::new(availability).fg(Color::Cyan),
                         Unavailable => Cell::new(availability).fg(Color::Grey),
                     },
-                },
-                match assistant.context_length() {
-                    0 => Cell::new(""),
-                    _ => Cell::new(assistant.context_length()).set_alignment(CellAlignment::Right),
                 },
                 Cell::new(inputs),
                 Cell::new(outputs),

@@ -13,7 +13,7 @@ use async_lsp::{
 };
 
 use codecs::Positions;
-use common::{inflector::Inflector, tokio::sync::RwLock};
+use common::tokio::sync::RwLock;
 use schema::{Assistant, StringOrNumber};
 
 use crate::utils::position_to_position16;
@@ -62,34 +62,38 @@ async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseErr
     let items = assistants::list()
         .await
         .iter()
-        .map(|assistant| {
+        .filter_map(|assistant| {
             let Assistant {
+                id: Some(id),
                 name,
                 version,
                 description,
                 ..
-            } = assistant;
+            } = assistant
+            else {
+                return None;
+            };
 
             // This attempts to maintain consistency with the symbols used for
             // `DocumentSymbols` for various node types
-            let kind = if name.contains("code") {
+            let kind = if id.contains("code") {
                 CompletionItemKind::EVENT
-            } else if name.contains("math") {
+            } else if id.contains("math") {
                 CompletionItemKind::OPERATOR
-            } else if name.contains("styled") {
+            } else if id.contains("styled") {
                 CompletionItemKind::COLOR
-            } else if name.contains("table") {
+            } else if id.contains("table") {
                 CompletionItemKind::STRUCT
-            } else if name.contains("block") {
+            } else if id.contains("block") {
                 CompletionItemKind::CONSTRUCTOR
             } else {
                 CompletionItemKind::INTERFACE
             };
 
-            let label = if let Some(name) = name.strip_prefix("stencila/") {
-                name.to_string()
+            let label = if let Some(id) = id.strip_prefix("stencila/") {
+                id.to_string()
             } else {
-                name.to_string()
+                id.to_string()
             };
 
             let version = match version {
@@ -97,20 +101,20 @@ async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseErr
                 StringOrNumber::Number(version) => version.to_string(),
             };
 
-            let detail = Some(format!("{} v{}", name.to_title_case(), version));
+            let detail = Some(format!("{} v{}", name, version));
 
             let documentation = Some(Documentation::MarkupContent(MarkupContent {
                 kind: MarkupKind::Markdown,
                 value: description.to_string(),
             }));
 
-            CompletionItem {
+            Some(CompletionItem {
                 kind: Some(kind),
                 label,
                 detail,
                 documentation,
                 ..Default::default()
-            }
+            })
         })
         .collect();
 

@@ -51,7 +51,7 @@ impl AnthropicModel {
 
 #[async_trait]
 impl Model for AnthropicModel {
-    fn name(&self) -> String {
+    fn id(&self) -> String {
         format!("anthropic/{}", self.model)
     }
 
@@ -86,7 +86,7 @@ impl Model for AnthropicModel {
                             _ => {
                                 tracing::warn!(
                                     "System message part `{part}` is ignored by model `{}`",
-                                    self.name()
+                                    self.id()
                                 );
                                 None
                             }
@@ -115,7 +115,7 @@ impl Model for AnthropicModel {
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by model `{}`",
-                                self.name()
+                                self.id()
                             );
                             None
                         }

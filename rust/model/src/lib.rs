@@ -66,11 +66,11 @@ pub enum ModelIO {
 /// and APIs used. Model implementations should override `supports_task` and other methods.
 #[async_trait]
 pub trait Model: Sync + Send {
-    /// Get the name of the model
+    /// Get the id of the model
     ///
-    /// The name should be unique amongst models.
-    /// The name should follow the pattern <PUBLISHER>/<MODEL>.
-    fn name(&self) -> String;
+    /// The id should be unique amongst models.
+    /// The id should follow the pattern <PUBLISHER>/<MODEL>.
+    fn id(&self) -> String;
 
     /// Get the type of the model
     fn r#type(&self) -> ModelType {
@@ -87,27 +87,27 @@ pub trait Model: Sync + Send {
         matches!(self.availability(), ModelAvailability::Available)
     }
 
-    /// Get the name of the publisher of the model
+    /// Get the name of the provider of the model
     ///
     /// This default implementation returns the title cased name
     /// before the first forward slash in the name. Derived models
     /// should override if necessary.
-    fn publisher(&self) -> String {
-        let name = self.name();
-        let publisher = name
+    fn provider(&self) -> String {
+        let name = self.id();
+        let provider = name
             .split_once('/')
             .map(|(publisher, ..)| publisher)
             .unwrap_or(&name);
-        publisher.to_title_case()
+        provider.to_title_case()
     }
 
-    /// Get the title of the model
+    /// Get the name of the model
     ///
     /// This default implementation returns the title cased name
     /// after the last forward slash but before the first dash in the name.
     /// Derived models should override if necessary.
-    fn title(&self) -> String {
-        let name = self.name();
+    fn name(&self) -> String {
+        let name = self.id();
         let name = name
             .rsplit_once('/')
             .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
@@ -120,7 +120,7 @@ pub trait Model: Sync + Send {
     /// This default implementation returns the version after the
     /// first dash in the name. Derived models should override if necessary.
     fn version(&self) -> String {
-        let name = self.name();
+        let name = self.id();
         let version = name
             .split_once('-')
             .map(|(.., version)| version)
@@ -150,8 +150,8 @@ pub trait Model: Sync + Send {
     /// only.
     fn to_software_application(&self) -> SoftwareApplication {
         SoftwareApplication {
-            id: Some(self.name()),
-            name: self.title(),
+            id: Some(self.id()),
+            name: self.name(),
             version: Some(StringOrNumber::String(self.version())),
             ..Default::default()
         }
@@ -163,12 +163,12 @@ pub trait Model: Sync + Send {
     /// of the root `CreativeWork`.
     fn to_software_application_complete(&self) -> SoftwareApplication {
         SoftwareApplication {
-            id: Some(self.name()),
-            name: self.title(),
+            id: Some(self.id()),
+            name: self.name(),
             version: Some(StringOrNumber::String(self.version())),
             options: Box::new(SoftwareApplicationOptions {
                 publisher: Some(PersonOrOrganization::Organization(Organization {
-                    name: Some(self.publisher()),
+                    name: Some(self.provider()),
                     ..Default::default()
                 })),
                 ..Default::default()

@@ -645,7 +645,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         opt(take_while(0.., |_| true)),
     )
         .map(
-            |(instruction_type, assignee, name_pattern, options, message): (
+            |(instruction_type, assignee, id_pattern, options, message): (
                 _,
                 _,
                 _,
@@ -691,7 +691,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     }
                 }
 
-                let model = if name_pattern.is_some()
+                let model = if id_pattern.is_some()
                     || minimum_score.is_some()
                     || temperature.is_some()
                     || quality_weight.is_some()
@@ -699,7 +699,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     || cost_weight.is_some()
                 {
                     Some(Box::new(InstructionModel {
-                        name_pattern: name_pattern.map(String::from),
+                        id_pattern: id_pattern.map(String::from),
                         minimum_score,
                         temperature,
                         quality_weight,

@@ -6,6 +6,7 @@ use model::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
+        inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
         serde::{Deserialize, Serialize},
@@ -45,12 +46,31 @@ impl MistralModel {
 
 #[async_trait]
 impl Model for MistralModel {
-    fn name(&self) -> String {
+    fn id(&self) -> String {
         format!("mistral/{}", self.model)
     }
 
     fn r#type(&self) -> ModelType {
         ModelType::Remote
+    }
+
+    fn name(&self) -> String {
+        if self.model.starts_with("open-mistral-nemo") {
+            "Mistral Nemo".to_string()
+        } else if self.model.starts_with("open-mixtral") {
+            "Mixtral".to_string()
+        } else {
+            let parts = self.model.split('-').collect_vec();
+            if parts.len() > 2 {
+                parts.iter().take(2).join(" ").to_title_case()
+            } else {
+                parts[0].to_title_case()
+            }
+        }
+    }
+
+    fn version(&self) -> String {
+        self.model.split('-').last().unwrap_or_default().to_string()
     }
 
     fn context_length(&self) -> usize {
@@ -85,7 +105,7 @@ impl Model for MistralModel {
                         _ => {
                             tracing::warn!(
                                 "Message part of type `{part}` is ignored by assistant `{}`",
-                                self.name()
+                                self.id()
                             );
                             None
                         }

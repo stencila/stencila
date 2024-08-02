@@ -18,10 +18,10 @@
       }
     },
     {
-      "@id": "stencila:namePattern",
+      "@id": "stencila:idPattern",
       "@type": "rdfs:Property",
-      "rdfs:label": "namePattern",
-      "rdfs:comment": "A regular expression to select models by name.",
+      "rdfs:label": "idPattern",
+      "rdfs:comment": "A pattern to filter model ids by.",
       "schema:domainIncludes": {
         "@id": "stencila:InstructionModel"
       },
