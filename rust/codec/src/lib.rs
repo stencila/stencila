@@ -360,6 +360,9 @@ pub struct DecodeOptions {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_props: Vec<String>,
 
+    /// Decode in strict mode for the format
+    pub strict: Option<bool>,
+
     /// The response to take when there are losses in the decoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
