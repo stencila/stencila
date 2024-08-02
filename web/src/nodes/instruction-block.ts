@@ -93,7 +93,7 @@ export class InstructionBlock extends Instruction {
     const inputStyles = apply([
       'text-sm text-black',
       'ml-2 px-2',
-      'max-w-[33%]',
+      'w-auto max-w-[30%]',
       'outline-black',
       `border border-[${borderColour}] rounded-sm`,
     ])
@@ -109,7 +109,7 @@ export class InstructionBlock extends Instruction {
         />
         <label>Replicates:</label>
         <input
-          class=${inputStyles}
+          class="${inputStyles}"
           type="number"
           value=${this.replicates}
           ?readonly=${true}

@@ -1,9 +1,7 @@
-import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
 
@@ -19,24 +17,6 @@ import { Entity } from './entity'
 @withTwind()
 export class Text extends Entity {
   override render() {
-    if (this.ancestors.endsWith('.InstructionMessage')) {
-      const { borderColour } = nodeUi('InstructionBlock')
-      const styles = apply([
-        'h-12 w-full',
-        'px-1',
-        'text-black text-sm',
-        `border border-[${borderColour}] rounded-sm`,
-        'outline-black',
-        'resize-none',
-      ])
-      return html`
-        <div class="text-sm">
-          <label class="mb-1">Instruction Text:</label>
-          <textarea class=${styles}>${this.textContent}</textarea>
-        </div>
-      `
-    }
-
     return html`<slot></slot>`
   }
 }
