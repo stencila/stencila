@@ -61,9 +61,7 @@ impl InstructionBlock {
                         retain
                     });
                     return Ok(true);
-                }
-
-                if matches!(op, PatchOp::Clear) {
+                } else if matches!(op, PatchOp::Clear | PatchOp::Set(PatchValue::None)) {
                     suggestions.retain(|suggestion| {
                         !matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
                     });
