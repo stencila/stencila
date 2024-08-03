@@ -34,8 +34,8 @@ pub struct ReplaceBlock {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub suggestion_status: Option<SuggestionStatus>,
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    pub suggestion_status: SuggestionStatus,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -106,8 +106,9 @@ impl ReplaceBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(content: Vec<Block>, replacement: Vec<Block>) -> Self {
+    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Block>, replacement: Vec<Block>) -> Self {
         Self {
+            suggestion_status,
             content,
             replacement,
             ..Default::default()

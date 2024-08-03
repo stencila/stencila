@@ -14,11 +14,11 @@
   },
   "required": [
     "type",
+    "suggestionStatus",
     "content"
   ],
   "core": [
     "id",
-    "suggestionStatus",
     "authors",
     "provenance",
     "executionDuration",

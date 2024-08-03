@@ -14,11 +14,8 @@ impl SuggestionBlock {
 
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        // Do not encode accepted or rejected suggestions
-        if matches!(
-            self.suggestion_status,
-            Some(SuggestionStatus::Accepted | SuggestionStatus::Rejected),
-        ) {
+        // Only encode proposed suggestions to Markdown
+        if !matches!(self.suggestion_status, SuggestionStatus::Proposed) {
             return;
         }
 

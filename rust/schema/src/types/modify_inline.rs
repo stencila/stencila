@@ -35,8 +35,8 @@ pub struct ModifyInline {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub suggestion_status: Option<SuggestionStatus>,
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    pub suggestion_status: SuggestionStatus,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -107,8 +107,9 @@ impl ModifyInline {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(content: Vec<Inline>, operations: Vec<ModifyOperation>) -> Self {
+    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Inline>, operations: Vec<ModifyOperation>) -> Self {
         Self {
+            suggestion_status,
             content,
             operations,
             ..Default::default()

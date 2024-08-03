@@ -2,6 +2,7 @@
 
 import { Inline } from "./Inline.js";
 import { Suggestion } from "./Suggestion.js";
+import { SuggestionStatus } from "./SuggestionStatus.js";
 
 /**
  * Abstract base type for nodes that indicate a suggested change to inline content.
@@ -15,10 +16,11 @@ export class SuggestionInline extends Suggestion {
    */
   content: Inline[];
 
-  constructor(content: Inline[], options?: Partial<SuggestionInline>) {
-    super();
+  constructor(suggestionStatus: SuggestionStatus, content: Inline[], options?: Partial<SuggestionInline>) {
+    super(suggestionStatus);
     this.type = "SuggestionInline";
     if (options) Object.assign(this, options);
+    this.suggestionStatus = suggestionStatus;
     this.content = content;
   }
 }
@@ -26,6 +28,6 @@ export class SuggestionInline extends Suggestion {
 /**
 * Create a new `SuggestionInline`
 */
-export function suggestionInline(content: Inline[], options?: Partial<SuggestionInline>): SuggestionInline {
-  return new SuggestionInline(content, options);
+export function suggestionInline(suggestionStatus: SuggestionStatus, content: Inline[], options?: Partial<SuggestionInline>): SuggestionInline {
+  return new SuggestionInline(suggestionStatus, content, options);
 }

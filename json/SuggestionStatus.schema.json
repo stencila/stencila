@@ -119,7 +119,7 @@
   "anyOf": [
     {
       "@id": "stencila:Proposed",
-      "description": "A suggestion has been proposed for the instruction.",
+      "description": "The suggestion has been proposed.",
       "const": "Proposed"
     },
     {
@@ -131,6 +131,11 @@
       "@id": "stencila:Rejected",
       "description": "The suggestion has been rejected.",
       "const": "Rejected"
+    },
+    {
+      "@id": "stencila:Unaccepted",
+      "description": "The suggestion has not been accepted, but has not been explicitly rejected.",
+      "const": "Unaccepted"
     }
   ]
 }

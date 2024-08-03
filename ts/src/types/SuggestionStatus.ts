@@ -5,6 +5,7 @@
 export type SuggestionStatus =
   'Proposed' |
   'Accepted' |
-  'Rejected';
+  'Rejected' |
+  'Unaccepted';
 
 

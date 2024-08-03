@@ -52,7 +52,10 @@ pub fn ci<C: Into<Cord>>(code: C) -> Inline {
 
 /// Create an [`Inline::DeleteInline`] node
 pub fn dei<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::DeleteInline(DeleteInline::new(content.into()))
+    Inline::DeleteInline(DeleteInline::new(
+        SuggestionStatus::Proposed,
+        content.into(),
+    ))
 }
 
 /// Create an [`Inline::Emphasis`] node
@@ -67,7 +70,10 @@ pub fn img<S: Into<String>>(url: S) -> Inline {
 
 /// Create an [`Inline::InsertInline`] node
 pub fn isi<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::InsertInline(InsertInline::new(content.into()))
+    Inline::InsertInline(InsertInline::new(
+        SuggestionStatus::Proposed,
+        content.into(),
+    ))
 }
 
 /// Create an [`Inline::Link`] node
@@ -96,7 +102,11 @@ pub fn par<S: Into<String>>(name: S) -> Inline {
 
 /// Create an [`Inline::ReplaceInline`] node
 pub fn rei<I1: Into<Vec<Inline>>, I2: Into<Vec<Inline>>>(content: I1, replacement: I2) -> Inline {
-    Inline::ReplaceInline(ReplaceInline::new(content.into(), replacement.into()))
+    Inline::ReplaceInline(ReplaceInline::new(
+        SuggestionStatus::Proposed,
+        content.into(),
+        replacement.into(),
+    ))
 }
 
 /// Create an [`Inline::QuoteInline`] node
@@ -199,7 +209,7 @@ pub fn cc<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Block {
 
 /// Create a [`Block::DeleteBlock`] node
 pub fn deb<I: Into<Vec<Block>>>(content: I) -> Block {
-    Block::DeleteBlock(DeleteBlock::new(content.into()))
+    Block::DeleteBlock(DeleteBlock::new(SuggestionStatus::Proposed, content.into()))
 }
 
 /// Create a [`Block::Figure`] node
@@ -277,7 +287,7 @@ pub fn inb<S: Into<String>>(source: S) -> Block {
 
 /// Create a [`Block::InsertBlock`] node
 pub fn isb<I: Into<Vec<Block>>>(content: I) -> Block {
-    Block::InsertBlock(InsertBlock::new(content.into()))
+    Block::InsertBlock(InsertBlock::new(SuggestionStatus::Proposed, content.into()))
 }
 
 /// Create a [`Block::List`] node with ascending order
@@ -319,7 +329,11 @@ pub fn qb<B: Into<Vec<Block>>>(content: B) -> Block {
 
 /// Create an [`Inline::ReplaceBlock`] node
 pub fn reb<B1: Into<Vec<Block>>, B2: Into<Vec<Block>>>(content: B1, replacement: B2) -> Block {
-    Block::ReplaceBlock(ReplaceBlock::new(content.into(), replacement.into()))
+    Block::ReplaceBlock(ReplaceBlock::new(
+        SuggestionStatus::Proposed,
+        content.into(),
+        replacement.into(),
+    ))
 }
 
 /// Create a [`Block::Section`] node

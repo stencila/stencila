@@ -398,6 +398,7 @@ class SuggestionStatus(StrEnum):
     Proposed = "Proposed"
     Accepted = "Accepted"
     Rejected = "Rejected"
+    Unaccepted = "Unaccepted"
 
 
 class TableCellType(StrEnum):
@@ -622,7 +623,7 @@ class Suggestion(Entity):
 
     type: Literal["Suggestion"] = "Suggestion"
 
-    suggestion_status: SuggestionStatus | None = None
+    suggestion_status: SuggestionStatus
     """The status of the suggestion including whether it is proposed, accepted, or rejected."""
 
     authors: list[Author] | None = None

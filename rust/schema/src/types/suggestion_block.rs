@@ -31,7 +31,7 @@ pub struct SuggestionBlock {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    pub suggestion_status: Option<SuggestionStatus>,
+    pub suggestion_status: SuggestionStatus,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -86,8 +86,9 @@ impl SuggestionBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(content: Vec<Block>) -> Self {
+    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Block>) -> Self {
         Self {
+            suggestion_status,
             content,
             ..Default::default()
         }

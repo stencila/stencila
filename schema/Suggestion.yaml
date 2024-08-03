@@ -4,8 +4,9 @@ extends: Entity
 category: edits
 abstract: true
 description: Abstract base type for nodes that indicate a suggested change to content.
-core:
+required:
   - suggestionStatus
+core:
   - authors
   - provenance
   - executionDuration

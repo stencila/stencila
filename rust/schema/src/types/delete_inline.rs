@@ -36,8 +36,8 @@ pub struct DeleteInline {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub suggestion_status: Option<SuggestionStatus>,
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    pub suggestion_status: SuggestionStatus,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -101,8 +101,9 @@ impl DeleteInline {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(content: Vec<Inline>) -> Self {
+    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Inline>) -> Self {
         Self {
+            suggestion_status,
             content,
             ..Default::default()
         }

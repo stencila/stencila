@@ -310,7 +310,7 @@ pub async fn execute_instruction_block(
 
     // TODO: check that blocks are the correct type
 
-    let mut suggestion = SuggestionBlock::new(blocks);
+    let mut suggestion = SuggestionBlock::new(SuggestionStatus::Proposed, blocks);
 
     // Record execution time for the suggestion
     let duration = ended
@@ -318,7 +318,6 @@ pub async fn execute_instruction_block(
         .expect("should use compatible timestamps");
     suggestion.execution_duration = Some(duration);
     suggestion.execution_ended = Some(ended);
-    suggestion.suggestion_status = Some(SuggestionStatus::Proposed);
 
     // Apply authorship to the suggestion.
     authors.append(&mut instructors);

@@ -12,34 +12,30 @@ impl InstructionInline {
     ) -> Result<bool> {
         if path.is_empty() {
             if let PatchOp::Accept(suggestion_id) = op {
-                // Accept the suggestion and remove any other suggestions that have not been explicitly
-                // accepted or rejected, or which have no feedback
                 if let Some(suggestions) = &mut self.suggestions {
-                    suggestions.retain_mut(|suggestion| {
+                    for suggestion in suggestions.iter_mut() {
                         if &suggestion.node_id() == suggestion_id {
-                            suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
+                            // Mark the accepted suggestion as such
+                            suggestion.suggestion_status = SuggestionStatus::Accepted;
 
+                            // Record the patcher as the acceptor
                             let accepter_patch = context.authors_as_acceptors();
                             let mut content = suggestion.content.clone();
                             for node in &mut content {
                                 if let Err(error) = patch(node, accepter_patch.clone()) {
-                                    tracing::error!("While accepting inline suggestion: {error}");
+                                    tracing::error!("While accepting block suggestion: {error}");
                                 }
                             }
 
+                            // Make the content of the suggestion the content of the instruction
                             self.content = Some(content);
-                        }
-
-                        if matches!(
-                            suggestion.suggestion_status,
-                            None | Some(SuggestionStatus::Proposed)
-                        ) || suggestion.feedback.is_none()
+                        } else if matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
                         {
-                            false
-                        } else {
-                            true
+                            // Mark suggestions that are proposed as unaccepted
+                            // (i.e. not accepted, but also not explicitly rejected)
+                            suggestion.suggestion_status = SuggestionStatus::Unaccepted;
                         }
-                    })
+                    }
                 }
 
                 return Ok(true);

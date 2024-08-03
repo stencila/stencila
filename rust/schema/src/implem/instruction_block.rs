@@ -12,13 +12,13 @@ impl InstructionBlock {
     ) -> Result<bool> {
         if path.is_empty() {
             if let PatchOp::Accept(suggestion_id) = op {
-                // Accept the suggestion and remove any other suggestions that have not been explicitly
-                // accepted or rejected, or which have no feedback
                 if let Some(suggestions) = &mut self.suggestions {
-                    suggestions.retain_mut(|suggestion| {
+                    for suggestion in suggestions.iter_mut() {
                         if &suggestion.node_id() == suggestion_id {
-                            suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
+                            // Mark the accepted suggestion as such
+                            suggestion.suggestion_status = SuggestionStatus::Accepted;
 
+                            // Record the patcher as the acceptor
                             let accepter_patch = context.authors_as_acceptors();
                             let mut content = suggestion.content.clone();
                             for node in &mut content {
@@ -27,19 +27,15 @@ impl InstructionBlock {
                                 }
                             }
 
+                            // Make the content of the suggestion the content of the instruction
                             self.content = Some(content);
-                        }
-
-                        if matches!(
-                            suggestion.suggestion_status,
-                            None | Some(SuggestionStatus::Proposed)
-                        ) || suggestion.feedback.is_none()
+                        } else if matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
                         {
-                            false
-                        } else {
-                            true
+                            // Mark suggestions that are proposed as unaccepted
+                            // (i.e. not accepted, but also not explicitly rejected)
+                            suggestion.suggestion_status = SuggestionStatus::Unaccepted;
                         }
-                    })
+                    }
                 }
 
                 return Ok(true);
@@ -50,16 +46,15 @@ impl InstructionBlock {
         ) && matches!(context.format, Some(Format::Markdown | Format::Myst))
         {
             // Manually apply remove and clear patches on suggestions.
-            // Prevent accepted and rejected suggestions, which are not encoded to Markdown,
-            // from being deleted (because they may be archived).
+            // Prevent non-proposed suggestions, which are not encoded to Markdown,
+            // from being deleted.
             if let Some(suggestions) = &mut self.suggestions {
                 if let PatchOp::Remove(indices) = op {
                     let mut index = 0usize;
                     suggestions.retain(|suggestion| {
-                        let retain = matches!(
-                            suggestion.suggestion_status,
-                            Some(SuggestionStatus::Accepted | SuggestionStatus::Rejected)
-                        ) || !indices.contains(&index);
+                        let retain =
+                            !matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
+                                || !indices.contains(&index);
 
                         index += 1;
 
@@ -70,10 +65,7 @@ impl InstructionBlock {
 
                 if matches!(op, PatchOp::Clear) {
                     suggestions.retain(|suggestion| {
-                        matches!(
-                            suggestion.suggestion_status,
-                            Some(SuggestionStatus::Accepted | SuggestionStatus::Rejected)
-                        )
+                        !matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
                     });
                     return Ok(true);
                 }
