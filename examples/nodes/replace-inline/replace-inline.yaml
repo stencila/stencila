@@ -6,6 +6,7 @@ content:
     value:
       string: 'Some '
   - type: ReplaceInline
+    suggestionStatus: Proposed
     content:
     - type: Text
       value:

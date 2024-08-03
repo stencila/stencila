@@ -127,6 +127,7 @@
       "suggestions": [
         {
           "type": "SuggestionBlock",
+          "suggestionStatus": "Proposed",
           "content": [{ "type": "CodeChunk", "code": "some code" }]
         }
       ]
@@ -158,6 +159,7 @@
       "suggestions": [
         {
           "type": "SuggestionBlock",
+          "suggestionStatus": "Proposed",
           "content": [
             {
               "type": "Paragraph",

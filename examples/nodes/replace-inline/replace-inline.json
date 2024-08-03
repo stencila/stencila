@@ -8,6 +8,7 @@
         { "type": "Text", "value": "Some " },
         {
           "type": "ReplaceInline",
+          "suggestionStatus": "Proposed",
           "content": [{ "type": "Text", "value": "old" }],
           "replacement": [{ "type": "Text", "value": "new" }]
         },

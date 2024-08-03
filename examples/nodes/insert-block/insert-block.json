@@ -4,6 +4,7 @@
   "content": [
     {
       "type": "InsertBlock",
+      "suggestionStatus": "Proposed",
       "content": [
         {
           "type": "Paragraph",
@@ -18,6 +19,7 @@
     },
     {
       "type": "InsertBlock",
+      "suggestionStatus": "Proposed",
       "feedback": "Some feedback on suggestion",
       "content": [
         {

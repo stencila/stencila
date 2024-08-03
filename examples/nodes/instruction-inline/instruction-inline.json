@@ -120,6 +120,7 @@
           "suggestions": [
             {
               "type": "SuggestionInline",
+              "suggestionStatus": "Proposed",
               "content": [{ "type": "MathInline", "code": "2 /pi r^2" }]
             }
           ]
@@ -139,6 +140,7 @@
           "suggestions": [
             {
               "type": "SuggestionInline",
+              "suggestionStatus": "Proposed",
               "content": [{ "type": "Text", "value": "improved content" }]
             }
           ]

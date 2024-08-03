@@ -1,6 +1,7 @@
 type: Article
 content:
 - type: InsertBlock
+  suggestionStatus: Proposed
   content:
   - type: Paragraph
     content:
@@ -8,6 +9,7 @@ content:
       value:
         string: Proposed inserted paragraph
 - type: InsertBlock
+  suggestionStatus: Proposed
   feedback: Some feedback on suggestion
   content:
   - type: Paragraph

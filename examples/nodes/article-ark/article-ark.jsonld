@@ -63,6 +63,7 @@
         },
         {
           "@type": "stencila:DeleteInline",
+          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "Text",
@@ -109,6 +110,7 @@
         },
         {
           "@type": "stencila:InsertInline",
+          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "Text",
@@ -200,6 +202,7 @@
         },
         {
           "@type": "stencila:ReplaceInline",
+          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "Text",
@@ -384,6 +387,7 @@
     },
     {
       "@type": "stencila:DeleteBlock",
+      "stencila:suggestionStatus": "Proposed",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -476,6 +480,7 @@
     },
     {
       "@type": "stencila:InsertBlock",
+      "stencila:suggestionStatus": "Proposed",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -536,6 +541,7 @@
     },
     {
       "@type": "stencila:ReplaceBlock",
+      "stencila:suggestionStatus": "Proposed",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",

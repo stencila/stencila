@@ -142,6 +142,7 @@
           suggestions: [
             {
               type: "SuggestionInline",
+              suggestionStatus: "Proposed",
               content: [
                 {
                   type: "MathInline",
@@ -176,6 +177,7 @@
           suggestions: [
             {
               type: "SuggestionInline",
+              suggestionStatus: "Proposed",
               content: [
                 {
                   type: "Text",

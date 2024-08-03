@@ -152,6 +152,7 @@
       suggestions: [
         {
           type: "SuggestionBlock",
+          suggestionStatus: "Proposed",
           content: [
             {
               type: "CodeChunk",
@@ -196,6 +197,7 @@
       suggestions: [
         {
           type: "SuggestionBlock",
+          suggestionStatus: "Proposed",
           content: [
             {
               type: "Paragraph",

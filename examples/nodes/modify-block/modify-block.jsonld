@@ -18,6 +18,7 @@
     },
     {
       "@type": "stencila:ModifyBlock",
+      "stencila:suggestionStatus": "Proposed",
       "stencila:content": [
         {
           "@type": "stencila:CodeChunk",

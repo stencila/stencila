@@ -45,6 +45,7 @@
         },
         {
           type: "DeleteInline",
+          suggestionStatus: "Proposed",
           content: [
             {
               type: "Text",
@@ -81,6 +82,7 @@
         },
         {
           type: "InsertInline",
+          suggestionStatus: "Proposed",
           content: [
             {
               type: "Text",
@@ -152,6 +154,7 @@
         },
         {
           type: "ReplaceInline",
+          suggestionStatus: "Proposed",
           content: [
             {
               type: "Text",
@@ -294,6 +297,7 @@
     },
     {
       type: "DeleteBlock",
+      suggestionStatus: "Proposed",
       content: [
         {
           type: "Paragraph",
@@ -372,6 +376,7 @@
     },
     {
       type: "InsertBlock",
+      suggestionStatus: "Proposed",
       content: [
         {
           type: "Paragraph",
@@ -424,6 +429,7 @@
     },
     {
       type: "ReplaceBlock",
+      suggestionStatus: "Proposed",
       content: [
         {
           type: "Paragraph",

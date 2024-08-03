@@ -16,6 +16,7 @@
         },
         {
           "@type": "stencila:ReplaceInline",
+          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "Text",

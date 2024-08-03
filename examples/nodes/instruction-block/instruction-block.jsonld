@@ -182,6 +182,7 @@
       "stencila:suggestions": [
         {
           "@type": "stencila:SuggestionBlock",
+          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "stencila:CodeChunk",
@@ -234,6 +235,7 @@
       "stencila:suggestions": [
         {
           "@type": "stencila:SuggestionBlock",
+          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "stencila:Paragraph",

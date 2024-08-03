@@ -7,6 +7,7 @@
   "stencila:content": [
     {
       "@type": "stencila:InsertBlock",
+      "stencila:suggestionStatus": "Proposed",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -23,6 +24,7 @@
     },
     {
       "@type": "stencila:InsertBlock",
+      "stencila:suggestionStatus": "Proposed",
       "stencila:feedback": "Some feedback on suggestion",
       "stencila:content": [
         {

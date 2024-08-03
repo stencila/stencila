@@ -178,6 +178,7 @@
           "stencila:suggestions": [
             {
               "@type": "stencila:SuggestionInline",
+              "stencila:suggestionStatus": "Proposed",
               "stencila:content": [
                 {
                   "@type": "stencila:MathInline",
@@ -220,6 +221,7 @@
           "stencila:suggestions": [
             {
               "@type": "stencila:SuggestionInline",
+              "stencila:suggestionStatus": "Proposed",
               "stencila:content": [
                 {
                   "@type": "Text",

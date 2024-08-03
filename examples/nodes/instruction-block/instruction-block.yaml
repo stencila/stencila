@@ -90,6 +90,7 @@ content:
   assignee: code-chunk
   suggestions:
   - type: SuggestionBlock
+    suggestionStatus: Proposed
     content:
     - type: CodeChunk
       code:
@@ -115,6 +116,7 @@ content:
         string: A rather long winded paragraph.
   suggestions:
   - type: SuggestionBlock
+    suggestionStatus: Proposed
     content:
     - type: Paragraph
       content:
