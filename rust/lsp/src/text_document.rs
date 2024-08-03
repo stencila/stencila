@@ -15,7 +15,8 @@ use async_lsp::{
 };
 
 use codecs::{
-    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, MessageLevel, Messages,
+    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse, MessageLevel,
+    Messages,
 };
 use common::{
     eyre::{bail, Report},
@@ -457,6 +458,8 @@ impl TextDocument {
                 &node,
                 Some(EncodeOptions {
                     format: Some(format.clone()),
+                    // Reduce log level for reporting encoding losses
+                    losses: LossesResponse::Trace,
                     ..Default::default()
                 }),
             )

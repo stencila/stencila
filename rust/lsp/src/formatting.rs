@@ -9,7 +9,7 @@ use async_lsp::{
     ErrorCode, ResponseError,
 };
 
-use codecs::{EncodeOptions, Format};
+use codecs::{EncodeOptions, Format, LossesResponse};
 use common::{tokio::sync::RwLock, tracing};
 use document::Document;
 
@@ -34,6 +34,8 @@ pub(crate) async fn format_doc(
             None,
             Some(EncodeOptions {
                 format: Some(format.clone()),
+                // Reduce log level for reporting encoding losses
+                losses: LossesResponse::Trace,
                 ..Default::default()
             }),
         )
