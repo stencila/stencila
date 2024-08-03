@@ -397,15 +397,38 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 diff_variants.extend(quote! {
                     (Self::#variant_name, Self::#variant_name) => Ok(()),
                 });
-                patch_variants.extend(quote! {
-                    Self::#variant_name => Ok(false),
-                });
-                apply_variants.extend(quote! {
-                    Self::#variant_name => Ok(()),
-                });
             }
         };
     }
+
+    let (patch, apply) = if is_unit {
+        (
+            quote! {
+                Ok(false)
+            },
+            quote! {
+                if let PatchOp::Set(value) = op {
+                    *self = Self::from_value(value)?;
+                    Ok(())
+                } else {
+                    bail!("Invalid op for `{}`", stringify!(#enum_name));
+                }
+            },
+        )
+    } else {
+        (
+            quote! {
+                match self {
+                    #patch_variants
+                }
+            },
+            quote! {
+                match self {
+                    #apply_variants
+                }
+            },
+        )
+    };
 
     let (to_value, from_value) = match enum_name.to_string().as_str() {
         "Inline" | "Block" | "Node" => (
@@ -494,15 +517,11 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             }
 
             fn patch(&mut self, patch: &mut Patch, context: &mut PatchContext) -> Result<bool> {
-                match self {
-                    #patch_variants
-                }
+                #patch
             }
 
             fn apply(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
-                match self {
-                    #apply_variants
-                }
+                #apply
             }
         }
     }
