@@ -20,6 +20,18 @@ import {
 @withTwind()
 export class UIBaseCard extends UIBaseClass {
   /**
+   * The icon to use in the header
+   */
+  @property({ attribute: 'header-icon' })
+  headerIcon?: string
+
+  /**
+   * The title to use in the header
+   */
+  @property({ attribute: 'header-title' })
+  headerTitle?: string
+
+  /**
    * The programming language of the node
    *
    * Used to customize the icon for the node
@@ -86,7 +98,9 @@ export class UIBaseCard extends UIBaseClass {
   }
 
   private renderIcon() {
-    const [library, icon] = this.getIcon()
+    const [library, icon] = this.headerIcon
+      ? ['stencila', this.headerIcon]
+      : this.getIcon()
 
     return html`
       <sl-icon library=${library} name=${icon} class="text-2xl"></sl-icon>
@@ -120,7 +134,7 @@ export class UIBaseCard extends UIBaseClass {
    */
   protected renderHeader(extraTwindClasses?: string | string[]) {
     const { title, borderColour } = this.ui
-    const headerTitle = (this.title && this.title) || title
+    const headerTitle = this.headerTitle ? this.headerTitle : title
 
     const additionalStyles: string[] = extraTwindClasses
       ? Array.isArray(extraTwindClasses)
@@ -159,7 +173,6 @@ export class UIBaseCard extends UIBaseClass {
         <div class="flex justify-between items-center gap-x-2 grow">
           <div
             class=${`flex grow pr-4 ${this.restrictTitleWidth ? 'max-w-[22rem]' : ''}`}
-            title=${headerTitle}
           >
             <span
               class="font-semibold text-sm inline-block overflow-hidden text-ellipsis whitespace-nowrap"
