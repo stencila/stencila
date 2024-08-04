@@ -92,14 +92,14 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   IncludeBlock:     { ...shoelaceIcon('file-plus'),            ...nodeColours('sky')},
   CallBlock:        { ...shoelaceIcon('file-play'),            ...nodeColours('lime')},
   
-  InstructionBlock: { ...stencilaIcon('instruction-block'),    ...nodeColours('violet')},
+  InstructionBlock: { ...shoelaceIcon('chat-right-text'),    ...nodeColours('violet')},
   InstructionMessage: { ...shoelaceIcon('chat-left-text'),    ...nodeColours('violet')},
   
   InsertBlock:      { ...shoelaceIcon('plus-circle'),          ...nodeColours('lime')},
   ReplaceBlock:     { ...stencilaIcon('replace-block'),        ...nodeColours('orange')},
   DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')},
 
-  SuggestionBlock:  { ...shoelaceIcon('lightbulb'),            ...nodeColours('violet'),  title: 'Suggestion' }
+  SuggestionBlock:  { ...shoelaceIcon('card-text'),            ...nodeColours('violet'),  title: 'Suggestion' }
 }
 
 /**
