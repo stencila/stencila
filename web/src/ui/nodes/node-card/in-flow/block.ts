@@ -7,9 +7,9 @@ import { withTwind } from '../../../../twind'
 import { UIBaseCard } from '../base-card'
 
 /**
- * UI in-flow-block
+ * UI in-flow block
  *
- * A component to render a node-card "in flow" - i.e. renders a block as is
+ * A component to render a node card "in flow" i.e. renders a block as is
  * without requiring user interaction
  */
 @customElement('stencila-ui-block-in-flow')
