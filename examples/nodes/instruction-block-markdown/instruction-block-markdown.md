@@ -39,3 +39,18 @@ Paragraph to edit #4
 Paragraph to edit #5
 
 :::
+
+# Content other than paragraphs
+
+::: edit improve this >
+
+```python exec
+
+```
+
+::: new admonition >
+
+> ![warning]
+> This is a warning
+
+Following para outside of instruction content.

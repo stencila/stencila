@@ -36,23 +36,29 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     let mut boundaries: Vec<usize> = Vec::new();
 
     // Get all the blocks since the last boundary
-    fn pop_blocks(blocks: &mut Vec<Block>, boundary: &mut Vec<usize>) -> Vec<Block> {
-        if let Some(div) = boundary.pop() {
-            blocks.drain(div..).collect()
+    fn pop_blocks(blocks: &mut Vec<Block>, boundaries: &mut Vec<usize>) -> Vec<Block> {
+        if let Some(boundary) = boundaries.pop() {
+            if boundary > blocks.len() {
+                tracing::error!("Boundary index above length of blocks");
+                Vec::new()
+            } else {
+                blocks.drain(boundary..).collect()
+            }
         } else {
             Vec::new()
         }
     }
 
-    let mut collect_index = usize::MAX;
-    for (index, md) in mds.into_iter().enumerate() {
+    // Used to avoid running `fold_block` if there are no instructions or suggestions
+    let mut should_fold = false;
+    for md in mds.into_iter() {
         let mut is_handled = false;
 
         // Parse "fenced div" paragraphs (starting with `:::`) and handle them specially...
         'fenced: {
             if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
                 if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
-                    if !(value.starts_with(":::") || value.starts_with('/')) {
+                    if !value.starts_with(":::") {
                         // Not a "fenced div" so ignore rest of this block
                         break 'fenced;
                     };
@@ -69,61 +75,54 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             Divider::With => {
                                 if let Some(block) = blocks.last_mut() {
                                     match block {
-                                    Block::InstructionBlock(InstructionBlock {
-                                        content, ..
-                                    }) => {
-                                        // This allows for when the `::: with` of an instruction block is a
-                                        // separate paragraph (i.e. blank line between `::: do` and `::: with`)
-                                        *content = Some(vec![])
-                                    }
+                                        Block::ReplaceBlock(ReplaceBlock { content, .. })
+                                        | Block::ModifyBlock(ModifyBlock { content, .. }) => {
+                                            *content = children;
+                                        }
 
-                                    Block::ReplaceBlock(ReplaceBlock { content, .. })
-                                    | Block::ModifyBlock(ModifyBlock { content, .. }) => {
-                                        *content = children;
+                                        _ => tracing::warn!("Found a `::: with` without a preceding `::: replace` or `::: modify`")
                                     }
+                                }
 
-                                    _ => tracing::warn!("Found a `::: with` without a preceding `::: do`, `::: replace` or `::: modify`")
-                                }
-                                }
                                 boundaries.push(blocks.len());
                             }
                             Divider::Else => {
                                 if let Some(block) = blocks.last_mut() {
                                     match block {
-                                    // Parent is a `ForBlock` so assign children to its `content` and
-                                    // create a placeholder `otherwise` to indicate that when the else finishes
-                                    // the tail of blocks should be popped to the `otherwise` of the current `ForBlock`
-                                    Block::ForBlock(for_block) => {
-                                        for_block.content = children;
-                                        for_block.otherwise = Some(Vec::new());
-                                    }
-
-                                    // Parent is an `IfBlock` so assign children to the `content` of
-                                    // the last clause and add a final clause with no code or language
-                                    Block::IfBlock(if_block) => {
-                                        if let Some(last) = if_block.clauses.last_mut() {
-                                            last.content = children;
-                                        } else {
-                                            tracing::error!("Expected there to be at least one if clause already")
+                                        // Parent is a `ForBlock` so assign children to its `content` and
+                                        // create a placeholder `otherwise` to indicate that when the else finishes
+                                        // the tail of blocks should be popped to the `otherwise` of the current `ForBlock`
+                                        Block::ForBlock(for_block) => {
+                                            for_block.content = children;
+                                            for_block.otherwise = Some(Vec::new());
                                         }
 
-                                        let if_block_clause = IfBlockClause::default();
+                                        // Parent is an `IfBlock` so assign children to the `content` of
+                                        // the last clause and add a final clause with no code or language
+                                        Block::IfBlock(if_block) => {
+                                            if let Some(last) = if_block.clauses.last_mut() {
+                                                last.content = children;
+                                            } else {
+                                                tracing::error!("Expected there to be at least one if clause already")
+                                            }
 
-                                        // End the mapping for the previous `IfBlockClause` and start a new one
-                                        if let Some(position) = position {
-                                            context.map_end(position.start.offset.saturating_sub(1));
-                                            context.map_start(
-                                                position.start.offset,
-                                                if_block_clause.node_type(),
-                                                if_block_clause.node_id(),
-                                            );
+                                            let if_block_clause = IfBlockClause::default();
+
+                                            // End the mapping for the previous `IfBlockClause` and start a new one
+                                            if let Some(position) = position {
+                                                context.map_end(position.start.offset.saturating_sub(1));
+                                                context.map_start(
+                                                    position.start.offset,
+                                                    if_block_clause.node_type(),
+                                                    if_block_clause.node_id(),
+                                                );
+                                            }
+
+                                            if_block.clauses.push(if_block_clause);
                                         }
 
-                                        if_block.clauses.push(if_block_clause);
+                                        _ => tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`"),
                                     }
-
-                                    _ => tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`"),
-                                }
                                 }
 
                                 boundaries.push(blocks.len());
@@ -134,8 +133,8 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                     context.map_end(position.end.offset);
                                 }
 
-                                // Finalize the last block and determine if it is a suggestion
-                                let is_suggestion = if let Some(last_block) = blocks.last_mut() {
+                                // Finalize the last block
+                                if let Some(last_block) = blocks.last_mut() {
                                     finalize(last_block, children, context);
 
                                     // If the last block is a `IfBlock` then also need end the mapping for that
@@ -143,39 +142,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                         if let Some(position) = position {
                                             context.map_end(position.end.offset);
                                         }
-                                    }
-
-                                    matches!(last_block, Block::SuggestionBlock(..))
-                                } else {
-                                    false
-                                };
-
-                                // If the block before this one was an instruction and this is a suggestion
-                                // then associate the two. Also extend the range of the mapping for the
-                                // instruction to the end of the suggestion.
-                                if is_suggestion
-                                    && matches!(
-                                        blocks.iter().rev().nth(1),
-                                        Some(Block::InstructionBlock(..))
-                                    )
-                                {
-                                    let (node_id, suggestion) = match blocks.pop() {
-                                        Some(Block::SuggestionBlock(block)) => {
-                                            (block.node_id(), block)
-                                        }
-                                        _ => unreachable!(),
-                                    };
-                                    if let Some(Block::InstructionBlock(instruct)) =
-                                        blocks.last_mut()
-                                    {
-                                        // Associate the suggestion with the instruction
-                                        match instruct.suggestions.as_mut() {
-                                            Some(suggestions) => suggestions.push(suggestion),
-                                            None => instruct.suggestions = Some(vec![suggestion]),
-                                        };
-
-                                        // Extend the instruction to the end of the suggestion
-                                        context.map_extend(instruct.node_id(), node_id);
                                     }
                                 }
                             }
@@ -249,21 +215,40 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                         // This clause must come after `::: else` and others above to avoid `section`
                         // prematurely matching.
 
-                        // Collect the next block into content for instructions and suggestions
-                        // where content capacity has already been set to 1
-                        if let Block::InstructionBlock(InstructionBlock {
-                            content: Some(content),
-                            ..
-                        })
-                        | Block::SuggestionBlock(SuggestionBlock { content, .. }) = &block
+                        if !should_fold
+                            & matches!(
+                                block,
+                                Block::InstructionBlock(..) | Block::SuggestionBlock(..)
+                            )
                         {
-                            if content.capacity() == 1 {
-                                collect_index = index + 1;
-                            }
-                        }
+                            should_fold = true;
+                        };
 
                         // Only add a boundary for blocks that are expected to have a closing fence
-                        if !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..)) {
+                        let add_boundary =
+                            if let Block::InstructionBlock(InstructionBlock { content, .. }) =
+                                &block
+                            {
+                                match content {
+                                    Some(content) => content.capacity() != 1,
+                                    None => false,
+                                }
+                            } else if let Block::SuggestionBlock(SuggestionBlock {
+                                content, ..
+                            }) = &block
+                            {
+                                content.capacity() != 1
+                            } else if matches!(
+                                block,
+                                Block::IncludeBlock(..) | Block::CallBlock(..)
+                            ) {
+                                false
+                            } else {
+                                true
+                            };
+
+                        // Add boundary and map position
+                        if add_boundary {
                             boundaries.push(blocks.len() + 1);
                             if let (Some(position), Some(node_id)) = (position, block.node_id()) {
                                 context.map_start(
@@ -283,77 +268,195 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             }
         }
 
-        // MDAST nodes that can be directly translated into blocks
-        if !is_handled {
-            if let Some((block, position)) = md_to_block(md, context) {
-                if let Block::SuggestionBlock(suggestion) = block {
-                    // MyST suggestion blocks (converted code blocks) need to be associated with
-                    // the previous instruction
-                    let suggestion_node_id = suggestion.node_id();
-                    if let Some(Block::InstructionBlock(instruct)) = blocks.last_mut() {
-                        // Associate the suggestion with the instruction
-                        match instruct.suggestions.as_mut() {
-                            Some(suggestions) => suggestions.push(suggestion),
-                            None => instruct.suggestions = Some(vec![suggestion]),
-                        };
-
-                        // Extend the instruction to the end of the suggestion
-                        context.map_extend(instruct.node_id(), suggestion_node_id);
-                    }
-                } else {
-                    context.map_position(&position, block.node_type(), block.node_id());
-                    blocks.push(block);
-                }
-            }
+        if is_handled {
+            continue;
         }
 
-        // If the previous block was an instruction or suggestion with content capacity of one,
-        // then make the current block the content
-        if collect_index == index && !blocks.is_empty() {
-            let last = blocks.pop().expect("Should not be empty");
-
-            if let (Some(previous_id), Some(last_id)) = (
-                blocks.last().and_then(|block| block.node_id()),
-                last.node_id(),
-            ) {
-                context.map_extend(previous_id, last_id);
+        // MDAST nodes that can be directly translated into blocks
+        if let Some((block, position)) = md_to_block(md, context) {
+            if !should_fold
+                & matches!(
+                    block,
+                    Block::InstructionBlock(..) | Block::SuggestionBlock(..)
+                )
+            {
+                should_fold = true;
             };
 
-            if let Some(
-                Block::InstructionBlock(InstructionBlock {
-                    content: Some(content),
-                    ..
-                })
-                | Block::SuggestionBlock(SuggestionBlock { content, .. }),
-            ) = blocks.last_mut()
+            context.map_position(&position, block.node_type(), block.node_id());
+
+            blocks.push(block);
+        }
+    }
+
+    // Fold blocks into previous blocks if necessary
+    if should_fold {
+        fold_blocks(&mut blocks, context);
+    }
+    fn fold_blocks(blocks: &mut Vec<Block>, context: &mut Context) {
+        let mut index = 0;
+        while index < blocks.len() {
+            // Used to avoid incrementing index when the next block has been removed
+            let mut step = true;
+
+            // If the current block is an instruction or suggestion with content capacity == 1
+            // but length == 0, fold the next block into its content (unless it is a suggestion)
+            if let (
+                Some(
+                    Block::SuggestionBlock(SuggestionBlock { content, .. })
+                    | Block::InstructionBlock(InstructionBlock {
+                        content: Some(content),
+                        ..
+                    }),
+                ),
+                Some(next),
+            ) = (blocks.get(index), blocks.get(index + 1))
             {
-                content.push(last);
+                if !matches!(next, Block::SuggestionBlock(..))
+                    && content.capacity() == 1
+                    && content.len() == 0
+                {
+                    let next = blocks.remove(index + 1);
+
+                    if let (Some(current_id), Some(next_id)) = (
+                        blocks.get(index).and_then(|block| block.node_id()),
+                        next.node_id(),
+                    ) {
+                        context.map_extend(current_id, next_id);
+                    }
+
+                    if let Some(
+                        Block::InstructionBlock(InstructionBlock {
+                            content: Some(content),
+                            ..
+                        })
+                        | Block::SuggestionBlock(SuggestionBlock { content, .. }),
+                    ) = blocks.get_mut(index)
+                    {
+                        content.push(next);
+                    }
+
+                    step = false;
+                }
             }
 
-            // If the blocks now end with instruction and suggestion then assign the
-            // suggestion to the instruction
+            // If the current block is an instruction and the next is a suggestion, fold
+            // the suggestion into the instruction's suggestion
             if let (Some(Block::InstructionBlock(..)), Some(Block::SuggestionBlock(..))) =
-                (blocks.iter().nth_back(1), blocks.last())
+                (blocks.get(index), blocks.get(index + 1))
             {
-                if let (Some(previous_id), Some(last_id)) = (
-                    blocks.iter().nth_back(1).and_then(|block| block.node_id()),
-                    blocks.last().and_then(|block| block.node_id()),
+                if let (Some(current_id), Some(next_id)) = (
+                    blocks.get(index).and_then(|block| block.node_id()),
+                    blocks.get(index + 1).and_then(|block| block.node_id()),
                 ) {
-                    context.map_extend(previous_id, last_id);
-                };
+                    context.map_extend(current_id, next_id);
+                }
 
-                if let Some(Block::SuggestionBlock(suggestion)) = blocks.pop() {
-                    if let Some(Block::InstructionBlock(InstructionBlock { suggestions, .. })) =
-                        blocks.last_mut()
-                    {
-                        match suggestions {
-                            Some(suggestions) => suggestions.push(suggestion),
-                            None => {
-                                suggestions.replace(vec![suggestion]);
+                if let (
+                    Block::SuggestionBlock(suggestion),
+                    Some(Block::InstructionBlock(InstructionBlock { suggestions, .. })),
+                ) = (blocks.remove(index + 1), blocks.get_mut(index))
+                {
+                    match suggestions {
+                        Some(suggestions) => {
+                            suggestions.push(suggestion);
+                        }
+                        None => {
+                            suggestions.replace(vec![suggestion]);
+                        }
+                    }
+
+                    step = false;
+                }
+            }
+
+            // If the current block is an instruction and its last suggestion has content capacity == 1
+            // but length == 0, fold the next block into the suggestion's content (unless it is a suggestion)
+            if let (
+                Some(Block::InstructionBlock(InstructionBlock {
+                    suggestions: Some(suggestions),
+                    ..
+                })),
+                Some(next),
+            ) = (blocks.get(index), blocks.get(index + 1))
+            {
+                if !matches!(next, Block::SuggestionBlock(..)) {
+                    if let Some(SuggestionBlock { content, .. }) = suggestions.last() {
+                        if content.capacity() == 1 && content.len() == 0 {
+                            if let (Some(current_id), Some(next_id)) = (
+                                blocks.get(index).and_then(|block| block.node_id()),
+                                blocks.get(index + 1).and_then(|block| block.node_id()),
+                            ) {
+                                if let Some(suggestion) = suggestions.last() {
+                                    let suggestion_id = suggestion.node_id();
+                                    context.map_extend(suggestion_id.clone(), next_id.clone());
+                                    context.map_extend(current_id, suggestion_id);
+                                }
                             }
+
+                            let next = blocks.remove(index + 1);
+
+                            if let Some(Block::InstructionBlock(InstructionBlock {
+                                suggestions: Some(suggestions),
+                                ..
+                            })) = blocks.get_mut(index)
+                            {
+                                if let Some(SuggestionBlock { content, .. }) =
+                                    suggestions.last_mut()
+                                {
+                                    content.push(next);
+                                }
+                            }
+
+                            step = false;
                         }
                     }
                 }
+            }
+
+            // Recurse into blocks the have block content so any instructions
+            // or suggestions in them are also folded if needed
+            if let Some(block) = blocks.get_mut(index) {
+                if let Block::Admonition(Admonition {
+                    content: blocks, ..
+                })
+                | Block::Section(Section {
+                    content: blocks, ..
+                })
+                | Block::Table(Table {
+                    caption: Some(blocks),
+                    ..
+                })
+                | Block::ForBlock(ForBlock {
+                    content: blocks, ..
+                }) = block
+                {
+                    fold_blocks(blocks, context);
+                } else if let Block::Figure(Figure {
+                    caption, content, ..
+                }) = block
+                {
+                    if let Some(caption) = caption {
+                        fold_blocks(caption, context);
+                    }
+                    fold_blocks(content, context);
+                } else if let Block::IfBlock(IfBlock { clauses, .. }) = block {
+                    for clause in clauses {
+                        fold_blocks(&mut clause.content, context);
+                    }
+                } else if let Block::InstructionBlock(InstructionBlock {
+                    suggestions: Some(suggestions),
+                    ..
+                }) = block
+                {
+                    for suggestion in suggestions {
+                        fold_blocks(&mut suggestion.content, context);
+                    }
+                }
+            }
+
+            if step {
+                index += 1;
             }
         }
     }

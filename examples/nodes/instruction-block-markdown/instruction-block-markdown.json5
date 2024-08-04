@@ -156,6 +156,74 @@
           ]
         }
       ]
+    },
+    {
+      type: "Heading",
+      level: 1,
+      content: [
+        {
+          type: "Text",
+          value: { string: "Content other than paragraphs" }
+        }
+      ]
+    },
+    {
+      type: "InstructionBlock",
+      instructionType: "Edit",
+      message: {
+        type: "InstructionMessage",
+        parts: [
+          {
+            type: "Text",
+            value: { string: "improve this" }
+          }
+        ]
+      },
+      content: [
+        {
+          type: "CodeChunk",
+          code: { string: "" },
+          programmingLanguage: "python"
+        }
+      ]
+    },
+    {
+      type: "InstructionBlock",
+      instructionType: "New",
+      message: {
+        type: "InstructionMessage",
+        parts: [
+          {
+            type: "Text",
+            value: { string: "admonition" }
+          }
+        ]
+      },
+      content: [
+        {
+          type: "QuoteBlock",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "![warning]\nThis is a warning" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "Following para outside of instruction content." }
+        }
+      ]
     }
   ]
 }

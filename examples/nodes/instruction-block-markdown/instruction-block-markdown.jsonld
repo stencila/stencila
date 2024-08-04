@@ -188,6 +188,86 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:Heading",
+      "stencila:level": 1,
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Content other than paragraphs"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "Edit",
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": [
+          {
+            "@type": "Text",
+            "value": {
+              "string": "improve this"
+            }
+          }
+        ]
+      },
+      "stencila:content": [
+        {
+          "@type": "stencila:CodeChunk",
+          "stencila:code": {
+            "string": ""
+          },
+          "programmingLanguage": "python"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "New",
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": [
+          {
+            "@type": "Text",
+            "value": {
+              "string": "admonition"
+            }
+          }
+        ]
+      },
+      "stencila:content": [
+        {
+          "@type": "stencila:QuoteBlock",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "![warning]\nThis is a warning"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Following para outside of instruction content."
+          }
+        }
+      ]
     }
   ]
 }

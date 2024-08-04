@@ -9,5 +9,7 @@
     <title level="1">Edit instruction</title>
     <p>Edit next block:</p>
     <p>Edit multiple blocks:</p>
+    <title level="1">Content other than paragraphs</title>
+    <p>Following para outside of instruction content.</p>
   </body>
 </article>

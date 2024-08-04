@@ -66,5 +66,37 @@ start     end        offsets   node_type+property                   authorship
    394    415         (0, 1)   Paragraph
    372    416       (-22, 1)   InstructionBlock.content
    361    420       (-11, 4)   InstructionBlock
-     0    421      (-361, 1)   Article.content
-     0    421         (0, 0)   Article
+   421    422        (60, 2)   Heading.level
+   423    452        (2, 30)   Text.value
+   423    452         (0, 0)   Text
+   423    452         (0, 0)   Heading.content
+   421    453        (-2, 1)   Heading
+   464    476       (43, 23)   Text.value
+   464    476         (0, 0)   Text
+   464    476         (0, 0)   InstructionMessage.parts
+   464    476         (0, 0)   InstructionMessage
+   464    476         (0, 0)   InstructionBlock.message
+   494    500       (30, 24)   CodeChunk.programmingLanguage
+   501    502         (7, 2)   CodeChunk.code
+   478    507       (-23, 5)   CodeChunk
+   478    508         (0, 1)   InstructionBlock.content
+   454    512       (-24, 4)   InstructionBlock
+   522    532       (68, 20)   Text.value
+   522    532         (0, 0)   Text
+   522    532         (0, 0)   InstructionMessage.parts
+   522    532         (0, 0)   InstructionMessage
+   522    532         (0, 0)   InstructionBlock.message
+   536    564       (14, 32)   Text.value
+   536    564         (0, 0)   Text
+   536    564         (0, 0)   Paragraph.content
+   534    568        (-2, 4)   Paragraph
+   534    568         (0, 0)   QuoteBlock.content
+   534    565        (0, -3)   QuoteBlock
+   534    566         (0, 1)   InstructionBlock.content
+   513    570       (-21, 4)   InstructionBlock
+   571    617       (58, 47)   Text.value
+   571    617         (0, 0)   Text
+   571    617         (0, 0)   Paragraph.content
+   571    618         (0, 1)   Paragraph
+     0    619      (-571, 1)   Article.content
+     0    619         (0, 0)   Article

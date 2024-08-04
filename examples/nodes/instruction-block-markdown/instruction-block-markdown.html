@@ -51,4 +51,22 @@
       <span>Paragraph to edit #5</span>
     </p>
   </stencila-instruction-block>
+  <h1>
+    <span>Content other than paragraphs</span>
+  </h1>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this"}}]}'>
+    <stencila-code-chunk code='{"string":""}' programming-language='python'>
+    </stencila-code-chunk>
+  </stencila-instruction-block>
+  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"admonition"}}]}'>
+    <blockquote>
+      <p>
+        <span>![warning]
+This is a warning</span>
+      </p>
+    </blockquote>
+  </stencila-instruction-block>
+  <p>
+    <span>Following para outside of instruction content.</span>
+  </p>
 </article>

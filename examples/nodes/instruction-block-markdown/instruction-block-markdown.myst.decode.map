@@ -12,4 +12,8 @@ start     end        offsets   node_type+property                   authorship
    444    528       (18, 86)   InstructionBlock
    530    551       (86, 23)   Paragraph
    553    659      (23, 108)   InstructionBlock
-     0    660      (-553, 1)   Article
+   661    692      (108, 33)   Heading
+   694    799      (33, 107)   InstructionBlock
+   801    905     (107, 106)   InstructionBlock
+   907    953      (106, 48)   Paragraph
+     0    954      (-907, 1)   Article

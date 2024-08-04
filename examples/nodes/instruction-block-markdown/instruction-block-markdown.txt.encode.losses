@@ -1,5 +1,8 @@
 Article#: 1
-Heading#: 2
-InstructionBlock#: 5
-Integer@: 2
-Paragraph#: 12
+CodeChunk#: 1
+Heading#: 3
+InstructionBlock#: 7
+InstructionMessage#: 2
+Integer@: 3
+Paragraph#: 14
+QuoteBlock#: 1
