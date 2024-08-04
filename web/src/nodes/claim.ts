@@ -31,7 +31,7 @@ export class Claim extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Claim"
-        title=${`Claim: ${this.claimType}`}
+        header-title=${this.claimType}
         depth=${this.depth}
         ancestors=${this.ancestors}
       >
