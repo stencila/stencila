@@ -28,9 +28,9 @@ test("fromPath", async () => {
 test("toString", async () => {
   const node = new Article([
     new Paragraph([
-      new Text("Hello "),
-      new Strong([new Text("again")]),
-      new Text("!"),
+      new Text({ string: "Hello " }),
+      new Strong([new Text({ string: "again" })]),
+      new Text({ string: "!" }),
     ]),
   ]);
   const jats = await toString(node, { format: "jats", compact: false });
@@ -40,7 +40,7 @@ test("toString", async () => {
 
 test("toPath", async () => {
   const original = new Article([
-    new Paragraph([new Text("Hello file system!")]),
+    new Paragraph([new Text({ string: "Hello file system!" })]),
   ]);
 
   const temp = tmp.fileSync({ postfix: ".jats" }).name;
