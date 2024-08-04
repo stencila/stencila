@@ -141,7 +141,7 @@ async fn list_local() -> Result<Vec<Assistant>> {
 pub async fn find(
     assignee: &Option<String>,
     instruction_type: &InstructionType,
-    node_types: &Option<Vec<String>>,
+    _node_types: &Option<Vec<String>>,
 ) -> Result<Assistant> {
     let assistants = list().await;
 

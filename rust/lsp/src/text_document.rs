@@ -425,8 +425,8 @@ impl TextDocument {
                     severity,
                     message: message.message,
                     range: Range {
-                        start: position.clone(),
-                        end: position.clone(),
+                        start: position,
+                        end: position,
                     },
                     ..Default::default()
                 })

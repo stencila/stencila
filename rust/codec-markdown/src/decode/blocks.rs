@@ -238,13 +238,8 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             }) = &block
                             {
                                 content.capacity() != 1
-                            } else if matches!(
-                                block,
-                                Block::IncludeBlock(..) | Block::CallBlock(..)
-                            ) {
-                                false
                             } else {
-                                true
+                                !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..))
                             };
 
                         // Add boundary and map position
@@ -314,7 +309,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             {
                 if !matches!(next, Block::SuggestionBlock(..))
                     && content.capacity() == 1
-                    && content.len() == 0
+                    && content.is_empty()
                 {
                     let next = blocks.remove(index + 1);
 
@@ -382,7 +377,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             {
                 if !matches!(next, Block::SuggestionBlock(..)) {
                     if let Some(SuggestionBlock { content, .. }) = suggestions.last() {
-                        if content.capacity() == 1 && content.len() == 0 {
+                        if content.capacity() == 1 && content.is_empty() {
                             if let (Some(current_id), Some(next_id)) = (
                                 blocks.get(index).and_then(|block| block.node_id()),
                                 blocks.get(index + 1).and_then(|block| block.node_id()),

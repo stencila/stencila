@@ -33,29 +33,36 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                 break;
             }
         }
-    
+
         // Determine if an opening or closing line
         #[derive(Display)]
         enum Fence {
             No,
-            #[strum(to_string="opening colon fence")]
+            #[strum(to_string = "opening colon fence")]
             OpeningColons(u32),
-            #[strum(to_string="closing colon fence")]
+            #[strum(to_string = "closing colon fence")]
             ClosingColons(u32),
-            #[strum(to_string="separating colon fence")]
+            #[strum(to_string = "separating colon fence")]
             SeparatingColons(u32),
-            #[strum(to_string="opening backtick fence")]
+            #[strum(to_string = "opening backtick fence")]
             OpeningBackticks(u32),
-            #[strum(to_string="closing backtick fence")]
+            #[strum(to_string = "closing backtick fence")]
             ClosingBackticks(u32),
         }
         let fence = if colons >= 3 {
             // Is this a self-closing, or separating, colon fence?
-            let (self_closing, separating) =  if trailing_chars {
+            let (self_closing, separating) = if trailing_chars {
                 let line = line.trim_start_matches(':').trim();
-                if line.starts_with("include") || line.starts_with("call") || line.ends_with('<')  || line.ends_with('>') {
+                if line.starts_with("include")
+                    || line.starts_with("call")
+                    || line.ends_with('<')
+                    || line.ends_with('>')
+                {
                     (true, false)
-                } else if line.starts_with("elif") || line.starts_with("else")  || line.starts_with("with") {
+                } else if line.starts_with("elif")
+                    || line.starts_with("else")
+                    || line.starts_with("with")
+                {
                     (false, true)
                 } else {
                     (false, false)
@@ -89,7 +96,7 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                 match colon_fences.last() {
                     Some(&(opening_line, Fence::OpeningColons(opening_colons))) => {
                         if separating_colons != opening_colons {
-                            messages.push(warning(index, 
+                            messages.push(warning(index,
                                 format!(
                                     "Number of separating colons differs from opening colons on line {opening_line} ({separating_colons} != {opening_colons})",
                                     opening_line = opening_line + 1
@@ -97,9 +104,12 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                         }
                         colon_fences.pop();
                     }
-                    Some(&(separating_line, Fence::SeparatingColons(previous_separating_colons))) => {
+                    Some(&(
+                        separating_line,
+                        Fence::SeparatingColons(previous_separating_colons),
+                    )) => {
                         if separating_colons != previous_separating_colons {
-                            messages.push(warning(index, 
+                            messages.push(warning(index,
                                 format!(
                                     "Number of separating colons differs from opening colons on line {separating_line} ({separating_colons} != {previous_separating_colons})",
                                     separating_line = separating_line + 1
@@ -108,46 +118,40 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                         colon_fences.pop();
                     }
                     Some(..) => {}
-                    None =>  {
-                        messages.push(error(index, "Unpaired separating colon fence"))
-                    }
+                    None => messages.push(error(index, "Unpaired separating colon fence")),
                 }
                 colon_fences.push((index, fence));
             }
-            Fence::ClosingColons(closing_colons) => {
-                match colon_fences.last() {
-                    Some(&(opening_line, Fence::OpeningColons(opening_colons))) => {
-                        if closing_colons != opening_colons {
-                            messages.push(warning(index, 
+            Fence::ClosingColons(closing_colons) => match colon_fences.last() {
+                Some(&(opening_line, Fence::OpeningColons(opening_colons))) => {
+                    if closing_colons != opening_colons {
+                        messages.push(warning(index,
                                 format!(
                                     "Number of closing colons differs from opening colons on line {opening_line} ({closing_colons} != {opening_colons})",
                                     opening_line = opening_line + 1
                             )));
-                        }
-                        colon_fences.pop();
                     }
-                    Some(&(separating_line, Fence::SeparatingColons(separating_colons))) => {
-                        if closing_colons != separating_colons {
-                            messages.push(warning(index, 
+                    colon_fences.pop();
+                }
+                Some(&(separating_line, Fence::SeparatingColons(separating_colons))) => {
+                    if closing_colons != separating_colons {
+                        messages.push(warning(index,
                                 format!(
                                     "Number of closing colons differs from separating colons on line {separating_line} ({closing_colons} != {separating_colons})",
                                     separating_line = separating_line + 1
                             )));
-                        }
-                        colon_fences.pop();
                     }
-                    Some(..) => {}
-                    None =>  {
-                        messages.push(error(index, "Unpaired closing colon fence"))
-                    }
+                    colon_fences.pop();
                 }
+                Some(..) => {}
+                None => messages.push(error(index, "Unpaired closing colon fence")),
             },
             Fence::OpeningBackticks(..) => backtick_fences.push((index, fence)),
             Fence::ClosingBackticks(closing_backticks) => {
                 match backtick_fences.last() {
                     Some(&(opening_line, Fence::OpeningBackticks(opening_backticks))) => {
                         if closing_backticks != opening_backticks {
-                            messages.push(warning(index, 
+                            messages.push(warning(index,
                                 format!(
                                     "Number of closing backticks differs from opening backticks on line {opening_line} ({closing_backticks} != {opening_backticks})",
                                     opening_line = opening_line + 1
@@ -157,7 +161,7 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                         backtick_fences.pop();
                     }
                     Some(..) => {}
-                    None =>  {
+                    None => {
                         // Note that plain backticks (with no trailing chars) may be opening.
                         // So in this case, where there is not a paired opening, push this onto
                         backtick_fences.push((index, Fence::OpeningBackticks(closing_backticks)));
@@ -196,4 +200,3 @@ fn error<S: AsRef<str>>(start_line: usize, message: S) -> Message {
         ..Default::default()
     }
 }
-

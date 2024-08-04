@@ -1,21 +1,21 @@
 use crate::{Assistant, AuthorRole, AuthorRoleAuthor, AuthorRoleName, SoftwareApplication};
 
-impl Into<AuthorRole> for Assistant {
-    fn into(self) -> AuthorRole {
+impl From<Assistant> for AuthorRole {
+    fn from(val: Assistant) -> Self {
         AuthorRole {
             role_name: AuthorRoleName::Prompter,
-            author: AuthorRoleAuthor::SoftwareApplication(self.into()),
+            author: AuthorRoleAuthor::SoftwareApplication(val.into()),
             ..Default::default()
         }
     }
 }
 
-impl Into<SoftwareApplication> for Assistant {
-    fn into(self) -> SoftwareApplication {
+impl From<Assistant> for SoftwareApplication {
+    fn from(val: Assistant) -> Self {
         SoftwareApplication {
-            id: self.id,
-            name: self.name,
-            version: Some(self.version),
+            id: val.id,
+            name: val.name,
+            version: Some(val.version),
             ..Default::default()
         }
     }
