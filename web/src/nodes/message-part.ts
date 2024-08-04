@@ -1,5 +1,5 @@
 import { apply } from '@twind/core'
-import { html, LitElement, css } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
@@ -44,7 +44,7 @@ export class MessagePart extends LitElement {
       'w-full',
       `rounded-sm border border-[${borderColour}]`,
       'bg-white',
-      'p-2'
+      'p-2',
     ])
 
     return html`<div class="flex items-start">
