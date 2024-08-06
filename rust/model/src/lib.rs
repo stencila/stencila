@@ -25,10 +25,16 @@ pub use output::{ModelOutput, ModelOutputKind};
 pub use task::{ModelTask, ModelTaskKind};
 
 /// The type of provider of a model
+///
+/// This ordering here is important as it is used when
+/// selecting a model to execute a task.
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum ModelType {
     Builtin,
     Local,
+    Router,
     Remote,
+    Proxy,
     Plugin(String),
 }
 

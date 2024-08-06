@@ -65,11 +65,13 @@ impl List {
             table.add_row([
                 Cell::new(model.id()).add_attribute(Attribute::Bold),
                 match model.r#type() {
-                    ModelType::Builtin => Cell::new("builtin").fg(Color::Green),
-                    ModelType::Local => Cell::new("local").fg(Color::Cyan),
+                    ModelType::Builtin => Cell::new("builtin").fg(Color::Blue),
+                    ModelType::Local => Cell::new("local").fg(Color::Yellow),
+                    ModelType::Router => Cell::new("router").fg(Color::Green),
+                    ModelType::Proxy => Cell::new("proxy").fg(Color::Cyan),
                     ModelType::Remote => Cell::new("remote").fg(Color::Magenta),
                     ModelType::Plugin(name) => {
-                        Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
+                        Cell::new(format!("plugin \"{name}\"")).fg(Color::DarkCyan)
                     }
                 },
                 Cell::new(model.provider()),
