@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::sync::Arc;
+use std::{cmp::Ordering, sync::Arc};
 
 use model::{
     common::{
@@ -11,14 +11,14 @@ use model::{
         regex::Regex,
         tracing,
     },
-    Model, ModelOutput, ModelTask,
+    Model, ModelOutput, ModelTask, ModelType,
 };
 
 pub mod cli;
 
 /// Get a list of available models
 pub async fn list() -> Vec<Arc<dyn Model>> {
-    let futures = (0..=5).map(|provider| async move {
+    let futures = (0..=6).map(|provider| async move {
         let (provider, result) = match provider {
             0 => ("Anthropic", models_anthropic::list().await),
             1 => ("Google", models_google::list().await),
@@ -26,6 +26,7 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
             3 => ("Ollama", models_ollama::list().await),
             4 => ("OpenAI", models_openai::list().await),
             5 => ("Plugins", plugins::models::list().await),
+            6 => ("Stencila", models_stencila::list().await),
             _ => return vec![],
         };
 
@@ -38,28 +39,39 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
         }
     });
 
-    join_all(futures).await.into_iter().flatten().collect_vec()
+    join_all(futures)
+        .await
+        .into_iter()
+        .flatten()
+        .sorted_by(|a, b| match a.r#type().cmp(&b.r#type()) {
+            Ordering::Equal => a.id().cmp(&b.id()),
+            order => order,
+        })
+        .collect_vec()
 }
 
-/// Get a score for a model
+/// Get an overall score for a model
 ///
-/// Based on https://artificialanalysis.ai/leaderboards/models
-/// from 2024-07-30. Only the top models from supported
-/// models are listed here.
-fn score(name: &str) -> f32 {
-    match name {
-        "anthropic/claude-3-5-sonnet-20240620" => 98.0,
-        "anthropic/claude-3-opus-20240229" => 93.0,
-        "anthropic/claude-3-haiku-20240307" => 74.0,
-        "google/gemini-1.5-pro-001" => 95.,
-        "google/gemini-1.5-flash-001" => 84.,
-        "openai/gpt-4o-2024-05-13" => 100.,
-        "openai/gpt-4-turbo-2024-04-09" => 94.,
-        "openai/gpt-4o-mini-2024-07-18" => 88.,
-        "mistral/mistral-large-2407" => 76.,
-        "mistral/mistral-medium-2312" => 70.,
-        "mistral/mistral-small-2402" => 71.,
-        _ => 50.,
+/// Task specific, and more frequently updated, scores are available by
+/// using the stencila/auto router alias.
+fn score(id: &str) -> u32 {
+    match id {
+        // Automatic selection based on the task type, assistant and users
+        "stencila/auto" => 100,
+        // Only the top models from supported providers are listed here.
+        "anthropic/claude-3-5-sonnet-20240620" => 98,
+        "anthropic/claude-3-opus-20240229" => 93,
+        "anthropic/claude-3-haiku-20240307" => 74,
+        "google/gemini-1.5-pro-001" => 95,
+        "google/gemini-1.5-flash-001" => 84,
+        "openai/gpt-4o-2024-05-13" => 100,
+        "openai/gpt-4o-2024-08-06" => 100,
+        "openai/gpt-4-turbo-2024-04-09" => 94,
+        "openai/gpt-4o-mini-2024-07-18" => 88,
+        "mistral/mistral-large-2407" => 76,
+        "mistral/mistral-medium-2312" => 70,
+        "mistral/mistral-small-2402" => 71,
+        _ => 50,
     }
 }
 
@@ -70,6 +82,22 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
 
     // Get the list of available models
     let models = list().await;
+
+    // If a model router is available and the task does not specify a id pattern
+    // then use the first router
+    if task
+        .instruction_model
+        .as_ref()
+        .and_then(|model| model.id_pattern.clone())
+        .is_none()
+    {
+        if let Some(model) = models
+            .iter()
+            .find(|model| matches!(model.r#type(), ModelType::Router))
+        {
+            return Ok(model.clone());
+        }
+    }
 
     // Filter according to whether the task is supported, and the selection criteria
     let regex = match task
@@ -110,7 +138,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     }
 
     // Score models, getting max score as we go
-    let mut max_score = 0.;
+    let mut max_score = 0u32;
     let mut model_scores = Vec::new();
     for model in models.into_iter() {
         let score = score(&model.id());
@@ -120,17 +148,25 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
         model_scores.push((model, score))
     }
 
-    // Filter out models below min score
-    let min_score = task
+    let Some(min_score) = task
         .instruction_model
         .as_ref()
         .and_then(|model| model.minimum_score)
-        .map(|min| min as f32)
-        .unwrap_or(95.);
+    else {
+        // No min score defined so just return the model with best score with ties broken by type
+        model_scores.sort_by(|a, b| match a.1.cmp(&b.1) {
+            Ordering::Equal => a.0.r#type().cmp(&b.0.r#type()),
+            order => order,
+        });
+        return Ok(model_scores.pop().expect("should be at least one model").0);
+    };
 
+    // Filter out models below min score
     let mut models = model_scores
         .into_iter()
-        .filter_map(|(model, score)| ((score / max_score) * 100. >= min_score).then_some(model))
+        .filter_map(|(model, score)| {
+            ((score as f32 / max_score as f32) * 100. >= min_score as f32).then_some(model)
+        })
         .collect_vec();
 
     // Randomly select one of the filtered models

@@ -3496,6 +3496,7 @@ dependencies = [
  "models-mistral",
  "models-ollama",
  "models-openai",
+ "models-stencila",
  "plugins",
 ]
 
@@ -3535,6 +3536,14 @@ name = "models-openai"
 version = "0.0.0"
 dependencies = [
  "async-openai",
+ "cached",
+ "model",
+]
+
+[[package]]
+name = "models-stencila"
+version = "0.0.0"
+dependencies = [
  "cached",
  "model",
 ]
