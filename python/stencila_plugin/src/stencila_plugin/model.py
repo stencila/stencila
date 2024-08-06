@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, Literal, TypeAlias
+from dataclasses import dataclass
+from typing import Literal, TypeAlias
 
-from stencila_types.types import AuthorRole, InstructionMessage, Node
+from stencila_types.types import AuthorRole, InstructionMessage
 
-ModelName: TypeAlias = str
+ModelId: TypeAlias = str
 
 
 @dataclass(kw_only=True)
@@ -14,13 +14,13 @@ class ModelTask:
     """
 
     # The kind of task
-    kind: Literal["message-generation", "image-generation"]
+    kind: Literal["MessageGeneration", "ImageGeneration"] = "MessageGeneration"
 
     # The messages of the task
     messages: list[InstructionMessage]
 
     # The desired format of the generated content
-    format: str
+    format: str = None
 
 
 @dataclass(kw_only=True)
@@ -32,13 +32,13 @@ class ModelOutput:
     # The authors of the generated content
     #
     # Should be a `SoftwareApplication` describing the model.
-    authors: list[AuthorRole]
+    authors: list[AuthorRole] | None = None
 
     # The kind of the generated content
     #
     # Used by Stencila to determine how to handle the `content` before decoding
     # it into nodes
-    kind: Literal["text", "url"] | None = "text"
+    kind: Literal["Text", "Url"] | None = "Text"
 
     # The format of the generated content
     #

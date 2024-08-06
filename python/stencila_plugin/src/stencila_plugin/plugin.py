@@ -19,13 +19,8 @@ from stencila_types.types import (
 )
 from stencila_types.utilities import from_value, make_stencila_converter
 
-from .model import (
-    Model,
-    ModelName,
-    ModelOutput,
-    ModelTask,
-)
 from .kernel import Kernel, KernelId, KernelInstance, KernelName
+from .model import Model, ModelId, ModelOutput, ModelTask
 
 # https://github.com/kevinheavey/jsonalias
 Json = dict[str, "Json"] | list["Json"] | str | int | float | bool | None
@@ -95,7 +90,7 @@ class Plugin:
     def __init__(
         self,
         kernels: list[type[Kernel]] | None = None,
-        assistants: list[type[Assistant]] | None = None,
+        models: list[type[Model]] | None = None,
     ):
         kernels = kernels or []
         self.kernels: dict[KernelName, type[Kernel]] = {
@@ -103,9 +98,9 @@ class Plugin:
         }
         self.kernel_instances: dict[KernelId, Kernel] = {}
 
-        # These are created per assistant (unlike kernels).
-        self.assistants: dict[AssistantId, Assistant] = (
-            {cls.get_name(): cls() for cls in assistants} if assistants else {}
+        # These are created per model (unlike kernels).
+        self.models: dict[ModelId, Model] = (
+            {cls.get_name(): cls() for cls in models} if models else {}
         )
 
     async def health(self) -> Json:
@@ -197,7 +192,7 @@ class Plugin:
             await kernel.remove_variable(name)
 
     async def model_perform_task(
-        self, task: dict[str, Any], options: dict[str, Any], model: ModelId
+        self, task: dict[str, Any], model: ModelId
     ) -> ModelOutput:
         instance = self.models.get(model)
         if instance is None:
@@ -205,8 +200,7 @@ class Plugin:
             return None
 
         task = structure(task, ModelTask)
-        options = structure(options, ModelOptions)
-        return await instance.perform_task(task, options)
+        return await instance.perform_task(task)
 
     async def run(self) -> None:
         """Invoke the plugin.
