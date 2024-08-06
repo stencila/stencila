@@ -138,7 +138,8 @@ impl Model for MistralModel {
             .await?;
 
         if let Err(error) = response.error_for_status_ref() {
-            bail!(error);
+            let message = response.text().await?;
+            bail!("{error}: {message}");
         }
 
         let mut response: ChatCompletionResponse = response.json().await?;
@@ -240,7 +241,8 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .await?;
 
     if let Err(error) = response.error_for_status_ref() {
-        bail!(error);
+        let message = response.text().await?;
+        bail!("{error}: {message}");
     }
 
     let ModelsResponse { data: models } = response.json().await?;
