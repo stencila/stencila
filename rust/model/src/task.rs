@@ -9,7 +9,7 @@ use schema::{InstructionMessage, InstructionModel, InstructionType};
 
 /// The kind of generative model task
 #[derive(Debug, Default, Display, Clone, Copy, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
+#[serde(crate = "common::serde")]
 pub enum ModelTaskKind {
     /// Given a list of input messages, generate the next message in a conversation
     ///
@@ -54,11 +54,7 @@ pub enum ModelTaskKind {
 /// with some additions for OpenAI.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
-#[serde(
-    rename_all = "kebab-case",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(rename_all = "camelCase", deny_unknown_fields, crate = "common::serde")]
 pub struct ModelTask {
     /// The type of instruction this task is for
     pub instruction_type: Option<InstructionType>,

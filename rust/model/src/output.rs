@@ -10,7 +10,7 @@ use crate::Model;
 
 /// The kind of generative model output
 #[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(crate = "common::serde")]
 pub enum ModelOutputKind {
     /// Generated text in a text format
     #[default]
