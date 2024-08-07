@@ -17,7 +17,7 @@ use model::{
 /// The base URL for the Stencila Cloud API
 ///
 /// Can be overridden by setting the STENCILA_API_URL environment variable.
-const BASE_URL: &str = "https://api.stencila.cloud";
+const BASE_URL: &str = "https://api.stencila.cloud/v1";
 
 fn base_url() -> String {
     env::var("STENCILA_API_URL").unwrap_or_else(|_| BASE_URL.to_string())
