@@ -144,6 +144,11 @@ mod tests {
 
     #[tokio::test]
     async fn list_models() -> Result<()> {
+        if std::env::var("CI").is_ok() {
+            println!("Skipping test on CI until deployed");
+            return Ok(());
+        }
+
         let list = list().await?;
         assert!(!list.is_empty());
 
