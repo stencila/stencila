@@ -1,6 +1,6 @@
 # Instruction Type
 
-**The type of an instruction.**
+**The type of an instruction describing the operation to be performed.**
 
 **`@id`**: `stencila:InstructionType`
 

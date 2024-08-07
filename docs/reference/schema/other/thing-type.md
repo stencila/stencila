@@ -8,6 +8,7 @@ The `ThingType` type has these members:
 
 - [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition-type.md)
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
+- [`Assistant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/assistant.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`AuthorRoleName`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role-name.md)
 - [`Brand`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)

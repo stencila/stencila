@@ -18,6 +18,7 @@ The `Node` type has these members:
 - [`ArrayHint`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array-hint.md)
 - [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array-validator.md)
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
+- [`Assistant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/assistant.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`AuthorRole`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role.md)
 - [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean-validator.md)

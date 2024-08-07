@@ -2,7 +2,7 @@
 
 **A union type for a part of a message.**
 
-This union type uses `Text`, instead of `string`, so that each type of par
+This union type uses `Text`, instead of `string`, so that each type of part
 is an entity with a type and node id.
 
 

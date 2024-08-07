@@ -59,6 +59,7 @@ Support and degree of loss for node types:
 | ------------------------------------------------------------------------------------------------------------------------- | ------------ | ---------- | ----------------------------------------------------- |
 | **Works**                                                                                                                 |
 | [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                    |
+| [Assistant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/assistant.md)                      | ⚠️ High loss |            |                                                       |
 | [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                    |
 | [AuthorRole](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author_role.md)                   | ⚠️ High loss |            |                                                       |
 | [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss |            | Encoded using implemented function                    |
@@ -175,7 +176,7 @@ Support and degree of loss for node types:
 | [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | ⚠️ High loss |            | Encoded as `[[insert {{content}}]]`                   |
 | [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | ⚠️ High loss |            | Encoded using implemented function                    |
 | [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | ⚠️ High loss |            | Encoded using implemented function                    |
-| [InstructionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_message.md)   | ⚠️ High loss |            |                                                       |
+| [InstructionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_message.md)   | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | ⚠️ High loss |            |                                                       |

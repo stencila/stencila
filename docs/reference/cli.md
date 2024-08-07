@@ -26,6 +26,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila kernels packages`↴](#stencila-kernels-packages)
 * [`stencila kernels execute`↴](#stencila-kernels-execute)
 * [`stencila kernels evaluate`↴](#stencila-kernels-evaluate)
+* [`stencila codecs`↴](#stencila-codecs)
+* [`stencila codecs list`↴](#stencila-codecs-list)
 * [`stencila plugins`↴](#stencila-plugins)
 * [`stencila plugins list`↴](#stencila-plugins-list)
 * [`stencila plugins install`↴](#stencila-plugins-install)
@@ -64,6 +66,7 @@ CLI subcommands and global options
 * `assistants` — Manage assistants
 * `models` — Manage models
 * `kernels` — Manage execution kernels
+* `codecs` — Manage codecs
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
@@ -612,14 +615,19 @@ Execute an instruction with an assistant
 
 Mainly intended for quick testing of assistants during development.
 
-**Usage:** `stencila assistants execute <NAME> <INSTRUCTION>`
+**Usage:** `stencila assistants execute [OPTIONS] <INSTRUCTION>`
 
 ###### **Arguments:**
 
-* `<NAME>` — The name of the assistant to execute the instruction
+* `<INSTRUCTION>` — The text of the instruction
 
-   For example, `stencila/insert-code-chunk` or `mistral/mistral-medium`. For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`. See `stencila assistants list` for a list of available assistants.
-* `<INSTRUCTION>` — The instruction to execute
+###### **Options:**
+
+* `-a`, `--assignee <ASSIGNEE>` — The name of the assistant assigned to the instruction
+
+   For example, `stencila/paragraph` or `my-org/abstract`. For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`. See `stencila assistants list` for a list of available assistants.
+* `-m`, `--name-pattern <NAME_PATTERN>` — The regex pattern to filter model names by
+* `-y`, `--minimum-score <MINIMUM_SCORE>` — The threshold score for selecting a model to use
 
 
 
@@ -731,6 +739,26 @@ Mainly intended for quick testing of kernels during development.
 
 * `<NAME>` — The name of the kernel to evaluate code in
 * `<CODE>` — The code expression to evaluate
+
+
+
+## `stencila codecs`
+
+Manage codecs
+
+**Usage:** `stencila codecs [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the codecs available
+
+
+
+## `stencila codecs list`
+
+List the codecs available
+
+**Usage:** `stencila codecs list`
 
 
 
@@ -847,11 +875,17 @@ Show details of a plugin
 
 Check a plugin
 
-**Usage:** `stencila plugins check <NAME>`
+**Usage:** `stencila plugins check [OPTIONS] <NAME>`
 
 ###### **Arguments:**
 
 * `<NAME>` — The name of the plugin to install
+
+###### **Options:**
+
+* `--skip-codecs` — Skip checking codecs
+* `--skip-kernels` — Skip checking kernels
+* `--skip-models` — Skip checking models
 
 
 

@@ -62,6 +62,7 @@ Support and degree of loss for node types:
 | ------------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ----- |
 | **Works**                                                                                                                 |
 | [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🟢 No loss | 🟢 No loss |       |
+| [Assistant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/assistant.md)                      | 🟢 No loss | 🟢 No loss |       |
 | [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [AuthorRole](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author_role.md)                   | 🟢 No loss | 🟢 No loss |       |
 | [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | 🟢 No loss | 🟢 No loss |       |

@@ -1,18 +1,12 @@
-# Article
+# Assistant
 
-**An article, including news and scholarly articles.**
+**An assistant for creating and editing document content.**
 
-This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
-It extends schema.org `Article` by adding a `content` property which must be
-an array of [`Block`](./Block), as well as the properties added by
-[`CreativeWork`](./CreativeWork) which it extends.
-
-
-**`@id`**: [`schema:Article`](https://schema.org/Article)
+**`@id`**: `stencila:Assistant`
 
 ## Properties
 
-The `Article` type has these properties:
+The `Assistant` type has these properties:
 
 | Name                    | Aliases                                                                                                                   | `@id`                                                      | Type                                                                                                                                                                                                                      | Description                                                                                                             | Inherited from                                                                                                |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -62,62 +56,48 @@ The `Article` type has these properties:
 | `executionEnded`        | `execution-ended`, `execution_ended`                                                                                      | `stencila:executionEnded`                                  | [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                                                                                                                     | The timestamp when the last execution ended.                                                                            | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
 | `executionDuration`     | `execution-duration`, `execution_duration`                                                                                | `stencila:executionDuration`                               | [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                                                                                                                       | Duration of the last execution.                                                                                         | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
 | `executionMessages`     | `execution-messages`, `execution_messages`, `executionMessage`, `execution-message`, `execution_message`                  | `stencila:executionMessages`                               | [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution-message.md)*                                                                                                     | Messages emitted while executing the node.                                                                              | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
-| `content`               | -                                                                                                                         | `stencila:content`                                         | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                           | The content of the article.                                                                                             | -                                                                                                             |
-| `pageStart`             | `page-start`, `page_start`                                                                                                | [`schema:pageStart`](https://schema.org/pageStart)         | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                      | The page on which the article starts; for example "135" or "xiii".                                                      | -                                                                                                             |
-| `pageEnd`               | `page-end`, `page_end`                                                                                                    | [`schema:pageEnd`](https://schema.org/pageEnd)             | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                      | The page on which the article ends; for example "138" or "xvi".                                                         | -                                                                                                             |
-| `pagination`            | -                                                                                                                         | [`schema:pagination`](https://schema.org/pagination)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                           | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | -                                                                                                             |
+| `instructionTypes`      | `instruction-types`, `instruction_types`, `instructionType`, `instruction-type`, `instruction_type`                       | `stencila:instructionTypes`                                | [`InstructionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/instruction-type.md)*                                                                                                      | The types of instructions that the assistant supports                                                                   | -                                                                                                             |
+| `nodeTypes`             | `node-types`, `node_types`, `nodeType`, `node-type`, `node_type`                                                          | `stencila:nodeTypes`                                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                          | The types of nodes that the assistant supports                                                                          | -                                                                                                             |
+| `content`               | -                                                                                                                         | `stencila:content`                                         | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                           | The content of the assistant's prompt template.                                                                         | -                                                                                                             |
 
 ## Related
 
-The `Article` type is related to these types:
+The `Assistant` type is related to these types:
 
 - Parents: [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md)[`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)
 - Children: none
 
 ## Formats
 
-The `Article` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `Assistant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                               | Encoding     | Decoding   | Status              | Notes                                                                                                                           |
-| ---------------------------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        | 🟢 No loss    |            | 🚧 Under development |                                                                                                                                 |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                | 🔷 Low loss   |            | 🚧 Under development | Encoded as [`<article>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article)                                     |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development | Encoded as [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/article.html) using special function |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)        | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            | Encoded using implemented function                                                                                              |
-| [MyST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)                | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                                                                                                                 |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | ⚠️ High loss |            | ⚠️ Alpha            |                                                                                                                                 |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                 |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                 |
-| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                                                                 |
-| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                 |
-| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                 |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                 |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |              |            | 🚧 Under development |                                                                                                                                 |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              | 🔷 Low loss   |            | 🟢 Stable            |                                                                                                                                 |
+| Format                                                                                               | Encoding     | Decoding  | Status              | Notes |
+| ---------------------------------------------------------------------------------------------------- | ------------ | --------- | ------------------- | ----- |
+| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        | 🟢 No loss    |           | 🚧 Under development |       |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                | 🔷 Low loss   |           | 🚧 Under development |       |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                |              |           | 🚧 Under development |       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)        | ⚠️ High loss |           | ⚠️ Alpha            |       |
+| [MyST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)                | ⚠️ High loss |           | ⚠️ Alpha            |       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | ⚠️ High loss |           | ⚠️ Alpha            |       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           | 🟢 No loss    | 🟢 No loss | 🔶 Beta              |       |
+| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
+| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
+| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |              |           | 🚧 Under development |       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              | 🔷 Low loss   |           | 🟢 Stable            |       |
 
 ## Bindings
 
-The `Article` type is represented in these bindings:
+The `Assistant` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.org/Article.jsonld)
-- [JSON Schema](https://stencila.org/Article.schema.json)
-- Python class [`Article`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/article.py)
-- Rust struct [`Article`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/article.rs)
-- TypeScript class [`Article`](https://github.com/stencila/stencila/blob/main/ts/src/types/Article.ts)
-
-## Testing
-
-During property-based (a.k.a generative) testing, the properties of the `Article` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
-
-| Property  | Complexity | Description                                | Strategy        |
-| --------- | ---------- | ------------------------------------------ | --------------- |
-| `content` | Min+       | Generate a single arbitrary block node     | `vec_blocks(1)` |
-|           | Low+       | Generate up to two arbitrary block nodes   | `vec_blocks(2)` |
-|           | High+      | Generate up to four arbitrary block nodes  | `vec_blocks(4)` |
-|           | Max        | Generate up to eight arbitrary block nodes | `vec_blocks(8)` |
+- [JSON-LD](https://stencila.org/Assistant.jsonld)
+- [JSON Schema](https://stencila.org/Assistant.schema.json)
+- Python class [`Assistant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/assistant.py)
+- Rust struct [`Assistant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/assistant.rs)
+- TypeScript class [`Assistant`](https://github.com/stencila/stencila/blob/main/ts/src/types/Assistant.ts)
 
 ## Source
 
-This documentation was generated from [`Article.yaml`](https://github.com/stencila/stencila/blob/main/schema/Article.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
-
-[^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.
+This documentation was generated from [`Assistant.yaml`](https://github.com/stencila/stencila/blob/main/schema/Assistant.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).

@@ -11,6 +11,7 @@ The `SuggestionStatus` type has these members:
 - `Proposed`
 - `Accepted`
 - `Rejected`
+- `Unaccepted`
 
 ## Bindings
 
