@@ -22,17 +22,14 @@ pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Initialize options
 pub(super) fn initialize_options(state: &mut ServerState, options: serde_json::Value) {
-    match serde_json::from_value(options) {
-        Ok(options) => state.options = Some(options),
-        Err(error) => {
-            state
-                .client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::ERROR,
-                    message: format!("Error parsing config options: {error}"),
-                })
-                .ok();
-        }
+    if let Err(error) = state.options.initialize(options) {
+        state
+            .client
+            .show_message(ShowMessageParams {
+                typ: MessageType::ERROR,
+                message: format!("Error initializing config options: {error}"),
+            })
+            .ok();
     }
 }
 

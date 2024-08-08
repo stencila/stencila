@@ -42,8 +42,18 @@
       "properties": {
         "stencila.user": {
           "description": "Your details to use as author information.",
-          "type": "object",
+          "type": [
+            "object",
+            "null"
+          ],
+          "default": null,
+          "required": [
+            "type"
+          ],
           "properties": {
+            "type": {
+              "const": "Person"
+            },
             "givenNames": {
               "type": "string"
             },
@@ -55,9 +65,13 @@
               "items": {
                 "type": "object",
                 "required": [
+                  "type",
                   "name"
                 ],
                 "properties": {
+                  "type": {
+                    "const": "Organization"
+                  },
                   "name": {
                     "type": "string"
                   }
@@ -489,7 +503,6 @@
   "scripts": {
     "fix": "eslint src --ext ts --fix",
     "lint": "eslint src --ext ts",
-    "vscode:prepublish": "npm run compile",
     "compile-cli": "cargo build --bin stencila",
     "compile-dist": "cd ../web/ && npm run build:vscode",
     "compile-syntaxes": "node syntaxes/smd/compile.js && node syntaxes/myst/compile.js",
@@ -499,7 +512,9 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
-    "package": "vsce package"
+    "package-cli": "node fetch-cli.js",
+    "package-vsix": "vsce package",
+    "package": "npm run package-cli && npm run package-vsix"
   },
   "dependencies": {
     "vscode-languageclient": "9.0.1"

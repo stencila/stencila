@@ -21,7 +21,7 @@ pub async fn run() {
         let mut router = Router::new(ServerState {
             client: client.clone(),
             documents: HashMap::new(),
-            options: None,
+            options: Default::default(),
         });
 
         router

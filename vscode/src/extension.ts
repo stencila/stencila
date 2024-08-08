@@ -20,16 +20,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // Make necessary patch
   patchWebViewJs(context.extensionUri);
 
-  // Get the config
-  const config = vscode.workspace.getConfiguration("stencila");
-
-  // Add type to user for successful deserialization on server
-  const user = config.get("user") as any;
-  user.type = "Person";
-  for (const aff of user.affiliations ?? []) {
-    aff.type = "Organization";
-  }
-
   // Determine which binary to run based on mode
   let command: string;
   let args: string[];
@@ -47,17 +37,17 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   }
 
+  // Get config options
+  const initializationOptions = vscode.workspace.getConfiguration("stencila");
+
   // Start the language server client
   const serverOptions: ServerOptions = {
     command,
     args,
   };
   const clientOptions: LanguageClientOptions = {
-    initializationOptions: { user },
-    documentSelector: [
-      { language: "smd" },
-      { language: "myst" }
-    ],
+    initializationOptions,
+    documentSelector: [{ language: "smd" }, { language: "myst" }],
     markdown: {
       isTrusted: true,
       supportHtml: true,
