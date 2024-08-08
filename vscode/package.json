@@ -513,7 +513,7 @@
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
     "@vscode/vsce": "2.29.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.0.0",
     "js-yaml": "^4.1.0",
     "typescript": "^5.3.3"
   }
