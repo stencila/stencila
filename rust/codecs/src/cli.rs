@@ -4,7 +4,7 @@ use codec::common::{
     eyre::Result,
 };
 
-/// Manage codecs
+/// Manage format conversion codecs
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]

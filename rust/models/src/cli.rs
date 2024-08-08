@@ -8,7 +8,7 @@ use model::{
     ModelAvailability, ModelType,
 };
 
-/// Manage models
+/// Manage generative models
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
