@@ -11,8 +11,9 @@ use schema::{
     InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
     ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
     QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock,
-    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
-    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    StyledInline, Subscript, SuggestionBlock, SuggestionInline, SuggestionStatus, Superscript,
+    Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject,
+    Visitor, WalkControl,
 };
 
 use crate::{
@@ -206,6 +207,15 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
+        // Only collect suggestions that are proposed because, for Markdown at least,
+        // they are not present, and thus can not be mapped to a position, and so the
+        // code lens for them shows at top of document and they are in outline view.
+        // TODO: consider showing rejected/accepted instructions in outline view.
+        if !matches!(block.suggestion_status, SuggestionStatus::Proposed) {
+            // Break because don't want to collect content
+            return WalkControl::Break;
+        }
+
         let execution = if block.execution_duration.is_some() {
             Some(TextNodeExecution {
                 // Although suggestions do not have a status we need to add
