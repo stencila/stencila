@@ -66,30 +66,20 @@ async fn paragraph() -> Result<()> {
     let (md, EncodeInfo { mapping, .. }) = codec.to_string(&node, None).await?;
 
     assert_snapshot!(md, @r###"
-    ---
-    authors:
-    - type: Person
-      givenNames:
-      - Alice
-    - type: Person
-      givenNames:
-      - Bob
-    ---
-
     Hello, world!
     "###);
 
     assert_snapshot!(mapping, @r###"
     start     end        offsets   node_type+property                   authorship
-        94     95       (94, 95)   Text                                 (1, 0, 0)
-        95    106        (1, 11)   Text                                 (2, 1, 2)
-       106    107        (11, 1)   Text                                 (1, 0, 0)
-        94    107       (-12, 0)   Text.value
-        94    107         (0, 0)   Text
-        94    107         (0, 0)   Paragraph.content
-        94    108         (0, 1)   Paragraph
-        94    109         (0, 1)   Article.content
-         0    109       (-94, 0)   Article
+         0      1         (0, 1)   Text                                 (1, 0, 0)
+         1     12        (1, 11)   Text                                 (2, 1, 2)
+        12     13        (11, 1)   Text                                 (1, 0, 0)
+         0     13       (-12, 0)   Text.value
+         0     13         (0, 0)   Text
+         0     13         (0, 0)   Paragraph.content
+         0     14         (0, 1)   Paragraph
+         0     15         (0, 1)   Article.content
+         0     15         (0, 0)   Article
     "###);
 
     Ok(())
@@ -147,16 +137,6 @@ print('Hello, world!')
     let (md, EncodeInfo { mapping, .. }) = codec.to_string(&node, None).await?;
 
     assert_snapshot!(md, @r###"
-    ---
-    authors:
-    - type: Person
-      givenNames:
-      - Alice
-    - type: Person
-      givenNames:
-      - Bob
-    ---
-
     ```python exec
     print('Hello, world!')
     ```
@@ -164,14 +144,14 @@ print('Hello, world!')
 
     assert_snapshot!(mapping, @r###"
     start     end        offsets   node_type+property                   authorship
-        97    103      (97, 103)   CodeChunk.programmingLanguage
-       109    117       (12, 14)   CodeChunk                            (1, 0, 0)
-       117    128        (8, 11)   CodeChunk                            (2, 1, 2)
-       128    131        (11, 3)   CodeChunk                            (1, 0, 0)
-       109    131       (-19, 0)   CodeChunk.code
-        94    136       (-15, 5)   CodeChunk
-        94    137         (0, 1)   Article.content
-         0    137       (-94, 0)   Article
+         3      9         (3, 9)   CodeChunk.programmingLanguage
+        15     23       (12, 14)   CodeChunk                            (1, 0, 0)
+        23     34        (8, 11)   CodeChunk                            (2, 1, 2)
+        34     37        (11, 3)   CodeChunk                            (1, 0, 0)
+        15     37       (-19, 0)   CodeChunk.code
+         0     42       (-15, 5)   CodeChunk
+         0     43         (0, 1)   Article.content
+         0     43         (0, 0)   Article
     "###);
 
     Ok(())
