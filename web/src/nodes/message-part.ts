@@ -32,8 +32,8 @@ export class MessagePart extends LitElement {
     ])
 
     return html`<div class="flex items-start">
-      <sl-icon name="chat-square" class="mr-2"></sl-icon>
-      <textarea class=${textAreaStyles}>${this.value}</textarea>
+      <sl-icon name="chat-square-text" class="mr-2"></sl-icon>
+      <textarea class=${textAreaStyles} disabled>${this.value}</textarea>
     </div>`
   }
 

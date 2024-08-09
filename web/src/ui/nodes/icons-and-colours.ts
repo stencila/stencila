@@ -86,20 +86,19 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
   CodeExpression:   { ...stencilaIcon('code-chunk'),           ...nodeColours('green')},
   
-  ForBlock:         { ...shoelaceIcon('repeat'),            ...nodeColours('fuchsia')},
+  ForBlock:         { ...shoelaceIcon('repeat'),               ...nodeColours('fuchsia')},
   IfBlock:          { ...stencilaIcon('if-block'),             ...nodeColours('pink')},
 
   IncludeBlock:     { ...shoelaceIcon('file-plus'),            ...nodeColours('sky')},
   CallBlock:        { ...shoelaceIcon('file-play'),            ...nodeColours('lime')},
   
-  InstructionBlock: { ...shoelaceIcon('chat-right-text'),    ...nodeColours('violet')},
-  InstructionMessage: { ...shoelaceIcon('chat-left-text'),    ...nodeColours('violet')},
+  InstructionBlock: { ...shoelaceIcon('card-text'),            ...nodeColours('violet')},
+  InstructionMessage: { ...shoelaceIcon('chat-right-text'),    ...nodeColours('violet')},
+  SuggestionBlock:  { ...shoelaceIcon('chat-right-dots'),      ...nodeColours('violet'),  title: 'Suggestion' },
   
   InsertBlock:      { ...shoelaceIcon('plus-circle'),          ...nodeColours('lime')},
   ReplaceBlock:     { ...stencilaIcon('replace-block'),        ...nodeColours('orange')},
   DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')},
-
-  SuggestionBlock:  { ...shoelaceIcon('card-text'),            ...nodeColours('violet'),  title: 'Suggestion' }
 }
 
 /**
