@@ -152,7 +152,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
           ?disabled=${this.showReviseInput}
         >
           <stencila-ui-simple-icon-button
-            name="arrow-repeat"
+            name="arrow-clockwise"
             .clickEvent=${() => {
               this.showReviseInput = !this.showReviseInput
             }}

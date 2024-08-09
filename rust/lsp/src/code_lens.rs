@@ -164,7 +164,7 @@ pub(crate) async fn resolve(
             let title = match command.as_str() {
                 ACCEPT_NODE => "$(thumbsup) Accept",
                 REJECT_NODE => "$(thumbsdown) Reject",
-                REVISE_NODE => "$(redo) Revise",
+                REVISE_NODE => "$(refresh) Revise",
                 _ => unreachable!(),
             }
             .to_string();
