@@ -76,7 +76,7 @@ fn score(id: &str) -> u32 {
 }
 
 /// Select a model based on selection criteria of the `InstructionModel`
-#[tracing::instrument]
+#[tracing::instrument(skip_all)]
 pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     tracing::trace!("Selecting a model for task");
 

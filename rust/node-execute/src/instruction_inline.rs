@@ -63,7 +63,7 @@ impl Executable for InstructionInline {
                 None,
                 None,
                 vec![error_to_execution_message(
-                    "While performing instruction",
+                    "While executing instruction",
                     error,
                 )],
             ),

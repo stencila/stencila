@@ -238,7 +238,7 @@ impl Executable for InstructionBlock {
             match result {
                 Ok(suggestion) => suggestions.push(suggestion),
                 Err(error) => messages.push(error_to_execution_message(
-                    "While performing instruction",
+                    "While executing instruction",
                     error,
                 )),
             }
