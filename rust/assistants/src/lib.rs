@@ -210,7 +210,7 @@ async fn fetch_builtin() -> Result<()> {
     for entry in archive.entries()? {
         let mut entry = entry?;
         let path = entry.path()?;
-        if let Some(relative_path) = path.strip_prefix("stencila-main").ok() {
+        if let Ok(relative_path) = path.strip_prefix("stencila-main") {
             if let Ok(name) = relative_path.strip_prefix("assistants/builtin/") {
                 entry.unpack(&dir.join(name))?;
             }
