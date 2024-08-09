@@ -72,8 +72,10 @@ impl MarkdownCodec for Article {
         // in some tools but have too many/unnecessary details for a YAML header.
         // Also remove any un-named authors.
         if let Some(authors) = &mut header.authors {
+            let mut author_roles = 0;
             for author in authors.iter_mut() {
                 if let Author::AuthorRole(role) = author {
+                    author_roles += 1;
                     if let Some(inner) = role.to_author() {
                         *author = inner;
                     }
@@ -104,7 +106,10 @@ impl MarkdownCodec for Article {
                 }
                 _ => true,
             });
-            if authors.is_empty() {
+            // If authors is now empty, or only consist of author roles then make none
+            // TODO: this is done to avoid having Markdown font matter populated automatically
+            // when editing in Stencila VSCode extension, but there is probably a better approach!
+            if authors.is_empty() || author_roles >= authors.len() {
                 header.authors = None;
             }
         }
