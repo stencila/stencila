@@ -83,6 +83,12 @@ static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
     vec![
         Secret::new(
             SecretCategory::AiApiKey,
+            "STENCILA_API_TOKEN",
+            "Stencila API Token",
+            "Used to access generative models via Stencila Cloud",
+        ),
+        Secret::new(
+            SecretCategory::AiApiKey,
             "ANTHROPIC_API_KEY",
             "Anthropic API Key",
             "Used to access the Anthropic API",

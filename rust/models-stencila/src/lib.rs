@@ -5,7 +5,7 @@ use cached::proc_macro::cached;
 use model::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
@@ -85,10 +85,12 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
+        let token = secrets::env_or_get(API_KEY).map_err(|_| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+
         let response = self
             .client
             .post(format!("{}/models/task", base_url()))
-            .bearer_auth(secrets::env_or_get(API_KEY)?)
+            .bearer_auth(token)
             .json(&PerformTaskRequest {
                 provider: self.provider.clone(),
                 identifier: self.identifier.clone(),
