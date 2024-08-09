@@ -202,16 +202,18 @@ impl TextDocument {
     /// Create a new text document with an initial source
     fn new(
         uri: Url,
+        format: String,
         source: String,
         client: ClientSocket,
         user: Option<Person>,
     ) -> Result<Self, Report> {
         let path = PathBuf::from(uri.path());
-        let format = Format::from_path(&path);
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
         let doc = Document::init(home.into(), None)?;
+
+        let format = Format::from_name(&format);
 
         let person = user.unwrap_or_else(|| Person {
             given_names: Some(vec!["Anonymous".to_string()]),
@@ -498,12 +500,13 @@ pub(super) fn did_open(
     params: DidOpenTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
+    let format = params.text_document.language_id;
     let source = params.text_document.text;
 
     let client = state.client.clone();
     let user = state.options.user.clone();
 
-    let doc = match TextDocument::new(uri.clone(), source, client, user) {
+    let doc = match TextDocument::new(uri.clone(), format, source, client, user) {
         Ok(doc) => doc,
         Err(error) => {
             return ControlFlow::Break(Err(Error::Response(ResponseError::new(
