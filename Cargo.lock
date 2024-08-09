@@ -178,6 +178,7 @@ dependencies = [
  "codec-markdown-trait",
  "codecs",
  "common",
+ "flate2",
  "images",
  "model",
  "models",

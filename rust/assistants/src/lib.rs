@@ -1,11 +1,26 @@
 #![recursion_limit = "256"]
 
-use std::fs::read_dir;
+use std::{
+    fs::{self, read_dir},
+    io::Cursor,
+    path::Path,
+    time::Duration,
+};
 
 use app::{get_app_dir, DirType};
 use codec_markdown_trait::to_markdown;
 use codecs::{DecodeOptions, EncodeOptions, Format};
-use common::{eyre::eyre, tokio::fs::read_to_string};
+use common::{
+    chrono::Utc,
+    eyre::eyre,
+    reqwest::Client,
+    tar::Archive,
+    tokio::{
+        fs::{read_to_string, write},
+        time,
+    },
+};
+use flate2::read::GzDecoder;
 use images::ensure_http_or_data_uri;
 use rust_embed::RustEmbed;
 
@@ -14,7 +29,7 @@ use model::{
         eyre::{bail, Result},
         futures::future::join_all,
         itertools::Itertools,
-        tracing,
+        tokio, tracing,
     },
     schema::{
         authorship, shortcuts::p, Article, Assistant, AudioObject, Author, AuthorRole, ImageObject,
@@ -26,7 +41,10 @@ use model::{
 
 pub mod cli;
 
-/// Get a list of available assistants in descending preference rank
+/// Get a list of available assistants
+///
+/// Cached if not in debug mode
+#[cfg_attr(not(debug_assertions), cached(time = 3600, result = true))]
 pub async fn list() -> Vec<Assistant> {
     let futures = (0..=3).map(|provider| async move {
         let (provider, result) = match provider {
@@ -57,8 +75,18 @@ struct Builtin;
 
 /// List the builtin assistants.
 pub async fn list_builtin() -> Result<Vec<Assistant>> {
-    let mut assistants = vec![];
+    let mut assistants = Vec::new();
 
+    // If there is an `assistants/builtin` app dir and it is not empty then use it
+    let dir = get_app_dir(DirType::Assistants, false)?.join("builtin");
+    if dir.exists() {
+        assistants = list_dir(&dir).await?;
+    }
+    if !assistants.is_empty() {
+        return Ok(assistants);
+    }
+
+    // Otherwise, use the assistants built-in to the binary
     for (filename, content) in
         Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
     {
@@ -95,24 +123,31 @@ pub async fn list_builtin() -> Result<Vec<Assistant>> {
 
 /// List any local assistants
 async fn list_local() -> Result<Vec<Assistant>> {
-    let mut assistants = vec![];
+    let dir = get_app_dir(DirType::Assistants, false)?.join("local");
 
-    let dir = get_app_dir(DirType::Assistants, false)?;
-
-    tracing::debug!(
-        "Attempting to read assistants from `{}` (if it exists)",
-        dir.display()
-    );
-
-    if !dir.exists() {
-        return Ok(assistants);
+    if dir.exists() {
+        list_dir(&dir).await
+    } else {
+        Ok(Vec::new())
     }
+}
 
+/// List assistants in a directory
+async fn list_dir(dir: &Path) -> Result<Vec<Assistant>> {
+    tracing::trace!("Attempting to read assistants from `{}`", dir.display());
+
+    let mut assistants = vec![];
     for entry in read_dir(dir)?.flatten() {
         let path = entry.path();
         let Some(ext) = path.extension() else {
             continue;
         };
+
+        // TODO: Remove this when all assistants ported
+        if ext != "smd" {
+            continue;
+        }
+
         let content = read_to_string(&path).await?;
 
         let node = codecs::from_str(
@@ -135,6 +170,69 @@ async fn list_local() -> Result<Vec<Assistant>> {
     }
 
     Ok(assistants)
+}
+
+/// Refresh the builtin assistants directory
+///
+/// So that users can get the latest version of assistants, without installing a new version of
+/// the binary. If not updated in last day, creates an `assistants/builtin` app directory
+/// (if not yet exists), fetches a tarball of the assistants and extracts it into the directory.
+async fn fetch_builtin() -> Result<()> {
+    const FETCH_EVERY_SECS: u64 = 12 * 3_600;
+
+    let dir = get_app_dir(DirType::Assistants, true)?.join("builtin");
+
+    // Check for the last time this was done
+    let last = dir.join("last");
+    if let Ok(metadata) = fs::metadata(&last) {
+        if let Ok(modified) = metadata.modified() {
+            if let Ok(elapsed) = modified.elapsed() {
+                if elapsed < Duration::from_secs(FETCH_EVERY_SECS) {
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    tracing::debug!("Updating builtin assistants");
+
+    // Fetch the repo tar ball
+    let tar_gz = Client::new()
+        .get("https://github.com/stencila/stencila/archive/main.tar.gz")
+        .send()
+        .await?
+        .bytes()
+        .await?;
+    let tar = GzDecoder::new(Cursor::new(tar_gz));
+
+    // Extract just the builtin assistants
+    let mut archive = Archive::new(tar);
+    for entry in archive.entries()? {
+        let mut entry = entry?;
+        let path = entry.path()?;
+        if let Some(relative_path) = path.strip_prefix("stencila-main").ok() {
+            if let Ok(name) = relative_path.strip_prefix("assistants/builtin/") {
+                entry.unpack(&dir.join(name))?;
+            }
+        }
+    }
+
+    // Write timestamp
+    write(last, Utc::now().to_rfc3339()).await?;
+
+    Ok(())
+}
+
+/// Runs `fetch_builtin` in an async background task and log any errors
+pub fn update_builtin() {
+    tokio::spawn(async {
+        loop {
+            if let Err(error) = fetch_builtin().await {
+                tracing::debug!("While fetching builtin assistants: {error}");
+            }
+            time::sleep(Duration::from_secs(3_600)).await;
+        }
+    });
 }
 
 /// Get the most appropriate assistant for an instruction

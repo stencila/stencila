@@ -10,6 +10,7 @@ cli-utils = { path = "../cli-utils" }
 codec-markdown-trait = {path = "../codec-markdown-trait" }
 codecs = {path = "../codecs" }
 common = { path = "../common" }
+flate2 = { workspace = true }
 images = { path = "../images" }
 model = { path = "../model" }
 models = { path = "../models" }
