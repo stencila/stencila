@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
-import { createDocumentViewPanel } from "./webviews";
 import { LanguageClient } from "vscode-languageclient/node";
 import { writeFileSync } from "fs";
+
+import { createDocumentViewPanel } from "./webviews";
 
 /**
  * Register commands provided by the extension
@@ -10,6 +11,24 @@ export function registerCommands(
   context: vscode.ExtensionContext,
   client: LanguageClient
 ) {
+  // Create document commands
+  for (const format of ["smd", "myst"]) {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(`stencila.new-${format}`, async () => {
+        vscode.workspace.openTextDocument({ language: format }).then(
+          (document) => {
+            vscode.window.showTextDocument(document);
+          },
+          (err) => {
+            vscode.window.showErrorMessage(
+              `Failed to create new '${format}' file: ${err.message}`
+            );
+          }
+        );
+      })
+    );
+  }
+
   // Commands executed by the server but which are invoked on the client
   // and which use are passed the document URI and selection (position) as arguments
   for (const command of [
@@ -69,7 +88,7 @@ export function registerCommands(
     vscode.commands.registerCommand(
       "stencila.view-doc",
       // docUri and nodeType are not used but are in the arguments
-      // that we pass to all commands form code lenses so need to be here
+      // that we pass to all commands from code lenses so need to be here
       async (docUri, nodeType, nodeId) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {

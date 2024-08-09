@@ -84,8 +84,22 @@
     },
     "commands": [
       {
+        "command": "stencila.new-smd",
+        "title": "New Stencila Markdown Document",
+        "shortTitle": "Stencila Markdown",
+        "icon": "$(new-file)",
+        "category": "Create"
+      },
+      {
+        "command": "stencila.new-myst",
+        "title": "New MyST Document",
+        "shortTitle": "MyST",
+        "icon": "$(new-file)",
+        "category": "Create"
+      },
+      {
         "command": "stencila.view-doc",
-        "title": "Preview document",
+        "title": "Preview Document",
         "shortTitle": "Preview doc",
         "icon": "$(preview)"
       },
@@ -178,7 +192,23 @@
       }
     ],
     "menus": {
+      "file/newFile": [
+        {
+          "command": "stencila.new-smd",
+          "group": "Document"
+        },
+        {
+          "command": "stencila.new-myst",
+          "group": "Document"
+        }
+      ],
       "commandPalette": [
+        {
+          "command": "stencila.new-smd"
+        },
+        {
+          "command": "stencila.new-myst"
+        },
         {
           "command": "stencila.view-doc",
           "when": "editorLangId == smd || editorLangId == myst"
