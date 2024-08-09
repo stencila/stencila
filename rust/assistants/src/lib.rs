@@ -44,7 +44,7 @@ pub mod cli;
 /// Get a list of available assistants
 ///
 /// Cached if not in debug mode
-#[cfg_attr(not(debug_assertions), cached(time = 3600, result = true))]
+#[cfg_attr(not(debug_assertions), cached::proc_macro::cached(time = 3600))]
 pub async fn list() -> Vec<Assistant> {
     let futures = (0..=3).map(|provider| async move {
         let (provider, result) = match provider {
