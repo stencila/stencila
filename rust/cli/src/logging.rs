@@ -21,19 +21,20 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
     use tracing_error::ErrorLayer;
     use tracing_subscriber::{fmt, registry, EnvFilter};
 
-    let format = match format {
+    let is_term = std::io::stderr().is_terminal();
+    let (format, ansi) = match format {
         LoggingFormat::Auto => {
-            if std::io::stderr().is_terminal() {
+            if is_term {
                 if cfg!(debug_assertions) {
-                    LoggingFormat::Pretty
+                    (LoggingFormat::Pretty, true)
                 } else {
-                    LoggingFormat::Simple
+                    (LoggingFormat::Simple, true)
                 }
             } else {
-                LoggingFormat::Json
+                (LoggingFormat::Json, false)
             }
         }
-        _ => format,
+        _ => (format, is_term),
     };
 
     let filter = format!(
@@ -45,13 +46,16 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
     let filter_layer = EnvFilter::builder()
         .parse(&filter)
         .wrap_err_with(|| format!("Unable to parse logging filter: {filter}"))?;
+
     let error_layer = ErrorLayer::default();
+
     let registry = registry().with(filter_layer).with(error_layer);
 
+    let format_layer = fmt::layer().with_ansi(ansi).with_writer(std::io::stderr);
     match format {
         LoggingFormat::Simple => registry
             .with(
-                fmt::layer()
+                format_layer
                     .without_time()
                     .with_thread_ids(false)
                     .with_thread_names(false)
@@ -59,10 +63,10 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
                     .compact(),
             )
             .init(),
-        LoggingFormat::Compact => registry.with(fmt::layer().compact()).init(),
-        LoggingFormat::Pretty => registry.with(fmt::layer().pretty()).init(),
-        LoggingFormat::Full => registry.with(fmt::layer()).init(),
-        LoggingFormat::Json => registry.with(fmt::layer().json()).init(),
+        LoggingFormat::Compact => registry.with(format_layer.compact()).init(),
+        LoggingFormat::Pretty => registry.with(format_layer.pretty()).init(),
+        LoggingFormat::Full => registry.with(format_layer).init(),
+        LoggingFormat::Json => registry.with(format_layer.json()).init(),
         _ => bail!("Unhandled log format `{}`", format.as_ref()),
     };
 

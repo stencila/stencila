@@ -8,7 +8,7 @@ use async_lsp::{
 };
 use tower::ServiceBuilder;
 
-use common::{serde_json, tracing};
+use common::serde_json;
 
 use crate::{
     code_lens, commands, completion, content, formatting, lifecycle, symbols, text_document,
@@ -144,13 +144,6 @@ pub async fn run() {
             .layer(ClientProcessMonitorLayer::new(client))
             .service(router)
     });
-
-    // Setup printing of tracing logs
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_ansi(false)
-        .with_writer(std::io::stderr)
-        .init();
 
     // Prefer truly asynchronous piped stdin/stdout without blocking tasks.
     #[cfg(unix)]

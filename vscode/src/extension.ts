@@ -27,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
     case vscode.ExtensionMode.Development:
     case vscode.ExtensionMode.Test: {
       command = path.join(__dirname, "..", "..", "target", "debug", "stencila");
-      args = ["lsp"];
+      args = ["lsp", "--log-level=debug", "--log-format=pretty"];
       break;
     }
     case vscode.ExtensionMode.Production: {

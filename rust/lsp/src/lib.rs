@@ -52,14 +52,13 @@ impl ServerOptions {
         // If not user was set, attempt to set one from any STENCILA_USER env var
         if self.user.is_none() {
             if let Ok(value) = env::var("STENCILA_USER") {
-                tracing::debug!("3 {value}");
                 if let Ok(person) = serde_json::from_str(&value).or_else(|_| value.parse()) {
                     self.user = Some(person);
                 }
             }
         }
 
-        tracing::debug!("Server options initialized: {self:?}");
+        tracing::trace!("Server options initialized: {self:?}");
 
         Ok(())
     }
