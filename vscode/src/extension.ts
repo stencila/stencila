@@ -32,7 +32,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     case vscode.ExtensionMode.Production: {
       command = "stencila";
-      args = ["lsp"];
+      args = ["lsp", "--log-level=debug", "--log-format=compact"];
       break;
     }
   }
