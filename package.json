@@ -12,8 +12,8 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.15.3",
-    "@cloudflare/workers-types": "4.20240620.0",
+    "@arethetypeswrong/cli": "0.15.4",
+    "@cloudflare/workers-types": "4.20240806.0",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.12",
     "@types/tmp": "0.2.6",
@@ -27,14 +27,14 @@
     "eslint-plugin-lit": "1.14.0",
     "eslint-plugin-wc": "2.1.0",
     "jest": "29.7.0",
-    "prettier": "3.3.2",
+    "prettier": "3.3.3",
     "process": "0.11.10",
-    "publint": "0.2.8",
+    "publint": "0.2.9",
     "tmp": "0.2.3",
-    "ts-jest": "29.1.5",
-    "tsup": "8.1.0",
-    "typescript": "5.5.2",
-    "wrangler": "3.62.0"
+    "ts-jest": "29.2.4",
+    "tsup": "8.2.4",
+    "typescript": "5.5.4",
+    "wrangler": "3.70.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.18.0"
