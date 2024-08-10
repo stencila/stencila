@@ -34,9 +34,9 @@ export class CallArgument extends Parameter {
     const { colour, borderColour } = nodeUi('CallBlock')
 
     const code =
-      this.code?.length > 0 ? this.code : this.value?.toString() ?? ''
+      this.code?.length > 0 ? this.code : (this.value?.toString() ?? '')
 
-    const language = this.programmingLanguage ?? this.code ? 'json5' : 'js'
+    const language = (this.programmingLanguage ?? this.code) ? 'json5' : 'js'
 
     return html`
       <div class="flex flex-row items-center gap-x-3 px-3 py-1 bg-[${colour}]">

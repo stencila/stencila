@@ -36,7 +36,7 @@ export class Chevron extends LitElement {
   disableEvents?: boolean = false
 
   private changePosition = () => {
-    this.position === this.direction
+    this.position = this.direction
       ? (this.position = 'down')
       : (this.position = this.direction)
   }
@@ -74,7 +74,9 @@ export class Chevron extends LitElement {
           }
 
           this.changePosition()
-          this.clickEvent && this.clickEvent(e)
+          if (this.clickEvent) {
+            this.clickEvent(e)
+          }
         }}
       >
         <stencila-ui-icon

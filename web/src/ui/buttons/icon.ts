@@ -163,7 +163,9 @@ export class UIIconButton extends LitElement {
    */
   override firstUpdated() {
     this.ref.value.addEventListener('click', (e: Event) => {
-      this.clickEvent && this.clickEvent(e)
+      if (this.clickEvent) {
+        this.clickEvent(e)
+      }
     })
   }
 }

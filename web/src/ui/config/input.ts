@@ -127,11 +127,15 @@ export class UIInput extends LitElement {
     const selfRef = this.ref.value
 
     this.ref.value.addEventListener('sl-input', () => {
-      this.changeEvent && this.changeEvent(selfRef)
+      if (this.changeEvent) {
+        this.changeEvent(selfRef)
+      }
     })
 
     this.ref.value.addEventListener('sl-clear', () => {
-      this.clearEvent && this.clearEvent()
+      if (this.clearEvent) {
+        this.clearEvent()
+      }
     })
   }
 

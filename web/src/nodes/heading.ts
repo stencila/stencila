@@ -16,7 +16,7 @@ import { Entity } from './entity'
 @customElement('stencila-heading')
 export class Heading extends Entity {
   @property({ type: Number })
-  level: Number
+  level: number
 
   /**
    * In dynamic view, render the `content`, `authors` and summary stats in

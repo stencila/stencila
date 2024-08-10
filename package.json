@@ -17,8 +17,8 @@
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.12",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/eslint-plugin": "7.14.1",
-    "@typescript-eslint/parser": "7.14.1",
+    "@typescript-eslint/eslint-plugin": "8.0.1",
+    "@typescript-eslint/parser": "8.0.1",
     "benchmark": "2.1.4",
     "better-npm-audit": "3.7.3",
     "depcheck": "1.4.7",
@@ -35,8 +35,5 @@
     "tsup": "8.2.4",
     "typescript": "5.5.4",
     "wrangler": "3.70.0"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.18.0"
   }
 }

@@ -166,7 +166,9 @@ export class UISelector extends LitElement {
     menu.addEventListener(
       'sl-select',
       ({ detail }: Event & { detail: { item: SlMenuItem } }) => {
-        this.clickEvent && this.clickEvent(detail)
+        if (this.clickEvent) {
+          this.clickEvent(detail)
+        }
       }
     )
   }
