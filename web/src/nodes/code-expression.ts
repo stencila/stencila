@@ -9,7 +9,6 @@ import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
-import '../ui/nodes/properties/outputs'
 
 import { CodeExecutable } from './code-executable'
 

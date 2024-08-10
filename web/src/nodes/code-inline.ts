@@ -5,7 +5,6 @@ import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
-import '../ui/nodes/properties/outputs'
 
 import { withTwind } from '../twind'
 
