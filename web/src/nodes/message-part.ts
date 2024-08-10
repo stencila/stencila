@@ -32,7 +32,7 @@ export class MessagePart extends LitElement {
     ])
 
     return html`<div class="flex items-start">
-      <sl-icon name="chat-square-text" class="mr-2"></sl-icon>
+      <stencila-ui-icon name="chatSquareText" class="mr-2"></stencila-ui-icon>
       <textarea class=${textAreaStyles} disabled>${this.value}</textarea>
     </div>`
   }
@@ -48,7 +48,7 @@ export class MessagePart extends LitElement {
     ])
 
     return html`<div class="flex items-start">
-      <sl-icon name="image" class="mr-2"></sl-icon>
+      <stencila-ui-icon name="image" class="mr-2"></stencila-ui-icon>
       <div class=${divStyles}>
         <img class="max-w-md mx-auto" src=${this.value} />
       </div>

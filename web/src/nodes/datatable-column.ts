@@ -25,15 +25,14 @@ export class DatatableColumn extends Entity {
     const itemsType = itemsValidatorType
       ? itemsValidatorType.replace('Validator', '')
       : ''
-    const { icon, iconLibrary } = nodeUi(itemsType as NodeType)
+    const { icon } = nodeUi(itemsType as NodeType)
 
     return html`
       <div class="flex justify-start items-center">
-        <sl-icon
-          library=${iconLibrary}
+        <stencila-ui-icon
           name=${icon}
           class=${`pr-0.5 text-base`}
-        ></sl-icon>
+        ></stencila-ui-icon>
         <span class="font-bold">${this.name}</span>
       </div>
     `

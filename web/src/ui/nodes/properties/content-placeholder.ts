@@ -25,7 +25,7 @@ export class UINodeContentPlaceholder extends LitElement {
     // border on <p> but both felt too heavy weight in comparison.
     return html`<sl-tooltip content=${this.tooltip}
       ><p class="text-center text-grey-400">
-        <sl-icon name="fullscreen"></sl-icon></p
+        <stencila-ui-icon name="fullscreen"></stencila-ui-icon></p
     ></sl-tooltip>`
   }
 }

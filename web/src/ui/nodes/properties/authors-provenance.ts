@@ -83,7 +83,7 @@ export class UIAuthorsProvenance extends LitElement {
     ])
 
     return html`<div class=${containerClasses} ${ref(this.buttonRef)}>
-      <sl-icon library="stencila" name="authors" class="text-xs"></sl-icon
+      <stencila-ui-icon name="feather" class="text-xs"></stencila-ui-icon
       ><span class="font-sans text-2xs leading-none block"
         >Authors and Provenance</span
       >

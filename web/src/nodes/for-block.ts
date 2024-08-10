@@ -2,11 +2,12 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
 import '../ui/nodes/card'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
+import '../ui/nodes/properties/programming-language'
 
 import { CodeExecutable } from './code-executable'
 

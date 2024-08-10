@@ -9,92 +9,88 @@ type IconSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
 type ProvenanceStatusIcons = {
   [Property in ProvenanceCategory]: {
-    icons: (typeof human | typeof machine)[]
-    pass?: typeof pass | typeof filled
+    actors: (typeof human | typeof machine)[]
+    verified?: typeof machineVerified | typeof humanVerified
   }
 }
 
 const human = {
-  icon: 'user',
-  library: 'lucide',
+  icon: 'person',
 } as const
 
 const machine = {
-  icon: 'bot-message-square',
-  library: 'lucide',
+  icon: 'robot',
 } as const
 
-const pass = {
-  icon: 'bx-check-circle',
-  library: 'boxicons',
+const humanVerified = {
+  icon: 'checkCircleFill',
 } as const
 
-const filled = {
-  icon: 'bxs-check-circle',
-  library: 'boxicons',
+const machineVerified = {
+  icon: 'checkCircle',
 } as const
 
 export const provenanceStatusIcons: ProvenanceStatusIcons = {
   HwHeHv: {
-    icons: [human, human],
-    pass: filled,
+    actors: [human, human],
+    verified: humanVerified,
   },
   HwHe: {
-    icons: [human, human],
+    actors: [human, human],
   },
   HwHv: {
-    icons: [human],
+    actors: [human],
   },
   Hw: {
-    icons: [human],
+    actors: [human],
   },
   HwMv: {
-    icons: [human],
-    pass: pass,
+    actors: [human],
+    verified: machineVerified,
   },
   MwHeHv: {
-    icons: [machine, human],
-    pass: filled,
+    actors: [machine, human],
+    verified: humanVerified,
   },
   MwHe: {
-    icons: [machine, human],
+    actors: [machine, human],
   },
   MwHeMv: {
-    icons: [machine, human],
-    pass: pass,
+    actors: [machine, human],
+    verified: machineVerified,
   },
   HwMeHv: {
-    icons: [human, machine],
-    pass: filled,
+    actors: [human, machine],
+    verified: humanVerified,
   },
   HwMe: {
-    icons: [human, machine],
+    actors: [human, machine],
   },
   HwMeMv: {
-    icons: [human, machine],
-    pass: pass,
+    actors: [human, machine],
+    verified: machineVerified,
   },
   MwHv: {
-    icons: [machine],
-    pass: filled,
+    actors: [machine],
+    verified: humanVerified,
   },
   MwMeHv: {
-    icons: [machine, machine],
-    pass: filled,
+    actors: [machine, machine],
+    verified: humanVerified,
   },
   Mw: {
-    icons: [machine],
+    actors: [machine],
   },
   MwMv: {
-    icons: [machine],
-    pass: pass,
+    actors: [machine],
+    verified: machineVerified,
   },
   MwMe: {
-    icons: [machine, machine],
+    actors: [machine, machine],
   },
   MwMeMv: {
-    icons: [machine, machine],
-    pass: pass,
+    actors: [machine, machine],
+    verified: machineVerified,
   },
 }
 
@@ -109,18 +105,16 @@ export const renderProvenanceStatus = (
     return null
   }
 
-  const { icons, pass } = statusIcons
+  const { actors, verified } = statusIcons
 
-  return html`${icons.map(({ icon, library }) => {
-    return html`<sl-icon
-      library=${library}
+  return html`${actors.map(({ icon }) => {
+    return html`<stencila-ui-icon
       name=${icon}
       class=${textSize}
-    ></sl-icon>`
-  })}${pass &&
-  html`<sl-icon
-    library=${pass.library}
-    name=${pass.icon}
+    ></stencila-ui-icon>`
+  })}${verified &&
+  html`<stencila-ui-icon
+    name=${verified.icon}
     class=${textSize}
-  ></sl-icon>`}`
+  ></stencila-ui-icon>`}`
 }

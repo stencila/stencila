@@ -71,7 +71,7 @@ export class UIImageUpload extends LitElement {
     return html`
       <div class="drop-container ${styles}">
         <div class="flex items-center">
-          <sl-icon class="text-base mr-2" name="image"></sl-icon>
+          <stencila-ui-icon class="text-base mr-2" name="image"></stencila-ui-icon>
           <button
             class="hover:text-gray-800"
             @click=${() => this.fileInputRef.value?.click()}

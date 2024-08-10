@@ -4,6 +4,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
+import { IconName } from '../../../icons/icon'
 
 /**
  * A component for displaying a simple, atomic property of a node with an icon
@@ -12,10 +13,7 @@ import { withTwind } from '../../../../twind'
 @withTwind()
 export class UINodeSimpleProperty extends LitElement {
   @property({ attribute: 'icon-name' })
-  iconName: string
-
-  @property({ attribute: 'icon-library' })
-  iconLibrary: 'stencila' | 'default' = 'stencila'
+  iconName: IconName
 
   @property({ attribute: 'tooltip-content' })
   tooltipContent?: string
@@ -27,11 +25,10 @@ export class UINodeSimpleProperty extends LitElement {
       class="flex flex-row w-full h-full items-center gap-x-2 shrink-0 not-italic"
     >
       <div class="flex items-center justify-center">
-        <sl-icon
+        <stencila-ui-icon
           name=${this.iconName}
-          library=${this.iconLibrary}
           class="text-base"
-        ></sl-icon>
+        ></stencila-ui-icon>
       </div>
       <div class="grow">
         <sl-tooltip

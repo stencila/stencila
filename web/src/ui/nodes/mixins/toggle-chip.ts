@@ -8,13 +8,14 @@ import {
   DocPreviewContext,
   documentPreviewContext,
 } from '../../../contexts/preview-context'
+import { IconName } from '../../icons/icon'
 import { nodeUi } from '../icons-and-colours'
 
 import { UIBaseClass } from './ui-base-class'
 
 export declare class ChipToggleInterface {
   protected docViewContext: DocPreviewContext
-  protected renderChip: (icons: [string, string], colours: NodeColours) => void
+  protected renderChip: (icon: IconName, colours: NodeColours) => void
   protected toggle: boolean
   protected toggleChipPosition: string
   protected toggleChip: () => void
@@ -57,7 +58,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     /**
      * the depth of the current `Node`
      */
-    @property({ type: Object })
+    @property({ type: Number })
     depth: number
 
     /**
@@ -126,9 +127,8 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       )
     }
 
-    protected renderChip(icons: [string, string], colours: NodeColours) {
+    protected renderChip(icon: IconName, colours: NodeColours) {
       const { colour, borderColour, textColour } = colours
-      const [library, icon] = icons
 
       const yOffset = this.calculateChipOffset()
 
@@ -158,11 +158,10 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       return html`
         <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
           <div class=${`${styles}`} @click=${this.toggleChip}>
-            <sl-icon
-              library=${this.toggle ? 'default' : library}
-              name=${this.toggle ? 'chevron-down' : icon}
+            <stencila-ui-icon
+              name=${this.toggle ? 'chevronDown' : icon}
               class="text-base text-[${textColour}]"
-            ></sl-icon>
+            ></stencila-ui-icon>
           </div>
         </div>
       `

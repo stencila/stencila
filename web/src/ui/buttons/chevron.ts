@@ -77,11 +77,10 @@ export class Chevron extends LitElement {
           this.clickEvent && this.clickEvent(e)
         }}
       >
-        <sl-icon
+        <stencila-ui-icon
           class="${styles}"
-          name="chevron-down"
-          library="default"
-        ></sl-icon>
+          name="chevronDown"
+        ></stencila-ui-icon>
       </button>
     `
   }

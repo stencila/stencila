@@ -2,8 +2,8 @@ import { NodeType } from '@stencila/types'
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { ShoelaceIconLibraries } from '../../../../shoelace'
 import { withTwind } from '../../../../twind'
+import { IconName } from '../../../icons/icon'
 
 import './collapsible'
 
@@ -21,10 +21,7 @@ export class UINodeCollapsibleDetails extends LitElement {
   type: NodeType
 
   @property({ attribute: 'icon-name' })
-  iconName: string
-
-  @property({ attribute: 'icon-library' })
-  iconLibrary: ShoelaceIconLibraries = 'stencila'
+  iconName: IconName
 
   @property({ attribute: 'header-title' })
   headerTitle: string
@@ -48,7 +45,6 @@ export class UINodeCollapsibleDetails extends LitElement {
       <stencila-ui-node-collapsible-property
         type=${this.type}
         icon-name=${this.iconName}
-        icon-library=${this.iconLibrary}
         header-title=${this.headerTitle}
         ?collapsed=${this.collapsed}
         wrapper-css=${this.wrapperCss}

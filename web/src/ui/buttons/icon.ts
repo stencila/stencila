@@ -7,6 +7,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { Ref, ref, createRef } from 'lit/directives/ref'
 
 import { withTwind } from '../../twind'
+import { IconName } from '../icons/icon'
 
 /**
  * UI Icon button
@@ -25,7 +26,7 @@ export class UIIconButton extends LitElement {
    * Name of the custom icon to use
    */
   @property()
-  icon: string
+  icon: IconName
 
   /**
    * Content for the button's tooltip
@@ -117,7 +118,7 @@ export class UIIconButton extends LitElement {
   /**
    * Render the icon & apply appropriate styles.
    */
-  private renderIcon(icon: string) {
+  private renderIcon(icon: IconName) {
     const state = this.getButtonState()
     const stateColour = {
       disabled: 'fill-grey-200',
@@ -135,12 +136,11 @@ export class UIIconButton extends LitElement {
         : '',
     ])
 
-    return html`<sl-icon
-      library="stencila"
-      name="${icon}"
-      class="${classes}"
+    return html`<stencila-ui-icon
+      name=${icon}
+      class=${classes}
       style="font-size: ${this.size};"
-    ></sl-icon>`
+    ></stencila-ui-icon>`
   }
 
   /**

@@ -45,7 +45,7 @@ export class UINodeAuthors extends LitElement {
   override render() {
     return html`<stencila-ui-node-collapsible-details
       type=${this.type}
-      icon-name="authors"
+      icon-name="feather"
       header-title="Contributors"
       wrapper-css="${this.hasItems ? '' : 'hidden'}"
       ?collapsed=${false}

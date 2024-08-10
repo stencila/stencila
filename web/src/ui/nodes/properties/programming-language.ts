@@ -2,116 +2,121 @@ import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
+import { IconName } from '../../icons/icon'
 
-export const programmingLanguages = {
+export const programmingLanguages: Record<
+  string,
+  { title: string; icon: IconName }
+> = {
   asciimath: {
-    displayName: 'AsciiMath',
-    icon: ['code-block', 'stencila'],
+    title: 'AsciiMath',
+    icon: 'code',
   },
   bash: {
-    displayName: 'Bash',
-    icon: ['file-terminal', 'lucide'],
+    title: 'Bash',
+    icon: 'bash',
   },
   jinja: {
-    displayName: 'Jinja',
-    icon: ['braces', 'lucide'],
+    title: 'Jinja',
+    icon: 'braces',
   },
   json: {
-    displayName: 'JSON',
-    icon: ['braces', 'default'],
+    title: 'JSON',
+    icon: 'json',
   },
   json5: {
-    displayName: 'JSON5',
-    icon: ['braces', 'default'],
+    title: 'JSON5',
+    icon: 'json',
   },
   javascript: {
-    displayName: 'JavaScript',
-    icon: ['bxl-javascript', 'boxicons'],
+    title: 'JavaScript',
+    icon: 'javascript',
   },
   js: {
-    displayName: 'JavaScript',
-    icon: ['bxl-javascript', 'boxicons'],
+    title: 'JavaScript',
+    icon: 'javascript',
   },
   latex: {
-    displayName: 'LaTeX',
-    icon: ['latex', 'stencila'],
+    title: 'LaTeX',
+    icon: 'latex',
   },
   mathml: {
-    displayName: 'MathML',
-    icon: ['code-block', 'stencila'],
+    title: 'MathML',
+    icon: 'code',
   },
   node: {
-    displayName: 'NodeJS',
-    icon: ['bxl-nodejs', 'boxicons'],
+    title: 'NodeJS',
+    icon: 'nodejs',
+  },
+  nodejs: {
+    title: 'NodeJS',
+    icon: 'nodejs',
   },
   py: {
-    displayName: 'Python',
-    icon: ['bxl-python', 'boxicons'],
+    title: 'Python',
+    icon: 'python',
   },
   python: {
-    displayName: 'Python',
-    icon: ['bxl-python', 'boxicons'],
+    title: 'Python',
+    icon: 'python',
   },
   r: {
-    displayName: 'R',
-    icon: ['bx-code', 'boxicons'],
+    title: 'R',
+    icon: 'r',
   },
   rhai: {
-    displayName: 'Rhai',
-    icon: ['bx-code', 'boxicons'],
+    title: 'Rhai',
+    icon: 'circle',
   },
   shell: {
-    displayName: 'Shell',
-    icon: ['file-terminal', 'lucide'],
+    title: 'Shell',
+    icon: 'bash',
   },
   sql: {
-    displayName: 'SQL',
-    icon: ['bx-code', 'boxicons'],
+    title: 'SQL',
+    icon: 'circle',
   },
   tex: {
-    displayName: 'TeX',
-    icon: ['bx-code', 'boxicons'],
-  },
-  default: {
-    displayName: 'code',
-    icon: ['bx-code', 'boxicons'],
+    title: 'TeX',
+    icon: 'tex',
   },
 }
 
-export type ProgrammingLanguage = keyof typeof programmingLanguages
+type ProgrammingLanguage = keyof typeof programmingLanguages
+
+/**
+ * Get a title and icon for a programming language
+ */
+export function getTitleIcon(
+  lang?: string
+): { title: string; icon: IconName } | null {
+  return lang in programmingLanguages
+    ? programmingLanguages[lang as ProgrammingLanguage]
+    : null
+}
 
 /**
  * A component for the `programmingLanguage` of a node
  */
 @customElement('stencila-ui-node-programming-language')
 @withTwind()
-export class UINodeContentPlaceholder extends LitElement {
+export class UINodeProgrammingLanguage extends LitElement {
   /**
-   * The language
+   * The programming language
    */
   @property({ attribute: 'programming-language' })
   programmingLanguage: string
 
   override render() {
-    const {
-      displayName,
-      icon: [iconName, iconLibrary],
-    } =
-      this.programmingLanguage in programmingLanguages
-        ? programmingLanguages[this.programmingLanguage as ProgrammingLanguage]
-        : {
-            displayName: this.programmingLanguage,
-            icon: programmingLanguages['default'].icon,
-          }
+    const { title, icon } = getTitleIcon(this.programmingLanguage) ?? {
+      title: this.programmingLanguage,
+      icon: 'code' as IconName,
+    }
 
     return html`
       <div class="flex items-center gap-1">
-        <sl-icon
-          class="text-lg"
-          name=${iconName}
-          library=${iconLibrary}
-        ></sl-icon
-        ><span class="text-xs font-sans">${displayName}</span>
+        <stencila-ui-icon name=${icon} class="text-lg"></stencila-ui-icon
+        ><span class="text-xs font-sans">${title}</span>
       </div>
     `
   }

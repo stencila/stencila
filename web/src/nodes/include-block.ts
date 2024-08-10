@@ -136,7 +136,7 @@ export class IncludeBlock extends Executable {
           placement="top-end"
         >
           <a class="flex items-center" href=${this.source} target="_blank">
-            <sl-icon name="box-arrow-up-right"></sl-icon>
+            <stencila-ui-icon name="boxArrowUpRight"></stencila-ui-icon>
           </a>
         </sl-tooltip>
       </div>

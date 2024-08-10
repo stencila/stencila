@@ -3,13 +3,10 @@ import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../../../twind'
+import { IconName } from '../../icons/icon'
 import { UIBaseClass } from '../mixins/ui-base-class'
 import '../../animation/collapsible'
 import '../../buttons/chevron'
-import {
-  ProgrammingLanguage,
-  programmingLanguages,
-} from '../properties/programming-language'
 
 /**
  * UI Base Card
@@ -23,7 +20,7 @@ export class UIBaseCard extends UIBaseClass {
    * The icon to use in the header
    */
   @property({ attribute: 'header-icon' })
-  headerIcon?: string
+  headerIcon?: IconName
 
   /**
    * The title to use in the header
@@ -79,32 +76,10 @@ export class UIBaseCard extends UIBaseClass {
   protected restrictTitleWidth: boolean = false
 
   /**
-   * Determines the icon associated with the card, based on the language and
-   * if the title _is_ a language.
+   * Get the icon for the card
    */
-  protected getIcon(): [string, string] {
-    let library = this.ui.iconLibrary
-    let icon = this.ui.icon
-
-    if (this.programmingLanguage in programmingLanguages) {
-      // eslint-disable-next-line
-      ;[icon, library] =
-        programmingLanguages[
-          this.programmingLanguage as ProgrammingLanguage
-        ].icon
-    }
-
-    return [library, icon]
-  }
-
-  private renderIcon() {
-    const [library, icon] = this.headerIcon
-      ? ['stencila', this.headerIcon]
-      : this.getIcon()
-
-    return html`
-      <sl-icon library=${library} name=${icon} class="text-2xl"></sl-icon>
-    `
+  protected getIcon(): IconName {
+    return this.headerIcon ?? this.ui.icon
   }
 
   /**
@@ -157,6 +132,8 @@ export class UIBaseCard extends UIBaseClass {
       ...additionalStyles,
     ])
 
+    const icon = this.getIcon()
+
     return html`<div class=${headerStyles}>
       <div
         class="flex items-center gap-x-2 grow"
@@ -168,7 +145,7 @@ export class UIBaseCard extends UIBaseClass {
         }}
       >
         <span class="items-center flex grow-0 shrink-0">
-          ${this.renderIcon()}
+          <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
         </span>
         <div class="flex justify-between items-center gap-x-2 grow">
           <div

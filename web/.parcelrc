@@ -3,6 +3,9 @@
   "transformers": {
     "*.ts": [
       "@parcel/transformer-typescript-tsc"
+    ],
+    "*.svg": [
+      "@parcel/transformer-inline-string"
     ]
   },
   "compressors": {
@@ -11,9 +14,5 @@
       "@parcel/compressor-gzip",
       "@parcel/compressor-brotli"
     ]
-  },
-  "reporters": [
-    "...",
-    "parcel-reporter-static-files-copy"
-  ]
+  }
 }

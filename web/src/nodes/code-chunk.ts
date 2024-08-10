@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-
+import { getTitleIcon } from '../ui/nodes/properties/programming-language'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
@@ -36,12 +36,19 @@ export class CodeChunk extends CodeExecutable {
    * with execution actions and details and code read-only and collapsed.
    */
   override render() {
+    const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
+      title: 'CodeChunk',
+      icon: 'code',
+    }
+
     return html`<stencila-ui-block-on-demand
       type="CodeChunk"
       programming-language="${this.programmingLanguage}"
       depth=${this.depth}
       ancestors=${this.ancestors}
       node-id=${this.id}
+      header-icon=${icon}
+      header-title=${title}
     >
       <span slot="header-right">
         <stencila-ui-node-execution-commands

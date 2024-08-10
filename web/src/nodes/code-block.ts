@@ -1,6 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
+import { getTitleIcon } from '../ui/nodes/properties/programming-language'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
@@ -11,12 +12,19 @@ import { CodeStatic } from './code-static'
 @customElement('stencila-code-block')
 export class CodeBlock extends CodeStatic {
   override render() {
+    const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
+      title: 'CodeChunk',
+      icon: 'code',
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="CodeBlock"
         programming-language=${this.programmingLanguage}
         depth=${this.depth}
         ancestors=${this.ancestors}
+        header-icon=${icon}
+        header-title=${title}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">

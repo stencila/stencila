@@ -85,9 +85,7 @@ export class Admonition extends Entity {
   }
 
   protected renderHeader() {
-    const { textColour, baseColour, icon, iconLibrary } = admonitionUi(
-      this.admonitionType
-    )
+    const { textColour, baseColour, icon } = admonitionUi(this.admonitionType)
 
     const styles = apply([
       'flex items-center',
@@ -99,7 +97,7 @@ export class Admonition extends Entity {
 
     return html`
       <div class=${styles}>
-        <sl-icon name=${icon} library=${iconLibrary}> </sl-icon>
+        <stencila-ui-icon name=${icon}> </stencila-ui-icon>
         <div class="ml-2 flex-grow text-sm font-semibold">
           <slot name="title" @slotchange=${this.onTitleSlotChange}></slot>
           ${!this.hasTitleSlot ? this.admonitionType : ''}

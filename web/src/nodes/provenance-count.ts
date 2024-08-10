@@ -68,7 +68,7 @@ export class ProvenanceCount extends Entity {
           <div
             class="font-normal pointer-events-none inline-flex items-center gap-x-1"
           >
-            ${renderProvenanceStatus(this.provenanceCategory, 'xs')}${percent}%
+            ${renderProvenanceStatus(this.provenanceCategory, 'sm')}${percent}%
           </div></strong
         ></sl-tooltip
       >

@@ -132,7 +132,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
       >
         <sl-tooltip content="Accept suggestion">
           <stencila-ui-simple-icon-button
-            name="hand-thumbs-up"
+            name="handThumbsUp"
             .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'accept')
             }}
@@ -140,7 +140,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
         </sl-tooltip>
         <sl-tooltip content="Reject suggestion">
           <stencila-ui-simple-icon-button
-            name="hand-thumbs-down"
+            name="handThumbsDown"
             .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'reject')
             }}
@@ -152,7 +152,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
           ?disabled=${this.showReviseInput}
         >
           <stencila-ui-simple-icon-button
-            name="arrow-clockwise"
+            name="arrowClockwise"
             .clickEvent=${() => {
               this.showReviseInput = !this.showReviseInput
             }}
@@ -204,7 +204,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             }}
           ></textarea>
           <stencila-ui-simple-icon-button
-            name="arrow-repeat"
+            name="arrowClockwise"
             custom-classes="text-lg"
             .clickEvent=${submit}
           >

@@ -57,7 +57,10 @@ export class InstructionModel extends Entity {
 
         <span class="flex flex-row items-center">
           <sl-tooltip content="Model selection quality weighting">
-            <sl-icon class="text-base" name="star-fill"></sl-icon>
+            <stencila-ui-icon
+              class="text-base"
+              name="starFill"
+            ></stencila-ui-icon>
             <input
               class="${inputStyles}"
               type="number"
@@ -72,7 +75,10 @@ export class InstructionModel extends Entity {
 
         <span class="flex flex-row items-center">
           <sl-tooltip content="Model selection speed weighting">
-            <sl-icon class="text-base" name="speedometer"></sl-icon>
+            <stencila-ui-icon
+              class="text-base"
+              name="speedometer"
+            ></stencila-ui-icon>
             <input
               class="${inputStyles}"
               type="number"
@@ -87,7 +93,10 @@ export class InstructionModel extends Entity {
 
         <span class="flex flex-row items-center">
           <sl-tooltip content="Model selection cost weighting">
-            <sl-icon class="text-base" name="currency-dollar"></sl-icon>
+            <stencila-ui-icon
+              class="text-base"
+              name="currencyDollar"
+            ></stencila-ui-icon>
             <input
               class="${inputStyles}"
               type="number"
@@ -102,7 +111,10 @@ export class InstructionModel extends Entity {
 
         <span class="flex flex-row items-center">
           <sl-tooltip content="Model inference temperature">
-            <sl-icon class="text-base" name="thermometer"></sl-icon>
+            <stencila-ui-icon
+              class="text-base"
+              name="thermometer"
+            ></stencila-ui-icon>
             <input
               class="${inputStyles}"
               type="number"

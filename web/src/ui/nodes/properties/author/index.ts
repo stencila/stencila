@@ -5,6 +5,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
+import { iconMaybe } from '../../../icons/icon'
 
 import '../last-modified'
 
@@ -149,26 +150,22 @@ export class UINodeAuthor extends LitElement {
   private renderSoftwareIcon() {
     const [provider] = this.$id?.trim().split('/') ?? []
 
-    // Providers for which an icon is defined
-    const iconName = ['anthropic', 'google', 'mistral', 'openai'].includes(
-      provider
-    )
-      ? provider
-      : undefined
-
-    if (!iconName) {
+    const icon = iconMaybe(provider)
+    if (!icon) {
       return this.renderAvatar()
     }
 
-    return html`<sl-icon
-      name=${iconName}
-      library="stencila"
+    return html`<stencila-ui-icon
+      name=${icon}
       class=${`text-2xl`}
-    ></sl-icon>`
+    ></stencila-ui-icon>`
   }
 
   private renderOrgIcon() {
-    return html`<sl-icon name="building" class=${`text-xl m-auto`}></sl-icon>`
+    return html`<stencila-ui-icon
+      name="building"
+      class=${`text-xl m-auto`}
+    ></stencila-ui-icon>`
   }
 
   private renderAvatar() {

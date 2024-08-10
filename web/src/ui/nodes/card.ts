@@ -114,7 +114,7 @@ export class UINodeCard extends LitElement {
   }
 
   private renderHeader() {
-    const { iconLibrary, icon, title, borderColour } = this.ui
+    const { icon, title, borderColour } = this.ui
 
     const headerStyles = apply([
       'flex items-center',
@@ -132,11 +132,7 @@ export class UINodeCard extends LitElement {
       <div class="flex items-center gap-x-2 grow">
         ${this.renderClose()}
         <span class="items-center flex grow-0 shrink-0">
-          <sl-icon
-            library=${iconLibrary}
-            name=${icon}
-            class="text-2xl"
-          ></sl-icon>
+          <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
         </span>
         <div class="flex justify-between items-center gap-x-2 grow">
           <span class="font-semibold font-sans text-sm grow">${title}</span>
@@ -170,16 +166,15 @@ export class UINodeCard extends LitElement {
       this.display === 'auto' && 'hidden pointer-events-none',
     ])
 
-    return html`<sl-icon
+    return html`<stencila-ui-icon
       class=${styles}
-      name="chevron-down"
-      library="default"
+      name="chevronDown"
       @click=${this.toggleCardDisplay}
-    ></sl-icon>`
+    ></stencila-ui-icon>`
   }
 
   private renderChip() {
-    const { iconLibrary, icon, colour, borderColour } = this.ui
+    const { icon, colour, borderColour } = this.ui
 
     const styles = apply([
       this.display === 'auto' && `hidden pointer-events-none`,
@@ -201,11 +196,7 @@ export class UINodeCard extends LitElement {
     return html`
       <div class="-ml-[40px] pr-[6px] mt-2">
         <div class=${`${styles}`} @click=${this.toggleCardDisplay}>
-          <sl-icon
-            library=${iconLibrary}
-            name=${icon}
-            class="text-base"
-          ></sl-icon>
+          <stencila-ui-icon name=${icon} class="text-base"></stencila-ui-icon>
         </div>
       </div>
     `

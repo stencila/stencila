@@ -3,10 +3,9 @@
   "transformers": {
     "*.ts": [
       "@parcel/transformer-typescript-tsc"
+    ],
+    "*.svg": [
+      "@parcel/transformer-inline-string"
     ]
-  },
-  "reporters": [
-    "...",
-    "parcel-reporter-static-files-copy"
-  ]
+  }
 }

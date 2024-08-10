@@ -2,8 +2,9 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import '../ui/nodes/card'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+import '../ui/nodes/card'
+import '../ui/nodes/properties/programming-language'
 
 import { Parameter } from './parameter'
 

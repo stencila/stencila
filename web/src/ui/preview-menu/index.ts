@@ -58,8 +58,12 @@ export class DocumentViewMenu extends LitElement {
 
     return html`
       <button class=${styles} @click=${() => (this.open = !this.open)}>
-        <div class="flex justify-center items-center w-8 h-8 hover:text-gray-400">
-          <sl-icon name=${this.open ? 'chevron-down' : 'list'}><sl-icon>
+        <div
+          class="flex justify-center items-center w-8 h-8 hover:text-gray-400"
+        >
+          <stencila-ui-icon
+            name=${this.open ? 'chevronDown' : 'bars'}
+          ></stencila-ui-icon>
         </div>
       </button>
     `
@@ -114,7 +118,10 @@ export class DocumentViewMenu extends LitElement {
         @click=${() => this.eventDispatch(event, eventDetail)}
       >
         <span class="leading-none text-sm mr-2">${text}</span>
-        <sl-icon name="check" class="text-sm ${active ? 'opacity-100' : 'opacity-0'}">
+        <stencila-ui-icon
+          name="check"
+          class="text-sm ${active ? 'opacity-100' : 'opacity-0'}"
+        ></stencila-ui-icon>
       </div>
     `
   }

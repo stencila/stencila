@@ -3,13 +3,13 @@ import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import '../ui/nodes/properties/code/code'
-import '../ui/animation/collapsible'
-
 import { withTwind } from '../twind'
+import { IconName } from '../ui/icons/icon'
 import { EntityContext, entityContext } from '../ui/nodes/context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import { AvailableLanguagesMixin } from '../ui/nodes/properties/language'
+import '../ui/animation/collapsible'
+import '../ui/nodes/properties/code/code'
+import '../ui/nodes/properties/programming-language'
 
 import { CodeExecutable } from './code-executable'
 
@@ -20,7 +20,7 @@ import { CodeExecutable } from './code-executable'
  */
 @customElement('stencila-if-block-clause')
 @withTwind()
-export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
+export class IfBlockClause extends CodeExecutable {
   /**
    * Whether the clause is the active branch of the parent `IfBlock`
    *
@@ -115,12 +115,16 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
     const index = siblings.findIndex((elem) => elem === this)
 
     let label
+    let iconName: IconName
     if (index === 0) {
       label = 'if'
+      iconName = 'ifClause'
     } else if (index == siblings.length - 1 && this.code.length == 0) {
       label = 'else'
+      iconName = 'elseClause'
     } else {
       label = 'elif'
+      iconName = 'elifClause'
     }
 
     const headerStyle = apply([
@@ -139,8 +143,8 @@ export class IfBlockClause extends AvailableLanguagesMixin(CodeExecutable) {
 
     return html`
       <div class=${headerStyle}>
-        <sl-icon name="clause-${label}" library="stencila" class=${iconStyles}>
-        </sl-icon>
+        <stencila-ui-icon name=${iconName} class=${iconStyles}>
+        </stencila-ui-icon>
 
         <span class="font-bold font-mono ml-3 min-w-[3rem]"> ${label} </span>
 

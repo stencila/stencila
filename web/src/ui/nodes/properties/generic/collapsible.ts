@@ -4,8 +4,8 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import '../../../buttons/chevron'
-import { ShoelaceIconLibraries } from '../../../../shoelace'
 import { withTwind } from '../../../../twind'
+import { IconName } from '../../../icons/icon'
 import { nodeUi } from '../../icons-and-colours'
 
 @customElement('stencila-ui-node-collapsible-property')
@@ -15,10 +15,7 @@ export class UINodeCollapsibleProperty extends LitElement {
   type: NodeType
 
   @property({ attribute: 'icon-name' })
-  iconName: string
-
-  @property({ attribute: 'icon-library' })
-  iconLibrary: ShoelaceIconLibraries = 'stencila'
+  iconName: IconName
 
   @property({ attribute: 'header-title' })
   headerTitle: string
@@ -57,11 +54,10 @@ export class UINodeCollapsibleProperty extends LitElement {
             this.collapsed = !this.collapsed
           }}
         >
-          <sl-icon
+          <stencila-ui-icon
             name=${this.iconName}
-            library=${this.iconLibrary}
             class="text-base"
-          ></sl-icon>
+          ></stencila-ui-icon>
 
           <span class="grow ml-2 select-none text-xs">
             <span>${this.headerTitle}</span>

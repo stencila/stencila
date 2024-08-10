@@ -43,7 +43,7 @@ export class ForBlockIteration extends LitElement {
       `${this.showHeader ? 'flex items-center' : 'hidden'}`,
       'px-3 py-2',
       `bg-[${colour}]/40`,
-      `text-[${textColour}] text-sm font-sans`,
+      `text-[${textColour}] text-xs font-sans`,
       'cursor-pointer',
       this.iterationIndex === 0 ? '' : 'border-t',
       this.isFolded ? '' : 'border-b',

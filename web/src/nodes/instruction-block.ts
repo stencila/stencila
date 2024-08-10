@@ -101,7 +101,7 @@ export class InstructionBlock extends Instruction {
       <div class=${styles}>
         <span class="flex flex-row items-center grow">
           <sl-tooltip content="Assistant assigned to prompt models">
-            <sl-icon class="text-base" name="at"></sl-icon>
+            <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
             <input
               class="${inputStyles} w-[70%]"
               type="text"
@@ -114,7 +114,7 @@ export class InstructionBlock extends Instruction {
 
         <span class="flex flex-row items-center">
           <sl-tooltip content="Number of suggestions to generate">
-            <sl-icon class="text-base" name="hash"></sl-icon>
+            <stencila-ui-icon class="text-base" name="hash"></stencila-ui-icon>
             <input
               class="${inputStyles}"
               type="number"

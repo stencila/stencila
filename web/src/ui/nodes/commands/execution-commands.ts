@@ -53,7 +53,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
         <sl-tooltip content="Run this node">
           <stencila-ui-simple-icon-button
             name="play"
-            library="stencila"
+            class="text-2xl mr-1"
             .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'only')
             }}
@@ -119,18 +119,21 @@ export class UINodeExecutionCommands extends UIBaseClass {
         placement="bottom-end"
         hoist
       >
-        <sl-icon-button
+        <stencila-ui-simple-icon-button
+          name="chevronDown"
           class="text-xs ${buttonStyles}"
-          name="chevron-down"
           slot="trigger"
-        ></sl-icon-button>
+        ></stencila-ui-simple-icon-button>
         <sl-menu class="z-50">
           <sl-menu-item
             class="${itemStyles} ${itemPartStyles}"
             @click=${(e: Event) => this.emitEvent(e, 'plus-before')}
           >
             <div class="flex items-center">
-              <sl-icon name="skip-start" class="mr-1"></sl-icon>
+              <stencila-ui-icon
+                name="skipStart"
+                class="mr-1"
+              ></stencila-ui-icon>
               Run all above, then this
             </div>
           </sl-menu-item>
@@ -139,7 +142,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
             @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
           >
             <div class="flex items-center">
-              <sl-icon name="skip-end" class="mr-1"></sl-icon>
+              <stencila-ui-icon name="skipEnd" class="mr-1"></stencila-ui-icon>
               Run this, then all below
             </div>
           </sl-menu-item>

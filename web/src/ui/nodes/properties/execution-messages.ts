@@ -56,7 +56,7 @@ export class UINodeExecutionMessages extends LitElement {
 
     return html`
       <div class=${styles}>
-        <sl-icon name=${icon} library="default"></sl-icon>
+        <sl-ui-icon name=${icon}></sl-ui-icon>
         <span class="ml-1">${count}</span>
       </div>
     `
