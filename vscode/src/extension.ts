@@ -9,7 +9,6 @@ import {
 
 import { registerNotifications } from "./notifications";
 import { registerCommands } from "./commands";
-import { patchWebViewJs } from "./webviews";
 
 let client: LanguageClient;
 
@@ -17,9 +16,6 @@ let client: LanguageClient;
  * Activate the extension
  */
 export async function activate(context: vscode.ExtensionContext) {
-  // Make necessary patch
-  patchWebViewJs(context.extensionUri);
-
   // Determine which binary to run based on mode
   let command: string;
   let args: string[];

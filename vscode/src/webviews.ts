@@ -1,28 +1,7 @@
-import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-
-/**
- * Replaces the placeholder VSCODE_BASE_URL with the actual WebView URL
- *
- * This is necessary to load Shoelace and Stencila icons from the right place.
- */
-export function patchWebViewJs(extensionUri: vscode.Uri) {
-  const filePath = path.join(
-    extensionUri.fsPath,
-    "out",
-    "web",
-    "views",
-    "vscode.js"
-  );
-  const content = readFileSync(filePath, "utf8").replace(
-    "VSCODE_BASE_URL",
-    `https://file+.vscode-resource.vscode-cdn.net${extensionUri.fsPath}/out/web`
-  );
-  writeFileSync(filePath, content, "utf8");
-}
 
 /**
  * A map of document view panels used to ensure that only one
