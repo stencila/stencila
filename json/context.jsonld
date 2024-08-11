@@ -293,6 +293,7 @@
     "idPattern": "stencila:idPattern",
     "identifiers": "schema:identifier",
     "images": "schema:image",
+    "instructionPatterns": "stencila:instructionPatterns",
     "instructionType": "stencila:instructionType",
     "instructionTypes": "stencila:instructionTypes",
     "isActive": "stencila:isActive",

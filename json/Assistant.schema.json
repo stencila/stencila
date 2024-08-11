@@ -14,15 +14,16 @@
     "type",
     "name",
     "version",
+    "description",
     "instructionTypes",
     "nodeTypes",
-    "description",
     "content"
   ],
   "core": [
     "id",
     "id",
-    "executionMode"
+    "executionMode",
+    "instructionPatterns"
   ],
   "properties": {
     "type": {
@@ -838,6 +839,21 @@
       "type": "array",
       "items": {
         "$ref": "InstructionType.schema.json"
+      }
+    },
+    "instructionPatterns": {
+      "@id": "stencila:instructionPatterns",
+      "description": "Regular expressions used to match the assistant with a user instruction",
+      "aliases": [
+        "instruction-patterns",
+        "instruction_patterns",
+        "instructionPattern",
+        "instruction-pattern",
+        "instruction_pattern"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     },
     "nodeTypes": {

@@ -6,10 +6,12 @@ description: An assistant for creating and editing document content.
 required:
   - name
   - version
+  - description
   - instructionTypes
   - nodeTypes
-  - description
   - content
+core:
+  - instructionPatterns
 properties:
   instructionTypes:
     "@id": stencila:instructionTypes
@@ -17,6 +19,12 @@ properties:
     type: array
     items:
       $ref: InstructionType
+  instructionPatterns:
+    "@id": stencila:instructionPatterns
+    description: Regular expressions used to match the assistant with a user instruction
+    type: array
+    items:
+      type: string
   nodeTypes:
     "@id": stencila:nodeTypes
     description: The types of nodes that the assistant supports

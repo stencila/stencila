@@ -757,6 +757,18 @@
       }
     },
     {
+      "@id": "stencila:instructionPatterns",
+      "@type": "rdfs:Property",
+      "rdfs:label": "instructionPatterns",
+      "rdfs:comment": "Regular expressions used to match the assistant with a user instruction",
+      "schema:domainIncludes": {
+        "@id": "stencila:Assistant"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:nodeTypes",
       "@type": "rdfs:Property",
       "rdfs:label": "nodeTypes",

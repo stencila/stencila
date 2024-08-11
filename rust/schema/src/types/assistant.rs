@@ -74,6 +74,11 @@ pub struct Assistant {
     #[serde(deserialize_with = "one_or_many")]
     pub instruction_types: Vec<InstructionType>,
 
+    /// Regular expressions used to match the assistant with a user instruction
+    #[serde(alias = "instruction-patterns", alias = "instruction_patterns", alias = "instructionPattern", alias = "instruction-pattern", alias = "instruction_pattern")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub instruction_patterns: Option<Vec<String>>,
+
     /// The types of nodes that the assistant supports
     #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
     #[serde(deserialize_with = "one_or_many")]

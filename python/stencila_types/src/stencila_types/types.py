@@ -1055,6 +1055,9 @@ class Assistant(CreativeWork, Executable):
     instruction_types: list[InstructionType]
     """The types of instructions that the assistant supports"""
 
+    instruction_patterns: list[str] | None = None
+    """Regular expressions used to match the assistant with a user instruction"""
+
     node_types: list[str]
     """The types of nodes that the assistant supports"""
 

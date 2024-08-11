@@ -34,6 +34,11 @@ export class Assistant extends CreativeWork {
   instructionTypes: InstructionType[];
 
   /**
+   * Regular expressions used to match the assistant with a user instruction
+   */
+  instructionPatterns?: string[];
+
+  /**
    * The types of nodes that the assistant supports
    */
   nodeTypes: string[];

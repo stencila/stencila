@@ -113,6 +113,7 @@ pub enum NodeProperty {
     IdPattern,
     Identifiers,
     Images,
+    InstructionPatterns,
     InstructionType,
     InstructionTypes,
     IsActive,
