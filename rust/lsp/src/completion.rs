@@ -2,7 +2,7 @@
 //!
 //! https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_completion
 
-use std::sync::Arc;
+use std::{ops::Deref, sync::Arc};
 
 use async_lsp::{
     lsp_types::{
@@ -69,7 +69,7 @@ async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseErr
                 version,
                 description,
                 ..
-            } = assistant
+            } = assistant.deref()
             else {
                 return None;
             };

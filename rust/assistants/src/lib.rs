@@ -3,7 +3,7 @@
 use std::{
     fs::{self, read_dir},
     io::Cursor,
-    path::Path,
+    path::{Path, PathBuf},
     time::Duration,
 };
 
@@ -12,7 +12,8 @@ use codec_markdown_trait::to_markdown;
 use codecs::{DecodeOptions, EncodeOptions, Format};
 use common::{
     chrono::Utc,
-    eyre::eyre,
+    eyre::{eyre, OptionExt},
+    regex::Regex,
     reqwest::Client,
     tar::Archive,
     tokio::{
@@ -26,6 +27,7 @@ use rust_embed::RustEmbed;
 
 use model::{
     common::{
+        derive_more::{Deref, DerefMut},
         eyre::{bail, Result},
         futures::future::join_all,
         itertools::Itertools,
@@ -41,11 +43,48 @@ use model::{
 
 pub mod cli;
 
+/// An instance of an assistant
+///
+/// A wrapper around an [`Assistant`] used to cache derived properties
+/// such as regexes / embeddings
+#[derive(Deref, DerefMut)]
+pub struct AssistantInstance {
+    #[deref]
+    #[deref_mut]
+    inner: Assistant,
+
+    /// Home directory of the assistant
+    ///
+    /// Used mainly to resolve relative paths used for the source of
+    /// `IncludeBlocks` used within instructions.
+    home: PathBuf,
+
+    /// Compiled regexes for the assistant's instruction regexes
+    instruction_regexes: Vec<Regex>,
+}
+
+impl AssistantInstance {
+    fn new(inner: Assistant, home: PathBuf) -> Result<Self> {
+        let instruction_regexes = inner
+            .instruction_patterns
+            .iter()
+            .flatten()
+            .map(|pattern| Regex::new(pattern))
+            .try_collect()?;
+
+        Ok(Self {
+            inner,
+            home,
+            instruction_regexes,
+        })
+    }
+}
+
 /// Get a list of available assistants
 ///
 /// Cached if not in debug mode
 #[cfg_attr(not(debug_assertions), cached::proc_macro::cached(time = 3600))]
-pub async fn list() -> Vec<Assistant> {
+pub async fn list() -> Vec<AssistantInstance> {
     let futures = (0..=3).map(|provider| async move {
         let (provider, result) = match provider {
             0 => ("builtin", list_builtin().await),
@@ -74,16 +113,20 @@ pub async fn list() -> Vec<Assistant> {
 struct Builtin;
 
 /// List the builtin assistants.
-pub async fn list_builtin() -> Result<Vec<Assistant>> {
+pub async fn list_builtin() -> Result<Vec<AssistantInstance>> {
     let mut assistants = Vec::new();
 
-    // If there is an `assistants/builtin` app dir and it is not empty then use it
     let dir = get_app_dir(DirType::Assistants, false)?.join("builtin");
-    if dir.exists() {
-        assistants = list_dir(&dir).await?;
-    }
-    if !assistants.is_empty() {
-        return Ok(assistants);
+
+    // If there is an `assistants/builtin` app dir and it is not empty then use it
+    // (if not in development)
+    if !cfg!(debug_assertions) {
+        if dir.exists() {
+            assistants = list_dir(&dir).await?;
+        }
+        if !assistants.is_empty() {
+            return Ok(assistants);
+        }
     }
 
     // Otherwise, use the assistants built-in to the binary
@@ -109,10 +152,10 @@ pub async fn list_builtin() -> Result<Vec<Assistant>> {
         .await?;
 
         if let Node::Assistant(assistant) = node {
-            assistants.push(assistant)
+            assistants.push(AssistantInstance::new(assistant, dir.clone())?)
         } else {
             bail!(
-                "Expected node to be an assistant, got `{}`",
+                "Expected `{filename}` to be an `Assistant`, got a `{}`",
                 node.to_string()
             )
         }
@@ -122,7 +165,7 @@ pub async fn list_builtin() -> Result<Vec<Assistant>> {
 }
 
 /// List any local assistants
-async fn list_local() -> Result<Vec<Assistant>> {
+async fn list_local() -> Result<Vec<AssistantInstance>> {
     let dir = get_app_dir(DirType::Assistants, false)?.join("local");
 
     if dir.exists() {
@@ -133,13 +176,13 @@ async fn list_local() -> Result<Vec<Assistant>> {
 }
 
 /// List assistants in a directory
-async fn list_dir(dir: &Path) -> Result<Vec<Assistant>> {
+async fn list_dir(dir: &Path) -> Result<Vec<AssistantInstance>> {
     tracing::trace!("Attempting to read assistants from `{}`", dir.display());
 
     let mut assistants = vec![];
     for entry in read_dir(dir)?.flatten() {
         let path = entry.path();
-        let Some(ext) = path.extension() else {
+        let (Some(filename), Some(ext)) = (path.file_name(), path.extension()) else {
             continue;
         };
 
@@ -160,10 +203,11 @@ async fn list_dir(dir: &Path) -> Result<Vec<Assistant>> {
         .await?;
 
         if let Node::Assistant(assistant) = node {
-            assistants.push(assistant)
+            assistants.push(AssistantInstance::new(assistant, dir.to_path_buf())?)
         } else {
             bail!(
-                "Expected node to be an assistant, got `{}`",
+                "Expected `{}` to be an `Assistant`, got a `{}`",
+                filename.to_string_lossy(),
                 node.to_string()
             )
         }
@@ -237,10 +281,11 @@ pub fn update_builtin() {
 
 /// Get the most appropriate assistant for an instruction
 pub async fn find(
-    assignee: &Option<String>,
     instruction_type: &InstructionType,
+    message: &Option<InstructionMessage>,
+    assignee: &Option<String>,
     _node_types: &Option<Vec<String>>,
-) -> Result<Assistant> {
+) -> Result<AssistantInstance> {
     let assistants = list().await;
 
     // If there is an assignee then get it
@@ -257,26 +302,51 @@ pub async fn find(
             .ok_or_else(|| eyre!("Unable to find assistant with id `{assignee}`"));
     }
 
-    // Filter the assistants to those that support the instruction and node types
-    let mut assistants = assistants
+    // Filter the assistants to those that support the instruction type
+    let assistants = assistants
         .into_iter()
-        .filter(|assistant| assistant.instruction_types.contains(instruction_type))
-        .collect_vec();
+        .filter(|assistant| assistant.instruction_types.contains(instruction_type));
 
-    if assistants.is_empty() {
-        bail!("No assistants suitable to instruction")
-    } else {
-        Ok(assistants.swap_remove(0))
-    }
+    // Get the text of the message to match assistants against
+    let message_text = match message {
+        Some(message) => message
+            .parts
+            .iter()
+            .filter_map(|part| match part {
+                MessagePart::Text(text) => Some(text.value.string.clone()),
+                _ => None,
+            })
+            .join(""),
+        None => String::new(),
+    };
+
+    // Count the number of characters in the instruction message that are matched by
+    // each of the patterns in each of the candidates
+    let assistant = assistants
+        .map(|assistant| {
+            let matches = assistant
+                .instruction_regexes
+                .iter()
+                .map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
+                .flatten()
+                .fold(0, |sum, len| sum + len);
+            (assistant, matches)
+        })
+        .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse())
+        .map(|(assistant, ..)| assistant)
+        .next()
+        .take();
+
+    assistant.ok_or_eyre("No assistants found for instruction")
 }
 
 /**
  * Render and assistant's content to Markdown use as a system prompt
  */
-pub async fn render(assistant: Assistant) -> Result<String> {
+pub async fn render(assistant: AssistantInstance) -> Result<String> {
     codecs::to_string(
         &Node::Article(Article {
-            content: assistant.content,
+            content: assistant.content.clone(),
             ..Default::default()
         }),
         Some(EncodeOptions {
