@@ -2,6 +2,7 @@ use cli_utils::{
     table::{self, Attribute, Cell},
     Code, ToStdout,
 };
+use codecs::{EncodeOptions, LossesResponse};
 use common::itertools::Itertools;
 use model::{
     common::{
@@ -12,7 +13,8 @@ use model::{
     format::Format,
     schema::{
         Assistant, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionBlock,
-        InstructionMessage, InstructionModel, InstructionType, StringOrNumber, Thing, Timestamp,
+        InstructionMessage, InstructionModel, InstructionType, Node, StringOrNumber, Thing,
+        Timestamp,
     },
 };
 
@@ -63,16 +65,17 @@ impl List {
             "Description",
         ]);
 
-        for Assistant {
-            id,
-            name,
-            version,
-            instruction_types,
-            node_types,
-            description,
-            ..
-        } in super::list().await
-        {
+        for assistant in super::list().await {
+            let Assistant {
+                id,
+                name,
+                version,
+                instruction_types,
+                node_types,
+                description,
+                ..
+            } = assistant.inner;
+
             let version = match version {
                 StringOrNumber::String(version) => version,
                 StringOrNumber::Number(version) => version.to_string(),
@@ -106,7 +109,7 @@ impl List {
 #[clap(alias = "exec")]
 struct Execute {
     /// The text of the instruction
-    instruction: String,
+    message: String,
 
     /// The name of the assistant assigned to the instruction
     ///
@@ -123,6 +126,10 @@ struct Execute {
     /// The threshold score for selecting a model to use
     #[arg(long, short = 'y')]
     minimum_score: Option<u64>,
+
+    /// The output format for the suggestion
+    #[arg(long, short, default_value = "md")]
+    to: Format,
 }
 
 impl Execute {
@@ -137,7 +144,7 @@ impl Execute {
         let instruction = InstructionBlock {
             instruction_type: InstructionType::New,
             message: Some(InstructionMessage::user(
-                self.instruction,
+                self.message,
                 Some(vec![Author::AuthorRole(instructor.clone())]),
             )),
             assignee: self.assignee,
@@ -149,7 +156,19 @@ impl Execute {
             ..Default::default()
         };
 
-        let assistant = find(&instruction.assignee, &instruction.instruction_type, &None).await?;
+        println!("Instruction");
+        Code::new(Format::Yaml, &serde_yaml::to_string(&instruction)?).to_stdout();
+
+        let assistant = find(
+            &instruction.instruction_type,
+            &instruction.message,
+            &instruction.assignee,
+            &None,
+        )
+        .await?;
+
+        println!("Assistant");
+        println!("{}\n", assistant.id.as_deref().unwrap_or_default());
 
         let prompter = AuthorRole {
             last_modified: Some(Timestamp::now()),
@@ -158,18 +177,24 @@ impl Execute {
 
         let system_message = render(assistant).await?;
 
+        println!("Assistant prompt (no context)");
+        Code::new(Format::Markdown, &system_message).to_stdout();
+
         let suggestion =
             execute_instruction_block(vec![instructor], prompter, &system_message, &instruction)
                 .await?;
 
-        println!("Instruction");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&instruction)?).to_stdout();
-
-        println!("System prompt (no context)");
-        Code::new(Format::Markdown, &system_message).to_stdout();
-
         println!("Suggestion");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&suggestion)?).to_stdout();
+        let output = codecs::to_string(
+            &Node::SuggestionBlock(suggestion),
+            Some(EncodeOptions {
+                format: Some(self.to.clone()),
+                losses: LossesResponse::Debug,
+                ..Default::default()
+            }),
+        )
+        .await?;
+        Code::new(self.to, &output).to_stdout();
 
         Ok(())
     }
