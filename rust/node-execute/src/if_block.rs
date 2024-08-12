@@ -1,6 +1,6 @@
 use schema::{CompilationDigest, IfBlock, IfBlockClause};
 
-use crate::{interrupt_impl, pending_impl, prelude::*};
+use crate::{interrupt_impl, pending_impl, prelude::*, Phase};
 
 impl Executable for IfBlock {
     #[tracing::instrument(skip_all)]
@@ -293,22 +293,26 @@ impl Executable for IfBlockClause {
         // can update its status based on clauses
         self.options.execution_status = Some(status.clone());
 
-        executor.patch(
-            &node_id,
-            [
-                set(NodeProperty::IsActive, is_active),
-                set(NodeProperty::ExecutionStatus, status),
-                set(NodeProperty::ExecutionRequired, required),
-                set(NodeProperty::ExecutionMessages, messages),
-                set(NodeProperty::ExecutionDuration, duration),
-                set(NodeProperty::ExecutionEnded, ended),
-                set(NodeProperty::ExecutionCount, count),
-                set(
-                    NodeProperty::ExecutionDigest,
-                    self.options.compilation_digest.clone(),
-                ),
-            ],
-        );
+        if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
+            self.options.execution_messages = messages.clone();
+        } else {
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::IsActive, is_active),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                    set(
+                        NodeProperty::ExecutionDigest,
+                        self.options.compilation_digest.clone(),
+                    ),
+                ],
+            );
+        }
 
         // Break walk because `content` was executed above (if truthy)
         WalkControl::Break

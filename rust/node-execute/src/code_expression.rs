@@ -98,6 +98,7 @@ impl Executable for CodeExpression {
 
             if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
                 self.output = Some(Box::new(output));
+                self.options.execution_messages = messages.clone();
             } else {
                 executor.patch(
                     &node_id,

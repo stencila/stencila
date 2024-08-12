@@ -126,6 +126,7 @@ impl Executable for CodeChunk {
 
             if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
                 self.outputs = outputs;
+                self.options.execution_messages = messages.clone();
             } else {
                 executor.patch(
                     &node_id,
