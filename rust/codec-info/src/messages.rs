@@ -3,8 +3,20 @@ use std::fmt::Display;
 use common::derive_more::{Deref, DerefMut};
 
 /// The severity level of a message.
+///
+/// This is very similar to `schema::MessageLevel` but that can not be used
+/// here due to circular dependencies
 #[derive(Default, Debug, PartialEq, Eq)]
 pub enum MessageLevel {
+    /// A trace message
+    Trace,
+
+    /// A debug message
+    Debug,
+
+    /// An informational message
+    Info,
+
     /// A warning message
     Warning,
 

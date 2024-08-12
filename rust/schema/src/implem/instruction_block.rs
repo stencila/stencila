@@ -77,10 +77,23 @@ impl InstructionBlock {
 impl MarkdownCodec for InstructionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render {
+            // Record any execution messages
+            if let Some(messages) = &self.options.execution_messages {
+                for message in messages {
+                    context.add_message(
+                        self.node_type(),
+                        self.node_id(),
+                        message.level.clone().into(),
+                        message.message.to_string(),
+                    );
+                }
+            }
+
             // Encode content only
             if let Some(content) = &self.content {
                 content.to_markdown(context);
             }
+
             return;
         }
 

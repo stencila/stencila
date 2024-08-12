@@ -416,6 +416,8 @@ impl TextDocument {
             let mut diagnostics = Vec::new();
             for message in messages.0 {
                 let severity = Some(match message.level {
+                    MessageLevel::Debug | MessageLevel::Trace => DiagnosticSeverity::HINT,
+                    MessageLevel::Info => DiagnosticSeverity::INFORMATION,
                     MessageLevel::Warning => DiagnosticSeverity::WARNING,
                     MessageLevel::Error => DiagnosticSeverity::ERROR,
                 });

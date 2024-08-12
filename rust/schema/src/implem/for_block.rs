@@ -5,6 +5,18 @@ use crate::{prelude::*, Block, ForBlock, Section};
 impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render {
+            // Record any execution messages
+            if let Some(messages) = &self.options.execution_messages {
+                for message in messages {
+                    context.add_message(
+                        self.node_type(),
+                        self.node_id(),
+                        message.level.clone().into(),
+                        message.message.to_string(),
+                    );
+                }
+            }
+
             // Encode iterations only (unwrapping the `Section` representing each as is
             // usually the case) but if none, render any `otherwise`
             for iteration in self.iterations.iter().flatten() {
@@ -23,6 +35,7 @@ impl MarkdownCodec for ForBlock {
             ) {
                 otherwise.to_markdown(context)
             }
+
             return;
         }
 

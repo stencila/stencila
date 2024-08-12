@@ -1,7 +1,7 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
-use codec_info::{Losses, Mapping, NodeId, NodeProperty, NodeType};
-use common::inflector::Inflector;
+use codec_info::{Losses, Mapping, MessageLevel, NodeId, NodeProperty, NodeType};
+use common::{inflector::Inflector, tracing};
 use format::Format;
 
 pub use codec_markdown_derive::MarkdownCodec;
@@ -398,6 +398,27 @@ impl MarkdownEncodeContext {
     pub fn merge_losses(&mut self, losses: Losses) -> &mut Self {
         self.losses.merge(losses);
         self
+    }
+
+    /// Add a message to the context
+    ///
+    /// Currently this only logs messages but in the future may return them
+    /// as part of `EncodeInfo` (as is done for `DecodeInfo`)
+    pub fn add_message(
+        &mut self,
+        node_type: NodeType,
+        node_id: NodeId,
+        level: MessageLevel,
+        message: String,
+    ) {
+        let message = format!("{node_type} {node_id}: {message}");
+        match level {
+            MessageLevel::Trace => tracing::trace!(message),
+            MessageLevel::Debug => tracing::debug!(message),
+            MessageLevel::Info => tracing::info!(message),
+            MessageLevel::Warning => tracing::warn!(message),
+            MessageLevel::Error => tracing::error!(message),
+        }
     }
 }
 
