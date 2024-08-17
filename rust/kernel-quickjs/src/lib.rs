@@ -10,7 +10,7 @@ use std::{
 };
 
 use rquickjs::{
-    class::Trace, function::Rest, Array as JsArray, AsyncContext, AsyncRuntime, BigInt, Ctx, Error,
+    class::Trace, function::Rest, Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error,
     Object as JsObject, String as JsString, Value,
 };
 
@@ -476,8 +476,10 @@ fn node_to_value<'js>(ctx: Ctx<'js>, node: &Node) -> Result<Value<'js>, Error> {
     Ok(match node {
         Node::Null(..) => Value::new_null(ctx),
         Node::Boolean(value) => Value::new_bool(ctx, *value),
-        Node::Integer(value) => Value::from_big_int(BigInt::from_i64(ctx, *value)?),
-        Node::UnsignedInteger(value) => Value::from_big_int(BigInt::from_u64(ctx, *value)?),
+        // Support for BigInts is incomplete and can cause issues (e.g. for JSON serialization)
+        // so, for now, we use numbers here (and for primitives below)
+        Node::Integer(value) => Value::new_number(ctx, *value as f64),
+        Node::UnsignedInteger(value) => Value::new_number(ctx, *value as f64),
         Node::Number(value) => Value::new_number(ctx, *value),
         Node::String(value) => Value::from_string(JsString::from_str(ctx, value)?),
         Node::Array(value) => array_to_js_array(ctx, value)?,
@@ -498,8 +500,8 @@ fn primitive_to_value<'js>(ctx: Ctx<'js>, primitive: &Primitive) -> Result<Value
     Ok(match primitive {
         Primitive::Null(..) => Value::new_null(ctx),
         Primitive::Boolean(value) => Value::new_bool(ctx, *value),
-        Primitive::Integer(value) => Value::from_big_int(BigInt::from_i64(ctx, *value)?),
-        Primitive::UnsignedInteger(value) => Value::from_big_int(BigInt::from_u64(ctx, *value)?),
+        Primitive::Integer(value) => Value::new_number(ctx, *value as f64),
+        Primitive::UnsignedInteger(value) => Value::new_number(ctx, *value as f64),
         Primitive::Number(value) => Value::new_number(ctx, *value),
         Primitive::String(value) => Value::from_string(JsString::from_str(ctx, value)?),
         Primitive::Array(value) => array_to_js_array(ctx, value)?,
