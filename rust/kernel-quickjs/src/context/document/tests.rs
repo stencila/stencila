@@ -1,3 +1,4 @@
+use codec_json::r#trait::JsonCodec;
 use common_dev::pretty_assertions::assert_eq;
 use kernel::{
     common::{eyre::Result, tokio},
@@ -8,6 +9,7 @@ use kernel::{
 use crate::{context::Context, QuickJsKernelInstance};
 
 use super::{
+    code_chunks::{CodeChunk, CodeChunks},
     headings::{Heading, Headings},
     paragraphs::{Paragraph, Paragraphs},
     Document, Metadata,
@@ -203,6 +205,90 @@ async fn paragraphs() -> Result<()> {
     assert_eq!(output, Node::String("Para two.".into()));
 
     let (output, messages) = kernel.evaluate("ps.next()").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Null(Null));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn code_chunks() -> Result<()> {
+    let context = Context {
+        document: Document {
+            code_chunks: CodeChunks::new(vec![
+                CodeChunk::new("python", "code 1"),
+                CodeChunk::new("", "code 2"),
+            ]),
+            ..Default::default()
+        },
+    };
+
+    let mut kernel = QuickJsKernelInstance::new("test".to_string());
+    kernel.start_here().await?;
+    kernel.set_context(context).await?;
+    kernel.execute("const cc = document.codeChunks").await?;
+
+    let (output, messages) = kernel.evaluate("cc.all().length").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(2));
+
+    let (outputs, messages) = kernel
+        .execute(
+            r#"
+const first = cc.first();
+({language: first.language, code: first.code})
+"#,
+        )
+        .await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        outputs.to_json()?,
+        r#"[{"language":"python","code":"code 1"}]"#
+    );
+
+    let (output, messages) = kernel.evaluate("cc.last().code").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("code 2".into()));
+
+    let (output, messages) = kernel.evaluate("cc.previous()").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Null(Null));
+
+    let (output, messages) = kernel.evaluate("cc.current()").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Null(Null));
+
+    let (output, messages) = kernel.evaluate("cc.next().code").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("code 1".into()));
+
+    let (.., messages) = kernel.execute("cc._forward()").await?;
+    assert_eq!(messages, []);
+
+    let (output, messages) = kernel.evaluate("cc.previous()").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Null(Null));
+
+    let (output, messages) = kernel.evaluate("cc.current().code").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("code 1".into()));
+
+    let (output, messages) = kernel.evaluate("cc.next().code").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("code 2".into()));
+
+    let (.., messages) = kernel.execute("cc._forward()").await?;
+    assert_eq!(messages, []);
+
+    let (output, messages) = kernel.evaluate("cc.previous().code").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("code 1".into()));
+
+    let (output, messages) = kernel.evaluate("cc.current().code").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("code 2".into()));
+
+    let (output, messages) = kernel.evaluate("cc.next()").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::Null(Null));
 

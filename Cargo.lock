@@ -3038,6 +3038,8 @@ dependencies = [
 name = "kernel-quickjs"
 version = "0.0.0"
 dependencies = [
+ "codec-json",
+ "codec-markdown-trait",
  "common-dev",
  "kernel",
  "rquickjs",
@@ -3737,7 +3739,6 @@ dependencies = [
  "codec-text-trait",
  "codecs",
  "common",
- "context",
  "kernels",
  "parsers",
  "schema",
