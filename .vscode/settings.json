@@ -111,6 +111,7 @@
         "rfind",
         "rhai",
         "rowspan",
+        "rquickjs",
         "runtimes",
         "rustfmt",
         "schemars",
