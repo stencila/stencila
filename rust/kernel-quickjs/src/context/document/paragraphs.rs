@@ -35,25 +35,25 @@ impl Paragraphs {
     }
 
     /// Get all paragraphs
-    #[qjs()]
+    #[qjs(get)]
     fn all(&self) -> Vec<Paragraph> {
         self.items.clone()
     }
 
     /// Get the first paragraph (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn first(&self) -> Option<Paragraph> {
         self.items.first().cloned()
     }
 
     /// Get the last paragraph (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn last(&self) -> Option<Paragraph> {
         self.items.last().cloned()
     }
 
     /// Get the previous paragraph (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn previous(&self) -> Option<Paragraph> {
         self.cursor.and_then(|cursor| {
             if cursor == 0 {
@@ -65,14 +65,14 @@ impl Paragraphs {
     }
 
     /// Get the current paragraph (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn current(&self) -> Option<Paragraph> {
         self.cursor
             .and_then(|cursor| self.items.get(cursor).cloned())
     }
 
     /// Get the next paragraph (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn next(&self) -> Option<Paragraph> {
         match self.cursor {
             Some(cursor) => self.items.get(cursor + 1).cloned(),
@@ -91,6 +91,7 @@ pub struct Paragraph {
 }
 
 impl Paragraph {
+    #[cfg(test)]
     pub fn new(content: &str) -> Self {
         Self {
             content: content.to_string(),

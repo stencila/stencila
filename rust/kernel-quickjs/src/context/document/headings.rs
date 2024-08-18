@@ -35,25 +35,25 @@ impl Headings {
     }
 
     /// Get all headings
-    #[qjs()]
+    #[qjs(get)]
     fn all(&self) -> Vec<Heading> {
         self.items.clone()
     }
 
     /// Get the first heading (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn first(&self) -> Option<Heading> {
         self.items.first().cloned()
     }
 
     /// Get the last heading (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn last(&self) -> Option<Heading> {
         self.items.last().cloned()
     }
 
     /// Get the previous heading (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn previous(&self) -> Option<Heading> {
         self.cursor.and_then(|cursor| {
             if cursor == 0 {
@@ -65,14 +65,14 @@ impl Headings {
     }
 
     /// Get the current heading (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn current(&self) -> Option<Heading> {
         self.cursor
             .and_then(|cursor| self.items.get(cursor).cloned())
     }
 
     /// Get the next heading (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn next(&self) -> Option<Heading> {
         match self.cursor {
             Some(cursor) => self.items.get(cursor + 1).cloned(),
@@ -81,7 +81,7 @@ impl Headings {
     }
 
     /// Get the current hierarchy of headings
-    #[qjs()]
+    #[qjs(get)]
     fn hierarchy(&self) -> Vec<Heading> {
         let mut headings = Vec::new();
 
@@ -123,6 +123,7 @@ pub struct Heading {
 }
 
 impl Heading {
+    #[cfg(test)]
     pub fn new(level: i32, content: &str) -> Self {
         Self {
             level,

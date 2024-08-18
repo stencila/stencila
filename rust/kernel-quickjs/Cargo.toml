@@ -9,6 +9,5 @@ kernel = { path = "../kernel" }
 rquickjs = { version = "0.6.2", features = ["classes", "futures", "macro", "parallel"] }
 
 [dev-dependencies]
-codec-json = {path = "../codec-json" }
 common-dev = { path = "../common-dev" }
 test-log = { version = "0.2.15", default-features = false, features = ["trace"] }

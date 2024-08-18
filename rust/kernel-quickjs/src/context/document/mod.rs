@@ -3,6 +3,7 @@ use rquickjs::class::Trace;
 pub(super) mod code_chunks;
 pub(super) mod headings;
 pub(super) mod metadata;
+pub(super) mod node;
 pub(super) mod paragraphs;
 
 #[cfg(test)]

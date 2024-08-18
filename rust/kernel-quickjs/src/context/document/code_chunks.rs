@@ -2,6 +2,8 @@ use rquickjs::class::Trace;
 
 use kernel::schema;
 
+use super::node::Node;
+
 /// The code chunks in a document
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
@@ -34,25 +36,25 @@ impl CodeChunks {
     }
 
     /// Get all code chunks
-    #[qjs()]
+    #[qjs(get)]
     fn all(&self) -> Vec<CodeChunk> {
         self.items.clone()
     }
 
     /// Get the first code chunk (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn first(&self) -> Option<CodeChunk> {
         self.items.first().cloned()
     }
 
     /// Get the last code chunk (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn last(&self) -> Option<CodeChunk> {
         self.items.last().cloned()
     }
 
     /// Get the previous code chunk (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn previous(&self) -> Option<CodeChunk> {
         self.cursor.and_then(|cursor| {
             if cursor == 0 {
@@ -64,14 +66,14 @@ impl CodeChunks {
     }
 
     /// Get the current code chunk (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn current(&self) -> Option<CodeChunk> {
         self.cursor
             .and_then(|cursor| self.items.get(cursor).cloned())
     }
 
     /// Get the next code chunk (if any)
-    #[qjs()]
+    #[qjs(get)]
     fn next(&self) -> Option<CodeChunk> {
         match self.cursor {
             Some(cursor) => self.items.get(cursor + 1).cloned(),
@@ -91,13 +93,19 @@ pub struct CodeChunk {
     /// The code of the code chunk
     #[qjs(get, enumerable)]
     code: String,
+
+    /// The outputs of the code chunk
+    #[qjs(get, enumerable)]
+    outputs: Option<Vec<Node>>,
 }
 
 impl CodeChunk {
-    pub fn new(language: &str, content: &str) -> Self {
+    #[cfg(test)]
+    pub fn new(language: &str, code: &str, outputs: Option<Vec<Node>>) -> Self {
         Self {
             language: (!language.is_empty()).then(|| language.into()),
-            code: content.to_string(),
+            code: code.into(),
+            outputs,
         }
     }
 }
@@ -107,7 +115,10 @@ impl From<&schema::CodeChunk> for CodeChunk {
         Self {
             language: code_chunk.programming_language.clone(),
             code: code_chunk.code.string.clone(),
-            ..Default::default()
+            outputs: code_chunk
+                .outputs
+                .as_ref()
+                .map(|outputs| outputs.iter().map(Node::from).collect()),
         }
     }
 }
