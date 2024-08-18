@@ -113,12 +113,12 @@ impl Headings {
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Heading {
-    // The level of the document
-    #[qjs(get)]
+    // The level of the heading
+    #[qjs(get, enumerable)]
     level: i32,
 
-    /// The Markdown content of the document
-    #[qjs(get)]
+    /// The Markdown content of the heading
+    #[qjs(get, enumerable)]
     content: String,
 }
 

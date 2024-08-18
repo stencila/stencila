@@ -85,8 +85,8 @@ impl Paragraphs {
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Paragraph {
-    /// The Markdown content of the document
-    #[qjs(get)]
+    /// The Markdown content of the paragraph
+    #[qjs(get, enumerable)]
     content: String,
 }
 
