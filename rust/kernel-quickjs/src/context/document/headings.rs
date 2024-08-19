@@ -34,6 +34,12 @@ impl Headings {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
     }
 
+    /// Get the count of all headings
+    #[qjs(get)]
+    fn count(&self) -> usize {
+        self.items.len()
+    }
+
     /// Get all headings
     #[qjs(get)]
     fn all(&self) -> Vec<Heading> {

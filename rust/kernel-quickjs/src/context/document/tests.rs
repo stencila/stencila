@@ -26,6 +26,7 @@ async fn metadata() -> Result<()> {
             },
             ..Default::default()
         },
+        ..Default::default()
     };
 
     let mut kernel = QuickJsKernelInstance::new("test".to_string());
@@ -60,12 +61,17 @@ async fn headings() -> Result<()> {
             ]),
             ..Default::default()
         },
+        ..Default::default()
     };
 
     let mut kernel = QuickJsKernelInstance::new("test".to_string());
     kernel.start_here().await?;
     kernel.set_context(context).await?;
     kernel.execute("const hs = document.headings").await?;
+
+    let (output, messages) = kernel.evaluate("hs.count").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(4));
 
     let (output, messages) = kernel.evaluate("hs.all.length").await?;
     assert_eq!(messages, []);
@@ -147,12 +153,17 @@ async fn paragraphs() -> Result<()> {
             ]),
             ..Default::default()
         },
+        ..Default::default()
     };
 
     let mut kernel = QuickJsKernelInstance::new("test".to_string());
     kernel.start_here().await?;
     kernel.set_context(context).await?;
     kernel.execute("const ps = document.paragraphs").await?;
+
+    let (output, messages) = kernel.evaluate("ps.count").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(2));
 
     let (output, messages) = kernel.evaluate("ps.all.length").await?;
     assert_eq!(messages, []);
@@ -225,12 +236,17 @@ async fn code_chunks() -> Result<()> {
             ]),
             ..Default::default()
         },
+        ..Default::default()
     };
 
     let mut kernel = QuickJsKernelInstance::new("test".to_string());
     kernel.start_here().await?;
     kernel.set_context(context).await?;
     kernel.execute("const cc = document.codeChunks").await?;
+
+    let (output, messages) = kernel.evaluate("cc.count").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(2));
 
     let (output, messages) = kernel.evaluate("cc.all.length").await?;
     assert_eq!(messages, []);

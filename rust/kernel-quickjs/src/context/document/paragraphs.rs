@@ -34,6 +34,12 @@ impl Paragraphs {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
     }
 
+    /// Get the count of all paragraphs
+    #[qjs(get)]
+    fn count(&self) -> usize {
+        self.items.len()
+    }
+
     /// Get all paragraphs
     #[qjs(get)]
     fn all(&self) -> Vec<Paragraph> {
