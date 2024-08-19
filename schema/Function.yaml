@@ -7,6 +7,8 @@ description: A function with a name, which might take Parameters and return a va
 required:
   - name
   - parameters
+core:
+  - returns
 properties:
   name:
     '@id': schema:name

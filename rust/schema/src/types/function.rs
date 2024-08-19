@@ -30,25 +30,13 @@ pub struct Function {
     #[serde(deserialize_with = "one_or_many")]
     pub parameters: Vec<Parameter>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<FunctionOptions>,
+    /// The return type of the function.
+    pub returns: Option<Validator>,
 
     /// A unique identifier for a node within a document
     
     #[serde(skip)]
     pub uid: NodeUid
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct FunctionOptions {
-    /// The return type of the function.
-    pub returns: Option<Validator>,
 }
 
 impl Function {
