@@ -20,7 +20,7 @@ pub struct Metadata {
 impl From<&schema::Article> for Metadata {
     fn from(article: &schema::Article) -> Self {
         Self {
-            title: article.title.as_ref().map(|title| to_markdown(title)),
+            title: article.title.as_ref().map(to_markdown),
             genre: article.genre.as_ref().map(|genre| genre.join(", ")),
             keywords: article
                 .keywords

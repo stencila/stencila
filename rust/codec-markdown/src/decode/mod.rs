@@ -14,7 +14,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Prompt, Block, Inline, Node, NodeId, NodeType, Null, VisitorMut, WalkControl,
+        Article, Block, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
     },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };

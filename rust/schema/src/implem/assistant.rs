@@ -1,4 +1,4 @@
-use crate::{Prompt, AuthorRole, AuthorRoleAuthor, AuthorRoleName, SoftwareApplication};
+use crate::{AuthorRole, AuthorRoleAuthor, AuthorRoleName, Prompt, SoftwareApplication};
 
 impl From<Prompt> for AuthorRole {
     fn from(val: Prompt) -> Self {

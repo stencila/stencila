@@ -220,7 +220,7 @@ impl Hint {
     #[qjs(get, enumerable)]
     fn minimum(&self) -> Option<f64> {
         match self {
-            Self::Array { minimum, .. } | Self::DatatableColumn { minimum, .. } => minimum.clone(),
+            Self::Array { minimum, .. } | Self::DatatableColumn { minimum, .. } => *minimum,
             _ => None,
         }
     }
@@ -231,7 +231,7 @@ impl Hint {
     #[qjs(get, enumerable)]
     fn maximum(&self) -> Option<f64> {
         match self {
-            Self::Array { maximum, .. } | Self::DatatableColumn { maximum, .. } => maximum.clone(),
+            Self::Array { maximum, .. } | Self::DatatableColumn { maximum, .. } => *maximum,
             _ => None,
         }
     }
@@ -242,7 +242,7 @@ impl Hint {
     #[qjs(get, enumerable)]
     fn nulls(&self) -> Option<i32> {
         match self {
-            Self::Array { nulls, .. } | Self::DatatableColumn { nulls, .. } => nulls.clone(),
+            Self::Array { nulls, .. } | Self::DatatableColumn { nulls, .. } => *nulls,
             _ => None,
         }
     }

@@ -5,7 +5,6 @@ use std::{
     sync::Arc,
 };
 
-use prompts::Context;
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -14,6 +13,7 @@ use common::{
     tracing,
 };
 use kernels::Kernels;
+use prompts::Context;
 use schema::{
     Block, CompilationDigest, ExecutionMode, Inline, Node, NodeId, NodeProperty, Patch, PatchOp,
     PatchPath, VisitorAsync, WalkControl, WalkNode,
@@ -24,7 +24,6 @@ type NodeIds = Vec<NodeId>;
 mod prelude;
 
 mod article;
-mod prompt;
 mod call_block;
 mod code_chunk;
 mod code_expression;
@@ -37,6 +36,7 @@ mod instruction_inline;
 mod math_block;
 mod math_inline;
 mod parameter;
+mod prompt;
 mod styled_block;
 mod styled_inline;
 mod table;
@@ -430,7 +430,7 @@ impl Executor {
 impl VisitorAsync for Executor {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
         // Collect the node into the context if appropriate
-        if let Node::Article(article) = node {
+        if let Node::Article(_article) = node {
             //self.context.document.extract_metadata(article);
         }
 
@@ -447,14 +447,7 @@ impl VisitorAsync for Executor {
         use Block::*;
 
         // If the block is of a type that is collected in the execution context then do that.
-        match block {
-            //CodeChunk(node) => self.context.push_code_chunk(node),
-            //InstructionBlock(node) => self.context.push_instruction_block(node),
-            //MathBlock(node) => self.context.push_math_block(node),
-            //Heading(node) => self.context.document.push_heading(node),
-            //Paragraph(node) => self.context.document.push_paragraph(node),
-            _ => {}
-        }
+        {}
 
         let control = match block {
             CallBlock(node) => self.visit_executable(node).await,
@@ -477,13 +470,7 @@ impl VisitorAsync for Executor {
         use Inline::*;
 
         // If the inline is of a type that is collected in the execution context then do that.
-        match inline {
-            //CodeExpression(node) => self.context.push_code_expression(node),
-            //InstructionInline(node) => self.context.push_instruction_inline(node),
-            //MathInline(node) => self.context.push_math_inline(node),
-            //Text(node) => self.context.push_text(node),
-            _ => {}
-        }
+        {}
 
         let control = match inline {
             CodeExpression(node) => self.visit_executable(node).await,

@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use codec_cbor::r#trait::CborCodec;
 use codec_markdown_trait::to_markdown;
 use common::{eyre::Result, futures::future, itertools::Itertools};

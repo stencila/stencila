@@ -21,7 +21,6 @@ impl Package {
         Self {
             name: name.into(),
             version: Some(version.into()),
-            ..Default::default()
         }
     }
 }

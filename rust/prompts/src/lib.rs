@@ -325,9 +325,8 @@ pub async fn find(
             let matches = prompt
                 .instruction_regexes
                 .iter()
-                .map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
-                .flatten()
-                .fold(0, |sum, len| sum + len);
+                .flat_map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
+                .sum::<usize>();
             (prompt, matches)
         })
         .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse())

@@ -20,13 +20,13 @@ use crate::{prelude::*, Phase};
  */
 pub async fn execute_prompt(
     prompt: &mut PromptInstance,
-    instruction_type: &InstructionType,
-    content: Option<String>,
-    context: &Context,
+    _instruction_type: &InstructionType,
+    _content: Option<String>,
+    _context: &Context,
 ) -> Result<()> {
     let home = prompt.home();
 
-    let mut kernels = Kernels::new(&home);
+    let kernels = Kernels::new(&home);
 
     let kernels = Arc::new(RwLock::new(kernels));
     // This should be home of the prompt!

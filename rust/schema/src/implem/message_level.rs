@@ -1,8 +1,8 @@
 use crate::MessageLevel;
 
-impl Into<codec_info::MessageLevel> for MessageLevel {
-    fn into(self) -> codec_info::MessageLevel {
-        match self {
+impl From<MessageLevel> for codec_info::MessageLevel {
+    fn from(val: MessageLevel) -> Self {
+        match val {
             MessageLevel::Trace => codec_info::MessageLevel::Warning,
             MessageLevel::Debug => codec_info::MessageLevel::Warning,
             MessageLevel::Info => codec_info::MessageLevel::Warning,
