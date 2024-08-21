@@ -294,6 +294,8 @@ class InstructionType(StrEnum):
 
     New = "New"
     Edit = "Edit"
+    Transform = "Transform"
+    Describe = "Describe"
     Update = "Update"
 
 
@@ -1042,27 +1044,6 @@ class Article(CreativeWork, Executable):
 
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Assistant(CreativeWork, Executable):
-    """
-    An assistant for creating and editing document content.
-    """
-
-    type: Literal["Assistant"] = "Assistant"
-
-    instruction_types: list[InstructionType]
-    """The types of instructions that the assistant supports"""
-
-    instruction_patterns: list[str] | None = None
-    """Regular expressions used to match the assistant with a user instruction"""
-
-    node_types: list[str]
-    """The types of nodes that the assistant supports"""
-
-    content: list[Block]
-    """The content of the assistant's prompt template."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2329,6 +2310,27 @@ class Product(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
+class Prompt(CreativeWork, Executable):
+    """
+    A prompt for creating or editing document content.
+    """
+
+    type: Literal["Prompt"] = "Prompt"
+
+    instruction_types: list[InstructionType]
+    """The types of instructions that the prompt supports"""
+
+    instruction_patterns: list[str] | None = None
+    """Regular expressions used to match the prompt with a user instruction"""
+
+    node_types: list[str]
+    """The types of nodes that the prompt supports"""
+
+    content: list[Block]
+    """The content of the prompt."""
+
+
+@dataclass(kw_only=True, repr=False)
 class PropertyValue(Thing):
     """
     A property-value pair.
@@ -2938,7 +2940,6 @@ Union type in block content node types.
 
 CreativeWorkType = Union[
     Article,
-    Assistant,
     AudioObject,
     Claim,
     Collection,
@@ -2948,6 +2949,7 @@ CreativeWorkType = Union[
     ImageObject,
     MediaObject,
     Periodical,
+    Prompt,
     PublicationIssue,
     PublicationVolume,
     Review,
@@ -3076,7 +3078,6 @@ Node = Union[
     ArrayHint,
     ArrayValidator,
     Article,
-    Assistant,
     AudioObject,
     AuthorRole,
     BooleanValidator,
@@ -3158,6 +3159,7 @@ Node = Union[
     Person,
     PostalAddress,
     Product,
+    Prompt,
     PropertyValue,
     ProvenanceCount,
     PublicationIssue,
@@ -3207,7 +3209,6 @@ Union type for all types in this schema, including primitives and entities
 ThingType = Union[
     AdmonitionType,
     Article,
-    Assistant,
     AudioObject,
     AuthorRoleName,
     Brand,
@@ -3245,6 +3246,7 @@ ThingType = Union[
     Person,
     PostalAddress,
     Product,
+    Prompt,
     PropertyValue,
     ProvenanceCategory,
     PublicationIssue,
@@ -3310,7 +3312,6 @@ TYPES = [
     ArrayHint,
     ArrayValidator,
     Article,
-    Assistant,
     AudioObject,
     AuthorRole,
     BooleanValidator,
@@ -3385,6 +3386,7 @@ TYPES = [
     Person,
     PostalAddress,
     Product,
+    Prompt,
     PropertyValue,
     ProvenanceCount,
     PublicationIssue,

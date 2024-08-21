@@ -1,0 +1,23 @@
+::: if document.metadata.title || document.metadata.genre || document.metadata.keywords
+
+An overview of the document's metadata follows. Use this information to guide the style and subject matter:
+
+::::: if document.metadata.title
+
+Title: {{ document.metadata.title }}
+
+:::::
+
+::::: if document.metadata.genre
+
+Genre: {{ document.metadata.genre }}
+
+:::::
+
+::::: if document.metadata.keywords
+
+Keywords: {{ document.metadata.keywords }}
+
+:::::
+
+:::

@@ -12,15 +12,14 @@ use model::{
     },
     format::Format,
     schema::{
-        Assistant, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionBlock,
-        InstructionMessage, InstructionModel, InstructionType, Node, StringOrNumber, Thing,
-        Timestamp,
+        Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionBlock, InstructionMessage,
+        InstructionModel, InstructionType, Node, Prompt, StringOrNumber, Thing, Timestamp,
     },
 };
 
 use crate::{execute_instruction_block, find, render};
 
-/// Manage assistants
+/// Manage prompts
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
@@ -49,7 +48,7 @@ impl Cli {
     }
 }
 
-/// List the assistant available
+/// List the prompts available
 #[derive(Debug, Args)]
 struct List;
 
@@ -65,8 +64,8 @@ impl List {
             "Description",
         ]);
 
-        for assistant in super::list().await {
-            let Assistant {
+        for prompt in super::list().await {
+            let Prompt {
                 id,
                 name,
                 version,
@@ -74,7 +73,7 @@ impl List {
                 node_types,
                 description,
                 ..
-            } = assistant.inner;
+            } = prompt.inner;
 
             let version = match version {
                 StringOrNumber::String(version) => version,
@@ -102,20 +101,20 @@ impl List {
     }
 }
 
-/// Execute an instruction with an assistant
+/// Execute an instruction with an prompt
 ///
-/// Mainly intended for quick testing of assistants during development.
+/// Mainly intended for quick testing of prompts during development.
 #[derive(Debug, Args)]
 #[clap(alias = "exec")]
 struct Execute {
     /// The text of the instruction
     message: String,
 
-    /// The name of the assistant assigned to the instruction
+    /// The name of the prompt assigned to the instruction
     ///
     /// For example, `stencila/paragraph` or `my-org/abstract`.
-    /// For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`.
-    /// See `stencila assistants list` for a list of available assistants.
+    /// For Stencila prompts, the org prefix can be omitted e.g. `insert-code-chunk`.
+    /// See `stencila prompts list` for a list of available prompts.
     #[arg(long, short)]
     assignee: Option<String>,
 
@@ -130,6 +129,10 @@ struct Execute {
     /// The output format for the suggestion
     #[arg(long, short, default_value = "md")]
     to: Format,
+
+    /// Whether to do a dry run (i.e. not actually send the generated model task)
+    #[arg(long)]
+    dry_run: bool,
 }
 
 impl Execute {
@@ -159,7 +162,7 @@ impl Execute {
         println!("Instruction");
         Code::new(Format::Yaml, &serde_yaml::to_string(&instruction)?).to_stdout();
 
-        let assistant = find(
+        let prompt = find(
             &instruction.instruction_type,
             &instruction.message,
             &instruction.assignee,
@@ -167,22 +170,26 @@ impl Execute {
         )
         .await?;
 
-        println!("Assistant");
-        println!("{}\n", assistant.id.as_deref().unwrap_or_default());
+        let prompt_id = prompt.id.clone().unwrap_or_default();
 
         let prompter = AuthorRole {
             last_modified: Some(Timestamp::now()),
-            ..assistant.clone().into()
+            ..prompt.clone().into()
         };
 
-        let system_message = render(assistant).await?;
+        let system_message = render(prompt).await?;
 
-        println!("Assistant prompt (no context)");
+        println!("Prompt {}\n", prompt_id);
         Code::new(Format::Markdown, &system_message).to_stdout();
 
-        let suggestion =
-            execute_instruction_block(vec![instructor], prompter, &system_message, &instruction)
-                .await?;
+        let suggestion = execute_instruction_block(
+            vec![instructor],
+            prompter,
+            &system_message,
+            &instruction,
+            self.dry_run,
+        )
+        .await?;
 
         println!("Suggestion");
         let output = codecs::to_string(

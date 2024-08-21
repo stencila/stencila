@@ -15,7 +15,8 @@
     "parameters"
   ],
   "core": [
-    "id"
+    "id",
+    "returns"
   ],
   "properties": {
     "type": {

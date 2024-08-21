@@ -3,7 +3,6 @@
 use crate::prelude::*;
 
 use super::article::Article;
-use super::assistant::Assistant;
 use super::audio_object::AudioObject;
 use super::claim::Claim;
 use super::collection::Collection;
@@ -13,6 +12,7 @@ use super::figure::Figure;
 use super::image_object::ImageObject;
 use super::media_object::MediaObject;
 use super::periodical::Periodical;
+use super::prompt::Prompt;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::review::Review;
@@ -27,8 +27,6 @@ use super::video_object::VideoObject;
 pub enum CreativeWorkType {
     #[default]
     Article(Article),
-
-    Assistant(Assistant),
 
     AudioObject(AudioObject),
 
@@ -47,6 +45,8 @@ pub enum CreativeWorkType {
     MediaObject(MediaObject),
 
     Periodical(Periodical),
+
+    Prompt(Prompt),
 
     PublicationIssue(PublicationIssue),
 

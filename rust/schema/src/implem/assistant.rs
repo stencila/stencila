@@ -1,7 +1,7 @@
-use crate::{Assistant, AuthorRole, AuthorRoleAuthor, AuthorRoleName, SoftwareApplication};
+use crate::{Prompt, AuthorRole, AuthorRoleAuthor, AuthorRoleName, SoftwareApplication};
 
-impl From<Assistant> for AuthorRole {
-    fn from(val: Assistant) -> Self {
+impl From<Prompt> for AuthorRole {
+    fn from(val: Prompt) -> Self {
         AuthorRole {
             role_name: AuthorRoleName::Prompter,
             author: AuthorRoleAuthor::SoftwareApplication(val.into()),
@@ -10,8 +10,8 @@ impl From<Assistant> for AuthorRole {
     }
 }
 
-impl From<Assistant> for SoftwareApplication {
-    fn from(val: Assistant) -> Self {
+impl From<Prompt> for SoftwareApplication {
+    fn from(val: Prompt) -> Self {
         SoftwareApplication {
             id: val.id,
             name: val.name,

@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 cli-utils = { path = "../cli-utils" }
-context = { path = "../context" }
 kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }

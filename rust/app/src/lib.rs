@@ -21,7 +21,7 @@ pub enum DirType {
     #[default]
     Config,
     Cache,
-    Assistants,
+    Prompts,
     Plugins,
     Kernels,
 }
@@ -34,12 +34,12 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
         match dir_type {
             DirType::Config => dirs.config_dir().to_path_buf(),
             DirType::Cache => dirs.cache_dir().to_path_buf(),
-            DirType::Assistants => {
-                if let Ok(dir) = env::var("STENCILA_ASSISTANTS_DIR") {
+            DirType::Prompts => {
+                if let Ok(dir) = env::var("STENCILA_PROMPTS_DIR") {
                     ensure = false;
                     PathBuf::from(dir)
                 } else {
-                    dirs.config_dir().join("assistants")
+                    dirs.config_dir().join("prompts")
                 }
             }
             DirType::Plugins => dirs.config_dir().join("plugins"),

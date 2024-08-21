@@ -35,7 +35,7 @@ impl Cli {
     }
 }
 
-/// List the assistant available
+/// List the models available
 #[derive(Debug, Args)]
 struct List;
 

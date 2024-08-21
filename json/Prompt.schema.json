@@ -1,14 +1,14 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/Assistant.schema.json",
-  "@id": "stencila:Assistant",
-  "title": "Assistant",
+  "$id": "https://stencila.org/Prompt.schema.json",
+  "@id": "stencila:Prompt",
+  "title": "Prompt",
   "extends": [
     "CreativeWork",
     "Executable"
   ],
   "category": "works",
-  "description": "An assistant for creating and editing document content.",
+  "description": "A prompt for creating or editing document content.",
   "required": [
     "type",
     "type",
@@ -828,7 +828,7 @@
     },
     "instructionTypes": {
       "@id": "stencila:instructionTypes",
-      "description": "The types of instructions that the assistant supports",
+      "description": "The types of instructions that the prompt supports",
       "aliases": [
         "instruction-types",
         "instruction_types",
@@ -843,7 +843,7 @@
     },
     "instructionPatterns": {
       "@id": "stencila:instructionPatterns",
-      "description": "Regular expressions used to match the assistant with a user instruction",
+      "description": "Regular expressions used to match the prompt with a user instruction",
       "aliases": [
         "instruction-patterns",
         "instruction_patterns",
@@ -858,7 +858,7 @@
     },
     "nodeTypes": {
       "@id": "stencila:nodeTypes",
-      "description": "The types of nodes that the assistant supports",
+      "description": "The types of nodes that the prompt supports",
       "aliases": [
         "node-types",
         "node_types",
@@ -873,7 +873,7 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "The content of the assistant's prompt template.",
+      "description": "The content of the prompt.",
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

@@ -1,0 +1,11 @@
+::: if document.headings.hierarchy.length > 0
+
+The hierarchy of headings for the current position in the document is:
+
+::::: for heading in document.headings.hierarchy
+
+{{ '#'.repeat(heading.level) }} {{ heading.content }}
+
+:::::
+
+:::

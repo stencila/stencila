@@ -1,12 +1,15 @@
 ---
-type: Assistant
+type: Prompt
 
 id: stencila/paragraph
 version: "0.1.0"
-name: Paragraph Assistant
+name: New Paragraph Prompt
 description: Create or edit a single paragraph.
+keywords: paragraph
 
 instruction-types: [New, Edit]
+instruction-patterns:
+  - (?i)\b(para(graph)?)\b
 node-types: [Paragraph]
 ---
 
@@ -24,7 +27,14 @@ Your job is to edit this paragraph:
 
 {{ instruction.content }}
 
-Follow any instructions given by the user regarding how you should edit the paragraph. If the user does not provide any instructions edit the paragraph to improve it, as you see fit. Only provide ONE paragraph unless the user explictly instructs you to split the paragraph. Do NOT provide any comments or explanation.
+Follow any instructions given by the user regarding how you should edit the paragraph. If the user does not provide any instructions edit the paragraph to improve it, as you see fit. Only provide ONE paragraph unless the user explicitly instructs you to split the paragraph. Do NOT provide any comments or explanation.
 
 :::
 
+# Context
+
+::: include context/document/metadata.smd
+
+::: include context/document/headings/hierarchy.smd
+
+::: include context/document/paragraphs/previous.smd

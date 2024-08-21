@@ -321,7 +321,7 @@ pub enum Command {
     /// Run the Stencila Language Server
     Lsp,
 
-    Assistants(assistants::cli::Cli),
+    Prompts(prompts::cli::Cli),
     Models(models::cli::Cli),
     Kernels(kernels::cli::Cli),
     Codecs(codecs::cli::Cli),
@@ -689,7 +689,7 @@ impl Cli {
 
             Command::Lsp => lsp::run().await,
 
-            Command::Assistants(assistants) => assistants.run().await?,
+            Command::Prompts(prompts) => prompts.run().await?,
             Command::Models(models) => models.run().await?,
             Command::Kernels(kernels) => kernels.run().await?,
             Command::Codecs(codecs) => codecs.run().await?,

@@ -13,11 +13,12 @@ use codecs::{DecodeOptions, EncodeOptions, Format};
 use common::{
     chrono::Utc,
     eyre::{eyre, OptionExt},
+    futures::future::try_join_all,
     regex::Regex,
     reqwest::Client,
     tar::Archive,
     tokio::{
-        fs::{read_to_string, write},
+        fs::{create_dir_all, read_to_string, write},
         time,
     },
 };
@@ -34,8 +35,8 @@ use model::{
         tokio, tracing,
     },
     schema::{
-        authorship, shortcuts::p, Article, Assistant, AudioObject, Author, AuthorRole, ImageObject,
-        Inline, InstructionBlock, InstructionMessage, InstructionType, Link, MessagePart, Node,
+        authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, ImageObject, Inline,
+        InstructionBlock, InstructionMessage, InstructionType, Link, MessagePart, Node, Prompt,
         SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
@@ -43,28 +44,31 @@ use model::{
 
 pub mod cli;
 
-/// An instance of an assistant
+// Re-exports
+pub use prompt::Context;
+
+/// An instance of a prompt
 ///
-/// A wrapper around an [`Assistant`] used to cache derived properties
+/// A wrapper around an [`Prompt`] used to cache derived properties
 /// such as regexes / embeddings
 #[derive(Deref, DerefMut)]
-pub struct AssistantInstance {
+pub struct PromptInstance {
     #[deref]
     #[deref_mut]
-    inner: Assistant,
+    inner: Prompt,
 
-    /// Home directory of the assistant
+    /// Home directory of the prompt
     ///
     /// Used mainly to resolve relative paths used for the source of
     /// `IncludeBlocks` used within instructions.
     home: PathBuf,
 
-    /// Compiled regexes for the assistant's instruction regexes
+    /// Compiled regexes for the prompt's instruction regexes
     instruction_regexes: Vec<Regex>,
 }
 
-impl AssistantInstance {
-    fn new(inner: Assistant, home: PathBuf) -> Result<Self> {
+impl PromptInstance {
+    fn new(inner: Prompt, home: PathBuf) -> Result<Self> {
         let instruction_regexes = inner
             .instruction_patterns
             .iter()
@@ -78,13 +82,18 @@ impl AssistantInstance {
             instruction_regexes,
         })
     }
+
+    // Get the home of the prompt
+    pub fn home(&self) -> PathBuf {
+        self.home.clone()
+    }
 }
 
-/// Get a list of available assistants
+/// Get a list of available prompts
 ///
 /// Cached if not in debug mode
 #[cfg_attr(not(debug_assertions), cached::proc_macro::cached(time = 3600))]
-pub async fn list() -> Vec<AssistantInstance> {
+pub async fn list() -> Vec<PromptInstance> {
     let futures = (0..=3).map(|provider| async move {
         let (provider, result) = match provider {
             0 => ("builtin", list_builtin().await),
@@ -95,7 +104,7 @@ pub async fn list() -> Vec<AssistantInstance> {
         match result {
             Ok(list) => list,
             Err(error) => {
-                tracing::error!("While listing {provider} assistants: {error}");
+                tracing::error!("While listing {provider} prompts: {error}");
                 vec![]
             }
         }
@@ -104,69 +113,58 @@ pub async fn list() -> Vec<AssistantInstance> {
     join_all(futures).await.into_iter().flatten().collect_vec()
 }
 
-/// Builtin assistants
+/// Builtin prompts
 ///
-/// During development these are loaded directly from the `assistants/builtin`
+/// During development these are loaded directly from the `prompts/builtin`
 /// directory at the root of the repository but are embedded into the binary on release builds.
 #[derive(RustEmbed)]
-#[folder = "$CARGO_MANIFEST_DIR/../../assistants/builtin"]
+#[folder = "$CARGO_MANIFEST_DIR/../../prompts/builtin"]
 struct Builtin;
 
-/// List the builtin assistants.
-pub async fn list_builtin() -> Result<Vec<AssistantInstance>> {
-    let mut assistants = Vec::new();
-
-    let dir = get_app_dir(DirType::Assistants, false)?.join("builtin");
-
-    // If there is an `assistants/builtin` app dir and it is not empty then use it
-    // (if not in development)
-    if !cfg!(debug_assertions) {
-        if dir.exists() {
-            assistants = list_dir(&dir).await?;
-        }
-        if !assistants.is_empty() {
-            return Ok(assistants);
-        }
+/// List the builtin prompts.
+pub async fn list_builtin() -> Result<Vec<PromptInstance>> {
+    // If in debug mode, just use the prompts/builtin dir in the repo
+    if cfg!(debug_assertions) {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../prompts/builtin");
+        return list_dir(&dir).await;
     }
 
-    // Otherwise, use the assistants built-in to the binary
-    for (filename, content) in
-        Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
-    {
-        let (.., ext) = filename.split_once('.').unwrap_or_default();
-
-        // TODO: Remove this when all assistants ported
-        if ext != "smd" {
-            continue;
-        }
-
-        let content = String::from_utf8_lossy(&content);
-
-        let node = codecs::from_str(
-            &content,
-            Some(DecodeOptions {
-                format: Some(Format::from_name(ext)),
-                ..Default::default()
-            }),
-        )
-        .await?;
-
-        if let Node::Assistant(assistant) = node {
-            assistants.push(AssistantInstance::new(assistant, dir.clone())?)
-        } else {
-            bail!(
-                "Expected `{filename}` to be an `Assistant`, got a `{}`",
-                node.to_string()
-            )
-        }
+    let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
+    if !dir.exists() {
+        create_dir_all(&dir).await?;
     }
 
-    Ok(assistants)
+    let initialized_at = dir.join("initialized-at.txt");
+    let fetched_at = dir.join("fetched-at.txt");
+
+    // If the built-ins have not yet been fetched then write them into
+    // the directory. This needs to be done, rather than loading directly from memory
+    // (as we used to do) so that inclusions work correctly.
+    if !initialized_at.exists() && !fetched_at.exists() {
+        let futures = Builtin::iter()
+            .filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
+            .map(|(filename, content)| {
+                let dir = dir.clone();
+                async move {
+                    let path = dir.join(filename.to_string());
+                    if let Some(parent) = path.parent() {
+                        create_dir_all(parent).await?;
+                    }
+                    write(path, content).await
+                }
+            });
+        try_join_all(futures).await?;
+
+        // Write timestamp
+        write(initialized_at, Utc::now().to_rfc3339()).await?;
+    }
+
+    list_dir(&dir).await
 }
 
-/// List any local assistants
-async fn list_local() -> Result<Vec<AssistantInstance>> {
-    let dir = get_app_dir(DirType::Assistants, false)?.join("local");
+/// List any local prompts
+async fn list_local() -> Result<Vec<PromptInstance>> {
+    let dir = get_app_dir(DirType::Prompts, false)?.join("local");
 
     if dir.exists() {
         list_dir(&dir).await
@@ -175,18 +173,18 @@ async fn list_local() -> Result<Vec<AssistantInstance>> {
     }
 }
 
-/// List assistants in a directory
-async fn list_dir(dir: &Path) -> Result<Vec<AssistantInstance>> {
-    tracing::trace!("Attempting to read assistants from `{}`", dir.display());
+/// List prompts in a directory
+async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
+    tracing::trace!("Attempting to read prompts from `{}`", dir.display());
 
-    let mut assistants = vec![];
+    let mut prompts = vec![];
     for entry in read_dir(dir)?.flatten() {
         let path = entry.path();
         let (Some(filename), Some(ext)) = (path.file_name(), path.extension()) else {
             continue;
         };
 
-        // TODO: Remove this when all assistants ported
+        // TODO: Remove this when all prompts ported
         if ext != "smd" {
             continue;
         }
@@ -202,33 +200,33 @@ async fn list_dir(dir: &Path) -> Result<Vec<AssistantInstance>> {
         )
         .await?;
 
-        if let Node::Assistant(assistant) = node {
-            assistants.push(AssistantInstance::new(assistant, dir.to_path_buf())?)
+        if let Node::Prompt(prompt) = node {
+            prompts.push(PromptInstance::new(prompt, dir.to_path_buf())?)
         } else {
             bail!(
-                "Expected `{}` to be an `Assistant`, got a `{}`",
+                "Expected `{}` to be an `Prompt`, got a `{}`",
                 filename.to_string_lossy(),
                 node.to_string()
             )
         }
     }
 
-    Ok(assistants)
+    Ok(prompts)
 }
 
-/// Refresh the builtin assistants directory
+/// Refresh the builtin prompts directory
 ///
-/// So that users can get the latest version of assistants, without installing a new version of
-/// the binary. If not updated in last day, creates an `assistants/builtin` app directory
-/// (if not yet exists), fetches a tarball of the assistants and extracts it into the directory.
+/// So that users can get the latest version of prompts, without installing a new version of
+/// the binary. If not updated in last day, creates an `prompts/builtin` app directory
+/// (if not yet exists), fetches a tarball of the prompts and extracts it into the directory.
 async fn fetch_builtin() -> Result<()> {
     const FETCH_EVERY_SECS: u64 = 12 * 3_600;
 
-    let dir = get_app_dir(DirType::Assistants, true)?.join("builtin");
+    let dir = get_app_dir(DirType::Prompts, true)?.join("builtin");
 
     // Check for the last time this was done
-    let last = dir.join("last");
-    if let Ok(metadata) = fs::metadata(&last) {
+    let fetched_at = dir.join("fetched-at.txt");
+    if let Ok(metadata) = fs::metadata(&fetched_at) {
         if let Ok(modified) = metadata.modified() {
             if let Ok(elapsed) = modified.elapsed() {
                 if elapsed < Duration::from_secs(FETCH_EVERY_SECS) {
@@ -238,7 +236,7 @@ async fn fetch_builtin() -> Result<()> {
         }
     }
 
-    tracing::debug!("Updating builtin assistants");
+    tracing::debug!("Updating builtin prompts");
 
     // Fetch the repo tar ball
     let tar_gz = Client::new()
@@ -249,20 +247,20 @@ async fn fetch_builtin() -> Result<()> {
         .await?;
     let tar = GzDecoder::new(Cursor::new(tar_gz));
 
-    // Extract just the builtin assistants
+    // Extract just the builtin prompts
     let mut archive = Archive::new(tar);
     for entry in archive.entries()? {
         let mut entry = entry?;
         let path = entry.path()?;
         if let Ok(relative_path) = path.strip_prefix("stencila-main") {
-            if let Ok(name) = relative_path.strip_prefix("assistants/builtin/") {
+            if let Ok(name) = relative_path.strip_prefix("prompts/builtin/") {
                 entry.unpack(&dir.join(name))?;
             }
         }
     }
 
     // Write timestamp
-    write(last, Utc::now().to_rfc3339()).await?;
+    write(fetched_at, Utc::now().to_rfc3339()).await?;
 
     Ok(())
 }
@@ -272,21 +270,21 @@ pub fn update_builtin() {
     tokio::spawn(async {
         loop {
             if let Err(error) = fetch_builtin().await {
-                tracing::debug!("While fetching builtin assistants: {error}");
+                tracing::debug!("While fetching builtin prompts: {error}");
             }
             time::sleep(Duration::from_secs(3_600)).await;
         }
     });
 }
 
-/// Get the most appropriate assistant for an instruction
+/// Get the most appropriate prompt for an instruction
 pub async fn find(
     instruction_type: &InstructionType,
     message: &Option<InstructionMessage>,
     assignee: &Option<String>,
     _node_types: &Option<Vec<String>>,
-) -> Result<AssistantInstance> {
-    let assistants = list().await;
+) -> Result<PromptInstance> {
+    let prompts = list().await;
 
     // If there is an assignee then get it
     if let Some(assignee) = assignee {
@@ -296,18 +294,18 @@ pub async fn find(
             ["stencila/", assignee].concat()
         };
 
-        return assistants
+        return prompts
             .into_iter()
-            .find(|assistant| assistant.id.as_deref() == Some(&id))
-            .ok_or_else(|| eyre!("Unable to find assistant with id `{assignee}`"));
+            .find(|prompt| prompt.id.as_deref() == Some(&id))
+            .ok_or_else(|| eyre!("Unable to find prompt with id `{assignee}`"));
     }
 
-    // Filter the assistants to those that support the instruction type
-    let assistants = assistants
+    // Filter the prompts to those that support the instruction type
+    let prompts = prompts
         .into_iter()
-        .filter(|assistant| assistant.instruction_types.contains(instruction_type));
+        .filter(|prompt| prompt.instruction_types.contains(instruction_type));
 
-    // Get the text of the message to match assistants against
+    // Get the text of the message to match prompts against
     let message_text = match message {
         Some(message) => message
             .parts
@@ -322,31 +320,31 @@ pub async fn find(
 
     // Count the number of characters in the instruction message that are matched by
     // each of the patterns in each of the candidates
-    let assistant = assistants
-        .map(|assistant| {
-            let matches = assistant
+    let prompt = prompts
+        .map(|prompt| {
+            let matches = prompt
                 .instruction_regexes
                 .iter()
                 .map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
                 .flatten()
                 .fold(0, |sum, len| sum + len);
-            (assistant, matches)
+            (prompt, matches)
         })
         .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse())
-        .map(|(assistant, ..)| assistant)
+        .map(|(prompt, ..)| prompt)
         .next()
         .take();
 
-    assistant.ok_or_eyre("No assistants found for instruction")
+    prompt.ok_or_eyre("No prompts found for instruction")
 }
 
 /**
- * Render and assistant's content to Markdown use as a system prompt
+ * Render and prompt's content to Markdown use as a system prompt
  */
-pub async fn render(assistant: AssistantInstance) -> Result<String> {
+pub async fn render(prompt: PromptInstance) -> Result<String> {
     codecs::to_string(
         &Node::Article(Article {
-            content: assistant.content.clone(),
+            content: prompt.content.clone(),
             ..Default::default()
         }),
         Some(EncodeOptions {
@@ -359,13 +357,14 @@ pub async fn render(assistant: AssistantInstance) -> Result<String> {
 }
 
 /**
- * Execute an `InstructionBlock`
+ * Execute an [`InstructionBlock`]
  */
 pub async fn execute_instruction_block(
     mut instructors: Vec<AuthorRole>,
     prompter: AuthorRole,
     system_prompt: &str,
     instruction: &InstructionBlock,
+    dry_run: bool,
 ) -> Result<SuggestionBlock> {
     // Create a vector of messages from the system message and instruction messages
     let mut messages = vec![InstructionMessage::system(
@@ -393,7 +392,7 @@ pub async fn execute_instruction_block(
 
     for suggestion in instruction.suggestions.iter().flatten() {
         // Note: this encodes suggestion content to Markdown. Using the
-        // format used by the particular assistant e.g. HTML may be more appropriate
+        // format used by the particular prompt e.g. HTML may be more appropriate
         let md = to_markdown(&suggestion.content);
         messages.push(InstructionMessage::assistant(
             md,
@@ -406,11 +405,12 @@ pub async fn execute_instruction_block(
     }
 
     // Create a model task
-    let task = ModelTask::new(
+    let mut task = ModelTask::new(
         instruction.instruction_type.clone(),
         instruction.model.as_deref().cloned(),
         messages,
     );
+    task.dry_run = dry_run;
 
     // Perform the task
     let started = Timestamp::now();

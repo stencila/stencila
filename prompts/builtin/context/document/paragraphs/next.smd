@@ -1,0 +1,7 @@
+::: if document.paragraphs.next
+
+The next paragraph in the document is:
+
+{{ document.paragraphs.next.content }}
+
+:::

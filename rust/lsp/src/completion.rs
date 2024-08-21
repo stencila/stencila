@@ -14,7 +14,7 @@ use async_lsp::{
 
 use codecs::Positions;
 use common::tokio::sync::RwLock;
-use schema::{Assistant, StringOrNumber};
+use schema::{Prompt, StringOrNumber};
 
 use crate::utils::position_to_position16;
 
@@ -59,17 +59,17 @@ pub(super) async fn request(
 
 /// Provide completion list for assignees of an instruction
 async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseError> {
-    let items = assistants::list()
+    let items = prompts::list()
         .await
         .iter()
-        .filter_map(|assistant| {
-            let Assistant {
+        .filter_map(|prompt| {
+            let Prompt {
                 id: Some(id),
                 name,
                 version,
                 description,
                 ..
-            } = assistant.deref()
+            } = prompt.deref()
             else {
                 return None;
             };

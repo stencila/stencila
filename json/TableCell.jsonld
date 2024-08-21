@@ -119,9 +119,6 @@
           "@id": "stencila:Admonition"
         },
         {
-          "@id": "stencila:Assistant"
-        },
-        {
           "@id": "stencila:Cite"
         },
         {
@@ -159,6 +156,9 @@
         },
         {
           "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
         },
         {
           "@id": "stencila:QuoteBlock"

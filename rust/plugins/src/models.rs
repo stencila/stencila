@@ -169,7 +169,7 @@ impl Model for PluginModel {
     }
 }
 
-/// List all the assistants provided by plugins
+/// List all the models provided by plugins
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     Ok(plugins()
         .await

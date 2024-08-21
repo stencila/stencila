@@ -1,12 +1,12 @@
-# Assistant
+# Prompt
 
-**An assistant for creating and editing document content.**
+**A prompt for creating or editing document content.**
 
-**`@id`**: `stencila:Assistant`
+**`@id`**: `stencila:Prompt`
 
 ## Properties
 
-The `Assistant` type has these properties:
+The `Prompt` type has these properties:
 
 | Name                    | Aliases                                                                                                                   | `@id`                                                      | Type                                                                                                                                                                                                                      | Description                                                                                                             | Inherited from                                                                                                |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -56,20 +56,21 @@ The `Assistant` type has these properties:
 | `executionEnded`        | `execution-ended`, `execution_ended`                                                                                      | `stencila:executionEnded`                                  | [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                                                                                                                     | The timestamp when the last execution ended.                                                                            | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
 | `executionDuration`     | `execution-duration`, `execution_duration`                                                                                | `stencila:executionDuration`                               | [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                                                                                                                       | Duration of the last execution.                                                                                         | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
 | `executionMessages`     | `execution-messages`, `execution_messages`, `executionMessage`, `execution-message`, `execution_message`                  | `stencila:executionMessages`                               | [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution-message.md)*                                                                                                     | Messages emitted while executing the node.                                                                              | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
-| `instructionTypes`      | `instruction-types`, `instruction_types`, `instructionType`, `instruction-type`, `instruction_type`                       | `stencila:instructionTypes`                                | [`InstructionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/instruction-type.md)*                                                                                                      | The types of instructions that the assistant supports                                                                   | -                                                                                                             |
-| `nodeTypes`             | `node-types`, `node_types`, `nodeType`, `node-type`, `node_type`                                                          | `stencila:nodeTypes`                                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                          | The types of nodes that the assistant supports                                                                          | -                                                                                                             |
-| `content`               | -                                                                                                                         | `stencila:content`                                         | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                           | The content of the assistant's prompt template.                                                                         | -                                                                                                             |
+| `instructionTypes`      | `instruction-types`, `instruction_types`, `instructionType`, `instruction-type`, `instruction_type`                       | `stencila:instructionTypes`                                | [`InstructionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/instruction-type.md)*                                                                                                      | The types of instructions that the prompt supports                                                                      | -                                                                                                             |
+| `instructionPatterns`   | `instruction-patterns`, `instruction_patterns`, `instructionPattern`, `instruction-pattern`, `instruction_pattern`        | `stencila:instructionPatterns`                             | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                          | Regular expressions used to match the prompt with a user instruction                                                    | -                                                                                                             |
+| `nodeTypes`             | `node-types`, `node_types`, `nodeType`, `node-type`, `node_type`                                                          | `stencila:nodeTypes`                                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                          | The types of nodes that the prompt supports                                                                             | -                                                                                                             |
+| `content`               | -                                                                                                                         | `stencila:content`                                         | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                           | The content of the prompt.                                                                                              | -                                                                                                             |
 
 ## Related
 
-The `Assistant` type is related to these types:
+The `Prompt` type is related to these types:
 
 - Parents: [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md)[`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)
 - Children: none
 
 ## Formats
 
-The `Assistant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `Prompt` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                                               | Encoding     | Decoding  | Status              | Notes |
 | ---------------------------------------------------------------------------------------------------- | ------------ | --------- | ------------------- | ----- |
@@ -90,14 +91,14 @@ The `Assistant` type can be encoded (serialized) to, and/or decoded (deserialize
 
 ## Bindings
 
-The `Assistant` type is represented in these bindings:
+The `Prompt` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.org/Assistant.jsonld)
-- [JSON Schema](https://stencila.org/Assistant.schema.json)
-- Python class [`Assistant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/assistant.py)
-- Rust struct [`Assistant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/assistant.rs)
-- TypeScript class [`Assistant`](https://github.com/stencila/stencila/blob/main/ts/src/types/Assistant.ts)
+- [JSON-LD](https://stencila.org/Prompt.jsonld)
+- [JSON Schema](https://stencila.org/Prompt.schema.json)
+- Python class [`Prompt`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/prompt.py)
+- Rust struct [`Prompt`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/prompt.rs)
+- TypeScript class [`Prompt`](https://github.com/stencila/stencila/blob/main/ts/src/types/Prompt.ts)
 
 ## Source
 
-This documentation was generated from [`Assistant.yaml`](https://github.com/stencila/stencila/blob/main/schema/Assistant.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Prompt.yaml`](https://github.com/stencila/stencila/blob/main/schema/Prompt.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).

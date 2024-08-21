@@ -4,7 +4,6 @@ use std::{
     sync::Arc,
 };
 
-use context::KernelContext;
 use kernel::{
     common::{
         eyre::{bail, Result},
@@ -180,20 +179,6 @@ impl Kernels {
         }
 
         tracing::debug!("Kernels variable request task stopped");
-    }
-
-    /// Get the context of each kernel instance
-    pub async fn kernel_contexts(&mut self) -> Vec<KernelContext> {
-        let mut contexts = Vec::new();
-        for entry in self.instances.read().await.iter() {
-            let mut instance = entry.instance.lock().await;
-            contexts.push(KernelContext {
-                info: instance.info().await.unwrap_or_default(),
-                packages: instance.packages().await.unwrap_or_default(),
-                variables: instance.list().await.unwrap_or_default(),
-            })
-        }
-        contexts
     }
 
     /// Create a kernel instance

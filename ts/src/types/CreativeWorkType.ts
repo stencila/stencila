@@ -3,7 +3,6 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Article } from "./Article.js";
-import { type Assistant } from "./Assistant.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Claim } from "./Claim.js";
 import { type Collection } from "./Collection.js";
@@ -13,6 +12,7 @@ import { type Figure } from "./Figure.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type Periodical } from "./Periodical.js";
+import { type Prompt } from "./Prompt.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Review } from "./Review.js";
@@ -26,7 +26,6 @@ import { type VideoObject } from "./VideoObject.js";
  */
 export type CreativeWorkType =
   Article |
-  Assistant |
   AudioObject |
   Claim |
   Collection |
@@ -36,6 +35,7 @@ export type CreativeWorkType =
   ImageObject |
   MediaObject |
   Periodical |
+  Prompt |
   PublicationIssue |
   PublicationVolume |
   Review |
@@ -50,7 +50,6 @@ export type CreativeWorkType =
 export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
   switch(other.type) {
     case "Article":
-    case "Assistant":
     case "AudioObject":
     case "Claim":
     case "Collection":
@@ -60,6 +59,7 @@ export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
     case "ImageObject":
     case "MediaObject":
     case "Periodical":
+    case "Prompt":
     case "PublicationIssue":
     case "PublicationVolume":
     case "Review":

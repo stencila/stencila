@@ -34,17 +34,17 @@ use super::text::Text;
 use super::thing_type::ThingType;
 use super::timestamp::Timestamp;
 
-/// An assistant for creating and editing document content.
+/// A prompt for creating or editing document content.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Assistant")]
+#[display(fmt = "Prompt")]
 #[patch(authors_on = "options")]
-pub struct Assistant {
+pub struct Prompt {
     /// The type of this item.
-    pub r#type: MustBe!("Assistant"),
+    pub r#type: MustBe!("Prompt"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -69,22 +69,22 @@ pub struct Assistant {
     #[patch(format = "md", format = "myst")]
     pub execution_mode: Option<ExecutionMode>,
 
-    /// The types of instructions that the assistant supports
+    /// The types of instructions that the prompt supports
     #[serde(alias = "instruction-types", alias = "instruction_types", alias = "instructionType", alias = "instruction-type", alias = "instruction_type")]
     #[serde(deserialize_with = "one_or_many")]
     pub instruction_types: Vec<InstructionType>,
 
-    /// Regular expressions used to match the assistant with a user instruction
+    /// Regular expressions used to match the prompt with a user instruction
     #[serde(alias = "instruction-patterns", alias = "instruction_patterns", alias = "instructionPattern", alias = "instruction-pattern", alias = "instruction_pattern")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub instruction_patterns: Option<Vec<String>>,
 
-    /// The types of nodes that the assistant supports
+    /// The types of nodes that the prompt supports
     #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
     #[serde(deserialize_with = "one_or_many")]
     pub node_types: Vec<String>,
 
-    /// The content of the assistant's prompt template.
+    /// The content of the prompt.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
@@ -94,7 +94,7 @@ pub struct Assistant {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    pub options: Box<AssistantOptions>,
+    pub options: Box<PromptOptions>,
 
     /// A unique identifier for a node within a document
     
@@ -106,7 +106,7 @@ pub struct Assistant {
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct AssistantOptions {
+pub struct PromptOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
@@ -362,11 +362,11 @@ pub struct AssistantOptions {
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 }
 
-impl Assistant {
-    const NICK: [u8; 3] = [97, 115, 115];
+impl Prompt {
+    const NICK: [u8; 3] = [112, 114, 111];
     
     pub fn node_type(&self) -> NodeType {
-        NodeType::Assistant
+        NodeType::Prompt
     }
 
     pub fn node_id(&self) -> NodeId {

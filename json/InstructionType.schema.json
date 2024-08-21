@@ -120,14 +120,27 @@
   "anyOf": [
     {
       "@id": "stencila:New",
+      "description": "Create new document content, usually a single document node (e.g. `Paragraph` or `Table`),\nignoring any existing content nested within the instruction. The instruction message will\nnormally include the type of content to produce (e.g. \"paragraph\", \"table\", \"list\").\n",
       "const": "New"
     },
     {
       "@id": "stencila:Edit",
+      "description": "Edit existing document content. Expected to return the same node type as existing content.\n",
       "const": "Edit"
     },
     {
+      "@id": "stencila:Transform",
+      "description": "Transform document content from one node type to another.\n",
+      "const": "Transform"
+    },
+    {
+      "@id": "stencila:Describe",
+      "description": "Describe other document content. The instruction message should indicate the\ntarget for the description e.g. \"describe figure 1\", \"describe next\", \"describe prev output\"\n",
+      "const": "Describe"
+    },
+    {
       "@id": "stencila:Update",
+      "description": "Update a description of other document content. Is to `Describe` as `Edit` is to `New`.\n",
       "const": "Update"
     }
   ],

@@ -7,7 +7,6 @@ import { type Array } from "./Array.js";
 import { type ArrayHint } from "./ArrayHint.js";
 import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
-import { type Assistant } from "./Assistant.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRole } from "./AuthorRole.js";
 import { type BooleanValidator } from "./BooleanValidator.js";
@@ -92,6 +91,7 @@ import { type Periodical } from "./Periodical.js";
 import { type Person } from "./Person.js";
 import { type PostalAddress } from "./PostalAddress.js";
 import { type Product } from "./Product.js";
+import { type Prompt } from "./Prompt.js";
 import { type PropertyValue } from "./PropertyValue.js";
 import { type ProvenanceCount } from "./ProvenanceCount.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
@@ -149,7 +149,6 @@ export type Node =
   ArrayHint |
   ArrayValidator |
   Article |
-  Assistant |
   AudioObject |
   AuthorRole |
   BooleanValidator |
@@ -231,6 +230,7 @@ export type Node =
   Person |
   PostalAddress |
   Product |
+  Prompt |
   PropertyValue |
   ProvenanceCount |
   PublicationIssue |
@@ -284,7 +284,6 @@ export function node(other: Node): Node {
     case "ArrayHint":
     case "ArrayValidator":
     case "Article":
-    case "Assistant":
     case "AudioObject":
     case "AuthorRole":
     case "BooleanValidator":
@@ -366,6 +365,7 @@ export function node(other: Node): Node {
     case "Person":
     case "PostalAddress":
     case "Product":
+    case "Prompt":
     case "PropertyValue":
     case "ProvenanceCount":
     case "PublicationIssue":

@@ -8,10 +8,19 @@ use crate::prelude::*;
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum InstructionType {
+    /// Create new document content, usually a single document node (e.g. `Paragraph` or `Table`), ignoring any existing content nested within the instruction. The instruction message will normally include the type of content to produce (e.g. "paragraph", "table", "list"). 
     #[default]
     New,
 
+    /// Edit existing document content. Expected to return the same node type as existing content. 
     Edit,
 
+    /// Transform document content from one node type to another. 
+    Transform,
+
+    /// Describe other document content. The instruction message should indicate the target for the description e.g. "describe figure 1", "describe next", "describe prev output" 
+    Describe,
+
+    /// Update a description of other document content. Is to `Describe` as `Edit` is to `New`. 
     Update,
 }

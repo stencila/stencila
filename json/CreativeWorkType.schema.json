@@ -7,9 +7,6 @@
       "$ref": "Article.schema.json"
     },
     {
-      "$ref": "Assistant.schema.json"
-    },
-    {
       "$ref": "AudioObject.schema.json"
     },
     {
@@ -35,6 +32,9 @@
     },
     {
       "$ref": "Periodical.schema.json"
+    },
+    {
+      "$ref": "Prompt.schema.json"
     },
     {
       "$ref": "PublicationIssue.schema.json"

@@ -7,7 +7,6 @@
 The `CreativeWorkType` type has these members:
 
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
-- [`Assistant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/assistant.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
 - [`Collection`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)
@@ -17,6 +16,7 @@ The `CreativeWorkType` type has these members:
 - [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
 - [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
 - [`Periodical`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)
+- [`Prompt`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)
 - [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)
 - [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-volume.md)
 - [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)

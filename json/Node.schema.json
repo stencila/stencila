@@ -39,9 +39,6 @@
       "$ref": "Article.schema.json"
     },
     {
-      "$ref": "Assistant.schema.json"
-    },
-    {
       "$ref": "AudioObject.schema.json"
     },
     {
@@ -283,6 +280,9 @@
     },
     {
       "$ref": "Product.schema.json"
+    },
+    {
+      "$ref": "Prompt.schema.json"
     },
     {
       "$ref": "PropertyValue.schema.json"

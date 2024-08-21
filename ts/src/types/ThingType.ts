@@ -1,7 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 import { type AdmonitionType } from "./AdmonitionType.js";
 import { type Article } from "./Article.js";
-import { type Assistant } from "./Assistant.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRoleName } from "./AuthorRoleName.js";
 import { type Brand } from "./Brand.js";
@@ -39,6 +38,7 @@ import { type Periodical } from "./Periodical.js";
 import { type Person } from "./Person.js";
 import { type PostalAddress } from "./PostalAddress.js";
 import { type Product } from "./Product.js";
+import { type Prompt } from "./Prompt.js";
 import { type PropertyValue } from "./PropertyValue.js";
 import { type ProvenanceCategory } from "./ProvenanceCategory.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
@@ -60,7 +60,6 @@ import { type VideoObject } from "./VideoObject.js";
 export type ThingType =
   AdmonitionType |
   Article |
-  Assistant |
   AudioObject |
   AuthorRoleName |
   Brand |
@@ -98,6 +97,7 @@ export type ThingType =
   Person |
   PostalAddress |
   Product |
+  Prompt |
   PropertyValue |
   ProvenanceCategory |
   PublicationIssue |

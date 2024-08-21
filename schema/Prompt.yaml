@@ -1,8 +1,8 @@
-title: Assistant
-"@id": stencila:Assistant
+title: Prompt
+"@id": stencila:Prompt
 extends: [CreativeWork, Executable]
 category: works
-description: An assistant for creating and editing document content.
+description: A prompt for creating or editing document content.
 required:
   - name
   - version
@@ -15,25 +15,25 @@ core:
 properties:
   instructionTypes:
     "@id": stencila:instructionTypes
-    description: The types of instructions that the assistant supports
+    description: The types of instructions that the prompt supports
     type: array
     items:
       $ref: InstructionType
   instructionPatterns:
     "@id": stencila:instructionPatterns
-    description: Regular expressions used to match the assistant with a user instruction
+    description: Regular expressions used to match the prompt with a user instruction
     type: array
     items:
       type: string
   nodeTypes:
     "@id": stencila:nodeTypes
-    description: The types of nodes that the assistant supports
+    description: The types of nodes that the prompt supports
     type: array
     items:
       type: string
   content:
     "@id": stencila:content
-    description: The content of the assistant's prompt template.
+    description: The content of the prompt.
     type: array
     items:
       $ref: Block

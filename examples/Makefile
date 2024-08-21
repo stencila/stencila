@@ -2,13 +2,13 @@ SHELL := /bin/bash
 
 all: codecs kernels
 
-# Execute a particular assistant example and save as JSON
-assistants/%.json: assistants/%.md
+# Execute a particular prompt example and save as JSON
+prompts/%.json: prompts/%.md
 	cargo run -p cli execute $< $@ --skip-code
 
-# Execute all assistant examples
-assistants: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard assistants/**/*.md)))
-.PHONY: assistants
+# Execute all prompt examples
+prompts: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard prompts/**/*.md)))
+.PHONY: prompts
 
 # Run the codecs `examples` test with `UPDATE_EXAMPLES` env var to
 # overwrite existing generated files
@@ -25,4 +25,4 @@ kernels: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard kernels/**/*.
 
 # Clean up generated but not commited files
 clean:
-	rm -fv assistants/**/*.json kernels/**/*.json
+	rm -fv prompts/**/*.json kernels/**/*.json

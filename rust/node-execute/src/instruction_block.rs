@@ -3,12 +3,13 @@ use std::path::Path;
 use codec_cbor::r#trait::CborCodec;
 use codec_markdown_trait::to_markdown;
 use common::{eyre::Result, futures::future, itertools::Itertools};
+use prompts::Context;
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, CompilationDigest,
-    InstructionBlock, InstructionModel, InstructionType, SoftwareApplication,
+    InstructionBlock, InstructionMessage, InstructionModel, InstructionType, SoftwareApplication,
 };
 
-use crate::{assistant::execute_assistant, interrupt_impl, pending_impl, prelude::*};
+use crate::{interrupt_impl, pending_impl, prelude::*, prompt::execute_prompt};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -150,12 +151,13 @@ impl Executable for InstructionBlock {
 
         let started = Timestamp::now();
 
-        // Find an assistant and generate a system prompt
+        // Find an prompt and generate a system prompt
         let (prompter, system_prompt) = match generate_system_prompt(
-            &self.assignee,
             &self.instruction_type,
+            &self.message,
+            &self.assignee,
             &self.content,
-            &executor.home,
+            executor.context().await,
         )
         .await
         {
@@ -183,7 +185,7 @@ impl Executable for InstructionBlock {
             }
         };
 
-        tracing::debug!("Using {prompter:?} prompt:\n\n{system_prompt}");
+        tracing::debug!("Using prompt:\n\n{system_prompt}");
 
         // Get the authors of the instruction
         let mut instructors = Vec::new();
@@ -200,12 +202,13 @@ impl Executable for InstructionBlock {
         let mut futures = Vec::new();
         for _ in 0..replicates {
             // TODO: rather than repeating all this prep work to create a model task
-            // within `assistants::execute_instruction_block` it could be done
+            // within `prompts::execute_instruction_block` it could be done
             // once, and then clones and moved to each instruction.
             let instructors = instructors.clone();
             let prompter = prompter.clone();
             let system_prompt = system_prompt.to_string();
             let mut instruction = self.clone();
+            let dry_run = executor.options.dry_run;
             if let Some(id_pattern) = model_id_pattern.clone() {
                 // Apply the model id for revisions
                 let id_pattern = Some(id_pattern);
@@ -221,11 +224,12 @@ impl Executable for InstructionBlock {
                 }))
             };
             futures.push(async move {
-                assistants::execute_instruction_block(
+                prompts::execute_instruction_block(
                     instructors,
                     prompter,
                     &system_prompt,
                     &instruction,
+                    dry_run,
                 )
                 .await
             })
@@ -283,13 +287,14 @@ impl Executable for InstructionBlock {
 }
 
 /**
- * Find an assistant for the instruction and render a prompt from it
+ * Find an prompt for the instruction and render a prompt from it
  */
 async fn generate_system_prompt(
-    assignee: &Option<String>,
     instruction_type: &InstructionType,
+    message: &Option<InstructionMessage>,
+    assignee: &Option<String>,
     content: &Option<Vec<Block>>,
-    home: &Path,
+    context: &Context,
 ) -> Result<(AuthorRole, String)> {
     let node_types = content
         .iter()
@@ -297,15 +302,15 @@ async fn generate_system_prompt(
         .map(|block| block.node_type().to_string())
         .collect_vec();
 
-    let mut assistant = assistants::find(assignee, instruction_type, &Some(node_types)).await?;
+    let mut prompt = prompts::find(instruction_type, message, assignee, &Some(node_types)).await?;
     let prompter = AuthorRole {
         last_modified: Some(Timestamp::now()),
-        ..assistant.clone().into()
+        ..prompt.clone().into()
     };
 
     let content = content.as_ref().map(to_markdown);
-    execute_assistant(&mut assistant, instruction_type, content, home).await?;
-    let prompt = assistants::render(assistant).await.unwrap();
+    execute_prompt(&mut prompt, instruction_type, content, context).await?;
+    let prompt = prompts::render(prompt).await.unwrap();
 
     Ok((prompter, prompt))
 }

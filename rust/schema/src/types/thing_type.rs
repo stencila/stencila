@@ -4,7 +4,6 @@ use crate::prelude::*;
 
 use super::admonition_type::AdmonitionType;
 use super::article::Article;
-use super::assistant::Assistant;
 use super::audio_object::AudioObject;
 use super::author_role_name::AuthorRoleName;
 use super::brand::Brand;
@@ -42,6 +41,7 @@ use super::periodical::Periodical;
 use super::person::Person;
 use super::postal_address::PostalAddress;
 use super::product::Product;
+use super::prompt::Prompt;
 use super::property_value::PropertyValue;
 use super::provenance_category::ProvenanceCategory;
 use super::publication_issue::PublicationIssue;
@@ -65,8 +65,6 @@ pub enum ThingType {
     AdmonitionType(AdmonitionType),
 
     Article(Article),
-
-    Assistant(Assistant),
 
     AudioObject(AudioObject),
 
@@ -141,6 +139,8 @@ pub enum ThingType {
     PostalAddress(PostalAddress),
 
     Product(Product),
+
+    Prompt(Prompt),
 
     PropertyValue(PropertyValue),
 

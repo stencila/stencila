@@ -1,5 +1,5 @@
 [package]
-name = "assistants"
+name = "prompts"
 version = "0.0.0"
 edition = "2021"
 
@@ -15,4 +15,5 @@ images = { path = "../images" }
 model = { path = "../model" }
 models = { path = "../models" }
 plugins = { path = "../plugins" }
+prompt = { path = "../prompt" }
 rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }

@@ -7,11 +7,11 @@ import { InstructionType } from "./InstructionType.js";
 import { StringOrNumber } from "./StringOrNumber.js";
 
 /**
- * An assistant for creating and editing document content.
+ * A prompt for creating or editing document content.
  */
-export class Assistant extends CreativeWork {
+export class Prompt extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'
-  type: "Assistant";
+  type: "Prompt";
 
   /**
    * A description of the item.
@@ -29,28 +29,28 @@ export class Assistant extends CreativeWork {
   version: StringOrNumber;
 
   /**
-   * The types of instructions that the assistant supports
+   * The types of instructions that the prompt supports
    */
   instructionTypes: InstructionType[];
 
   /**
-   * Regular expressions used to match the assistant with a user instruction
+   * Regular expressions used to match the prompt with a user instruction
    */
   instructionPatterns?: string[];
 
   /**
-   * The types of nodes that the assistant supports
+   * The types of nodes that the prompt supports
    */
   nodeTypes: string[];
 
   /**
-   * The content of the assistant's prompt template.
+   * The content of the prompt.
    */
   content: Block[];
 
-  constructor(description: Cord, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Assistant>) {
+  constructor(description: Cord, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>) {
     super();
-    this.type = "Assistant";
+    this.type = "Prompt";
     if (options) Object.assign(this, options);
     this.description = description;
     this.name = name;
@@ -62,8 +62,8 @@ export class Assistant extends CreativeWork {
 }
 
 /**
-* Create a new `Assistant`
+* Create a new `Prompt`
 */
-export function assistant(description: Cord, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Assistant>): Assistant {
-  return new Assistant(description, name, version, instructionTypes, nodeTypes, content, options);
+export function prompt(description: Cord, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>): Prompt {
+  return new Prompt(description, name, version, instructionTypes, nodeTypes, content, options);
 }

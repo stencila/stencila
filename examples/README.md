@@ -2,9 +2,9 @@
 
 **Mainly for testing.**
 
-## `assistants`
+## `prompts`
 
-The [`assistants`](assistants) folder is for testing Stencila's specialized AI assistants.
+The [`prompts`](prompts) folder is for testing Stencila's specialized AI prompts.
 
 ## `kernels`
 

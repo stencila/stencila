@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Assistant",
-  "name": "Assistant",
+  "@id": "https://stencila.org/Prompt",
+  "name": "Prompt",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Assistant",
+      "@id": "stencila:Prompt",
       "@type": "rdfs:Class",
-      "rdfs:label": "Assistant",
-      "rdfs:comment": "An assistant for creating and editing document content.",
+      "rdfs:label": "Prompt",
+      "rdfs:comment": "A prompt for creating or editing document content.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }
@@ -748,9 +748,9 @@
       "@id": "stencila:instructionTypes",
       "@type": "rdfs:Property",
       "rdfs:label": "instructionTypes",
-      "rdfs:comment": "The types of instructions that the assistant supports",
+      "rdfs:comment": "The types of instructions that the prompt supports",
       "schema:domainIncludes": {
-        "@id": "stencila:Assistant"
+        "@id": "stencila:Prompt"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:InstructionType"
@@ -760,9 +760,9 @@
       "@id": "stencila:instructionPatterns",
       "@type": "rdfs:Property",
       "rdfs:label": "instructionPatterns",
-      "rdfs:comment": "Regular expressions used to match the assistant with a user instruction",
+      "rdfs:comment": "Regular expressions used to match the prompt with a user instruction",
       "schema:domainIncludes": {
-        "@id": "stencila:Assistant"
+        "@id": "stencila:Prompt"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
@@ -772,9 +772,9 @@
       "@id": "stencila:nodeTypes",
       "@type": "rdfs:Property",
       "rdfs:label": "nodeTypes",
-      "rdfs:comment": "The types of nodes that the assistant supports",
+      "rdfs:comment": "The types of nodes that the prompt supports",
       "schema:domainIncludes": {
-        "@id": "stencila:Assistant"
+        "@id": "stencila:Prompt"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
@@ -784,7 +784,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content of the assistant's prompt template.",
+      "rdfs:comment": "The content of the prompt.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -800,9 +800,6 @@
         },
         {
           "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:Assistant"
         },
         {
           "@id": "stencila:Cite"
@@ -842,6 +839,9 @@
         },
         {
           "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
         },
         {
           "@id": "stencila:QuoteBlock"

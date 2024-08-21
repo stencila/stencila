@@ -1,25 +1,25 @@
-# Stencila Assistants
+# Stencila Prompts
 
-**AI assistants specialized for scientific research, coding and writing**
+**Prompts for generative AI specialized for scientific research, coding and writing**
 
 ## 🤖 Introduction
 
-Custom prompts are an effective way to improve the performance of large language models and other generative AI on specific tasks in specific contexts. This module contains custom prompts which are, or can be, used by Stencila when creating tasks for AI assistants.
+Custom prompts are an effective way to improve the performance of large language models and other generative AI on specific tasks in specific contexts.
 
-There are two types of assistants in this module:
+There are two types of prompts in this module:
 
-- [`builtin`](builtin): assistants that are embedded into the `stencila` CLI binary to be used by builtin assistants
+- [`builtin`](builtin): prompts that are embedded into the `stencila` CLI binary to be used by builtin prompts
 
-- [`contrib`](contrib): contributed assistants that are not builtin but which can be fetched from this repo (🦄 this functionality does not yet exist!)
+- [`contrib`](contrib): contributed prompts that are not builtin but which can be fetched from this repo (🦄 this functionality does not yet exist!)
 
 ## ✏️ Format
 
-Assistants are specified in Markdown files with a YAML header (surrounded by three dashes i.e. `---`), the system prompt, a thematic break (another set of three dashes), and the user prompt. i.e.
+Prompts are specified in Markdown files with a YAML header (surrounded by three dashes i.e. `---`), the system prompt, a thematic break (another set of three dashes), and the user prompt. i.e.
 
 ```markdown
 ---
-name: example/assistant
-description: An example assistant
+name: example/prompt
+description: An example prompt
 
 models:
   - openai/gpt-3.5-turbo-1106
@@ -39,15 +39,15 @@ The user prompt
 
 The following fields are required in the header:
 
-- `name`: A unique name for the assistant
-- `description`: A description of what the assistant does and how it does it
-- `models`: A list of general assistants that will be delegated to; delegation will be attempted in the order specified
+- `name`: A unique name for the prompt
+- `description`: A description of what the prompt does and how it does it
+- `models`: A list of general prompts that will be delegated to; delegation will be attempted in the order specified
 
 #### Instruction matching
 
-Several header fields affect the which instructions an assistant will execute on:
+Several header fields affect the which instructions an prompt will execute on:
 
-- `preference-rank`: The relative rank of the preference for the assistant (0-256). Assistants with a higher rank will be checked for an instruction match before those with a lower rank.
+- `preference-rank`: The relative rank of the preference for the prompt (0-256). Prompts with a higher rank will be checked for an instruction match before those with a lower rank.
 
 - `instruction-type`: The type of instruction and whether or not it has `content`
 
@@ -92,7 +92,7 @@ If any of the assertions above fail a retry will be attempted. The maximum numbe
 
 #### LLM parameters
 
-These parameters can be specified in the assistant header and will be passed on to the LLM via it's API:
+These parameters can be specified in the prompt header and will be passed on to the LLM via it's API:
 
 - `mirostat`: Enable Mirostat sampling for controlling perplexity
 - `mirostat-eta`: Influences how quickly the algorithm responds to feedback from the generated text
@@ -116,7 +116,7 @@ These parameters can be specified in the assistant header and will be passed on 
 
 ### Prompts
 
-The user prompt in the assistant Markdown file is a Jinja template so you can use [this syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html) to alter the prompt based on the context of the instruction. e.g.
+The user prompt in the prompt Markdown file is a Jinja template so you can use [this syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html) to alter the prompt based on the context of the instruction. e.g.
 
 ```markdown
 You will be provided with several fragments of text, each within an XML <fragment> tag. Summarize the fragments as accurately as possible in the style provided in the XML <style> tag. Use no more than 4 sentences.
@@ -132,15 +132,15 @@ You will be provided with several fragments of text, each within an XML <fragmen
 
 ## 🛠️ Development
 
-There are some tools in Stencila for helping with [prompt engineering](https://en.wikipedia.org/wiki/Prompt_engineering): improving the performance of prompts used by assistants for a specific task.
+There are some tools in Stencila for helping with [prompt engineering](https://en.wikipedia.org/wiki/Prompt_engineering): improving the performance of prompts used by prompts for a specific task.
 
 ### Listing
 
-The `stencila assistants` command (⚠️ this is planned to be renamed to `stencila ai assistants` soon) provides a list of the available assistants. If the relevant API key is not set in an environment variable, the corresponding assistants will not appear in this list.
+The `stencila prompts` command (⚠️ this is planned to be renamed to `stencila ai prompts` soon) provides a list of the available prompts. If the relevant API key is not set in an environment variable, the corresponding prompts will not appear in this list.
 
 ### Testing
 
-The `stencila test` command (⚠️ will be renamed to `stencila ai test`) can be used to run assistants on the test instructions in the [`tests`](tests) folder.
+The `stencila test` command (⚠️ will be renamed to `stencila ai test`) can be used to run prompts on the test instructions in the [`tests`](tests) folder.
 
 Each test folder has a `document.md`, an example document written in Markdown, and one or more instructions written in YAML files. You can run each test instruction individually, e.g.
 
@@ -153,25 +153,25 @@ The `test` command will create a Markdown file with the same name as the instruc
 
 ### REPL
 
-The `stencila repl` command (⚠️ will be renamed to `stencila ai repl`) provides a read-evaluate-print-loop for engineering assistants. When the CLI is compiled in debug mode, prompts will be reloaded from disk each time they are used.
+The `stencila repl` command (⚠️ will be renamed to `stencila ai repl`) provides a read-evaluate-print-loop for engineering prompts. When the CLI is compiled in debug mode, prompts will be reloaded from disk each time they are used.
 
 This means that you can alter the prompt during a REPL session and check how it affects performance. The REPL has up and down arrow history support so you can easily repeat the same instructions after modifying the prompt.
 
 #### Options
 
-Options such as the assistant can be set at the start of a session e.g.
+Options such as the prompt can be set at the start of a session e.g.
 
 ```console
-cargo run -p cli repl --assistant stencila/insert-blocks
+cargo run -p cli repl --prompt stencila/insert-blocks
 ```
 
 or during the session:
 
 ```
->> --assistant stencila/modify-inlines
+>> --prompt stencila/modify-inlines
 Options were updated
 >> ?options
-{"assistant":"stencila/modify-inlines"}
+{"prompt":"stencila/modify-inlines"}
 ```
 
 For a full list of options use `--help`. You can set any of the options this way. For example, setting the temperature of the model:
@@ -180,12 +180,12 @@ For a full list of options use `--help`. You can set any of the options this way
 >> --temperature 0.2
 Options were updated
 >> ?options
-{"assistant":"stencila/modify-inlines","temperature":0.2}
+{"prompt":"stencila/modify-inlines","temperature":0.2}
 ```
 
 #### Recording
 
-At session start up, you can specify the `--record` flag to make the REPL ask you whether you want to store the trial (the assistant, prompt, instruction, response, options used etc) in a local SQLite database:
+At session start up, you can specify the `--record` flag to make the REPL ask you whether you want to store the trial (the prompt, prompt, instruction, response, options used etc) in a local SQLite database:
 
 ```sh
 $ touch testing.sqlite3 # In the future this should not be necessary

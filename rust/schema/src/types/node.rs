@@ -7,7 +7,6 @@ use super::array::Array;
 use super::array_hint::ArrayHint;
 use super::array_validator::ArrayValidator;
 use super::article::Article;
-use super::assistant::Assistant;
 use super::audio_object::AudioObject;
 use super::author_role::AuthorRole;
 use super::boolean::Boolean;
@@ -95,6 +94,7 @@ use super::periodical::Periodical;
 use super::person::Person;
 use super::postal_address::PostalAddress;
 use super::product::Product;
+use super::prompt::Prompt;
 use super::property_value::PropertyValue;
 use super::provenance_count::ProvenanceCount;
 use super::publication_issue::PublicationIssue;
@@ -165,8 +165,6 @@ pub enum Node {
     ArrayValidator(ArrayValidator),
 
     Article(Article),
-
-    Assistant(Assistant),
 
     AudioObject(AudioObject),
 
@@ -329,6 +327,8 @@ pub enum Node {
     PostalAddress(PostalAddress),
 
     Product(Product),
+
+    Prompt(Prompt),
 
     PropertyValue(PropertyValue),
 

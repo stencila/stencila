@@ -5,7 +5,7 @@ use std::{
     sync::Arc,
 };
 
-use codec_text_trait::TextCodec;
+use prompts::Context;
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -13,7 +13,6 @@ use common::{
     tokio::sync::{mpsc::UnboundedSender, RwLock, RwLockWriteGuard},
     tracing,
 };
-use context::Context;
 use kernels::Kernels;
 use schema::{
     Block, CompilationDigest, ExecutionMode, Inline, Node, NodeId, NodeProperty, Patch, PatchOp,
@@ -25,7 +24,7 @@ type NodeIds = Vec<NodeId>;
 mod prelude;
 
 mod article;
-mod assistant;
+mod prompt;
 mod call_block;
 mod code_chunk;
 mod code_expression;
@@ -304,10 +303,10 @@ impl Executor {
     ///
     /// Used by [`Executable`] nodes to pass to assistants to be used
     /// in their system prompts.
-    pub async fn context(&mut self) -> Context {
-        let kernels = self.kernels().await.kernel_contexts().await;
-        self.context.kernels = kernels;
-        self.context.clone()
+    pub async fn context(&mut self) -> &Context {
+        //let kernels = self.kernels().await.kernel_contexts().await;
+        //self.context.kernels.from_kernels(kernels);
+        &self.context
     }
 
     /// Should the executor execute a node
@@ -432,15 +431,7 @@ impl VisitorAsync for Executor {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
         // Collect the node into the context if appropriate
         if let Node::Article(article) = node {
-            if let Some(title) = &article.title {
-                self.context.set_title(&title.to_text().0);
-            }
-            if let Some(genre) = &article.genre {
-                self.context.set_genre(&genre.to_text().0);
-            }
-            if let Some(keywords) = &article.keywords {
-                self.context.set_keywords(keywords);
-            }
+            //self.context.document.extract_metadata(article);
         }
 
         use Node::*;
@@ -457,11 +448,11 @@ impl VisitorAsync for Executor {
 
         // If the block is of a type that is collected in the execution context then do that.
         match block {
-            CodeChunk(node) => self.context.push_code_chunk(node),
-            InstructionBlock(node) => self.context.push_instruction_block(node),
-            MathBlock(node) => self.context.push_math_block(node),
-            Heading(node) => self.context.push_heading(node),
-            Paragraph(node) => self.context.push_paragraph(node),
+            //CodeChunk(node) => self.context.push_code_chunk(node),
+            //InstructionBlock(node) => self.context.push_instruction_block(node),
+            //MathBlock(node) => self.context.push_math_block(node),
+            //Heading(node) => self.context.document.push_heading(node),
+            //Paragraph(node) => self.context.document.push_paragraph(node),
             _ => {}
         }
 
@@ -487,10 +478,10 @@ impl VisitorAsync for Executor {
 
         // If the inline is of a type that is collected in the execution context then do that.
         match inline {
-            CodeExpression(node) => self.context.push_code_expression(node),
-            InstructionInline(node) => self.context.push_instruction_inline(node),
-            MathInline(node) => self.context.push_math_inline(node),
-            Text(node) => self.context.push_text(node),
+            //CodeExpression(node) => self.context.push_code_expression(node),
+            //InstructionInline(node) => self.context.push_instruction_inline(node),
+            //MathInline(node) => self.context.push_math_inline(node),
+            //Text(node) => self.context.push_text(node),
             _ => {}
         }
 

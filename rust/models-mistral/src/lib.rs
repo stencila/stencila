@@ -104,7 +104,7 @@ impl Model for MistralModel {
                         MessagePart::Text(text) => Some(text.to_value_string()),
                         _ => {
                             tracing::warn!(
-                                "Message part of type `{part}` is ignored by assistant `{}`",
+                                "Message part of type `{part}` is ignored by model `{}`",
                                 self.id()
                             );
                             None
@@ -221,7 +221,7 @@ enum ChatRole {
     Assistant,
 }
 
-/// Get a list of available Mistral assistants
+/// Get a list of available Mistral models
 ///
 /// Returns an empty list if the `MISTRAL_API_KEY` env var is not set.
 ///

@@ -43,8 +43,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ArrayValidator.prototype);
     case "Article":
       return Object.setPrototypeOf(value, types.Article.prototype);
-    case "Assistant":
-      return Object.setPrototypeOf(value, types.Assistant.prototype);
     case "AudioObject":
       return Object.setPrototypeOf(value, types.AudioObject.prototype);
     case "AuthorRole":
@@ -221,6 +219,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.PostalAddress.prototype);
     case "Product":
       return Object.setPrototypeOf(value, types.Product.prototype);
+    case "Prompt":
+      return Object.setPrototypeOf(value, types.Prompt.prototype);
     case "PropertyValue":
       return Object.setPrototypeOf(value, types.PropertyValue.prototype);
     case "ProvenanceCount":

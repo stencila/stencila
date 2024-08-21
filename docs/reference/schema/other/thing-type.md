@@ -8,7 +8,6 @@ The `ThingType` type has these members:
 
 - [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition-type.md)
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
-- [`Assistant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/assistant.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`AuthorRoleName`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role-name.md)
 - [`Brand`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)
@@ -46,6 +45,7 @@ The `ThingType` type has these members:
 - [`Person`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)
 - [`PostalAddress`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal-address.md)
 - [`Product`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)
+- [`Prompt`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)
 - [`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md)
 - [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-category.md)
 - [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)

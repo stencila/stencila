@@ -10,7 +10,7 @@ async fn main() -> Result<()> {
     errors::setup(&cli.error_details, cli.error_link)?;
     logging::setup(cli.log_level, &cli.log_filter, cli.log_format)?;
 
-    assistants::update_builtin();
+    prompts::update_builtin();
 
     let skip_upgrade = matches!(cli.command, Command::Lsp);
     if !skip_upgrade {

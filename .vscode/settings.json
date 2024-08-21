@@ -18,9 +18,6 @@
         "json/meta.schema.json": "schema/*.yaml",
         "https://json.schemastore.org/tmlanguage.json": "vscode/syntaxes/smd.tmGrammar.yaml"
     },
-    "files.associations": {
-        "assistants/builtin/*.md": "jinja-md"
-    },
     "cSpell.words": [
         "arethetypeswrong",
         "asciimath",

@@ -1,0 +1,7 @@
+::: if document.paragraphs.previous
+
+The previous paragraph in the document is:
+
+{{ document.paragraphs.previous.content }}
+
+:::

@@ -14,7 +14,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Assistant, Block, Inline, Node, NodeId, NodeType, Null, VisitorMut, WalkControl,
+        Article, Prompt, Block, Inline, Node, NodeId, NodeType, Null, VisitorMut, WalkControl,
     },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
@@ -68,8 +68,8 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
     let frontmatter = context.frontmatter();
     let mut node = if let Some(Node::Article(rest)) = frontmatter {
         Node::Article(Article { content, ..rest })
-    } else if let Some(Node::Assistant(rest)) = frontmatter {
-        Node::Assistant(Assistant { content, ..rest })
+    } else if let Some(Node::Prompt(rest)) = frontmatter {
+        Node::Prompt(Prompt { content, ..rest })
     } else {
         Node::Article(Article::new(content))
     };
@@ -276,7 +276,7 @@ impl Context {
                 if let Some(typ) = value.get("type").and_then(|typ| typ.as_str()) {
                     // Ensure that `content` is present for types that require it, so that
                     // `serde_json::from_value` succeeds
-                    if matches!(typ, "Article" | "Assistant") && value.get("content").is_none() {
+                    if matches!(typ, "Article" | "Prompt") && value.get("content").is_none() {
                         value.insert("content".to_string(), serde_json::Value::Array(vec![]));
                     }
                 } else {

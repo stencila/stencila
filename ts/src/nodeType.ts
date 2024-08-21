@@ -13,7 +13,6 @@ export type NodeType =
   | "ArrayHint"
   | "ArrayValidator"
   | "Article"
-  | "Assistant"
   | "AudioObject"
   | "AuthorRole"
   | "BooleanValidator"
@@ -95,6 +94,7 @@ export type NodeType =
   | "Person"
   | "PostalAddress"
   | "Product"
+  | "Prompt"
   | "PropertyValue"
   | "ProvenanceCount"
   | "PublicationIssue"
@@ -149,7 +149,6 @@ export const NodeTypeList = [
   "ArrayHint",
   "ArrayValidator",
   "Article",
-  "Assistant",
   "AudioObject",
   "AuthorRole",
   "BooleanValidator",
@@ -231,6 +230,7 @@ export const NodeTypeList = [
   "Person",
   "PostalAddress",
   "Product",
+  "Prompt",
   "PropertyValue",
   "ProvenanceCount",
   "PublicationIssue",
