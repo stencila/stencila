@@ -1,6 +1,4 @@
-use rquickjs::class::Trace;
-
-use kernel::{common::eyre::Result, KernelInstance};
+use crate::prelude::*;
 
 mod package;
 mod variable;
@@ -108,7 +106,7 @@ impl Kernel {
         }
     }
 
-    /// Create a new context [`Kernel`] form a [`KernelInstance`]
+    /// Create a new context [`Kernel`] from a [`KernelInstance`]
     pub async fn from_kernel_instance(mut instance: Box<dyn KernelInstance>) -> Result<Self> {
         let app = instance.info().await?;
         let name = app.name.clone();

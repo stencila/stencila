@@ -1,7 +1,4 @@
-use rquickjs::class::Trace;
-
-use codec_markdown_trait::to_markdown;
-use kernel::schema;
+use crate::prelude::*;
 
 /// The paragraphs in a document
 #[derive(Default, Clone, Trace)]

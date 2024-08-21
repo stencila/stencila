@@ -1,10 +1,4 @@
-use rquickjs::{class::Trace, Ctx, Error, Value};
-
-use codec_markdown_trait::to_markdown;
-use kernel::{
-    common::{eyre::Result, serde_json},
-    schema,
-};
+use crate::prelude::*;
 
 /// A node, of any type, in the current document
 ///
@@ -54,7 +48,7 @@ impl From<&schema::Node> for Node {
 impl Node {
     /// Get the JavaScript value of the node
     #[qjs(get, enumerable)]
-    fn value<'js>(&self, ctx: Ctx<'js>) -> Result<Value<'js>, Error> {
+    fn value<'js>(&self, ctx: Ctx<'js>) -> Result<Value<'js>, rquickjs::Error> {
         ctx.json_parse(self.json.clone())
     }
 }

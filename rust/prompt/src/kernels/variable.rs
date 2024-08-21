@@ -1,6 +1,4 @@
-use rquickjs::{class::Trace, Ctx, Value};
-
-use kernel::schema;
+use crate::prelude::*;
 
 /// A variable available within a kernel instance
 #[derive(Default, Clone, Trace)]

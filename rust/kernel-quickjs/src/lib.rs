@@ -9,9 +9,8 @@ use std::{
     },
 };
 
-use context::Context;
 use rquickjs::{
-    class::Trace, function::Rest, Array as JsArray, AsyncContext, AsyncRuntime, Class, Ctx, Error,
+    class::Trace, function::Rest, Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error,
     Object as JsObject, String as JsString, Value,
 };
 
@@ -38,7 +37,8 @@ use kernel::{
     Kernel, KernelForks, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
-pub mod context;
+// Re-export primarily for use by the `prompt` crate
+pub use kernel;
 
 /// A kernel for executing JavaScript using the QuickJS engine.
 #[derive(Default)]
@@ -197,7 +197,7 @@ impl KernelInstance for QuickJsKernelInstance {
         self.set_status(KernelStatus::Busy)?;
 
         let variables = self
-            .get_jscontext()?
+            .runtime_context()?
             .with(|ctx| {
                 ctx.globals()
                     .into_iter()
@@ -243,7 +243,7 @@ impl KernelInstance for QuickJsKernelInstance {
         self.set_status(KernelStatus::Busy)?;
 
         let node = self
-            .get_jscontext()?
+            .runtime_context()?
             .with(|ctx| match ctx.globals().get::<_, Value>(name) {
                 Ok(value) => {
                     if value.is_undefined() {
@@ -266,7 +266,7 @@ impl KernelInstance for QuickJsKernelInstance {
 
         self.set_status(KernelStatus::Busy)?;
 
-        self.get_jscontext()?
+        self.runtime_context()?
             .with(|ctx| -> Result<(), Error> {
                 let globals = ctx.globals();
                 let value = node_to_value(ctx, node);
@@ -282,7 +282,7 @@ impl KernelInstance for QuickJsKernelInstance {
 
         self.set_status(KernelStatus::Busy)?;
 
-        self.get_jscontext()?
+        self.runtime_context()?
             .with(|ctx| ctx.globals().remove(name))
             .await?;
 
@@ -306,7 +306,7 @@ impl KernelInstance for QuickJsKernelInstance {
         // Currently works by converting variables to/from Stencila nodes.
         // A more efficient way to do this may be possible.
         let vars = self
-            .get_jscontext()?
+            .runtime_context()?
             .with(|ctx| -> HashMap<String, Node> {
                 let globals = ctx.globals();
 
@@ -532,7 +532,7 @@ fn object_to_js_object<'js>(ctx: Ctx<'js>, object: &Object) -> Result<Value<'js>
 
 impl QuickJsKernelInstance {
     /// Create a new kernel instance
-    fn new(id: String) -> Self {
+    pub fn new(id: String) -> Self {
         let status = Arc::new(AtomicU8::new(KernelStatus::Pending.into()));
         let (status_sender, ..) = watch::channel(KernelStatus::Pending);
 
@@ -592,23 +592,10 @@ impl QuickJsKernelInstance {
     }
 
     /// Get the QuickJS runtime context for the kernel instance
-    fn get_jscontext(&mut self) -> Result<&mut AsyncContext> {
+    pub fn runtime_context(&mut self) -> Result<&mut AsyncContext> {
         self.runtime_context
             .as_mut()
             .ok_or_else(|| eyre!("Kernel not started yet"))
-    }
-
-    /// Set the Stencila prompt context for the kernel instance
-    async fn set_context(&mut self, context: Context) -> Result<()> {
-        self.get_jscontext()?
-            .with(|ctx| {
-                let Context { document, kernels } = context;
-                let document = Class::instance(ctx.clone(), document)?;
-                ctx.globals().set("document", document)?;
-                ctx.globals().set("kernels", kernels)
-            })
-            .await?;
-        Ok(())
     }
 
     /// Run code in the kernel
@@ -629,7 +616,7 @@ impl QuickJsKernelInstance {
 
         // Evaluate the code and convert any exception into a `ExecutionMessage`
         let (outputs, messages) = self
-            .get_jscontext()?
+            .runtime_context()?
             .with(|ctx| {
                 let console = Console::new();
                 ctx.globals().set("console", console).ok();

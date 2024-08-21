@@ -1,6 +1,6 @@
-use rquickjs::class::Trace;
+use crate::prelude::*;
 
-use kernel::schema::{self, StringOrNumber};
+use schema::StringOrNumber;
 
 /// A package available within a kernel instance
 #[derive(Default, Clone, Trace)]

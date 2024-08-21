@@ -1,4 +1,4 @@
-use rquickjs::class::Trace;
+use crate::prelude::*;
 
 mod code_chunks;
 mod headings;

@@ -1,11 +1,8 @@
-use common_dev::pretty_assertions::assert_eq;
-use kernel::{
-    common::{eyre::Result, serde_json, tokio},
-    schema::{Node, Null},
-    KernelInstance,
-};
+use crate::{prelude::*, Context};
 
-use crate::{context::Context, QuickJsKernelInstance};
+use common_dev::pretty_assertions::assert_eq;
+use kernel_quickjs::kernel::common::tokio;
+use schema::{Node, Null};
 
 use super::{
     code_chunks::{CodeChunk, CodeChunks},
@@ -29,9 +26,7 @@ async fn metadata() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel.execute("const md = document.metadata").await?;
 
     let (output, messages) = kernel.evaluate("md.title").await?;
@@ -64,9 +59,7 @@ async fn headings() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel.execute("const hs = document.headings").await?;
 
     let (output, messages) = kernel.evaluate("hs.count").await?;
@@ -156,9 +149,7 @@ async fn paragraphs() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel.execute("const ps = document.paragraphs").await?;
 
     let (output, messages) = kernel.evaluate("ps.count").await?;
@@ -239,9 +230,7 @@ async fn code_chunks() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel.execute("const cc = document.codeChunks").await?;
 
     let (output, messages) = kernel.evaluate("cc.count").await?;

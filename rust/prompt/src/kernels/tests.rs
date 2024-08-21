@@ -1,11 +1,8 @@
-use common_dev::pretty_assertions::assert_eq;
-use kernel::{
-    common::{eyre::Result, tokio},
-    schema::Node,
-    KernelInstance,
-};
+use crate::{prelude::*, Context};
 
-use crate::{context::Context, QuickJsKernelInstance};
+use common_dev::pretty_assertions::assert_eq;
+use kernel_quickjs::kernel::common::tokio;
+use schema::Node;
 
 use super::{
     variable::{Hint, Variable},
@@ -22,9 +19,7 @@ async fn info() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel.execute("const ks = kernels").await?;
 
     let (output, messages) = kernel.evaluate("ks.count").await?;
@@ -63,9 +58,7 @@ async fn packages() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel.execute("const ps = kernels.first.packages").await?;
 
     let (output, messages) = kernel.evaluate("ps.length").await?;
@@ -110,9 +103,7 @@ async fn variable() -> Result<()> {
         ..Default::default()
     };
 
-    let mut kernel = QuickJsKernelInstance::new("test".to_string());
-    kernel.start_here().await?;
-    kernel.set_context(context).await?;
+    let mut kernel = context.into_kernel().await?;
     kernel
         .execute("const vars = kernels.first.variables")
         .await?;

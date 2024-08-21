@@ -1,7 +1,4 @@
-use rquickjs::class::Trace;
-
-use codec_markdown_trait::to_markdown;
-use kernel::schema;
+use crate::prelude::*;
 
 /// The metadata of the current document
 #[derive(Default, Clone, Trace)]
