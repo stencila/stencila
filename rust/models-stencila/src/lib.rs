@@ -87,6 +87,10 @@ impl Model for StencilaModel {
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
         let token = secrets::env_or_get(API_KEY).map_err(|_| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
+        if task.dry_run {
+            return ModelOutput::empty(self);
+        }
+
         let response = self
             .client
             .post(format!("{}/models/task", base_url()))
