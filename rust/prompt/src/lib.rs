@@ -2,7 +2,7 @@ use kernel_quickjs::{
     kernel::{common::eyre::Result, KernelInstance},
     QuickJsKernelInstance,
 };
-use rquickjs::Class;
+use rquickjs::Error;
 
 mod document;
 mod instruction;
@@ -10,19 +10,22 @@ mod kernels;
 mod prelude;
 
 /// The execution context for a prompt
+///
+/// Note that all parts of the context are optional. This is for performance
+/// reasons so that context is only generated or cloned when it is needed
 #[derive(Default)]
-pub struct Context {
+pub struct PromptContext {
     /// The current instruction
-    instruction: instruction::Instruction,
+    instruction: Option<instruction::Instruction>,
 
     /// The current document
-    document: document::Document,
+    document: Option<document::Document>,
 
     /// The execution kernels associated with the document
-    kernels: kernels::Kernels,
+    kernels: Option<kernels::Kernels>,
 }
 
-impl Context {
+impl PromptContext {
     /// Create a QuickJS kernel instance for the context
     pub async fn into_kernel(self) -> Result<Box<dyn KernelInstance>> {
         let mut instance = QuickJsKernelInstance::new("prompt".to_string());
@@ -30,16 +33,17 @@ impl Context {
         instance
             .runtime_context()?
             .with(|ctx| {
-                let Context {
-                    instruction,
-                    document,
-                    kernels,
-                } = self;
-                let document = Class::instance(ctx.clone(), document)?;
                 let globals = ctx.globals();
-                globals.set("instruction", instruction)?;
-                globals.set("document", document)?;
-                globals.set("kernels", kernels)
+                if let Some(instruction) = self.instruction {
+                    globals.set("instruction", instruction)?;
+                }
+                if let Some(document) = self.document {
+                    globals.set("document", document)?;
+                }
+                if let Some(kernels) = self.kernels {
+                    globals.set("kernels", kernels)?;
+                }
+                Ok::<(), Error>(())
             })
             .await?;
 

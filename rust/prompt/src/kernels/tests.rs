@@ -1,4 +1,4 @@
-use crate::{prelude::*, Context};
+use crate::{prelude::*, PromptContext};
 
 use common_dev::pretty_assertions::assert_eq;
 use kernel_quickjs::kernel::common::tokio;
@@ -11,11 +11,11 @@ use super::{
 
 #[tokio::test]
 async fn info() -> Result<()> {
-    let context = Context {
-        kernels: Kernels::new(vec![
+    let context = PromptContext {
+        kernels: Some(Kernels::new(vec![
             Kernel::new("Python", "3.12.1"),
             Kernel::new("R", "3.1.0"),
-        ]),
+        ])),
         ..Default::default()
     };
 
@@ -47,14 +47,14 @@ async fn info() -> Result<()> {
 
 #[tokio::test]
 async fn packages() -> Result<()> {
-    let context = Context {
-        kernels: Kernels::new(vec![Kernel {
+    let context = PromptContext {
+        kernels: Some(Kernels::new(vec![Kernel {
             packages: vec![
                 Package::new("pandas", "1.2.3"),
                 Package::new("pytorch", "4.5.6"),
             ],
             ..Default::default()
-        }]),
+        }])),
         ..Default::default()
     };
 
@@ -76,8 +76,8 @@ async fn packages() -> Result<()> {
 
 #[tokio::test]
 async fn variable() -> Result<()> {
-    let context = Context {
-        kernels: Kernels::new(vec![Kernel {
+    let context = PromptContext {
+        kernels: Some(Kernels::new(vec![Kernel {
             variables: vec![
                 Variable {
                     name: "var1".into(),
@@ -99,7 +99,7 @@ async fn variable() -> Result<()> {
                 },
             ],
             ..Default::default()
-        }]),
+        }])),
         ..Default::default()
     };
 

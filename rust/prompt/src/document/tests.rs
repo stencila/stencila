@@ -1,4 +1,4 @@
-use crate::{prelude::*, Context};
+use crate::{prelude::*, PromptContext};
 
 use common_dev::pretty_assertions::assert_eq;
 use kernel_quickjs::kernel::common::tokio;
@@ -14,15 +14,15 @@ use super::{
 
 #[tokio::test]
 async fn metadata() -> Result<()> {
-    let context = Context {
-        document: Document {
+    let context = PromptContext {
+        document: Some(Document {
             metadata: Metadata {
                 title: Some("The title".into()),
                 genre: Some("The genre".into()),
                 keywords: Some("some, key, words".into()),
             },
             ..Default::default()
-        },
+        }),
         ..Default::default()
     };
 
@@ -46,8 +46,8 @@ async fn metadata() -> Result<()> {
 
 #[tokio::test]
 async fn headings() -> Result<()> {
-    let context = Context {
-        document: Document {
+    let context = PromptContext {
+        document: Some(Document {
             headings: Headings::new(vec![
                 Heading::new(1, "H1"),
                 Heading::new(2, "H1.1"),
@@ -55,7 +55,7 @@ async fn headings() -> Result<()> {
                 Heading::new(1, "H2"),
             ]),
             ..Default::default()
-        },
+        }),
         ..Default::default()
     };
 
@@ -138,14 +138,14 @@ async fn headings() -> Result<()> {
 
 #[tokio::test]
 async fn paragraphs() -> Result<()> {
-    let context = Context {
-        document: Document {
+    let context = PromptContext {
+        document: Some(Document {
             paragraphs: Paragraphs::new(vec![
                 Paragraph::new("Para one."),
                 Paragraph::new("Para two."),
             ]),
             ..Default::default()
-        },
+        }),
         ..Default::default()
     };
 
@@ -215,8 +215,8 @@ async fn paragraphs() -> Result<()> {
 
 #[tokio::test]
 async fn code_chunks() -> Result<()> {
-    let context = Context {
-        document: Document {
+    let context = PromptContext {
+        document: Some(Document {
             code_chunks: CodeChunks::new(vec![
                 CodeChunk::new(
                     "python",
@@ -226,7 +226,7 @@ async fn code_chunks() -> Result<()> {
                 CodeChunk::new("", "code 2", None),
             ]),
             ..Default::default()
-        },
+        }),
         ..Default::default()
     };
 

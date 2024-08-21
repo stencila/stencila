@@ -1,4 +1,4 @@
-use crate::{prelude::*, Context};
+use crate::{prelude::*, PromptContext};
 
 use common_dev::pretty_assertions::assert_eq;
 use kernel_quickjs::kernel::common::tokio;
@@ -8,12 +8,12 @@ use super::Instruction;
 
 #[tokio::test]
 async fn instruction() -> Result<()> {
-    let context = Context {
-        instruction: Instruction {
+    let context = PromptContext {
+        instruction: Some(Instruction {
             r#type: "New".into(),
             message: Some("paragraph".into()),
             content: Some("content".into()),
-        },
+        }),
         ..Default::default()
     };
 
