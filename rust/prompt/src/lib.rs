@@ -5,31 +5,41 @@ use kernel_quickjs::{
 use rquickjs::Class;
 
 mod document;
+mod instruction;
 mod kernels;
 mod prelude;
 
 /// The execution context for a prompt
 #[derive(Default)]
 pub struct Context {
+    /// The current instruction
+    instruction: instruction::Instruction,
+
     /// The current document
-    pub document: document::Document,
+    document: document::Document,
 
     /// The execution kernels associated with the document
-    pub kernels: kernels::Kernels,
+    kernels: kernels::Kernels,
 }
 
 impl Context {
-    /// Create a QuickJS kernel for the context
+    /// Create a QuickJS kernel instance for the context
     pub async fn into_kernel(self) -> Result<Box<dyn KernelInstance>> {
         let mut instance = QuickJsKernelInstance::new("prompt".to_string());
         instance.start_here().await?;
         instance
             .runtime_context()?
             .with(|ctx| {
-                let Context { document, kernels } = self;
+                let Context {
+                    instruction,
+                    document,
+                    kernels,
+                } = self;
                 let document = Class::instance(ctx.clone(), document)?;
-                ctx.globals().set("document", document)?;
-                ctx.globals().set("kernels", kernels)
+                let globals = ctx.globals();
+                globals.set("instruction", instruction)?;
+                globals.set("document", document)?;
+                globals.set("kernels", kernels)
             })
             .await?;
 
