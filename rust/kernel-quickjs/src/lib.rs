@@ -602,9 +602,10 @@ impl QuickJsKernelInstance {
     async fn set_context(&mut self, context: Context) -> Result<()> {
         self.get_jscontext()?
             .with(|ctx| {
-                let Context { document } = context;
+                let Context { document, kernels } = context;
                 let document = Class::instance(ctx.clone(), document)?;
-                ctx.globals().set("document", document)
+                ctx.globals().set("document", document)?;
+                ctx.globals().set("kernels", kernels)
             })
             .await?;
         Ok(())

@@ -54,7 +54,7 @@ impl From<&schema::Node> for Node {
 impl Node {
     /// Get the JavaScript value of the node
     #[qjs(get, enumerable)]
-    fn value<'js>(self, ctx: Ctx<'js>) -> Result<Value<'js>, Error> {
-        ctx.json_parse(self.json)
+    fn value<'js>(&self, ctx: Ctx<'js>) -> Result<Value<'js>, Error> {
+        ctx.json_parse(self.json.clone())
     }
 }
