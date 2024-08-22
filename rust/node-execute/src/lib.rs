@@ -13,7 +13,7 @@ use common::{
     tracing,
 };
 use kernels::Kernels;
-use prompts::Context;
+use prompts::prompt::DocumentContext;
 use schema::{
     Block, CompilationDigest, ExecutionMode, Inline, Node, NodeId, NodeProperty, Patch, PatchOp,
     PatchPath, VisitorAsync, WalkControl, WalkNode,
@@ -29,12 +29,14 @@ mod code_chunk;
 mod code_expression;
 mod figure;
 mod for_block;
+mod heading;
 mod if_block;
 mod include_block;
 mod instruction_block;
 mod instruction_inline;
 mod math_block;
 mod math_inline;
+mod paragraph;
 mod parameter;
 mod prompt;
 mod styled_block;
@@ -66,7 +68,7 @@ pub async fn execute(
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
-    executor.pending(&mut root).await?;
+    executor.prepare(&mut root).await?;
     executor.execute(&mut root).await
 }
 
@@ -96,8 +98,8 @@ trait Executable {
         WalkControl::Continue
     }
 
-    /// Set the execution status of the node to pending
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+    /// Prepare the node, and the executor, for execution
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -141,8 +143,8 @@ pub struct Executor {
     /// The phase of execution
     phase: Phase,
 
-    /// The document context
-    context: Context,
+    /// The variables context for prompts
+    document_context: DocumentContext,
 
     /// The count of `Table`s and `CodeChunk`s with a table `labelType`
     table_count: u32,
@@ -208,8 +210,8 @@ pub struct ExecuteOptions {
 
     /// Prepare, but do not actually perform, execution tasks
     ///
-    /// Currently only supported by assistants where it is useful for debugging the
-    /// rendering of system prompts without making a potentially slow API request.
+    /// Currently only supported by instructions where it is useful for debugging the
+    /// rendering of prompts without making a potentially slow generative model API request.
     #[arg(long)]
     pub dry_run: bool,
 }
@@ -220,7 +222,7 @@ pub struct ExecuteOptions {
 /// the executor walks over the root node.
 enum Phase {
     Compile,
-    Pending,
+    Prepare,
     Execute,
     ExecuteWithoutPatches,
     Interrupt,
@@ -240,8 +242,8 @@ impl Executor {
             kernels,
             patch_sender,
             node_ids,
-            phase: Phase::Pending,
-            context: Context::default(),
+            phase: Phase::Prepare,
+            document_context: DocumentContext::default(),
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
@@ -259,22 +261,20 @@ impl Executor {
         root.walk_async(self).await
     }
 
-    /// Run [`Phase::Pending`]
-    async fn pending(&mut self, root: &mut Node) -> Result<()> {
-        self.phase = Phase::Pending;
+    /// Run [`Phase::Prepare`]
+    async fn prepare(&mut self, root: &mut Node) -> Result<()> {
+        // Create a new context before walking the tree to avoid
+        // having hangover information from the last time the prepare
+        // phase was run.
+        self.document_context = DocumentContext::default();
+
+        self.phase = Phase::Prepare;
         root.walk_async(self).await
     }
 
     /// Run [`Phase::Execute`]
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Execute;
-        self.is_last = false;
-
-        // Create a new context before walking the tree. Note that
-        // this means that instructions will on "see" the other nodes that
-        // precede them in the document.
-        self.context = Context::default();
-
         root.walk_async(self).await
     }
 
@@ -294,19 +294,6 @@ impl Executor {
     /// Used by [`Executable`] nodes to execute and evaluate code and manage variables.
     pub async fn kernels(&self) -> RwLockWriteGuard<Kernels> {
         self.kernels.write().await
-    }
-
-    /// Get the document context
-    ///
-    /// Returns the nodes collected during walking the root node
-    /// and updates it with kernels.
-    ///
-    /// Used by [`Executable`] nodes to pass to assistants to be used
-    /// in their system prompts.
-    pub async fn context(&mut self) -> &Context {
-        //let kernels = self.kernels().await.kernel_contexts().await;
-        //self.context.kernels.from_kernels(kernels);
-        &self.context
     }
 
     /// Should the executor execute a node
@@ -420,7 +407,7 @@ impl Executor {
     async fn visit_executable<E: Executable>(&mut self, node: &mut E) -> WalkControl {
         match self.phase {
             Phase::Compile => node.compile(self).await,
-            Phase::Pending => node.pending(self).await,
+            Phase::Prepare => node.prepare(self).await,
             Phase::Execute | Phase::ExecuteWithoutPatches => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
         }
@@ -429,58 +416,41 @@ impl Executor {
 
 impl VisitorAsync for Executor {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
-        // Collect the node into the context if appropriate
-        if let Node::Article(_article) = node {
-            //self.context.document.extract_metadata(article);
-        }
-
         use Node::*;
-        let control = match node {
+        Ok(match node {
             Article(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
-        };
-
-        Ok(control)
+        })
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         use Block::*;
-
-        // If the block is of a type that is collected in the execution context then do that.
-        {}
-
-        let control = match block {
+        Ok(match block {
             CallBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
             Figure(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,
+            Heading(node) => self.visit_executable(node).await,
             IfBlock(node) => self.visit_executable(node).await,
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
+            Paragraph(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
             Table(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
-        };
-
-        Ok(control)
+        })
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
         use Inline::*;
-
-        // If the inline is of a type that is collected in the execution context then do that.
-        {}
-
-        let control = match inline {
+        Ok(match inline {
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
             Parameter(node) => self.visit_executable(node).await,
             StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
-        };
-
-        Ok(control)
+        })
     }
 }

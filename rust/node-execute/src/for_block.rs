@@ -1,7 +1,7 @@
 use codec_cbor::r#trait::CborCodec;
 use schema::{replicate, Block, ForBlock, Section, SectionType};
 
-use crate::{interrupt_impl, pending_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*, Phase};
 
 impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
@@ -47,8 +47,9 @@ impl Executable for ForBlock {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+        tracing::trace!("Preparing ForBlock {node_id}");
 
         if executor.should_execute(
             &node_id,
@@ -56,8 +57,11 @@ impl Executable for ForBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::trace!("Pending ForBlock {node_id}");
-            pending_impl!(executor, &node_id);
+            // Set the execution status to pending
+            executor.patch(
+                &node_id,
+                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
+            );
         }
 
         // Break to avoid making executable nodes in `content` as pending

@@ -1,16 +1,23 @@
 use schema::Article;
 
-use crate::{interrupt_impl, pending_impl, prelude::*};
+use crate::{interrupt_impl, prelude::*};
 
 impl Executable for Article {
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Pending Article {node_id}");
+        tracing::trace!("Preparing Article {node_id}");
 
-        pending_impl!(executor, &node_id);
+        // Add article metadata to document context
+        executor.document_context.metadata = (&*self).into();
 
-        // Continue to mark executable nodes in `content` as pending
+        // Set the execution status to pending
+        executor.patch(
+            &node_id,
+            [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
+        );
+
+        // Continue to prepare executable nodes in `content`
         WalkControl::Continue
     }
 

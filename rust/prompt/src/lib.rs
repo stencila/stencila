@@ -2,7 +2,7 @@ use kernel_quickjs::{
     kernel::{common::eyre::Result, KernelInstance},
     QuickJsKernelInstance,
 };
-use rquickjs::{Class, Error};
+use rquickjs::Error;
 
 mod document;
 mod instruction;

@@ -44,8 +44,8 @@ use model::{
 
 pub mod cli;
 
-// Re-exports
-pub use prompt::Context;
+// Re-export
+pub use prompt;
 
 /// An instance of a prompt
 ///
@@ -75,6 +75,8 @@ impl PromptInstance {
             .flatten()
             .map(|pattern| Regex::new(pattern))
             .try_collect()?;
+
+        let home = home.canonicalize()?;
 
         Ok(Self {
             inner,
@@ -277,8 +279,8 @@ pub fn update_builtin() {
     });
 }
 
-/// Get the most appropriate prompt for an instruction
-pub async fn find(
+/// Select the most appropriate prompt for an instruction
+pub async fn select(
     instruction_type: &InstructionType,
     message: &Option<InstructionMessage>,
     assignee: &Option<String>,
@@ -296,7 +298,7 @@ pub async fn find(
 
         return prompts
             .into_iter()
-            .find(|prompt| prompt.id.as_deref() == Some(&id))
+            .find(|prompt| prompt.id.as_ref() == Some(&id))
             .ok_or_else(|| eyre!("Unable to find prompt with id `{assignee}`"));
     }
 
@@ -337,9 +339,7 @@ pub async fn find(
     prompt.ok_or_eyre("No prompts found for instruction")
 }
 
-/**
- * Render and prompt's content to Markdown use as a system prompt
- */
+/// Render and prompt's content to Markdown to use as a system prompt
 pub async fn render(prompt: PromptInstance) -> Result<String> {
     codecs::to_string(
         &Node::Article(Article {
@@ -355,9 +355,7 @@ pub async fn render(prompt: PromptInstance) -> Result<String> {
     .await
 }
 
-/**
- * Execute an [`InstructionBlock`]
- */
+/// Execute an [`InstructionBlock`]
 pub async fn execute_instruction_block(
     mut instructors: Vec<AuthorRole>,
     prompter: AuthorRole,

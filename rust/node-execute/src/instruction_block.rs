@@ -1,13 +1,11 @@
 use codec_cbor::r#trait::CborCodec;
-use codec_markdown_trait::to_markdown;
-use common::{eyre::Result, futures::future, itertools::Itertools};
-use prompts::Context;
+use common::futures::future;
 use schema::{
-    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block, CompilationDigest,
-    InstructionBlock, InstructionMessage, InstructionModel, InstructionType, SoftwareApplication,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
+    InstructionModel, SoftwareApplication,
 };
 
-use crate::{interrupt_impl, pending_impl, prelude::*, prompt::execute_prompt};
+use crate::{interrupt_impl, prelude::*, prompt};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -55,8 +53,9 @@ impl Executable for InstructionBlock {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+        tracing::trace!("Preparing InstructionBlock {node_id}");
 
         if executor.should_execute_instruction(
             &node_id,
@@ -64,9 +63,11 @@ impl Executable for InstructionBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::trace!("Pending InstructionBlock {node_id}");
-
-            pending_impl!(executor, &node_id);
+            // Set the execution status to pending
+            executor.patch(
+                &node_id,
+                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
+            );
         }
 
         // Continue to mark executable nodes in `content` and/or `suggestion` as pending
@@ -149,15 +150,8 @@ impl Executable for InstructionBlock {
 
         let started = Timestamp::now();
 
-        // Find an prompt and generate a system prompt
-        let (prompter, system_prompt) = match generate_system_prompt(
-            &self.instruction_type,
-            &self.message,
-            &self.assignee,
-            &self.content,
-            executor.context().await,
-        )
-        .await
+        // Select a prompt and generate a system prompt
+        let (prompter, system_prompt) = match prompt::for_instruction_block(&self, &executor).await
         {
             Ok(result) => result,
             Err(error) => {
@@ -282,33 +276,4 @@ impl Executable for InstructionBlock {
         // Continue to interrupt executable nodes in `content`
         WalkControl::Continue
     }
-}
-
-/**
- * Find an prompt for the instruction and render a prompt from it
- */
-async fn generate_system_prompt(
-    instruction_type: &InstructionType,
-    message: &Option<InstructionMessage>,
-    assignee: &Option<String>,
-    content: &Option<Vec<Block>>,
-    context: &Context,
-) -> Result<(AuthorRole, String)> {
-    let node_types = content
-        .iter()
-        .flatten()
-        .map(|block| block.node_type().to_string())
-        .collect_vec();
-
-    let mut prompt = prompts::find(instruction_type, message, assignee, &Some(node_types)).await?;
-    let prompter = AuthorRole {
-        last_modified: Some(Timestamp::now()),
-        ..prompt.clone().into()
-    };
-
-    let content = content.as_ref().map(to_markdown);
-    execute_prompt(&mut prompt, instruction_type, content, context).await?;
-    let prompt = prompts::render(prompt).await.unwrap();
-
-    Ok((prompter, prompt))
 }

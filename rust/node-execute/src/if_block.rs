@@ -1,6 +1,6 @@
 use schema::{CompilationDigest, IfBlock, IfBlockClause};
 
-use crate::{interrupt_impl, pending_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*, Phase};
 
 impl Executable for IfBlock {
     #[tracing::instrument(skip_all)]
@@ -40,8 +40,9 @@ impl Executable for IfBlock {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+        tracing::trace!("Preparing IfBlock {node_id}");
 
         if executor.should_execute(
             &node_id,
@@ -49,8 +50,11 @@ impl Executable for IfBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::trace!("Pending IfBlock {node_id}");
-            pending_impl!(executor, &node_id);
+            // Set the execution status to pending
+            executor.patch(
+                &node_id,
+                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
+            );
         }
 
         // Break so that clauses (and `content` in clauses) are not made pending
@@ -198,7 +202,7 @@ impl Executable for IfBlockClause {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, _executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, _executor: &mut Executor) -> WalkControl {
         // No change to execution status because not every clause will be
         // executed (breaks on first truthy) so setting to `Pending` here
         // could never be overwritten.

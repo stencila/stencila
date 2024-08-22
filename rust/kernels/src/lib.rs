@@ -54,6 +54,19 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
     kernels
 }
 
+/// Get a kernel by name
+pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
+    let name = name.to_lowercase();
+
+    for kernel in list().await {
+        if kernel.name().to_lowercase() == name {
+            return Some(kernel)
+        }
+    }
+
+    None
+}
+
 /// Get the default kernel (used when no language is specified)
 pub fn default() -> Box<dyn Kernel> {
     Box::<QuickJsKernel>::default() as Box<dyn Kernel>
@@ -234,6 +247,25 @@ impl Kernels {
         Ok(instance)
     }
 
+    /// Add a kernel to the set of instances
+    pub async fn add_instance(
+        &mut self,
+        kernel: Box<dyn Kernel>,
+        instance: Box<dyn KernelInstance>,
+    ) -> Result<()> {
+        let name = instance.name();
+        let instance = Arc::new(Mutex::new(instance));
+
+        let mut instances = self.instances.write().await;
+        instances.push(KernelInstanceEntry {
+            kernel,
+            name,
+            instance,
+        });
+
+        Ok(())
+    }
+
     /// Get a kernel instance
     ///
     /// The `language` argument can be the name of a programming language, or
@@ -264,6 +296,16 @@ impl Kernels {
         }
 
         Ok(None)
+    }
+
+    /// Get a reference to each of the kernel instances
+    pub async fn instances(&self) -> Vec<Arc<Mutex<Box<dyn KernelInstance>>>> {
+        self.instances
+            .read()
+            .await
+            .iter()
+            .map(|entry| entry.instance.clone())
+            .collect()
     }
 
     /// Execute some code in a kernel instance

@@ -1,6 +1,6 @@
 use schema::{CodeChunk, LabelType, NodeProperty};
 
-use crate::{interrupt_impl, pending_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*, Phase};
 
 impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
@@ -57,8 +57,12 @@ impl Executable for CodeChunk {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+        tracing::trace!("Preparing CodeChunk {node_id}");
+
+        // Add code chunk to document context
+        executor.document_context.code_chunks.push((&*self).into());
 
         if executor.should_execute(
             &node_id,
@@ -66,16 +70,23 @@ impl Executable for CodeChunk {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            tracing::trace!("Pending CodeChunk {node_id}");
-            pending_impl!(executor, &node_id);
+            // Set the execution status to pending
+            executor.patch(
+                &node_id,
+                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
+            );
         }
 
+        // Break the walk since none of the child nodes are executed
         WalkControl::Break
     }
 
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        // Move the context cursor for code chunks forward
+        executor.document_context.code_chunks.forward();
 
         if !executor.should_execute(
             &node_id,

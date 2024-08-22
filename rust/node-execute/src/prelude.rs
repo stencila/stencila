@@ -174,17 +174,6 @@ pub fn clear(node_property: NodeProperty) -> (NodeProperty, PatchOp) {
     (node_property, PatchOp::Clear)
 }
 
-/// A macro for implementing the `pending` method of [`Executable`] nodes
-#[macro_export]
-macro_rules! pending_impl {
-    ($executor: expr, $node_id: expr) => {
-        $executor.patch(
-            $node_id,
-            [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
-        );
-    };
-}
-
 /// A macro for implementing the `interrupt` method of [`Executable`] nodes
 #[macro_export]
 macro_rules! interrupt_impl {
