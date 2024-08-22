@@ -143,3 +143,14 @@ impl From<&schema::Heading> for Heading {
         }
     }
 }
+
+#[rquickjs::methods]
+impl Heading {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("level", self.level.clone())?;
+        obj.set("content", self.content.clone())?;
+        Ok(obj)
+    }
+}

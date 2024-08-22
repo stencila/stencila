@@ -30,6 +30,26 @@ async fn info() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::Integer(2));
 
+    let (output, messages) = kernel.evaluate("ks.all").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"[
+  {
+    "name": "Python",
+    "version": "3.12.1",
+    "packages": [],
+    "variables": []
+  },
+  {
+    "name": "R",
+    "version": "3.1.0",
+    "packages": [],
+    "variables": []
+  }
+]"#
+    );
+
     let (output, messages) = kernel.evaluate("ks.all[0].name").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Python".into()));
@@ -70,6 +90,22 @@ async fn packages() -> Result<()> {
         .await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("pandas@1.2.3, pytorch@4.5.6".into()));
+
+    let (output, messages) = kernel.evaluate("ps").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"[
+  {
+    "name": "pandas",
+    "version": "1.2.3"
+  },
+  {
+    "name": "pytorch",
+    "version": "4.5.6"
+  }
+]"#
+    );
 
     Ok(())
 }
@@ -128,6 +164,22 @@ async fn variable() -> Result<()> {
         .await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("1 100 23".into()));
+
+    let (output, messages) = kernel.evaluate("vars").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"[
+  {
+    "name": "var1",
+    "type": "Integer"
+  },
+  {
+    "name": "var2",
+    "type": "Array"
+  }
+]"#
+    );
 
     Ok(())
 }

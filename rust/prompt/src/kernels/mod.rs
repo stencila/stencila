@@ -149,3 +149,19 @@ impl Kernel {
         })
     }
 }
+
+#[rquickjs::methods]
+impl Kernel {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    pub fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+
+        obj.set("name", self.name.clone())?;
+        obj.set("version", self.version.clone())?;
+        obj.set("os", self.os.clone())?;
+        obj.set("packages", self.packages.clone())?;
+        obj.set("variables", self.packages.clone())?;
+
+        Ok(obj)
+    }
+}

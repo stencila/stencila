@@ -29,6 +29,17 @@ async fn metadata() -> Result<()> {
     let mut kernel = context.into_kernel().await?;
     kernel.execute("const md = document.metadata").await?;
 
+    let (output, messages) = kernel.evaluate("md").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"{
+  "title": "The title",
+  "genre": "The genre",
+  "keywords": "some, key, words"
+}"#
+    );
+
     let (output, messages) = kernel.evaluate("md.title").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("The title".into()));
@@ -69,6 +80,16 @@ async fn headings() -> Result<()> {
     let (output, messages) = kernel.evaluate("hs.all.length").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::Integer(4));
+
+    let (output, messages) = kernel.evaluate("hs.first").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"{
+  "level": 1,
+  "content": "H1"
+}"#
+    );
 
     let (output, messages) = kernel.evaluate("hs.first.content").await?;
     assert_eq!(messages, []);
@@ -160,6 +181,15 @@ async fn paragraphs() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::Integer(2));
 
+    let (output, messages) = kernel.evaluate("ps.first").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"{
+  "content": "Para one."
+}"#
+    );
+
     let (output, messages) = kernel.evaluate("ps.first.content").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para one.".into()));
@@ -241,13 +271,21 @@ async fn code_chunks() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::Integer(2));
 
-    let (output, messages) = kernel
-        .evaluate("({language: cc.first.language, code: cc.first.code})")
-        .await?;
+    let (output, messages) = kernel.evaluate("cc.first").await?;
     assert_eq!(messages, []);
     assert_eq!(
-        serde_json::to_string(&output)?,
-        r#"{"language":"python","code":"1 + 2"}"#
+        serde_json::to_string_pretty(&output)?,
+        r#"{
+  "language": "python",
+  "code": "1 + 2",
+  "outputs": [
+    {
+      "type": "Integer",
+      "json": "3",
+      "markdown": "3"
+    }
+  ]
+}"#
     );
 
     let (output, messages) = kernel.evaluate("cc.first.outputs[0].value").await?;

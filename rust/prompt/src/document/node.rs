@@ -51,4 +51,13 @@ impl Node {
     fn value<'js>(&self, ctx: Ctx<'js>) -> Result<Value<'js>, rquickjs::Error> {
         ctx.json_parse(self.json.clone())
     }
+
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("type", self.r#type.clone())?;
+        obj.set("json", self.json.clone())?;
+        obj.set("markdown", self.markdown.clone())?;
+        Ok(obj)
+    }
 }

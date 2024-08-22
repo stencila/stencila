@@ -109,3 +109,13 @@ impl From<&schema::Paragraph> for Paragraph {
         }
     }
 }
+
+#[rquickjs::methods]
+impl Paragraph {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("content", self.content.clone())?;
+        Ok(obj)
+    }
+}

@@ -36,3 +36,16 @@ impl From<schema::SoftwareSourceCode> for Package {
         }
     }
 }
+
+#[rquickjs::methods]
+impl Package {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    pub fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+
+        obj.set("name", self.name.clone())?;
+        obj.set("version", self.version.clone())?;
+
+        Ok(obj)
+    }
+}

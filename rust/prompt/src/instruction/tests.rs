@@ -20,6 +20,17 @@ async fn instruction() -> Result<()> {
     let mut kernel = context.into_kernel().await?;
     kernel.execute("const ins = instruction").await?;
 
+    let (output, messages) = kernel.evaluate("instruction").await?;
+    assert_eq!(messages, []);
+    assert_eq!(
+        serde_json::to_string_pretty(&output)?,
+        r#"{
+  "type": "New",
+  "message": "paragraph",
+  "content": "content"
+}"#
+    );
+
     let (output, messages) = kernel
         .evaluate("`${ins.type} ${ins.message} ${ins.content}`")
         .await?;

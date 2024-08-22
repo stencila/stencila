@@ -37,6 +37,21 @@ impl From<schema::Variable> for Variable {
     }
 }
 
+#[rquickjs::methods]
+impl Variable {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    pub fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+
+        obj.set("name", self.name.clone())?;
+        obj.set("type", self.r#type.clone())?;
+        obj.set("nativeType", self.native_type.clone())?;
+        obj.set("nativeHint", self.native_hint.clone())?;
+
+        Ok(obj)
+    }
+}
+
 /// A variable available within a kernel instance
 #[derive(Clone, Trace)]
 #[rquickjs::class(rename_all = "camelCase")]

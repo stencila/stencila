@@ -29,3 +29,15 @@ impl From<&schema::Article> for Metadata {
         }
     }
 }
+
+#[rquickjs::methods]
+impl Metadata {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("title", self.title.clone())?;
+        obj.set("genre", self.genre.clone())?;
+        obj.set("keywords", self.keywords.clone())?;
+        Ok(obj)
+    }
+}

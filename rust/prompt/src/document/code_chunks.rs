@@ -126,3 +126,15 @@ impl From<&schema::CodeChunk> for CodeChunk {
         }
     }
 }
+
+#[rquickjs::methods]
+impl CodeChunk {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("language", self.language.clone())?;
+        obj.set("code", self.code.clone())?;
+        obj.set("outputs", self.outputs.clone())?;
+        Ok(obj)
+    }
+}

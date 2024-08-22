@@ -3,4 +3,4 @@ pub use kernel_quickjs::kernel::{
     common::{eyre::Result, serde_json},
     schema, KernelInstance,
 };
-pub use rquickjs::{class::Trace, Ctx, Value};
+pub use rquickjs::{atom::PredefinedAtom, class::Trace, Ctx, Error, Object, Value};
