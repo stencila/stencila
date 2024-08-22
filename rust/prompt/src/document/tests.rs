@@ -2,13 +2,14 @@ use crate::{prelude::*, PromptContext};
 
 use common_dev::pretty_assertions::assert_eq;
 use kernel_quickjs::kernel::common::tokio;
-use schema::{Node, Null};
+use schema::{shortcuts::t, Node, Null, SectionType};
 
 use super::{
     code_chunks::{CodeChunk, CodeChunks},
     headings::{Heading, Headings},
     node::Node as ContextNode,
     paragraphs::{Paragraph, Paragraphs},
+    sections::Sections,
     Document, Metadata,
 };
 
@@ -44,7 +45,10 @@ async fn metadata() -> Result<()> {
 
     let (output, messages) = kernel.evaluate("md.properties.join()").await?;
     assert_eq!(messages, []);
-    assert_eq!(output, Node::String("title,description,genre,keywords".into()));
+    assert_eq!(
+        output,
+        Node::String("title,description,genre,keywords".into())
+    );
 
     let (output, messages) = kernel.evaluate("md.title").await?;
     assert_eq!(messages, []);
@@ -61,6 +65,133 @@ async fn metadata() -> Result<()> {
     let (output, messages) = kernel.evaluate("md.keywords").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("some, key, words".into()));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn sections() -> Result<()> {
+    let context = PromptContext {
+        document: Some(Document {
+            sections: Sections::new(vec![
+                SectionType::Introduction.to_string(),
+                SectionType::Methods.to_string(),
+                SectionType::Results.to_string(),
+                SectionType::Discussion.to_string(),
+            ]),
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    let mut kernel = context.into_kernel().await?;
+    kernel.execute("const secs = document.sections").await?;
+
+    let (output, messages) = kernel.evaluate("secs.count").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(4));
+
+    let (output, messages) = kernel.evaluate("secs.all.length").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(4));
+
+    let (output, messages) = kernel.evaluate("secs.first").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("Introduction".into()));
+
+    let (output, messages) = kernel.evaluate("secs.last").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("Discussion".into()));
+
+    {
+        kernel.execute("secs._enter()").await?;
+
+        let (output, ..) = kernel.evaluate("secs.previous").await?;
+        assert_eq!(output, Node::Null(Null));
+
+        let (output, ..) = kernel.evaluate("secs.current").await?;
+        assert_eq!(output, Node::String("Introduction".into()));
+
+        let (output, ..) = kernel.evaluate("secs.next").await?;
+        assert_eq!(output, Node::String("Methods".into()));
+
+        kernel.execute("secs._exit()").await?;
+    }
+
+    assert_eq!(kernel.evaluate("secs.current").await?.0, Node::Null(Null));
+
+    {
+        kernel.execute("secs._enter()").await?;
+
+        let (output, ..) = kernel.evaluate("secs.previous").await?;
+        assert_eq!(output, Node::String("Introduction".into()));
+
+        let (output, ..) = kernel.evaluate("secs.current").await?;
+        assert_eq!(output, Node::String("Methods".into()));
+
+        let (output, ..) = kernel.evaluate("secs.next").await?;
+        assert_eq!(output, Node::String("Results".into()));
+
+        kernel.execute("secs._exit()").await?;
+    }
+
+    assert_eq!(kernel.evaluate("secs.current").await?.0, Node::Null(Null));
+
+    {
+        kernel.execute("secs._enter()").await?;
+
+        let (output, ..) = kernel.evaluate("secs.previous").await?;
+        assert_eq!(output, Node::String("Methods".into()));
+
+        let (output, ..) = kernel.evaluate("secs.current").await?;
+        assert_eq!(output, Node::String("Results".into()));
+
+        let (output, ..) = kernel.evaluate("secs.next").await?;
+        assert_eq!(output, Node::String("Discussion".into()));
+
+        kernel.execute("secs._exit()").await?;
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn section_headings() -> Result<()> {
+    let mut sections = Sections::default();
+    sections.push_heading(&schema::Heading::new(1, vec![t("Introduction")]));
+    sections.push_heading(&schema::Heading::new(1, vec![t("Methods")]));
+    sections.push_heading(&schema::Heading::new(1, vec![t("Results")]));
+    sections.push_heading(&schema::Heading::new(1, vec![t("Discussion")]));
+
+    let context = PromptContext {
+        document: Some(Document {
+            sections,
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    let mut kernel = context.into_kernel().await?;
+    kernel.execute("const secs = document.sections").await?;
+
+    let (output, messages) = kernel.evaluate("secs.count").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(4));
+
+    {
+        kernel.execute("secs._enter()").await?;
+
+        let (output, ..) = kernel.evaluate("secs.previous").await?;
+        assert_eq!(output, Node::Null(Null));
+
+        let (output, ..) = kernel.evaluate("secs.current").await?;
+        assert_eq!(output, Node::String("Introduction".into()));
+
+        let (output, ..) = kernel.evaluate("secs.next").await?;
+        assert_eq!(output, Node::String("Methods".into()));
+
+        kernel.execute("secs._exit()").await?;
+    }
 
     Ok(())
 }

@@ -5,6 +5,7 @@ mod headings;
 mod metadata;
 mod node;
 mod paragraphs;
+mod sections;
 
 #[cfg(test)]
 mod tests;
@@ -13,6 +14,7 @@ use code_chunks::CodeChunks;
 use headings::Headings;
 use metadata::Metadata;
 use paragraphs::Paragraphs;
+use sections::Sections;
 
 /// The context of the current document
 ///
@@ -24,6 +26,10 @@ pub struct Document {
     /// Metadata of the current document
     #[qjs(get, enumerable)]
     pub metadata: Metadata,
+
+    /// Document sections
+    #[qjs(get, enumerable)]
+    pub sections: Sections,
 
     /// Document headings
     #[qjs(get, enumerable)]
