@@ -37,4 +37,6 @@ Follow any instructions given by the user regarding how you should edit the para
 
 ::: include context/document/headings/hierarchy.smd
 
+::: include context/document/paragraphs/next.smd
+
 ::: include context/document/paragraphs/previous.smd
