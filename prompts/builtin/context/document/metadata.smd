@@ -1,22 +1,14 @@
-::: if document.metadata.title || document.metadata.genre || document.metadata.keywords
+::: if document.metadata.properties.length > 0
 
 An overview of the document's metadata follows. Use this information to guide the style and subject matter:
 
-::::: if document.metadata.title
+::::: for property in document.metadata.properties
 
-Title: {{ document.metadata.title }}
+::::::: if document.metadata[property]
 
-:::::
+- {{ property }}: {{ document.metadata[property] }}
 
-::::: if document.metadata.genre
-
-Genre: {{ document.metadata.genre }}
-
-:::::
-
-::::: if document.metadata.keywords
-
-Keywords: {{ document.metadata.keywords }}
+:::::::
 
 :::::
 
