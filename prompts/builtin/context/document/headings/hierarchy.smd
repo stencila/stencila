@@ -1,0 +1,7 @@
+::: if document.headings.hierarchy?.length > 0
+
+The hierarchy of headings for the current position in the document is:
+
+{{ document.headings.hierarchy.map(heading => heading.content).join(" > ") }}
+
+:::
