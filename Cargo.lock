@@ -4553,6 +4553,7 @@ dependencies = [
  "codec-markdown-trait",
  "common-dev",
  "kernel-quickjs",
+ "kernels",
  "rquickjs",
 ]
 

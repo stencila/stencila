@@ -6,7 +6,8 @@ edition = "2021"
 [dependencies]
 codec-markdown-trait = {path = "../codec-markdown-trait" }
 kernel-quickjs = { path = "../kernel-quickjs" }
-rquickjs = { version = "0.6.2", features = ["classes", "futures", "macro", "parallel"] }
+kernels = { path = "../kernels" }
+rquickjs = { version = "0.6.2", features = ["futures", "macro", "parallel"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
