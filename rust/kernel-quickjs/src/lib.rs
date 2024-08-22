@@ -365,11 +365,11 @@ fn value_to_node<'js>(ctx: Ctx<'js>, value: Value<'js>) -> Result<Node, Error> {
         }
     }
 
-    Ok(value_to_primitive(value)?.into())
+    Ok(value_to_primitive(value, &ctx)?.into())
 }
 
 /// Convert a QuickJS value to a Stencila Primitive
-fn value_to_primitive(value: Value) -> Result<Primitive, Error> {
+fn value_to_primitive<'js>(value: Value<'js>, ctx: &Ctx<'js>) -> Result<Primitive, Error> {
     if value.is_undefined() || value.is_null() {
         Ok(Primitive::Null(Null))
     } else if let Some(value) = value.as_bool() {
@@ -392,15 +392,28 @@ fn value_to_primitive(value: Value) -> Result<Primitive, Error> {
     } else if let Some(value) = value.as_array() {
         let mut array = Vec::new();
         for item in value.iter().flatten() {
-            let item = value_to_primitive(item)?;
+            let item = value_to_primitive(item, ctx)?;
             array.push(item);
         }
         Ok(Primitive::Array(Array(array)))
     } else if let Some(value) = value.as_object() {
+        // Use JSON to convert value to allow for classes which have a custom
+        // toJSON method (e.g the prompt context classes)
+        if let Some(object) = ctx
+            .json_stringify(value.clone())
+            .ok()
+            .flatten()
+            .and_then(|json| json.to_string().ok())
+            .and_then(|json| serde_json::from_str(&json).ok())
+        {
+            return Ok(object);
+        };
+
+        // Fallback to iterating over the keys of the objects
         let mut object = IndexMap::new();
         for (name, value) in value.clone().into_iter().flatten() {
-            let name = name.to_string().unwrap();
-            let value = value_to_primitive(value)?;
+            let name = name.to_string()?;
+            let value = value_to_primitive(value, ctx)?;
             object.insert(name, value);
         }
         Ok(Primitive::Object(Object(object)))
