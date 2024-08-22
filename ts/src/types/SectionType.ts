@@ -3,15 +3,19 @@
  * The type of a `Section`.
  */
 export type SectionType =
+  'Abstract' |
+  'Summary' |
+  'Introduction' |
+  'Materials' |
+  'Methods' |
+  'Cases' |
+  'Results' |
+  'Discussion' |
+  'Conclusions' |
+  'SupplementaryMaterials' |
   'Main' |
   'Header' |
   'Footer' |
-  'Summary' |
-  'Introduction' |
-  'Methods' |
-  'Results' |
-  'Discussion' |
-  'Conclusion' |
   'Iteration';
 
 

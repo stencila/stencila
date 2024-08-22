@@ -9,23 +9,32 @@ use crate::prelude::*;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum SectionType {
     #[default]
+    Abstract,
+
+    Summary,
+
+    Introduction,
+
+    Materials,
+
+    Methods,
+
+    Cases,
+
+    Results,
+
+    Discussion,
+
+    Conclusions,
+
+    SupplementaryMaterials,
+
     Main,
 
     Header,
 
     Footer,
 
-    Summary,
-
-    Introduction,
-
-    Methods,
-
-    Results,
-
-    Discussion,
-
-    Conclusion,
-
+    /// A section representing an iteration of a `ForBlock`.
     Iteration,
 }

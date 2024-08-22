@@ -3,25 +3,38 @@ title: SectionType
 extends: Enumeration
 category: prose
 description: The type of a `Section`.
+$comment: |
+  Includes the section types recommended by the JATS XML standard
+  (https://jats.nlm.nih.gov/archiving/tag-library/1.1d1/n-77u2.html) with additional
+  values for other section types commonly found in documents.
 proptest: {}
 anyOf:
-  - const: Main
-    '@id': stencila:Main
-  - const: Header
-    '@id': stencila:Header
-  - const: Footer
-    '@id': stencila:Footer
+  - const: Abstract
+    '@id': stencila:AbstractSection
   - const: Summary
-    '@id': stencila:Summary
+    '@id': stencila:SummarySection
   - const: Introduction
-    '@id': stencila:Introduction
+    '@id': stencila:IntroductionSection
+  - const: Materials
+    '@id': stencila:MaterialsSection
   - const: Methods
-    '@id': stencila:Methods
+    '@id': stencila:MethodsSection
+  - const: Cases
+    '@id': stencila:CasesSection
   - const: Results
-    '@id': stencila:Results
+    '@id': stencila:ResultsSection
   - const: Discussion
-    '@id': stencila:Discussion
-  - const: Conclusion
-    '@id': stencila:Conclusion
+    '@id': stencila:DiscussionSection
+  - const: Conclusions
+    '@id': stencila:ConclusionsSection
+  - const: SupplementaryMaterials
+    '@id': stencila:SupplementaryMaterialsSection
+  - const: Main
+    '@id': stencila:MainSection
+  - const: Header
+    '@id': stencila:HeaderSection
+  - const: Footer
+    '@id': stencila:FooterSection
   - const: Iteration
-    '@id': stencila:Iteration
+    '@id': stencila:IterationSection
+    description: A section representing an iteration of a `ForBlock`.

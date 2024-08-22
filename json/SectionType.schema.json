@@ -8,6 +8,7 @@
   ],
   "category": "prose",
   "description": "The type of a `Section`.",
+  "$comment": "Includes the section types recommended by the JATS XML standard\n(https://jats.nlm.nih.gov/archiving/tag-library/1.1d1/n-77u2.html) with additional\nvalues for other section types commonly found in documents.\n",
   "proptest": {},
   "required": [
     "type"
@@ -119,43 +120,60 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:Main",
-      "const": "Main"
+      "@id": "stencila:AbstractSection",
+      "const": "Abstract"
     },
     {
-      "@id": "stencila:Header",
-      "const": "Header"
-    },
-    {
-      "@id": "stencila:Footer",
-      "const": "Footer"
-    },
-    {
-      "@id": "stencila:Summary",
+      "@id": "stencila:SummarySection",
       "const": "Summary"
     },
     {
-      "@id": "stencila:Introduction",
+      "@id": "stencila:IntroductionSection",
       "const": "Introduction"
     },
     {
-      "@id": "stencila:Methods",
+      "@id": "stencila:MaterialsSection",
+      "const": "Materials"
+    },
+    {
+      "@id": "stencila:MethodsSection",
       "const": "Methods"
     },
     {
-      "@id": "stencila:Results",
+      "@id": "stencila:CasesSection",
+      "const": "Cases"
+    },
+    {
+      "@id": "stencila:ResultsSection",
       "const": "Results"
     },
     {
-      "@id": "stencila:Discussion",
+      "@id": "stencila:DiscussionSection",
       "const": "Discussion"
     },
     {
-      "@id": "stencila:Conclusion",
-      "const": "Conclusion"
+      "@id": "stencila:ConclusionsSection",
+      "const": "Conclusions"
     },
     {
-      "@id": "stencila:Iteration",
+      "@id": "stencila:SupplementaryMaterialsSection",
+      "const": "SupplementaryMaterials"
+    },
+    {
+      "@id": "stencila:MainSection",
+      "const": "Main"
+    },
+    {
+      "@id": "stencila:HeaderSection",
+      "const": "Header"
+    },
+    {
+      "@id": "stencila:FooterSection",
+      "const": "Footer"
+    },
+    {
+      "@id": "stencila:IterationSection",
+      "description": "A section representing an iteration of a `ForBlock`.",
       "const": "Iteration"
     }
   ]

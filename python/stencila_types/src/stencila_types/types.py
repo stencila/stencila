@@ -380,15 +380,19 @@ class SectionType(StrEnum):
     The type of a `Section`.
     """
 
+    Abstract = "Abstract"
+    Summary = "Summary"
+    Introduction = "Introduction"
+    Materials = "Materials"
+    Methods = "Methods"
+    Cases = "Cases"
+    Results = "Results"
+    Discussion = "Discussion"
+    Conclusions = "Conclusions"
+    SupplementaryMaterials = "SupplementaryMaterials"
     Main = "Main"
     Header = "Header"
     Footer = "Footer"
-    Summary = "Summary"
-    Introduction = "Introduction"
-    Methods = "Methods"
-    Results = "Results"
-    Discussion = "Discussion"
-    Conclusion = "Conclusion"
     Iteration = "Iteration"
 
 
