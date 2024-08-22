@@ -1,6 +1,6 @@
-::: if document.paragraphs.next
+::: if document.paragraphs.next?.content
 
-The next paragraph in the document is:
+The next paragraph, after the current position in the document, is:
 
 {{ document.paragraphs.next.content }}
 
