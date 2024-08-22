@@ -60,18 +60,6 @@ impl CodeChunks {
     /// Get the previous code chunk (if any)
     #[qjs(get)]
     fn previous(&self) -> Option<CodeChunk> {
-        self.cursor.and_then(|cursor| {
-            if cursor == 0 {
-                None
-            } else {
-                self.items.get(cursor - 1).cloned()
-            }
-        })
-    }
-
-    /// Get the current code chunk (if any)
-    #[qjs(get)]
-    fn current(&self) -> Option<CodeChunk> {
         self.cursor
             .and_then(|cursor| self.items.get(cursor).cloned())
     }
@@ -79,10 +67,9 @@ impl CodeChunks {
     /// Get the next code chunk (if any)
     #[qjs(get)]
     fn next(&self) -> Option<CodeChunk> {
-        match self.cursor {
-            Some(cursor) => self.items.get(cursor + 1).cloned(),
-            None => self.first(),
-        }
+        self.cursor
+            .map(|cursor| self.items.get(cursor + 1).cloned())
+            .unwrap_or_else(|| self.first())
     }
 }
 

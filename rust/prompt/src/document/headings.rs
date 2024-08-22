@@ -58,18 +58,6 @@ impl Headings {
     /// Get the previous heading (if any)
     #[qjs(get)]
     fn previous(&self) -> Option<Heading> {
-        self.cursor.and_then(|cursor| {
-            if cursor == 0 {
-                None
-            } else {
-                self.items.get(cursor - 1).cloned()
-            }
-        })
-    }
-
-    /// Get the current heading (if any)
-    #[qjs(get)]
-    fn current(&self) -> Option<Heading> {
         self.cursor
             .and_then(|cursor| self.items.get(cursor).cloned())
     }
@@ -77,10 +65,9 @@ impl Headings {
     /// Get the next heading (if any)
     #[qjs(get)]
     fn next(&self) -> Option<Heading> {
-        match self.cursor {
-            Some(cursor) => self.items.get(cursor + 1).cloned(),
-            None => self.first(),
-        }
+        self.cursor
+            .map(|cursor| self.items.get(cursor + 1).cloned())
+            .unwrap_or_else(|| self.first())
     }
 
     /// Get the current hierarchy of headings

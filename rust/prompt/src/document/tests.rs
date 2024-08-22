@@ -106,11 +106,7 @@ async fn headings() -> Result<()> {
     let (.., messages) = kernel.execute("hs._forward()").await?;
     assert_eq!(messages, []);
 
-    let (output, messages) = kernel.evaluate("hs.previous").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::Null(Null));
-
-    let (output, messages) = kernel.evaluate("hs.current.content").await?;
+    let (output, messages) = kernel.evaluate("hs.previous.content").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("H1".into()));
 
@@ -128,10 +124,6 @@ async fn headings() -> Result<()> {
     assert_eq!(messages, []);
 
     let (output, messages) = kernel.evaluate("hs.previous.content").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::String("H1".into()));
-
-    let (output, messages) = kernel.evaluate("hs.current.content").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("H1.1".into()));
 
@@ -202,10 +194,6 @@ async fn paragraphs() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::Null(Null));
 
-    let (output, messages) = kernel.evaluate("ps.current").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::Null(Null));
-
     let (output, messages) = kernel.evaluate("ps.next.content").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para one.".into()));
@@ -213,11 +201,7 @@ async fn paragraphs() -> Result<()> {
     let (.., messages) = kernel.execute("ps._forward()").await?;
     assert_eq!(messages, []);
 
-    let (output, messages) = kernel.evaluate("ps.previous").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::Null(Null));
-
-    let (output, messages) = kernel.evaluate("ps.current.content").await?;
+    let (output, messages) = kernel.evaluate("ps.previous.content").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para one.".into()));
 
@@ -229,10 +213,6 @@ async fn paragraphs() -> Result<()> {
     assert_eq!(messages, []);
 
     let (output, messages) = kernel.evaluate("ps.previous.content").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::String("Para one.".into()));
-
-    let (output, messages) = kernel.evaluate("ps.current.content").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para two.".into()));
 
@@ -300,10 +280,6 @@ async fn code_chunks() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::Null(Null));
 
-    let (output, messages) = kernel.evaluate("cc.current").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::Null(Null));
-
     let (output, messages) = kernel.evaluate("cc.next.code").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("1 + 2".into()));
@@ -311,11 +287,7 @@ async fn code_chunks() -> Result<()> {
     let (.., messages) = kernel.execute("cc._forward()").await?;
     assert_eq!(messages, []);
 
-    let (output, messages) = kernel.evaluate("cc.previous").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::Null(Null));
-
-    let (output, messages) = kernel.evaluate("cc.current.code").await?;
+    let (output, messages) = kernel.evaluate("cc.previous.code").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("1 + 2".into()));
 
@@ -327,10 +299,6 @@ async fn code_chunks() -> Result<()> {
     assert_eq!(messages, []);
 
     let (output, messages) = kernel.evaluate("cc.previous.code").await?;
-    assert_eq!(messages, []);
-    assert_eq!(output, Node::String("1 + 2".into()));
-
-    let (output, messages) = kernel.evaluate("cc.current.code").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("code 2".into()));
 
