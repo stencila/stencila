@@ -18,6 +18,7 @@ async fn metadata() -> Result<()> {
         document: Some(Document {
             metadata: Metadata {
                 title: Some("The title".into()),
+                description: Some("A description".into()),
                 genre: Some("The genre".into()),
                 keywords: Some("some, key, words".into()),
             },
@@ -35,14 +36,23 @@ async fn metadata() -> Result<()> {
         serde_json::to_string_pretty(&output)?,
         r#"{
   "title": "The title",
+  "description": "A description",
   "genre": "The genre",
   "keywords": "some, key, words"
 }"#
     );
 
+    let (output, messages) = kernel.evaluate("md.properties.join()").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("title,description,genre,keywords".into()));
+
     let (output, messages) = kernel.evaluate("md.title").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("The title".into()));
+
+    let (output, messages) = kernel.evaluate("md.description").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::String("A description".into()));
 
     let (output, messages) = kernel.evaluate("md.genre").await?;
     assert_eq!(messages, []);
