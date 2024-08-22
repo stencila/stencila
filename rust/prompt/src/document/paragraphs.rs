@@ -26,8 +26,8 @@ impl Paragraphs {
 #[rquickjs::methods]
 impl Paragraphs {
     /// Move the paragraph cursor forward
-    #[qjs()]
-    fn _forward(&mut self) {
+    #[qjs(rename = "_forward")]
+    pub fn forward(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
     }
 

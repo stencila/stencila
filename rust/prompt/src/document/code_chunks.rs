@@ -28,8 +28,8 @@ impl CodeChunks {
 #[rquickjs::methods]
 impl CodeChunks {
     /// Move the code chunk cursor forward
-    #[qjs()]
-    fn _forward(&mut self) {
+    #[qjs(rename = "_forward")]
+    pub fn forward(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
     }
 

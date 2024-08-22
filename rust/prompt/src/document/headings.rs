@@ -26,8 +26,8 @@ impl Headings {
 #[rquickjs::methods]
 impl Headings {
     /// Move the heading cursor forward
-    #[qjs()]
-    fn _forward(&mut self) {
+    #[qjs(rename = "_forward")]
+    pub fn forward(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
     }
 

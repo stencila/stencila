@@ -62,6 +62,19 @@ impl Kernels {
     }
 }
 
+impl Kernels {
+    /// Create a set of kernel contexts from a set of kernel instances
+    pub async fn from_kernels(kernels: &kernels::Kernels) -> Result<Self> {
+        let mut items = Vec::new();
+        for kernel in kernels.instances().await {
+            let mut kernel_instance = kernel.lock().await;
+            let kernel_context = Kernel::from_kernel_instance(kernel_instance.as_mut()).await?;
+            items.push(kernel_context);
+        }
+        Ok(Self { items })
+    }
+}
+
 /// A kernel associated with a document
 ///
 /// This encapsulates the information that can be obtained from
@@ -107,7 +120,7 @@ impl Kernel {
     }
 
     /// Create a new context [`Kernel`] from a [`KernelInstance`]
-    pub async fn from_kernel_instance(mut instance: Box<dyn KernelInstance>) -> Result<Self> {
+    pub async fn from_kernel_instance(instance: &mut dyn KernelInstance) -> Result<Self> {
         let app = instance.info().await?;
         let name = app.name.clone();
         let version = app.options.software_version.clone();

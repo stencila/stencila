@@ -9,6 +9,11 @@ mod instruction;
 mod kernels;
 mod prelude;
 
+// Export parts of context with renaming to avoid ambiguities
+pub use document::Document as DocumentContext;
+pub use instruction::Instruction as InstructionContext;
+pub use kernels::Kernels as KernelsContext;
+
 /// The execution context for a prompt
 ///
 /// Note that all parts of the context are optional. This is for performance
@@ -16,13 +21,13 @@ mod prelude;
 #[derive(Default)]
 pub struct PromptContext {
     /// The current instruction
-    instruction: Option<instruction::Instruction>,
+    pub instruction: Option<instruction::Instruction>,
 
     /// The current document
-    document: Option<document::Document>,
+    pub document: Option<document::Document>,
 
     /// The execution kernels associated with the document
-    kernels: Option<kernels::Kernels>,
+    pub kernels: Option<kernels::Kernels>,
 }
 
 impl PromptContext {
