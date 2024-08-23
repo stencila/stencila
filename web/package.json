@@ -88,7 +88,7 @@
     "pagedjs": "0.4.3",
     "pretty-ms": "9.1.0",
     "split.js": "1.6.5",
-    "tailwindcss": "3.4.9"
+    "tailwindcss": "3.4.10"
   },
   "devDependencies": {
     "@parcel/compressor-brotli": "2.12.0",
