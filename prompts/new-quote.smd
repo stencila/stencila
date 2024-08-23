@@ -24,16 +24,6 @@ When the quote contains text in a language other than English, italicize that te
 
 Provide a citation for the quote on the last line preceded by two dashes and a space.
 
-# Context
-
-::: include context/document/metadata.smd
-
-::: include context/document/headings/hierarchy.smd
-
-::: include context/document/paragraphs/next.smd
-
-::: include context/document/paragraphs/previous.smd
-
 # Examples
 
 Here are some examples of user instructions and good assistant responses.
@@ -79,3 +69,13 @@ Assistant
 > The science of today is the technology of tomorrow.
 >
 > -- Edward Teller
+
+# Context
+
+::: include context/document/metadata.smd
+
+::: include context/document/headings/hierarchy.smd
+
+::: include context/document/paragraphs/next.smd
+
+::: include context/document/paragraphs/previous.smd
