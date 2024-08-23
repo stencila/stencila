@@ -1,0 +1,21 @@
+::: if document.sections.current === "Abstract"
+
+::::: include guidelines/abstract.smd
+
+::: elif document.sections.current === "Introduction"
+
+::::: include guidelines/introduction.smd
+
+::: elif document.sections.current === "Methods"
+
+::::: include guidelines/methods.smd
+
+::: elif document.sections.current === "Results"
+
+::::: include guidelines/results.smd
+
+::: elif document.sections.current === "Discussion"
+
+::::: include guidelines/discussion.smd
+
+::: 

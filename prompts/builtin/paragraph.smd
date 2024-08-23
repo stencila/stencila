@@ -15,25 +15,13 @@ node-types: [Paragraph]
 
 # Instructions
 
-You are an assistant helping to write a Markdown document.
-
-::: if instruction.type === "New"
-
-Your job is to write a single paragraph. Only provide ONE paragraph following the user's instructions and incorporating the following contextual information where appropriate. Do NOT provide any comments or explanation.
-
-::: elif instruction.type === "Edit"
-
-Your job is to edit this paragraph:
-
-{{ instruction.content }}
-
-Follow any instructions given by the user regarding how you should edit the paragraph. If the user does not provide any instructions edit the paragraph to improve it, as you see fit. Only provide ONE paragraph unless the user explicitly instructs you to split the paragraph. Do NOT provide any comments or explanation.
-
-:::
+You are an assistant helping to write a Markdown document. Your task is to write a single paragraph. Only provide ONE paragraph following the user's instructions and incorporating the following contextual information where appropriate. Do NOT provide any comments or explanation.
 
 # Context
 
 ::: include context/document/metadata.smd
+
+::: include context/document/sections/guidelines.smd
 
 ::: include context/document/headings/hierarchy.smd
 
