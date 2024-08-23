@@ -236,11 +236,12 @@ class NativeHint:
     parts: list[str] = field(default_factory=list)
 
     def push_head(self, part: str) -> None:
-        self.parts.append("")
-        self.parts.append(part)
+        self.parts.append(part + "\n")
 
     def push_data(self, part: str) -> None:
         """Note that the string here might have newlines in it"""
+        if len(part) > 1000:
+            part = part[:1000] + "..."
         self.parts.append(part)
 
     def to_string(self) -> str:
@@ -284,7 +285,7 @@ try:
             convert_type = int
         else:
             items_type = "String"
-            convert_type = str
+            convert_type = None
 
         length = np.size(array)
 
@@ -292,9 +293,15 @@ try:
             "type": "ArrayHint",
             "length": length,
             "itemTypes": [items_type],
-            "nulls": np.count_nonzero(np.isnan(array)) if length else None,
-            "minimum": convert_type(np.nanmin(array)) if length else None,
-            "maximum": convert_type(np.nanmax(array)) if length else None,
+            "nulls": (
+                np.count_nonzero(np.isnan(array)) if length and convert_type else None
+            ),
+            "minimum": (
+                convert_type(np.nanmin(array)) if length and convert_type else None
+            ),
+            "maximum": (
+                convert_type(np.nanmax(array)) if length and convert_type else None
+            ),
         }
 
     def ndarray_to_validator(value: np.ndarray) -> ArrayValidator:
@@ -313,6 +320,8 @@ try:
             validator = {"type": "TimestampValidator"}
         elif str(value.dtype) == "timedelta64":
             validator = {"type": "DurationValidator"}
+        elif value.dtype == np.object_:
+            validator = {"type": "StringValidator"}
         else:
             validator = None
 
@@ -334,15 +343,18 @@ try:
     def dataframe_to_hint(df: pd.DataFrame) -> DatatableHint:
         columns = []
         for column_name in df.columns:
-            column = df[column_name]
+            try:
+                column = df[column_name]
 
-            # We fudge the conversion here, and so break type hints
-            hint: DatatableColumnHint = ndarray_to_hint(column)  # type: ignore
-            hint["type"] = "DatatableColumnHint"
-            hint["name"] = str(column_name)
-            hint["itemType"] = hint["itemTypes"][0]  # type: ignore
+                # We fudge the conversion here, and so break type hints
+                hint: DatatableColumnHint = ndarray_to_hint(column)  # type: ignore
+                hint["type"] = "DatatableColumnHint"
+                hint["name"] = str(column_name)
+                hint["itemType"] = hint["itemTypes"][0]  # type: ignore
 
-            columns.append(hint)
+                columns.append(hint)
+            except:
+                continue
 
         return {"type": "DatatableHint", "rows": len(df), "columns": columns}
 
@@ -384,9 +396,9 @@ try:
         nh = NativeHint()
         nh.push_head("The dtypes of the Dataframe are:")
         nh.push_data(repr(value.dtypes))
-        nh.push_head("The first few rows of the Dataframe are:")
+        nh.push_head("\nThe first few rows of the Dataframe are:")
         nh.push_data(repr(value.head(3)))
-        nh.push_head("`describe` returns:")
+        nh.push_head("\n`describe` returns:")
         nh.push_data(repr(value.describe()))
 
         return nh.to_string()
@@ -574,9 +586,12 @@ def list_variables() -> None:
         if name in ("__builtins__", "print") or isinstance(value, types.ModuleType):
             continue
 
-        native_type = type(value).__name__
-        node_type, hint = determine_type_and_hint(value)
-        native_hint = determine_native_hint(value)
+        try:
+            native_type = type(value).__name__
+            node_type, hint = determine_type_and_hint(value)
+            native_hint = determine_native_hint(value)
+        except:
+            continue
 
         variable: Variable = {
             "type": "Variable",
@@ -649,15 +664,24 @@ def get_native_callable_hint(value: Callable) -> str:
     return nh.to_string()
 
 
+def get_native_dict_hint(value: dict) -> str:
+    nh = NativeHint()
+    nh.push_head("The keys of the dict are:")
+    nh.push_data(", ".join(value.keys()))
+    return nh.to_string()
+
+
 def determine_native_hint(value: Any) -> str:
     if isinstance(value, Callable):
         return get_native_callable_hint(value)
     if PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
         return get_native_pandas_hint(value)
+    if isinstance(value, dict):
+        return get_native_dict_hint(value)
 
     # Default (which works fine with many types)
     nh = NativeHint()
-    nh.push_head("The `repr` of this value is:")
+    nh.push_head("The `repr` of the variable is:")
     nh.push_data(repr(value))
     return nh.to_string()
 

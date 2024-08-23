@@ -70,7 +70,7 @@ mod tests {
             Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
             DatatableColumn, DatatableColumnHint, DatatableHint, Hint, IntegerValidator,
             MessageLevel, Node, Null, NumberValidator, Object, ObjectHint, Primitive, StringHint,
-            Validator, Variable,
+            StringValidator, Validator, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -738,7 +738,8 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
 df1 = pd.DataFrame({
     'c1': [True, False],
     'c2': [1, 2],
-    'c3': [1.23, 4.56]
+    'c3': [1.23, 4.56],
+    'c4': ['A', 'B']
 })
 ",
             )
@@ -749,9 +750,7 @@ df1 = pd.DataFrame({
 
         macro_rules! var {
             ($name:expr) => {{
-                let mut var = list.iter().find(|var| var.name == $name).unwrap().clone();
-                var.native_hint = None;
-                var
+                list.iter().find(|var| var.name == $name).unwrap().clone()
             }};
         }
         macro_rules! get {
@@ -792,9 +791,42 @@ df1 = pd.DataFrame({
                             maximum: Some(Primitive::Number(4.56)),
                             nulls: Some(0),
                             ..Default::default()
+                        },
+                        DatatableColumnHint {
+                            name: "c4".to_string(),
+                            item_type: "String".to_string(),
+                            ..Default::default()
                         }
                     ]
                 ))),
+                native_hint: Some(
+                    r#"The dtypes of the Dataframe are:
+
+c1       bool
+c2      int64
+c3    float64
+c4     object
+dtype: object
+
+The first few rows of the Dataframe are:
+
+      c1  c2    c3 c4
+0   True   1  1.23  A
+1  False   2  4.56  B
+
+`describe` returns:
+
+             c2        c3
+count  2.000000  2.000000
+mean   1.500000  2.895000
+std    0.707107  2.354666
+min    1.000000  1.230000
+25%    1.250000  2.062500
+50%    1.500000  2.895000
+75%    1.750000  3.727500
+max    2.000000  4.560000"#
+                        .to_string()
+                ),
                 programming_language: Some("Python".to_string()),
                 ..Default::default()
             },
@@ -830,6 +862,17 @@ df1 = pd.DataFrame({
                     validator: Some(ArrayValidator {
                         items_validator: Some(Box::new(Validator::NumberValidator(
                             NumberValidator::new()
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                DatatableColumn {
+                    name: "c4".to_string(),
+                    values: vec![Primitive::String("A".into()), Primitive::String("B".into())],
+                    validator: Some(ArrayValidator {
+                        items_validator: Some(Box::new(Validator::StringValidator(
+                            StringValidator::new()
                         ))),
                         ..Default::default()
                     }),
