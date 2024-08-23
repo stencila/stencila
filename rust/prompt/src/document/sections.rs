@@ -117,11 +117,19 @@ impl Sections {
     #[qjs(get)]
     fn previous(&self) -> Option<Section> {
         self.cursor.and_then(|cursor| {
-            if cursor == 0 {
-                None
+            let index = if self.current.is_some() {
+                // Currently in a section
+                if cursor == 0 {
+                    // In first section, so no previous
+                    return None;
+                } else {
+                    cursor - 1
+                }
             } else {
-                self.items.get(cursor - 1).cloned()
-            }
+                // Not currently in a section
+                cursor
+            };
+            self.items.get(index).cloned()
         })
     }
 

@@ -6,6 +6,7 @@ use crate::prelude::*;
 pub struct Paragraphs {
     items: Vec<Paragraph>,
     cursor: Option<usize>,
+    current: Option<usize>,
 }
 
 impl Paragraphs {
@@ -14,6 +15,7 @@ impl Paragraphs {
         Self {
             items,
             cursor: None,
+            current: None,
         }
     }
 
@@ -25,10 +27,17 @@ impl Paragraphs {
 
 #[rquickjs::methods]
 impl Paragraphs {
-    /// Move the paragraph cursor forward
-    #[qjs(rename = "_forward")]
-    pub fn forward(&mut self) {
+    /// Enter a paragraph
+    #[qjs(rename = "_enter")]
+    pub fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
+        self.current = self.cursor.clone();
+    }
+
+    /// Exit a paragraph
+    #[qjs(rename = "_exit")]
+    pub fn exit(&mut self) {
+        self.current = None;
     }
 
     /// Get the count of all paragraphs
@@ -58,8 +67,28 @@ impl Paragraphs {
     /// Get the previous paragraph (if any)
     #[qjs(get)]
     fn previous(&self) -> Option<Paragraph> {
-        self.cursor
-            .and_then(|cursor| self.items.get(cursor).cloned())
+        self.cursor.and_then(|cursor| {
+            let index = if self.current.is_some() {
+                // Currently in a paragraph
+                if cursor == 0 {
+                    // In first paragraph, so no previous
+                    return None;
+                } else {
+                    cursor - 1
+                }
+            } else {
+                // Not currently in a paragraph
+                cursor
+            };
+            self.items.get(index).cloned()
+        })
+    }
+
+    /// Get the current paragraph (if any)
+    #[qjs(get)]
+    fn current(&self) -> Option<Paragraph> {
+        self.current
+            .and_then(|current| self.items.get(current).cloned())
     }
 
     /// Get the next paragraph (if any)

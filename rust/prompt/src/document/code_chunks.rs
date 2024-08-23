@@ -8,6 +8,7 @@ use super::node::Node;
 pub struct CodeChunks {
     items: Vec<CodeChunk>,
     cursor: Option<usize>,
+    current: Option<usize>,
 }
 
 impl CodeChunks {
@@ -16,6 +17,7 @@ impl CodeChunks {
         Self {
             items,
             cursor: None,
+            current: None,
         }
     }
 
@@ -27,10 +29,17 @@ impl CodeChunks {
 
 #[rquickjs::methods]
 impl CodeChunks {
-    /// Move the code chunk cursor forward
-    #[qjs(rename = "_forward")]
-    pub fn forward(&mut self) {
+    /// Enter a code chunk
+    #[qjs(rename = "_enter")]
+    pub fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
+        self.current = self.cursor.clone();
+    }
+
+    /// Exit a code chunk
+    #[qjs(rename = "_exit")]
+    pub fn exit(&mut self) {
+        self.current = None;
     }
 
     /// Get the count of all code chunks
@@ -60,8 +69,28 @@ impl CodeChunks {
     /// Get the previous code chunk (if any)
     #[qjs(get)]
     fn previous(&self) -> Option<CodeChunk> {
-        self.cursor
-            .and_then(|cursor| self.items.get(cursor).cloned())
+        self.cursor.and_then(|cursor| {
+            let index = if self.current.is_some() {
+                // Currently in a code chunk
+                if cursor == 0 {
+                    // In first code chunk, so no previous
+                    return None;
+                } else {
+                    cursor - 1
+                }
+            } else {
+                // Not currently in a code chunk
+                cursor
+            };
+            self.items.get(index).cloned()
+        })
+    }
+
+    /// Get the current code chunk (if any)
+    #[qjs(get)]
+    fn current(&self) -> Option<CodeChunk> {
+        self.current
+            .and_then(|current| self.items.get(current).cloned())
     }
 
     /// Get the next code chunk (if any)

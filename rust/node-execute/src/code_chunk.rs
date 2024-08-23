@@ -85,8 +85,8 @@ impl Executable for CodeChunk {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        // Move the context cursor for code chunks forward
-        executor.document_context.code_chunks.forward();
+        // Enter the code chunk context
+        executor.document_context.code_chunks.enter();
 
         if !executor.should_execute(
             &node_id,
@@ -167,6 +167,9 @@ impl Executable for CodeChunk {
                 ],
             );
         };
+
+        // Exit the code chunk context
+        executor.document_context.code_chunks.exit();
 
         WalkControl::Break
     }

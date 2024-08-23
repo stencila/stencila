@@ -9,7 +9,9 @@ impl Executable for Heading {
 
         // Add heading to document context
         executor.document_context.headings.push((&*self).into());
+        executor.document_context.sections.push_heading(&*self);
 
+        // Continue walk over content
         WalkControl::Continue
     }
 
@@ -17,9 +19,21 @@ impl Executable for Heading {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         tracing::trace!("Executing Heading {}", self.node_id());
 
-        // Move the context cursor for headings forward
-        executor.document_context.headings.forward();
+        // Enter the heading context
+        executor.document_context.headings.enter();
+        executor.document_context.sections.enter_heading(&*self);
 
-        WalkControl::Continue
+        // Walk over content in case any is executable
+        if let Err(error) = self.content.walk_async(executor).await {
+            tracing::error!("While executing heading `content`: {error}")
+        }
+
+        // Exit the heading context. Note that we do not call exit on `sections` (as done
+        // above for `enter`) because a section defined by a level 1 heading only finishes
+        // at the next level one heading.
+        executor.document_context.headings.exit();
+
+        // Break walk because content executed above
+        WalkControl::Break
     }
 }

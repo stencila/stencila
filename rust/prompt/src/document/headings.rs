@@ -6,6 +6,7 @@ use crate::prelude::*;
 pub struct Headings {
     items: Vec<Heading>,
     cursor: Option<usize>,
+    current: Option<usize>,
 }
 
 impl Headings {
@@ -14,6 +15,7 @@ impl Headings {
         Self {
             items,
             cursor: None,
+            current: None,
         }
     }
 
@@ -25,10 +27,17 @@ impl Headings {
 
 #[rquickjs::methods]
 impl Headings {
-    /// Move the heading cursor forward
-    #[qjs(rename = "_forward")]
-    pub fn forward(&mut self) {
+    /// Enter a heading
+    #[qjs(rename = "_enter")]
+    pub fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
+        self.current = self.cursor.clone();
+    }
+
+    /// Exit a heading
+    #[qjs(rename = "_exit")]
+    pub fn exit(&mut self) {
+        self.current = None;
     }
 
     /// Get the count of all headings
@@ -58,8 +67,28 @@ impl Headings {
     /// Get the previous heading (if any)
     #[qjs(get)]
     fn previous(&self) -> Option<Heading> {
-        self.cursor
-            .and_then(|cursor| self.items.get(cursor).cloned())
+        self.cursor.and_then(|cursor| {
+            let index = if self.current.is_some() {
+                // Currently in a heading
+                if cursor == 0 {
+                    // In first heading, so no previous
+                    return None;
+                } else {
+                    cursor - 1
+                }
+            } else {
+                // Not currently in a heading
+                cursor
+            };
+            self.items.get(index).cloned()
+        })
+    }
+
+    /// Get the current heading (if any)
+    #[qjs(get)]
+    fn current(&self) -> Option<Heading> {
+        self.current
+            .and_then(|current| self.items.get(current).cloned())
     }
 
     /// Get the next heading (if any)
