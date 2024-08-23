@@ -1,9 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{path::PathBuf, sync::Arc};
 
 use common::{
     clap::{self, Args},
@@ -121,10 +118,12 @@ trait Executable {
 
 /// A visitor that walks over a tree of nodes and executes them
 pub struct Executor {
-    /// The home directory of the document being executed
+    /// The stack of directories being executed, included or called
     ///
     /// Used to resolve relative file paths in `IncludeBlock` and `CallBlock` nodes.
-    home: PathBuf,
+    /// Needs to be a stack for nested includes and calls (i.e. those inside documents
+    /// that have themselves been included or called).
+    directory_stack: Vec<PathBuf>,
 
     /// The kernels that will be used for execution
     kernels: Arc<RwLock<Kernels>>,
@@ -238,7 +237,7 @@ impl Executor {
         options: Option<ExecuteOptions>,
     ) -> Self {
         Self {
-            home,
+            directory_stack: vec![home],
             kernels,
             patch_sender,
             node_ids,
@@ -282,11 +281,6 @@ impl Executor {
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
         root.walk_async(self).await
-    }
-
-    /// Get the home directory of the executor
-    pub fn home(&self) -> &Path {
-        &self.home
     }
 
     /// Obtain a write lock to the kernels
