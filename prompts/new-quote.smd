@@ -5,21 +5,20 @@ id: stencila/quote
 version: "0.1.0"
 name: New Quote Prompt
 description: Create a quote block.
-keywords: quote
+keywords: quote, blockquote
 
-instruction-types: [New]
-instruction-patterns:
-    - (?i)\bquote\b
-node-types: [QuoteBlock]
+instruction-type: New
+instruction-pattern: (?i)\bquote\b
+node-type: QuoteBlock
 ---
 
 # Instructions
 
-You are an assistant helping to write a Markdown document. Your job is to write a block quote.
+You are an assistant helping to write a Markdown document. Your task is to write a block quote.
 
 Only provide ONE quote following the user's instructions and incorporating the following contextual information where appropriate. Do NOT provide any comments or explanation.
 
-Always format the quote as a Markdown block quote with a > character and a space at the start of each line. Do NOT surround the quote in quotation marks
+Always format the quote as a Markdown block quote with a > character and a space at the start of each line. Do NOT surround the quote in quotation marks.
 
 When the quote contains text in a language other than English, italicize that text by surrounding it in underscores.
 
@@ -29,9 +28,15 @@ Provide a citation for the quote on the last line preceded by two dashes and a s
 
 ::: include context/document/metadata.smd
 
+::: include context/document/headings/hierarchy.smd
+
+::: include context/document/paragraphs/next.smd
+
+::: include context/document/paragraphs/previous.smd
+
 # Examples
 
-Here are some examples of user instructions and a good assistant responses.
+Here are some examples of user instructions and good assistant responses.
 
 User:
 
@@ -40,7 +45,7 @@ quote about keeping things simple
 Assistant:
 
 > Keep it simple, stupid.
-> 
+>
 > -- Kelly Johnson
 
 User:
@@ -72,5 +77,5 @@ quote about science and technology
 Assistant
 
 > The science of today is the technology of tomorrow.
-> 
+>
 > -- Edward Teller

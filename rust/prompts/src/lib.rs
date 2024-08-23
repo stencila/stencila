@@ -117,17 +117,17 @@ pub async fn list() -> Vec<PromptInstance> {
 
 /// Builtin prompts
 ///
-/// During development these are loaded directly from the `prompts/builtin`
+/// During development these are loaded directly from the `prompts`
 /// directory at the root of the repository but are embedded into the binary on release builds.
 #[derive(RustEmbed)]
-#[folder = "$CARGO_MANIFEST_DIR/../../prompts/builtin"]
+#[folder = "$CARGO_MANIFEST_DIR/../../prompts"]
 struct Builtin;
 
 /// List the builtin prompts.
 pub async fn list_builtin() -> Result<Vec<PromptInstance>> {
-    // If in debug mode, just use the prompts/builtin dir in the repo
+    // If in debug mode, just use the prompts dir in the repo
     if cfg!(debug_assertions) {
-        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../prompts/builtin");
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../prompts");
         return list_dir(&dir).await;
     }
 
@@ -185,11 +185,6 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
         let (Some(filename), Some(ext)) = (path.file_name(), path.extension()) else {
             continue;
         };
-
-        // TODO: Remove this when all prompts ported
-        if ext != "smd" {
-            continue;
-        }
 
         let content = read_to_string(&path).await?;
 
