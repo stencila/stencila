@@ -1,0 +1,19 @@
+::: if kernels.all.some(kernel => kernel.variables.length > 0)
+
+The following execution kernels define variables that may be referred to in prose or code.
+
+::::: for kernel in kernels.all
+
+## {{ kernel.name }}
+
+::::::: for variable in kernel.variables
+
+### {{ variable.name }}: {{ variable.nativeType ?? variable.type }}
+
+{{ variable.nativeHint ?? JSON.stringify(variable.hint, null, '  ') }}
+
+:::::::
+
+:::::
+
+:::

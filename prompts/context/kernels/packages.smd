@@ -1,0 +1,13 @@
+::: if kernels.all.some(kernel => kernel.packages.length > 0)
+
+These packages are installed:
+
+::::: for kernel in kernels.all
+
+## {{ kernel.name }}
+
+{{ kernel.packages.map(pkg => `${pkg.name} ${pkg.version}`).join('\n') }}
+
+:::::
+
+:::
