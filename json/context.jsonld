@@ -143,6 +143,7 @@
     "PublicationVolume": "schema:PublicationVolume",
     "QuoteBlock": "stencila:QuoteBlock",
     "QuoteInline": "stencila:QuoteInline",
+    "RawBlock": "stencila:RawBlock",
     "ReplaceBlock": "stencila:ReplaceBlock",
     "ReplaceInline": "stencila:ReplaceInline",
     "Review": "schema:Review",

@@ -21,6 +21,7 @@ use super::math_block::MathBlock;
 use super::modify_block::ModifyBlock;
 use super::paragraph::Paragraph;
 use super::quote_block::QuoteBlock;
+use super::raw_block::RawBlock;
 use super::replace_block::ReplaceBlock;
 use super::section::Section;
 use super::styled_block::StyledBlock;
@@ -99,6 +100,8 @@ pub enum Block {
     Paragraph(Paragraph),
 
     QuoteBlock(QuoteBlock),
+
+    RawBlock(RawBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

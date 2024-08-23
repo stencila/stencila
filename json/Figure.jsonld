@@ -184,6 +184,9 @@
           "@id": "stencila:QuoteBlock"
         },
         {
+          "@id": "stencila:RawBlock"
+        },
+        {
           "@id": "stencila:Section"
         },
         {
@@ -232,6 +235,9 @@
         },
         {
           "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
         },
         {
           "@id": "stencila:Section"
@@ -610,6 +616,9 @@
         },
         {
           "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
         },
         {
           "@id": "stencila:Section"

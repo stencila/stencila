@@ -58,6 +58,7 @@ mod person_or_organization;
 mod primitive;
 mod property_value_or_string;
 mod quote_block;
+mod raw_block;
 mod replace_block;
 mod section;
 mod string_or_number;

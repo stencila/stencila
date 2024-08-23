@@ -233,6 +233,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.QuoteBlock.prototype);
     case "QuoteInline":
       return Object.setPrototypeOf(value, types.QuoteInline.prototype);
+    case "RawBlock":
+      return Object.setPrototypeOf(value, types.RawBlock.prototype);
     case "ReplaceBlock":
       return Object.setPrototypeOf(value, types.ReplaceBlock.prototype);
     case "ReplaceInline":

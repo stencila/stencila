@@ -101,6 +101,7 @@ export type NodeType =
   | "PublicationVolume"
   | "QuoteBlock"
   | "QuoteInline"
+  | "RawBlock"
   | "ReplaceBlock"
   | "ReplaceInline"
   | "Review"
@@ -237,6 +238,7 @@ export const NodeTypeList = [
   "PublicationVolume",
   "QuoteBlock",
   "QuoteInline",
+  "RawBlock",
   "ReplaceBlock",
   "ReplaceInline",
   "Review",

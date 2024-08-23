@@ -98,6 +98,7 @@ import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type QuoteInline } from "./QuoteInline.js";
+import { type RawBlock } from "./RawBlock.js";
 import { type ReplaceBlock } from "./ReplaceBlock.js";
 import { type ReplaceInline } from "./ReplaceInline.js";
 import { type Review } from "./Review.js";
@@ -237,6 +238,7 @@ export type Node =
   PublicationVolume |
   QuoteBlock |
   QuoteInline |
+  RawBlock |
   ReplaceBlock |
   ReplaceInline |
   Review |
@@ -372,6 +374,7 @@ export function node(other: Node): Node {
     case "PublicationVolume":
     case "QuoteBlock":
     case "QuoteInline":
+    case "RawBlock":
     case "ReplaceBlock":
     case "ReplaceInline":
     case "Review":

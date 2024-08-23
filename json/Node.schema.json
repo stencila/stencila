@@ -303,6 +303,9 @@
       "$ref": "QuoteInline.schema.json"
     },
     {
+      "$ref": "RawBlock.schema.json"
+    },
+    {
       "$ref": "ReplaceBlock.schema.json"
     },
     {

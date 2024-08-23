@@ -140,6 +140,7 @@ export * from "./PublicationIssue.js";
 export * from "./PublicationVolume.js";
 export * from "./QuoteBlock.js";
 export * from "./QuoteInline.js";
+export * from "./RawBlock.js";
 export * from "./ReplaceBlock.js";
 export * from "./ReplaceInline.js";
 export * from "./Review.js";

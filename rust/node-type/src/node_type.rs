@@ -109,6 +109,7 @@ pub enum NodeType {
     PublicationVolume,
     QuoteBlock,
     QuoteInline,
+    RawBlock,
     ReplaceBlock,
     ReplaceInline,
     Review,

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/RawBlock.schema.json",
+  "@id": "stencila:RawBlock",
+  "title": "RawBlock",
+  "extends": [
+    "Entity"
+  ],
+  "description": "Document content in a specific format",
+  "$comment": "The content of the block is not decoded by any codecs and is output when the encoding format\nmatches that of the raw block and the `render` option is used.\nAnalogous to node types in [Pandoc](https://github.com/jgm/pandoc-types/blob/1cf21a602535b6b263fef9548521353912115d87/src/Text/Pandoc/Definition.hs#L284) and [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/raw.html).\n",
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type",
+    "format",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "format": {
+      "@id": "stencila:format",
+      "description": "The format of the raw content.",
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The raw content.",
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
+      "$ref": "Cord.schema.json"
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the content.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "authors"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
+    }
+  }
+}

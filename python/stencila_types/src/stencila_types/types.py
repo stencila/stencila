@@ -2443,6 +2443,27 @@ class QuoteInline(Mark):
 
 
 @dataclass(kw_only=True, repr=False)
+class RawBlock(Entity):
+    """
+    Document content in a specific format
+    """
+
+    type: Literal["RawBlock"] = "RawBlock"
+
+    format: str
+    """The format of the raw content."""
+
+    content: Cord
+    """The raw content."""
+
+    authors: list[Author] | None = None
+    """The authors of the content."""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content."""
+
+
+@dataclass(kw_only=True, repr=False)
 class ReplaceBlock(SuggestionBlock):
     """
     A suggestion to replace some block content with new block content.
@@ -2930,6 +2951,7 @@ Block = Union[
     ModifyBlock,
     Paragraph,
     QuoteBlock,
+    RawBlock,
     ReplaceBlock,
     Section,
     StyledBlock,
@@ -3170,6 +3192,7 @@ Node = Union[
     PublicationVolume,
     QuoteBlock,
     QuoteInline,
+    RawBlock,
     ReplaceBlock,
     ReplaceInline,
     Review,
@@ -3397,6 +3420,7 @@ TYPES = [
     PublicationVolume,
     QuoteBlock,
     QuoteInline,
+    RawBlock,
     ReplaceBlock,
     ReplaceInline,
     Review,

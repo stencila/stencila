@@ -15,7 +15,7 @@ use codec::{
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
         LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
-        ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
+        RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
         TableRowType, Text, ThematicBreak,
     },
 };
@@ -1442,9 +1442,10 @@ fn code_to_block(code: mdast::Code) -> Block {
 
     let meta = meta.unwrap_or_default();
     let is_exec = meta.starts_with("exec") || lang.as_deref() == Some("exec");
-    let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
+    let is_raw = meta.starts_with("raw") || lang.as_deref() == Some("raw");
 
     if is_exec {
+        let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
         let is_invisible = value.contains("@invisible").then_some(true);
 
         Block::CodeChunk(CodeChunk {
@@ -1456,6 +1457,16 @@ fn code_to_block(code: mdast::Code) -> Block {
             },
             execution_mode: execution_mode(&mut meta).ok(),
             is_invisible,
+            ..Default::default()
+        })
+    } else if is_raw {
+        let format = lang
+            .and_then(|lang| (lang != "raw").then_some(lang))
+            .unwrap_or("markdown".to_string());
+
+        Block::RawBlock(RawBlock {
+            content: value.into(),
+            format,
             ..Default::default()
         })
     } else if matches!(

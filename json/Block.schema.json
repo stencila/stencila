@@ -167,6 +167,9 @@
       "$ref": "QuoteBlock.schema.json"
     },
     {
+      "$ref": "RawBlock.schema.json"
+    },
+    {
       "proptest": {
         "min": {
           "description": "Do not generate `ReplaceBlock` nodes in block content.",

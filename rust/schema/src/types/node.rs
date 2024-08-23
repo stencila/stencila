@@ -101,6 +101,7 @@ use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::quote_block::QuoteBlock;
 use super::quote_inline::QuoteInline;
+use super::raw_block::RawBlock;
 use super::replace_block::ReplaceBlock;
 use super::replace_inline::ReplaceInline;
 use super::review::Review;
@@ -341,6 +342,8 @@ pub enum Node {
     QuoteBlock(QuoteBlock),
 
     QuoteInline(QuoteInline),
+
+    RawBlock(RawBlock),
 
     ReplaceBlock(ReplaceBlock),
 

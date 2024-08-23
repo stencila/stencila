@@ -46,9 +46,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "format",
       "rdfs:comment": "The format that the author used to perform the role. e.g. Markdown, Python",
-      "schema:domainIncludes": {
-        "@id": "stencila:AuthorRole"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:AuthorRole"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

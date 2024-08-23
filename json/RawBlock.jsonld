@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Heading",
-  "name": "Heading",
+  "@id": "https://stencila.org/RawBlock",
+  "name": "RawBlock",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,39 +9,36 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Heading",
+      "@id": "stencila:RawBlock",
       "@type": "rdfs:Class",
-      "rdfs:label": "Heading",
-      "rdfs:comment": "A heading.",
+      "rdfs:label": "RawBlock",
+      "rdfs:comment": "Document content in a specific format",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "stencila:level",
+      "@id": "stencila:format",
       "@type": "rdfs:Property",
-      "rdfs:label": "level",
-      "rdfs:comment": "The level of the heading.",
+      "rdfs:label": "format",
+      "rdfs:comment": "The format of the raw content.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationMessage"
+          "@id": "stencila:AuthorRole"
         },
         {
-          "@id": "stencila:ExecutionMessage"
-        },
-        {
-          "@id": "stencila:Heading"
+          "@id": "stencila:RawBlock"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "schema:Text"
       }
     },
     {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "Content of the heading.",
+      "rdfs:comment": "The raw content.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -126,14 +123,14 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Inline"
+        "@id": "stencila:Cord"
       }
     },
     {
       "@id": "schema:author",
       "@type": "rdfs:Property",
       "rdfs:label": "authors",
-      "rdfs:comment": "The authors of the heading.",
+      "rdfs:comment": "The authors of the content.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -186,7 +183,7 @@
       "@id": "stencila:provenance",
       "@type": "rdfs:Property",
       "rdfs:label": "provenance",
-      "rdfs:comment": "A summary of the provenance of the content within the heading.",
+      "rdfs:comment": "A summary of the provenance of the content.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"

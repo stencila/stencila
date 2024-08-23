@@ -119,6 +119,8 @@ anyOf:
   
   - $ref: QuoteBlock
 
+  - $ref: RawBlock
+
   - $ref: ReplaceBlock
     proptest:
       min:

@@ -10,10 +10,10 @@ use schema::{
     ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
     InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
     ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
-    QuoteBlock, QuoteInline, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock,
-    StyledInline, Subscript, SuggestionBlock, SuggestionInline, SuggestionStatus, Superscript,
-    Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject,
-    Visitor, WalkControl,
+    QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong,
+    StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, SuggestionStatus,
+    Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline,
+    VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -147,6 +147,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             ModifyBlock,
             Paragraph,
             QuoteBlock,
+            RawBlock,
             ReplaceBlock,
             Section,
             StyledBlock,
@@ -521,6 +522,7 @@ default!(
     MathBlock,
     ModifyBlock,
     QuoteBlock,
+    RawBlock,
     ReplaceBlock,
     Section,
     ThematicBreak,
