@@ -168,14 +168,21 @@ fn myst_to_md(myst: &str) -> String {
 fn parse_options() -> ParseOptions {
     let mut options = ParseOptions::gfm();
     options.constructs.frontmatter = true;
+
     // Do not parse inline code since we have a custom parser for that
     options.constructs.code_text = false;
-    // Do not parse GFM single strikethrough
+
+    // Do not parse inline math since we have a custom parser for that
+    // to avoid clashes with dollars inside code
+    options.math_text_single_dollar = false;
+    options.constructs.math_text = false;
+
+    // Do not parse GFM single strikethrough since we use that for subscripts
     options.constructs.gfm_strikethrough = false;
-    // Enable math
-    options.math_text_single_dollar = true;
-    options.constructs.math_text = true;
+
+    // Enable block math
     options.constructs.math_flow = true;
+
     // Do not handle embedded HTML, instead parse manually
     options.constructs.html_text = false;
     options.constructs.html_flow = false;

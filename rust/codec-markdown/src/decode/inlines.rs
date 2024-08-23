@@ -310,6 +310,7 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             myst_role,
             code_attrs,
             double_braces,
+            math,
             cite_group,
             cite,
             parameter,
@@ -453,6 +454,21 @@ fn double_braces(input: &mut Located<&str>) -> PResult<Inline> {
             })
         })
         .parse_next(input)
+}
+
+/// Parse math surrounded by one or two dollars into a `MathInline`.
+fn math(input: &mut Located<&str>) -> PResult<Inline> {
+    (alt((
+        delimited("$$", take_until(0.., "$$"), "$$"),
+        delimited("$", take_until(0.., "$"), "$"),
+    )))
+    .map(|code: &str| {
+        Inline::MathInline(MathInline {
+            code: code.into(),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
 }
 
 /// Parse a string into a narrative `Cite` node
@@ -954,6 +970,30 @@ mod tests {
 
         assert!(code_attrs(&mut Located::new("=`1*1`")).is_err());
         assert!(code_attrs(&mut Located::new("= `2+2`")).is_err());
+
+        // Two or more dollars in code is OK (previous got split out as math)
+        let is = inlines(&mut Located::new("`${a} ${b}`"));
+        assert_eq!(is.len(), 1);
+        assert_eq!(is[0].0.node_type(), NodeType::CodeInline);
+    }
+
+    #[test]
+    fn test_math() {
+        assert_eq!(
+            math(&mut Located::new("$\\pi r^2$")).unwrap(),
+            Inline::MathInline(MathInline {
+                code: "\\pi r^2".into(),
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            math(&mut Located::new("$$\\pi r^2$$")).unwrap(),
+            Inline::MathInline(MathInline {
+                code: "\\pi r^2".into(),
+                ..Default::default()
+            })
+        );
     }
 
     #[test]
