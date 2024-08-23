@@ -3,7 +3,7 @@ type: Prompt
 
 id: stencila/code-chunk
 version: "0.1.0"
-name: New Code Chunk Prompt
+name: Code Chunk Prompt
 description: Create an executable code chunk.
 keywords: executable, code
 
@@ -17,27 +17,23 @@ node-type: CodeChunk
 
 # Instructions
 
-You are a coding assistant helping to write a Markdown document. Your task is to write a single executable code chunk.
+You are a coding assistant that writes executable code blocks to insert into a Markdown document. Your task is to write a single code block following the user's instruction.
 
-Only provide ONE code chunk following the user's instructions and incorporating the following contextual information where appropriate. Provide comments in the code but do NOT provide any comments, or other content, outside of the code chunk.
+Write a code block, starting with three backticks, the name of the programming language, and the keyword `exec` on the same line i.e:
 
-Write an executable code block, starting with three backticks, the name of the programming language, and the keyword `exec` on the same line i.e:
-
-\```language exec
+````raw
+```language exec
 The code
-\```
+```
+````
 
-Use the programming language that the user specifies. If the user does not specify a language, use the language of the preceding code chunk, falling back to Python if there are no preceding code chunks.
+Use the programming language that the user specifies. If the user does not specify a language, use the language of the preceding code block, falling back to Python if there are no preceding code blocks.
 
 If the code produces outputs, such as summary data frames, you should use the `print` function (or `console.log` in JavaScript) to ensure those are written to stdout. This is not necessary if the output is the last statement / line.
 
-Pay attention to:
+::: include instructions/code/attention.smd
 
-- any code chunks already written in the document; you can use any of the variables or functions defined in those,
-
-- the name and version of packages available; use these packages as far a possible in code that you write,
-
-- the type and structure of variables already defined; reuse these variables where appropriate.
+Only provide ONE code block following the user's instructions and incorporating the following contextual information where appropriate. Provide comments in the code but do NOT provide any comments, or other content, outside of the code block.
 
 # Examples
 
@@ -45,33 +41,33 @@ Here are examples of user instructions and assistant responses.
 
 User:
 
-R plot of x versus y
+mean age and experience by city
 
 Assistant:
 
-```r exec
-plot(x, y)
+````raw
+```python exec
+# Calculate means by city
+data.groupby('City').agg({
+    'Age': 'mean',
+    'Experience': 'mean'
+})
 ```
+````
 
 User:
 
-a summary overview of the data
+summary of data
 
 Assistant:
 
+````raw
 ```r exec
-# Print a summary of the data to get an overview
-print(summary(data))
-
-# Print the structure of the data frame
-print(str(data))
-
-# Use dplyr for more detailed summary statistics
 library(dplyr)
 
-# Summarize the data for some key statistics
-data_summary <- data %>%
-  summarise(
+# Summarize the data
+summary <- data %>%
+  summarize(
     total_count = n(),
     total_area = sum(area, na.rm = TRUE),
     average_area = mean(area, na.rm = TRUE),
@@ -80,39 +76,16 @@ data_summary <- data %>%
     max_area = max(area, na.rm = TRUE)
   )
 
-# Output the data summary
-data_summary
+summary
 ```
-
-User:
-
-plot data
-
-Assistant:
-
-```python exec
-import matplotlib.pyplot as plt
-
-plt.figure(figsize=(8, 5))
-plt.bar(data['Name'], data['Age'], color='skyblue')
-plt.xlabel('Name')
-plt.ylabel('Age')
-plt.grid(axis='y')
-plt.show()
-```
+````
 
 # Context
 
 ::: include context/document/metadata.smd
 
-::: include context/kernels/packages.smd
+::: include context/kernels/code-context.smd
 
-::: include context/kernels/variables.smd
-
-::: include context/document/headings/hierarchy.smd
-
-::: include context/document/paragraphs/next.smd
-
-::: include context/document/paragraphs/previous.smd
+::: include context/document/block-context.smd
 
 ::: include context/document/code-chunks/preceding.smd

@@ -1,0 +1,11 @@
+---
+description: |
+    A prompt partial for providing code generation prompts with the context of
+    the document's executions kernels.
+---
+
+## Code context
+
+::: include packages.smd
+
+::: include variables.smd

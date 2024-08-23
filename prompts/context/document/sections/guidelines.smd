@@ -1,3 +1,9 @@
+---
+description: |
+    A prompt partial which provides guidelines on how to write content
+    within the current section (if any) of the document.
+---
+
 ::: if document.sections.current === "Abstract"
 
 ::::: include guidelines/abstract.smd

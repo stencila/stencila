@@ -3,7 +3,7 @@ type: Prompt
 
 id: stencila/quote-block
 version: "0.1.0"
-name: New Quote Prompt
+name: Quote Block Prompt
 description: Create a quote block.
 keywords: quote, blockquote
 
@@ -74,8 +74,4 @@ Assistant
 
 ::: include context/document/metadata.smd
 
-::: include context/document/headings/hierarchy.smd
-
-::: include context/document/paragraphs/next.smd
-
-::: include context/document/paragraphs/previous.smd
+::: include context/document/block-context.smd

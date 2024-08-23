@@ -1,0 +1,13 @@
+---
+description: |
+    A prompt partial of items that assistants should pay attention
+    to when writing code. Expects that prompt partials enumerating existing code chunks and kernel variables and packages are also included.
+---
+
+When writing code, pay attention to:
+
+- any code already written in the document: you can use the packages imported and variables or functions defined in that code and should follow the style and conventions used
+
+- the name and version of packages available: use these where appropriate but prefer to use package already imported in preceding code, rather than newly importing packages
+
+- the type and structure of variables already defined: use these where appropriate

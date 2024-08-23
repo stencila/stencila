@@ -3,7 +3,7 @@ type: Prompt
 
 id: stencila/paragraph
 version: "0.1.0"
-name: New Paragraph Prompt
+name: Paragraph Prompt
 description: Create a paragraph.
 keywords: paragraph
 
@@ -24,8 +24,4 @@ Only provide ONE paragraph following the user's instructions and incorporating t
 
 ::: include context/document/sections/guidelines.smd
 
-::: include context/document/headings/hierarchy.smd
-
-::: include context/document/paragraphs/next.smd
-
-::: include context/document/paragraphs/previous.smd
+::: include context/document/block-context.smd

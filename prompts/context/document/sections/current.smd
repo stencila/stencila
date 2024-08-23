@@ -1,0 +1,13 @@
+---
+description: A prompt partial which provides the name of the current section, if any.
+---
+
+::: if document.sections.current === "Abstract"
+
+The current position in the document is within the abstract.
+
+::: elif document.sections.current
+
+The current position in the document is within the {{ document.sections.current }} section.
+
+:::
