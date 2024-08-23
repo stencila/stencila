@@ -115,6 +115,21 @@ pub async fn list() -> Vec<PromptInstance> {
     join_all(futures).await.into_iter().flatten().collect_vec()
 }
 
+/// Get a prompt by id
+pub async fn get(id: &str) -> Result<PromptInstance> {
+    let id = if id.contains('/') {
+        id.to_string()
+    } else {
+        ["stencila/", id].concat()
+    };
+
+    list()
+        .await
+        .into_iter()
+        .find(|prompt| prompt.id.as_ref() == Some(&id))
+        .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
+}
+
 /// Builtin prompts
 ///
 /// During development these are loaded directly from the `prompts`
@@ -285,16 +300,7 @@ pub async fn select(
 
     // If there is an assignee then get it
     if let Some(assignee) = assignee {
-        let id = if assignee.contains('/') {
-            assignee.to_string()
-        } else {
-            ["stencila/", assignee].concat()
-        };
-
-        return prompts
-            .into_iter()
-            .find(|prompt| prompt.id.as_ref() == Some(&id))
-            .ok_or_else(|| eyre!("Unable to find prompt with id `{assignee}`"));
+        return get(&assignee).await;
     }
 
     // Filter the prompts to those that support the instruction type
