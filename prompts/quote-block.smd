@@ -1,7 +1,7 @@
 ---
 type: Prompt
 
-id: stencila/quote
+id: stencila/quote-block
 version: "0.1.0"
 name: New Quote Prompt
 description: Create a quote block.
