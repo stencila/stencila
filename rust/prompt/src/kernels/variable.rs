@@ -46,6 +46,7 @@ impl Variable {
         obj.set("name", self.name.clone())?;
         obj.set("type", self.r#type.clone())?;
         obj.set("nativeType", self.native_type.clone())?;
+        obj.set("hint", self.hint.clone())?;
         obj.set("nativeHint", self.native_hint.clone())?;
 
         Ok(obj)
@@ -135,6 +136,53 @@ impl From<schema::DatatableColumnHint> for Hint {
 
 #[rquickjs::methods]
 impl Hint {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    pub fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx.clone())?;
+
+        match self {
+            Self::Boolean(..) | Self::Integer(..) | Self::Number(..) => {
+                obj.set("value", self.value(ctx))?;
+            }
+            Self::String { .. } => {
+                obj.set("length", self.length())?;
+            }
+            Self::Array { .. } => {
+                obj.set("length", self.length())?;
+                obj.set("types", self.r#types())?;
+            }
+            Self::Object { .. } => {
+                obj.set("keys", self.names())?;
+            }
+            Self::Datatable { .. } => {
+                obj.set("rows", self.rows())?;
+                obj.set(
+                    "columns",
+                    self.columns()
+                        .into_iter()
+                        .flatten()
+                        .map(|col| col.to_json(ctx.clone()))
+                        .collect::<Result<Vec<_>, _>>()?,
+                )?;
+            }
+            Self::DatatableColumn { .. } => {
+                obj.set("name", self.name())?;
+                if let Some(r#type) = self.r#type() {
+                    obj.set("type", r#type)?;
+                }
+                if let Some(minimum) = self.minimum() {
+                    obj.set("minimum", minimum)?;
+                }
+                if let Some(maximum) = self.maximum() {
+                    obj.set("maximum", maximum)?;
+                }
+            }
+            _ => {}
+        }
+
+        Ok(obj)
+    }
+
     /// Get the variable as a JavaScript value
     ///
     /// Only applies to `Boolean`, `Integer`, and `Number` variables. For all other

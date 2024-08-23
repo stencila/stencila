@@ -160,7 +160,7 @@ impl Kernel {
         obj.set("version", self.version.clone())?;
         obj.set("os", self.os.clone())?;
         obj.set("packages", self.packages.clone())?;
-        obj.set("variables", self.packages.clone())?;
+        obj.set("variables", self.variables.clone())?;
 
         Ok(obj)
     }
