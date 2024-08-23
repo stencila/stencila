@@ -66,6 +66,22 @@ impl CodeChunks {
         self.items.last().cloned()
     }
 
+    /// Get the preceding code chunks (if any)
+    #[qjs(get)]
+    fn preceding(&self) -> Vec<CodeChunk> {
+        let Some(cursor) = self.cursor else {
+            return Vec::new();
+        };
+
+        let take = if self.current.is_some() {
+            cursor
+        } else {
+            cursor + 1
+        };
+
+        self.items.iter().take(take).cloned().collect()
+    }
+
     /// Get the previous code chunk (if any)
     #[qjs(get)]
     fn previous(&self) -> Option<CodeChunk> {

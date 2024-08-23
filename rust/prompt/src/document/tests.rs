@@ -474,6 +474,10 @@ async fn code_chunks() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("3 + 4".into()));
 
+    let (output, messages) = kernel.evaluate("cc.preceding.length").await?;
+    assert_eq!(messages, []);
+    assert_eq!(output, Node::Integer(0));
+
     let (output, messages) = kernel.evaluate("cc.previous").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::Null(Null));
@@ -484,6 +488,10 @@ async fn code_chunks() -> Result<()> {
 
     {
         kernel.execute("cc._enter()").await?;
+
+        let (output, messages) = kernel.evaluate("cc.preceding.length").await?;
+        assert_eq!(messages, []);
+        assert_eq!(output, Node::Integer(0));
 
         let (output, messages) = kernel.evaluate("cc.previous").await?;
         assert_eq!(messages, []);
@@ -505,6 +513,10 @@ async fn code_chunks() -> Result<()> {
     {
         kernel.execute("cc._enter()").await?;
 
+        let (output, messages) = kernel.evaluate("cc.preceding.length").await?;
+        assert_eq!(messages, []);
+        assert_eq!(output, Node::Integer(1));
+
         let (output, messages) = kernel.evaluate("cc.previous.code").await?;
         assert_eq!(messages, []);
         assert_eq!(output, Node::String("1 + 2".into()));
@@ -520,6 +532,10 @@ async fn code_chunks() -> Result<()> {
         kernel.execute("cc._exit()").await?;
     }
 
+    assert_eq!(
+        kernel.evaluate("cc.preceding.length").await?.0,
+        Node::Integer(2)
+    );
     assert_eq!(kernel.evaluate("cc.current").await?.0, Node::Null(Null));
 
     Ok(())
