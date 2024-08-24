@@ -49,12 +49,11 @@ struct List;
 impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
-        table.set_header(["Id", "Name", "Version", "Description"]);
+        table.set_header(["Id", "Version", "Description"]);
 
         for prompt in super::list().await {
             let Prompt {
                 id,
-                name,
                 version,
                 description,
                 ..
@@ -67,7 +66,6 @@ impl List {
 
             table.add_row([
                 Cell::new(id.unwrap_or_default()).add_attribute(Attribute::Bold),
-                Cell::new(name),
                 Cell::new(version),
                 Cell::new(description.as_str()),
             ]);

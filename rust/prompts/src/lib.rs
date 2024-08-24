@@ -112,7 +112,12 @@ pub async fn list() -> Vec<PromptInstance> {
         }
     });
 
-    join_all(futures).await.into_iter().flatten().collect_vec()
+    join_all(futures)
+        .await
+        .into_iter()
+        .flatten()
+        .sorted_by(|a, b| a.id.cmp(&b.id))
+        .collect_vec()
 }
 
 /// Get a prompt by id
