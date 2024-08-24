@@ -24,11 +24,25 @@ impl Executable for Table {
     async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         tracing::trace!("Preparing Table {}", self.node_id());
 
-        // Add table to document context
-        executor.document_context.tables.push((&*self).into());
+        // Begin adding the table to the document context
+        executor.document_context.begin_table((&*self).into());
 
-        // Continue walk over caption and rows
-        WalkControl::Continue
+        // Walk over caption, rows and notes
+        if let Err(error) = async {
+            self.caption.walk_async(executor).await?;
+            self.rows.walk_async(executor).await?;
+            self.notes.walk_async(executor).await
+        }
+        .await
+        {
+            tracing::error!("While preparing table: {error}")
+        }
+
+        // End adding the table to the context
+        executor.document_context.end_table();
+
+        // Break walk because properties prepared above
+        WalkControl::Break
     }
 
     #[tracing::instrument(skip_all)]
@@ -36,7 +50,7 @@ impl Executable for Table {
         tracing::trace!("Executing Table {}", self.node_id());
 
         // Enter the table context
-        executor.document_context.tables.enter();
+        executor.document_context.enter_table();
 
         // Walk over caption, rows and notes
         if let Err(error) = async {
@@ -50,9 +64,9 @@ impl Executable for Table {
         }
 
         // Exit the table context
-        executor.document_context.tables.exit();
+        executor.document_context.exit_table();
 
-        // Break walk because content executed above
+        // Break walk because properties executed above
         WalkControl::Break
     }
 }

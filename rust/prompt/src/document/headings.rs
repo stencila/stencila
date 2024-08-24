@@ -11,7 +11,8 @@ pub struct Headings {
 
 impl Headings {
     /// Create a new list of headings
-    pub fn new(items: Vec<Heading>) -> Self {
+    #[cfg(test)]
+    pub(super) fn new(items: Vec<Heading>) -> Self {
         Self {
             items,
             cursor: None,

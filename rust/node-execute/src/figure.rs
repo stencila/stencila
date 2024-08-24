@@ -24,11 +24,24 @@ impl Executable for Figure {
     async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         tracing::trace!("Preparing Figure {}", self.node_id());
 
-        // Add figures to document context
-        executor.document_context.figures.push((&*self).into());
+        // Begin adding the figure to the document context
+        executor.document_context.begin_figure((&*self).into());
 
-        // Continue walk over caption and rows
-        WalkControl::Continue
+        // Walk over caption and content
+        if let Err(error) = async {
+            self.caption.walk_async(executor).await?;
+            self.content.walk_async(executor).await
+        }
+        .await
+        {
+            tracing::error!("While preparing figure: {error}")
+        }
+
+        // End adding the figure to the context
+        executor.document_context.end_figure();
+
+        // Break walk because properties prepared above
+        WalkControl::Break
     }
 
     #[tracing::instrument(skip_all)]
@@ -36,7 +49,7 @@ impl Executable for Figure {
         tracing::trace!("Executing Figure {}", self.node_id());
 
         // Enter the figure context
-        executor.document_context.figures.enter();
+        executor.document_context.enter_figure();
 
         // Walk over caption and content
         if let Err(error) = async {
@@ -49,7 +62,7 @@ impl Executable for Figure {
         }
 
         // Exit the figure context
-        executor.document_context.figures.exit();
+        executor.document_context.exit_figure();
 
         // Break walk because content executed above
         WalkControl::Break

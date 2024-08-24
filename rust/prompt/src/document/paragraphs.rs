@@ -4,6 +4,13 @@ use crate::prelude::*;
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Paragraphs {
+    /// Whether to ignore paragraphs that are pushed, entered and exited
+    ///
+    /// This can be used to ignore paragraphs such as those in footnotes,
+    /// figure captions and table cells which will not normally be considered
+    /// paragraphs in the main flow of the document.
+    pub(super) ignore: bool,
+
     items: Vec<Paragraph>,
     cursor: Option<usize>,
     current: Option<usize>,
@@ -11,17 +18,19 @@ pub struct Paragraphs {
 
 impl Paragraphs {
     /// Create a new list of paragraphs
-    pub fn new(items: Vec<Paragraph>) -> Self {
+    #[cfg(test)]
+    pub(super) fn new(items: Vec<Paragraph>) -> Self {
         Self {
             items,
-            cursor: None,
-            current: None,
+            ..Default::default()
         }
     }
 
     /// Push a paragraph onto the list
     pub fn push(&mut self, item: Paragraph) {
-        self.items.push(item);
+        if !self.ignore {
+            self.items.push(item);
+        }
     }
 }
 
@@ -30,14 +39,18 @@ impl Paragraphs {
     /// Enter a paragraph
     #[qjs(rename = "_enter")]
     pub fn enter(&mut self) {
-        self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
-        self.current = self.cursor.clone();
+        if !self.ignore {
+            self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
+            self.current = self.cursor.clone();
+        }
     }
 
     /// Exit a paragraph
     #[qjs(rename = "_exit")]
     pub fn exit(&mut self) {
-        self.current = None;
+        if !self.ignore {
+            self.current = None;
+        }
     }
 
     /// Get the count of all paragraphs

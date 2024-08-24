@@ -14,7 +14,8 @@ pub struct Sections {
 
 impl Sections {
     /// Create a new list of sections
-    pub fn new(items: Vec<String>) -> Self {
+    #[cfg(test)]
+    pub(super) fn new(items: Vec<String>) -> Self {
         Self {
             items,
             cursor: None,

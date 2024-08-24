@@ -13,7 +13,8 @@ pub struct CodeChunks {
 
 impl CodeChunks {
     /// Create a new list of code chunks
-    pub fn new(items: Vec<CodeChunk>) -> Self {
+    #[cfg(test)]
+    pub(super) fn new(items: Vec<CodeChunk>) -> Self {
         Self {
             items,
             cursor: None,

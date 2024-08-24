@@ -10,15 +10,15 @@ pub struct Table {
 
     /// The Markdown content of the table
     #[qjs(get, enumerable)]
-    content: String,
+    markdown: String,
 }
 
 impl Table {
     #[cfg(test)]
-    pub fn new(caption: Option<&str>, content: &str) -> Self {
+    pub fn new(caption: Option<&str>, markdown: &str) -> Self {
         Self {
             caption: caption.map(String::from),
-            content: content.into(),
+            markdown: markdown.into(),
         }
     }
 }
@@ -27,7 +27,7 @@ impl From<&schema::Table> for Table {
     fn from(table: &schema::Table) -> Self {
         Self {
             caption: table.caption.as_ref().map(|caption| to_markdown(caption)),
-            content: to_markdown(&table.rows),
+            markdown: to_markdown(table),
         }
     }
 }
@@ -38,7 +38,7 @@ impl Table {
     fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
         let obj = Object::new(ctx)?;
         obj.set("caption", self.caption.clone())?;
-        obj.set("content", self.content.clone())?;
+        obj.set("markdown", self.markdown.clone())?;
         Ok(obj)
     }
 }
@@ -54,7 +54,8 @@ pub struct Tables {
 
 impl Tables {
     /// Create a new set of tables
-    pub fn new(items: Vec<Table>) -> Self {
+    #[cfg(test)]
+    pub(super) fn new(items: Vec<Table>) -> Self {
         Self {
             items,
             cursor: None,
@@ -63,7 +64,7 @@ impl Tables {
     }
 
     /// Push a table onto the set
-    pub fn push(&mut self, item: Table) {
+    pub(super) fn push(&mut self, item: Table) {
         self.items.push(item);
     }
 }
@@ -72,14 +73,14 @@ impl Tables {
 impl Tables {
     /// Enter a table
     #[qjs(rename = "_enter")]
-    pub fn enter(&mut self) {
+    pub(super) fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
         self.current = self.cursor.clone();
     }
 
     /// Exit a table
     #[qjs(rename = "_exit")]
-    pub fn exit(&mut self) {
+    pub(super) fn exit(&mut self) {
         self.current = None;
     }
 

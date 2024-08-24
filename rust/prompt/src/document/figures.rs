@@ -49,7 +49,8 @@ pub struct Figures {
 
 impl Figures {
     /// Create a new set of figures
-    pub fn new(items: Vec<Figure>) -> Self {
+    #[cfg(test)]
+    pub(super) fn new(items: Vec<Figure>) -> Self {
         Self {
             items,
             cursor: None,
@@ -58,7 +59,7 @@ impl Figures {
     }
 
     /// Push a figure onto the set
-    pub fn push(&mut self, item: Figure) {
+    pub(super) fn push(&mut self, item: Figure) {
         self.items.push(item);
     }
 }
@@ -67,14 +68,14 @@ impl Figures {
 impl Figures {
     /// Enter a figure
     #[qjs(rename = "_enter")]
-    pub fn enter(&mut self) {
+    pub(super) fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
         self.current = self.cursor.clone();
     }
 
     /// Exit a figure
     #[qjs(rename = "_exit")]
-    pub fn exit(&mut self) {
+    pub(super) fn exit(&mut self) {
         self.current = None;
     }
 
