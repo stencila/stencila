@@ -7,7 +7,7 @@ description: |
 
 ### Figure captions
 
-The following figure captions are already present in the document:
+The following figure captions are already in the document:
 
 ::::: for figure in document.figures.all.filter(figure => figure.caption?.length > 0)
 

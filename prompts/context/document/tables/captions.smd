@@ -7,7 +7,7 @@ description: |
 
 ### Table captions
 
-The following table captions are already present in the document:
+The following table captions are already in the document:
 
 ::::: for table in document.tables.all.filter(table => table.caption?.length > 0)
 
