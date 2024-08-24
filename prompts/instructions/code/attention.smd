@@ -8,6 +8,8 @@ When writing code, pay attention to:
 
 - any code already written in the document: you can use the packages imported and variables or functions defined in that code and should follow the style and conventions used
 
-- the name and version of packages available: use these where appropriate but prefer to use package already imported in preceding code, rather than newly importing packages
+- the name and version of packages available: use these where appropriate but prefer to use package already imported in preceding code
+
+- do not re-import packages that have already been imported in preceding code; only import a package if it is installed and has not already been imported
 
 - the type and structure of variables already defined: use these where appropriate

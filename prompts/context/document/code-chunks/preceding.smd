@@ -1,5 +1,7 @@
 ::: if document.codeChunks.preceding.length > 0
 
+### Code chunks
+
 The preceding code chunks, before the current position in the document, are:
 
 ::::: for chunk in document.codeChunks.preceding

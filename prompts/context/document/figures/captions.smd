@@ -1,0 +1,18 @@
+---
+description: |
+    A prompt partial that lists all the figure captions in a document. Provided to assistants that are tasked with writing such captions.
+---
+
+::: if document.figures.all.some(figure => figure.caption?.length > 0)
+
+### Figure captions
+
+The following figure captions are already present in the document:
+
+::::: for figure in document.figures.all.filter(figure => figure.caption?.length > 0)
+
+{{ figure.caption }}
+
+:::::
+
+:::
