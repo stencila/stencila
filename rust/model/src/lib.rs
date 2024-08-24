@@ -28,13 +28,13 @@ pub use task::{ModelTask, ModelTaskKind};
 ///
 /// This ordering here is important as it is used when
 /// selecting a model to execute a task.
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Display, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ModelType {
     Builtin,
     Local,
     Router,
     Remote,
-    Proxy,
+    Proxied,
     Plugin(String),
 }
 
@@ -44,7 +44,10 @@ pub enum ModelType {
 pub enum ModelAvailability {
     /// Available on this machine
     Available,
-    /// Available on this machine but requires installation
+    /// Requires API key or token
+    #[strum(to_string="requires api key")]
+    RequiresKey,
+    /// Requires installation
     Installable,
     /// Not available on this machine
     Unavailable,

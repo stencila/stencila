@@ -8,10 +8,11 @@ use model::{
         eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
+        once_cell::sync::Lazy,
         reqwest::Client,
         serde::{Deserialize, Serialize},
     },
-    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
+    secrets, Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
 /// The base URL for the Stencila Cloud API
@@ -24,7 +25,11 @@ fn base_url() -> String {
 }
 
 /// The name of the env var or secret for the API key
-const API_KEY: &str = "STENCILA_API_TOKEN";
+const API_KEY_NAME: &str = "STENCILA_API_TOKEN";
+
+/// The API key value. Stored to avoid repeated access to secrets (which is
+/// relatively slow) for each model
+static API_KEY: Lazy<Option<String>> = Lazy::new(|| secrets::env_or_get(API_KEY_NAME).ok());
 
 /// A model available via Stencila Cloud
 #[derive(Default, Deserialize)]
@@ -72,8 +77,15 @@ impl Model for StencilaModel {
         if self.provider == "stencila" && self.identifier == "auto" {
             ModelType::Router
         } else {
-            ModelType::Proxy
+            ModelType::Proxied
         }
+    }
+
+    fn availability(&self) -> ModelAvailability {
+        API_KEY
+            .as_ref()
+            .map(|_| ModelAvailability::Available)
+            .unwrap_or(ModelAvailability::RequiresKey)
     }
 
     fn supported_inputs(&self) -> &[ModelIO] {
@@ -85,7 +97,7 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let token = secrets::env_or_get(API_KEY).map_err(|_| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+        let token = API_KEY.as_ref().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
         if task.dry_run {
             return ModelOutput::empty(self);
@@ -163,7 +175,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_auto() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if API_KEY.is_none() {
             return Ok(());
         }
 
@@ -180,7 +192,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_anthropic() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if API_KEY.is_none() {
             return Ok(());
         }
 
@@ -197,7 +209,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_google() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if API_KEY.is_none() {
             return Ok(());
         }
 
@@ -214,7 +226,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_mistral() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if API_KEY.is_none() {
             return Ok(());
         }
 
@@ -231,7 +243,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_openai() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if API_KEY.is_none() {
             return Ok(());
         }
 

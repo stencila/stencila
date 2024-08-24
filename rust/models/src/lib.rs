@@ -80,7 +80,7 @@ fn score(id: &str) -> u32 {
 pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     tracing::trace!("Selecting a model for task");
 
-    // Get the list of available models
+    // Get the list models
     let models = list().await;
 
     // If a model router is available and the task does not specify a id pattern
@@ -93,7 +93,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     {
         if let Some(model) = models
             .iter()
-            .find(|model| matches!(model.r#type(), ModelType::Router))
+            .find(|model| model.is_available() && matches!(model.r#type(), ModelType::Router))
         {
             return Ok(model.clone());
         }
@@ -114,7 +114,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     let mut models = models
         .into_iter()
         .filter(|model| {
-            if !model.supports_task(task) {
+            if !model.is_available() || !model.supports_task(task) {
                 return false;
             }
 
