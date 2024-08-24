@@ -1,0 +1,18 @@
+---
+description: |
+    A prompt partial that lists all the table captions in a document. Provided to assistants that are tasked with writing such captions.
+---
+
+::: if document.tables.all.some(table => table.caption?.length > 0)
+
+### Table captions
+
+The following table captions are already present in the document:
+
+::::: for table in document.tables.all.filter(table => table.caption?.length > 0)
+
+{{ table.caption }}
+
+:::::
+
+:::
