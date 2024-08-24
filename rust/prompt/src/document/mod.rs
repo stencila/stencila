@@ -1,20 +1,24 @@
 use crate::prelude::*;
 
 mod code_chunks;
+mod figures;
 mod headings;
 mod metadata;
 mod node;
 mod paragraphs;
 mod sections;
+mod tables;
 
 #[cfg(test)]
 mod tests;
 
 use code_chunks::CodeChunks;
+use figures::Figures;
 use headings::Headings;
 use metadata::Metadata;
 use paragraphs::Paragraphs;
 use sections::Sections;
+use tables::Tables;
 
 /// The context of the current document
 ///
@@ -27,19 +31,27 @@ pub struct Document {
     #[qjs(get, enumerable)]
     pub metadata: Metadata,
 
-    /// Document sections
+    /// Sections in the current document
     #[qjs(get, enumerable)]
     pub sections: Sections,
 
-    /// Document headings
+    /// Headings in the current document
     #[qjs(get, enumerable)]
     pub headings: Headings,
 
-    /// Document paragraphs
+    /// Paragraphs in the current document
     #[qjs(get, enumerable)]
     pub paragraphs: Paragraphs,
 
-    /// Document code chunks
+    /// Tables in the current document
+    #[qjs(get, enumerable)]
+    pub tables: Tables,
+
+    /// Figures in the current document
+    #[qjs(get, enumerable)]
+    pub figures: Figures,
+
+    /// Code chunks in the current document
     #[qjs(get, enumerable)]
     pub code_chunks: CodeChunks,
 }
