@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use cached::proc_macro::cached;
+use cached::proc_macro::{cached, io_cached};
 
 use model::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
@@ -153,7 +153,7 @@ impl Model for MistralModel {
 /// A model list response
 ///
 /// Based on https://docs.mistral.ai/api#operation/listModels
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(crate = "model::common::serde")]
 struct ModelsResponse {
     data: Vec<ModelSpec>,
@@ -162,7 +162,7 @@ struct ModelsResponse {
 /// A model returned within a `ModelsResponse`
 ///
 /// Note: at present several other fields are ignored.
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(crate = "model::common::serde")]
 struct ModelSpec {
     id: String,
@@ -225,29 +225,20 @@ enum ChatRole {
 ///
 /// Returns an empty list if the `MISTRAL_API_KEY` env var is not set.
 ///
-/// Memoized for an hour to reduce the number of times that the
-/// remote API need to be called to get a list of available models.
-#[cached(time = 3600, result = true)]
+/// Memoized for two minutes to avoid loading from disk cache too frequently
+/// but allowing user to set API key while process is running.
+#[cached(time = 120, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
-    let Ok(key) = secrets::env_or_get(API_KEY) else {
-        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
+    // Check for API key before calling IO cached function so that we never cache an empty list
+    // and allow for users to set key, and then get list, while process is running
+    if secrets::env_or_get(API_KEY).is_err() {
+        tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 
-    let response = Client::new()
-        .get(format!("{}/models", BASE_URL))
-        .bearer_auth(key)
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        let message = response.text().await?;
-        bail!("{error}: {message}");
-    }
-
-    let ModelsResponse { data: models } = response.json().await?;
-
-    let models = models
+    let models = list_mistral_models(0)
+        .await?
+        .data
         .into_iter()
         .filter(|ModelSpec { id: model }| {
             // Only include models with numeric version (not un-versioned or latest)
@@ -274,6 +265,26 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .collect();
 
     Ok(models)
+}
+
+/// Fetch the list of models
+///
+/// Disk cached for six hours to reduce calls to remote API.
+/// For some reason the `io_cached` macro requires at least one function argument.
+#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
+async fn list_mistral_models(_unused: u8) -> Result<ModelsResponse> {
+    let response = Client::new()
+        .get(format!("{}/models", BASE_URL))
+        .bearer_auth(secrets::env_or_get(API_KEY)?)
+        .send()
+        .await?;
+
+    if let Err(error) = response.error_for_status_ref() {
+        let message = response.text().await?;
+        bail!("{error}: {message}");
+    }
+
+    Ok(response.json().await?)
 }
 
 #[cfg(test)]

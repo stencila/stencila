@@ -1,6 +1,6 @@
 use std::{env, sync::Arc};
 
-use cached::proc_macro::cached;
+use cached::proc_macro::{cached, io_cached};
 
 use model::{
     common::{
@@ -32,7 +32,7 @@ const API_KEY_NAME: &str = "STENCILA_API_TOKEN";
 static API_KEY: Lazy<Option<String>> = Lazy::new(|| secrets::env_or_get(API_KEY_NAME).ok());
 
 /// A model available via Stencila Cloud
-#[derive(Default, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(crate = "model::common::serde")]
 pub struct StencilaModel {
     /// The name of the provider e.g. openai
@@ -134,9 +134,25 @@ struct PerformTaskRequest {
     task: ModelTask,
 }
 
-/// Get a list of all models available via Stencila Cloud.
-#[cached(time = 3600, result = true)]
+/// Get a list of all models available from Stencila Cloud.
+///
+/// Memoized for one minutes to avoid loading from disk cache too frequently
+/// but allowing user to set API key while process is running.
+#[cached(time = 60, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
+    Ok(list_stencila_models(0)
+        .await?
+        .into_iter()
+        .map(|model| Arc::new(model) as Arc<dyn Model>)
+        .collect_vec())
+}
+
+/// Fetch the list of models
+///
+/// Disk cached for six hours to reduce calls to remote API.
+/// For some reason the `io_cached` macro requires at least one function argument.
+#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
+async fn list_stencila_models(_unused: u8) -> Result<Vec<StencilaModel>> {
     let response = Client::new()
         .get(format!("{}/models", base_url()))
         .send()
@@ -147,12 +163,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         bail!("{error}: {message}");
     }
 
-    let models: Vec<StencilaModel> = response.json().await?;
-
-    Ok(models
-        .into_iter()
-        .map(|model| Arc::new(model) as Arc<dyn Model>)
-        .collect_vec())
+    Ok(response.json().await?)
 }
 
 #[cfg(test)]

@@ -8,16 +8,16 @@ use async_openai::{
         ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
         ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
         CreateChatCompletionRequest, CreateImageRequestArgs, Image, ImageDetail, ImageQuality,
-        ImageSize, ImageStyle, ImageUrl, ResponseFormat, Stop,
+        ImageSize, ImageStyle, ImageUrl, ListModelResponse, ResponseFormat, Stop,
     },
     Client,
 };
-use cached::proc_macro::cached;
+use cached::proc_macro::{cached, io_cached};
 
 use model::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
         tracing,
@@ -426,18 +426,19 @@ impl OpenAIModel {
 /// This mapping of model name to context_length and input/output types will need to be
 /// updated periodically based on https://platform.openai.com/docs/models/.
 ///
-/// Memoized for an hour to reduce the number of times that
-/// remote APIs need to be called to get a list of available models.
-#[cached(time = 3600, result = true)]
+/// Memoized for two minutes to avoid loading from disk cache too frequently
+/// but allowing user to set API key while process is running.
+#[cached(time = 120, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
-    let Ok(client) = OpenAIModel::client() else {
+    // Check for API key before calling IO cached function so that we never cache an empty list
+    // and allow for users to set key, and then get list, while process is running
+    if secrets::env_or_get(API_KEY).is_err() {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 
-    let models = client.models().list().await?;
-
-    let models = models
+    let models: Vec<Arc<dyn Model>> = list_openai_models(0)
+        .await?
         .data
         .into_iter()
         .sorted_by(|a, b| a.id.cmp(&b.id))
@@ -496,6 +497,15 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .collect();
 
     Ok(models)
+}
+
+/// Fetch the list of models
+///
+/// Disk cached for six hours to reduce calls to remote API.
+/// For some reason the `io_cached` macro requires at least one function argument.
+#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
+async fn list_openai_models(_unused: u8) -> Result<ListModelResponse> {
+    Ok(OpenAIModel::client()?.models().list().await?)
 }
 
 #[cfg(test)]

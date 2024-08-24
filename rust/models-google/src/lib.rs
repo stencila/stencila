@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use cached::proc_macro::cached;
+use cached::proc_macro::{cached, io_cached};
 
 use model::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{bail, eyre, Result},
         itertools::Itertools,
         reqwest::Client,
         serde::{Deserialize, Serialize},
@@ -194,7 +194,7 @@ impl Model for GoogleModel {
 /// A model list response
 ///
 /// Based on https://ai.google.dev/api/rest/v1/models/list.
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(crate = "model::common::serde")]
 struct ModelsResponse {
     models: Vec<ModelSpec>,
@@ -204,7 +204,7 @@ struct ModelsResponse {
 ///
 /// Based on https://ai.google.dev/api/rest/v1/models#Model.
 /// Note: at present several fields are ignored.
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "model::common::serde")]
 struct ModelSpec {
     name: String,
@@ -328,32 +328,23 @@ struct GenerationConfig {
 ///
 /// Returns an empty list if the Google AI API key is not available.
 ///
-/// Memoized for an hour to reduce the number of times that the
-/// remote API need to be called to get a list of available models.
+/// Memoized for two minutes to avoid loading from disk cache too frequently
+/// but allowing user to set API key while process is running.
 ///
 /// See https://ai.google.dev/api/rest/v1/models/list and
 /// https://ai.google.dev/tutorials/rest_quickstart#list_models
-#[cached(time = 3600, result = true)]
+#[cached(time = 120, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
-    let Ok(key) = secrets::env_or_get(API_KEY) else {
+    // Check for API key before calling IO cached function so that we never cache an empty list
+    // and allow for users to set key, and then get list, while process is running
+    if secrets::env_or_get(API_KEY).is_err() {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 
-    let response = Client::new()
-        .get(format!("{}/models", BASE_URL))
-        .query(&[("key", key)])
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        let message = response.text().await?;
-        bail!("{error}: {message}");
-    }
-
-    let ModelsResponse { models } = response.json().await?;
-
-    let models = models
+    let models = list_google_models(0)
+        .await?
+        .models
         .into_iter()
         .filter(|model| {
             // Only include gemini models with numeric version (not
@@ -376,6 +367,26 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .collect();
 
     Ok(models)
+}
+
+/// Fetch the list of models
+///
+/// Disk cached for six hours to reduce calls to remote API.
+/// For some reason the `io_cached` macro requires at least one function argument.
+#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
+async fn list_google_models(_unused: u8) -> Result<ModelsResponse> {
+    let response = Client::new()
+        .get(format!("{}/models", BASE_URL))
+        .query(&[("key", secrets::env_or_get(API_KEY)?)])
+        .send()
+        .await?;
+
+    if let Err(error) = response.error_for_status_ref() {
+        let message = response.text().await?;
+        bail!("{error}: {message}");
+    }
+
+    Ok(response.json().await?)
 }
 
 #[cfg(test)]

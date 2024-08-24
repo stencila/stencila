@@ -4,5 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+cached = { workspace = true }
 model = { path = "../model" }
 ollama-rs = { version = "0.2.0", features = ["rustls", "stream"] }

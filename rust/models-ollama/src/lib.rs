@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
+use cached::proc_macro::{cached, io_cached};
 use ollama_rs::{
     generation::{
         chat::{request::ChatMessageRequest, ChatMessage, MessageRole},
         images::Image,
         options::GenerationOptions,
     },
+    models::LocalModel,
     Ollama,
 };
 
@@ -246,19 +248,29 @@ impl Model for OllamaModel {
 /// (which will be probably be wrong for some). At the time of writing
 /// there does not appear to be an easy way to get the actual context
 /// length of an Ollama model (i.e. it is not in the API).
+#[cached(time = 120, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     if std::net::TcpStream::connect("127.0.0.1:11434").is_err() {
         return Ok(vec![]);
     }
 
-    let models = Ollama::default().list_local_models().await?;
-
-    let models = models
+    let models = list_ollama_models(0)
+        .await?
         .into_iter()
         .map(|model| Arc::new(OllamaModel::new(model.name, 4096)) as Arc<dyn Model>)
         .collect();
 
     Ok(models)
+}
+
+/// Fetch the list of models
+///
+/// Disk cached for 5 minutes to reduce the number of times that Ollama needs to
+/// be started while allowing for new models to be pulled and to appear here.
+/// For some reason the `io_cached` macro requires at least one function argument.
+#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
+async fn list_ollama_models(_unused: u8) -> Result<Vec<LocalModel>> {
+    Ok(Ollama::default().list_local_models().await?)
 }
 
 #[cfg(test)]
