@@ -3,8 +3,8 @@ type: Prompt
 
 id: stencila/table-filled
 version: "0.1.0"
-name: Table (Empty) Prompt
-description: Create a table with filled cells.
+name: Table (Filled) Prompt
+description: Create a table with a caption and filled cells.
 keywords: table, filled
 
 instruction-type: New
