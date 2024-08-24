@@ -5,11 +5,11 @@ id: stencila/table-empty
 version: "0.1.0"
 name: Table (Empty) Prompt
 description: Create an empty table.
-keywords: table
+keywords: table, empty
 
 instruction-type: New
 instruction-pattern: (?i)\bempty table\b
-node-type: CodeChunk
+node-type: Table
 ---
 
 # Instructions
