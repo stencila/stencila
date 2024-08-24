@@ -1,0 +1,9 @@
+::: if document.tables.next
+
+### Next table
+
+The next table, after the current position in the document, is:
+
+{{ document.tables.next.markdown }}
+
+:::
