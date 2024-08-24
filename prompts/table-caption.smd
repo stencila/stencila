@@ -5,7 +5,7 @@ id: stencila/table-caption
 version: "0.1.0"
 name: Table Caption Prompt
 description: Create a table caption.
-keywords: table
+keywords: table, caption
 
 instruction-type: New
 instruction-pattern: (?i)\btable caption\b
