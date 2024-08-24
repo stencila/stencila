@@ -398,7 +398,7 @@ try:
         nh.push_data(repr(value.dtypes))
         nh.push_head("\nThe first few rows of the Dataframe are:")
         nh.push_data(repr(value.head(3)))
-        nh.push_head("\n`describe` returns:")
+        nh.push_head("\nThe `describe` method of the Dataframe returns:")
         nh.push_data(repr(value.describe()))
 
         return nh.to_string()
