@@ -1,5 +1,7 @@
 ::: if document.metadata.properties.length > 0
 
+## Document metadata
+
 An overview of the document's metadata follows. Use this information to guide the style and subject matter:
 
 ::::: for property in document.metadata.properties

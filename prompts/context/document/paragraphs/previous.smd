@@ -1,5 +1,7 @@
 ::: if document.paragraphs.previous?.content
 
+### Previous paragraph
+
 The previous paragraph, before the current position in the document, is:
 
 {{ document.paragraphs.previous.content }}
