@@ -12,7 +12,7 @@ async fn instruction() -> Result<()> {
         instruction: Some(Instruction {
             r#type: "New".into(),
             message: Some("paragraph".into()),
-            content: Some("content".into()),
+            markdown: Some("content".into()),
         }),
         ..Default::default()
     };
@@ -32,7 +32,7 @@ async fn instruction() -> Result<()> {
     );
 
     let (output, messages) = kernel
-        .evaluate("`${ins.type} ${ins.message} ${ins.content}`")
+        .evaluate("`${ins.type} ${ins.message} ${ins.markdown}`")
         .await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("New paragraph content".into()));

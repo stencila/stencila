@@ -18,9 +18,9 @@ pub struct Instruction {
     #[qjs(get, enumerable)]
     message: Option<String>,
 
-    /// The content of the instruction
+    /// The content of the instruction as Markdown
     #[qjs(get, enumerable)]
-    content: Option<String>,
+    markdown: Option<String>,
 }
 
 #[rquickjs::methods]
@@ -31,7 +31,7 @@ impl Instruction {
 
         obj.set("type", self.r#type.clone())?;
         obj.set("message", self.message.clone())?;
-        obj.set("content", self.content.clone())?;
+        obj.set("markdown", self.markdown.clone())?;
 
         Ok(obj)
     }
@@ -51,10 +51,7 @@ impl From<&schema::InstructionBlock> for Instruction {
                     })
                     .join(" ")
             }),
-            content: value
-                .content
-                .as_ref()
-                .map(|blocks| blocks.iter().map(to_markdown).join("")),
+            markdown: value.content.as_ref().map(|blocks| to_markdown(blocks)),
         }
     }
 }
