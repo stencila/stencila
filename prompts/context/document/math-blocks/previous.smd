@@ -1,0 +1,9 @@
+::: if document.mathBlock.previous
+
+### Previous math block
+
+The previous math block, before the current position in the document, is:
+
+{{ document.mathBlocks.next.markdown }}
+
+:::

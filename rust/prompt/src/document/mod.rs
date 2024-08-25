@@ -3,6 +3,7 @@ use crate::prelude::*;
 mod code_chunks;
 mod figures;
 mod headings;
+mod math_blocks;
 mod metadata;
 mod node;
 mod paragraphs;
@@ -15,6 +16,7 @@ mod tests;
 use code_chunks::CodeChunks;
 use figures::{Figure, Figures};
 use headings::Headings;
+use math_blocks::MathBlocks;
 use metadata::Metadata;
 use paragraphs::Paragraphs;
 use sections::Sections;
@@ -54,6 +56,10 @@ pub struct Document {
     /// Code chunks in the current document
     #[qjs(get, enumerable)]
     pub code_chunks: CodeChunks,
+
+    /// Math blocks in the current document
+    #[qjs(get, enumerable)]
+    pub math_blocks: MathBlocks,
 }
 
 impl Document {

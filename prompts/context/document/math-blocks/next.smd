@@ -1,0 +1,9 @@
+::: if document.mathBlocks.next
+
+### Next math block
+
+The next math block, after the current position in the document, is:
+
+{{ document.mathBlocks.next.markdown }}
+
+:::

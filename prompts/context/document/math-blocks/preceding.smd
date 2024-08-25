@@ -1,0 +1,13 @@
+::: if document.mathBlocks.preceding.length > 0
+
+### Preceding math blocks
+
+The preceding math blocks, before the current position in the document, are:
+
+::::: for block in document.mathBlocks.preceding
+
+{{ block.markdown }}
+
+:::::
+
+:::
