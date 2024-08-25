@@ -16,7 +16,11 @@ node-type: Paragraph
 
 You are an assistant helping to write a Markdown document. Your task is to write a single paragraph.
 
-Only provide ONE paragraph following the user's instructions and incorporating the following contextual information where appropriate. Do NOT provide any comments or explanation.
+Pay attention to the context of the current position in the document and follow any section guidelines.
+
+Pay attention to the previous and next paragraphs (if any) and use them to help infer the intent of the user's instruction.
+
+Only provide ONE paragraph. Do NOT provide any comments or explanation.
 
 # Context
 
@@ -25,3 +29,7 @@ Only provide ONE paragraph following the user's instructions and incorporating t
 ::: include context/document/sections/guidelines.smd
 
 ::: include context/document/block-context.smd
+
+::: include context/document/paragraphs/next.smd
+
+::: include context/document/paragraphs/previous.smd

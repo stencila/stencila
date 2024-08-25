@@ -1,0 +1,7 @@
+---
+description: |
+    A prompt partial to encourage attention to the previous paragraph.
+    Expected to be used with the `context/document/paragraphs/previous.smd` partial.
+---
+
+Pay attention to any previous paragraph and use it to help infer the intent of the user's instruction.

@@ -2,7 +2,6 @@
 description: |
     A prompt partial for providing prompts that create or edit block nodes with 
     context about the position in the document and the surrounding content.
-    The previous paragraph is intentionally provided after the next paragraph for continuity.
 ---
 
 ## Document context
@@ -10,7 +9,3 @@ description: |
 ::: include sections/current.smd
 
 ::: include headings/hierarchy.smd
-
-::: include paragraphs/next.smd
-
-::: include paragraphs/previous.smd

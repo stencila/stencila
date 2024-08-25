@@ -22,9 +22,9 @@ Pay attention to:
 
 - the column headers, and cell content, of any following table
 
-- the subject matter of any surrounding paragraphs
-
 - the style and length of any table captions already in the document
+
+::: include instructions/document/paragraphs/previous.smd
 
 Only provide ONE table caption. Do NOT provide a label indicating the table number. Do NOT provide any comments or explanation before or after the caption.
 
@@ -35,5 +35,7 @@ Only provide ONE table caption. Do NOT provide a label indicating the table numb
 ::: include context/document/block-context.smd
 
 ::: include context/document/tables/captions.smd
+
+::: include context/document/paragraphs/previous.smd
 
 ::: include context/document/tables/next.smd

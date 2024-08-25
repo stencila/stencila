@@ -30,7 +30,9 @@ Use the programming language that the user specifies. If the user does not speci
 
 If the code produces outputs, such as summary data frames, you should use the `print` function (or `console.log` in JavaScript) to ensure those are written to stdout. This is not necessary if the output is the last statement / line.
 
-::: include instructions/code/attention.smd
+::: include instructions/document/code/attention.smd
+
+::: include instructions/document/paragraphs/previous.smd
 
 Only provide ONE code block. Provide comments in the code but do NOT provide any comments or explanation before or after the code block.
 
@@ -83,8 +85,10 @@ summary
 
 ::: include context/document/metadata.smd
 
-::: include context/kernels/code-context.smd
-
 ::: include context/document/block-context.smd
 
+::: include context/kernels/code-context.smd
+
 ::: include context/document/code-chunks/preceding.smd
+
+::: include context/document/paragraphs/previous.smd

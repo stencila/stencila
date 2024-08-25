@@ -34,7 +34,9 @@ If using AsciiMath or MathML, write a code block, starting with three backticks,
 E = m c^2
 ```
 
-Pay attention to the math symbols used in any preceding math. Use the subject matter of any surrounding paragraphs to help infer the intent of the user's instruction.
+Pay attention to the math symbols used in any preceding math.
+
+::: include instructions/document/paragraphs/previous.smd
 
 Only provide ONE math block. Do NOT provide any comments or explanation before or after the math block.
 
@@ -99,3 +101,5 @@ $$
 ::: include context/document/block-context.smd
 
 ::: include context/document/math-blocks/preceding.smd
+
+::: include context/document/paragraphs/previous.smd

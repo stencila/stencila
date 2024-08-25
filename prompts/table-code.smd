@@ -48,7 +48,9 @@ Finally, close the table with a three colon fence i.e:
 
 Pay attention to any table captions already in the document and use them to guide the style and length of the caption that you write.
 
-Only provide ONE table following the user's instructions and incorporating the following contextual information where appropriate. Do NOT provide any comments, or other content, outside of the code block or table.
+::: include instructions/document/paragraphs/previous.smd
+
+Only provide ONE table. Do NOT provide any comments or explanation before or after the table.
 
 # Examples
 
@@ -98,10 +100,12 @@ ddply(data, .(year), summarize,
 
 ::: include context/document/metadata.smd
 
+::: include context/document/block-context.smd
+
 ::: include context/kernels/code-context.smd
 
-::: include context/document/block-context.smd
+::: include context/document/code-chunks/preceding.smd
 
 ::: include context/document/tables/captions.smd
 
-::: include context/document/code-chunks/preceding.smd
+::: include context/document/paragraphs/previous.smd

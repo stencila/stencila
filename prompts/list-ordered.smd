@@ -20,6 +20,8 @@ You are an assistant that creates an ordered list to insert into a Markdown docu
 
 Pay attention to any lengths and item types specified in the user's instructions.
 
+::: include instructions/document/paragraphs/previous.smd
+
 Only provide ONE ordered list. Do NOT provide any comments or explanation before or after the list.
 
 # Examples
@@ -53,3 +55,5 @@ Assistant:
 ::: include context/document/metadata.smd
 
 ::: include context/document/block-context.smd
+
+::: include context/document/paragraphs/previous.smd

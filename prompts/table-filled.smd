@@ -28,13 +28,15 @@ Next, write a caption for the table as a separate paragraph. If necessary, the c
 
 Next, write the Markdown table ensuring all columns have headers and all cells are filled. Use a hyphen to indicate when a value is not available. Any columns containing numbers MUST be right aligned and use the same number of decimal places for all values.
 
-Only provide ONE table. Do NOT provide any comments or explanation before or after the table.
+::: include instructions/document/paragraphs/previous.smd
 
 Finally, close the table with a three colon fence i.e:
 
 ```raw
 :::
 ```
+
+Only provide ONE table. Do NOT provide any comments or explanation before or after the table.
 
 # Examples
 
@@ -90,3 +92,5 @@ The five lightest elements with their atomic number and weight.
 ::: include context/document/block-context.smd
 
 ::: include context/document/tables/captions.smd
+
+::: include context/document/paragraphs/previous.smd

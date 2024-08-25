@@ -50,11 +50,13 @@ Finally, close the figure with a three colon fence i.e:
 :::
 ```
 
-::: include instructions/code/attention.smd
+::: include instructions/document/code/attention.smd
 
 Pay attention to any figure captions already in the document and use them to guide the style and length of the caption that you write.
 
-Only provide ONE figure following the user's instructions and incorporating the following contextual information where appropriate. Do NOT provide any comments, or other content, outside of the code block or figure.
+::: include instructions/document/paragraphs/previous.smd
+
+Only provide ONE figure. Do NOT provide any comments or explanation before or after the figure.
 
 # Examples
 
@@ -108,10 +110,12 @@ ggplot(mtcars, aes(x = hp, y = mpg, color = factor(cyl))) +
 
 ::: include context/document/metadata.smd
 
+::: include context/document/block-context.smd
+
 ::: include context/kernels/code-context.smd
 
-::: include context/document/block-context.smd
+::: include context/document/code-chunks/preceding.smd
 
 ::: include context/document/figures/captions.smd
 
-::: include context/document/code-chunks/preceding.smd
+::: include context/document/paragraphs/previous.smd
