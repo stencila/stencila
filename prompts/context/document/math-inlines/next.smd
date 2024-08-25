@@ -1,0 +1,9 @@
+::: if document.mathInlines.next
+
+### Next inline math
+
+The next inline math, after the current position in the document, is:
+
+{{ document.mathInlines.next.markdown }}
+
+:::

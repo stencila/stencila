@@ -86,6 +86,29 @@ impl Executable for MathInline {
             );
         };
 
-        WalkControl::Continue
+        // Break walk because no other properties need to be compiled
+        WalkControl::Break
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
+        tracing::trace!("Preparing MathInline {}", self.node_id());
+
+        // Add inline math node to document context
+        executor.document_context.math_inlines.push((&*self).into());
+
+        // Break walk because no properties need to be prepared
+        WalkControl::Break
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+        tracing::trace!("Executing MathInline {}", self.node_id());
+
+        // Step over the inline math node
+        executor.document_context.math_inlines.step();
+
+        // Break walk because no properties need to be executed
+        WalkControl::Break
     }
 }

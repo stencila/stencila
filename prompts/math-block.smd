@@ -34,7 +34,7 @@ If using AsciiMath or MathML, write a code block, starting with three backticks,
 E = m c^2
 ```
 
-Pay attention to the math symbols used in any preceding math.
+::: include instructions/document/math/attention.smd
 
 ::: include instructions/document/paragraphs/previous.smd
 
@@ -101,5 +101,7 @@ $$
 ::: include context/document/block-context.smd
 
 ::: include context/document/math-blocks/preceding.smd
+
+::: include context/document/math-inlines/preceding.smd
 
 ::: include context/document/paragraphs/previous.smd

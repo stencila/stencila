@@ -1,0 +1,7 @@
+---
+description: |
+    A prompt partial of items that assistants should pay attention to when writing math.
+    Expects that prompt partials enumerating existing math nodes are also included.
+---
+
+Pay attention to the math symbols used in any preceding math and reuse those where appropriate.

@@ -1,0 +1,13 @@
+::: if document.mathInlines.preceding.length > 0
+
+### Preceding inline math
+
+The preceding inline math elements, before the current position in the document, are:
+
+::::: for inline in document.mathInlines.preceding
+
+{{ inline.markdown }}
+
+:::::
+
+:::

@@ -1,0 +1,9 @@
+::: if document.mathInline.previous
+
+### Previous inline math
+
+The previous inline math, before the current position in the document, is:
+
+{{ document.mathInlines.next.markdown }}
+
+:::
