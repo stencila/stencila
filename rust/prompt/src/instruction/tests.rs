@@ -11,8 +11,9 @@ async fn instruction() -> Result<()> {
     let context = PromptContext {
         instruction: Some(Instruction {
             r#type: "New".into(),
-            message: Some("paragraph".into()),
-            markdown: Some("content".into()),
+            message: Some("a msg".into()),
+            node_types: Some(vec!["Paragraph".into()]),
+            content: Some("content".into()),
         }),
         ..Default::default()
     };
@@ -26,16 +27,17 @@ async fn instruction() -> Result<()> {
         serde_json::to_string_pretty(&output)?,
         r#"{
   "type": "New",
-  "message": "paragraph",
+  "message": "a msg",
+  "nodeTypes": "Paragraph",
   "content": "content"
 }"#
     );
 
     let (output, messages) = kernel
-        .evaluate("`${ins.type} ${ins.message} ${ins.markdown}`")
+        .evaluate("`${ins.type} ${ins.message} ${ins.content}`")
         .await?;
     assert_eq!(messages, []);
-    assert_eq!(output, Node::String("New paragraph content".into()));
+    assert_eq!(output, Node::String("New a msg content".into()));
 
     Ok(())
 }
