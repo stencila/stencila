@@ -343,20 +343,13 @@ fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<D
                 Debug | Trace => DiagnosticSeverity::HINT,
             });
 
-            // Add error type to message (if any)
-            let mut msg = message.message.clone();
-            if let Some(error_type) = message.error_type.as_ref() {
-                msg.insert_str(0, &[error_type, ": "].concat())
-            };
-            if let Some(stack_trace) = message.stack_trace.as_ref() {
-                msg.push_str("\n\n");
-                msg.push_str(stack_trace);
-            };
+            // Format the message
+            let message = message.formatted();
 
             Diagnostic {
                 range,
                 severity,
-                message: msg,
+                message,
                 ..Default::default()
             }
         })
