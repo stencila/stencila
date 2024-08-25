@@ -8,7 +8,7 @@ description: Create a table caption.
 keywords: table, caption
 
 instruction-type: New
-instruction-pattern: (?i)\btable caption\b
+instruction-pattern: (?i)\btable cap(tion)?\b
 node-type: Paragraph
 ---
 
