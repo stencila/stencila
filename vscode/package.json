@@ -406,7 +406,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• The ``insert-paras`` is one of Stencila's specialized AI assistants. It summarizes context from your document, including metadata and content, and passes it to generic LLMs.\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough-file-open?%22demo-insert-paras.smd%22)\n\n• [Add some metadata](command:stencila.walkthrough-file-type?%5B%22demo-insert-paras.smd%22%2C%22---%5Cntitle%3A%20An%20analysis%20of%20impact%20of%20environmental%20variables%20on%20tree%20height%5Cngenre%3A%20Scientific%20journal%20article%5Cnkeywords%3A%20tree%2C%20height%2C%20environmental%20variables%5Cn---%22%5D) to the document to help guide the assistant to produce relevant content.\n\n• Next, get started by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%5B%22demo-insert-paras.smd%22%2C%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%2020-40%20word%20introductory%20paragraph%5Cn%5Cn%22%5D), and assigned to ``insert-paras``\n\n• Run the instruction.\n\n"
+            "description": "\n\n• The ``insert-paras`` is one of Stencila's specialized AI assistants. It summarizes context from your document, including metadata and content, and passes it to generic LLMs.\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough-file-open?undefined)\n\n• [Add some metadata](command:stencila.walkthrough-file-type?%22---%5Cntitle%3A%20An%20analysis%20of%20impact%20of%20environmental%20variables%20on%20tree%20height%5Cngenre%3A%20Scientific%20journal%20article%5Cnkeywords%3A%20tree%2C%20height%2C%20environmental%20variables%5Cn---%22) to the document to help guide the assistant to produce relevant content.\n\n• Next, get started by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%2020-40%20word%20introductory%20paragraph%5Cn%5Cn%22), and assigned to ``insert-paras``\n\n• Run the instruction.\n\n"
           },
           {
             "title": "Refining suggestions",
@@ -422,6 +422,7 @@
       {
         "title": "Writing documents: Wildfires",
         "description": "Data summary and analysis",
+        "format": "smd",
         "id": "fires",
         "steps": [
           {
@@ -431,7 +432,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough-file-open?%22fires.smd%22)\n\n• [Add some metadata](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22---%5Cntitle%3A%20An%20analysis%20of%20causes%20and%20trends%20of%20wildfires%20in%20the%20US%2C%201992-2015%5Cngenre%3A%20Scientific%20journal%20article%5Cnkeywords%3A%20wildfires%2C%20causes%5Cn---%22%5D) to the document to help guide the assistant to produce relevant content.\n\n• Next, let's start the article by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%20one%2020-40%20word%20paragraph%5Cn%5Cn%22%5D), and assigned to ``insert-paras``\n\n"
+            "description": "\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough-file-open?%22smd%22)\n\n• [Add some metadata](command:stencila.walkthrough-file-type?%22---%5Cntitle%3A%20An%20analysis%20of%20causes%20and%20trends%20of%20wildfires%20in%20the%20US%2C%201992-2015%5Cngenre%3A%20Scientific%20journal%20article%5Cnkeywords%3A%20wildfires%2C%20causes%5Cn---%22) to the document to help guide the assistant to produce relevant content.\n\n• Next, let's start the article by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%20new%20%40paragraph%2020-40%20words%20%3C%5Cn%5Cn%22), and assigned to ``insert-paras``\n\n"
           },
           {
             "title": "Summarizing the data",
@@ -440,7 +441,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's [read in the data](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%23%20Results%5Cn%5Cn%60%60%60r%20exec%5Cndata%20%3D%20read.csv%28%5C%22fires.csv%5C%22%29%5Cn%60%60%60%5Cn%22%5D) we want to summarize.\n\n• Now, use the ``insert-code-chunk`` assistant to [summarize the data](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20summarize%20data%20by%20cause%20ranked%20by%20acres%20burnt%5Cn%22%5D)\n\n• Then we'll use the ``describe-outputs`` assistant [to write a summary in words](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40describe-outputs%20in%20one%20paragraphs%5Cn%22%5D)\n\n"
+            "description": "\n\n• Let's [read in the data](command:stencila.walkthrough-file-type?%22%5Cn%23%20Results%5Cn%5Cn%60%60%60r%20exec%5Cndata%20%3D%20read.csv%28%5C%22fires.csv%5C%22%29%5Cn%60%60%60%5Cn%22) we want to summarize.\n\n• Now, use the ``code-chunk`` assistant to [summarize the data](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20new%20%40code-chunk%20summarize%20data%20by%20cause%20ranked%20by%20acres%20burnt%5Cn%22)\n\n• Then we'll use the ``describe-outputs`` assistant [to write a summary in words](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20new%20%40describe-outputs%20in%20one%20paragraphs%5Cn%22)\n\n"
           },
           {
             "title": "Plotting the data",
@@ -449,7 +450,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's see what the ``insert-code-figure`` [assistant](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20total%20acres%20by%20year%20for%20the%20top%20five%20states%5Cn%22%5D) does for us.\n\n• Finally, let's see if the ``insert-graphviz`` [assistant](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz%20relationship%20between%20causes%20of%20wildfires%2C%20use%20appropriate%20colors%2C%20maximum%205%20nodes%5Cn%22%5D) can get us started with code for creating a diagram.\n\n"
+            "description": "\n\n• Let's see what the ``insert-code-figure`` [assistant](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20total%20acres%20by%20year%20for%20the%20top%20five%20states%5Cn%22) does for us.\n\n• Finally, let's see if the ``insert-graphviz`` [assistant](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz%20relationship%20between%20causes%20of%20wildfires%2C%20use%20appropriate%20colors%2C%20maximum%205%20nodes%5Cn%22) can get us started with code for creating a diagram.\n\n"
           },
           {
             "title": "Finishing up",
@@ -458,7 +459,24 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Finally, we'll use ``insert-discussion`` to [get us started with a discussion](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%23%20Discussion%5Cn%5Cn%3A%3A%3A%20do%20%40insert-discussion%201-2%20paras%2C%20100%20words%5Cn%5Cn%22%5D). \n\n• And, ``insert-code-methods`` to [write-up how we did the analysis](command:stencila.walkthrough-file-type?%5B%22fires.smd%22%2C%22%5Cn%23%20Methods%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-methods%20max%202%20paras%2C%20100%20words%5Cn%5Cn%22%5D).\n\n"
+            "description": "\n\n• Finally, we'll use ``insert-discussion`` to [get us started with a discussion](command:stencila.walkthrough-file-type?%22%5Cn%23%20Discussion%5Cn%5Cn%3A%3A%3A%20do%20%40insert-discussion%201-2%20paras%2C%20100%20words%5Cn%5Cn%22). \n\n• And, ``insert-code-methods`` to [write-up how we did the analysis](command:stencila.walkthrough-file-type?%22%5Cn%23%20Methods%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-methods%20max%202%20paras%2C%20100%20words%5Cn%5Cn%22).\n\n"
+          }
+        ]
+      },
+      {
+        "title": "Writing documents: Wildfires",
+        "description": "Data summary and analysis",
+        "format": "myst",
+        "id": "fires-myst",
+        "steps": [
+          {
+            "title": "Getting started",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• First, create a new MyST [file](command:stencila.walkthrough-file-open?%22myst%22)\n\n• [Add some metadata](command:stencila.walkthrough-file-type?%22---%5Cntitle%3A%20An%20analysis%20of%20causes%20and%20trends%20of%20wildfires%20in%20the%20US%2C%201992-2015%5Cngenre%3A%20Scientific%20journal%20article%5Cnkeywords%3A%20wildfires%2C%20causes%5Cn---%22) to the document to help guide the assistant to produce relevant content.\n\n• Next, let's start the article by [adding a heading and an instruction](command:stencila.walkthrough-file-type?%22%5Cn%5Cn%23%20Introduction%5Cn%5Cn%3A%3A%3A%7Bnew%7D%2020-40%20words%5Cn%3Aassign%3A%20paragraph%5Cn%3A%3A%3A%5Cn%22), and assigned to `insert-paras`\n\n"
           }
         ]
       },
@@ -474,7 +492,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22krebs.smd%22).\n\n• We're going to write about modeling [The Krebs Cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%23%20The%20Krebs%20Cycle%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%20%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20krebs%20cycle%2C%20background%20and%20history%5Cn-%20krebs%20cycle%2C%20the%20process%5Cn-%20krebs%20cycle%2C%20the%20significance%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n"
+            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?undefined).\n\n• We're going to write about modeling [The Krebs Cycle](command:stencila.walkthrough-file-type?%22%5Cn%23%20The%20Krebs%20Cycle%5Cn%22).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%20%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20krebs%20cycle%2C%20background%20and%20history%5Cn-%20krebs%20cycle%2C%20the%20process%5Cn-%20krebs%20cycle%2C%20the%20significance%5Cn%5Cn%3A%3A%3A%5Cn%22).\n\n"
           },
           {
             "title": "Adding a diagram",
@@ -483,7 +501,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's use Graphviz to make create a diagram showing the [reactions and products in the cycle](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5CnThe%20following%20figure%20illustrates%20the%20sequence%20of%20reactions%2C%20products%20in%20the%20Krebs%20cycle%5Cn%5Cn%3A%3A%3A%20do%20%40insert-graphviz%20showing%20the%20sequence%20of%20reactions%2C%20products%20and%20cycle%2C%20use%20colored%20rectangles.%22%5D)\n\n• The diagram generated can be tweaked. For example, the default is often orientation is often left-right (LR). If so, try changing it to TB (top-bottom). Re-run it.\n\n"
+            "description": "\n\n• Let's use Graphviz to make create a diagram showing the [reactions and products in the cycle](command:stencila.walkthrough-file-type?%22%5CnThe%20following%20figure%20illustrates%20the%20sequence%20of%20reactions%2C%20products%20in%20the%20Krebs%20cycle%5Cn%5Cn%3A%3A%3A%20do%20%40insert-graphviz%20showing%20the%20sequence%20of%20reactions%2C%20products%20and%20cycle%2C%20use%20colored%20rectangles.%22)\n\n• The diagram generated can be tweaked. For example, the default is often orientation is often left-right (LR). If so, try changing it to TB (top-bottom). Re-run it.\n\n"
           },
           {
             "title": "Adding a plot",
@@ -492,7 +510,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\nLet's add a plot of the [time series](command:stencila.walkthrough-file-type?%5B%22krebs.smd%22%2C%22%5CnThe%20following%20figure%20illustrates%20the%20time%20series%20of%20elements%20in%20the%20Krebs%20Cycle.%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20plot%20times%20series%20of%20elements%20using%20scipy%5Cn%22%5D) of concentrations of elements in the Krebs cycle.\n\n"
+            "description": "\n\nLet's add a plot of the [time series](command:stencila.walkthrough-file-type?%22%5CnThe%20following%20figure%20illustrates%20the%20time%20series%20of%20elements%20in%20the%20Krebs%20Cycle.%5Cn%5Cn%3A%3A%3A%20do%20%40insert-code-chunk%20plot%20times%20series%20of%20elements%20using%20scipy%5Cn%22) of concentrations of elements in the Krebs cycle.\n\n"
           }
         ]
       },
@@ -508,7 +526,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's write a short summary of [macbeth](command:stencila.walkthrough-file-open?%22macbeth.smd%22).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22macbeth.smd%22%2C%22%5Cn%23%20Macbeth%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%20brief%20plot%20overview%20of%20macbeth%20in%20one%20paragraph%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• It would be nice to have [character list](command:stencila.walkthrough-file-type?%5B%22macbeth.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-filled-table%20fill%20out%20the%20Dramatis%20Personae%20for%20macbeth.%5Cn%22%5D).\n\n• We can use Graphviz to make create a diagram showing the [relationships in the story](command:stencila.walkthrough-file-type?%5B%22macbeth.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz-figure%20the%20relationships%20between%20characters%20in%20macbeth.%5Cn%22%5D)\n\n\n"
+            "description": "\n\n• Let's write a short summary of [macbeth](command:stencila.walkthrough-file-open?undefined).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%22%5Cn%23%20Macbeth%5Cn%5Cn%3A%3A%3A%20do%20%40insert-paras%20brief%20plot%20overview%20of%20macbeth%20in%20one%20paragraph%5Cn%22).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• It would be nice to have [character list](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40insert-filled-table%20fill%20out%20the%20Dramatis%20Personae%20for%20macbeth.%5Cn%22).\n\n• We can use Graphviz to make create a diagram showing the [relationships in the story](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40insert-graphviz-figure%20the%20relationships%20between%20characters%20in%20macbeth.%5Cn%22)\n\n\n"
           }
         ]
       },
@@ -524,7 +542,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?%22predator-prey.smd%22).\n\n• We're going to write about modeling [Predator Prey interactions](command:stencila.walkthrough-file-type?%5B%22predator-prey.smd%22%2C%22---%5Cntitle%3A%20Predator%20Prey%20Systems%5Cnkeywords%3A%20%5B%5C%22predator%5C%22%2C%20%5C%22prey%5C%22%2C%20%5C%22population%20dynamics%5C%22%5D%5Cn---%5Cn%22%5D).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%5B%22predator-prey.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20brief%20history%20of%20lotka-volterra%20equations%5Cn-%20explain%20the%20model%20and%20its%20relevance.%5Cn-%20A%20puzzle%3B%20but%20turns%20out%20explicable%20just%20by%20equations%5Cn-%20fox%20and%20rabbit%20example%5Cn%5Cn%3A%3A%3A%5Cn%22%5D).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• A graph will help show what is going on. So let's generate [some relevant code](command:stencila.walkthrough-file-type?%5B%22predator-prey.smd%22%2C%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20of%20the%20population%20dynamics%20of%20foxes%20and%20rabbits%2C%20showing%20a%20few%20cycles%2C%20put%20the%20parameters%20and%20initial%20conditions%20in%20the%20caption.%5Cn%22%5D).\n\n• The assistant will generate a code snippet that plots the population dynamics of foxes and rabbits.\n\n• You can then run that code to see the actual plot. Press the view button to open the document.\n\n"
+            "description": "\n\n• Let's write a short scientific [document](command:stencila.walkthrough-file-open?undefined).\n\n• We're going to write about modeling [Predator Prey interactions](command:stencila.walkthrough-file-type?%22---%5Cntitle%3A%20Predator%20Prey%20Systems%5Cnkeywords%3A%20%5B%5C%22predator%5C%22%2C%20%5C%22prey%5C%22%2C%20%5C%22population%20dynamics%5C%22%5D%5Cn---%5Cn%22).\n\n• We'll use the ``insert-expand-ideas`` assistant to write a coherent narrative based on a [few ideas](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40edit-expand-ideas%5Cn%3A%3A%3A%20with%5Cn%5Cn-%20brief%20history%20of%20lotka-volterra%20equations%5Cn-%20explain%20the%20model%20and%20its%20relevance.%5Cn-%20A%20puzzle%3B%20but%20turns%20out%20explicable%20just%20by%20equations%5Cn-%20fox%20and%20rabbit%20example%5Cn%5Cn%3A%3A%3A%5Cn%22).\n\n• If you press the run button, the assistant will generate a few paragraphs of text, attempting to connect the ideas.\n\n• A graph will help show what is going on. So let's generate [some relevant code](command:stencila.walkthrough-file-type?%22%5Cn%3A%3A%3A%20do%20%40insert-code-figure%20plot%20of%20the%20population%20dynamics%20of%20foxes%20and%20rabbits%2C%20showing%20a%20few%20cycles%2C%20put%20the%20parameters%20and%20initial%20conditions%20in%20the%20caption.%5Cn%22).\n\n• The assistant will generate a code snippet that plots the population dynamics of foxes and rabbits.\n\n• You can then run that code to see the actual plot. Press the view button to open the document.\n\n"
           }
         ]
       }
@@ -550,16 +568,16 @@
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.6",
+    "@types/mocha": "10.0.7",
     "@types/node": "20.x",
-    "@types/vscode": "^1.88.0",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
-    "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "^2.3.9",
-    "@vscode/vsce": "2.29.0",
-    "eslint": "^8.57.0",
-    "js-yaml": "^4.1.0",
-    "typescript": "^5.3.3"
+    "@types/vscode": "1.92.0",
+    "@typescript-eslint/eslint-plugin": "7.4.0",
+    "@typescript-eslint/parser": "7.4.0",
+    "@vscode/test-cli": "0.0.10",
+    "@vscode/test-electron": "2.4.1",
+    "@vscode/vsce": "3.0.0",
+    "eslint": "8.57.0",
+    "js-yaml": "4.1.0",
+    "typescript": "5.5.4"
   }
 }
