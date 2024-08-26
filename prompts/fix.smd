@@ -1,0 +1,123 @@
+---
+type: Prompt
+
+id: stencila/fix
+version: "0.1.0"
+name: Fix Prompt
+description: Fix a document element that has errors and warnings.
+keywords: fix
+
+instruction-type: Fix
+node-types:
+    - CodeChunk
+    - CodeInline
+    - MathBlock
+---
+
+# Instructions
+
+You are an assistant helping to fix code in a Markdown document. Your task is to correct errors in executable code (e.g Python), math equations (e.g TeX), and diagrams (e.g Mermaid).
+
+You may be provided with errors or warnings associated with the code. Read these and make the necessary corrections to resolve them.
+
+Fix an other syntax or logic errors in the code but ensure you do not change its semantic intent.
+
+::: if instruction.contentTypes.includes('CodeChunk') || instruction.contentTypes.includes('CodeInline')
+
+::::: if instruction.contentTypes.includes('CodeChunk')
+
+Pay attention to the programming language of the code block and ensure you retain `exec` and any other keywords after the language on the first line.
+
+:::::
+
+::::: include instructions/document/code/attention.smd
+
+::: elif instruction.contentTypes.includes('MathBlock') || instruction.contentTypes.includes('MathInline')
+
+::::: if instruction.contentTypes.includes('MathBlock') && instruction.content.startsWith('```')
+
+Pay attention to the math language of the block.
+
+:::::
+
+::::: include instructions/document/math/attention.smd
+
+:::
+
+Respond with the fixed code including any surrounding backtick or dollar delimiters. Do NOT provide any comments or explanation before or after the code.
+
+# Context
+
+::: if instruction.contentTypes.includes('CodeChunk') || instruction.contentTypes.includes('CodeInline')
+
+::::: include context/kernels/code-context.smd
+
+::::: include context/document/code-chunks/preceding.smd
+
+::: elif instruction.contentTypes.includes('MathBlock') || instruction.contentTypes.includes('MathInline')
+
+::::: include context/document/math-blocks/preceding.smd
+
+::::: include context/document/math-inlines/preceding.smd
+
+:::
+
+# Examples
+
+::: if instruction.contentTypes.includes('CodeChunk') || instruction.contentTypes.includes('CodeInline')
+
+Fix this:
+
+````raw
+```python exec
+def calculate_average(numbers)
+    total = 0
+    for num in numbers
+        total += num
+    average = total / len(numbers)
+    return average
+
+nums = [1, 2, 3, 4, '5']
+result = calculate_average(nums)
+print("The average is: " + result)
+```
+````
+
+Response:
+
+````raw
+```python exec
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    average = total / len(numbers)
+    return average
+
+nums = [1, 2, 3, 4, 5]
+result = calculate_average(nums)
+print("The average is:", result)
+```
+````
+
+::: elif instruction.contentTypes.includes('MathBlock') || instruction.contentTypes.includes('MathInline')
+
+Fix this:
+
+$$
+f(x) = \frac{1}{\sqrt{2\pi\sigma^2} e^{-\frac{(x-\mu)^2}{2\sigma^2}
+$$
+
+Response:
+
+$$
+f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+$$
+
+:::
+
+# Code to fix
+
+Fix this:
+
+{{ instruction.content }}
