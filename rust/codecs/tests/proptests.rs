@@ -99,6 +99,7 @@ proptest! {
                 String::from("IncludeBlock"),
                 String::from("List"),
                 String::from("MathBlock"),
+                String::from("RawBlock"),
                 String::from("StyledBlock"),
                 String::from("Table"),
             ],

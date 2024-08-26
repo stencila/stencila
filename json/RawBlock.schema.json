@@ -11,6 +11,7 @@
   "markdown": {
     "derive": false
   },
+  "proptest": {},
   "required": [
     "type",
     "format",
@@ -47,6 +48,20 @@
           "myst"
         ]
       },
+      "proptest": {
+        "min": {
+          "description": "Fixed as Markdown",
+          "value": "String::from(\"markdown\")"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "strategy": "r\"[a-zA-Z0-9]{1,10}\""
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary()"
+        }
+      },
       "type": "string"
     },
     "content": {
@@ -57,6 +72,24 @@
           "md",
           "myst"
         ]
+      },
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string.",
+          "value": "Cord::from(\"content\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric characters (exclude whitespace which \nwhen leading or trailing causes issues for Markdown).\n",
+          "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::from)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::from)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::from)"
+        }
       },
       "$ref": "Cord.schema.json"
     },

@@ -8,6 +8,7 @@ $comment: |
   Analogous to node types in [Pandoc](https://github.com/jgm/pandoc-types/blob/1cf21a602535b6b263fef9548521353912115d87/src/Text/Pandoc/Definition.hs#L284) and [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/raw.html).
 markdown:
   derive: false
+proptest: {}
 required:
   - format
   - content
@@ -18,12 +19,38 @@ properties:
     type: string
     patch:
       formats: [md, myst]
+    proptest:
+      min:
+        description: Fixed as Markdown
+        value: String::from("markdown")
+      high:
+        description: Generate a random string of up to 10 alphanumeric characters.
+        strategy: r"[a-zA-Z0-9]{1,10}"
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary()
   content:
     '@id': stencila:content
     description: The raw content.
     $ref: Cord
     patch:
       formats: [md, myst]
+    proptest:
+      min:
+        description: Generate a simple fixed string.
+        value: Cord::from("content")
+      low:
+        description: |
+          Generate a random string of up to 10 alphanumeric characters (exclude whitespace which 
+          when leading or trailing causes issues for Markdown).
+        strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)
+      high:
+        description: |
+          Generate a random string of up to 100 characters (excluding control characters).
+        strategy: r"[^\p{C}]{1,100}".prop_map(Cord::from)
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary().prop_map(Cord::from)
   authors:
     '@id': schema:author
     description: The authors of the content.
