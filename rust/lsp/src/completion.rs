@@ -14,7 +14,7 @@ use async_lsp::{
 
 use codecs::Positions;
 use common::tokio::sync::RwLock;
-use schema::{Prompt, StringOrNumber};
+use schema::{InstructionType, Prompt, StringOrNumber};
 
 use crate::utils::position_to_position16;
 
@@ -30,7 +30,7 @@ pub(super) async fn request(
     if (Some(CompletionTriggerKind::TRIGGER_CHARACTER), Some("@"))
         == (trigger_kind, trigger_character.as_deref())
     {
-        return prompt_completion().await;
+        return prompt_completion("::: new").await;
     }
 
     // Unable to proceed if no source available
@@ -51,14 +51,26 @@ pub(super) async fn request(
 
     // Dispatch based on source before cursor
     if source_before.ends_with('@') {
-        return prompt_completion().await;
+        return prompt_completion(&source_before).await;
     }
 
     Ok(None)
 }
 
 /// Provide completion list for prompts of an instruction
-async fn prompt_completion() -> Result<Option<CompletionResponse>, ResponseError> {
+async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, ResponseError> {
+    let itype = if before.contains("::: new") {
+        InstructionType::New
+    } else if before.contains("::: edit") {
+        InstructionType::Edit
+    } else if before.contains("::: fix") {
+        InstructionType::Fix
+    } else if before.contains("::: describe") {
+        InstructionType::Fix
+    } else {
+        return Ok(None);
+    };
+
     let items = prompts::list()
         .await
         .iter()
@@ -68,11 +80,16 @@ async fn prompt_completion() -> Result<Option<CompletionResponse>, ResponseError
                 name,
                 version,
                 description,
+                instruction_types,
                 ..
             } = prompt.deref()
             else {
                 return None;
             };
+
+            if !instruction_types.contains(&itype) {
+                return None;
+            }
 
             // This attempts to maintain consistency with the symbols used for
             // `DocumentSymbols` for various node types
