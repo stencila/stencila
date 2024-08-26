@@ -46,7 +46,7 @@ pub async fn for_instruction_block(
     // Create an author role for the prompt
     let prompter = AuthorRole {
         last_modified: Some(Timestamp::now()),
-        ..prompt.clone().into()
+        ..prompt.deref().clone().into()
     };
 
     // Create a prompt context

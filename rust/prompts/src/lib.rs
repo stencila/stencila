@@ -52,7 +52,7 @@ pub use prompt;
 ///
 /// A wrapper around an [`Prompt`] used to cache derived properties
 /// such as regexes / embeddings
-#[derive(Deref, DerefMut)]
+#[derive(Clone, Deref, DerefMut)]
 pub struct PromptInstance {
     #[deref]
     #[deref_mut]
