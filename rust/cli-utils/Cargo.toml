@@ -7,6 +7,6 @@ edition = "2021"
 comfy-table = "7.1.1"
 common = { path = "../common" }
 format = { path = "../format" }
-is-terminal = "0.4.12"
+is-terminal = { workspace = true }
 rpassword = "7.3"
 syntect = "5.2.0"

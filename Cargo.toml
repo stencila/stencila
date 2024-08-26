@@ -19,6 +19,7 @@ panic = "abort"
 base64 = "0.22.0"
 cached = { version = "0.53.0", features = ["async", "disk_store"] }
 flate2 = "1.0.31"
+is-terminal = "0.4.12"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 quick-xml = "0.36.0"
