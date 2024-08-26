@@ -27,7 +27,9 @@ impl MarkdownCodec for RawBlock {
             .push_str("````")
             .push_prop_str(NodeProperty::Format, &self.format)
             .push_str(" raw\n")
-            .push_prop_fn(NodeProperty::Code, |context| self.content.to_markdown(context));
+            .push_prop_fn(NodeProperty::Code, |context| {
+                self.content.to_markdown(context)
+            });
 
         if !self.content.ends_with('\n') {
             context.newline();

@@ -60,7 +60,7 @@ pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
 
     for kernel in list().await {
         if kernel.name().to_lowercase() == name {
-            return Some(kernel)
+            return Some(kernel);
         }
     }
 

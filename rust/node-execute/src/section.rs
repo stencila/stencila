@@ -8,7 +8,7 @@ impl Executable for Section {
         tracing::trace!("Preparing Section {}", self.node_id());
 
         // Add section to document context
-        executor.document_context.sections.push((&*self).into());
+        executor.document_context.sections.push(&*self);
 
         // Continue walk over content
         WalkControl::Continue

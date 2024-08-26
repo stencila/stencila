@@ -62,7 +62,7 @@ impl From<&schema::InstructionBlock> for Instruction {
                     .map(|block| block.node_type().to_string())
                     .collect()
             }),
-            content: value.content.as_ref().map(|blocks| to_markdown(blocks)),
+            content: value.content.as_ref().map(to_markdown),
         }
     }
 }

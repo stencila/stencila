@@ -34,7 +34,7 @@ impl MathInline {
 }
 
 /// Inline math nodes in the current document
-/// 
+///
 /// Note that unlike other context collections in this crate
 /// (e.g. CodeChunks), this collection does not have the notion
 /// of the `current` inline math since there are no nested nodes

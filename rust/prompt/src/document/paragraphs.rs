@@ -41,7 +41,7 @@ impl Paragraphs {
     pub fn enter(&mut self) {
         if !self.ignore {
             self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
-            self.current = self.cursor.clone();
+            self.current = self.cursor;
         }
     }
 

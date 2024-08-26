@@ -26,7 +26,7 @@ impl Table {
 impl From<&schema::Table> for Table {
     fn from(table: &schema::Table) -> Self {
         Self {
-            caption: table.caption.as_ref().map(|caption| to_markdown(caption)),
+            caption: table.caption.as_ref().map(to_markdown),
             markdown: to_markdown(table),
         }
     }
@@ -53,16 +53,6 @@ pub struct Tables {
 }
 
 impl Tables {
-    /// Create a new set of tables
-    #[cfg(test)]
-    pub(super) fn new(items: Vec<Table>) -> Self {
-        Self {
-            items,
-            cursor: None,
-            current: None,
-        }
-    }
-
     /// Push a table onto the set
     pub(super) fn push(&mut self, item: Table) {
         self.items.push(item);
@@ -75,7 +65,7 @@ impl Tables {
     #[qjs(rename = "_enter")]
     pub(super) fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
-        self.current = self.cursor.clone();
+        self.current = self.cursor;
     }
 
     /// Exit a table

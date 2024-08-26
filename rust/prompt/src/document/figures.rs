@@ -23,7 +23,7 @@ impl Figure {
 impl From<&schema::Figure> for Figure {
     fn from(figure: &schema::Figure) -> Self {
         Self {
-            caption: figure.caption.as_ref().map(|caption| to_markdown(caption)),
+            caption: figure.caption.as_ref().map(to_markdown),
         }
     }
 }
@@ -48,16 +48,6 @@ pub struct Figures {
 }
 
 impl Figures {
-    /// Create a new set of figures
-    #[cfg(test)]
-    pub(super) fn new(items: Vec<Figure>) -> Self {
-        Self {
-            items,
-            cursor: None,
-            current: None,
-        }
-    }
-
     /// Push a figure onto the set
     pub(super) fn push(&mut self, item: Figure) {
         self.items.push(item);
@@ -70,7 +60,7 @@ impl Figures {
     #[qjs(rename = "_enter")]
     pub(super) fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
-        self.current = self.cursor.clone();
+        self.current = self.cursor;
     }
 
     /// Exit a figure

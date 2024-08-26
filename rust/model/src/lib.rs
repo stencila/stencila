@@ -45,7 +45,7 @@ pub enum ModelAvailability {
     /// Available on this machine
     Available,
     /// Requires API key or token
-    #[strum(to_string="requires api key")]
+    #[strum(to_string = "requires api key")]
     RequiresKey,
     /// Requires installation
     Installable,

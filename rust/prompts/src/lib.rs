@@ -306,7 +306,7 @@ pub async fn select(
 
     // If there is an assignee then get it
     if let Some(assignee) = assignee {
-        return get(&assignee).await;
+        return get(assignee).await;
     }
 
     // Filter the prompts to those that support the instruction type

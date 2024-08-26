@@ -56,7 +56,6 @@ pub async fn for_instruction_block(
         instruction: Some(instruction.into()),
         document: Some(executor.document_context.clone()),
         kernels: Some(KernelsContext::from_kernels(executor.kernels.read().await.deref()).await?),
-        ..Default::default()
     };
 
     // Get the home dir of the prompt for instantiating both the kernels and executor

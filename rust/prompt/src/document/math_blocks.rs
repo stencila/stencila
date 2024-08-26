@@ -34,7 +34,7 @@ impl MathBlock {
 }
 
 /// The math blocks in the current document
-/// 
+///
 /// Note that unlike other context collections in this crate
 /// (e.g. CodeChunks), this collection does not have the notion
 /// of the `current` math block since there are no nested nodes

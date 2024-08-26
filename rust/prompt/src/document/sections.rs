@@ -81,7 +81,7 @@ impl Sections {
     #[qjs(rename = "_enter")]
     pub fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
-        self.current = self.cursor.clone();
+        self.current = self.cursor;
     }
 
     /// Exit a section

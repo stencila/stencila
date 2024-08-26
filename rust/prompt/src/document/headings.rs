@@ -32,7 +32,7 @@ impl Headings {
     #[qjs(rename = "_enter")]
     pub fn enter(&mut self) {
         self.cursor = self.cursor.map(|cursor| cursor + 1).or(Some(0));
-        self.current = self.cursor.clone();
+        self.current = self.cursor;
     }
 
     /// Exit a heading
@@ -166,7 +166,7 @@ impl Heading {
     #[qjs(rename = PredefinedAtom::ToJSON)]
     fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
         let obj = Object::new(ctx)?;
-        obj.set("level", self.level.clone())?;
+        obj.set("level", self.level)?;
         obj.set("content", self.content.clone())?;
         Ok(obj)
     }

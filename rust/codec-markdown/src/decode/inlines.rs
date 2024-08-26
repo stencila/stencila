@@ -972,7 +972,7 @@ mod tests {
         assert!(code_attrs(&mut Located::new("= `2+2`")).is_err());
 
         // Two or more dollars in code is OK (previous got split out as math)
-        let is = inlines(&mut Located::new("`${a} ${b}`"));
+        let is = inlines(&Located::new("`${a} ${b}`"));
         assert_eq!(is.len(), 1);
         assert_eq!(is[0].0.node_type(), NodeType::CodeInline);
     }

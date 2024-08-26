@@ -59,29 +59,29 @@ impl Executable for IncludeBlock {
             let mut messages = Vec::new();
 
             // Resolve the source into a fully qualified URL (including `file://` URL)
-            let (url, pop_dir) =
-                if source.starts_with("https://") || source.starts_with("http://") {
-                    (source.to_string(), false)
-                } else {
-                    // Make the path relative to the last directory in the executor's directory stack
-                    // and update the stack if necessary.
-                    let last_dir = executor.directory_stack.last();
-                    let path = last_dir
-                        .map(|dir| dir.join(source))
-                        .unwrap_or_else(|| PathBuf::from(source));
-                    let pop_dir = if let Some(dir) = path.parent() {
-                        if Some(dir) != last_dir.map(|path_buf| path_buf.as_ref()) {
-                            executor.directory_stack.push(dir.to_path_buf());
-                            true
-                        } else {
-                            false
-                        }
+            let (url, pop_dir) = if source.starts_with("https://") || source.starts_with("http://")
+            {
+                (source.to_string(), false)
+            } else {
+                // Make the path relative to the last directory in the executor's directory stack
+                // and update the stack if necessary.
+                let last_dir = executor.directory_stack.last();
+                let path = last_dir
+                    .map(|dir| dir.join(source))
+                    .unwrap_or_else(|| PathBuf::from(source));
+                let pop_dir = if let Some(dir) = path.parent() {
+                    if Some(dir) != last_dir.map(|path_buf| path_buf.as_ref()) {
+                        executor.directory_stack.push(dir.to_path_buf());
+                        true
                     } else {
                         false
-                    };
-
-                    (["file://", &path.to_string_lossy()].concat(), pop_dir)
+                    }
+                } else {
+                    false
                 };
+
+                (["file://", &path.to_string_lossy()].concat(), pop_dir)
+            };
 
             // Decode the URL
             let mut content: Option<Vec<Block>> = match codecs::from_url(

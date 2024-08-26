@@ -151,8 +151,7 @@ impl Executable for InstructionBlock {
         let started = Timestamp::now();
 
         // Select a prompt and generate a system prompt
-        let (prompter, system_prompt) = match prompt::for_instruction_block(&self, &executor).await
-        {
+        let (prompter, system_prompt) = match prompt::for_instruction_block(self, executor).await {
             Ok(result) => result,
             Err(error) => {
                 executor.patch(
