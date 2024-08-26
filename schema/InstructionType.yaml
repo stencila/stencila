@@ -15,17 +15,14 @@ anyOf:
   - const: Edit
     "@id": stencila:Edit
     description: |
-      Edit existing document content. Expected to return the same node type as existing content.
-  - const: Transform
-    "@id": stencila:Transform
+      Edit existing document nodes. Expected to return the same node types as existing nodes.
+  - const: Fix
+    "@id": stencila:Fix
     description: |
-      Transform document content from one node type to another.
+      Fix an existing document node, usually a `CodeChunk`, `CodeInline`, or `MathBlock`.
+      Expected to return the same node type without any `compilationErrors` or `executionErrors`.
   - const: Describe
     "@id": stencila:Describe
     description: |
       Describe other document content. The instruction message should indicate the
       target for the description e.g. "describe figure 1", "describe next", "describe prev output"
-  - const: Update
-    "@id": stencila:Update
-    description: |
-      Update a description of other document content. Is to `Describe` as `Edit` is to `New`.

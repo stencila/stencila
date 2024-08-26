@@ -12,15 +12,12 @@ pub enum InstructionType {
     #[default]
     New,
 
-    /// Edit existing document content. Expected to return the same node type as existing content. 
+    /// Edit existing document nodes. Expected to return the same node types as existing nodes. 
     Edit,
 
-    /// Transform document content from one node type to another. 
-    Transform,
+    /// Fix an existing document node, usually a `CodeChunk`, `CodeInline`, or `MathBlock`. Expected to return the same node type without any `compilationErrors` or `executionErrors`. 
+    Fix,
 
     /// Describe other document content. The instruction message should indicate the target for the description e.g. "describe figure 1", "describe next", "describe prev output" 
     Describe,
-
-    /// Update a description of other document content. Is to `Describe` as `Edit` is to `New`. 
-    Update,
 }

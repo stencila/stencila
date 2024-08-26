@@ -294,9 +294,8 @@ class InstructionType(StrEnum):
 
     New = "New"
     Edit = "Edit"
-    Transform = "Transform"
+    Fix = "Fix"
     Describe = "Describe"
-    Update = "Update"
 
 
 class LabelType(StrEnum):

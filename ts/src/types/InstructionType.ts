@@ -5,8 +5,7 @@
 export type InstructionType =
   'New' |
   'Edit' |
-  'Transform' |
-  'Describe' |
-  'Update';
+  'Fix' |
+  'Describe';
 
 

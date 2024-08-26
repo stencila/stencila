@@ -35,8 +35,9 @@ use model::{
         tokio, tracing,
     },
     schema::{
-        authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, ImageObject, Inline,
-        InstructionBlock, InstructionMessage, InstructionType, Link, MessagePart, Node, Prompt,
+        authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
+        CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
+        InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, Prompt,
         SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
@@ -369,18 +370,19 @@ pub async fn execute_instruction_block(
     instruction: &InstructionBlock,
     dry_run: bool,
 ) -> Result<SuggestionBlock> {
-    // Create a vector of messages from the system message and instruction messages
+    // Create a vector of messages beginning with the system message
     let mut messages = vec![InstructionMessage::system(
         system_prompt,
         Some(vec![Author::AuthorRole(prompter.clone())]),
     )];
 
-    // Ensure that any images in the message are fully resolved
+    // Add a user message for the instruction
     if let Some(message) = instruction.message.clone() {
         let parts = message
             .parts
             .into_iter()
             .map(|part| {
+                // Ensure that any images in the message are fully resolved
                 Ok(match part {
                     MessagePart::ImageObject(image) => MessagePart::ImageObject(ImageObject {
                         content_url: ensure_http_or_data_uri(&image.content_url)?,
@@ -393,6 +395,56 @@ pub async fn execute_instruction_block(
         messages.push(InstructionMessage { parts, ..message })
     }
 
+    // If the instruction type is `Fix` and the first block in the content
+    // (usually there is only one!) has errors or warnings then add a message for those.
+    fn comp_msgs(messages: &Option<Vec<CompilationMessage>>) -> Option<String> {
+        let messages = messages
+            .iter()
+            .flatten()
+            .filter_map(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+                .then_some(message.formatted())
+            })
+            .join("\n\n");
+
+        (!messages.is_empty()).then_some(messages)
+    }
+    fn exec_msgs(messages: &Option<Vec<ExecutionMessage>>) -> Option<String> {
+        let messages = messages
+            .iter()
+            .flatten()
+            .filter_map(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+                .then_some(message.formatted())
+            })
+            .join("\n\n");
+
+        (!messages.is_empty()).then_some(messages)
+    }
+    if instruction.instruction_type == InstructionType::Fix {
+        if let Some(message) = instruction
+            .content
+            .iter()
+            .flatten()
+            .next()
+            .and_then(|block| match block {
+                Block::CodeChunk(node) => comp_msgs(&node.options.compilation_messages)
+                    .or(exec_msgs(&node.options.execution_messages)),
+                Block::MathBlock(node) => comp_msgs(&node.options.compilation_messages),
+                _ => None,
+            })
+        {
+            messages.push(InstructionMessage::user(message, None))
+        }
+    }
+
+    // Add pairs of assistant/user messages for each suggestion
     for suggestion in instruction.suggestions.iter().flatten() {
         // Note: this encodes suggestion content to Markdown. Using the
         // format used by the particular prompt e.g. HTML may be more appropriate
@@ -406,6 +458,8 @@ pub async fn execute_instruction_block(
             messages.push(InstructionMessage::user(feedback, None));
         }
     }
+
+    tracing::trace!("Model task messages:\n\n{messages:#?}");
 
     // Create a model task
     let mut task = ModelTask::new(

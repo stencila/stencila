@@ -47,11 +47,12 @@ pub(super) fn execution_mode(input: &mut &str) -> PResult<ExecutionMode> {
 
 /// Parse an instruction type
 pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<InstructionType> {
-    alt(("new", "edit", "update"))
+    alt(("new", "edit", "fix", "describe"))
         .map(|typ| match typ {
             "new" => InstructionType::New,
             "edit" => InstructionType::Edit,
-            "update" => InstructionType::Update,
+            "fix" => InstructionType::Fix,
+            "describe" => InstructionType::Describe,
             _ => unreachable!(),
         })
         .parse_next(input)

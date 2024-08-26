@@ -12,7 +12,7 @@ async fn instruction() -> Result<()> {
         instruction: Some(Instruction {
             r#type: "New".into(),
             message: Some("a msg".into()),
-            node_types: Some(vec!["Paragraph".into()]),
+            content_types: Some(vec!["Paragraph".into()]),
             content: Some("content".into()),
         }),
         ..Default::default()
@@ -28,7 +28,7 @@ async fn instruction() -> Result<()> {
         r#"{
   "type": "New",
   "message": "a msg",
-  "nodeTypes": "Paragraph",
+  "contentTypes": "Paragraph",
   "content": "content"
 }"#
     );
