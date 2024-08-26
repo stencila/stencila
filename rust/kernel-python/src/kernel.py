@@ -60,6 +60,7 @@ class Validator(TypedDict, total=False):
         "BooleanValidator",
         "IntegerValidator",
         "NumberValidator",
+        "StringValidator",
         "TimestampValidator",
         "DurationValidator",
     ]
