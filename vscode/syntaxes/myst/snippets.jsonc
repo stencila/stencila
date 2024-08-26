@@ -110,6 +110,16 @@
     "prefix": [":::{edit}"],
     "body": [":::{edit} ${0:instruction}", ":::", ""],
   },
+  "Fix Instruction": {
+    "description": "An instruction to fix code or math",
+    "prefix": [":::{fix}"],
+    "body": [":::{fix} ${0:instruction}", ":::", ""],
+  },
+  "Describe Instruction": {
+    "description": "An instruction to describe existing content",
+    "prefix": [":::{describe}"],
+    "body": [":::{describe} ${0:instruction}", ":::", ""],
+  },
   "Styled Block": {
     "description": "A block of styled content",
     "prefix": [":::{style}"],

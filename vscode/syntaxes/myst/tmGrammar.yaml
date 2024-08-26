@@ -299,7 +299,7 @@ repository:
       (?x)
       ^
         (:{3,})
-        \{(new|edit|update)\}
+        \{(new|edit|fix|describe)\}
         \s*
         (?:
           (@)

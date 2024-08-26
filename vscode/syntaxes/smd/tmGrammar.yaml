@@ -236,7 +236,7 @@ repository:
       (?x)
       ^
         (?:
-          (?:(:{3,})\s*(new|edit|update))|
+          (?:(:{3,})\s*(new|edit|fix|describe))|
           (/)
         )
         \s+
