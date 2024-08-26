@@ -4,6 +4,7 @@ mod code_chunks;
 mod figures;
 mod headings;
 mod math_blocks;
+mod math_inlines;
 mod metadata;
 mod node;
 mod paragraphs;
@@ -17,6 +18,7 @@ use code_chunks::CodeChunks;
 use figures::{Figure, Figures};
 use headings::Headings;
 use math_blocks::MathBlocks;
+use math_inlines::MathInlines;
 use metadata::Metadata;
 use paragraphs::Paragraphs;
 use sections::Sections;
@@ -60,6 +62,10 @@ pub struct Document {
     /// Math blocks in the current document
     #[qjs(get, enumerable)]
     pub math_blocks: MathBlocks,
+
+    /// Inline math in the current document
+    #[qjs(get, enumerable)]
+    pub math_inlines: MathInlines,
 }
 
 impl Document {
