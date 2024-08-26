@@ -166,13 +166,13 @@
             {
               "@type": "Text",
               "value": {
-                "string": "This is the conclusion"
+                "string": "This is the discussion"
               }
             }
           ]
         }
       ],
-      "stencila:sectionType": "Conclusion"
+      "stencila:sectionType": "Discussion"
     },
     {
       "@type": "stencila:Section",

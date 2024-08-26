@@ -141,12 +141,12 @@
           content: [
             {
               type: "Text",
-              value: { string: "This is the conclusion" }
+              value: { string: "This is the discussion" }
             }
           ]
         }
       ],
-      sectionType: "Conclusion"
+      sectionType: "Discussion"
     },
     {
       type: "Section",

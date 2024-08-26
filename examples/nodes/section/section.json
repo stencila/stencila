@@ -105,11 +105,11 @@
     },
     {
       "type": "Section",
-      "sectionType": "Conclusion",
+      "sectionType": "Discussion",
       "content": [
         {
           "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "This is the conclusion" }]
+          "content": [{ "type": "Text", "value": "This is the discussion" }]
         }
       ]
     },

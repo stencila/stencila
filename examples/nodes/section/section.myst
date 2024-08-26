@@ -46,9 +46,9 @@ This is the introduction
 
 :::
 
-::: conclusion
+::: discussion
 
-This is the conclusion
+This is the discussion
 
 :::
 

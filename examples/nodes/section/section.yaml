@@ -77,8 +77,8 @@ content:
     content:
     - type: Text
       value:
-        string: This is the conclusion
-  sectionType: Conclusion
+        string: This is the discussion
+  sectionType: Discussion
 - type: Section
   content:
   - type: Paragraph

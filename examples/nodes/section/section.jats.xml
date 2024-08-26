@@ -25,8 +25,8 @@
     <sec content-type="Introduction">
       <p>This is the introduction</p>
     </sec>
-    <sec content-type="Conclusion">
-      <p>This is the conclusion</p>
+    <sec content-type="Discussion">
+      <p>This is the discussion</p>
     </sec>
     <sec content-type="Footer">
       <p>This is the footer</p>
