@@ -10,9 +10,8 @@ The `InstructionType` type has these members:
 
 - `New`
 - `Edit`
-- `Transform`
+- `Fix`
 - `Describe`
-- `Update`
 
 ## Bindings
 

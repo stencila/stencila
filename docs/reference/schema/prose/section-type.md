@@ -2,21 +2,30 @@
 
 **The type of a `Section`.**
 
+Includes the section types recommended by the JATS XML standard
+(https://jats.nlm.nih.gov/archiving/tag-library/1.1d1/n-77u2.html) with additional
+values for other section types commonly found in documents.
+
+
 **`@id`**: `stencila:SectionType`
 
 ## Members
 
 The `SectionType` type has these members:
 
+- `Abstract`
+- `Summary`
+- `Introduction`
+- `Materials`
+- `Methods`
+- `Cases`
+- `Results`
+- `Discussion`
+- `Conclusions`
+- `SupplementaryMaterials`
 - `Main`
 - `Header`
 - `Footer`
-- `Summary`
-- `Introduction`
-- `Methods`
-- `Results`
-- `Discussion`
-- `Conclusion`
 - `Iteration`
 
 ## Bindings

@@ -15,11 +15,13 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila render`↴](#stencila-render)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila lsp`↴](#stencila-lsp)
-* [`stencila assistants`↴](#stencila-assistants)
-* [`stencila assistants list`↴](#stencila-assistants-list)
-* [`stencila assistants execute`↴](#stencila-assistants-execute)
+* [`stencila prompts`↴](#stencila-prompts)
+* [`stencila prompts list`↴](#stencila-prompts-list)
+* [`stencila prompts show`↴](#stencila-prompts-show)
+* [`stencila prompts select`↴](#stencila-prompts-select)
 * [`stencila models`↴](#stencila-models)
 * [`stencila models list`↴](#stencila-models-list)
+* [`stencila models execute`↴](#stencila-models-execute)
 * [`stencila kernels`↴](#stencila-kernels)
 * [`stencila kernels list`↴](#stencila-kernels-list)
 * [`stencila kernels info`↴](#stencila-kernels-info)
@@ -63,10 +65,10 @@ CLI subcommands and global options
 * `render` — Render a document
 * `serve` — Options for the `serve` function
 * `lsp` — Run the Stencila Language Server
-* `assistants` — Manage assistants
-* `models` — Manage models
+* `prompts` — Manage prompts
+* `models` — Manage generative models
 * `kernels` — Manage execution kernels
-* `codecs` — Manage codecs
+* `codecs` — Manage format conversion codecs
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
@@ -85,7 +87,7 @@ CLI subcommands and global options
 
    Allows more fine-grained control over which log entries are shown. To additionally see lower level entries for a specific crates use syntax such as `tokio=debug`.
 
-  Default value: `globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,tokio=info,tungstenite=info`
+  Default value: `globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
    When `auto`, uses `simple` for terminals and `json` for non-TTY devices.
@@ -431,7 +433,7 @@ Execute a document
    By default, instructions that have a suggestion that has been rejected, will be re-executed. Use this flag to skip re-execution of these instructions.
 * `--dry-run` — Prepare, but do not actually perform, execution tasks
 
-   Currently only supported by assistants where it is useful for debugging the rendering of system prompts without making a potentially slow API request.
+   Currently only supported by instructions where it is useful for debugging the rendering of prompts without making a potentially slow generative model API request.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-r`, `--render` — For executable nodes, only encode outputs, not source properties
@@ -506,7 +508,7 @@ Equivalent to the `execute` command with the `--render` flag.
    By default, instructions that have a suggestion that has been rejected, will be re-executed. Use this flag to skip re-execution of these instructions.
 * `--dry-run` — Prepare, but do not actually perform, execution tasks
 
-   Currently only supported by assistants where it is useful for debugging the rendering of system prompts without making a potentially slow API request.
+   Currently only supported by instructions where it is useful for debugging the rendering of prompts without making a potentially slow generative model API request.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-r`, `--render` — For executable nodes, only encode outputs, not source properties
@@ -588,66 +590,98 @@ Run the Stencila Language Server
 
 
 
-## `stencila assistants`
+## `stencila prompts`
 
-Manage assistants
+Manage prompts
 
-**Usage:** `stencila assistants [COMMAND]`
+**Usage:** `stencila prompts [COMMAND]`
 
 ###### **Subcommands:**
 
-* `list` — List the assistant available
-* `execute` — Execute an instruction with an assistant
+* `list` — List the prompts available
+* `show` — Show a prompt
+* `select` — Select a prompt
 
 
 
-## `stencila assistants list`
+## `stencila prompts list`
 
-List the assistant available
+List the prompts available
 
-**Usage:** `stencila assistants list`
+**Usage:** `stencila prompts list`
 
 
 
-## `stencila assistants execute`
+## `stencila prompts show`
 
-Execute an instruction with an assistant
+Show a prompt
 
-Mainly intended for quick testing of assistants during development.
-
-**Usage:** `stencila assistants execute [OPTIONS] <INSTRUCTION>`
+**Usage:** `stencila prompts show [OPTIONS] <ID>`
 
 ###### **Arguments:**
 
-* `<INSTRUCTION>` — The text of the instruction
+* `<ID>` — The id of the prompt to show
 
 ###### **Options:**
 
-* `-a`, `--assignee <ASSIGNEE>` — The name of the assistant assigned to the instruction
+* `-t`, `--to <TO>` — The format to show the prompt in
 
-   For example, `stencila/paragraph` or `my-org/abstract`. For Stencila assistants, the org prefix can be omitted e.g. `insert-code-chunk`. See `stencila assistants list` for a list of available assistants.
-* `-m`, `--name-pattern <NAME_PATTERN>` — The regex pattern to filter model names by
-* `-y`, `--minimum-score <MINIMUM_SCORE>` — The threshold score for selecting a model to use
+  Default value: `yaml`
+
+
+
+## `stencila prompts select`
+
+Select a prompt
+
+Useful for checking which prompt will be matched to a given instruction
+
+**Usage:** `stencila prompts select <TYPE> <MESSAGE>`
+
+###### **Arguments:**
+
+* `<TYPE>` — The type of instruction
+* `<MESSAGE>` — The instruction message
 
 
 
 ## `stencila models`
 
-Manage models
+Manage generative models
 
 **Usage:** `stencila models [COMMAND]`
 
 ###### **Subcommands:**
 
-* `list` — List the assistant available
+* `list` — List the models available
+* `execute` — Execute a model task
 
 
 
 ## `stencila models list`
 
-List the assistant available
+List the models available
 
 **Usage:** `stencila models list`
+
+
+
+## `stencila models execute`
+
+Execute a model task
+
+Mainly intended for testing of model selection and routing.
+
+**Usage:** `stencila models execute [OPTIONS] <PROMPT>`
+
+###### **Arguments:**
+
+* `<PROMPT>`
+
+###### **Options:**
+
+* `-m`, `--model <MODEL>` — The id pattern to specify the model to use
+* `--dry-run` — Perform a dry run
 
 
 
@@ -744,7 +778,7 @@ Mainly intended for quick testing of kernels during development.
 
 ## `stencila codecs`
 
-Manage codecs
+Manage format conversion codecs
 
 **Usage:** `stencila codecs [COMMAND]`
 
@@ -947,7 +981,7 @@ Delete a secret previously set using Stencila
 
   Default value: `config`
 
-  Possible values: `config`, `cache`, `assistants`, `plugins`, `kernels`
+  Possible values: `config`, `cache`, `prompts`, `plugins`, `kernels`
 
 * `--ensure`
 

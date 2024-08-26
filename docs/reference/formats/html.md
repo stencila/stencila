@@ -158,6 +158,7 @@ Support and degree of loss for node types:
 | [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | 🔷 Low loss |          |                                                                                                                    |
 | [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | 🔷 Low loss |          |                                                                                                                    |
 | [ProvenanceCount](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance_count.md)         | 🔷 Low loss |          |                                                                                                                    |
+| [RawBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/raw_block.md)                       | 🔷 Low loss |          |                                                                                                                    |
 | [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | 🔷 Low loss |          |                                                                                                                    |
 
 
