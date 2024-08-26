@@ -342,8 +342,8 @@ try:
 
     def dataframe_to_hint(df: pd.DataFrame) -> DatatableHint:
         columns = []
-        for column_name in df.columns:
-            try:
+        try:
+            for column_name in df.columns:
                 column = df[column_name]
 
                 # We fudge the conversion here, and so break type hints
@@ -353,8 +353,8 @@ try:
                 hint["itemType"] = hint["itemTypes"][0]  # type: ignore
 
                 columns.append(hint)
-            except:
-                continue
+        except Exception:
+            pass
 
         return {"type": "DatatableHint", "rows": len(df), "columns": columns}
 
@@ -590,7 +590,7 @@ def list_variables() -> None:
             native_type = type(value).__name__
             node_type, hint = determine_type_and_hint(value)
             native_hint = determine_native_hint(value)
-        except:
+        except Exception:
             continue
 
         variable: Variable = {
