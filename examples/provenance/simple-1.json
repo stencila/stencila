@@ -36,7 +36,7 @@
           ]
         }
       ],
-      "assignee": "insert-blocks",
+      "prompt": "insert-blocks",
       "provenance": [
         {
           "type": "ProvenanceCount",
@@ -184,7 +184,7 @@
           ]
         }
       ],
-      "assignee": "insert-code-chunk",
+      "prompt": "insert-code-chunk",
       "provenance": [
         {
           "type": "ProvenanceCount",

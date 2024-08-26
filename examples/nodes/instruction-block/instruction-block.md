@@ -1,28 +1,28 @@
-An insert instruction with no assignee:
+An insert instruction with no prompt:
 
 ::: new a 4x10 table <
 
-An insert instruction with an assignee:
+An insert instruction with a prompt:
 
 ::: new @table top five highest mountains, with height in metres <
 
-An insert instruction with an assignee but a blank instruction
+An insert instruction with a prompt but a blank instruction
 
 ::: new @code-chunk  <
 
-An edit instruction (has content) with no assignee:
+An edit instruction (has content) with no prompt:
 
 ::: edit improve this paragraph >
 
 The paragraph to be improved.
 
-An edit instruction with an assignee:
+An edit instruction with a prompt:
 
 ::: edit @anne please improve this paragraph >
 
 Another paragraph to be improved.
 
-An insert instruction with an assignee and a suggestion:
+An insert instruction with a prompt and a suggestion:
 
 ::: new @code-chunk analyze data <
 

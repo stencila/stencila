@@ -38,7 +38,7 @@ pub async fn for_instruction_block(
     let mut prompt = prompts::select(
         &instruction.instruction_type,
         &instruction.message,
-        &instruction.assignee,
+        &instruction.prompt,
         &Some(node_types),
     )
     .await?;

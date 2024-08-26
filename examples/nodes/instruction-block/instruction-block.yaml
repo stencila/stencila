@@ -4,7 +4,7 @@ content:
   content:
   - type: Text
     value:
-      string: 'An insert instruction with no assignee:'
+      string: 'An insert instruction with no prompt:'
 - type: InstructionBlock
   instructionType: New
   message:
@@ -17,7 +17,7 @@ content:
   content:
   - type: Text
     value:
-      string: 'An insert instruction with an assignee:'
+      string: 'An insert instruction with a prompt:'
 - type: InstructionBlock
   instructionType: New
   message:
@@ -26,20 +26,20 @@ content:
     - type: Text
       value:
         string: top five highest mountains, with height in metres
-  assignee: table
+  prompt: table
 - type: Paragraph
   content:
   - type: Text
     value:
-      string: An insert instruction with an assignee but a blank instruction
+      string: An insert instruction with a prompt but a blank instruction
 - type: InstructionBlock
   instructionType: New
-  assignee: code-chunk
+  prompt: code-chunk
 - type: Paragraph
   content:
   - type: Text
     value:
-      string: 'An edit instruction (has content) with no assignee:'
+      string: 'An edit instruction (has content) with no prompt:'
 - type: InstructionBlock
   instructionType: Edit
   message:
@@ -58,7 +58,7 @@ content:
   content:
   - type: Text
     value:
-      string: 'An edit instruction with an assignee:'
+      string: 'An edit instruction with a prompt:'
 - type: InstructionBlock
   instructionType: Edit
   message:
@@ -67,7 +67,7 @@ content:
     - type: Text
       value:
         string: please improve this paragraph
-  assignee: anne
+  prompt: anne
   content:
   - type: Paragraph
     content:
@@ -78,7 +78,7 @@ content:
   content:
   - type: Text
     value:
-      string: 'An insert instruction with an assignee and a suggestion:'
+      string: 'An insert instruction with a prompt and a suggestion:'
 - type: InstructionBlock
   instructionType: New
   message:
@@ -87,7 +87,7 @@ content:
     - type: Text
       value:
         string: analyze data
-  assignee: code-chunk
+  prompt: code-chunk
   suggestions:
   - type: SuggestionBlock
     suggestionStatus: Proposed

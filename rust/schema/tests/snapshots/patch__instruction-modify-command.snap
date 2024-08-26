@@ -14,19 +14,19 @@ old:
   provenance:
     - type: ProvenanceCount
       provenanceCategory: Hw
-      characterCount: 88
+      characterCount: 85
       characterPercent: 100
   content:
     - type: Paragraph
       content:
         - type: Text
           value:
-            string: "An insert instruction with an assignee:"
+            string: "An insert instruction with a prompt:"
             authorship:
               - - 1
                 - 0
                 - 0
-                - 39
+                - 36
       authors:
         - type: AuthorRole
           author:
@@ -37,7 +37,7 @@ old:
       provenance:
         - type: ProvenanceCount
           provenanceCategory: Hw
-          characterCount: 39
+          characterCount: 36
           characterPercent: 100
     - type: InstructionBlock
       instructionType: New
@@ -64,7 +64,7 @@ old:
             provenanceCategory: Hw
             characterCount: 49
             characterPercent: 100
-      assignee: table
+      prompt: table
 new:
   type: Article
   content:
@@ -72,7 +72,7 @@ new:
       content:
         - type: Text
           value:
-            string: "An insert instruction with an assignee:"
+            string: "An insert instruction with a prompt:"
     - type: InstructionBlock
       instructionType: New
       message:
@@ -81,7 +81,7 @@ new:
           - type: Text
             value:
               string: "top five highest mountains, with height in feet"
-      assignee: table
+      prompt: table
 merged:
   type: Article
   authors:
@@ -100,7 +100,7 @@ merged:
   provenance:
     - type: ProvenanceCount
       provenanceCategory: Hw
-      characterCount: 84
+      characterCount: 81
       characterPercent: 97
     - type: ProvenanceCount
       provenanceCategory: HwHe
@@ -111,12 +111,12 @@ merged:
       content:
         - type: Text
           value:
-            string: "An insert instruction with an assignee:"
+            string: "An insert instruction with a prompt:"
             authorship:
               - - 1
                 - 0
                 - 0
-                - 39
+                - 36
       authors:
         - type: AuthorRole
           author:
@@ -127,7 +127,7 @@ merged:
       provenance:
         - type: ProvenanceCount
           provenanceCategory: Hw
-          characterCount: 39
+          characterCount: 36
           characterPercent: 100
     - type: InstructionBlock
       instructionType: New
@@ -172,7 +172,7 @@ merged:
             provenanceCategory: HwHe
             characterCount: 2
             characterPercent: 4
-      assignee: table
+      prompt: table
 ops:
   - - - content
       - 1

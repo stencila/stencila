@@ -119,35 +119,18 @@ impl MarkdownCodec for InstructionBlock {
                         }
                     },
                     |context| {
-                        if let Some(assignee) = &self.assignee {
+                        if let Some(prompt) = &self.prompt {
                             context.myst_directive_option(
-                                NodeProperty::Assignee,
-                                Some("assign"),
-                                assignee,
+                                NodeProperty::Prompt,
+                                Some("prompt"),
+                                prompt,
                             );
                         }
                         if let Some(reps) = &self.replicates {
                             context.myst_directive_option(
-                                NodeProperty::Assignee,
+                                NodeProperty::Replicates,
                                 Some("reps"),
                                 &reps.to_string(),
-                            );
-                        }
-                        if let Some(thresh) =
-                            &self.model.as_ref().and_then(|model| model.minimum_score)
-                        {
-                            context.myst_directive_option(
-                                NodeProperty::Assignee,
-                                Some("thresh"),
-                                &thresh.to_string(),
-                            );
-                        }
-                        if let Some(temp) = &self.model.as_ref().and_then(|model| model.temperature)
-                        {
-                            context.myst_directive_option(
-                                NodeProperty::Assignee,
-                                Some("temp"),
-                                &temp.to_string(),
                             );
                         }
                     },
@@ -167,8 +150,8 @@ impl MarkdownCodec for InstructionBlock {
                 .push_str(&instruction_type)
                 .push_str(" ");
 
-            if let Some(assignee) = &self.assignee {
-                context.push_str("@").push_str(assignee).push_str(" ");
+            if let Some(prompt) = &self.prompt {
+                context.push_str("@").push_str(prompt).push_str(" ");
             }
 
             if let Some(model) = self

@@ -52,7 +52,7 @@ old:
                 provenanceCategory: Hw
                 characterCount: 33
                 characterPercent: 100
-          assignee: math
+          prompt: math
         - type: Text
           value:
             string: ".\nFollowed by "
@@ -226,5 +226,5 @@ ops:
       - 0
       - content
       - 1
-      - assignee
+      - prompt
     - Set: ~

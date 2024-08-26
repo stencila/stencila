@@ -312,7 +312,7 @@ repository:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # instruction type
       "3": { name: decorator.keyword.stencila } # @
-      "4": { name: decorator.keyword.stencila } # assignee
+      "4": { name: decorator.keyword.stencila } # prompt
       "5": { name: comment.line } # message
 
   suggestion-block:

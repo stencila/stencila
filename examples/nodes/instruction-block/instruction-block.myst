@@ -1,24 +1,24 @@
-An insert instruction with no assignee:
+An insert instruction with no prompt:
 
 :::{new} a 4x10 table
 
 :::
 
-An insert instruction with an assignee:
+An insert instruction with a prompt:
 
 :::{new} top five highest mountains, with height in metres
-:assign: table
+:prompt: table
 
 :::
 
-An insert instruction with an assignee but a blank instruction
+An insert instruction with a prompt but a blank instruction
 
 :::{new}
-:assign: code-chunk
+:prompt: code-chunk
 
 :::
 
-An edit instruction (has content) with no assignee:
+An edit instruction (has content) with no prompt:
 
 :::{edit} improve this paragraph
 
@@ -26,19 +26,19 @@ The paragraph to be improved.
 
 :::
 
-An edit instruction with an assignee:
+An edit instruction with a prompt:
 
 :::{edit} please improve this paragraph
-:assign: anne
+:prompt: anne
 
 Another paragraph to be improved.
 
 :::
 
-An insert instruction with an assignee and a suggestion:
+An insert instruction with a prompt and a suggestion:
 
 :::{new} analyze data
-:assign: code-chunk
+:prompt: code-chunk
 
 :::
 

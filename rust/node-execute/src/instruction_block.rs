@@ -27,7 +27,7 @@ impl Executable for InstructionBlock {
         );
         add_to_digest(
             &mut state_digest,
-            self.assignee.clone().unwrap_or_default().as_bytes(),
+            self.prompt.clone().unwrap_or_default().as_bytes(),
         );
         add_to_digest(
             &mut state_digest,

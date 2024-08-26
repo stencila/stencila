@@ -77,8 +77,8 @@ impl MarkdownCodec for InstructionInline {
             .push_str(self.instruction_type.to_string().to_lowercase().as_str())
             .push_str(" ");
 
-        if let Some(assignee) = &self.assignee {
-            context.push_str("@").push_str(assignee).push_str(" ");
+        if let Some(prompt) = &self.prompt {
+            context.push_str("@").push_str(prompt).push_str(" ");
         }
 
         if let Some(message) = &self.message {

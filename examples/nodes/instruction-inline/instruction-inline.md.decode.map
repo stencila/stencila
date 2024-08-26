@@ -3,14 +3,14 @@ start     end        offsets   node_type+property                   authorship
      0     75       (-50, 1)   Paragraph
    140    178     (140, 103)   InstructionInline
     77    179       (-63, 1)   Paragraph
-   212    273      (135, 94)   InstructionInline
-   299    327       (87, 54)   InstructionInline
-   332    383       (33, 56)   InstructionInline
-   181    384      (-151, 1)   Paragraph
-   470    481       (52, 21)   MathInline
-   460    483       (-10, 2)   SuggestionInline
-   418    483       (-42, 0)   InstructionInline
-   522    550       (34, 28)   SuggestionInline
-   488    550       (-34, 0)   InstructionInline
-   386    551      (-102, 1)   Paragraph
-     0    552      (-386, 1)   Article
+   209    270      (132, 91)   InstructionInline
+   296    324       (87, 54)   InstructionInline
+   329    380       (33, 56)   InstructionInline
+   181    381      (-148, 1)   Paragraph
+   467    478       (52, 21)   MathInline
+   457    480       (-10, 2)   SuggestionInline
+   415    480       (-42, 0)   InstructionInline
+   519    547       (34, 28)   SuggestionInline
+   485    547       (-34, 0)   InstructionInline
+   383    548      (-102, 1)   Paragraph
+     0    549      (-383, 1)   Article

@@ -30,7 +30,7 @@ pub(super) async fn request(
     if (Some(CompletionTriggerKind::TRIGGER_CHARACTER), Some("@"))
         == (trigger_kind, trigger_character.as_deref())
     {
-        return assignee_completion().await;
+        return prompt_completion().await;
     }
 
     // Unable to proceed if no source available
@@ -51,14 +51,14 @@ pub(super) async fn request(
 
     // Dispatch based on source before cursor
     if source_before.ends_with('@') {
-        return assignee_completion().await;
+        return prompt_completion().await;
     }
 
     Ok(None)
 }
 
-/// Provide completion list for assignees of an instruction
-async fn assignee_completion() -> Result<Option<CompletionResponse>, ResponseError> {
+/// Provide completion list for prompts of an instruction
+async fn prompt_completion() -> Result<Option<CompletionResponse>, ResponseError> {
     let items = prompts::list()
         .await
         .iter()

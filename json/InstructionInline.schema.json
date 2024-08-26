@@ -24,7 +24,7 @@
     "id",
     "executionMode",
     "message",
-    "assignee",
+    "prompt",
     "model",
     "replicates",
     "content",
@@ -306,10 +306,9 @@
       },
       "$ref": "InstructionMessage.schema.json"
     },
-    "assignee": {
-      "@id": "stencila:assignee",
-      "description": "An identifier for the assistant assigned to perform the instruction",
-      "$comment": "This property is a string because on creation of the instruction the identifier has not yet been\nresolved into a person, organization, or software application.\n",
+    "prompt": {
+      "@id": "stencila:prompt",
+      "description": "An identifier for the prompt to be used for the instruction",
       "patch": {
         "formats": [
           "md",
@@ -318,7 +317,7 @@
       },
       "proptest": {
         "min": {
-          "description": "No assignee",
+          "description": "No prompt",
           "value": "None"
         },
         "high": {
@@ -326,7 +325,7 @@
           "strategy": "option::of(r\"[a-zA-Z][a-zA-Z\\-_/.@]\")"
         },
         "max": {
-          "description": "Generate an arbitrary assignee id using any characters",
+          "description": "Generate an arbitrary prompt id using any characters",
           "strategy": "option::of(String::arbitrary())"
         }
       },

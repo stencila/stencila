@@ -58,8 +58,8 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
         .parse_next(input)
 }
 
-/// Parse the name of an assignee of an instruction (e.g. `insert-image-object`, `joe@example.org`)
-pub(super) fn assignee<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+/// Parse the name of a prompt of an instruction (e.g. `insert-image-object`, `joe@example.org`)
+pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     (
         take_while(1.., |c: char| c.is_ascii_alphabetic()),
         take_while(0.., |c: char| {

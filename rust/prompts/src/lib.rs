@@ -299,14 +299,14 @@ pub fn update_builtin() {
 pub async fn select(
     instruction_type: &InstructionType,
     message: &Option<InstructionMessage>,
-    assignee: &Option<String>,
+    prompt: &Option<String>,
     _node_types: &Option<Vec<String>>,
 ) -> Result<PromptInstance> {
     let prompts = list().await;
 
-    // If there is an assignee then get it
-    if let Some(assignee) = assignee {
-        return get(assignee).await;
+    // If there is a prompt then get it
+    if let Some(prompt) = prompt {
+        return get(prompt).await;
     }
 
     // Filter the prompts to those that support the instruction type

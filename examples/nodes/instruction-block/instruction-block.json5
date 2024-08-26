@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "An insert instruction with no assignee:" }
+          value: { string: "An insert instruction with no prompt:" }
         }
       ]
     },
@@ -28,7 +28,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "An insert instruction with an assignee:" }
+          value: { string: "An insert instruction with a prompt:" }
         }
       ]
     },
@@ -44,28 +44,28 @@
           }
         ]
       },
-      assignee: "table"
+      prompt: "table"
     },
     {
       type: "Paragraph",
       content: [
         {
           type: "Text",
-          value: { string: "An insert instruction with an assignee but a blank instruction" }
+          value: { string: "An insert instruction with a prompt but a blank instruction" }
         }
       ]
     },
     {
       type: "InstructionBlock",
       instructionType: "New",
-      assignee: "code-chunk"
+      prompt: "code-chunk"
     },
     {
       type: "Paragraph",
       content: [
         {
           type: "Text",
-          value: { string: "An edit instruction (has content) with no assignee:" }
+          value: { string: "An edit instruction (has content) with no prompt:" }
         }
       ]
     },
@@ -98,7 +98,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "An edit instruction with an assignee:" }
+          value: { string: "An edit instruction with a prompt:" }
         }
       ]
     },
@@ -114,7 +114,7 @@
           }
         ]
       },
-      assignee: "anne",
+      prompt: "anne",
       content: [
         {
           type: "Paragraph",
@@ -132,7 +132,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "An insert instruction with an assignee and a suggestion:" }
+          value: { string: "An insert instruction with a prompt and a suggestion:" }
         }
       ]
     },
@@ -148,7 +148,7 @@
           }
         ]
       },
-      assignee: "code-chunk",
+      prompt: "code-chunk",
       suggestions: [
         {
           type: "SuggestionBlock",

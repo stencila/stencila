@@ -24,8 +24,8 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
-        assignee, attrs, execution_mode, instruction_type, model, name, node_to_string,
-        primitive_node, string_to_instruction_message, take_until_unbalanced,
+        attrs, execution_mode, instruction_type, model, name, node_to_string, primitive_node,
+        prompt, string_to_instruction_message, take_until_unbalanced,
     },
     Context,
 };
@@ -729,7 +729,7 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
 fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
         terminated(instruction_type, multispace0),
-        opt(delimited('@', assignee, multispace0)),
+        opt(delimited('@', prompt, multispace0)),
         opt(delimited(
             ('[', multispace0),
             model,
@@ -743,7 +743,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         opt(take_while(0.., |_| true)),
     )
         .map(
-            |(instruction_type, assignee, id_pattern, options, message): (
+            |(instruction_type, prompt, id_pattern, options, message): (
                 _,
                 _,
                 _,
@@ -813,7 +813,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     instruction_type,
                     message,
                     content,
-                    assignee: assignee.map(String::from),
+                    prompt: prompt.map(String::from),
                     replicates,
                     model,
                     ..Default::default()
@@ -1395,10 +1395,10 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             select: options.get("select").map(|select| select.to_string()),
             ..Default::default()
         }),
-        "new" | "edit" | "update" => Block::InstructionBlock(InstructionBlock {
+        "new" | "edit" | "fix" | "describe" => Block::InstructionBlock(InstructionBlock {
             instruction_type: name.parse().unwrap_or_default(),
             message: args.map(InstructionMessage::from),
-            assignee: options.get("assign").map(|value| value.to_string()),
+            prompt: options.get("prompt").map(|value| value.to_string()),
             replicates: options.get("reps").and_then(|value| value.parse().ok()),
             content: if !value.trim().is_empty() {
                 Some(decode_blocks(&value))

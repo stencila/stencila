@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
-    <p>An insert instruction with no assignee:</p>
-    <p>An insert instruction with an assignee:</p>
-    <p>An insert instruction with an assignee but a blank instruction</p>
-    <p>An edit instruction (has content) with no assignee:</p>
-    <p>An edit instruction with an assignee:</p>
-    <p>An insert instruction with an assignee and a suggestion:</p>
+    <p>An insert instruction with no prompt:</p>
+    <p>An insert instruction with a prompt:</p>
+    <p>An insert instruction with a prompt but a blank instruction</p>
+    <p>An edit instruction (has content) with no prompt:</p>
+    <p>An edit instruction with a prompt:</p>
+    <p>An insert instruction with a prompt and a suggestion:</p>
     <p>An edit instruction with a suggestion:</p>
   </body>
 </article>

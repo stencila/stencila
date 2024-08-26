@@ -9,7 +9,7 @@ import { Executable } from './executable'
  */
 export abstract class Instruction extends Executable {
   @property()
-  assignee?: string
+  prompt?: string
 
   @property({ type: Number })
   replicates?: number

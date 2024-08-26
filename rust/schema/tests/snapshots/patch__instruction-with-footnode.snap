@@ -52,7 +52,7 @@ old:
                 provenanceCategory: Hw
                 characterCount: 33
                 characterPercent: 100
-          assignee: math
+          prompt: math
         - type: Text
           value:
             string: "."
@@ -114,7 +114,7 @@ new:
               - type: Text
                 value:
                   string: equation for surface area of cube
-          assignee: math
+          prompt: math
         - type: Text
           value:
             string: "."
@@ -182,7 +182,7 @@ merged:
                 provenanceCategory: Hw
                 characterCount: 33
                 characterPercent: 100
-          assignee: math
+          prompt: math
         - type: Text
           value:
             string: "."

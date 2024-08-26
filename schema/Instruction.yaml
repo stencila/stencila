@@ -8,7 +8,7 @@ required:
   - instructionType
 core:
   - message
-  - assignee
+  - prompt
   - model
   - replicates
 properties:
@@ -24,24 +24,21 @@ properties:
       formats: [md, myst]
     dom:
       elem: div
-  assignee:
-    "@id": stencila:assignee
-    description: An identifier for the assistant assigned to perform the instruction
+  prompt:
+    "@id": stencila:prompt
+    description: An identifier for the prompt to be used for the instruction
     type: string
-    $comment: |
-      This property is a string because on creation of the instruction the identifier has not yet been
-      resolved into a person, organization, or software application.
     patch:
       formats: [md, myst]
     proptest:
       min:
-        description: No assignee
+        description: No prompt
         value: None
       high:
         description: Generate an arbitrary id using expected characters
         strategy: option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")
       max:
-        description: Generate an arbitrary assignee id using any characters
+        description: Generate an arbitrary prompt id using any characters
         strategy: option::of(String::arbitrary())
   model:
     "@id": stencila:model

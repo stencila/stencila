@@ -83,7 +83,7 @@
         {
           "@type": "Text",
           "value": {
-            "string": "Instructions with an assignee: "
+            "string": "Instructions with a prompt: "
           }
         },
         {
@@ -100,7 +100,7 @@
               }
             ]
           },
-          "stencila:assignee": "insert-inline-math"
+          "stencila:prompt": "insert-inline-math"
         },
         {
           "@type": "Text",
@@ -111,7 +111,7 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "New",
-          "stencila:assignee": "insert-math-inline"
+          "stencila:prompt": "insert-math-inline"
         },
         {
           "@type": "Text",
@@ -133,7 +133,7 @@
               }
             ]
           },
-          "stencila:assignee": "joe",
+          "stencila:prompt": "joe",
           "stencila:content": [
             {
               "@type": "Text",
@@ -174,7 +174,7 @@
               }
             ]
           },
-          "stencila:assignee": "insert-inline-math",
+          "stencila:prompt": "insert-inline-math",
           "stencila:suggestions": [
             {
               "@type": "stencila:SuggestionInline",

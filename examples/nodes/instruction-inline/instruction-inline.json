@@ -55,12 +55,12 @@
       "content": [
         {
           "type": "Text",
-          "value": "Instructions with an assignee: "
+          "value": "Instructions with a prompt: "
         },
         {
           "type": "InstructionInline",
           "instructionType": "New",
-          "assignee": "insert-inline-math",
+          "prompt": "insert-inline-math",
           "message": {
             "type": "InstructionMessage",
             "parts": [
@@ -75,7 +75,7 @@
         {
           "type": "InstructionInline",
           "instructionType": "New",
-          "assignee": "insert-math-inline"
+          "prompt": "insert-math-inline"
         },
         {
           "type": "Text",
@@ -84,7 +84,7 @@
         {
           "type": "InstructionInline",
           "instructionType": "Edit",
-          "assignee": "joe",
+          "prompt": "joe",
           "message": {
             "type": "InstructionMessage",
             "parts": [{ "type": "Text", "value": "please improve this" }]
@@ -112,7 +112,7 @@
         {
           "type": "InstructionInline",
           "instructionType": "New",
-          "assignee": "insert-inline-math",
+          "prompt": "insert-inline-math",
           "message": {
             "type": "InstructionMessage",
             "parts": [{ "type": "Text", "value": "area of circle" }]

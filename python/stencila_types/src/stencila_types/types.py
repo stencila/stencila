@@ -757,8 +757,8 @@ class Instruction(Executable):
     message: InstructionMessage | None = None
     """The instruction message, possibly including images, audio, or other media."""
 
-    assignee: str | None = None
-    """An identifier for the assistant assigned to perform the instruction"""
+    prompt: str | None = None
+    """An identifier for the prompt to be used for the instruction"""
 
     model: InstructionModel | None = None
     """The name, and other options, for the model that the assistant should use to generate suggestions."""

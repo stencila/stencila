@@ -60,13 +60,13 @@ pub struct InstructionInline {
     #[dom(elem = "div")]
     pub message: Option<InstructionMessage>,
 
-    /// An identifier for the assistant assigned to perform the instruction
+    /// An identifier for the prompt to be used for the instruction
     #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
-    pub assignee: Option<String>,
+    pub prompt: Option<String>,
 
     /// The name, and other options, for the model that the assistant should use to generate suggestions.
     #[patch(format = "md", format = "myst")]

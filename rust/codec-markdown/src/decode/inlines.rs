@@ -25,10 +25,10 @@ use codec::{
 
 use super::{
     shared::{
-        assignee, attrs, instruction_type, name, node_to_from_str, node_to_option_date,
+        attrs, instruction_type, name, node_to_from_str, node_to_option_date,
         node_to_option_datetime, node_to_option_duration, node_to_option_i64,
         node_to_option_number, node_to_option_time, node_to_option_timestamp, node_to_string,
-        take_until_unbalanced,
+        prompt, take_until_unbalanced,
     },
     Context,
 };
@@ -816,9 +816,9 @@ fn underline(input: &mut Located<&str>) -> PResult<Inline> {
 fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (
         delimited("[[", instruction_type, multispace0),
-        (opt(delimited('@', assignee, multispace1)), take_until_edit),
+        (opt(delimited('@', prompt, multispace1)), take_until_edit),
     )
-        .map(|(instruction_type, (assignee, (text, term)))| {
+        .map(|(instruction_type, (prompt, (text, term)))| {
             let text = text.trim();
             let message = (!text.is_empty()).then(|| InstructionMessage::from(text));
 
@@ -826,7 +826,7 @@ fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
                 instruction_type,
                 message,
                 content: (term == EDIT_WITH).then_some(Vec::new()),
-                assignee: assignee.map(|handle| handle.to_string()),
+                prompt: prompt.map(|handle| handle.to_string()),
                 ..Default::default()
             })
         })

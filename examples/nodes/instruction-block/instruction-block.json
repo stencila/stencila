@@ -7,7 +7,7 @@
       "content": [
         {
           "type": "Text",
-          "value": "An insert instruction with no assignee:"
+          "value": "An insert instruction with no prompt:"
         }
       ]
     },
@@ -24,14 +24,14 @@
       "content": [
         {
           "type": "Text",
-          "value": "An insert instruction with an assignee:"
+          "value": "An insert instruction with a prompt:"
         }
       ]
     },
     {
       "type": "InstructionBlock",
       "instructionType": "New",
-      "assignee": "table",
+      "prompt": "table",
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -47,21 +47,21 @@
       "content": [
         {
           "type": "Text",
-          "value": "An insert instruction with an assignee but a blank instruction"
+          "value": "An insert instruction with a prompt but a blank instruction"
         }
       ]
     },
     {
       "type": "InstructionBlock",
       "instructionType": "New",
-      "assignee": "code-chunk"
+      "prompt": "code-chunk"
     },
     {
       "type": "Paragraph",
       "content": [
         {
           "type": "Text",
-          "value": "An edit instruction (has content) with no assignee:"
+          "value": "An edit instruction (has content) with no prompt:"
         }
       ]
     },
@@ -86,14 +86,14 @@
       "content": [
         {
           "type": "Text",
-          "value": "An edit instruction with an assignee:"
+          "value": "An edit instruction with a prompt:"
         }
       ]
     },
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
-      "assignee": "anne",
+      "prompt": "anne",
       "message": {
         "type": "InstructionMessage",
         "parts": [{ "type": "Text", "value": "please improve this paragraph" }]
@@ -112,14 +112,14 @@
       "content": [
         {
           "type": "Text",
-          "value": "An insert instruction with an assignee and a suggestion:"
+          "value": "An insert instruction with a prompt and a suggestion:"
         }
       ]
     },
     {
       "type": "InstructionBlock",
       "instructionType": "New",
-      "assignee": "code-chunk",
+      "prompt": "code-chunk",
       "message": {
         "type": "InstructionMessage",
         "parts": [{ "type": "Text", "value": "analyze data" }]

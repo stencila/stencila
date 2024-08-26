@@ -105,7 +105,7 @@ export class InstructionBlock extends Instruction {
             <input
               class="${inputStyles} w-[70%]"
               type="text"
-              value=${this.assignee}
+              value=${this.prompt}
               readonly
               disabled
             />

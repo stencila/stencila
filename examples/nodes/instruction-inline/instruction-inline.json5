@@ -64,7 +64,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "Instructions with an assignee: " }
+          value: { string: "Instructions with a prompt: " }
         },
         {
           type: "InstructionInline",
@@ -78,7 +78,7 @@
               }
             ]
           },
-          assignee: "insert-inline-math"
+          prompt: "insert-inline-math"
         },
         {
           type: "Text",
@@ -87,7 +87,7 @@
         {
           type: "InstructionInline",
           instructionType: "New",
-          assignee: "insert-math-inline"
+          prompt: "insert-math-inline"
         },
         {
           type: "Text",
@@ -105,7 +105,7 @@
               }
             ]
           },
-          assignee: "joe",
+          prompt: "joe",
           content: [
             {
               type: "Text",
@@ -138,7 +138,7 @@
               }
             ]
           },
-          assignee: "insert-inline-math",
+          prompt: "insert-inline-math",
           suggestions: [
             {
               type: "SuggestionInline",

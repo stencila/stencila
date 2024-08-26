@@ -24,9 +24,9 @@ export class Instruction extends Executable {
   message?: InstructionMessage;
 
   /**
-   * An identifier for the assistant assigned to perform the instruction
+   * An identifier for the prompt to be used for the instruction
    */
-  assignee?: string;
+  prompt?: string;
 
   /**
    * The name, and other options, for the model that the assistant should use to generate suggestions.

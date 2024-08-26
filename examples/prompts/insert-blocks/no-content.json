@@ -29,7 +29,7 @@
         "value": 97277,
         "timeUnit": "Millisecond"
       },
-      "assignee": "insert-blocks",
+      "prompt": "insert-blocks",
       "suggestion": {
         "type": "InsertBlock",
         "suggestionStatus": "Proposed",
@@ -475,7 +475,7 @@
               "value": 3215,
               "timeUnit": "Millisecond"
             },
-            "assignee": "insert-ordered-list",
+            "prompt": "insert-ordered-list",
             "authors": [
               {
                 "type": "AuthorRole",
@@ -892,7 +892,7 @@
               "value": 22181,
               "timeUnit": "Millisecond"
             },
-            "assignee": "insert-image-figure",
+            "prompt": "insert-image-figure",
             "authors": [
               {
                 "type": "AuthorRole",
@@ -1193,7 +1193,7 @@
                             "value": 10394,
                             "timeUnit": "Millisecond"
                           },
-                          "assignee": "insert-inline-image",
+                          "prompt": "insert-inline-image",
                           "authors": [
                             {
                               "type": "AuthorRole",
@@ -1322,7 +1322,7 @@
               "value": 19575,
               "timeUnit": "Millisecond"
             },
-            "assignee": "insert-image-figure",
+            "prompt": "insert-image-figure",
             "authors": [
               {
                 "type": "AuthorRole",
@@ -1445,7 +1445,7 @@
                             "value": 10569,
                             "timeUnit": "Millisecond"
                           },
-                          "assignee": "insert-inline-image",
+                          "prompt": "insert-inline-image",
                           "authors": [
                             {
                               "type": "AuthorRole",
@@ -1657,7 +1657,7 @@
               "value": 13803,
               "timeUnit": "Millisecond"
             },
-            "assignee": "insert-code-figure",
+            "prompt": "insert-code-figure",
             "authors": [
               {
                 "type": "AuthorRole",
@@ -1906,7 +1906,7 @@
               "value": 8296,
               "timeUnit": "Millisecond"
             },
-            "assignee": "insert-filled-table",
+            "prompt": "insert-filled-table",
             "authors": [
               {
                 "type": "AuthorRole",

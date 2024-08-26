@@ -259,7 +259,7 @@ repository:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # instruction type
       "3": { name: markup.heading.stencila } # forward slash
-      "4": { name: support.function } # assignee
+      "4": { name: support.function } # prompt
       "5": { name: string.quoted } # model
       "6": { name: variable.name.stencila } # options
       "7": { name: comment.line } # message
@@ -294,7 +294,7 @@ repository:
     captures:
       "1": { name: keyword.control.stencila } # instruction type
       "2": { name: decorator.keyword.stencila } # @
-      "3": { name: decorator.keyword.stencila } # assignee
+      "3": { name: decorator.keyword.stencila } # prompt
       "4": { name: comment.line } # message
       "5": { name: keyword.control.stencila } # >>
 
