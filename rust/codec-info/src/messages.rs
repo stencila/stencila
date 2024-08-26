@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use common::derive_more::{Deref, DerefMut};
 
 /// The severity level of a message.
@@ -63,7 +61,7 @@ impl Messages {
 }
 
 #[cfg(debug_assertions)]
-impl Display for Messages {
+impl std::fmt::Display for Messages {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for message in self.iter() {
             f.write_fmt(format_args!(
