@@ -1,7 +1,7 @@
 ---
 description: |
-    A prompt partial of items that assistants should pay attention
-    to when writing code. Expects that prompt partials enumerating existing code chunks and kernel variables and packages are also included.
+    A prompt partial of items that assistants should pay attention to when writing code.
+    Expects that prompt partials enumerating existing code chunks and kernel variables and packages are also included.
 ---
 
 When writing code, pay attention to:
@@ -10,6 +10,6 @@ When writing code, pay attention to:
 
 - the name and version of packages available: use these where appropriate but prefer to use package already imported in preceding code
 
-- do not re-import packages that have already been imported in preceding code; only import a package if it is installed and has not already been imported
+- do not re-import packages that have already been imported in preceding code, only import a package if it is installed and has not already been imported
 
 - the type and structure of variables already defined: use these where appropriate
