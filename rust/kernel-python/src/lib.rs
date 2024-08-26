@@ -814,7 +814,7 @@ The first few rows of the Dataframe are:
 0   True   1  1.23  A
 1  False   2  4.56  B
 
-`describe` returns:
+The `describe` method of the Dataframe returns:
 
              c2        c3
 count  2.000000  2.000000
