@@ -28,7 +28,9 @@ async fn instruction() -> Result<()> {
         r#"{
   "type": "New",
   "message": "a msg",
-  "contentTypes": "Paragraph",
+  "contentTypes": [
+    "Paragraph"
+  ],
   "content": "content"
 }"#
     );

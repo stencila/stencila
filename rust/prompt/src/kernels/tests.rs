@@ -172,11 +172,17 @@ async fn variable() -> Result<()> {
         r#"[
   {
     "name": "var1",
-    "type": "Integer"
+    "type": "Integer",
+    "hint": {
+      "value": 42
+    }
   },
   {
     "name": "var2",
-    "type": "Array"
+    "type": "Array",
+    "hint": {
+      "length": 123
+    }
   }
 ]"#
     );
