@@ -17,7 +17,7 @@ use document::SyncDirection;
 
 use crate::{
     documents::{self, Documents},
-    secrets, statics,
+    statics,
 };
 
 /// The current version of Stencila
@@ -106,7 +106,6 @@ pub async fn serve(
     let router = Router::new()
         .nest("/~static", statics::router())
         .nest("/~documents", documents::router())
-        .nest("/~secrets", secrets::router())
         .route("/*path", get(documents::serve_path))
         .route("/", get(documents::serve_root))
         .layer(TraceLayer::new_for_http())

@@ -1,6 +1,5 @@
 mod documents;
 mod errors;
-mod secrets;
 mod server;
 mod statics;
 
