@@ -624,7 +624,7 @@ Show a prompt
 
 ###### **Options:**
 
-* `-a`, `--prompt <ASSIGNEE>` — The name of the assistant assigned to the instruction
+* `-t`, `--to <TO>` — The format to show the prompt in
 
   Default value: `yaml`
 
