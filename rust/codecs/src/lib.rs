@@ -177,6 +177,10 @@ pub async fn from_path_with_info(
     path: &Path,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
+    if !path.exists() {
+        bail!("Path does not exist: {}", path.display());
+    }
+
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format.clone()) {
