@@ -1,171 +1,44 @@
-import '@shoelace-style/shoelace/dist/components/button/button'
-import '@shoelace-style/shoelace/dist/components/icon/icon'
-import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-import { Ref, ref, createRef } from 'lit/directives/ref'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 import { IconName } from '../icons/icon'
 
 /**
- * UI Icon button
- *
- * A button rendered with an icon (as seen in the application chrome).
+ * Renders a shoelace icon inside a button element.
+ * For simple buttons with a single clickable event.
  */
 @customElement('stencila-ui-icon-button')
 @withTwind()
 export class UIIconButton extends LitElement {
   /**
-   * The ref used by this button.
+   * Icon name
    */
-  private ref: Ref<HTMLElement> = createRef()
+  @property({ type: String })
+  name: IconName
 
   /**
-   * Name of the custom icon to use
+   * Custom utility classes to be applied to the icon
    */
-  @property()
-  icon: IconName
+  @property({ type: String, attribute: 'custom-classes' })
+  customClasses: string
 
-  /**
-   * Content for the button's tooltip
-   */
-  @property()
-  tooltip?: string
-
-  /**
-   * The placement of the button's tooltip
-   */
-  @property({ attribute: 'tooltip-placement' })
-  tooltipPlacement?: SlTooltip['placement'] = 'top'
-
-  /**
-   * Any custom classes to pass to the button element
-   */
-  @property()
-  customClasses?: string
-
-  /**
-   * Disable interaction with this button
-   */
   @property({ type: Boolean })
   disabled: boolean = false
-
-  /**
-   * When this button has been clicked, it should be displayed as active.
-   */
-  @property({ type: Boolean })
-  active: boolean = false
 
   @property()
   clickEvent: (e: Event) => void | undefined
 
-  @property()
-  type: 'toggle' | 'selected' = 'toggle'
-
-  @property()
-  size: string = '20px'
-
-  /**
-   * If consumer prefers to supply their own colours, then we can ignore what
-   * the colours that have been set up here.
-   */
-  @property({ type: Boolean, attribute: 'ignore-colours' })
-  ignoreColours: boolean = false
-
   override render() {
-    if (this.tooltip) {
-      return html`<sl-tooltip
-        content=${this.tooltip}
-        placement=${this.tooltipPlacement}
-        >${this.renderButton()}</sl-tooltip
-      >`
-    } else {
-      return this.renderButton()
-    }
-  }
-
-  /**
-   * Render the button element and apply appropriate styles.
-   */
-  private renderButton() {
-    const classes = apply([
-      'group',
-      this.disabled ? 'pointer-events-none' : '',
-      this.type === 'selected' ? 'w-full' : '',
-    ])
-    const styles = css`
-      &::part(base) {
-        border: none;
-        line-height: 0;
-        min-height: 0;
-        background: none;
-      }
-
-      &::part(label) {
-        padding: 0;
-      }
+    return html`
+      <button
+        class="flex items-center cursor-pointer hover:text-gray-900"
+        @click=${this.clickEvent}
+        ?disabled=${this.disabled}
+      >
+        <stencila-ui-icon class=${this.customClasses} name=${this.name}>
+        </stencila-ui-icon>
+      </button>
     `
-
-    return html`<sl-button
-      class="${classes} ${styles} ${this.customClasses}"
-      ${ref(this.ref)}
-      >${this.renderIcon(this.icon)}</sl-button
-    >`
-  }
-
-  /**
-   * Render the icon & apply appropriate styles.
-   */
-  private renderIcon(icon: IconName) {
-    const state = this.getButtonState()
-    const stateColour = {
-      disabled: 'fill-grey-200',
-      active: 'fill-brand-blue',
-      default: 'fill-grey-700',
-    }
-    const classes = apply([
-      'transition-all duration-300 ease-in-out',
-      'stroke-none',
-      !this.ignoreColours ? stateColour[state] : 'fill-current',
-      !this.ignoreColours
-        ? state !== 'active'
-          ? 'group-hover:fill-grey-900'
-          : 'drop-shadow-2xl'
-        : '',
-    ])
-
-    return html`<stencila-ui-icon
-      name=${icon}
-      class=${classes}
-      style="font-size: ${this.size};"
-    ></stencila-ui-icon>`
-  }
-
-  /**
-   * Find the button's state - disabled, active or 'default'.
-   */
-  private getButtonState() {
-    if (this.disabled) {
-      return 'disabled'
-    }
-
-    if (this.active) {
-      return 'active'
-    }
-
-    return 'default'
-  }
-
-  /**
-   * Add a click event to manage change of active state
-   */
-  override firstUpdated() {
-    this.ref.value.addEventListener('click', (e: Event) => {
-      if (this.clickEvent) {
-        this.clickEvent(e)
-      }
-    })
   }
 }

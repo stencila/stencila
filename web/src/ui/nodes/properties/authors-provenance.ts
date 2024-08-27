@@ -4,11 +4,11 @@ import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
+import { withTwind } from '../../../twind'
 import {
   DocPreviewContext,
   documentPreviewContext,
-} from '../../../contexts/preview-context'
-import { withTwind } from '../../../twind'
+} from '../../document/context'
 
 import '../../animation/collapsible'
 
@@ -114,11 +114,11 @@ export class UIAuthorsProvenance extends LitElement {
     const classes = apply(['flex items-center', `brightness-75`])
 
     return html`<div class=${classes}>
-      <stencila-chevron-button
+      <stencila-ui-chevron-button
         default-pos=${this.context.showAuthorProvenance ? 'up' : 'down'}
         .disableEvents=${true}
         class="inline-flex text-xs"
-      ></stencila-chevron-button>
+      ></stencila-ui-chevron-button>
     </div>`
   }
 }

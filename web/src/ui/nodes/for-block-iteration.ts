@@ -56,12 +56,12 @@ export class ForBlockIteration extends LitElement {
         @click=${() => (this.isFolded = !this.isFolded)}
       >
         <span>${ordinalString(this.iterationIndex + 1)} iteration</span>
-        <stencila-chevron-button
+        <stencila-ui-chevron-button
           class="ml-auto"
           default-pos=${this.isFolded ? 'left' : 'down'}
           slot="right-side"
           custom-class="flex items-center"
-        ></stencila-chevron-button>
+        ></stencila-ui-chevron-button>
       </div>
       <stencila-ui-collapsible-animation
         class=${this.showHeader ? (!this.isFolded ? 'opened' : '') : 'opened'}

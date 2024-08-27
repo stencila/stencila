@@ -11,9 +11,9 @@ type ChevronPosition = 'left' | 'down' | 'right' | 'up'
 /**
  * A chevron style button used for collapsing and expanding elements,
  */
-@customElement('stencila-chevron-button')
+@customElement('stencila-ui-chevron-button')
 @withTwind()
-export class Chevron extends LitElement {
+export class ChevronButton extends LitElement {
   @property({ type: Boolean })
   disabled: boolean = false
 

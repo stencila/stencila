@@ -2,10 +2,9 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { NodeChipState } from '../../contexts/preview-context'
 import { withTwind } from '../../twind'
 
-import '../buttons/icon'
+import { NodeChipState } from './context'
 
 @customElement('preview-menu')
 @withTwind()

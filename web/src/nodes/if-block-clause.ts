@@ -170,13 +170,13 @@ export class IfBlockClause extends CodeExecutable {
             ></stencila-ui-node-programming-language>`
           : ''}
 
-        <stencila-chevron-button
+        <stencila-ui-chevron-button
           class="ml-auto"
           default-pos=${this.isFolded ? 'left' : 'down'}
           slot="right-side"
           custom-class="flex items-center ml-3"
           .clickEvent=${() => (this.isFolded = !this.isFolded)}
-        ></stencila-chevron-button>
+        ></stencila-ui-chevron-button>
       </div>
     `
   }

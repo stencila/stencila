@@ -104,12 +104,12 @@ export class Admonition extends Entity {
         </div>
 
         ${this.isFolded !== undefined
-          ? html`<stencila-chevron-button
+          ? html`<stencila-ui-chevron-button
               default-pos=${this.isFolded === 'true' ? 'left' : 'down'}
               slot="right-side"
               custom-class="flex items-center"
               .clickEvent=${() => this.toggleIsFolded()}
-            ></stencila-chevron-button>`
+            ></stencila-ui-chevron-button>`
           : ''}
       </div>
     `
