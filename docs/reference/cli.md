@@ -569,6 +569,9 @@ Options for the `serve` function
    Defaults to port 9000.
 
   Default value: `9000`
+* `--no-auth` — Do not authenticate or authorize requests
+
+   By default, requests to all routes (except `~static/*`) require an access token.
 * `--raw` — Should files be served raw?
 
    When `true` and a request is made to a path that exists within `dir`, the file will be served with a `Content-Type` header corresponding to the file's extension.
