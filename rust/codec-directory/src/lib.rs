@@ -80,7 +80,7 @@ impl Codec for DirectoryCodec {
         root: &Path,
         _options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let path = root.canonicalize()?;
+        let root = root.canonicalize()?;
 
         let mut dirs: Vec<(usize, Directory)> = Vec::new();
 
@@ -116,7 +116,7 @@ impl Codec for DirectoryCodec {
             parent.parts.push(FileOrDirectory::Directory(last))
         }
 
-        for entry in Walk::new(path).flatten() {
+        for entry in Walk::new(&root).flatten() {
             let path = entry.path();
             let name = path
                 .file_name()
@@ -124,8 +124,8 @@ impl Codec for DirectoryCodec {
             let depth = path.components().count();
 
             let path_string = path
-                .strip_prefix(root)
-                .expect("should always be nested")
+                .strip_prefix(&root)
+                .expect("should always be nested within root")
                 .to_string_lossy()
                 .to_string();
 
