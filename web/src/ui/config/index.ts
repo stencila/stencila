@@ -4,7 +4,6 @@ import { customElement, state } from 'lit/decorators.js'
 
 import { RestClient } from '../../clients/rest'
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
-import { emitSidebarEvent } from '../../events/sidebar'
 import { withTwind } from '../../twind'
 
 import { API_ICONS, ICON_KEYS } from './icons'
@@ -194,13 +193,7 @@ export class ConfigScreen extends LitElement {
    * Handle the "close" event - to hide the config panel. Updates the sidebar
    * context's `configOpen` value.
    */
-  private handleClose = () => {
-    this.resetModifiedSecrets()
-    const event = emitSidebarEvent('stencila-config-toggle', {
-      configOpen: false,
-    })
-    this.dispatchEvent(event)
-  }
+  private handleClose = () => {}
 
   private async handleSave() {
     const toUpdate = this.filterModifiedSecrets()
@@ -234,19 +227,6 @@ export class ConfigScreen extends LitElement {
     const getSecrets = await this.getSecrets()
 
     this.savedState = hasError || !getSecrets ? 'error' : 'done'
-  }
-
-  private resetModifiedSecrets() {
-    const toMutate = {
-      ...this.secrets,
-    }
-    for (const secret of this.filterModifiedSecrets()) {
-      secret.modifiedValue = undefined
-      toMutate[secret.original.name as SecretName] = { ...secret }
-    }
-
-    this.secrets = { ...toMutate }
-    this.requestUpdate()
   }
 
   /**

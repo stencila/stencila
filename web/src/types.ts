@@ -28,23 +28,4 @@ export type DocumentAccess =
  * i.e `static` and `print` only require `read` access whereas
  * `visual` requires at least `edit` access.
  */
-export type DocumentView =
-  | 'static'
-  | 'live'
-  | 'interactive'
-  | 'visual'
-  | 'dynamic'
-  | 'source'
-  | 'split'
-  | 'directory'
-
-/**
- * Types of events for updating the main context provider.
- */
-export type MainContextEvent =
-  | 'stencila-directory-toggle'
-  | 'stencila-open-document'
-  | 'stencila-close-document'
-  | 'stencila-view-change'
-  | 'stencila-settings-toggle'
-  | 'stencila-config-toggle'
+export type DocumentView = 'static' | 'live' | 'interactive' | 'dynamic'
