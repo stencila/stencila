@@ -7,7 +7,7 @@ import { state, property } from 'lit/decorators'
 import {
   DocPreviewContext,
   documentPreviewContext,
-} from '../../../contexts/preview-context'
+} from '../../document/context'
 import { IconName } from '../../icons/icon'
 import { nodeUi } from '../icons-and-colours'
 

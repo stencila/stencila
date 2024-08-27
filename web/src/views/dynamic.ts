@@ -10,7 +10,7 @@ import { outputCSS } from './styles/global-styles'
 
 import '../nodes'
 import '../shoelace'
-import '../ui/preview-menu'
+import '../ui/document/menu'
 
 /**
  * Dynamic view of a document

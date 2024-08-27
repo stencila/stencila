@@ -6,7 +6,7 @@ import { DocumentPreviewBase } from '../ui/nodes/mixins/preview-base'
 
 import '../nodes'
 import '../shoelace'
-import '../ui/preview-menu'
+import '../ui/document/menu'
 
 /**
  * A view for a VSCode WebView preview panel

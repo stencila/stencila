@@ -4,11 +4,11 @@ import { LitElement, html, css, PropertyValueMap } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
+import { withTwind } from '../../../../twind'
 import {
   documentPreviewContext,
   DocPreviewContext,
-} from '../../../../contexts/preview-context'
-import { withTwind } from '../../../../twind'
+} from '../../../document/context'
 import { entityContext, EntityContext } from '../../context'
 import {
   ProvenanceOpacityLevel,

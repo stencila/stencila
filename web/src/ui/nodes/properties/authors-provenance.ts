@@ -4,11 +4,11 @@ import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
+import { withTwind } from '../../../twind'
 import {
   DocPreviewContext,
   documentPreviewContext,
-} from '../../../contexts/preview-context'
-import { withTwind } from '../../../twind'
+} from '../../document/context'
 
 import '../../animation/collapsible'
 

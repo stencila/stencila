@@ -6,7 +6,7 @@ import {
   DocPreviewContext,
   NodeChipState,
   documentPreviewContext,
-} from '../../../contexts/preview-context'
+} from '../../document/context'
 
 export abstract class DocumentPreviewBase extends LitElement {
   @provide({ context: documentPreviewContext })
