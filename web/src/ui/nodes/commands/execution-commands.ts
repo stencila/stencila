@@ -1,4 +1,3 @@
-import '../../buttons/simple-icon'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
@@ -51,13 +50,13 @@ export class UINodeExecutionCommands extends UIBaseClass {
     return html`
       <div class=${containerClasses}>
         <sl-tooltip content="Run this node">
-          <stencila-ui-simple-icon-button
+          <stencila-ui-icon-button
             name="play"
             class="text-2xl mr-1"
             .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'only')
             }}
-          ></stencila-ui-simple-icon-button>
+          ></stencila-ui-icon-button>
         </sl-tooltip>
         ${this.renderDropdown()}
       </div>
@@ -119,11 +118,11 @@ export class UINodeExecutionCommands extends UIBaseClass {
         placement="bottom-end"
         hoist
       >
-        <stencila-ui-simple-icon-button
+        <stencila-ui-icon-button
           name="chevronDown"
           class="text-xs ${buttonStyles}"
           slot="trigger"
-        ></stencila-ui-simple-icon-button>
+        ></stencila-ui-icon-button>
         <sl-menu class="z-50">
           <sl-menu-item
             class="${itemStyles} ${itemPartStyles}"

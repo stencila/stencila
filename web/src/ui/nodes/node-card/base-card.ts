@@ -94,11 +94,11 @@ export class UIBaseCard extends UIBaseClass {
     ])
 
     return html`<div class=${classes}>
-      <stencila-chevron-button
+      <stencila-ui-chevron-button
         default-pos=${this.collapsed ? 'left' : 'down'}
         .disableEvents=${true}
         class="inline-flex"
-      ></stencila-chevron-button>
+      ></stencila-ui-chevron-button>
     </div>`
   }
 

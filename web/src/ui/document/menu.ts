@@ -6,8 +6,6 @@ import { withTwind } from '../../twind'
 
 import { NodeChipState } from './context'
 
-import '../buttons/icon'
-
 @customElement('preview-menu')
 @withTwind()
 export class DocumentViewMenu extends LitElement {

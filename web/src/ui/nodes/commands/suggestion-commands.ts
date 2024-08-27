@@ -7,7 +7,7 @@ import { documentCommandEvent } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
-import '../../buttons/simple-icon'
+import '../../buttons/icon'
 
 @customElement('stencila-ui-suggestion-commands')
 @withTwind()
@@ -131,32 +131,32 @@ export class UINodeSuggestionCommands extends UIBaseClass {
         }}
       >
         <sl-tooltip content="Accept suggestion">
-          <stencila-ui-simple-icon-button
+          <stencila-ui-icon-button
             name="handThumbsUp"
             .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'accept')
             }}
-          ></stencila-ui-simple-icon-button>
+          ></stencila-ui-icon-button>
         </sl-tooltip>
         <sl-tooltip content="Reject suggestion">
-          <stencila-ui-simple-icon-button
+          <stencila-ui-icon-button
             name="handThumbsDown"
             .clickEvent=${(e: Event) => {
               this.emitEvent(e, 'reject')
             }}
-          ></stencila-ui-simple-icon-button>
+          ></stencila-ui-icon-button>
         </sl-tooltip>
         <sl-tooltip
           content="Revise suggestion with feedback"
           style="--show-delay: 1000ms;"
           ?disabled=${this.showReviseInput}
         >
-          <stencila-ui-simple-icon-button
+          <stencila-ui-icon-button
             name="arrowClockwise"
             .clickEvent=${() => {
               this.showReviseInput = !this.showReviseInput
             }}
-          ></stencila-ui-simple-icon-button>
+          ></stencila-ui-icon-button>
         </sl-tooltip>
         ${this.renderReviseInput()}
       </div>
@@ -203,12 +203,12 @@ export class UINodeSuggestionCommands extends UIBaseClass {
               }
             }}
           ></textarea>
-          <stencila-ui-simple-icon-button
+          <stencila-ui-icon-button
             name="arrowClockwise"
             custom-classes="text-lg"
             .clickEvent=${submit}
           >
-          </stencila-ui-simple-icon-button>
+          </stencila-ui-icon-button>
         </div>
       </div>
     `
