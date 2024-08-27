@@ -14,6 +14,7 @@ mime_guess = { workspace = true }
 node-id = { path = "../node-id" }
 rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }
 secrets = { path = "../secrets" }
+tower-cookies = "0.10.0"
 tower-http = { version = "0.5.2", features = ["trace"] }
 
 [dev-dependencies]
