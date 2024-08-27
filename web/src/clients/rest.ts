@@ -1,5 +1,4 @@
 import { DocumentId } from '../types'
-import { Secret } from '../types/api'
 
 import { DocumentCommand } from './commands'
 
@@ -198,41 +197,6 @@ export class RestClient {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(command),
-      },
-    })
-  }
-
-  /**
-   * Get a list of secrets
-   */
-  static async listSecrets() {
-    return RestClient.requestAs<Secret[]>({ url: '/~secrets' })
-  }
-
-  /**
-   * Set the `value` of the secret with `name`
-   */
-  static async setSecret(name: string, value: string) {
-    return RestClient.request({
-      url: `/~secrets/${name}`,
-      identifier: name,
-      init: {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: value,
-      },
-    })
-  }
-
-  /**
-   * Delete the secret with `name`
-   */
-  static async deleteSecret(name: string) {
-    return RestClient.request({
-      url: `/~secrets/${name}`,
-      identifier: name,
-      init: {
-        method: 'DELETE',
       },
     })
   }
