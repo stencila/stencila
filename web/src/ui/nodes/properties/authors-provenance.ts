@@ -5,10 +5,7 @@ import { customElement, state } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../twind'
-import {
-  DocPreviewContext,
-  documentPreviewContext,
-} from '../../document/context'
+import { DocumentContext, documentContext } from '../../document/context'
 
 import '../../animation/collapsible'
 
@@ -21,9 +18,9 @@ import '../../animation/collapsible'
 @customElement('stencila-ui-authors-provenance')
 @withTwind()
 export class UIAuthorsProvenance extends LitElement {
-  @consume({ context: documentPreviewContext, subscribe: true })
+  @consume({ context: documentContext, subscribe: true })
   @state()
-  context: DocPreviewContext
+  context: DocumentContext
 
   @state()
   collapsed: boolean = true

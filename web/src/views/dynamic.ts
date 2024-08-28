@@ -4,8 +4,8 @@ import { customElement, property } from 'lit/decorators.js'
 import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
 import type { DocumentId, DocumentAccess } from '../types'
-import { DocumentPreviewBase } from '../ui/nodes/mixins/preview-base'
 
+import { DocumentView } from './document'
 import { outputCSS } from './styles/global-styles'
 
 import '../nodes'
@@ -19,7 +19,7 @@ import '../ui/document/menu'
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
 @customElement('stencila-dynamic-view')
-export class DynamicView extends DocumentPreviewBase {
+export class DynamicView extends DocumentView {
   /**
    * The id of the document
    */
@@ -79,7 +79,7 @@ export class DynamicView extends DocumentPreviewBase {
   override render() {
     return html`
       <stencila-article root></stencila-article>
-      ${this.renderPreviewMenu()}
+      ${this.renderDocumentMenu()}
     `
   }
 }

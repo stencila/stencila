@@ -1,7 +1,7 @@
 import { createContext } from '@lit/context'
 
 /**
- * Different states for the view of the node chips
+ * Alternative states for the display of node chips
  *
  *  TODO: When in 'expand-all' state
  *    - edit block functionality to stop the cards from being collapsible
@@ -9,9 +9,12 @@ import { createContext } from '@lit/context'
  */
 export type NodeChipState = 'hidden' | 'hover-only' | 'show-all' | 'expand-all'
 
-export type DocPreviewContext = {
+/**
+ * Context controlling the display of various components within the document
+ */
+export type DocumentContext = {
   /**
-   * Hold the value for the current node-card state
+   * The current node chips display state
    */
   nodeChipState: NodeChipState
 
@@ -27,9 +30,5 @@ export type DocPreviewContext = {
   showAuthorProvenance: boolean
 }
 
-/**
- * Context containing values which effect various elements on the
- * webview preview page.
- */
-export const documentPreviewContext =
-  createContext<DocPreviewContext>('doc-view')
+export const documentContext =
+  createContext<DocumentContext>('document-context')

@@ -3,15 +3,18 @@ import { LitElement, html } from 'lit'
 import { state } from 'lit/decorators'
 
 import {
-  DocPreviewContext,
+  DocumentContext,
   NodeChipState,
-  documentPreviewContext,
-} from '../../document/context'
+  documentContext,
+} from '../ui/document/context'
 
-export abstract class DocumentPreviewBase extends LitElement {
-  @provide({ context: documentPreviewContext })
+/**
+ * A base class for document views which provides a document menu
+ */
+export abstract class DocumentView extends LitElement {
+  @provide({ context: documentContext })
   @state()
-  protected context: DocPreviewContext = {
+  protected context: DocumentContext = {
     showAllAuthorshipHighlight: false,
     nodeChipState: 'hover-only',
     showAuthorProvenance: false,
@@ -68,14 +71,14 @@ export abstract class DocumentPreviewBase extends LitElement {
     return this
   }
 
-  protected renderPreviewMenu() {
+  protected renderDocumentMenu() {
     return html`
-      <preview-menu
+      <document-menu
         ?visible=${this.showMenu}
         ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
         ?show-author-provenance=${this.context.showAuthorProvenance}
         node-chip-state=${this.context.nodeChipState}
-      ></preview-menu>
+      ></document-menu>
     `
   }
 }

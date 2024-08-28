@@ -6,9 +6,13 @@ import { withTwind } from '../../twind'
 
 import { NodeChipState } from './context'
 
-@customElement('preview-menu')
+/**
+ * A menu allowing the user to control the display of the document
+ * and perform actions on it.
+ */
+@customElement('stencila-document-menu')
 @withTwind()
-export class DocumentViewMenu extends LitElement {
+export class DocumentMenu extends LitElement {
   @state()
   protected open: boolean = false
 

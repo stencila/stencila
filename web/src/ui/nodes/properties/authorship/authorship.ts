@@ -5,10 +5,7 @@ import { property, customElement, state } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../../twind'
-import {
-  documentPreviewContext,
-  DocPreviewContext,
-} from '../../../document/context'
+import { documentContext, DocumentContext } from '../../../document/context'
 import { entityContext, EntityContext } from '../../context'
 import {
   ProvenanceOpacityLevel,
@@ -28,9 +25,9 @@ export class StencilaAuthorship extends LitElement {
   @state()
   entityContext: EntityContext
 
-  @consume({ context: documentPreviewContext, subscribe: true })
+  @consume({ context: documentContext, subscribe: true })
   @state()
-  previewContext: DocPreviewContext
+  previewContext: DocumentContext
 
   /**
    * Number of authors who have ever edited this content.

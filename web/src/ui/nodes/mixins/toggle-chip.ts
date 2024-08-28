@@ -4,17 +4,14 @@ import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
 import { state, property } from 'lit/decorators'
 
-import {
-  DocPreviewContext,
-  documentPreviewContext,
-} from '../../document/context'
+import { DocumentContext, documentContext } from '../../document/context'
 import { IconName } from '../../icons/icon'
 import { nodeUi } from '../icons-and-colours'
 
 import { UIBaseClass } from './ui-base-class'
 
 export declare class ChipToggleInterface {
-  protected docViewContext: DocPreviewContext
+  protected documentContext: DocumentContext
   protected renderChip: (icon: IconName, colours: NodeColours) => void
   protected toggle: boolean
   protected toggleChipPosition: string
@@ -48,9 +45,9 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
   superClass: T
 ) => {
   abstract class ToggleMixin extends superClass {
-    @consume({ context: documentPreviewContext, subscribe: true })
+    @consume({ context: documentContext, subscribe: true })
     @state()
-    protected docViewContext: DocPreviewContext
+    protected docViewContext: DocumentContext
 
     @state()
     protected toggle: boolean = false
