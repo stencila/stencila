@@ -230,7 +230,7 @@ pub enum Command {
 
     /// Compile a document
     Compile {
-        /// The path of the file to execute
+        /// The path of the file to compile
         ///
         /// If not supplied the input content is read from `stdin`.
         input: PathBuf,
