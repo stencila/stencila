@@ -3,6 +3,8 @@ title: Link
 extends: Entity
 category: prose
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
+dom:
+  derive: false  
 html:
   elem: a
 jats:

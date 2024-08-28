@@ -42,10 +42,12 @@
           </span>
         </stencila-insert-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
-        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org>
-          <span slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>link</stencila-text>
-          </span>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph>
+          <a href=https://example.org>
+            <span slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>link</stencila-text>
+            </span>
+          </a>
         </stencila-link>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
         <stencila-math-inline id=xxx depth=2 ancestors=Article.Paragraph code='inline math'>

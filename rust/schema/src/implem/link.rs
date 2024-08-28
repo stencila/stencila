@@ -2,6 +2,31 @@ use codec_info::lost_options;
 
 use crate::{prelude::*, Link};
 
+impl DomCodec for Link {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .enter_elem_attrs("a", [("href", &self.target)]);
+
+        if let Some(title) = &self.title {
+            context.push_attr("title", title);
+        }
+
+        if let Some(rel) = &self.rel {
+            context.push_attr("rel", rel);
+        }
+
+        if let Some(id) = &self.id {
+            context.push_attr("@id", id);
+        }
+
+        context
+            .push_slot_fn("span", "content", |context| self.content.to_dom(context))
+            .exit_elem()
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for Link {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
