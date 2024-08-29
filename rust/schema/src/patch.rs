@@ -420,6 +420,17 @@ pub struct Patch {
 }
 
 impl Patch {
+    /// Prepend the paths of the operations in the patch
+    pub fn prepend_paths(&mut self, mut slots: Vec<PatchSlot>) {
+        // Reverse order because pushing to the front
+        slots.reverse();
+        for (path, ..) in self.ops.iter_mut() {
+            for slot in slots.iter() {
+                path.push_front(slot.clone())
+            }
+        }
+    }
+
     /// Apply the operations in the patch to a node
     ///
     /// Note that this `drain`s the ops to avoid cloning ops.
