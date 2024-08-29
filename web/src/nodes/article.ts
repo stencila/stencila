@@ -24,7 +24,7 @@ export class StencilaArticle extends LitElement {
       </aside>
 
       <!-- TODO: <stencila-ui-article-headings> component -->
-      <div display="none">
+      <div style="display:none">
         <slot name="headings"></slot>
       </div>
 
