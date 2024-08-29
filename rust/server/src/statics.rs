@@ -9,9 +9,9 @@ use axum::{
     routing::get,
     Router,
 };
-use rust_embed::RustEmbed;
 
 use common::tracing;
+use web_dist::Web;
 
 use crate::{
     errors::InternalError,
@@ -26,16 +26,6 @@ use crate::{
 const STATIC_ENCODINGS: [(&str, &str); 1] = [("", "")];
 #[cfg(not(debug_assertions))]
 const STATIC_ENCODINGS: [(&str, &str); 3] = [("br", ".br"), ("gzip", ".gz"), ("", "")];
-
-/// Embedded static files
-///
-/// During development these are served directly from the folder
-/// but are embedded into the binary on release builds.
-#[derive(RustEmbed)]
-#[folder = "$CARGO_MANIFEST_DIR/../../web/dist"]
-#[cfg_attr(not(debug_assertions), exclude = "*.map")]
-#[exclude = ".gitignore"]
-struct Statics;
 
 /// Create a router for static file routes
 pub fn router() -> Router<ServerState> {
@@ -70,7 +60,7 @@ async fn serve_static(
     for (encoding, ext) in STATIC_ENCODINGS {
         if accept_encoding.contains(encoding) {
             let asset_path = [&path, ext].concat();
-            if let Some(file) = Statics::get(&asset_path) {
+            if let Some(file) = Web::get(&asset_path) {
                 let content_type = mime_guess::from_path(path).first_or_octet_stream();
 
                 let mut response =
