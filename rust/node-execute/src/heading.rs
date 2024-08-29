@@ -1,8 +1,26 @@
 use schema::Heading;
 
-use crate::prelude::*;
+use crate::{prelude::*, HeadingInfo};
 
 impl Executable for Heading {
+    #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        // If necessary, collapse previous headings into their parents
+        HeadingInfo::collapse(self.level, &mut executor.headings);
+
+        // Record this heading
+        let info = HeadingInfo {
+            level: self.level,
+            node_id: self.node_id(),
+            content: self.content.clone(),
+            children: Vec::new(),
+        };
+        executor.headings.push(info);
+
+        // Continue walk over content
+        WalkControl::Continue
+    }
+
     #[tracing::instrument(skip_all)]
     async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         tracing::trace!("Preparing Heading {}", self.node_id());

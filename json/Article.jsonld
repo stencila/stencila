@@ -751,6 +751,97 @@
       }
     },
     {
+      "@id": "schema:pageStart",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pageStart",
+      "rdfs:comment": "The page on which the article starts; for example \"135\" or \"xiii\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pageEnd",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pageEnd",
+      "rdfs:comment": "The page on which the article ends; for example \"138\" or \"xvi\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pagination",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pagination",
+      "rdfs:comment": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:headings",
+      "@type": "rdfs:Property",
+      "rdfs:label": "headings",
+      "rdfs:comment": "A list of links to headings, including implied section headings, within the document",
+      "schema:domainIncludes": {
+        "@id": "schema:Article"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:ItemList"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
@@ -840,85 +931,6 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
-      }
-    },
-    {
-      "@id": "schema:pageStart",
-      "@type": "rdfs:Property",
-      "rdfs:label": "pageStart",
-      "rdfs:comment": "The page on which the article starts; for example \"135\" or \"xiii\".",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:PublicationIssue"
-        },
-        {
-          "@id": "schema:PublicationVolume"
-        },
-        {
-          "@id": "stencila:Cite"
-        }
-      ],
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:Number"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
-    },
-    {
-      "@id": "schema:pageEnd",
-      "@type": "rdfs:Property",
-      "rdfs:label": "pageEnd",
-      "rdfs:comment": "The page on which the article ends; for example \"138\" or \"xvi\".",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:PublicationIssue"
-        },
-        {
-          "@id": "schema:PublicationVolume"
-        },
-        {
-          "@id": "stencila:Cite"
-        }
-      ],
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:Number"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
-    },
-    {
-      "@id": "schema:pagination",
-      "@type": "rdfs:Property",
-      "rdfs:label": "pagination",
-      "rdfs:comment": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:PublicationIssue"
-        },
-        {
-          "@id": "schema:PublicationVolume"
-        },
-        {
-          "@id": "stencila:Cite"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
       }
     }
   ]

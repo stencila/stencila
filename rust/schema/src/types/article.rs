@@ -24,6 +24,7 @@ use super::image_object::ImageObject;
 use super::inline::Inline;
 use super::integer::Integer;
 use super::integer_or_string::IntegerOrString;
+use super::list::List;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -151,6 +152,12 @@ pub struct Article {
     #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// A list of links to headings, including implied section headings, within the document
+    #[strip(content)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "nav")]
+    pub headings: Option<List>,
 
     /// The content of the article.
     #[serde(deserialize_with = "one_or_many")]

@@ -41,7 +41,8 @@
     "dateReceived",
     "dateAccepted",
     "datePublished",
-    "references"
+    "references",
+    "headings"
   ],
   "properties": {
     "type": {
@@ -844,38 +845,6 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The content of the article.",
-      "strip": [
-        "content"
-      ],
-      "dom": {
-        "elem": "section"
-      },
-      "proptest": {
-        "min": {
-          "description": "Generate a single arbitrary block node",
-          "strategy": "vec_blocks(1)"
-        },
-        "low": {
-          "description": "Generate up to two arbitrary block nodes",
-          "strategy": "vec_blocks(2)"
-        },
-        "high": {
-          "description": "Generate up to four arbitrary block nodes",
-          "strategy": "vec_blocks(4)"
-        },
-        "max": {
-          "description": "Generate up to eight arbitrary block nodes",
-          "strategy": "vec_blocks(8)"
-        }
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
-    },
     "pageStart": {
       "@id": "schema:pageStart",
       "description": "The page on which the article starts; for example \"135\" or \"xiii\".",
@@ -921,6 +890,50 @@
         "metadata"
       ],
       "type": "string"
+    },
+    "headings": {
+      "@id": "stencila:headings",
+      "description": "A list of links to headings, including implied section headings, within the document",
+      "$comment": "This list is automatically populated when the document is compiled.\nEach item in the list has (1) a `Link` to the heading, and (2) a nested list of subheadings.\n",
+      "strip": [
+        "content"
+      ],
+      "dom": {
+        "elem": "nav"
+      },
+      "$ref": "List.schema.json"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the article.",
+      "strip": [
+        "content"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "proptest": {
+        "min": {
+          "description": "Generate a single arbitrary block node",
+          "strategy": "vec_blocks(1)"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary block nodes",
+          "strategy": "vec_blocks(2)"
+        },
+        "high": {
+          "description": "Generate up to four arbitrary block nodes",
+          "strategy": "vec_blocks(4)"
+        },
+        "max": {
+          "description": "Generate up to eight arbitrary block nodes",
+          "strategy": "vec_blocks(8)"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     }
   }
 }

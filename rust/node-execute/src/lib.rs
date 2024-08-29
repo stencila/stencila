@@ -5,6 +5,7 @@ use std::{path::PathBuf, sync::Arc};
 use common::{
     clap::{self, Args},
     eyre::Result,
+    itertools::Itertools,
     serde::{Deserialize, Serialize},
     tokio::sync::{mpsc::UnboundedSender, RwLock, RwLockWriteGuard},
     tracing,
@@ -12,8 +13,8 @@ use common::{
 use kernels::Kernels;
 use prompts::prompt::DocumentContext;
 use schema::{
-    Block, CompilationDigest, ExecutionMode, Inline, Node, NodeId, NodeProperty, Patch, PatchOp,
-    PatchPath, VisitorAsync, WalkControl, WalkNode,
+    Block, CompilationDigest, ExecutionMode, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
+    NodeProperty, Paragraph, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -143,8 +144,11 @@ pub struct Executor {
     /// The phase of execution
     phase: Phase,
 
-    /// The variables context for prompts
+    /// The document context for prompts
     document_context: DocumentContext,
+
+    /// Information on the headings in the document
+    headings: Vec<HeadingInfo>,
 
     /// The count of `Table`s and `CodeChunk`s with a table `labelType`
     table_count: u32,
@@ -163,6 +167,77 @@ pub struct Executor {
 
     /// Options for execution
     options: ExecuteOptions,
+}
+
+/// Records information about a heading in order to created
+/// a nested list of headings for a document.
+#[derive(Debug)]
+pub struct HeadingInfo {
+    /// The level of the heading
+    level: i64,
+
+    /// The node id of the heading (used to create a link to it)
+    node_id: NodeId,
+
+    /// The content of the heading
+    content: Vec<Inline>,
+
+    /// The headings nested under the heading
+    children: Vec<HeadingInfo>,
+}
+
+impl HeadingInfo {
+    /// Collapse headings deeper that the current level into their parents
+    fn collapse(level: i64, headings: &mut Vec<HeadingInfo>) {
+        if let Some(previous) = headings.last() {
+            if level < previous.level {
+                let mut children: Vec<HeadingInfo> = Vec::new();
+                while let Some(mut previous) = headings.pop() {
+                    if let Some(child) = children.last() {
+                        if previous.level < child.level {
+                            children.reverse();
+                            previous.children.append(&mut children);
+                        }
+                    }
+                    children.push(previous);
+
+                    if let Some(last) = headings.last() {
+                        if level >= last.level {
+                            break;
+                        }
+                    }
+                }
+
+                if let Some(previous) = headings.last_mut() {
+                    previous.children = children;
+                }
+            }
+        }
+    }
+
+    /// Create a [`ListItem`] from a [`HeadingInfo`]
+    fn into_list_item(self) -> ListItem {
+        let mut content = vec![Block::Paragraph(Paragraph::new(vec![Inline::Link(
+            Link::new(self.content, ["#", &self.node_id.to_string()].concat()),
+        )]))];
+
+        if !self.children.is_empty() {
+            content.push(Block::List(Self::into_list(self.children)));
+        }
+
+        ListItem::new(content)
+    }
+
+    /// Create a [`List`] from a vector of [`HeadingInfo`]
+    fn into_list(headings: Vec<HeadingInfo>) -> List {
+        List::new(
+            headings
+                .into_iter()
+                .map(|info| info.into_list_item())
+                .collect_vec(),
+            ListOrder::Ascending,
+        )
+    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
@@ -244,6 +319,7 @@ impl Executor {
             node_ids,
             phase: Phase::Prepare,
             document_context: DocumentContext::default(),
+            headings: Vec::new(),
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
@@ -357,7 +433,7 @@ impl Executor {
     where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
-        self.send_patch(node_id, None, pairs)
+        self.send_patch_ops(node_id, None, pairs)
     }
 
     /// Patch several properties of a node and attribute authorship
@@ -369,12 +445,16 @@ impl Executor {
     ) where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
-        self.send_patch(node_id, Some(authors), pairs)
+        self.send_patch_ops(node_id, Some(authors), pairs)
     }
 
-    /// Send a patch reflecting a change in the state of a node during execution
-    fn send_patch<P>(&self, node_id: &NodeId, authors: Option<Vec<schema::AuthorRole>>, pairs: P)
-    where
+    /// Send patch operations reflecting a change in the state of a node during execution
+    fn send_patch_ops<P>(
+        &self,
+        node_id: &NodeId,
+        authors: Option<Vec<schema::AuthorRole>>,
+        pairs: P,
+    ) where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
         let Some(sender) = &self.patch_sender else {
@@ -391,6 +471,17 @@ impl Executor {
             format: None,
             authors,
             ops,
+        };
+
+        if let Err(error) = sender.send(patch) {
+            tracing::error!("When sending execution node patch: {error}")
+        }
+    }
+
+    /// Send a patch reflecting a change in the state of a node during execution
+    fn send_patch(&self, patch: Patch) {
+        let Some(sender) = &self.patch_sender else {
+            return;
         };
 
         if let Err(error) = sender.send(patch) {

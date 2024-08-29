@@ -1036,9 +1036,6 @@ class Article(CreativeWork, Executable):
 
     type: Literal["Article"] = "Article"
 
-    content: list[Block]
-    """The content of the article."""
-
     page_start: int | str | None = None
     """The page on which the article starts; for example "135" or "xiii"."""
 
@@ -1047,6 +1044,12 @@ class Article(CreativeWork, Executable):
 
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
+
+    headings: List | None = None
+    """A list of links to headings, including implied section headings, within the document"""
+
+    content: list[Block]
+    """The content of the article."""
 
 
 @dataclass(kw_only=True, repr=False)

@@ -22,6 +22,12 @@ export class StencilaArticle extends LitElement {
           </div>
         </stencila-ui-authors-provenance>
       </aside>
+
+      <!-- TODO: <stencila-ui-article-headings> component -->
+      <div display="none">
+        <slot name="headings"></slot>
+      </div>
+
       <slot name="content"></slot>
     `
   }

@@ -1,8 +1,51 @@
-use schema::Article;
+use schema::{diff, Article, PatchSlot};
 
-use crate::{interrupt_impl, prelude::*};
+use crate::{interrupt_impl, prelude::*, HeadingInfo};
 
 impl Executable for Article {
+    #[tracing::instrument(skip_all)]
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Compiling Article {node_id}");
+
+        // Clear the executor's headings
+        executor.headings.clear();
+
+        // Compile the `content` and `title` (could include math)
+        if let Err(error) = async {
+            self.title.walk_async(executor).await?;
+            self.content.walk_async(executor).await
+        }
+        .await
+        {
+            tracing::error!("While compiling article: {error}")
+        }
+
+        // Ensure any trailing headings are collapsed into their parents
+        HeadingInfo::collapse(1, &mut executor.headings);
+
+        // Transform the executors heading info
+        let headings = (!executor.headings.is_empty())
+            .then(|| HeadingInfo::into_list(executor.headings.drain(..).collect()));
+
+        // Diff the headings list with the current, prepend any generated diff ops
+        // with the path to headings and send a patch if necessary
+        match diff(&self.headings, &headings, None, None) {
+            Ok(mut patch) => {
+                if !patch.ops.is_empty() {
+                    patch.prepend_paths(vec![PatchSlot::Property(NodeProperty::Headings)]);
+                    executor.send_patch(patch);
+                }
+            }
+            Err(error) => {
+                tracing::error!("While diffing article heading: {error}")
+            }
+        }
+
+        // Break walk because `content` and `title` already walked over
+        WalkControl::Break
+    }
+
     #[tracing::instrument(skip_all)]
     async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();

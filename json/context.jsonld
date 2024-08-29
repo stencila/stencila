@@ -287,6 +287,7 @@
     "funders": "schema:funder",
     "genre": "schema:genre",
     "givenNames": "schema:givenName",
+    "headings": "stencila:headings",
     "hint": "stencila:hint",
     "honorificPrefix": "schema:honorificPrefix",
     "honorificSuffix": "schema:honorificSuffix",

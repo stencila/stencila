@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
+import { List } from "./List.js";
 
 /**
  * An article, including news and scholarly articles.
@@ -10,11 +11,6 @@ import { IntegerOrString } from "./IntegerOrString.js";
 export class Article extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "Article";
-
-  /**
-   * The content of the article.
-   */
-  content: Block[];
 
   /**
    * The page on which the article starts; for example "135" or "xiii".
@@ -30,6 +26,16 @@ export class Article extends CreativeWork {
    * Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
    */
   pagination?: string;
+
+  /**
+   * A list of links to headings, including implied section headings, within the document
+   */
+  headings?: List;
+
+  /**
+   * The content of the article.
+   */
+  content: Block[];
 
   constructor(content: Block[], options?: Partial<Article>) {
     super();
