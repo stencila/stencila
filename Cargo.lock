@@ -1201,6 +1201,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-swb"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-dom",
+ "codec-jsonld",
+ "flate2",
+ "web-dist",
+]
+
+[[package]]
 name = "codec-text"
 version = "0.0.0"
 dependencies = [
@@ -1247,6 +1258,7 @@ dependencies = [
  "codec-json5",
  "codec-jsonld",
  "codec-markdown",
+ "codec-swb",
  "codec-text",
  "codec-yaml",
  "common-dev",
@@ -5837,10 +5849,10 @@ dependencies = [
  "format",
  "mime_guess",
  "node-id",
- "rust-embed",
  "secrets",
  "tower-cookies",
  "tower-http",
+ "web-dist",
 ]
 
 [[package]]
@@ -7014,6 +7026,13 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+]
+
+[[package]]
+name = "web-dist"
+version = "0.0.0"
+dependencies = [
+ "rust-embed",
 ]
 
 [[package]]
