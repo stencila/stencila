@@ -73,12 +73,12 @@ export abstract class DocumentView extends LitElement {
 
   protected renderDocumentMenu() {
     return html`
-      <document-menu
+      <stencila-document-menu
         ?visible=${this.showMenu}
         ?show-authorship-highlight=${this.context.showAllAuthorshipHighlight}
         ?show-author-provenance=${this.context.showAuthorProvenance}
         node-chip-state=${this.context.nodeChipState}
-      ></document-menu>
+      ></stencila-document-menu>
     `
   }
 }
