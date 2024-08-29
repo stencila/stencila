@@ -349,7 +349,7 @@ Compile a document
 
 ###### **Arguments:**
 
-* `<INPUT>` — The path of the file to execute
+* `<INPUT>` — The path of the file to compile
 
    If not supplied the input content is read from `stdin`.
 * `<OUTPUT>` — The path of the file to write the compiled document to
