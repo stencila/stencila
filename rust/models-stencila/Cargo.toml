@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 cached = { workspace = true }
+cloud = { path = "../cloud" }
 model = { path = "../model" }
