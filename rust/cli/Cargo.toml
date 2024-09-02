@@ -1,6 +1,6 @@
 [package]
 name = "cli"
-version = "2.0.0-beta.1"
+version = "2.0.0-beta.2"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
