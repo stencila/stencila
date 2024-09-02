@@ -30,7 +30,7 @@ pub(super) async fn publish_node(node: &Node, key: &Option<String>) -> Result<()
 
     let temp_dir = TempDir::new()?;
     let temp_path = temp_dir.path().join("publish.swb");
-    codecs::to_path(&node, &temp_path, None).await?;
+    codecs::to_path(node, &temp_path, None).await?;
 
     let bundle: Vec<u8> = tokio::fs::read(temp_path).await?;
     let bundle = Part::bytes(bundle).file_name("publish.swb");

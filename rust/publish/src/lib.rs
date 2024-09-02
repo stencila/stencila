@@ -13,7 +13,7 @@ pub async fn publish_path(path: &Path, key: &Option<String>) -> Result<()> {
     }
 
     if path.is_file() {
-        let node = codecs::from_path(&path, None).await?;
+        let node = codecs::from_path(path, None).await?;
         publish_node(&node, key).await
     } else {
         bail!("Publishing of directories is not currently supported")

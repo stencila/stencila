@@ -66,7 +66,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
     } else if before.contains("::: fix") {
         InstructionType::Fix
     } else if before.contains("::: describe") {
-        InstructionType::Fix
+        InstructionType::Describe
     } else {
         return Ok(None);
     };

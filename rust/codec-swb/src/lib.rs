@@ -85,7 +85,7 @@ impl Codec for SwbCodec {
         Web::to_path(&statics, true)?;
 
         // Create a tar.gz archive of temp dir
-        let tar_gz = File::create(&path)?;
+        let tar_gz = File::create(path)?;
         let enc = GzEncoder::new(tar_gz, Compression::default());
         let mut tar = Builder::new(enc);
         tar.append_dir_all(".", temp_dir.path())?;

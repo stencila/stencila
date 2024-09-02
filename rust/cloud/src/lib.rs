@@ -21,7 +21,7 @@ static API_KEY: Lazy<Option<String>> = Lazy::new(|| secrets::env_or_get(API_KEY_
 
 /// Get the API key for the Stencila Cloud API
 pub fn api_key() -> &'static Option<String> {
-    &*API_KEY
+    &API_KEY
 }
 
 /// An error response from Stencila Cloud

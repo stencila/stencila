@@ -18,7 +18,7 @@ pub struct Web;
 
 impl Web {
     /// Copy the distribution to a file path
-    /// 
+    ///
     /// If the `minimal` flag is true then only Brotli and PNG files
     /// are written to the path.
     pub fn to_path(path: &Path, minimal: bool) -> Result<()> {
