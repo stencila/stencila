@@ -1,0 +1,11 @@
+[package]
+name = "publish"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+cli-utils = { "path" = "../cli-utils" }
+cloud = { path = "../cloud" }
+codecs = { "path" = "../codecs" }
+common = { "path" = "../common" }
+schema = { "path" = "../schema" }
