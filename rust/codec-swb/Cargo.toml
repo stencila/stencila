@@ -1,0 +1,11 @@
+[package]
+name = "codec-swb"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-jsonld = { path = "../codec-jsonld" }
+codec-dom = { path = "../codec-dom" }
+flate2 = { workspace = true }
+web-dist = { path = "../web-dist" }

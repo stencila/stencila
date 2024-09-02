@@ -22,6 +22,7 @@ codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }
 codec-jsonld = { path = "../codec-jsonld" }
 codec-markdown = { path = "../codec-markdown" }
+codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
 node-id = { path = "../node-id" }

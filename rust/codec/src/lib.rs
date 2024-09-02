@@ -399,6 +399,15 @@ pub struct EncodeOptions {
     /// (as opposed to a string).
     pub standalone: Option<bool>,
 
+    /// The type and name of alternate files
+    ///
+    /// A codec may encode a document in several formats by delegating to other codecs.
+    /// This option allows the list of alternative encodings to be passed to each
+    /// delegate codec so that links can be made between them.
+    ///
+    /// A vector of (media type, relative path) tuples.
+    pub alternates: Option<Vec<(String, String)>>,
+
     /// Whether to encode in compact form
     ///
     /// Some formats (e.g HTML and JSON) can be encoded in either compact

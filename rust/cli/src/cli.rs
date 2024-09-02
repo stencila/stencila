@@ -316,6 +316,8 @@ pub enum Command {
         strip_options: StripOptions,
     },
 
+    Publish(publish::cli::Cli),
+
     Serve(ServeOptions),
 
     /// Run the Stencila Language Server
@@ -457,6 +459,7 @@ impl EncodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            ..Default::default()
         }
     }
 }
@@ -684,6 +687,8 @@ impl Cli {
                     Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
                 }
             }
+
+            Command::Publish(publish) => publish.run().await?,
 
             Command::Serve(options) => serve(options).await?,
 

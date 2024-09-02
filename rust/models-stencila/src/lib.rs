@@ -1,4 +1,4 @@
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 use cached::proc_macro::{cached, io_cached};
 
@@ -8,28 +8,11 @@ use model::{
         eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
-        once_cell::sync::Lazy,
         reqwest::Client,
         serde::{Deserialize, Serialize},
     },
-    secrets, Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
+    Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
 };
-
-/// The base URL for the Stencila Cloud API
-///
-/// Can be overridden by setting the STENCILA_API_URL environment variable.
-const BASE_URL: &str = "https://api.stencila.cloud/v1";
-
-fn base_url() -> String {
-    env::var("STENCILA_API_URL").unwrap_or_else(|_| BASE_URL.to_string())
-}
-
-/// The name of the env var or secret for the API key
-const API_KEY_NAME: &str = "STENCILA_API_TOKEN";
-
-/// The API key value. Stored to avoid repeated access to secrets (which is
-/// relatively slow) for each model
-static API_KEY: Lazy<Option<String>> = Lazy::new(|| secrets::env_or_get(API_KEY_NAME).ok());
 
 /// A model available via Stencila Cloud
 #[derive(Default, Clone, Serialize, Deserialize)]
@@ -82,7 +65,7 @@ impl Model for StencilaModel {
     }
 
     fn availability(&self) -> ModelAvailability {
-        API_KEY
+        cloud::api_key()
             .as_ref()
             .map(|_| ModelAvailability::Available)
             .unwrap_or(ModelAvailability::RequiresKey)
@@ -97,7 +80,7 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let token = API_KEY.as_ref().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+        let token = cloud::api_key().as_ref().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
         if task.dry_run {
             return ModelOutput::empty(self);
@@ -105,7 +88,7 @@ impl Model for StencilaModel {
 
         let response = self
             .client
-            .post(format!("{}/models/task", base_url()))
+            .post(format!("{}/models/task", cloud::base_url()))
             .bearer_auth(token)
             .json(&PerformTaskRequest {
                 provider: self.provider.clone(),
@@ -154,7 +137,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 #[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
 async fn list_stencila_models(_unused: u8) -> Result<Vec<StencilaModel>> {
     let response = Client::new()
-        .get(format!("{}/models", base_url()))
+        .get(format!("{}/models", cloud::base_url()))
         .send()
         .await?;
 
@@ -186,7 +169,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_auto() -> Result<()> {
-        if API_KEY.is_none() {
+        if cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -203,7 +186,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_anthropic() -> Result<()> {
-        if API_KEY.is_none() {
+        if cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -220,7 +203,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_google() -> Result<()> {
-        if API_KEY.is_none() {
+        if cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -237,7 +220,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_mistral() -> Result<()> {
-        if API_KEY.is_none() {
+        if cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -254,7 +237,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_openai() -> Result<()> {
-        if API_KEY.is_none() {
+        if cloud::api_key().is_none() {
             return Ok(());
         }
 

@@ -969,6 +969,7 @@ dependencies = [
  "node-strip",
  "plugins",
  "prompts",
+ "publish",
  "rustyline",
  "secrets",
  "self-replace",
@@ -1004,6 +1005,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15efe7a882b08f34e38556b14f2fb3daa98769d06c7f0c1b076dfd0d983bc892"
 dependencies = [
  "error-code",
+]
+
+[[package]]
+name = "cloud"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "secrets",
 ]
 
 [[package]]
@@ -1049,6 +1058,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-dom-trait",
+ "codec-text-trait",
  "quick-xml 0.36.1",
 ]
 
@@ -1201,6 +1211,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-swb"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-dom",
+ "codec-jsonld",
+ "flate2",
+ "web-dist",
+]
+
+[[package]]
 name = "codec-text"
 version = "0.0.0"
 dependencies = [
@@ -1247,6 +1268,7 @@ dependencies = [
  "codec-json5",
  "codec-jsonld",
  "codec-markdown",
+ "codec-swb",
  "codec-text",
  "codec-yaml",
  "common-dev",
@@ -3571,6 +3593,7 @@ name = "models-stencila"
 version = "0.0.0"
 dependencies = [
  "cached",
+ "cloud",
  "model",
 ]
 
@@ -4711,6 +4734,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "publish"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "cloud",
+ "codecs",
+ "common",
+ "schema",
+]
+
+[[package]]
 name = "pyo3"
 version = "0.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5837,10 +5871,10 @@ dependencies = [
  "format",
  "mime_guess",
  "node-id",
- "rust-embed",
  "secrets",
  "tower-cookies",
  "tower-http",
+ "web-dist",
 ]
 
 [[package]]
@@ -7014,6 +7048,13 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+]
+
+[[package]]
+name = "web-dist"
+version = "0.0.0"
+dependencies = [
+ "rust-embed",
 ]
 
 [[package]]

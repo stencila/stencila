@@ -309,13 +309,13 @@ impl DomEncodeContext {
     }
 
     /// Get the content of the encoding context at completion of encoding
-    pub fn content(&mut self) -> String {
+    pub fn get_content(&mut self) -> String {
         // Use take instead of cloning for performance
         std::mem::take(&mut self.content)
     }
 
     /// Get a CSS <style> element for the document
-    pub fn style(&self) -> String {
+    pub fn get_style(&self) -> String {
         if !self.css.is_empty() {
             let mut style = "<style>".to_string();
             for (class, css) in self.css.iter() {

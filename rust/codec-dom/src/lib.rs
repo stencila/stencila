@@ -2,6 +2,7 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
+        itertools::Itertools,
     },
     format::Format,
     schema::{Node, NodeType},
@@ -9,6 +10,7 @@ use codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 use codec_dom_trait::{DomCodec as _, DomEncodeContext};
+use codec_text_trait::to_text;
 
 /// A codec for DOM HTML
 pub struct DomCodec;
@@ -43,7 +45,10 @@ impl Codec for DomCodec {
             .as_ref()
             .and_then(|options| options.standalone)
             .unwrap_or(false);
-        let compact = options.and_then(|options| options.compact).unwrap_or(true);
+        let compact = options
+            .as_ref()
+            .and_then(|options| options.compact)
+            .unwrap_or(true);
 
         // Encode to DOM HTML
         let mut context = DomEncodeContext::new(standalone);
@@ -51,15 +56,50 @@ impl Codec for DomCodec {
 
         // Add the root attribute to the root node
         // (the first opening tag)
-        let mut dom = context.content();
+        let mut dom = context.get_content();
         if let Some(pos) = dom.find('>') {
             dom.insert_str(pos, " root");
         }
 
         let html = if standalone {
-            let style = context.style();
+            let title = match node {
+                Node::Article(article) => article.title.as_ref().map(to_text),
+                _ => None,
+            }
+            .unwrap_or_else(|| "Unnamed".to_string());
+
+            let alternates = options
+                .and_then(|options| options.alternates)
+                .iter()
+                .flatten()
+                .map(|(typ, path)| {
+                    format!(r#"<link rel="alternate" type="{typ}" href="{path}" />"#)
+                })
+                .join("\n    ");
+
+            let style = context.get_style();
+
             format!(
-                r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title>{style}</head><body>{dom}</body></html>"#
+                r#"<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>{title}</title>
+    <link rel="icon" type="image/png" href="/~static/images/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=IBM+Plex+Mono:wght@400&display=swap" />
+    <link rel="stylesheet" type="text/css" href="/~static/themes/default.css" />
+    <link rel="stylesheet" type="text/css" href="/~static/views/dynamic.css" />
+    <script type="module" src="/~static/views/dynamic.js"></script>
+    {alternates}
+    {style}
+  </head>
+  <body>
+    <stencila-dynamic-view view="dynamic">
+      {dom}
+    </stencila-dynamic-view>
+  </body>
+</html>"#
             )
         } else {
             dom

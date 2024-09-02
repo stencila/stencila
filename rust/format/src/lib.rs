@@ -79,8 +79,9 @@ pub enum Format {
     Mp4,
     Ogv,
     WebM,
-    // Directory
+    // Directories, bundles and archives
     Directory,
+    Swb,
     // Development focussed formats
     Debug,
     // Other arbitrary format, not listed above
@@ -129,6 +130,7 @@ impl Format {
             R => "R",
             Rhai => "Rhai",
             Shell => "Shell",
+            Swb => "Stencila Web Bundle",
             Svg => "SVG",
             Tailwind => "Tailwind",
             Tex => "TeX",
@@ -226,6 +228,7 @@ impl Format {
             "shell" | "sh" => Shell,
             "smd" => Markdown,
             "svg" => Svg,
+            "swb" => Swb,
             "tailwind" => Tailwind,
             "tex" => Tex,
             "text" | "txt" => Text,
@@ -383,6 +386,7 @@ impl Display for Format {
             Rhai => "rhai",
             Shell => "shell",
             Svg => "svg",
+            Swb => "swb",
             Tailwind => "tailwind",
             Tex => "tex",
             Text => "text",
