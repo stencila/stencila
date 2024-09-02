@@ -59,8 +59,19 @@ impl Codec for SwbCodec {
 
         // Create the index.html file
         let html = temp_dir.path().join("index.html");
+        let alternates = Some(vec![(
+            "application/ld+json".to_string(),
+            "index.jsonld".to_string(),
+        )]);
         DomCodec {}
-            .to_path(node, &html, Some(EncodeOptions { ..options.clone() }))
+            .to_path(
+                node,
+                &html,
+                Some(EncodeOptions {
+                    alternates,
+                    ..options.clone()
+                }),
+            )
             .await?;
 
         // Create JSON-LD file for index

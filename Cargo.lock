@@ -1049,6 +1049,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-dom-trait",
+ "codec-text-trait",
  "quick-xml 0.36.1",
 ]
 
