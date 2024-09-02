@@ -13,6 +13,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila compile`↴](#stencila-compile)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
+* [`stencila publish`↴](#stencila-publish)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila lsp`↴](#stencila-lsp)
 * [`stencila prompts`↴](#stencila-prompts)
@@ -63,6 +64,7 @@ CLI subcommands and global options
 * `compile` — Compile a document
 * `execute` — Execute a document
 * `render` — Render a document
+* `publish` — Publish a document or site
 * `serve` — Options for the `serve` function
 * `lsp` — Run the Stencila Language Server
 * `prompts` — Manage prompts
@@ -540,6 +542,26 @@ Equivalent to the `execute` command with the `--render` flag.
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+
+
+## `stencila publish`
+
+Publish a document or site
+
+Currently only supports publishing a single document to the web via Stencila Cloud.
+
+In the future, it is likely that other publication platforms will be supported.
+
+**Usage:** `stencila publish [OPTIONS] <PATH>`
+
+###### **Arguments:**
+
+* `<PATH>` — The file or directory to publish
+
+###### **Options:**
+
+* `-k`, `--key <KEY>` — Key or identifier required by the platform being published to
 
 
 
