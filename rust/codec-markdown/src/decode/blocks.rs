@@ -934,7 +934,7 @@ fn div_section(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse a [`StyledBlock`] node
 fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
-        (alt((Caseless("style"), Caseless("styled"))), multispace0),
+        (alt((Caseless("styled"), Caseless("style"))), multispace0),
         take_while(0.., |_| true),
     )
     .map(|code: &str| {
@@ -1903,16 +1903,23 @@ mod tests {
     #[test]
     fn test_styled_block() {
         assert_eq!(
-            styled_block(&mut Located::new("{}")).unwrap(),
+            styled_block(&mut Located::new("style")).unwrap(),
             Block::StyledBlock(StyledBlock {
                 ..Default::default()
             })
         );
 
         assert_eq!(
-            styled_block(&mut Located::new("{ color: red }")).unwrap(),
+            styled_block(&mut Located::new("styled")).unwrap(),
             Block::StyledBlock(StyledBlock {
-                code: "color: red".into(),
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            styled_block(&mut Located::new("style color:red;")).unwrap(),
+            Block::StyledBlock(StyledBlock {
+                code: "color:red;".into(),
                 ..Default::default()
             })
         );
