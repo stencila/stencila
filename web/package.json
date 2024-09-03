@@ -26,8 +26,6 @@
       "source": [
         "src/images/favicon.png",
         "src/themes/default.css",
-        "src/themes/latex.css",
-        "src/themes/tufte.css",
         "src/views/dynamic.ts",
         "src/views/live.ts",
         "src/views/print.ts",
@@ -52,7 +50,7 @@
     "lint": "eslint 'src/**/*.ts' && prettier --check .",
     "test": "tsc --skipLibCheck --noEmit",
     "start": "parcel watch",
-    "build": "cross-env NODE_ENV=production parcel build --no-scope-hoist --log-level verbose",
+    "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
     "build:vscode": "cross-env STENCILA_VIEW=vscode NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns '.eslintrc*'"
   },
