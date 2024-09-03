@@ -25,7 +25,7 @@ use super::{
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
         attrs, execution_mode, instruction_type, model, name, node_to_string, primitive_node,
-        prompt, string_to_instruction_message, take_until_unbalanced,
+        prompt, string_to_instruction_message,
     },
     Context,
 };
@@ -933,14 +933,17 @@ fn div_section(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`StyledBlock`] node
 fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
-    delimited('{', take_until_unbalanced('{', '}'), '}')
-        .map(|code: &str| {
-            Block::StyledBlock(StyledBlock {
-                code: code.trim().into(),
-                ..Default::default()
-            })
+    preceded(
+        (alt((Caseless("style"), Caseless("styled"))), multispace0),
+        take_while(0.., |_| true),
+    )
+    .map(|code: &str| {
+        Block::StyledBlock(StyledBlock {
+            code: code.trim().into(),
+            ..Default::default()
         })
-        .parse_next(input)
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`Table`] with a label and/or caption

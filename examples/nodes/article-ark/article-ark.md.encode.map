@@ -198,23 +198,23 @@ start     end        offsets   node_type+property                   authorship
   1102   1120         (0, 1)   Paragraph
   1102   1121         (0, 1)   Section.content
   1089   1125       (-13, 4)   Section
-  1131   1157       (42, 32)   StyledBlock.code
-  1160   1182       (29, 25)   Text.value
-  1160   1182         (0, 0)   Text
-  1160   1182         (0, 0)   Paragraph.content
-  1160   1183         (0, 1)   Paragraph
-  1160   1184         (0, 1)   StyledBlock.content
-  1126   1188       (-34, 4)   StyledBlock
-  1190   1195        (64, 7)   TableCell
-  1189   1197        (-1, 2)   TableRow
-  1206   1211       (17, 14)   TableCell
-  1205   1213        (-1, 2)   TableRow
-  1189   1213       (-16, 0)   Table
-  1214   1218        (25, 5)   ThematicBreak
-     0   1219     (-1214, 1)   Article.content
-  1225   1235     (1225, 16)   Text.value
-  1225   1235         (0, 0)   Text
-  1225   1235         (0, 0)   Paragraph.content
-  1225   1236         (0, 1)   Paragraph
-  1219   1236        (-6, 0)   Note
-     0   1237     (-1219, 1)   Article
+  1136   1162       (47, 37)   StyledBlock.code
+  1164   1186       (28, 24)   Text.value
+  1164   1186         (0, 0)   Text
+  1164   1186         (0, 0)   Paragraph.content
+  1164   1187         (0, 1)   Paragraph
+  1164   1188         (0, 1)   StyledBlock.content
+  1126   1192       (-38, 4)   StyledBlock
+  1194   1199        (68, 7)   TableCell
+  1193   1201        (-1, 2)   TableRow
+  1210   1215       (17, 14)   TableCell
+  1209   1217        (-1, 2)   TableRow
+  1193   1217       (-16, 0)   Table
+  1218   1222        (25, 5)   ThematicBreak
+     0   1223     (-1218, 1)   Article.content
+  1229   1239     (1229, 16)   Text.value
+  1229   1239         (0, 0)   Text
+  1229   1239         (0, 0)   Paragraph.content
+  1229   1240         (0, 1)   Paragraph
+  1223   1240        (-6, 0)   Note
+     0   1241     (-1223, 1)   Article

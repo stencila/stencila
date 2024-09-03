@@ -48,13 +48,13 @@ start     end        offsets   node_type+property                   authorship
   1031   1087       (-38, 5)   ReplaceBlock
   1102   1119       (71, 32)   Paragraph
   1089   1124       (-13, 5)   Section
-  1160   1182       (71, 58)   Paragraph
-  1126   1187       (-34, 5)   StyledBlock
-  1189   1196        (63, 9)   TableCell
-  1189   1196         (0, 0)   TableRow
-  1205   1212       (16, 16)   TableCell
-  1205   1212         (0, 0)   TableRow
-  1189   1212       (-16, 0)   Table
-  1214   1217        (25, 5)   ThematicBreak
-  1225   1235       (11, 18)   Paragraph
-     0   1236     (-1225, 1)   Article
+  1164   1186       (75, 62)   Paragraph
+  1126   1191       (-38, 5)   StyledBlock
+  1193   1200        (67, 9)   TableCell
+  1193   1200         (0, 0)   TableRow
+  1209   1216       (16, 16)   TableCell
+  1209   1216         (0, 0)   TableRow
+  1193   1216       (-16, 0)   Table
+  1218   1221        (25, 5)   ThematicBreak
+  1229   1239       (11, 18)   Paragraph
+     0   1240     (-1229, 1)   Article

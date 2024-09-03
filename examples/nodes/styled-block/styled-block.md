@@ -1,6 +1,6 @@
 A styled block with two paragraphs:
 
-::: {rounded border border-solid border-blue-200 bg-blue-100 p-2}
+::: style rounded border border-solid border-blue-200 bg-blue-100 p-2
 
 Styled paragraph one.
 
@@ -10,7 +10,7 @@ Styled paragraph two.
 
 With style language specified:
 
-::: {color:red}
+::: style color:red
 
 Styled paragraph.
 
@@ -18,11 +18,11 @@ Styled paragraph.
 
 Nested styled blocks:
 
-::: {bg-red-100 p-2}
+::: style bg-red-100 p-2
 
 Outer paragraph.
 
-::::: {bg-blue-100}
+::::: style bg-blue-100
 
 Inner paragraph.
 
@@ -32,7 +32,7 @@ Inner paragraph.
 
 Containing variable interpolations:
 
-::: {bg-red-{{var1}} p-$var2 m-$var3}
+::: style bg-red-{{var1}} p-$var2 m-$var3
 
 Dynamically styled paragraph.
 

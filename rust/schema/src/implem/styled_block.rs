@@ -80,9 +80,9 @@ impl MarkdownCodec for StyledBlock {
         } else {
             context
                 .push_colons()
-                .push_str(" {")
+                .push_str(" style ")
                 .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
-                .push_str("}\n\n")
+                .push_str("\n\n")
                 .increase_depth()
                 .push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)

@@ -70,7 +70,7 @@ This is a section
 
 :::
 
-::: {text-red-800 bg-indigo-100}
+::: style text-red-800 bg-indigo-100
 
 This is a styled block
 
