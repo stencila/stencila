@@ -297,7 +297,7 @@ pub async fn serve_path(
 
     let view = query
         .get("view")
-        .map_or("static", |value: &String| value.as_ref());
+        .map_or("dynamic", |value: &String| value.as_ref());
     // TODO: restrict the access to the highest based on the user's role
     let access = query.get("access").map_or("write", |value| value.as_ref());
     let theme = query
