@@ -967,6 +967,7 @@ dependencies = [
  "common",
  "console-subscriber",
  "document",
+ "flate2",
  "format",
  "is-terminal",
  "kernels",

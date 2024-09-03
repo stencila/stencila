@@ -14,7 +14,7 @@ async fn main() -> Result<()> {
 
     let skip_upgrade = matches!(cli.command, Command::Lsp);
     if !skip_upgrade {
-        upgrade::check();
+        upgrade::check(false);
     }
 
     cli.run().await?;

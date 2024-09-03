@@ -23,9 +23,9 @@ use common::{
         task::JoinHandle,
     },
     tracing,
-    xz2::read::XzDecoder,
     zip::ZipArchive,
 };
+use flate2::read::GzDecoder;
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -50,14 +50,14 @@ static UPGRADE_AVAILABLE: Lazy<AtomicBool> = Lazy::new(AtomicBool::default);
 
 /// Check if an upgrade is available
 ///
-/// This spawns a background task so to not block the main task
-/// of the CLI. A check is only done if one has not been done for
-/// recently.
-pub fn check() -> JoinHandle<Option<String>> {
-    let check = async {
+/// This spawns a background task so as to not block the main task
+/// of the CLI. A check is only done if one has not been done recently,
+/// unless `force = true`.
+pub fn check(force: bool) -> JoinHandle<Option<String>> {
+    let check = async move {
         let cache = get_app_dir(DirType::Cache, true)?.join("latest-release.json");
 
-        let fetch = if cache.exists() {
+        let fetch = if !force && cache.exists() {
             let metadata = fs::metadata(&cache).await?;
             let modification_time = metadata.modified()?;
             SystemTime::now().duration_since(modification_time)? > Duration::from_secs(3600 * 24)
@@ -171,8 +171,8 @@ impl GithubRelease {
         tracing::debug!("Extracting latest release");
         match OS {
             "linux" | "macos" => {
-                let tar_xz = Cursor::new(response);
-                let tar = XzDecoder::new(tar_xz);
+                let tar_gz = Cursor::new(response);
+                let tar = GzDecoder::new(tar_gz);
                 let mut archive = Archive::new(tar);
                 archive.unpack(dir)?;
             }
@@ -226,7 +226,7 @@ pub struct Cli {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         if self.check {
-            match check().await? {
+            match check(true).await? {
                 Some(version) => {
                     println!("✨ Upgrade available: {CURRENT_VERSION} → {version}");
                 }
