@@ -1,6 +1,6 @@
 use std::{
     env,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
     sync::Arc,
 };
@@ -22,6 +22,7 @@ use common::{
     eyre::{self},
     rand::{self, Rng},
     serde::Deserialize,
+    smart_default::SmartDefault,
     tokio::net::TcpListener,
     tracing,
 };
@@ -29,7 +30,7 @@ use document::SyncDirection;
 
 use crate::{
     documents::{self, Documents},
-    statics,
+    login, statics,
 };
 
 /// The current version of Stencila
@@ -62,33 +63,36 @@ pub(crate) struct ServerState {
 }
 
 /// Options for the `serve` function
-#[derive(Debug, Args)]
+#[derive(Debug, SmartDefault, Args)]
 pub struct ServeOptions {
     /// The directory to serve
     ///
     /// Defaults to the current working directory
     #[arg(default_value = ".")]
-    dir: PathBuf,
+    #[default(".")]
+    pub dir: PathBuf,
 
     /// The address to serve on
     ///
     /// Defaults to `127.0.0.1` (localhost), use `0.0.0.0` to listen
     /// on all addresses.
     #[arg(long, short, default_value = "127.0.0.1")]
-    address: IpAddr,
+    #[default(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))]
+    pub address: IpAddr,
 
     /// The port to serve on
     ///
     /// Defaults to port 9000.
     #[arg(long, short, default_value_t = 9000)]
-    port: u16,
+    #[default(9000)]
+    pub port: u16,
 
     /// Do not authenticate or authorize requests
     ///
     /// By default, requests to all routes (except `~static/*`) require
     /// an access token.
     #[arg(long)]
-    no_auth: bool,
+    pub no_auth: bool,
 
     /// Should files be served raw?
     ///
@@ -96,7 +100,7 @@ pub struct ServeOptions {
     /// the file will be served with a `Content-Type` header corresponding to
     /// the file's extension.
     #[arg(long)]
-    raw: bool,
+    pub raw: bool,
 
     /// Should `SourceMap` headers be sent?
     ///
@@ -104,11 +108,18 @@ pub struct ServeOptions {
     /// of the document that was rendered as HTML. Usually only useful if
     /// `raw` is also `true`.
     #[arg(long)]
-    source: bool,
+    pub source: bool,
 
     /// Whether and in which direction(s) to sync served documents
     #[arg(long)]
-    sync: Option<SyncDirection>,
+    pub sync: Option<SyncDirection>,
+
+    /// The access token to use
+    ///
+    /// This is not a CLI argument. It is only passed to the `serve()` function
+    /// when it is called internally.
+    #[clap(skip)]
+    pub access_token: Option<String>,
 }
 
 /// Start the server
@@ -121,6 +132,7 @@ pub async fn serve(
         raw,
         source,
         sync,
+        access_token,
     }: ServeOptions,
 ) -> eyre::Result<()> {
     let dir = dir.canonicalize()?;
@@ -130,12 +142,12 @@ pub async fn serve(
         tracing::warn!("Using `--no-auth` flag; no routes are protected by authentication/authorization checks");
         None
     } else {
-        Some(get_access_token())
+        Some(access_token.unwrap_or_else(get_access_token))
     };
 
     let mut url = format!("http://{address}");
     if let Some(access_token) = &access_token {
-        url.push_str("?access_token=");
+        url.push_str("/~login?access_token=");
         url.push_str(access_token);
     }
 
@@ -150,6 +162,7 @@ pub async fn serve(
 
     let router = Router::new()
         .nest("/~static", statics::router())
+        .route("/~login", get(login::login))
         .nest(
             "/~documents",
             documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
