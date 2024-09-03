@@ -16,8 +16,7 @@ use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
 use crate::{
-    logging::{LoggingFormat, LoggingLevel},
-    uninstall, upgrade,
+    logging::{LoggingFormat, LoggingLevel}, preview, uninstall, upgrade
 };
 
 /// CLI subcommands and global options
@@ -316,6 +315,7 @@ pub enum Command {
         strip_options: StripOptions,
     },
 
+    Preview(preview::Cli),
     Publish(publish::cli::Cli),
 
     Serve(ServeOptions),
@@ -688,6 +688,7 @@ impl Cli {
                 }
             }
 
+            Command::Preview(preview) => preview.run().await?,
             Command::Publish(publish) => publish.run().await?,
 
             Command::Serve(options) => serve(options).await?,
