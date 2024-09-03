@@ -783,7 +783,7 @@ where
 }
 
 // Create a 404 Not Found response
-fn not_found() -> Response{
+fn not_found() -> Response {
     (StatusCode::NOT_FOUND, "Not found").into_response()
 }
 

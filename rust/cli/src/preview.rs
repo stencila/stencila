@@ -9,7 +9,7 @@ use document::SyncDirection;
 use server::{get_access_token, ServeOptions};
 
 /// Preview a file or directory
-/// 
+///
 /// Opens a preview of a document or site in the browser.
 /// When `--sync=in` (the default) the preview will update when
 /// the document is saved to disk.

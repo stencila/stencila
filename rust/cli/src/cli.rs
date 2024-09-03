@@ -16,7 +16,8 @@ use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
 use crate::{
-    logging::{LoggingFormat, LoggingLevel}, preview, uninstall, upgrade
+    logging::{LoggingFormat, LoggingLevel},
+    preview, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
