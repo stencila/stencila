@@ -5,8 +5,9 @@ FROM node:latest AS web
 WORKDIR /build
 COPY . /build
 
-# Build the web bundles
+# Build the web bundle to include in the binary
 RUN npm ci
+RUN cd ts && npm run build
 RUN cd web && npm run build
 
 
