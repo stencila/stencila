@@ -256,7 +256,7 @@ pub async fn serve_path(
         matches!(component, Component::ParentDir)
             || component.as_os_str().to_string_lossy().starts_with('_')
     }) {
-        return Ok(StatusCode::NOT_FOUND.into_response());
+        return Ok(not_found());
     }
 
     // Resolve the URL path into a filesystem path
@@ -264,7 +264,7 @@ pub async fn serve_path(
 
     // Return early if no path resolved
     let Some(path) = path else {
-        return Ok(StatusCode::NOT_FOUND.into_response());
+        return Ok(not_found());
     };
 
     // Get the document for the path
@@ -419,7 +419,7 @@ async fn open_document(
         matches!(component, Component::ParentDir)
             || component.as_os_str().to_string_lossy().starts_with('_')
     }) {
-        return Ok(StatusCode::NOT_FOUND.into_response());
+        return Ok(not_found());
     }
 
     // Resolve the URL path into a filesystem path
@@ -427,7 +427,7 @@ async fn open_document(
 
     // Return early if no path resolved
     let Some(path) = path else {
-        return Ok(StatusCode::NOT_FOUND.into_response());
+        return Ok(not_found());
     };
 
     // Get the document for the path
@@ -780,6 +780,11 @@ where
             }
         }
     });
+}
+
+// Create a 404 Not Found response
+fn not_found() -> Response{
+    (StatusCode::NOT_FOUND, "Not found").into_response()
 }
 
 #[cfg(test)]
