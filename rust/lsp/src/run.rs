@@ -154,10 +154,13 @@ pub async fn run() {
 
     // Fallback to spawn blocking read/write otherwise.
     #[cfg(not(unix))]
-    let (stdin, stdout) = (
-        tokio_util::compat::TokioAsyncReadCompatExt::compat(tokio::io::stdin()),
-        tokio_util::compat::TokioAsyncWriteCompatExt::compat_write(tokio::io::stdout()),
-    );
+    let (stdin, stdout) = {
+        use common::tokio::io;
+        (
+            tokio_util::compat::TokioAsyncReadCompatExt::compat(io::stdin()),
+            tokio_util::compat::TokioAsyncWriteCompatExt::compat_write(io::stdout()),
+        )
+    };
 
     server.run_buffered(stdin, stdout).await.unwrap();
 }
