@@ -8,14 +8,17 @@ use common::{
 use document::SyncDirection;
 use server::{get_access_token, ServeOptions};
 
-/// Preview a file or directory
+/// Preview a document or site
 ///
 /// Opens a preview of a document or site in the browser.
 /// When `--sync=in` (the default) the preview will update when
 /// the document is saved to disk.
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The file or directory to preview
+    /// The path to the document file or site directory to preview
+    /// 
+    /// Defaults to the current directory.
+    #[arg(long, default_value = ".")]
     path: PathBuf,
 
     /// Which direction(s) to sync the document

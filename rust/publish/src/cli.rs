@@ -14,7 +14,10 @@ use common::{
 /// will be supported.
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The file or directory to publish
+    /// The path to the document file or site directory to publish
+    /// 
+    /// Defaults to the current directory.
+    #[arg(long, default_value = ".")]
     path: PathBuf,
 
     /// Key or identifier required by the platform being published to
