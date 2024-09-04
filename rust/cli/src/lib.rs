@@ -5,6 +5,7 @@ pub use crate::cli::{Cli, Command};
 
 pub mod errors;
 pub mod logging;
-pub mod preview;
+mod preview;
+mod sync;
 mod uninstall;
 pub mod upgrade;

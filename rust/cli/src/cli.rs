@@ -6,10 +6,9 @@ use codecs::LossesResponse;
 use common::{
     clap::{self, Args, Parser, Subcommand},
     eyre::Result,
-    tokio::{self},
     tracing,
 };
-use document::{Document, SyncDirection};
+use document::Document;
 use format::Format;
 use node_execute::ExecuteOptions;
 use node_strip::StripScope;
@@ -17,7 +16,7 @@ use server::{serve, ServeOptions};
 
 use crate::{
     logging::{LoggingFormat, LoggingLevel},
-    preview, uninstall, upgrade,
+    preview, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -178,33 +177,7 @@ pub enum Command {
         strip_options: StripOptions,
     },
     */
-    /// Synchronize a document between formats
-    Sync {
-        /// The path of the document to synchronize
-        doc: PathBuf,
-
-        /// The files to synchronize with
-        files: Vec<PathBuf>,
-
-        /// The formats of the files (or the name of codecs to use)
-        ///
-        /// This option can be provided separately for each file.
-        #[arg(long = "format", short)]
-        formats: Vec<String>,
-
-        /// What to do if there are losses when either encoding or decoding between any of the files
-        #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
-        losses: codecs::LossesResponse,
-
-        #[command(flatten)]
-        decode_options: DecodeOptions,
-
-        #[command(flatten)]
-        encode_options: EncodeOptions,
-
-        #[command(flatten)]
-        strip_options: StripOptions,
-    },
+    Sync(sync::Cli),
 
     /// Convert a document to another format
     Convert {
@@ -391,7 +364,7 @@ pub struct DecodeOptions {}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
-    fn build(
+    pub(crate) fn build(
         &self,
         format_or_codec: Option<String>,
         strip_options: StripOptions,
@@ -446,7 +419,7 @@ pub struct EncodeOptions {
 
 impl EncodeOptions {
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
-    fn build(
+    pub(crate) fn build(
         &self,
         output: Option<&Path>,
         format_or_codec: Option<String>,
@@ -511,7 +484,6 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         tracing::trace!("Running CLI command");
 
-        let mut wait = false;
         match self.command {
             Command::New { .. } => {
                 Document::new()?;
@@ -552,50 +524,7 @@ impl Cli {
                 }
             }
             */
-            Command::Sync {
-                doc,
-                files,
-                formats,
-                losses,
-                decode_options,
-                encode_options,
-                strip_options,
-            } => {
-                let doc = Document::open(&doc).await?;
-
-                for (index, file) in files.iter().enumerate() {
-                    let file = file.to_string_lossy();
-                    let (file, direction) = if file.ends_with(":in") {
-                        (file.trim_end_matches(":in"), SyncDirection::In)
-                    } else if file.ends_with(":out") {
-                        (file.trim_end_matches(":out"), SyncDirection::Out)
-                    } else if file.ends_with(":io") {
-                        (file.trim_end_matches(":io"), SyncDirection::InOut)
-                    } else {
-                        (file.as_ref(), SyncDirection::InOut)
-                    };
-                    let file = PathBuf::from(file);
-
-                    let format_or_codec = formats.get(index).cloned();
-
-                    let decode_options = Some(decode_options.build(
-                        format_or_codec.clone(),
-                        strip_options.clone(),
-                        losses.clone(),
-                    ));
-                    let encode_options = Some(encode_options.build(
-                        None,
-                        format_or_codec,
-                        Format::Json,
-                        strip_options.clone(),
-                        losses.clone(),
-                    ));
-
-                    doc.sync_file(&file, direction, decode_options, encode_options)
-                        .await?;
-                }
-                wait = true;
-            }
+            Command::Sync(sync) => sync.run().await?,
 
             Command::Convert {
                 input,
@@ -739,11 +668,6 @@ impl Cli {
 
             Command::Upgrade(upgrade) => upgrade.run().await?,
             Command::Uninstall(uninstall) => uninstall.run()?,
-        }
-
-        if wait {
-            use tokio::time::{sleep, Duration};
-            sleep(Duration::from_secs(u64::MAX)).await;
         }
 
         Ok(())
