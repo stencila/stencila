@@ -62,7 +62,7 @@ pub(crate) struct ServerState {
     pub docs: Arc<Documents>,
 }
 
-/// Options for the `serve` function
+/// Run the HTTP/Websocket server
 #[derive(Debug, SmartDefault, Args)]
 pub struct ServeOptions {
     /// The directory to serve

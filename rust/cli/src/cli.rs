@@ -125,6 +125,7 @@ pub enum Command {
         overwrite: bool,
     },
 
+    /*
     /// Import a file in another format into a new or existing document
     Import {
         /// The path of the document to create or import to
@@ -176,8 +177,8 @@ pub enum Command {
         #[command(flatten)]
         strip_options: StripOptions,
     },
-
-    /// Synchronize a document with one of more other files in other formats
+    */
+    /// Synchronize a document between formats
     Sync {
         /// The path of the document to synchronize
         doc: PathBuf,
@@ -205,7 +206,7 @@ pub enum Command {
         strip_options: StripOptions,
     },
 
-    /// Convert a document between formats
+    /// Convert a document to another format
     Convert {
         /// The path of the input file
         ///
@@ -347,7 +348,7 @@ pub enum Command {
 
     Serve(ServeOptions),
 
-    /// Run the Stencila Language Server
+    /// Run the Language Server Protocol server
     Lsp,
 
     Prompts(prompts::cli::Cli),
@@ -516,6 +517,7 @@ impl Cli {
                 Document::new()?;
             }
 
+            /*
             Command::Import {
                 doc,
                 source,
@@ -549,7 +551,7 @@ impl Cli {
                     Code::new(options.format.unwrap_or_default(), &content).to_stdout();
                 }
             }
-
+            */
             Command::Sync {
                 doc,
                 files,

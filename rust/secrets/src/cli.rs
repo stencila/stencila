@@ -6,7 +6,7 @@ use common::{
 
 use crate::{delete, list, name_validator, set};
 
-/// Manage secrets used by Stencila (e.g. API keys)
+/// Manage secrets
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
