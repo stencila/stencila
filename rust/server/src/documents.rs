@@ -79,12 +79,11 @@ impl Documents {
             }
         }
 
-        let doc = Document::open(path).await?;
-        doc.compile(false).await?;
-
-        if let Some(direction) = sync {
-            doc.sync_file(path, direction, None, None).await?;
-        }
+        let doc = if let Some(direction) = sync {
+            Document::synced(path, direction).await?
+        } else {
+            Document::open(path).await?
+        };
 
         let uuid = doc.id().uuid();
 

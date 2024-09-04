@@ -354,21 +354,40 @@ impl Document {
         Self::init(home, None)
     }
 
+    /// Initialize a document at a path
+    /// 
+    /// Note that this does not read the document from the path. Use `open`
+    /// or `synced` for that.
+    fn at(path: &Path) -> Result<Self> {
+        let home = path
+            .parent()
+            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
+            .to_path_buf();
+
+        Self::init(home, None)
+    }
+
     /// Open an existing document
     ///
     /// If the path is a store the loads from that store, otherwise
     /// uses `codec` to import from the path and dump into a new store.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
-        let home = path
-            .parent()
-            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
-            .to_path_buf();
+        let doc = Self::at(path)?;
+        doc.import(path, None).await?;
+        doc.compile(false).await?;
 
-        let me = Self::init(home, None)?;
-        me.import(path, None).await?;
+        Ok(doc)
+    }
 
-        Ok(me)
+    /// Open an existing document with syncing
+    #[tracing::instrument]
+    pub async fn synced(path: &Path, sync: SyncDirection) -> Result<Self> {
+        let doc = Self::at(path)?;
+        doc.sync_file(path, sync, None, None).await?;
+        doc.compile(false).await?;
+
+        Ok(doc)
     }
 
     /// Get the id of the document
