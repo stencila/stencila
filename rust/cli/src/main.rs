@@ -1,14 +1,26 @@
 use common::{clap::Parser, eyre::Result, tokio};
 
-use cli::{errors, logging, upgrade, Cli, Command};
+use cli::{
+    errors,
+    logging::{self, LoggingFormat, LoggingLevel},
+    upgrade, Cli, Command,
+};
 
 /// Main entry function
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    errors::setup(&cli.error_details, cli.error_link)?;
-    logging::setup(cli.log_level, &cli.log_filter, cli.log_format)?;
+    let (log_level, log_format, error_details) = if cli.debug {
+        (LoggingLevel::Debug, LoggingFormat::Pretty, "all")
+    } else if cli.trace {
+        (LoggingLevel::Trace, LoggingFormat::Pretty, "all")
+    } else {
+        (cli.log_level, cli.log_format, cli.error_details.as_str())
+    };
+
+    errors::setup(error_details, cli.error_link)?;
+    logging::setup(log_level, &cli.log_filter, log_format)?;
 
     prompts::update_builtin();
 

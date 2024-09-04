@@ -27,6 +27,32 @@ pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
 
+    /// Display debug level logging and detailed error reports
+    ///
+    /// Equivalent to using `--log-level=debug`, `--log-format=pretty`, and `--error-details=all`
+    #[arg(
+        long,
+        global = true,
+        conflicts_with = "trace",
+        conflicts_with = "log_level",
+        conflicts_with = "log_format",
+        conflicts_with = "error_details"
+    )]
+    pub debug: bool,
+
+    /// Display trace level logging and detailed error reports
+    ///
+    /// Equivalent to using `--log-level=trace`, `--log-format=pretty`, and `--error-details=all`
+    #[arg(
+        long,
+        global = true,
+        conflicts_with = "debug",
+        conflicts_with = "log_level",
+        conflicts_with = "log_format",
+        conflicts_with = "error_details"
+    )]
+    pub trace: bool,
+
     /// The minimum log level to output
     #[arg(long, default_value = "info", global = true)]
     pub log_level: LoggingLevel,
@@ -52,7 +78,7 @@ pub struct Cli {
 
     /// The details to include in error reports
     ///
-    /// A comma separated list including `location`, `span`, or `env`.
+    /// `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
     #[arg(long, default_value = "auto", global = true)]
     pub error_details: String,
 

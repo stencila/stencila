@@ -16,14 +16,17 @@ use common::{eyre::Result, itertools::Itertools};
 ///
 /// The `link` argument configures whether or not to provide an issue reporting link.
 pub fn setup(details: &str, link: bool) -> Result<()> {
+    let all = vec!["location", "span", "env"];
+
     let details = match details {
         "auto" => {
             if cfg!(debug_assertions) {
-                vec!["location", "span", "env"]
+                all
             } else {
                 vec![]
             }
         }
+        "all" => all,
         "none" => vec![],
         _ => details.split(',').collect_vec(),
     };
