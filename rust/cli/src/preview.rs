@@ -18,7 +18,7 @@ pub struct Cli {
     /// The path to the document file or site directory to preview
     /// 
     /// Defaults to the current directory.
-    #[arg(long, default_value = ".")]
+    #[arg(default_value = ".")]
     path: PathBuf,
 
     /// Which direction(s) to sync the document

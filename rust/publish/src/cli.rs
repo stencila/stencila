@@ -17,7 +17,7 @@ pub struct Cli {
     /// The path to the document file or site directory to publish
     /// 
     /// Defaults to the current directory.
-    #[arg(long, default_value = ".")]
+    #[arg(default_value = ".")]
     path: PathBuf,
 
     /// Key or identifier required by the platform being published to
