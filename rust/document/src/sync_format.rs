@@ -26,7 +26,7 @@ use common::{
     tracing,
 };
 
-use crate::{Command, Document, Update};
+use crate::{Document, Update};
 
 /// A patch to apply to a string representing the document in a particular format
 ///
@@ -56,7 +56,6 @@ pub struct FormatPatch {
 pub enum FormatOperation {
     Content(ContentOperation),
     Mapping(MappingOperation),
-    Command(Command),
 }
 
 impl FormatOperation {
@@ -221,11 +220,6 @@ impl Document {
         )));
         let version = Arc::new(AtomicU32::new(1));
 
-        // Clone the command sender so that commands can be received
-        // and forwarded to the `command_task`
-        // TODO: make this None if the client does not have the capability to send commands
-        let command_sender = Some(self.command_sender.clone());
-
         // Start task to receive incoming patches from the client, apply them
         // to the buffer, and update the document's root node
         if let Some(mut patch_receiver) = patch_receiver {
@@ -318,18 +312,6 @@ impl Document {
                             }) => {
                                 // TODO
                                 tracing::debug!("Selection operation {from}-{to}")
-                            }
-
-                            FormatOperation::Command(command) => {
-                                if let Some(command_sender) = &command_sender {
-                                    if let Err(error) = command_sender.send((command, 0)).await {
-                                        tracing::error!("While sending document command: {error}");
-                                    }
-                                } else {
-                                    tracing::warn!(
-                                        "Received a command from client without a command sender"
-                                    )
-                                }
                             }
 
                             _ => tracing::warn!("Client sent invalid operation"),
