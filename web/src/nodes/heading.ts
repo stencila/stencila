@@ -19,6 +19,13 @@ export class Heading extends Entity {
   level: number
 
   /**
+   * returns the top of the bounding client rect
+   */
+  getRectTop() {
+    return this.getBoundingClientRect().top
+  }
+
+  /**
    * In dynamic view, render the `content`, `authors` and summary stats in
    * a node card that is shown on demand.
    */

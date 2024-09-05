@@ -32,3 +32,12 @@ export type DocumentContext = {
 
 export const documentContext =
   createContext<DocumentContext>('document-context')
+
+/**
+ * Context object for having a list of the heading scolled past the window
+ */
+export type TOCContext = {
+  scrolledHeadingIds: string[]
+}
+
+export const tocContext = createContext<TOCContext>('heading-nav-context')

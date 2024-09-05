@@ -369,4 +369,34 @@ figure {
       }
     }
   }
+
+  /* Headings TOC nav */
+  nav[slot='headings'] {
+    ol {
+      list-style: none;
+      margin: 0.5rem 0;
+      padding-left: 1rem;
+      font-size: 0.875rem;
+
+      li {
+        margin: 0.5rem 0;
+
+        a {
+          text-decoration: none;
+
+          &.active {
+            color: rgba(0, 0, 0, 0.5);
+          }
+
+          &:hover:not(.active) {
+            color: blue;
+          }
+
+          & stencila-text {
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
 }

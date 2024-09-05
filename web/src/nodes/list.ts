@@ -5,6 +5,8 @@ import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance/provenance'
 
+import { getClosest } from '../utilities/getClosest'
+
 import { Entity } from './entity'
 
 /**
@@ -19,7 +21,11 @@ export class List extends Entity {
    * a node card that is shown on demand.
    */
   override render() {
-    // TODO: Add summary stats to card
+    const isHeadingList = getClosest(this, 'section') === null
+
+    if (isHeadingList) {
+      return html` <slot name="items"></slot> `
+    }
 
     return html`
       <stencila-ui-block-on-demand
