@@ -22,7 +22,9 @@ export class ArticleHeadings extends LitElement {
     if (changedProperties.has('context')) {
       if (this.headerNav) {
         this.headerNav.querySelectorAll('a').forEach((a) => {
-          const target = a.href.split('#')[1]
+          const hrefSplit = a.href.split('#')
+          const target = hrefSplit[hrefSplit.length - 1]
+
           if (this.context.scrolledHeadingIds.includes(target)) {
             a.classList.add('active')
           } else {
