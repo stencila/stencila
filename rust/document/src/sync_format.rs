@@ -1,5 +1,5 @@
 use std::{
-    ops::DerefMut,
+    ops::{DerefMut, Range},
     sync::{
         atomic::{AtomicU32, Ordering},
         Arc,
@@ -123,6 +123,7 @@ impl FormatOperation {
         }))
     }
 
+    /// Difference two mappings to create a set of mapping operations
     fn diff_mappings(old: &Mapping, new: &Mapping) -> Vec<Self> {
         json_patch::diff(
             &serde_json::to_value(old).unwrap_or_default(),
@@ -270,8 +271,15 @@ impl Document {
                                 to: None,
                                 insert: Some(insert),
                             }) => {
-                                current_content.insert_str(from, &insert);
-                                updated = true;
+                                if current_content.is_empty() {
+                                    current_content.push_str(&insert);
+                                    updated = true;
+                                } else if let Some((from, ..)) =
+                                    current_content.char_indices().nth(from)
+                                {
+                                    current_content.insert_str(from, &insert);
+                                    updated = true;
+                                }
                             }
 
                             FormatOperation::Content(ContentOperation {
@@ -280,8 +288,13 @@ impl Document {
                                 to: Some(to),
                                 insert: None,
                             }) => {
-                                current_content.replace_range(from..to, "");
-                                updated = true;
+                                if let (Some((from, ..)), Some((to, ..))) = (
+                                    current_content.char_indices().nth(from),
+                                    current_content.char_indices().nth(to),
+                                ) {
+                                    current_content.replace_range(from..to, "");
+                                    updated = true;
+                                }
                             }
 
                             FormatOperation::Content(ContentOperation {
@@ -290,8 +303,13 @@ impl Document {
                                 to: Some(to),
                                 insert: Some(insert),
                             }) => {
-                                current_content.replace_range(from..to, &insert);
-                                updated = true;
+                                if let (Some((from, ..)), Some((to, ..))) = (
+                                    current_content.char_indices().nth(from),
+                                    current_content.char_indices().nth(to),
+                                ) {
+                                    current_content.replace_range(from..to, &insert);
+                                    updated = true;
+                                }
                             }
 
                             FormatOperation::Content(ContentOperation {
@@ -385,9 +403,10 @@ impl Document {
 
                     if new_content != *current_content {
                         // Calculate a diff between old and new string contents
+                        // Use Myers because it is faster than Patience.Limit to 1 second.
                         let diff = TextDiffConfig::default()
-                            .algorithm(Algorithm::Patience)
-                            .timeout(Duration::from_secs(5))
+                            .algorithm(Algorithm::Myers)
+                            .timeout(Duration::from_secs(1))
                             .diff_chars(current_content.as_str(), new_content.as_str());
 
                         // Convert the diff to a set of operations
@@ -396,7 +415,7 @@ impl Document {
                             match op.tag() {
                                 DiffTag::Insert => ops.push(FormatOperation::insert_content(
                                     from,
-                                    &new_content[op.new_range()],
+                                    extract_chars(&new_content, op.new_range()),
                                 )),
                                 DiffTag::Delete => ops.push(FormatOperation::delete_content(
                                     from,
@@ -405,7 +424,7 @@ impl Document {
                                 DiffTag::Replace => ops.push(FormatOperation::replace_content(
                                     from,
                                     from + op.old_range().len(),
-                                    new_content[op.new_range()].to_string(),
+                                    extract_chars(&new_content, op.new_range()),
                                 )),
                                 DiffTag::Equal => {}
                             };
@@ -446,6 +465,20 @@ impl Document {
 
         Ok(())
     }
+}
+
+/// Extract a character range from a string
+fn extract_chars(content: &str, range: Range<usize>) -> &str {
+    let start_byte = content
+        .char_indices()
+        .nth(range.start)
+        .map_or_else(|| 0, |(start, ..)| start);
+    let end_byte = content
+        .char_indices()
+        .nth(range.end)
+        .map_or_else(|| content.len(), |(end, ..)| end);
+
+    &content[start_byte..end_byte]
 }
 
 #[cfg(test)]
