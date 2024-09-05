@@ -43,7 +43,6 @@ export class ArticleHeadings extends LitElement {
     const windowHeight = window.innerHeight
     const scrollTop = window.scrollY
 
-    // Adjust scrolling effect if the sidebar's contents exceed the window height
     if (sidebarHeight > windowHeight) {
       const maxScroll = sidebarHeight - windowHeight
       const scrollAmount = Math.min(scrollTop, maxScroll)
@@ -52,14 +51,24 @@ export class ArticleHeadings extends LitElement {
     }
   }
 
+  /**
+   * Resets elements default y position if screen resized
+   */
+  protected handleResize() {
+    const sidebar = this.shadowRoot.querySelector('#sidebar') as HTMLElement
+    sidebar.style.transform = `translateY(0px)`
+  }
+
   override connectedCallback(): void {
     super.connectedCallback()
     window.addEventListener('scroll', this.handleScroll.bind(this))
+    window.addEventListener('resize', this.handleResize.bind(this))
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    window.removeEventListener('scroll', this.handleScroll.bind(this))
+    window.removeEventListener('scroll', this.handleResize.bind(this))
+    window.addEventListener('resize', this.handleResize.bind(this))
   }
 
   /**

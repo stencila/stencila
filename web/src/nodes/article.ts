@@ -64,7 +64,7 @@ export class StencilaArticle extends LitElement {
     super.connectedCallback()
     window.addEventListener(
       'scroll',
-      eventThrottle(this.handleScroll.bind(this), 200)
+      eventThrottle(this.handleScroll.bind(this), 100)
     )
   }
 
@@ -72,7 +72,7 @@ export class StencilaArticle extends LitElement {
     super.disconnectedCallback()
     window.removeEventListener(
       'scroll',
-      eventThrottle(this.handleScroll.bind(this), 150)
+      eventThrottle(this.handleScroll.bind(this), 100)
     )
   }
 
