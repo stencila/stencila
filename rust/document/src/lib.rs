@@ -355,7 +355,7 @@ impl Document {
     }
 
     /// Initialize a document at a path
-    /// 
+    ///
     /// Note that this does not read the document from the path. Use `open`
     /// or `synced` for that.
     fn at(path: &Path) -> Result<Self> {

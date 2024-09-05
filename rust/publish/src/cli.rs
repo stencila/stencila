@@ -15,7 +15,7 @@ use common::{
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The path to the document file or site directory to publish
-    /// 
+    ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
     path: PathBuf,

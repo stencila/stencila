@@ -11,10 +11,10 @@ use format::Format;
 use crate::cli::{DecodeOptions, EncodeOptions, StripOptions};
 
 /// Synchronize a document between formats
-/// 
+///
 /// The direction of synchronization can be specified by appending
 /// the to the file path:
-/// 
+///
 /// - `:in` only sync incoming changes from the file
 /// - `:out` only sync outgoing changes to the file
 /// - `:io` sync incoming and outgoing changes (default)

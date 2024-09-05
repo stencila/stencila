@@ -16,7 +16,7 @@ use server::{get_access_token, ServeOptions};
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The path to the document file or site directory to preview
-    /// 
+    ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
     path: PathBuf,
