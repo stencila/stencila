@@ -383,13 +383,14 @@ figure {
 
         a {
           text-decoration: none;
+          color: rgba(0, 0, 0, 0.5);
 
           &.active {
-            color: rgba(0, 0, 0, 0.5);
+            color: rgba(0, 0, 0, 0.8);
           }
 
-          &:hover:not(.active) {
-            color: blue;
+          &:hover {
+            color: rgb(68, 68, 184);
           }
 
           & stencila-text {
