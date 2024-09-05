@@ -54,20 +54,30 @@ export class StencilaArticle extends LitElement {
    */
   private handleScroll() {
     if (this.headings) {
-      const scrolledHeadingIds: string[] = []
+      const current = []
+      for (const heading of this.headings) {
+        if (heading.isVisible()) {
+          current.push(heading.id)
+        }
+      }
 
-      this.headings.forEach((h) => {
-        if (h.getRectTop() < 0) {
-          scrolledHeadingIds.push(h.id)
+      const existing = this.headingsContext.visibleHeadingIds
+
+      // Efficient comparison of current and existing. Need to
+      // compare all elements, not just first and last, because
+      // there may be new headings in current between first and last.
+      let equal = current.length === existing.length
+      if (equal) {
+        for (let i = 0; i < current.length; i++) {
+          if (current[i] !== existing[i]) {
+            equal = false
+            break
+          }
         }
-      })
-      if (
-        scrolledHeadingIds.length !==
-        this.headingsContext.visibleHeadingIds.length
-      ) {
-        this.headingsContext = {
-          visibleHeadingIds: scrolledHeadingIds,
-        }
+      }
+
+      if (!equal) {
+        this.headingsContext = { visibleHeadingIds: current }
       }
     }
   }

@@ -19,12 +19,19 @@ export class Heading extends Entity {
   level: number
 
   /**
-   * Get the top of the headings bounding client rectangle
-   * 
-   * Used for updating the list of visible headings.
+   * Determine if the heading is currently visible
+   *
+   * Only considers vertical position in the viewport (it is
+   * possible for this method to return `true` but that the heading is
+   * horizontally outside of the viewport).
    */
-  getRectTop() {
-    return this.getBoundingClientRect().top
+  isVisible() {
+    const rect = this.getBoundingClientRect()
+    return (
+      rect.top >= 0 &&
+      rect.bottom <=
+        (window.innerHeight || document.documentElement.clientHeight)
+    )
   }
 
   /**
