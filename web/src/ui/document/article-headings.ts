@@ -34,6 +34,35 @@ export class ArticleHeadings extends LitElement {
   }
 
   /**
+   * Scroll event handler for oversized contents block
+   * it will scroll down with page instead of adding another scrollbar
+   */
+  protected handleScroll() {
+    const sidebar = this.shadowRoot.querySelector('#sidebar') as HTMLElement
+    const sidebarHeight = sidebar.scrollHeight
+    const windowHeight = window.innerHeight
+    const scrollTop = window.scrollY
+
+    // Adjust scrolling effect if the sidebar's contents exceed the window height
+    if (sidebarHeight > windowHeight) {
+      const maxScroll = sidebarHeight - windowHeight
+      const scrollAmount = Math.min(scrollTop, maxScroll)
+
+      sidebar.style.transform = `translateY(-${scrollAmount}px)`
+    }
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+    window.addEventListener('scroll', this.handleScroll.bind(this))
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    window.removeEventListener('scroll', this.handleScroll.bind(this))
+  }
+
+  /**
    * Assigns the `headerNav` property when the nav element on slot change
    */
   handleSlotChange(e: Event) {
@@ -51,14 +80,14 @@ export class ArticleHeadings extends LitElement {
       'hidden lg:block',
       'fixed top-0 right-0',
       'pt-10',
-      'h-screen w-[200px]',
-      'overflow-y-auto',
-      'border-l border-black/20',
+      'w-[200px]',
     ])
 
     return html`
-      <div class=${containerClasses}>
-        <slot @slotchange=${this.handleSlotChange}></slot>
+      <div id="sidebar" class=${containerClasses}>
+        <div class="sticky top-0 border-l border-black/20">
+          <slot @slotchange=${this.handleSlotChange}></slot>
+        </div>
       </div>
     `
   }
