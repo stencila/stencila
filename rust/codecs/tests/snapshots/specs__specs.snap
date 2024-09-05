@@ -92,13 +92,15 @@ expression: specs
   "json": {
     "status": "stable",
     "supports_from_formats": {
-      "json": "NoLoss"
+      "json": "NoLoss",
+      "json.zip": "NoLoss"
     },
-    "supports_from_bytes": false,
+    "supports_from_bytes": true,
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
-      "json": "NoLoss"
+      "json": "NoLoss",
+      "json.zip": "NoLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,

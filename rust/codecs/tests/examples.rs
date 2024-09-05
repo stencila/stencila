@@ -156,6 +156,13 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
+            String::from("json.zip"),
+            FormatConfig {
+                format: Format::JsonZip,
+                ..Default::default()
+            },
+        ),
+        (
             String::from("jats.xml"),
             FormatConfig {
                 format: Format::Jats,
@@ -381,7 +388,7 @@ async fn examples() -> Result<()> {
                     ..config.encode.options.clone()
                 });
 
-                if codec.supports_to_string() {
+                if codec.supports_to_string() && !matches!(config.format, Format::JsonZip) {
                     // Encode to string
                     let (mut actual, EncodeInfo { losses, mapping }) =
                         codec.to_string(&original, encode_options).await?;

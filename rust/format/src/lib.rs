@@ -55,6 +55,7 @@ pub enum Format {
     Css,
     // Data serialization formats
     Json,
+    JsonZip,
     Json5,
     JsonLd,
     Cbor,
@@ -115,6 +116,7 @@ impl Format {
             Jinja => "Jinja",
             Jpeg => "JPEG",
             Json => "JSON",
+            JsonZip => "JSON+Zip",
             Json5 => "JSON5",
             JsonLd => "JSON-LD",
             Latex => "LaTeX",
@@ -211,6 +213,7 @@ impl Format {
             "jinja" => Jinja,
             "jpeg" => Jpeg,
             "json" => Json,
+            "jsonzip" | "json.zip" => JsonZip,
             "json5" => Json5,
             "jsonld" | "json-ld" => JsonLd,
             "latex" => Latex,
@@ -256,6 +259,9 @@ impl Format {
         if path_string.ends_with(".jats.xml") {
             return Format::Jats;
         }
+        if path_string.ends_with(".json.zip") {
+            return Format::JsonZip;
+        }
         if path_string.ends_with(".cbor.zst") {
             return Format::CborZst;
         }
@@ -289,6 +295,7 @@ impl Format {
             "application/cbor" => Ok(Cbor),
             "application/cbor+zstd" => Ok(CborZst),
             "application/json" => Ok(Json),
+            "application/json+zip" => Ok(JsonZip),
             "application/ld+json" => Ok(JsonLd),
             "application/yaml" => Ok(Yaml),
             "text/jats+xml" => Ok(Jats),
@@ -314,6 +321,7 @@ impl Format {
             Cbor => "application/cbor".to_string(),
             CborZst => "application/cbor+zstd".to_string(),
             Json => "application/json".to_string(),
+            JsonZip => "application/json+zip".to_string(),
             JsonLd => "application/ld+json".to_string(),
             Yaml => "application/yaml".to_string(),
             Jats => "text/jats+xml".to_string(),
@@ -370,6 +378,7 @@ impl Display for Format {
             Jinja => "jinja",
             Jpeg => "jpeg",
             Json => "json",
+            JsonZip => "json.zip",
             Json5 => "json5",
             JsonLd => "jsonld",
             Latex => "latex",
