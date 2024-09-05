@@ -34,10 +34,16 @@ export const documentContext =
   createContext<DocumentContext>('document-context')
 
 /**
- * Context object for having a list of the heading scolled past the window
+ * Context containing the ids of headings currently in the viewport
+ *
+ * Provided by the `<stencila-article>` component and consumed by the
+ * `<stencila-ui-article-headings>` component to indicate the headings currently
+ * in the viewport.
  */
-export type TOCContext = {
-  scrolledHeadingIds: string[]
+export type DocumentHeadingsContext = {
+  visibleHeadingIds: string[]
 }
 
-export const tocContext = createContext<TOCContext>('heading-nav-context')
+export const documentHeadingsContext = createContext<DocumentHeadingsContext>(
+  'document-headings-context'
+)

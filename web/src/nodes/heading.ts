@@ -19,7 +19,9 @@ export class Heading extends Entity {
   level: number
 
   /**
-   * returns the top of the bounding client rect
+   * Get the top of the headings bounding client rectangle
+   * 
+   * Used for updating the list of visible headings.
    */
   getRectTop() {
     return this.getBoundingClientRect().top
@@ -30,8 +32,6 @@ export class Heading extends Entity {
    * a node card that is shown on demand.
    */
   override render() {
-    // TODO: Add summary stats to card
-
     return html`
       <stencila-ui-block-on-demand type="Heading" node-id=${this.id}>
         <div slot="body">

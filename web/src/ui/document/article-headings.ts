@@ -5,27 +5,42 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
-import { TOCContext, tocContext } from './context'
+import { DocumentHeadingsContext, documentHeadingsContext } from './context'
 
 @customElement('stencila-ui-article-headings')
 @withTwind()
 export class ArticleHeadings extends LitElement {
-  @consume({ context: tocContext, subscribe: true })
+  /**
+   * The context containing the list of visible headings
+   */
+  @consume({ context: documentHeadingsContext, subscribe: true })
   @state()
-  context: TOCContext
+  context: DocumentHeadingsContext
 
-  headerNav: Element | HTMLElement | null = null
+  /**
+   * The <nav> element inside the <slot> which contains the
+   * nested list of links to headings.
+   */
+  navElem: Element | HTMLElement | null = null
 
+  /**
+   * Override to handle changes in which headings are visible, setting
+   * class accordingly.
+   *
+   * This needs to be done here, rather than as part of the `render`
+   * method, because this component does not control rendering of
+   * elements within the `navElement`
+   */
   protected override update(changedProperties: PropertyValues): void {
     super.update(changedProperties)
 
     if (changedProperties.has('context')) {
-      if (this.headerNav) {
-        this.headerNav.querySelectorAll('a').forEach((a) => {
+      if (this.navElem) {
+        this.navElem.querySelectorAll('a').forEach((a) => {
           const hrefSplit = a.href.split('#')
           const target = hrefSplit[hrefSplit.length - 1]
 
-          if (this.context.scrolledHeadingIds.includes(target)) {
+          if (this.context.visibleHeadingIds.includes(target)) {
             a.classList.add('active')
           } else {
             a.classList.remove('active')
@@ -77,12 +92,12 @@ export class ArticleHeadings extends LitElement {
    * Assigns the `headerNav` property when the nav element on slot change
    */
   handleSlotChange(e: Event) {
-    const navEl = (e.target as HTMLSlotElement).assignedElements({
+    const navElem = (e.target as HTMLSlotElement).assignedElements({
       flatten: true,
     })[0]
 
-    if (navEl && navEl.tagName.toLowerCase() === 'nav') {
-      this.headerNav = navEl
+    if (navElem && navElem.tagName.toLowerCase() === 'nav') {
+      this.navElem = navElem
     }
   }
 

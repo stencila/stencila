@@ -3,7 +3,10 @@ import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { TOCContext, tocContext } from '../ui/document/context'
+import {
+  DocumentHeadingsContext,
+  documentHeadingsContext,
+} from '../ui/document/context'
 import { eventThrottle } from '../utilities/throttle'
 
 import { Heading } from './heading'
@@ -15,31 +18,39 @@ import '../ui/document/article-headings'
 @withTwind()
 export class StencilaArticle extends LitElement {
   /**
-   * context provider for the TOC
+   * Context provider for the article's `headings` navigation (TOC)
+   *
+   * Maintains a list of ids of the headings that are currently
+   * in the viewport to enable highlighting of those headings
+   * in the `<stencila-ui-article-headings>` component.
+   *
+   * See the `handleScroll` method for where this list is updated.
    */
-  @provide({ context: tocContext })
-  tocContext: TOCContext = { scrolledHeadingIds: [] }
+  @provide({ context: documentHeadingsContext })
+  headingsContext: DocumentHeadingsContext = { visibleHeadingIds: [] }
 
   /**
-   * Array of all the `stencila-headings` in the document
+   * Array of all the `<stencila-heading>` elements in the article
+   *
+   * Used to update the `visibleHeadingIds` in the `headingsContext`.
    */
   headings: Heading[] | null
 
   /**
-   * Set/reset the headings property if content slot changes
+   * Update the `headings` property on content slot changes
    */
   protected handleContentSlotChange() {
-    const headers = this.querySelectorAll(
+    const headings = this.querySelectorAll(
       'stencila-heading'
     ) as NodeListOf<Heading>
 
-    if (headers.length > 0) {
-      this.headings = Array.from(headers)
+    if (headings.length > 0) {
+      this.headings = Array.from(headings)
     }
   }
 
   /**
-   * scroll event to track which headings have been scolled past
+   * Handle scroll events to update which headings are visible
    */
   private handleScroll() {
     if (this.headings) {
@@ -51,10 +62,11 @@ export class StencilaArticle extends LitElement {
         }
       })
       if (
-        scrolledHeadingIds.length !== this.tocContext.scrolledHeadingIds.length
+        scrolledHeadingIds.length !==
+        this.headingsContext.visibleHeadingIds.length
       ) {
-        this.tocContext = {
-          scrolledHeadingIds,
+        this.headingsContext = {
+          visibleHeadingIds: scrolledHeadingIds,
         }
       }
     }
@@ -91,7 +103,6 @@ export class StencilaArticle extends LitElement {
         </stencila-ui-authors-provenance>
       </aside>
 
-      <!-- TODO: <stencila-ui-article-headings> component -->
       <stencila-ui-article-headings>
         <slot name="headings"></slot>
       </stencila-ui-article-headings>
