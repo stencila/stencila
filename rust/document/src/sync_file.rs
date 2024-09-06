@@ -7,6 +7,7 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+use format::Format;
 use notify::{EventKind, RecursiveMode, Watcher};
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -126,6 +127,10 @@ impl Document {
 
             // An async task to handle the file watcher events by reading the file
             let path_buf = path.to_path_buf();
+            let format = decode_options
+                .as_ref()
+                .and_then(|options| options.format.clone())
+                .or_else(|| Some(Format::from_path(&path)));
             let update_sender = self.update_sender.clone();
             tokio::spawn(async move {
                 const DEBOUNCE_DELAY_MILLIS: u64 = 100;
@@ -167,9 +172,8 @@ impl Document {
                     match codecs::from_path(&path_buf, decode_options.clone()).await {
                         Ok(node) => {
                             if let Err(error) = update_sender
-                                // TODO: update `format` should be based on the `path` & `decode_options`
-                                // and `authors` should use the local user
-                                .send(Update::new(node, None, None))
+                                // TODO: `authors` should use the local user
+                                .send(Update::new(node, format.clone(), None))
                                 .await
                             {
                                 tracing::error!("While sending node update: {error}");
