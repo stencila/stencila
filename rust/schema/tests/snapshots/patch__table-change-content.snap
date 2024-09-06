@@ -289,7 +289,7 @@ merged:
     - type: ProvenanceCount
       provenanceCategory: HwHe
       characterCount: 1
-      characterPercent: 1
+      characterPercent: 2
   content:
     - type: Table
       authors:
@@ -313,7 +313,7 @@ merged:
         - type: ProvenanceCount
           provenanceCategory: HwHe
           characterCount: 1
-          characterPercent: 1
+          characterPercent: 2
       rows:
         - type: TableRow
           cells:
@@ -425,7 +425,7 @@ merged:
                     - type: ProvenanceCount
                       provenanceCategory: Hw
                       characterCount: 2
-                      characterPercent: 66
+                      characterPercent: 67
                     - type: ProvenanceCount
                       provenanceCategory: HwHe
                       characterCount: 1

@@ -129,39 +129,56 @@ impl PatchContext {
     }
 
     /// Update the provenance of a node
+    ///
+    /// This takes care to update the counts and percentages in existing `ProvenanceCount`
+    /// objects, rather than allocating new ones (which results in new ids and a large
+    /// number of diffs when syncing to the browser)
     pub fn update_provenance(
         provenance: &mut Option<Vec<ProvenanceCount>>,
         children: Vec<Option<Vec<ProvenanceCount>>>,
     ) {
-        // Aggregate counts from children
-        let mut new: Vec<ProvenanceCount> = Vec::new();
+        // Reset any existing counts to zero
+        for existing in provenance.iter_mut().flatten() {
+            existing.character_count = 0;
+        }
+
+        // Sum counts from children
         let mut sum: u64 = 0;
         for child in children.into_iter().flatten().flatten() {
             sum += child.character_count;
-            if let Some(entry) = new
+            if let Some(existing) = provenance
                 .iter_mut()
+                .flatten()
                 .find(|count| count.provenance_category == child.provenance_category)
             {
-                entry.character_count += child.character_count;
+                existing.character_count += child.character_count;
+            } else if let Some(provenance) = provenance {
+                provenance.push(child);
             } else {
-                new.push(child);
+                *provenance = Some(vec![child]);
             }
         }
 
-        // Calculate percentages
-        if sum > 0 {
-            for entry in new.iter_mut() {
-                entry.character_percent = Some(((entry.character_count * 100) / sum).min(100));
+        if sum == 0
+            || provenance
+                .as_ref()
+                .map(|counts| counts.is_empty())
+                .unwrap_or(true)
+        {
+            // Set provenance to None
+            *provenance = None;
+        } else if let Some(provenance) = provenance {
+            // Calculate percentages
+            for entry in provenance.iter_mut() {
+                entry.character_percent = Some(
+                    ((entry.character_count as f64) * 100.0 / (sum as f64))
+                        .round()
+                        .min(100.0) as u64,
+                );
             }
+            // Remove any entries with zero count
+            provenance.retain(|entry| entry.character_count > 0);
         }
-
-        // Set the provenance if any. If no characters e.g. empty code chunk
-        // then return None
-        *provenance = if new.is_empty() || sum == 0 {
-            None
-        } else {
-            Some(new)
-        };
     }
 
     /// Flatten the results from calling provenance on several fields

@@ -76,7 +76,7 @@ merged:
     - type: ProvenanceCount
       provenanceCategory: Hw
       characterCount: 294
-      characterPercent: 98
+      characterPercent: 99
     - type: ProvenanceCount
       provenanceCategory: HwHe
       characterCount: 3
@@ -135,7 +135,7 @@ merged:
         - type: ProvenanceCount
           provenanceCategory: Hw
           characterCount: 96
-          characterPercent: 96
+          characterPercent: 97
         - type: ProvenanceCount
           provenanceCategory: HwHe
           characterCount: 3
