@@ -1,8 +1,8 @@
+use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
-
 use node_strip::{StripNode, StripTargets};
 
-use crate::{prelude::*, Article, Author, Inline};
+use crate::{prelude::*, Article, Author};
 
 impl Article {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -58,14 +58,10 @@ impl MarkdownCodec for Article {
             properties: vec![],
         });
 
-        // If the title is a single text node then simplify it to a YAML string
+        // If there is a title, represent it as Markdown
         let mut title_string: Option<String> = None;
         if let Some(title) = &header.title {
-            if title.len() == 1 {
-                if let Some(Inline::Text(text)) = title.first() {
-                    title_string = Some(text.value.to_string())
-                }
-            }
+            title_string = Some(to_markdown(title))
         }
 
         // Unwrap `AuthorRoles`. These can be added when the document is authored
