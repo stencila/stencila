@@ -134,6 +134,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     || matches!(context.format, Some(Format::Markdown))
                 })
             }
+            if field_attr.formats.contains(&"myst".to_string()) {
+                condition.extend(quote! {
+                    || matches!(context.format, Some(Format::Myst))
+                })
+            }
             condition
         };
 
