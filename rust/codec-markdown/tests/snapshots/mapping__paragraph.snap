@@ -28,7 +28,7 @@ provenance:
   - type: ProvenanceCount
     provenanceCategory: HwHe
     characterCount: 11
-    characterPercent: 84
+    characterPercent: 85
 content:
   - type: Paragraph
     content:
@@ -73,4 +73,4 @@ content:
       - type: ProvenanceCount
         provenanceCategory: HwHe
         characterCount: 11
-        characterPercent: 84
+        characterPercent: 85
