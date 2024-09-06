@@ -4,9 +4,20 @@ use crate::{prelude::*, Link};
 
 impl DomCodec for Link {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .enter_elem_attrs("a", [("href", &self.target)]);
+        context.enter_node(self.node_type(), self.node_id());
+
+        // `target` and `id` properties are placed on the node element
+        // for use by web components
+    
+        context.push_attr("target", &self.target);
+
+        if let Some(id) = &self.id {
+            context.push_attr("@id", id);
+        }
+
+        // `target` (as `href`) and other standard HTML attributes put on inner <a> tag
+
+        context.enter_elem_attrs("a", [("href", &self.target)]);
 
         if let Some(title) = &self.title {
             context.push_attr("title", title);
@@ -14,10 +25,6 @@ impl DomCodec for Link {
 
         if let Some(rel) = &self.rel {
             context.push_attr("rel", rel);
-        }
-
-        if let Some(id) = &self.id {
-            context.push_attr("@id", id);
         }
 
         context

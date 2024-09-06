@@ -116,6 +116,9 @@ pub struct DomEncodeContext {
     /// The names of the current stack of HTML elements
     elements: Vec<String>,
 
+    /// The levels and ids of the current stack of `Heading` nodes
+    headings: Vec<(i64, NodeId)>,
+
     /// The CSS classes in the document
     css: HashMap<String, String>,
 
@@ -197,6 +200,25 @@ impl DomEncodeContext {
     pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
         let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
         self.enter_node_elem(&name, node_type, node_id)
+    }
+
+    /// Enter a heading by adding `<stencila-heading-end>` custom elements for
+    /// any previous elements that have a level equal to or greater than the
+    /// heading being entered into
+    pub fn enter_heading(&mut self, level: i64, node_id: NodeId) -> &mut Self {
+        while let Some((prev_level, ..)) = self.headings.last() {
+            if prev_level < &level {
+                break;
+            }
+
+            let (.., node_id) = self.headings.pop().expect("checked in parent if");
+            self.enter_elem_attrs("stencila-heading-end", [("heading", &node_id.to_string())])
+                .exit_elem();
+        }
+
+        self.headings.push((level, node_id.clone()));
+
+        self.enter_node(NodeType::Heading, node_id)
     }
 
     /// Push an attribute onto the current element
