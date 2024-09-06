@@ -195,11 +195,10 @@ impl HeadingInfo {
                 while let Some(mut previous) = headings.pop() {
                     if let Some(child) = children.last() {
                         if previous.level < child.level {
-                            children.reverse();
                             previous.children.append(&mut children);
                         }
                     }
-                    children.push(previous);
+                    children.insert(0, previous);
 
                     if let Some(last) = headings.last() {
                         if level >= last.level {

@@ -32,7 +32,7 @@ impl Heading {
 impl DomCodec for Heading {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context
-            .enter_node(self.node_type(), self.node_id())
+            .enter_heading(self.level, self.node_id())
             .push_id(&self.id)
             .push_attr("level", &self.level.to_string())
             .push_slot_fn(

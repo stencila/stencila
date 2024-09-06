@@ -395,9 +395,13 @@ async fn examples() -> Result<()> {
 
                     // If DOM HTML redact ids since these will change between test runs
                     if config.format == Format::Dom {
-                        static REGEX: Lazy<Regex> =
+                        static ID_REGEX: Lazy<Regex> =
                             Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
-                        actual = REGEX.replace_all(&actual, " id=xxx").to_string();
+                        static HEADING_REGEX: Lazy<Regex> =
+                            Lazy::new(|| Regex::new(r" heading=[a-z]{3}_\w+").expect("invalid_regex"));
+
+                        actual = ID_REGEX.replace_all(&actual, " id=xxx").to_string();
+                        actual = HEADING_REGEX.replace_all(&actual, " heading=xxx").to_string();
                     }
 
                     if file.exists() {

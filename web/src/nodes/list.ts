@@ -5,6 +5,8 @@ import '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance/provenance'
 
+import { getClosest } from '../utilities/getClosest'
+
 import { Entity } from './entity'
 
 /**
@@ -14,12 +16,11 @@ import { Entity } from './entity'
  */
 @customElement('stencila-list')
 export class List extends Entity {
-  /**
-   * render the `items`, `authors` and summary stats in
-   * a node card that is shown on demand.
-   */
   override render() {
-    // TODO: Add summary stats to card
+    // Do not render a node card for headings slot
+    if (getClosest(this, 'nav[slot=headings]')) {
+      return html` <slot name="items"></slot> `
+    }
 
     return html`
       <stencila-ui-block-on-demand
