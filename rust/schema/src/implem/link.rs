@@ -8,7 +8,7 @@ impl DomCodec for Link {
 
         // `target` and `id` properties are placed on the node element
         // for use by web components
-    
+
         context.push_attr("target", &self.target);
 
         if let Some(id) = &self.id {

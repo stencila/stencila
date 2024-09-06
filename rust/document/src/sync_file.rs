@@ -130,7 +130,7 @@ impl Document {
             let format = decode_options
                 .as_ref()
                 .and_then(|options| options.format.clone())
-                .or_else(|| Some(Format::from_path(&path)));
+                .or_else(|| Some(Format::from_path(path)));
             let update_sender = self.update_sender.clone();
             tokio::spawn(async move {
                 const DEBOUNCE_DELAY_MILLIS: u64 = 100;

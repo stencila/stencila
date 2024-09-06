@@ -397,11 +397,14 @@ async fn examples() -> Result<()> {
                     if config.format == Format::Dom {
                         static ID_REGEX: Lazy<Regex> =
                             Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
-                        static HEADING_REGEX: Lazy<Regex> =
-                            Lazy::new(|| Regex::new(r" heading=[a-z]{3}_\w+").expect("invalid_regex"));
+                        static HEADING_REGEX: Lazy<Regex> = Lazy::new(|| {
+                            Regex::new(r" heading=[a-z]{3}_\w+").expect("invalid_regex")
+                        });
 
                         actual = ID_REGEX.replace_all(&actual, " id=xxx").to_string();
-                        actual = HEADING_REGEX.replace_all(&actual, " heading=xxx").to_string();
+                        actual = HEADING_REGEX
+                            .replace_all(&actual, " heading=xxx")
+                            .to_string();
                     }
 
                     if file.exists() {
