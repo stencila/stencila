@@ -26,6 +26,7 @@ use node_execute::ExecuteOptions;
 use schema::{Article, AuthorRole, Node, NodeId, Patch};
 
 mod sync_directory;
+mod sync_dom;
 mod sync_file;
 mod sync_format;
 mod sync_object;

@@ -605,6 +605,8 @@ async fn websocket_handler(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
         websocket_object_protocol(ws, doc, capability).await;
     } else if format == "directory" {
         websocket_directory_protocol(ws, doc, capability, dir).await;
+    } else if format == "dom" {
+        websocket_dom_protocol(ws, doc).await;
     } else {
         websocket_format_protocol(ws, doc, capability, format).await;
     }
@@ -657,6 +659,21 @@ async fn websocket_directory_protocol(
     }
 }
 
+/// Handle a WebSocket connection using the "dom" protocol
+#[tracing::instrument(skip(ws, doc))]
+async fn websocket_dom_protocol(ws: WebSocket, doc: Arc<Document>) {
+    tracing::trace!("WebSocket `dom` protocol connection");
+
+    let (ws_sender, ..) = ws.split();
+
+    let (out_sender, out_receiver) = channel(1024);
+    send_websocket_messages(out_receiver, ws_sender);
+
+    if let Err(error) = doc.sync_dom(Some(out_sender)).await {
+        tracing::error!("While syncing DOM for WebSocket client: {error}")
+    }
+}
+
 /// Handle a WebSocket connection using a "format" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn websocket_format_protocol(
@@ -682,18 +699,8 @@ async fn websocket_format_protocol(
         ..Default::default()
     };
 
-    // For some formats, specifically DOM HTML, use the format's default
-    // for compact. For most formats (e.g. JSON) turn off compact. for prettier,
-    // indented encodings.
-    let compact = if matches!(format, Some(Format::Dom)) {
-        None
-    } else {
-        Some(false)
-    };
-
     let encode_options = EncodeOptions {
         format,
-        compact,
         ..Default::default()
     };
 
