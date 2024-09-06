@@ -383,18 +383,20 @@ figure {
 
         a {
           text-decoration: none;
-          color: rgba(0, 0, 0, 0.5);
+          font-weight: 600;
 
-          &.active {
-            color: rgba(0, 0, 0, 0.8);
-          }
+          color: rgba(0, 0, 0, 0.5);
 
           &:hover {
             color: rgb(68, 68, 184);
           }
+        }
 
-          & stencila-text {
-            font-weight: 600;
+        stencila-link[active] a {
+          color: rgba(0, 0, 0, 0.8);
+
+          &:hover {
+            color: rgb(36, 36, 165);
           }
         }
       }

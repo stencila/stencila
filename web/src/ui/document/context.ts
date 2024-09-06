@@ -1,5 +1,7 @@
 import { createContext } from '@lit/context'
 
+import { NodeId } from '../../types'
+
 /**
  * Alternative states for the display of node chips
  *
@@ -34,15 +36,15 @@ export const documentContext =
   createContext<DocumentContext>('document-context')
 
 /**
- * Context containing the ids of headings currently in the viewport
+ * Context containing a record of whether the start and end of a
+ * section delimited by a heading are above (1), within (0), or below (-1) the
+ * viewport.
  *
  * Provided by the `<stencila-article>` component and consumed by the
- * `<stencila-ui-article-headings>` component to indicate the headings currently
+ * `<stencila-link>` component to indicate the sections currently
  * in the viewport.
  */
-export type DocumentHeadingsContext = {
-  visibleHeadingIds: string[]
-}
+export type DocumentHeadingsContext = Record<NodeId, [number, number]>
 
 export const documentHeadingsContext = createContext<DocumentHeadingsContext>(
   'document-headings-context'

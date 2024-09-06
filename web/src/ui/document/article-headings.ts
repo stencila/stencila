@@ -1,55 +1,12 @@
-import { consume } from '@lit/context'
 import { apply } from '@twind/core'
-import { html, LitElement, PropertyValues } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
-
-import { DocumentHeadingsContext, documentHeadingsContext } from './context'
 
 @customElement('stencila-ui-article-headings')
 @withTwind()
 export class ArticleHeadings extends LitElement {
-  /**
-   * The context containing the list of visible headings
-   */
-  @consume({ context: documentHeadingsContext, subscribe: true })
-  @state()
-  context: DocumentHeadingsContext
-
-  /**
-   * The <nav> element inside the <slot> which contains the
-   * nested list of links to headings.
-   */
-  navElem: Element | HTMLElement | null = null
-
-  /**
-   * Override to handle changes in which headings are visible, setting
-   * class accordingly.
-   *
-   * This needs to be done here, rather than as part of the `render`
-   * method, because this component does not control rendering of
-   * elements within the `navElement`
-   */
-  protected override update(changedProperties: PropertyValues): void {
-    super.update(changedProperties)
-
-    if (changedProperties.has('context')) {
-      if (this.navElem) {
-        this.navElem.querySelectorAll('a').forEach((a) => {
-          const hrefSplit = a.href.split('#')
-          const target = hrefSplit[hrefSplit.length - 1]
-
-          if (this.context.visibleHeadingIds.includes(target)) {
-            a.classList.add('active')
-          } else {
-            a.classList.remove('active')
-          }
-        })
-      }
-    }
-  }
-
   /**
    * Scroll event handler for oversized contents block
    * it will scroll down with page instead of adding another scrollbar
@@ -84,21 +41,8 @@ export class ArticleHeadings extends LitElement {
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    window.removeEventListener('scroll', this.handleResize.bind(this))
-    window.addEventListener('resize', this.handleResize.bind(this))
-  }
-
-  /**
-   * Assigns the `headerNav` property when the nav element on slot change
-   */
-  handleSlotChange(e: Event) {
-    const navElem = (e.target as HTMLSlotElement).assignedElements({
-      flatten: true,
-    })[0]
-
-    if (navElem && navElem.tagName.toLowerCase() === 'nav') {
-      this.navElem = navElem
-    }
+    window.removeEventListener('scroll', this.handleScroll.bind(this))
+    window.removeEventListener('resize', this.handleResize.bind(this))
   }
 
   protected override render() {
@@ -111,8 +55,8 @@ export class ArticleHeadings extends LitElement {
 
     return html`
       <div id="sidebar" class=${containerClasses}>
-        <div class="sticky top-0 border-l border-black/20">
-          <slot @slotchange=${this.handleSlotChange}></slot>
+        <div class="sticky top-0">
+          <slot></slot>
         </div>
       </div>
     `
