@@ -32,13 +32,14 @@ impl Executable for Article {
         // with the path to headings and send a patch if necessary
         match diff(&self.headings, &headings, None, None) {
             Ok(mut patch) => {
+                patch.node_id = Some(node_id);
                 if !patch.ops.is_empty() {
                     patch.prepend_paths(vec![PatchSlot::Property(NodeProperty::Headings)]);
                     executor.send_patch(patch);
                 }
             }
             Err(error) => {
-                tracing::error!("While diffing article heading: {error}")
+                tracing::error!("While diffing article headings: {error}")
             }
         }
 
