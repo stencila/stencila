@@ -54,9 +54,9 @@ impl MarkdownCodec for Article {
                 StripScope::Code,
                 StripScope::Output,
             ],
-            types: vec![],
-            properties: vec![],
+            ..Default::default()
         });
+        header.headings = None;
 
         // If there is a title, represent it as Markdown
         let mut title_string: Option<String> = None;
