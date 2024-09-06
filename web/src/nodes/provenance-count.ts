@@ -5,7 +5,7 @@ import {
   provenanceCategories,
 } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
@@ -75,16 +75,20 @@ export class ProvenanceCount extends Entity {
     </div>`
   }
 
-  override firstUpdated() {
+  override firstUpdated(changedProperties: PropertyValues) {
+    super.firstUpdated(changedProperties)
+
     const tooltip = this.tooltipText()
 
-    this.buttonRef.value.addEventListener('mouseover', () => {
-      this.tooltipRef.value.open = tooltip !== undefined
-    })
+    if (this.buttonRef.value) {
+      this.buttonRef.value.addEventListener('mouseover', () => {
+        this.tooltipRef.value.open = tooltip !== undefined
+      })
 
-    this.buttonRef.value.addEventListener('mouseout', () => {
-      this.tooltipRef.value.open = false
-    })
+      this.buttonRef.value.addEventListener('mouseout', () => {
+        this.tooltipRef.value.open = false
+      })
+    }
   }
 
   private tooltipText() {
