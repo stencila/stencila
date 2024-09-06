@@ -35,7 +35,6 @@ export class StencilaArticle extends LitElement {
   handleHeadingVisibility({
     detail: { id, position, isEnd },
   }: CustomEvent<HeadingVisibilityEvent>) {
-    console.log(id, position, isEnd)
     const visibility = this.headingsContext[id] ?? [-1, -1]
     visibility[isEnd ? 1 : 0] = position
     this.headingsContext = { ...this.headingsContext, [id]: visibility }

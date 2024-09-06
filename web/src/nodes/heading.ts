@@ -39,9 +39,7 @@ export class Heading extends Entity {
     config: {
       threshold: 0.5,
     },
-    callback: ([entry]) => {
-      console.log(entry.boundingClientRect)
-
+    callback: ([entry]) =>
       this.dispatchEvent(
         new CustomEvent<HeadingVisibilityEvent>(HEADING_VISIBILITY_EVENT, {
           bubbles: true,
@@ -55,8 +53,7 @@ export class Heading extends Entity {
             isEnd: false,
           },
         })
-      )
-    },
+      ),
   })
 
   /**
