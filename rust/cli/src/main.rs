@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
 
     prompts::update_builtin();
 
-    let skip_upgrade = matches!(cli.command, Command::Lsp);
+    let skip_upgrade = matches!(cli.command, Command::Lsp | Command::Upgrade(..));
     if !skip_upgrade {
         upgrade::check(false);
     }
