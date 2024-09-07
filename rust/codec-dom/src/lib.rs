@@ -56,7 +56,7 @@ impl Codec for DomCodec {
 
         // Add the root attribute to the root node
         // (the first opening tag)
-        let mut dom = context.get_content();
+        let mut dom = context.content();
         if let Some(pos) = dom.find('>') {
             dom.insert_str(pos, " root");
         }
@@ -77,7 +77,7 @@ impl Codec for DomCodec {
                 })
                 .join("\n    ");
 
-            let style = context.get_style();
+            let style = context.style();
 
             format!(
                 r#"<!DOCTYPE html>
