@@ -69,6 +69,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let mut diff_fields = TokenStream::new();
     let mut patch_fields = TokenStream::new();
     let mut apply_fields = TokenStream::new();
+    let mut apply_verify_fields = TokenStream::new();
     type_attr.data.map_struct_fields(|field_attr| {
         let Some(field_name) = field_attr.ident else {
             return;
@@ -117,6 +118,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             NodeProperty::#property => {
                 self.#field_name.apply(path, op, context)?;
             },
+        });
+        apply_verify_fields.extend(quote! {
+            self.#field_name.apply(path, op.clone(), context)?;
         });
 
         // Diffing related methods are conditionally implemented based on the format
@@ -322,7 +326,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
                 #call_update_authors
 
-                if !matches!(op, PatchOp::Nothing) {
+                if matches!(op, PatchOp::Verify) {
+                    #apply_verify_fields;
+                } else if !matches!(op, PatchOp::Nothing) {
                     let Some(PatchSlot::Property(property)) = path.pop_front() else {
                         bail!("Invalid patch path for `{}`", stringify!(#struct_name));
                     };
@@ -412,11 +418,13 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 Ok(false)
             },
             quote! {
-                if let PatchOp::Set(value) = op {
+                if matches!(op, PatchOp::Verify) {
+                    Ok(())
+                } else if let PatchOp::Set(value) = op {
                     *self = Self::from_value(value)?;
                     Ok(())
                 } else {
-                    bail!("Invalid op for `{}`", stringify!(#enum_name));
+                    bail!("Invalid op for enum `{}`", stringify!(#enum_name));
                 }
             },
         )

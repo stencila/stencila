@@ -9,10 +9,10 @@ use async_lsp::{
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
-use schema::{NodeType, ProvenanceCategory};
+use schema::NodeType;
 
 use crate::{
-    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, REVISE_NODE, RUN_NODE},
+    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE},
     text_document::TextNode,
 };
 
@@ -95,16 +95,23 @@ pub(crate) async fn request(
                     if !matches!(node_type, NodeType::InstructionBlock)
                         && !matches!(parent_type, NodeType::ListItem)
                     {
-                        let percent = provenance.iter().fold(0u64, |sum, prov| {
-                            use ProvenanceCategory::*;
-                            if matches!(prov.provenance_category, Mw | MwMe | MwMv | MwMeMv) {
+                        let machine_percent = provenance.iter().fold(0u64, |sum, prov| {
+                            if prov.provenance_category.is_machine_written() {
+                                sum + prov.character_percent.unwrap_or_default()
+                            } else {
+                                sum
+                            }
+                        });
+                        let verified_percent = provenance.iter().fold(0u64, |sum, prov| {
+                            if prov.provenance_category.is_verified() {
                                 sum + prov.character_percent.unwrap_or_default()
                             } else {
                                 sum
                             }
                         });
 
-                        if percent > 0 {
+                        if machine_percent > 0 {
+                            lenses.push(lens(VERIFY_NODE));
                             lenses.push(CodeLens {
                                 range: *range,
                                 command: None,
@@ -113,7 +120,9 @@ pub(crate) async fn request(
                                     uri,
                                     node_type,
                                     node_id,
-                                    format!("$(hubot) {percent}%")
+                                    format!(
+                                        "$(hubot) {machine_percent}%  $(check) {verified_percent}%"
+                                    )
                                 ])),
                             });
                         }
@@ -154,6 +163,7 @@ pub(crate) async fn resolve(
     let mut arguments = Some(vec![json!(uri), json!(node_type), json!(node_id)]);
 
     let command = match command.as_str() {
+        VERIFY_NODE => Command::new("$(pass) Verify".to_string(), command, arguments),
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
         ACCEPT_NODE | REJECT_NODE | REVISE_NODE => {

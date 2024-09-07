@@ -9,8 +9,8 @@ use node_store::{
 
 use crate::{
     cord_provenance::{
-        category, display, human_edited, human_written, machine_edited, machine_influence,
-        machine_written,
+        category, display, human_edited, human_verified, human_written, machine_edited,
+        machine_influence, machine_verified, machine_written,
     },
     prelude::*,
     Cord, CordAuthorship, CordOp, ProvenanceCount,
@@ -41,7 +41,7 @@ impl Cord {
     /// Update the authors in an authorship run in the cord
     ///
     /// Return `None` if there is no update. Otherwise return updated
-    /// count, authors and mi.
+    /// count, authors and provenance.
     pub fn update_authors(
         count: u8,
         mut authors: u64,
@@ -615,7 +615,7 @@ impl Cord {
         self.check_runs()
     }
 
-    // Apply operations
+    /// Apply operations
     pub fn apply_ops(
         &mut self,
         ops: Vec<CordOp>,
@@ -634,6 +634,36 @@ impl Cord {
             }
         }
     }
+
+    /// Mark the entire cord as verified by a user
+    pub fn verify(&mut self, author_index: Option<u8>, author_type: Option<AuthorType>) {
+        let author_index = author_index.unwrap_or(255);
+        let author_type = author_type.unwrap_or(AuthorType::Human);
+
+        if !self.string.is_empty() && self.authorship.is_empty() {
+            // Cord has content but no authorship record, so add one one assuming
+            // that the content was human written
+            let prov = human_written();
+            let prov = match author_type {
+                AuthorType::Machine => machine_verified(prov),
+                _ => human_verified(prov),
+            };
+
+            self.authorship.push(CordAuthorship::new(
+                1,
+                author_index as u64,
+                prov,
+                self.string.len() as u32,
+            ))
+        } else {
+            for authorship in self.authorship.iter_mut() {
+                authorship.provenance = match author_type {
+                    AuthorType::Machine => machine_verified(authorship.provenance),
+                    _ => human_verified(authorship.provenance),
+                };
+            }
+        }
+    }
 }
 
 impl StripNode for Cord {}
@@ -641,7 +671,7 @@ impl StripNode for Cord {}
 impl PatchNode for Cord {
     fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
         if let Some(author_index) = context.author_index() {
-            let mi = match context.author_type() {
+            let provenance = match context.author_type() {
                 Some(AuthorType::Machine) => machine_written(),
                 _ => human_written(),
             };
@@ -649,7 +679,7 @@ impl PatchNode for Cord {
             self.authorship = vec![CordAuthorship::new(
                 1,
                 author_index as u64,
-                mi,
+                provenance,
                 self.len() as u32,
             )];
         }
@@ -717,6 +747,11 @@ impl PatchNode for Cord {
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
+        if matches!(op, PatchOp::Verify) {
+            self.verify(context.author_index(), context.author_type());
+            return Ok(());
+        }
+
         if !path.is_empty() {
             bail!("Invalid path `{path:?}` for Cord");
         }

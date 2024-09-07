@@ -34,13 +34,13 @@ use common::{
 use document::{Command, CommandNodes, CommandScope, Document};
 use node_execute::ExecuteOptions;
 use schema::{
-    AuthorRole, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue,
-    SuggestionStatus, Timestamp,
+    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, SuggestionStatus, Timestamp
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const PATCH_NODE: &str = "stencila.patch-node";
+pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
@@ -67,6 +67,7 @@ pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 pub(super) fn commands() -> Vec<String> {
     [
         PATCH_NODE,
+        VERIFY_NODE,
         RUN_NODE,
         RUN_CURR,
         RUN_DOC,
@@ -130,6 +131,25 @@ pub(super) async fn execute_command(
                     node_id: Some(node_id),
                     ops: vec![(PatchPath::from(property), PatchOp::Set(value))],
                     authors: Some(vec![author]),
+                    ..Default::default()
+                }),
+                false,
+                true,
+            )
+        }
+        VERIFY_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+
+            (
+                "Verifying node".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(PatchPath::default(), PatchOp::Verify)],
+                    authors: Some(vec![AuthorRole {
+                        role_name: AuthorRoleName::Verifier,
+                        ..author
+                    }]),
                     ..Default::default()
                 }),
                 false,

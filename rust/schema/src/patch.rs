@@ -499,6 +499,9 @@ pub enum PatchOp {
     /// Clear a vector
     Clear,
 
+    /// Verify a node as correct
+    Verify,
+
     /// Accept a suggestion for an instruction
     Accept(NodeId),
 
@@ -715,6 +718,10 @@ macro_rules! atom {
                 op: PatchOp,
                 _context: &mut PatchContext,
             ) -> Result<()> {
+                if matches!(op, PatchOp::Verify) {
+                    return Ok(());
+                }
+
                 let PatchOp::Set(value) = op else {
                     bail!("Invalid op for `{}`", type_name::<Self>());
                 };
@@ -783,6 +790,10 @@ impl PatchNode for String {
         op: PatchOp,
         _context: &mut PatchContext,
     ) -> Result<()> {
+        if matches!(op, PatchOp::Verify) {
+            return Ok(());
+        }
+
         let PatchOp::Set(value) = op else {
             bail!("Invalid op for `String`");
         };
@@ -908,6 +919,13 @@ where
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
+        if matches!(op, PatchOp::Verify) {
+            if let Some(value) = self {
+                value.apply(path, op, context)?;
+            }
+            return Ok(());
+        }
+
         if path.is_empty() {
             if let PatchOp::Set(value) = op {
                 *self = Self::from_value(value)?;
@@ -1301,6 +1319,13 @@ where
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
+        if matches!(op, PatchOp::Verify) {
+            for value in self {
+                value.apply(path, op.clone(), context)?;
+            }
+            return Ok(());
+        }
+
         if let Some(slot) = path.pop_front() {
             let PatchSlot::Index(index) = slot else {
                 bail!("Invalid slot for Vec: {slot:?}")
