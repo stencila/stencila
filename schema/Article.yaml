@@ -32,6 +32,7 @@ core:
   - datePublished
   - references
   - headings
+  - archive
 properties:
   pageStart:
     "@id": schema:pageStart
@@ -86,3 +87,10 @@ properties:
       max:
         description: Generate up to eight arbitrary block nodes
         strategy: vec_blocks(8)
+  archive:
+    "@id": stencila:archive
+    description: Nodes, usually from within `content` of the article, that have been archived.
+    type: array
+    items:
+      $ref: Node
+    strip: [archive]

@@ -53,6 +53,7 @@ impl MarkdownCodec for Article {
                 StripScope::Execution,
                 StripScope::Code,
                 StripScope::Output,
+                StripScope::Archive,
             ],
             ..Default::default()
         });

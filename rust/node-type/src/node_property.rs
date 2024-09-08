@@ -16,6 +16,7 @@ pub enum NodeProperty {
     Affiliations,
     AlternateNames,
     Amounts,
+    Archive,
     Arguments,
     Author,
     Authors,

@@ -1051,6 +1051,9 @@ class Article(CreativeWork, Executable):
     content: list[Block]
     """The content of the article."""
 
+    archive: list[Node] | None = None
+    """Nodes, usually from within `content` of the article, that have been archived."""
+
 
 @dataclass(kw_only=True, repr=False)
 class AudioObject(MediaObject):

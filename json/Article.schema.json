@@ -42,7 +42,8 @@
     "dateAccepted",
     "datePublished",
     "references",
-    "headings"
+    "headings",
+    "archive"
   ],
   "properties": {
     "type": {
@@ -933,6 +934,17 @@
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
+      }
+    },
+    "archive": {
+      "@id": "stencila:archive",
+      "description": "Nodes, usually from within `content` of the article, that have been archived.",
+      "strip": [
+        "archive"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "Node.schema.json"
       }
     }
   }

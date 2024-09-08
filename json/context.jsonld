@@ -198,6 +198,7 @@
     "affiliations": "schema:affiliation",
     "alternateNames": "schema:alternateName",
     "amounts": "schema:amount",
+    "archive": "stencila:archive",
     "arguments": "stencila:arguments",
     "author": "schema:author",
     "authors": "schema:author",

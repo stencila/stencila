@@ -25,6 +25,7 @@ use super::inline::Inline;
 use super::integer::Integer;
 use super::integer_or_string::IntegerOrString;
 use super::list::List;
+use super::node::Node;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -170,6 +171,12 @@ pub struct Article {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks(8)"#))]
     #[dom(elem = "section")]
     pub content: Vec<Block>,
+
+    /// Nodes, usually from within `content` of the article, that have been archived.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(archive)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub archive: Option<Vec<Node>>,
 
     /// Non-core optional fields
     #[serde(flatten)]

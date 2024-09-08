@@ -932,6 +932,15 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
       }
+    },
+    {
+      "@id": "stencila:archive",
+      "@type": "rdfs:Property",
+      "rdfs:label": "archive",
+      "rdfs:comment": "Nodes, usually from within `content` of the article, that have been archived.",
+      "schema:domainIncludes": {
+        "@id": "schema:Article"
+      }
     }
   ]
 }

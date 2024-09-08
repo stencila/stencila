@@ -847,6 +847,7 @@
         "provenance",
         "metadata",
         "content",
+        "archive",
         "code",
         "execution",
         "output",

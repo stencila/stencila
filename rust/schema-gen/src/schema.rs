@@ -472,6 +472,7 @@ pub enum StripScopes {
     Provenance,
     Metadata,
     Content,
+    Archive,
     Code,
     Execution,
     Output,

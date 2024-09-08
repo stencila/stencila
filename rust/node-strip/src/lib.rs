@@ -34,6 +34,9 @@ pub enum StripScope {
     /// Strip content properties of nodes
     Content,
 
+    /// Strip archive properties of node
+    Archive,
+
     /// Strip code properties of executable nodes
     ///
     /// Includes any properties that define the execution of a node e.g.

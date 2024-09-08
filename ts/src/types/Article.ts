@@ -4,6 +4,7 @@ import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 import { List } from "./List.js";
+import { Node } from "./Node.js";
 
 /**
  * An article, including news and scholarly articles.
@@ -36,6 +37,11 @@ export class Article extends CreativeWork {
    * The content of the article.
    */
   content: Block[];
+
+  /**
+   * Nodes, usually from within `content` of the article, that have been archived.
+   */
+  archive?: Node[];
 
   constructor(content: Block[], options?: Partial<Article>) {
     super();
