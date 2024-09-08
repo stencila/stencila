@@ -77,7 +77,7 @@ pub fn diff<T: PatchNode>(
     })
 }
 
-/// Apply patch operations to a node and record authorship of changes
+/// Apply a patch to a node and record authorship of changes
 pub fn patch<T: PatchNode + Debug>(node: &mut T, mut patch: Patch) -> Result<()> {
     let mut context = PatchContext {
         format: patch.format.clone(),
@@ -85,9 +85,21 @@ pub fn patch<T: PatchNode + Debug>(node: &mut T, mut patch: Patch) -> Result<()>
         ..Default::default()
     };
 
+    // Apply the patch to the node
     let applied = node.patch(&mut patch, &mut context)?;
     if !applied {
         bail!("Patch was not applied:\n\n{patch:?}\n\n{node:?}")
+    }
+
+    // Apply any additional operations that were added to the
+    // context while applying the patch's ops. Note:
+    //  - operations must use a path from the root node (do not use ids.)
+    //  - use a new default context so that authorship of the nodes in the
+    //    additional ops is unchanged
+    let additional_ops = context.ops.drain(..).collect_vec();
+    let mut context = PatchContext::default();
+    for (mut path, op) in additional_ops {
+        node.apply(&mut path, op, &mut context)?;
     }
 
     Ok(())
@@ -98,9 +110,11 @@ pub fn patch<T: PatchNode + Debug>(node: &mut T, mut patch: Patch) -> Result<()>
 #[derive(Default)]
 pub struct PatchContext {
     /// The current path on the depth first walk across nodes during a call to `diff`
+    /// or during a call to `patch` (for use when calling `op_additional`).
     path: PatchPath,
 
-    /// The target paths and operations collected during a call to `diff`.
+    /// The target paths and operations collected during a call to `diff` or during
+    /// a call to `patch` (if `op_additional` is called).
     ops: Vec<(PatchPath, PatchOp)>,
 
     /// The source format from which a patch is being generated
@@ -215,6 +229,11 @@ impl PatchContext {
         self
     }
 
+    /// Get a copy of the current path of the context
+    pub fn path(&self) -> PatchPath {
+        self.path.clone()
+    }
+
     /// Create a [`PatchOp::Set`] operation at the current path during the diff walk
     pub fn op_set(&mut self, value: PatchValue) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Set(value)));
@@ -272,6 +291,14 @@ impl PatchContext {
     /// Create a [`PatchOp::Clear`] operation for the current path during the diff walk
     pub fn op_clear(&mut self) -> &mut Self {
         self.ops.push((self.path.clone(), PatchOp::Clear));
+        self
+    }
+
+    /// Create an additional operation as a result of applying an operation
+    ///
+    /// The `path` must be relative to the root node.
+    pub fn op_additional(&mut self, path: PatchPath, op: PatchOp) -> &mut Self {
+        self.ops.push((path, op));
         self
     }
 
@@ -449,12 +476,11 @@ impl Patch {
     }
 
     /// Apply the operations in the patch to a node
-    ///
-    /// Note that this `drain`s the ops to avoid cloning ops.
     pub fn apply<T>(&mut self, node: &mut T, context: &mut PatchContext) -> Result<bool>
     where
         T: PatchNode,
     {
+        // Note that this `drain`s the ops to avoid cloning ops.
         for (mut path, op) in self.ops.drain(..) {
             node.apply(&mut path, op, context)?;
         }
@@ -502,8 +528,11 @@ pub enum PatchOp {
     /// Verify a node as correct
     Verify,
 
-    /// Accept a suggestion for an instruction
+    /// Accept a suggestion within an instruction
     Accept(NodeId),
+
+    /// Archive a node
+    Archive,
 
     /// Do no operation
     /// Used to be able to apply patches which only update
@@ -541,6 +570,18 @@ impl Default for PatchValue {
 pub enum PatchSlot {
     Property(NodeProperty),
     Index(usize),
+}
+
+impl From<NodeProperty> for PatchSlot {
+    fn from(value: NodeProperty) -> Self {
+        Self::Property(value)
+    }
+}
+
+impl From<usize> for PatchSlot {
+    fn from(value: usize) -> Self {
+        Self::Index(value)
+    }
 }
 
 /// A path to reach a node from the root: a vector of [`PatchSlot`]s
@@ -1304,10 +1345,12 @@ where
         }
 
         // Try to apply patches to children
-        for child in self {
+        for (index, child) in self.iter_mut().enumerate() {
+            context.enter_index(index);
             if child.patch(patch, context)? {
                 return Ok(true); // Patch was applied
             }
+            context.exit_index();
         }
 
         Ok(false) // Patch was not applied

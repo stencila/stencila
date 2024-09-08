@@ -39,6 +39,49 @@ impl InstructionBlock {
                 }
 
                 return Ok(true);
+            } else if matches!(op, PatchOp::Archive) {
+                // Add this instruction to the root's archive
+                context.op_additional(
+                    PatchPath::from(NodeProperty::Archive),
+                    PatchOp::Push(self.to_value()?),
+                );
+
+                // If the instruction has content then replace it with the content,
+                // otherwise delete it
+                let mut path = context.path();
+                let index = match path.pop_back() {
+                    Some(PatchSlot::Index(index)) => index,
+                    slot => bail!("Expected index slot, got: {slot:?}"),
+                };
+                match &self.content {
+                    Some(content) => {
+                        if content.is_empty() {
+                            // No content so just delete
+                            context.op_additional(path, PatchOp::Remove(vec![index]));
+                        } else if content.len() == 1 {
+                            // Just one block, so replace it
+                            context.op_additional(
+                                path,
+                                PatchOp::Replace(vec![(index, content[0].to_value()?)]),
+                            );
+                        } else {
+                            // More than one block so remove instruction and insert blocks in its place
+                            let mut blocks = Vec::with_capacity(content.len());
+                            for (offset, block) in content.iter().enumerate() {
+                                blocks.push((index + offset, block.to_value()?))
+                            }
+                            context
+                                .op_additional(path.clone(), PatchOp::Remove(vec![index]))
+                                .op_additional(path, PatchOp::Insert(blocks));
+                        }
+                    }
+                    None => {
+                        // No content so just delete
+                        context.op_additional(path, PatchOp::Remove(vec![index]));
+                    }
+                }
+
+                return Ok(true);
             }
         } else if matches!(
             path.front(),

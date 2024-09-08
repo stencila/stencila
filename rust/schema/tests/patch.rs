@@ -17,9 +17,9 @@ use schema::{
     authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
-    Figure, Inline, Node, NodeProperty, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchSlot,
-    PatchValue, Person, Primitive, ProvenanceCategory, ProvenanceCount, SoftwareApplication,
-    Strong, Text, TimeUnit,
+    Figure, Inline, InstructionBlock, InstructionType, Node, NodeProperty, Paragraph, Patch,
+    PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person, Primitive, ProvenanceCategory,
+    ProvenanceCount, SoftwareApplication, Strong, Text, TimeUnit,
 };
 
 /// An individual fixture
@@ -789,6 +789,101 @@ fn authorship_on_nodes() -> Result<()> {
 
     // Provenance on Vec<Inline>?
     assert!(para.content.provenance().is_some());
+
+    Ok(())
+}
+
+/// Test an archive patch
+#[test]
+fn archive_patch() -> Result<()> {
+    // Archive an instruction with no content
+    let inb = InstructionBlock::new(InstructionType::New);
+    let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
+
+    patch(
+        &mut article,
+        Patch {
+            node_id: Some(inb.node_id()),
+            ops: vec![(PatchPath::default(), PatchOp::Archive)],
+            ..Default::default()
+        },
+    )?;
+
+    assert_eq!(
+        article.archive.iter().flatten().next().unwrap(),
+        &Node::InstructionBlock(inb)
+    );
+    assert!(article.content.is_empty());
+
+    // Archive an instruction with one block in content
+    let block = Block::Paragraph(Paragraph {
+        content: vec![t("one")],
+        authors: Some(vec![Author::SoftwareApplication(
+            SoftwareApplication::default(),
+        )]),
+        ..Default::default()
+    });
+    let inb = InstructionBlock {
+        instruction_type: InstructionType::New,
+        content: Some(vec![block.clone()]),
+        ..Default::default()
+    };
+    let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
+
+    patch(
+        &mut article,
+        Patch {
+            node_id: Some(inb.node_id()),
+            ops: vec![(PatchPath::default(), PatchOp::Archive)],
+            // The author of the patch should not be applied to
+            // the content in archived node or it's replacement content
+            authors: Some(vec![AuthorRole::default()]),
+            ..Default::default()
+        },
+    )?;
+
+    assert_eq!(
+        article.archive.iter().flatten().next().unwrap(),
+        &Node::InstructionBlock(inb)
+    );
+    if let Some(Block::Paragraph(Paragraph {
+        content, authors, ..
+    })) = article.content.first()
+    {
+        assert_eq!(content, &vec![t("one")]);
+        assert_eq!(
+            authors,
+            &Some(vec![Author::SoftwareApplication(
+                SoftwareApplication::default(),
+            )])
+        );
+    } else {
+        bail!("unexpected content");
+    };
+
+    // Archive an instruction with two blocks in content
+    let blocks = vec![p([t("one")]), p([t("two")])];
+    let inb = InstructionBlock {
+        instruction_type: InstructionType::New,
+        content: Some(blocks.clone()),
+        ..Default::default()
+    };
+    let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
+
+    patch(
+        &mut article,
+        Patch {
+            node_id: Some(inb.node_id()),
+            ops: vec![(PatchPath::default(), PatchOp::Archive)],
+            ..Default::default()
+        },
+    )?;
+
+    assert_eq!(
+        article.archive.iter().flatten().next().unwrap(),
+        &Node::InstructionBlock(inb)
+    );
+    assert_eq!(&article.content, &blocks);
 
     Ok(())
 }

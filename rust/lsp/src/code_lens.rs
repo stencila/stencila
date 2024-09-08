@@ -12,7 +12,9 @@ use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio
 use schema::NodeType;
 
 use crate::{
-    commands::{ACCEPT_NODE, CANCEL_NODE, REJECT_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE},
+    commands::{
+        ACCEPT_NODE, ARCHIVE_NODE, CANCEL_NODE, REJECT_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE,
+    },
     text_document::TextNode,
 };
 
@@ -71,7 +73,7 @@ pub(crate) async fn request(
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::InstructionBlock => {
-                        vec![lens(RUN_NODE), lens(VIEW_NODE)]
+                        vec![lens(RUN_NODE), lens(ARCHIVE_NODE), lens(VIEW_NODE)]
                     }
                     // Block suggestions
                     NodeType::SuggestionBlock => {
@@ -90,10 +92,11 @@ pub(crate) async fn request(
                 };
 
                 if let Some(provenance) = provenance {
-                    // Only show provenance code lens for certain node types and for the
-                    // machine written and not human edited categories (summed)
-                    if !matches!(node_type, NodeType::InstructionBlock)
-                        && !matches!(parent_type, NodeType::ListItem)
+                    // Only show provenance code lens for certain node types
+                    if !matches!(
+                        node_type,
+                        NodeType::InstructionBlock | NodeType::SuggestionBlock
+                    ) && !matches!(parent_type, NodeType::ListItem)
                     {
                         let machine_percent = provenance.iter().fold(0u64, |sum, prov| {
                             if prov.provenance_category.is_machine_written() {
@@ -166,6 +169,7 @@ pub(crate) async fn resolve(
         VERIFY_NODE => Command::new("$(pass) Verify".to_string(), command, arguments),
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
+        ARCHIVE_NODE => Command::new("$(archive) Archive".to_string(), command, arguments),
         ACCEPT_NODE | REJECT_NODE | REVISE_NODE => {
             if let (Some(arguments), Some(parent_id)) = (arguments.as_mut(), data.next()) {
                 arguments.push(json!(parent_id));

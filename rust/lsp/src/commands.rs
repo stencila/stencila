@@ -34,7 +34,8 @@ use common::{
 use document::{Command, CommandNodes, CommandScope, Document};
 use node_execute::ExecuteOptions;
 use schema::{
-    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, SuggestionStatus, Timestamp
+    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
+    PatchPath, PatchValue, SuggestionStatus, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -57,6 +58,7 @@ pub(super) const CANCEL_DOC: &str = "stencila.cancel-doc";
 pub(super) const LOCK_CURR: &str = "stencila.lock-curr";
 pub(super) const UNLOCK_CURR: &str = "stencila.unlock-curr";
 
+pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
 pub(super) const REJECT_NODE: &str = "stencila.reject-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
@@ -80,6 +82,7 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_DOC,
         LOCK_CURR,
         UNLOCK_CURR,
+        ARCHIVE_NODE,
         ACCEPT_NODE,
         REJECT_NODE,
         REVISE_NODE,
@@ -239,6 +242,21 @@ pub(super) async fn execute_command(
                         PatchPath::from(NodeProperty::ExecutionMode),
                         PatchOp::Set(PatchValue::None),
                     )],
+                    ..Default::default()
+                }),
+                false,
+                true,
+            )
+        }
+        ARCHIVE_NODE => {
+            args.next(); // Skip the currently unused node type arg
+            let node_id = node_id_arg(args.next())?;
+            (
+                "Archiving node".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id),
+                    ops: vec![(PatchPath::new(), PatchOp::Archive)],
+                    authors: Some(vec![author]),
                     ..Default::default()
                 }),
                 false,

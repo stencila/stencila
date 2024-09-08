@@ -110,9 +110,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         // Application of patches is implemented for all fields
         patch_fields.extend(quote! {
+            context.enter_property(NodeProperty::#property);
             if self.#field_name.patch(patch, context)? {
                 return Ok(true);
             }
+            context.exit_property();
         });
         apply_fields.extend(quote! {
             NodeProperty::#property => {
@@ -316,7 +318,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             }
         } else {
             quote! {
-                bail!("Invalid property for `{}`", stringify!(#struct_name))
+                bail!("Invalid property `{property}` for struct `{}`", stringify!(#struct_name))
             }
         };
 
@@ -330,7 +332,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     #apply_verify_fields;
                 } else if !matches!(op, PatchOp::Nothing) {
                     let Some(PatchSlot::Property(property)) = path.pop_front() else {
-                        bail!("Invalid patch path for `{}`", stringify!(#struct_name));
+                        bail!("Invalid empty patch path for `{}`", stringify!(#struct_name));
                     };
 
                     match (property) {
