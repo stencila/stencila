@@ -37,7 +37,7 @@ export class CodeChunk extends CodeExecutable {
    */
   override render() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
-      title: 'CodeChunk',
+      title: 'Code Chunk',
       icon: 'code',
     }
 

@@ -13,7 +13,7 @@ import { CodeStatic } from './code-static'
 export class CodeBlock extends CodeStatic {
   override render() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
-      title: 'CodeChunk',
+      title: 'Code Block',
       icon: 'code',
     }
 
