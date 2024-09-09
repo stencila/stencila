@@ -8,6 +8,9 @@
   ],
   "description": "Document content in a specific format",
   "$comment": "The content of the block is not decoded by any codecs and is output when the encoding format\nmatches that of the raw block and the `render` option is used.\nAnalogous to node types in [Pandoc](https://github.com/jgm/pandoc-types/blob/1cf21a602535b6b263fef9548521353912115d87/src/Text/Pandoc/Definition.hs#L284) and [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/raw.html).\n",
+  "dom": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -18,7 +21,9 @@
     "content"
   ],
   "core": [
-    "id"
+    "id",
+    "authors",
+    "provenance"
   ],
   "properties": {
     "type": {

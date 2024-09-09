@@ -120,11 +120,15 @@ repository:
         (`{3,})
         \s*
         (LANG_ALIASES)
-        \s*
+        (?:
+          \s+
+          (raw)
+        )?
       $
     beginCaptures:
       "1": { name: markup.heading } # backticks
       "2": { name: variable.other } # language
+      "3": { name: keyword.control.stencila } # raw
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -138,11 +142,16 @@ repository:
       ^
         (`{3,})
         \s*
-        (.*)
+        (\w*)
+        (?:
+          \s+
+          (raw)
+        )?
       $
     beginCaptures:
       "1": { name: markup.heading } # backticks
       "2": { name: variable.other } # language
+      "3": { name: keyword.control.stencila } # raw
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -168,7 +177,7 @@ repository:
           \s+
           (always|auto|locked)
         )?
-        \s*
+        (.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
@@ -195,7 +204,7 @@ repository:
           \s+
           (always|auto|locked)
         )?
-        \s*
+        (.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
@@ -218,7 +227,7 @@ repository:
           \s+
           (always|auto|locked)
         )?
-        \s*
+        (.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks

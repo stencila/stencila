@@ -59,7 +59,6 @@ pub(crate) async fn request(
                 };
 
                 let mut lenses = match node_type {
-                    // Executable block nodes
                     NodeType::CallBlock
                     | NodeType::CodeChunk
                     | NodeType::ForBlock
@@ -75,7 +74,6 @@ pub(crate) async fn request(
                     NodeType::InstructionBlock => {
                         vec![lens(RUN_NODE), lens(ARCHIVE_NODE), lens(VIEW_NODE)]
                     }
-                    // Block suggestions
                     NodeType::SuggestionBlock => {
                         vec![
                             lens_with_parent(ACCEPT_NODE),
@@ -84,10 +82,10 @@ pub(crate) async fn request(
                             lens(VIEW_NODE),
                         ]
                     }
-                    // Block suggestions
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
                         vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(VIEW_NODE)]
                     }
+                    NodeType::RawBlock => vec![lens(VIEW_NODE)],
                     _ => vec![],
                 };
 

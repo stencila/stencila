@@ -2,7 +2,7 @@
  * Compiles a `tmGrammar.json` file for MyST by converting
  * `tmGrammar.yaml` to JSON, expanding certain rules for languages, and
  * saving to JSON.
- * 
+ *
  * Initially based on the same file for Stencila Markdown at ../smd/compile.js
  */
 
@@ -15,15 +15,17 @@ const grammar = yaml.load(readFileSync(path.join(__dirname, "tmGrammar.yaml")));
 
 // Definitions for each of the languages that rules will be expanded for
 const langs = [
+  { name: "css", aliases: "css", include: "source.css", cells: false },
   {
     name: "javascript",
-    aliases: "js|javascript",
+    aliases: "(?:js)|(?:javascript)",
     include: "source.js",
     cells: true,
   },
+  { name: "html", aliases: "html", include: "text.html.basic", cells: false },
   {
     name: "python",
-    aliases: "py|python",
+    aliases: "(?:py)|(?:python)",
     include: "source.python",
     cells: true,
   },
@@ -39,6 +41,12 @@ const langs = [
     name: "latex",
     aliases: "latex",
     include: "text.tex.latex",
+    cells: false,
+  },
+  {
+    name: "xml",
+    aliases: "(?:xml)|(?:svg)",
+    include: "text.xml",
     cells: false,
   },
 ];
