@@ -11,7 +11,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import { renderProvenanceStatus } from '../ui/nodes/properties/provenance/icons'
+import { renderProvenanceCategory } from '../ui/nodes/properties/provenance-category'
 
 import { Entity } from './entity'
 
@@ -68,7 +68,7 @@ export class ProvenanceCount extends Entity {
           <div
             class="font-normal pointer-events-none inline-flex items-center gap-x-1"
           >
-            ${renderProvenanceStatus(this.provenanceCategory, 'sm')}${percent}%
+            ${renderProvenanceCategory(this.provenanceCategory)}${percent}%
           </div></strong
         ></sl-tooltip
       >

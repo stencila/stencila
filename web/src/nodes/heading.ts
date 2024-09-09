@@ -6,7 +6,7 @@ import { NodeId } from '../types'
 import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/authorship'
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 
 import { Entity } from './entity'
 

@@ -10,7 +10,7 @@ import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/label-and-caption'
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 
 import { CodeExecutable } from './code-executable'
 

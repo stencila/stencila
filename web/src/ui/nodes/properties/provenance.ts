@@ -2,7 +2,7 @@ import { css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { withTwind } from '../../../../twind'
+import { withTwind } from '../../../twind'
 
 /**
  * A component for displaying the `provenance` property of a node.

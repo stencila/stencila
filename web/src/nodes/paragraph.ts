@@ -11,7 +11,7 @@ import { Entity } from './entity'
 import '../ui/nodes/node-card/on-demand/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/authorship'
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 
 /**
  * Web component representing a Stencila Schema `Paragraph` node

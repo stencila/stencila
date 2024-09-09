@@ -5,7 +5,7 @@ import '../ui/nodes/card'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 
 import { Styled } from './styled'
 

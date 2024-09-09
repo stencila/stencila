@@ -8,7 +8,7 @@ import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/properties/provenance/provenance'
+import '../ui/nodes/properties/provenance'
 
 /**
  * Web component representing a Stencila Schema `QuoteBlock` node
