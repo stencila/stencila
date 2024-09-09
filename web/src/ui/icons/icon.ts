@@ -11,6 +11,9 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
  * inlined into Typescript. But that could get unwieldily to manage.
  *
  * See `./icons-shoelace.sh` for a script that copies over Shoelace (Bootstrap icons).
+ * See `./LICENSE` associated with those.
+ *
+ * Other, programming and development related icons from https://devicon.dev/.
  *
  * For proper scaling in VS Code, images should not have `width` and `height`
  * attributes but should have a `viewBox` (it may be being stripped e.g. https://github.com/svg/svgo/issues/1128#issuecomment-628208565)
@@ -40,6 +43,7 @@ import circle from './circle.svg'
 import clock from './clock.svg'
 import codeChunk from './code-chunk.svg'
 import code from './code.svg'
+import cssIcon from './css.svg'
 import currencyDollar from './currency-dollar.svg'
 import dashCircle from './dash-circle.svg'
 import elifClause from './elif-clause.svg'
@@ -49,6 +53,7 @@ import exclamationTriangle from './exclamation-triangle.svg'
 import feather from './feather.svg'
 import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
+import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
 import google from './google.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
@@ -56,6 +61,7 @@ import handThumbsUp from './hand-thumbs-up.svg'
 import hash from './hash.svg'
 import heading from './heading.svg'
 import hr from './hr.svg'
+import htmlIcon from './html.svg'
 import ifBlock from './if-block.svg'
 import ifClause from './if-clause.svg'
 import imageAlt from './image-alt.svg'
@@ -67,6 +73,7 @@ import latex from './latex.svg'
 import lightbulb from './lightbulb.svg'
 import lightning from './lightning.svg'
 import list from './list.svg'
+import markdown from './markdown.svg'
 import mathBlock from './math-block.svg'
 import mistral from './mistral.svg'
 import nodejs from './nodejs.svg'
@@ -126,6 +133,7 @@ const icons = {
   clock,
   code,
   codeChunk,
+  css: cssIcon,
   currencyDollar,
   dashCircle,
   elifClause,
@@ -135,6 +143,7 @@ const icons = {
   feather,
   filePlay,
   filePlus,
+  fileTypeRaw,
   fullscreen,
   google,
   handThumbsDown,
@@ -142,6 +151,7 @@ const icons = {
   hash,
   heading,
   hr,
+  html: htmlIcon,
   ifBlock,
   ifClause,
   image,
@@ -153,6 +163,7 @@ const icons = {
   lightbulb,
   lightning,
   list,
+  markdown,
   mathBlock,
   mistral,
   nodejs,

@@ -28,9 +28,10 @@ icons=(
     feather
     file-play
     file-plus
+    filetype-raw
     fullscreen
-    hand-thumbs-up
     hand-thumbs-down
+    hand-thumbs-up
     hash
     hr
     image
@@ -47,7 +48,6 @@ icons=(
     question-circle
     quote
     repeat
-    robot
     skip-end
     skip-start
     slash-circle
@@ -66,7 +66,7 @@ icons=(
 for icon in "${icons[@]}"; do
     if [ -e "$src/$icon.svg" ]; then
         cp "$src/$icon.svg" .
-        # Remove width and height to avoid viewBox stipping (see note in icon.ts)
+        # Remove width and height to avoid viewBox stripping (see note in icon.ts)
         sed -i 's/width="16" height="16" //g' "$icon.svg"
         # Remove the namespace just to save some space
         sed -i 's!xmlns="http://www.w3.org/2000/svg"!!g' "$icon.svg"
