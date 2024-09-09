@@ -7,55 +7,55 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum ProvenanceCategory {
-    /// Content that is human written, edited and verified.
+    /// Human written, edited and verified.
     HwHeHv,
 
-    /// Content that is human written and edited.
+    /// Human written and edited.
     HwHe,
 
-    /// Content that is human written and verified.
+    /// Human written and verified.
     HwHv,
 
-    /// Content that is human written.
+    /// Human written.
     #[default]
     Hw,
 
-    /// Content that is human written, machine verified.
+    /// Human written, machine verified.
     HwMv,
 
-    /// Content that is machine written, human edited, human verified.
+    /// Machine written, human edited, human verified.
     MwHeHv,
 
-    /// Content that is machine written, human edited.
+    /// Machine written, human edited.
     MwHe,
 
-    /// Content that is machine written, human edited, machine verified.
+    /// Machine written, human edited, machine verified.
     MwHeMv,
 
-    /// Content that is human written, machine edited, human verified.
+    /// Human written, machine edited, human verified.
     HwMeHv,
 
-    /// Content that is human written, machine edited.
+    /// Human written, machine edited.
     HwMe,
 
-    /// Content that is human written, machine edited, machine verified.
+    /// Human written, machine edited, machine verified.
     HwMeMv,
 
-    /// Content that is machine written, human verified.
+    /// Machine written, human verified.
     MwHv,
 
-    /// Content that is machine written, machine edited, human verified.
+    /// Machine written, machine edited, human verified.
     MwMeHv,
 
-    /// Content that is machine written.
+    /// Machine written.
     Mw,
 
-    /// Content that is machine written and verified.
+    /// Machine written and verified.
     MwMv,
 
-    /// Content that is machine written and edited.
+    /// Machine written and edited.
     MwMe,
 
-    /// Content that is machine written, edited and verified.
+    /// Machine written, edited and verified.
     MwMeMv,
 }

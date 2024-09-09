@@ -6,21 +6,21 @@ import { ProvenanceCategory } from "./types/ProvenanceCategory.js";
  * Description of provenance categories
  */
 export const provenanceCategories: { [Property in ProvenanceCategory]: string } = {
-  "HwHeHv": "Content that is human written, edited and verified.",
-  "HwHe": "Content that is human written and edited.",
-  "HwHv": "Content that is human written and verified.",
-  "Hw": "Content that is human written.",
-  "HwMv": "Content that is human written, machine verified.",
-  "MwHeHv": "Content that is machine written, human edited, human verified.",
-  "MwHe": "Content that is machine written, human edited.",
-  "MwHeMv": "Content that is machine written, human edited, machine verified.",
-  "HwMeHv": "Content that is human written, machine edited, human verified.",
-  "HwMe": "Content that is human written, machine edited.",
-  "HwMeMv": "Content that is human written, machine edited, machine verified.",
-  "MwHv": "Content that is machine written, human verified.",
-  "MwMeHv": "Content that is machine written, machine edited, human verified.",
-  "Mw": "Content that is machine written.",
-  "MwMv": "Content that is machine written and verified.",
-  "MwMe": "Content that is machine written and edited.",
-  "MwMeMv": "Content that is machine written, edited and verified."
+  "HwHeHv": "Human written, edited and verified.",
+  "HwHe": "Human written and edited.",
+  "HwHv": "Human written and verified.",
+  "Hw": "Human written.",
+  "HwMv": "Human written, machine verified.",
+  "MwHeHv": "Machine written, human edited, human verified.",
+  "MwHe": "Machine written, human edited.",
+  "MwHeMv": "Machine written, human edited, machine verified.",
+  "HwMeHv": "Human written, machine edited, human verified.",
+  "HwMe": "Human written, machine edited.",
+  "HwMeMv": "Human written, machine edited, machine verified.",
+  "MwHv": "Machine written, human verified.",
+  "MwMeHv": "Machine written, machine edited, human verified.",
+  "Mw": "Machine written.",
+  "MwMv": "Machine written and verified.",
+  "MwMe": "Machine written and edited.",
+  "MwMeMv": "Machine written, edited and verified."
 };

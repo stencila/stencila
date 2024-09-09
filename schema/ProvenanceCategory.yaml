@@ -5,65 +5,68 @@ description: A description of the provenance of content in terms of human/machin
 default:
   Hw
 anyOf:
+  # Note: the following variant descriptions appear in web interfaces. Given that,
+  # they are kept brief and should be edited with that in mind.
+
   # Human only
   - const: HwHeHv
     '@id': stencila:ProvenanceHwHeHv
-    description: Content that is human written, edited and verified.
+    description: Human written, edited and verified.
   - const: HwHe
     '@id': stencila:ProvenanceHwHe
-    description: Content that is human written and edited.
+    description: Human written and edited.
   - const: HwHv
     '@id': stencila:ProvenanceHwHv
-    description: Content that is human written and verified.
+    description: Human written and verified.
   - const: Hw
     '@id': stencila:ProvenanceHw
-    description: Content that is human written.
+    description: Human written.
 
   # Human written, machine verified
   - const: HwMv
     '@id': stencila:ProvenanceHwMv
-    description: Content that is human written, machine verified.
+    description: Human written, machine verified.
 
   # Machine written, human edited
   - const: MwHeHv
     '@id': stencila:ProvenanceMwHeHv
-    description: Content that is machine written, human edited, human verified.
+    description: Machine written, human edited, human verified.
   - const: MwHe
     '@id': stencila:ProvenanceMwHe
-    description: Content that is machine written, human edited.
+    description: Machine written, human edited.
   - const: MwHeMv
     '@id': stencila:ProvenanceMwHeHv
-    description: Content that is machine written, human edited, machine verified.
+    description: Machine written, human edited, machine verified.
 
   # Human written, machine edited
   - const: HwMeHv
     '@id': stencila:ProvenanceHwMeHv
-    description: Content that is human written, machine edited, human verified.
+    description: Human written, machine edited, human verified.
   - const: HwMe
     '@id': stencila:ProvenanceHwMe
-    description: Content that is human written, machine edited.
+    description: Human written, machine edited.
   - const: HwMeMv
     '@id': stencila:ProvenanceHwMeMv
-    description: Content that is human written, machine edited, machine verified.
+    description: Human written, machine edited, machine verified.
 
   # Machine written, human verified
   - const: MwHv
     '@id': stencila:ProvenanceMwHv
-    description: Content that is machine written, human verified.
+    description: Machine written, human verified.
   - const: MwMeHv
     '@id': stencila:ProvenanceMwMeHv
-    description: Content that is machine written, machine edited, human verified.
+    description: Machine written, machine edited, human verified.
 
   # Machine only
   - const: Mw
     '@id': stencila:ProvenanceMw
-    description: Content that is machine written.
+    description: Machine written.
   - const: MwMv
     '@id': stencila:ProvenanceMwMv
-    description: Content that is machine written and verified.
+    description: Machine written and verified.
   - const: MwMe
     '@id': stencila:ProvenanceMwMe
-    description: Content that is machine written and edited.
+    description: Machine written and edited.
   - const: MwMeMv
     '@id': stencila:ProvenanceMwMeMv
-    description: Content that is machine written, edited and verified.
+    description: Machine written, edited and verified.
