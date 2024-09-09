@@ -112,6 +112,12 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
+      name: 'css',
+      load: async () => {
+        return import('@codemirror/lang-css').then((obj) => obj.css())
+      },
+    }),
+    LanguageDescription.of({
       name: 'dot',
       alias: ['dotlang', 'graphviz'],
       load: async () => {
@@ -177,7 +183,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'xml',
-      alias: ['mathml'],
+      alias: ['mathml', 'svg'],
       load: async () => {
         return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },

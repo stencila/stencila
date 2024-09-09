@@ -55,6 +55,7 @@
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
+    "@codemirror/lang-css": "6.3.0",
     "@codemirror/lang-html": "6.4.9",
     "@codemirror/lang-javascript": "6.2.2",
     "@codemirror/lang-json": "6.0.1",
@@ -91,7 +92,7 @@
   "devDependencies": {
     "@parcel/compressor-brotli": "2.12.0",
     "@parcel/compressor-gzip": "2.12.0",
-    "@parcel/transformer-inline-string": "^2.12.0",
+    "@parcel/transformer-inline-string": "2.12.0",
     "@parcel/transformer-typescript-tsc": "2.12.0",
     "cross-env": "7.0.3",
     "parcel": "2.12.0",
