@@ -44,9 +44,9 @@ Use the programming language that the user specifies. If the user does not speci
 
 The code chunk MUST produce an image using a plotting package or base functions. Prefer to use specialized plotting packages such as `ggplot2` in R and `matplotlib` or `plotly` in Python if they are installed.
 
-Do not add a title to the plot, instead placing necessary explanation in the caption.
+Do NOT add a title to the plot. Instead place necessary explanation in the caption.
 
-Do not add comments to the code that simply rephrases the caption.
+Do NOT add comments to the code that simply rephrases the caption.
 
 ::: include instructions/document/code/attention.smd
 
