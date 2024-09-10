@@ -11,6 +11,12 @@ impl DomCodec for RawBlock {
         // Use `Cord::to_dom_attr` here to get both "content" and "content-authorship" attributes
         self.content.to_dom_attr("content", context);
 
+        if let Some(messages) = &self.compilation_messages {
+            context.push_slot_fn("div", "compilation-messages", |context| {
+                messages.to_dom(context)
+            });
+        }
+
         if let Some(authors) = &self.authors {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
