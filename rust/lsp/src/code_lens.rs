@@ -85,7 +85,9 @@ pub(crate) async fn request(
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
                         vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(VIEW_NODE)]
                     }
-                    NodeType::RawBlock => vec![lens(VIEW_NODE)],
+                    NodeType::MathBlock | NodeType::RawBlock | NodeType::StyledBlock => {
+                        vec![lens(VIEW_NODE)]
+                    }
                     _ => vec![],
                 };
 
