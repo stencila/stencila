@@ -48,20 +48,15 @@ impl Executable for MathBlock {
                         |error| (None, vec![error_to_compilation_message(error)]),
                         |(mut outputs, messages)| {
                             let output = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
-                            let Some(Node::String(mathml)) = output else {
-                                return (
-                                    None,
-                                    vec![CompilationMessage::new(
-                                        MessageLevel::Error,
-                                        "Expected a string".to_string(),
-                                    )],
-                                );
+                            let mathml = match output {
+                                Some(Node::String(mathml)) => Some(mathml),
+                                _ => None,
                             };
 
                             let messages =
                                 messages.into_iter().map(CompilationMessage::from).collect();
 
-                            (Some(mathml), messages)
+                            (mathml, messages)
                         },
                     );
 

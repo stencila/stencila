@@ -38,20 +38,15 @@ impl Executable for MathInline {
                     .map_or_else(
                         |error| (None, vec![error_to_compilation_message(error)]),
                         |(node, messages)| {
-                            let Node::String(mathml) = node else {
-                                return (
-                                    None,
-                                    vec![CompilationMessage::new(
-                                        MessageLevel::Error,
-                                        "Expected a string".to_string(),
-                                    )],
-                                );
+                            let mathml = match output {
+                                Node::String(mathml) => Some(mathml),
+                                _ => None,
                             };
 
                             let messages =
                                 messages.into_iter().map(CompilationMessage::from).collect();
 
-                            (Some(mathml), messages)
+                            (mathml, messages)
                         },
                     );
 
