@@ -1,1 +1,7 @@
-{}
+{
+  "GHSA-9wv6-86v2-598j": {
+    "active": true,
+    "expires": "2024-10-01",
+    "notes": "Ignored as wrangler is an occasionally used dev dependency in this repo"
+  }
+}
