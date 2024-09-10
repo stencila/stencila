@@ -90,7 +90,7 @@ impl StyleKernelInstance {
             let (css, mut tailwind_messages) = self.tailwind_to_css(code);
             messages.append(&mut tailwind_messages);
             (css, code.to_string())
-        } else if code.ends_with("}") {
+        } else if code.ends_with('}') {
             // Complete CSS stylesheet in RawBlock: just return the CSS
             (code.to_string(), String::new())
         } else {

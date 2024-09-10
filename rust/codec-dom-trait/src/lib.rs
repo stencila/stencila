@@ -337,7 +337,7 @@ impl DomEncodeContext {
     }
 
     /// Get a CSS <style> element for the document at completion of encoding
-    /// 
+    ///
     /// This should be placed in the <head> if standalone (to avoid flash of unstyled content),
     /// or at the top of the root node otherwise.
     pub fn style(&self) -> String {
