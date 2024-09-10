@@ -266,6 +266,19 @@ pub async fn serve_path(
         return Ok(not_found());
     };
 
+    // Return early if the path is an image
+    if let Some(ext) = path.extension().and_then(|ext| ext.to_str()) {
+        if matches!(ext, "png" | "jpg" | "jpeg" | "svg") {
+            let bytes = read(&path).await.map_err(InternalError::new)?;
+            let content_type = mime_guess::from_path(path).first_or_octet_stream();
+
+            return Response::builder()
+                .header(CONTENT_TYPE, content_type.essence_str())
+                .body(Body::from(bytes))
+                .map_err(InternalError::new);
+        }
+    }
+
     // Get the document for the path
     let doc = docs
         .by_path(&path, sync)
