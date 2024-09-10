@@ -1,4 +1,4 @@
-FROM node:20.15.1
+FROM node:latest
 
 # Export config paths for NPM
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
