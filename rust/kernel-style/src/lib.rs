@@ -261,8 +261,12 @@ mod tests {
             messages,
             vec![ExecutionMessage {
                 level: MessageLevel::Warning,
-                message: "Warning on Line: 1, Col: 1 in file: ''; Could not match class 'foo'"
-                    .to_string(),
+                message: "Could not match class 'foo'".to_string(),
+                code_location: Some(CodeLocation {
+                    start_line: Some(0),
+                    start_column: Some(0),
+                    ..Default::default()
+                }),
                 ..Default::default()
             }]
         );
