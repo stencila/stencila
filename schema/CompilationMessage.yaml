@@ -33,3 +33,5 @@ properties:
     '@id': stencila:codeLocation
     description: The location that the error occurred.
     $ref: CodeLocation
+    dom:
+      with: CodeLocation::to_dom_attr

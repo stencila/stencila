@@ -66,6 +66,9 @@
         "code-location",
         "code_location"
       ],
+      "dom": {
+        "with": "CodeLocation::to_dom_attr"
+      },
       "$ref": "CodeLocation.schema.json"
     }
   }

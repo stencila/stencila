@@ -34,6 +34,7 @@ pub struct CompilationMessage {
 
     /// The location that the error occurred.
     #[serde(alias = "code-location", alias = "code_location")]
+    #[dom(with = "CodeLocation::to_dom_attr")]
     pub code_location: Option<CodeLocation>,
 
     /// A unique identifier for a node within a document
