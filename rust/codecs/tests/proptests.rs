@@ -43,7 +43,7 @@ fn roundtrip(
             ..decode_options.unwrap_or_default()
         });
 
-        let node = if codec.supports_from_bytes() {
+        let node = if codec.supports_to_bytes() && codec.supports_from_bytes() {
             let (bytes, ..) = codec.to_bytes(node, encode_options).await?;
             let (node, ..) = codec.from_bytes(&bytes, decode_options).await?;
             node
