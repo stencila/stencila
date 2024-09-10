@@ -44,6 +44,7 @@ export class StyledBlock extends Styled {
           language=${this.styleLanguage}
           read-only
         >
+          <slot name="compilation-messages" slot="messages"></slot>
         </stencila-ui-node-code>
       </div>
 

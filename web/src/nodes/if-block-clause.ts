@@ -161,7 +161,7 @@ export class IfBlockClause extends CodeExecutable {
             ? 'hidden'
             : 'flex-grow flex items-center mr-1 max-w-[80%]'}
         >
-          <slot name="execution-messages" slot="execution-messages"></slot>
+          <slot name="execution-messages" slot="messages"></slot>
         </stencila-ui-node-code>
 
         ${this.programmingLanguage

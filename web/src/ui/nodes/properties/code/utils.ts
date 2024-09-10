@@ -1,6 +1,7 @@
 import { Diagnostic } from '@codemirror/lint'
 import { EditorView, Decoration, hoverTooltip } from '@codemirror/view'
 
+import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import {
   ProvenanceOpacityLevel,
@@ -47,13 +48,10 @@ export const stencilaTheme = EditorView.theme({
 /**
  * Creates a set of CodeMirror mark type decorations from the
  * array of `AuthorshipMarkers`
- *
- * @param marks ExecutionMessage[]
- * @returns Diagnostic[]
  */
 export const createLinterDiagnostics = (
   view: EditorView,
-  messages: ExecutionMessage[]
+  messages: (CompilationMessage | ExecutionMessage)[]
 ): Diagnostic[] => {
   const doc = view.state.doc
   return messages.map((msg): Diagnostic => {

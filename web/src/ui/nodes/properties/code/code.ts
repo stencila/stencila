@@ -15,6 +15,7 @@ import { apply } from '@twind/core'
 import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
 import '../../../buttons/chevron'
@@ -191,17 +192,17 @@ export class UINodeCode extends LitElement {
   ]
 
   /**
-   * Execution messages
+   * Compilation and execution messages
    */
-  private executionMessages: ExecutionMessage[] = []
+  private messages: (CompilationMessage | ExecutionMessage)[] = []
 
   /**
-   * Execution diagnostics associated with the code
+   * Diagnostics associated with the code
    *
    * This state is maintained because it is returned from the `LinterSource`
    * function that is passed to the linter (see below).
    */
-  private executionDiagnostics: Diagnostic[] = []
+  private diagnostics: Diagnostic[] = []
 
   /**
    * Get the CodeMirror editor extensions
@@ -216,7 +217,7 @@ export class UINodeCode extends LitElement {
       ? [await languageDescription.load()]
       : []
 
-    const linterExtension = [linter(() => this.executionDiagnostics)]
+    const linterExtension = [linter(() => this.diagnostics)]
 
     const authorshipMarkers = this.getAuthorshipMarkers()
     const authorshipExtensions = authorshipMarkers
@@ -224,7 +225,7 @@ export class UINodeCode extends LitElement {
           EditorView.decorations.of(
             createProvenanceDecorations(authorshipMarkers)
           ),
-          provenanceTooltip(authorshipMarkers, this.executionDiagnostics),
+          provenanceTooltip(authorshipMarkers, this.diagnostics),
         ]
       : []
 
@@ -260,15 +261,15 @@ export class UINodeCode extends LitElement {
   }
 
   /**
-   * A mutation observer to update the `executionMessages` array when
-   * the `execution-messages` slot changes
+   * A mutation observer to update the `messages` array when
+   * the `messages` slot changes
    */
-  private executionMessagesObserver: MutationObserver
+  private messagesObserver: MutationObserver
 
   /**
-   * Handle a change, including on initial load, of the `execution-messages` slot
+   * Handle a change, including on initial load, of the `messages` slot
    */
-  private onExecutionMessagesSlotChange(event: Event) {
+  private onMessagesSlotChange(event: Event) {
     // Get the messages element
     const messagesElem = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
@@ -279,38 +280,41 @@ export class UINodeCode extends LitElement {
     }
 
     // Update messages
-    this.updateExecutionMessages(messagesElem)
+    this.updateMessages(messagesElem)
 
     // Also update the messages when the element is mutated
-    this.executionMessagesObserver = new MutationObserver(() => {
-      this.updateExecutionMessages(messagesElem)
+    this.messagesObserver = new MutationObserver(() => {
+      this.updateMessages(messagesElem)
     })
-    this.executionMessagesObserver.observe(messagesElem, {
+    this.messagesObserver.observe(messagesElem, {
       childList: true,
     })
   }
 
   /**
-   * Updates the `executionMessages` property, generates linter
+   * Updates the `messages` property, generates linter
    * diagnostics for them, and updates the editor with those diagnostics
    */
-  private updateExecutionMessages(messagesElem?: HTMLElement) {
+  private updateMessages(messagesElem?: HTMLElement) {
     if (messagesElem) {
-      this.executionMessages = Array.from(messagesElem.children ?? []).filter(
-        (message: ExecutionMessage) => message?.message?.length > 0
-      ) as ExecutionMessage[]
+      this.messages = Array.from(messagesElem.children ?? []).filter(
+        (message: CompilationMessage | ExecutionMessage) =>
+          message?.message?.length > 0
+      ) as (CompilationMessage | ExecutionMessage)[]
     }
 
     if (this.editorView) {
-      this.executionDiagnostics =
+      this.diagnostics =
         this.executionRequired === 'SemanticsChanged' ||
         this.executionRequired === 'StateChanged'
           ? []
-          : createLinterDiagnostics(this.editorView, this.executionMessages)
+          : createLinterDiagnostics(this.editorView, this.messages)
+
+      console.log(this.diagnostics)
 
       const transaction = setDiagnostics(
         this.editorView.state,
-        this.executionDiagnostics
+        this.diagnostics
       )
       this.editorView.dispatch(transaction)
     }
@@ -330,6 +334,8 @@ export class UINodeCode extends LitElement {
           extensions,
           doc: this.code,
         })
+        // Always update messages when editor first created
+        this.updateMessages()
       })
     } else if (changedProperties.has('code')) {
       // Update the editor state
@@ -345,7 +351,7 @@ export class UINodeCode extends LitElement {
     }
 
     if (changedProperties.has('executionRequired')) {
-      this.updateExecutionMessages()
+      this.updateMessages()
     }
   }
 
@@ -369,8 +375,8 @@ export class UINodeCode extends LitElement {
         <div class=${contentClasses}>
           <div hidden>
             <slot
-              name="execution-messages"
-              @slotchange=${this.onExecutionMessagesSlotChange}
+              name="messages"
+              @slotchange=${this.onMessagesSlotChange}
             ></slot>
           </div>
           <div id="codemirror" class="bg-gray-50"></div>

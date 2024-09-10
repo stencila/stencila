@@ -66,7 +66,7 @@ export class CodeExpression extends CodeExecutable {
           execution-required=${this.executionRequired}
           read-only
         >
-          <slot name="execution-messages" slot="execution-messages"></slot>
+          <slot name="execution-messages" slot="messages"></slot>
         </stencila-ui-node-code>
       </div>
       <span slot="content">
