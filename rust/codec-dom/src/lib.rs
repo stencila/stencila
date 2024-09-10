@@ -54,11 +54,20 @@ impl Codec for DomCodec {
         let mut context = DomEncodeContext::new(standalone);
         node.to_dom(&mut context);
 
-        // Add the root attribute to the root node
-        // (the first opening tag)
+        // Add the root attribute to the root node (the first opening tag)
         let mut dom = context.content();
         if let Some(pos) = dom.find('>') {
             dom.insert_str(pos, " root");
+        }
+
+        // Get any styles defined in the content (e.g. Tailwind usage, or raw CSS blocks)
+        // If not standalone then this needs to be inserted at the top of the root node
+        // (for diffing and Morphdom to work it can not go before)
+        let style = context.style();
+        if !standalone && !style.is_empty() {
+            if let Some(pos) = dom.find('>') {
+                dom.insert_str(pos + 1, &style);
+            }
         }
 
         let html = if standalone {
@@ -76,8 +85,6 @@ impl Codec for DomCodec {
                     format!(r#"<link rel="alternate" type="{typ}" href="{path}" />"#)
                 })
                 .join("\n    ");
-
-            let style = context.style();
 
             format!(
                 r#"<!DOCTYPE html>

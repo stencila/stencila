@@ -47,6 +47,9 @@
           "@id": "stencila:Math"
         },
         {
+          "@id": "stencila:RawBlock"
+        },
+        {
           "@id": "stencila:Styled"
         }
       ],
@@ -65,6 +68,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
         },
         {
           "@id": "stencila:Styled"

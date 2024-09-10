@@ -37,6 +37,7 @@ mod math_inline;
 mod paragraph;
 mod parameter;
 mod prompt;
+mod raw_block;
 mod section;
 mod styled_block;
 mod styled_inline;
@@ -521,6 +522,7 @@ impl VisitorAsync for Executor {
             InstructionBlock(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
             Paragraph(node) => self.visit_executable(node).await,
+            RawBlock(node) => self.visit_executable(node).await,
             Section(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
             Table(node) => self.visit_executable(node).await,

@@ -22,6 +22,9 @@
   ],
   "core": [
     "id",
+    "compilationDigest",
+    "compilationMessages",
+    "css",
     "authors",
     "provenance"
   ],
@@ -97,6 +100,37 @@
         }
       },
       "$ref": "Cord.schema.json"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the `format` and `content` properties.",
+      "$comment": "Used to avoid unnecessary parsing and transpiling of the `content`.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while parsing and transpiling the `content` into the `css` property.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
+    "css": {
+      "@id": "stencila:css",
+      "description": "A Cascading Style Sheet (CSS) generated from the `content`.",
+      "$comment": "When the format is HTML, this property is the CSS generated for any Tailwind classes in\n\"class\" attributes. When the format is CSS, this property is the CSS transpiled to support\nmodern features such as nesting and custom media queries and minified.\n",
+      "type": "string"
     },
     "authors": {
       "@id": "schema:author",

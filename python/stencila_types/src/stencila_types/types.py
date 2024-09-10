@@ -2461,6 +2461,15 @@ class RawBlock(Entity):
     content: Cord
     """The raw content."""
 
+    compilation_digest: CompilationDigest | None = None
+    """A digest of the `format` and `content` properties."""
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while parsing and transpiling the `content` into the `css` property."""
+
+    css: str | None = None
+    """A Cascading Style Sheet (CSS) generated from the `content`."""
+
     authors: list[Author] | None = None
     """The authors of the content."""
 

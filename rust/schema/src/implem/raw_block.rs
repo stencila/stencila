@@ -19,17 +19,18 @@ impl DomCodec for RawBlock {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
+        // Push any CSS to the context so that it can be put in the right place
+        // in the document (usually only applies to HTML and CSS)
+        if let Some(css) = &self.css {
+            context.push_css(css);
+        }
+
+        // Add a div for the content if HTML or SVG
         let format = Format::from_name(&self.format);
-        if matches!(format, Format::Html | Format::Css | Format::Svg) {
+        if matches!(format, Format::Html | Format::Svg) {
             context.push_slot_fn("div", "content", |context| match format {
                 Format::Html | Format::Svg => {
                     context.push_html(&self.content.string);
-                }
-                Format::Css => {
-                    context
-                        .enter_elem("style")
-                        .push_text(&self.content.string)
-                        .exit_elem();
                 }
                 _ => {}
             });
