@@ -38,7 +38,7 @@ impl Executable for MathInline {
                     .map_or_else(
                         |error| (None, vec![error_to_compilation_message(error)]),
                         |(node, messages)| {
-                            let mathml = match output {
+                            let mathml = match node {
                                 Node::String(mathml) => Some(mathml),
                                 _ => None,
                             };
