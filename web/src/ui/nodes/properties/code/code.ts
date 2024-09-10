@@ -241,41 +241,6 @@ export class UINodeCode extends LitElement {
   }
 
   /**
-   * Get the title of the language to display
-   */
-  protected getLanguageTitle(): string {
-    switch (this.language.toLowerCase()) {
-      case 'asciimath':
-        return 'AsciiMath'
-      case 'bash':
-        return 'Bash'
-      case 'jinja':
-        return 'Jinja'
-      case 'js':
-        return 'JavaScript'
-      case 'latex':
-        return 'LaTeX'
-      case 'mathml':
-        return 'MathML'
-      case 'py':
-      case 'python':
-        return 'Python'
-      case 'r':
-        return 'R'
-      case 'rhai':
-        return 'Rhai'
-      case 'shell':
-        return 'Shell'
-      case 'sql':
-        return 'SQL'
-      case 'tex':
-        return 'TeX'
-      default:
-        return this.language
-    }
-  }
-
-  /**
    * Takes the string value of the `code-authorship` property and attempts to
    * parse it into JS, if successful will convert the elements in `CodeAuthorshipMarker` objects
    *
