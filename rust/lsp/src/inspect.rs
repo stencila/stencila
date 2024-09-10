@@ -519,10 +519,8 @@ default!(
     Form,
     InsertBlock,
     List,
-    MathBlock,
     ModifyBlock,
     QuoteBlock,
-    RawBlock,
     ReplaceBlock,
     Section,
     ThematicBreak,
@@ -558,31 +556,57 @@ default!(
     VideoObject
 );
 
-/// Implementation for nodes with content that can be used for detail
-macro_rules! contented {
+/// Implementation for nodes with compilation messages
+impl Inspect for RawBlock {
+    fn inspect(&self, inspector: &mut Inspector) {
+        // eprintln!("INSPECT COMPILED {}", self.node_id());
+
+        let execution = Some(TextNodeExecution {
+            messages: self.compilation_messages.as_ref().map(|messages| {
+                messages
+                    .iter()
+                    .map(|message| message.clone().into())
+                    .collect()
+            }),
+            ..Default::default()
+        });
+
+        inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            None,
+            None,
+            execution,
+            self.provenance.clone(),
+        );
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+macro_rules! compiled_options {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
             fn inspect(&self, inspector: &mut Inspector) {
-                // eprintln!("INSPECT CONT {}", self.node_id());
+                // eprintln!("INSPECT COMPILED {}", self.node_id());
 
-                let (detail, provenance) = if !inspector.in_table_cell {
-                    (
-                        self.content.first().map(|first| first.to_text().0),
-                        self.provenance.clone()
-                    )
-                } else{
-                    (None, None)
-                };
+                let execution = Some(TextNodeExecution{
+                    messages: self.options.compilation_messages.as_ref().map(|messages| {
+                        messages
+                            .iter()
+                            .map(|message| message.clone().into())
+                            .collect()
+                    }),
+                    ..Default::default()
+                });
 
-                inspector.enter_node(self.node_type(), self.node_id(), None, detail, None, provenance);
+                inspector.enter_node(self.node_type(), self.node_id(), None, None, execution, self.provenance.clone());
                 inspector.visit(self);
                 inspector.exit_node();
             }
         })*
     };
 }
-
-contented!(StyledBlock);
+compiled_options!(MathBlock, StyledBlock);
 
 /// Implementation for tables and figures which have a label and caption to used for details
 macro_rules! captioned {

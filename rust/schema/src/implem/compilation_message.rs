@@ -11,6 +11,7 @@ impl CompilationMessage {
         [&prefix, ": ", &self.message].concat()
     }
 }
+
 impl From<ExecutionMessage> for CompilationMessage {
     fn from(message: ExecutionMessage) -> Self {
         CompilationMessage {

@@ -291,8 +291,11 @@ fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<D
         .map(|message| {
             // Calculate range of diagnostic
             let range = if let Some(location) = &message.code_location {
-                let line_offset = if matches!(node.node_type, NodeType::CodeChunk) {
-                    // Plus one for line with code chunk back ticks
+                let line_offset = if matches!(
+                    node.node_type,
+                    NodeType::CodeChunk | NodeType::MathBlock | NodeType::RawBlock
+                ) {
+                    // Plus one for line with code chunk back ticks, double dollars etc
                     1
                 } else {
                     0

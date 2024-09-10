@@ -1,4 +1,4 @@
-use crate::ExecutionMessage;
+use crate::{CompilationMessage, ExecutionMessage};
 
 impl ExecutionMessage {
     /// Format the execution message, including error type and stack trace if present
@@ -16,5 +16,17 @@ impl ExecutionMessage {
         };
 
         formatted
+    }
+}
+
+impl From<CompilationMessage> for ExecutionMessage {
+    fn from(message: CompilationMessage) -> Self {
+        ExecutionMessage {
+            level: message.level,
+            message: message.message,
+            error_type: message.error_type,
+            code_location: message.code_location,
+            ..Default::default()
+        }
     }
 }
