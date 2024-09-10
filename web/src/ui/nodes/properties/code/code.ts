@@ -310,8 +310,6 @@ export class UINodeCode extends LitElement {
           ? []
           : createLinterDiagnostics(this.editorView, this.messages)
 
-      console.log(this.diagnostics)
-
       const transaction = setDiagnostics(
         this.editorView.state,
         this.diagnostics
