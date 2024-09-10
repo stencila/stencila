@@ -11,7 +11,8 @@ use kernel::{
     },
     format::Format,
     schema::{
-        ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
+        CodeLocation, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
+        SoftwareApplicationOptions,
     },
     Kernel, KernelInstance, KernelVariableRequester, KernelVariableResponder,
 };
@@ -28,7 +29,7 @@ impl Kernel for StyleKernel {
     }
 
     fn supports_languages(&self) -> Vec<Format> {
-        vec![Format::Css, Format::Tailwind]
+        vec![Format::Css, Format::Html, Format::Tailwind]
     }
 
     fn supports_variable_requests(&self) -> bool {
@@ -51,51 +52,57 @@ pub struct StyleKernelInstance {
 }
 
 impl StyleKernelInstance {
-    /// Transpile a style specification to CSS
-    async fn style_to_css(
-        &mut self,
-        style: &str,
-    ) -> Result<(String, String, Vec<ExecutionMessage>)> {
+    /// Transpile code (CSS, Tailwind classes, or HTML) to CSS
+    async fn code_to_css(&mut self, code: &str) -> Result<(String, String, Vec<ExecutionMessage>)> {
         let mut messages = Vec::new();
 
         // Transpile any dollar variable interpolations to Jinja interpolation
         static REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$(\w+)").expect("Invalid regex"));
-        let style = REGEX.replace_all(style, "{{$1}}");
+        let code = REGEX.replace_all(code, "{{$1}}");
 
         // Render any Jinja templating
-        let style = if style.contains("{%") || style.contains("{{") {
-            let (rendered, mut jinja_messages) = self.jinja.execute(&style).await?;
+        let style = if code.contains("{%") || code.contains("{{") {
+            let (rendered, mut jinja_messages) = self.jinja.execute(&code).await?;
             messages.append(&mut jinja_messages);
 
             if let Some(Node::String(rendered)) = rendered.first() {
                 rendered.to_string()
             } else {
-                style.to_string()
+                code.to_string()
             }
         } else {
-            style.to_string()
+            code.to_string()
         };
 
-        // Trim to avoid whitespace at ends changing hashes
-        let style = style.trim();
+        // Trim to avoid whitespace at ends changing hashes and to
+        // detect if it ends with a closing brace (see below)
+        let code = style.trim();
 
         // Currently, there is no way to tell the kernel what language the style is
         // in. So this assumes it is Tailwind unless it contains characters only found in CSS.
-        let (css, classes) = if !style.contains([';', '{', '}']) {
-            // Transpile Tailwind to CSS
-            let (css, mut tailwind_messages) = self.tailwind_to_css(style);
+        let (css, classes) = if code.contains(['<', '>']) {
+            // Transpile HTML in RawBlock, potentially with Tailwind classes, to CSS
+            let (css, mut tailwind_messages) = self.html_to_css(code);
             messages.append(&mut tailwind_messages);
-            (css, style.to_string())
+            (css, String::new())
+        } else if !code.contains([';', '{', '}']) {
+            // Transpile Tailwind in StyledBlock to CSS
+            let (css, mut tailwind_messages) = self.tailwind_to_css(code);
+            messages.append(&mut tailwind_messages);
+            (css, code.to_string())
+        } else if code.ends_with("}") {
+            // Complete CSS stylesheet in RawBlock: just return the CSS
+            (code.to_string(), String::new())
         } else {
-            // Hash and wrap CSS
+            // Inline CSS rules in StyledBlock: wrap the CSS into a unique class
             let mut hash = SeaHasher::new();
-            style.hash(&mut hash);
+            code.hash(&mut hash);
             let digest = hash.finish();
 
             // Prefix with letter to avoid a number ever being first
             let class = ["s", &bs58::encode(digest.to_be_bytes()).into_string()].concat();
 
-            let css = [".", &class, "{", &style, "}"].concat();
+            let css = [".", &class, "{", &code, "}"].concat();
             (css, class)
         };
 
@@ -110,17 +117,33 @@ impl StyleKernelInstance {
 
     /// Transpile Tailwind to CSS
     fn tailwind_to_css(&self, tw: &str) -> (String, Vec<ExecutionMessage>) {
-        let source = Source::String(tw.to_string(), CollectionOptions::String);
+        self.source_to_css(Source::String(tw.to_string(), CollectionOptions::String))
+    }
 
+    /// Parse HTML for Tailwind classes and transpile to CSS
+    fn html_to_css(&self, html: &str) -> (String, Vec<ExecutionMessage>) {
+        self.source_to_css(Source::String(html.to_string(), CollectionOptions::Html))
+    }
+
+    /// Tailwind [`Source`] to CSS
+    fn source_to_css(&self, source: Source) -> (String, Vec<ExecutionMessage>) {
         let mut warnings = Vec::new();
         let css = parse_to_string(source, false, &mut warnings);
 
         let messages: Vec<ExecutionMessage> = warnings
             .into_iter()
-            .map(|warning| ExecutionMessage {
-                level: MessageLevel::Warning,
-                message: warning.to_string(),
-                ..Default::default()
+            .map(|warning| {
+                let position = warning.position();
+                ExecutionMessage {
+                    level: MessageLevel::Warning,
+                    message: warning.message().to_string(),
+                    code_location: Some(CodeLocation {
+                        start_line: Some(position.line().saturating_sub(1) as u64),
+                        start_column: Some(position.column().saturating_sub(1) as u64),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }
             })
             .collect();
 
@@ -165,7 +188,7 @@ impl KernelInstance for StyleKernelInstance {
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Transpiling style to CSS");
 
-        let (css, classes, messages) = self.style_to_css(code).await?;
+        let (css, classes, messages) = self.code_to_css(code).await?;
 
         let css = Node::String(css);
         let classes = Node::String(classes);

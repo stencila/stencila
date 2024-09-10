@@ -7,7 +7,7 @@ edition = "2021"
 kernel = { path = "../kernel" }
 kernel-jinja = { path = "../kernel-jinja" }
 lightningcss = "1.0.0-alpha.55"
-railwind = "0.1.5"
+railwind = { git = "https://github.com/nokome/railwind" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
