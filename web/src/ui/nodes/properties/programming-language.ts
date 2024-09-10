@@ -16,6 +16,10 @@ export const programmingLanguages: Record<
     title: 'Bash',
     icon: 'bash',
   },
+  css: {
+    title: 'CSS',
+    icon: 'bracesAsterisk',
+  },
   jinja: {
     title: 'Jinja',
     icon: 'braces',
@@ -36,13 +40,25 @@ export const programmingLanguages: Record<
     title: 'JavaScript',
     icon: 'javascript',
   },
+  html: {
+    title: 'HTML',
+    icon: 'codeSlash',
+  },
   latex: {
     title: 'LaTeX',
     icon: 'latex',
   },
+  markdown: {
+    title: 'Markdown',
+    icon: 'markdown',
+  },
+  md: {
+    title: 'Markdown',
+    icon: 'markdown',
+  },
   mathml: {
     title: 'MathML',
-    icon: 'code',
+    icon: 'codeSlash',
   },
   node: {
     title: 'NodeJS',
@@ -75,6 +91,10 @@ export const programmingLanguages: Record<
   sql: {
     title: 'SQL',
     icon: 'circle',
+  },
+  svg: {
+    title: 'SVG',
+    icon: 'codeSlash',
   },
   tex: {
     title: 'TeX',

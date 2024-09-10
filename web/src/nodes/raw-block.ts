@@ -1,7 +1,7 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { IconName } from '../ui/icons/icon'
+import { getTitleIcon } from '../ui/nodes/properties/programming-language'
 import '../ui/nodes/node-card/in-flow/block'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
@@ -21,29 +21,9 @@ export class RawBlock extends Entity {
   contentAuthorship?: string
 
   override render() {
-    let icon: IconName = 'fileTypeRaw'
-    let title = `Raw ${this.format}`
-    switch (this.format.toLowerCase()) {
-      case 'css':
-        icon = 'css'
-        title = 'Raw CSS'
-        break
-      case 'js':
-        icon = 'javascript'
-        title = 'Raw JavaScript'
-        break
-      case 'html':
-        icon = 'html'
-        title = 'Raw HTML'
-        break
-      case 'md':
-      case 'markdown':
-        icon = 'markdown'
-        title = 'Raw Markdown'
-        break
-      case 'svg':
-        title = 'Raw SVG'
-        break
+    const { title, icon } = getTitleIcon(this.format) ?? {
+      title: this.format,
+      icon: 'fileTypeRaw',
     }
 
     return html`
@@ -52,7 +32,7 @@ export class RawBlock extends Entity {
         depth=${this.depth}
         ancestors=${this.ancestors}
         header-icon=${icon}
-        header-title=${title}
+        header-title="Raw ${title}"
       >
         <div slot="body">
           <stencila-ui-node-authors type="RawBlock">

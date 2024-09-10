@@ -28,6 +28,7 @@ import bars from './bars.svg'
 import bash from './bash.svg'
 import boxArrowUpRight from './box-arrow-up-right.svg'
 import box from './box.svg'
+import bracesAsterisk from './braces-asterisk.svg'
 import braces from './braces.svg'
 import building from './building.svg'
 import cameraVideo from './camera-video.svg'
@@ -42,8 +43,8 @@ import chevronDown from './chevron-down.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
 import codeChunk from './code-chunk.svg'
+import codeSlash from './code-slash.svg'
 import code from './code.svg'
-import cssIcon from './css.svg'
 import currencyDollar from './currency-dollar.svg'
 import dashCircle from './dash-circle.svg'
 import elifClause from './elif-clause.svg'
@@ -61,7 +62,6 @@ import handThumbsUp from './hand-thumbs-up.svg'
 import hash from './hash.svg'
 import heading from './heading.svg'
 import hr from './hr.svg'
-import htmlIcon from './html.svg'
 import ifBlock from './if-block.svg'
 import ifClause from './if-clause.svg'
 import imageAlt from './image-alt.svg'
@@ -119,6 +119,7 @@ const icons = {
   box,
   boxArrowUpRight,
   braces,
+  bracesAsterisk,
   building,
   cameraVideo,
   cardText,
@@ -133,7 +134,7 @@ const icons = {
   clock,
   code,
   codeChunk,
-  css: cssIcon,
+  codeSlash,
   currencyDollar,
   dashCircle,
   elifClause,
@@ -151,7 +152,6 @@ const icons = {
   hash,
   heading,
   hr,
-  html: htmlIcon,
   ifBlock,
   ifClause,
   image,

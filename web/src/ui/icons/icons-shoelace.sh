@@ -8,6 +8,7 @@ icons=(
     box
     box-arrow-up-right
     braces
+    braces-asterisk
     building
     camera-video
     card-text
@@ -21,6 +22,7 @@ icons=(
     circle
     clock
     code
+    code-slash
     currency-dollar
     dash-circle
     exclamation-circle
