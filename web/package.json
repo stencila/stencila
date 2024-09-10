@@ -46,6 +46,7 @@
     "fully supports es6-class"
   ],
   "scripts": {
+    "audit": "better-npm-audit audit",
     "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
     "lint": "eslint 'src/**/*.ts' && prettier --check .",
     "test": "tsc --skipLibCheck --noEmit",

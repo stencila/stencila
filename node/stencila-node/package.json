@@ -42,6 +42,7 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
+    "audit": "better-npm-audit audit",
     "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
     "lint": "eslint 'src/**/*.ts' && prettier --check .",
     "build:debug": "napi build --js false --dts src/bindings.d.ts",
