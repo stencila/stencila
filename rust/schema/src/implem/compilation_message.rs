@@ -1,4 +1,4 @@
-use crate::CompilationMessage;
+use crate::{CompilationMessage, ExecutionMessage};
 
 impl CompilationMessage {
     /// Format the compilation message, including error type if present
@@ -9,5 +9,16 @@ impl CompilationMessage {
         );
 
         [&prefix, ": ", &self.message].concat()
+    }
+}
+impl From<ExecutionMessage> for CompilationMessage {
+    fn from(message: ExecutionMessage) -> Self {
+        CompilationMessage {
+            level: message.level,
+            message: message.message,
+            error_type: message.error_type,
+            code_location: message.code_location,
+            ..Default::default()
+        }
     }
 }

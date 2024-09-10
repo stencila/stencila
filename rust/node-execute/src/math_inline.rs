@@ -48,15 +48,8 @@ impl Executable for MathInline {
                                 );
                             };
 
-                            let messages = messages
-                                .into_iter()
-                                .map(|message| CompilationMessage {
-                                    level: message.level,
-                                    message: message.message,
-                                    error_type: message.error_type,
-                                    ..Default::default()
-                                })
-                                .collect();
+                            let messages =
+                                messages.into_iter().map(CompilationMessage::from).collect();
 
                             (Some(mathml), messages)
                         },
