@@ -2,7 +2,6 @@ import { provide } from '@lit/context'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
-import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/context'
@@ -119,17 +118,6 @@ export abstract class Entity extends LitElement {
    */
   protected patchNode(patch: NodePatch) {
     this.dispatchEvent(nodePatchEvent(patch))
-  }
-
-  /**
-   * Convenience method to emit a directory action event
-   */
-  protected directoryAction(
-    type: DirectoryAction['type'],
-    path: string,
-    to?: string
-  ) {
-    this.dispatchEvent(directoryActionEvent({ type, path, to }))
   }
 
   override render() {
