@@ -485,7 +485,7 @@ dependencies = [
  "sync_wrapper 1.0.1",
  "tokio",
  "tokio-tungstenite",
- "tower",
+ "tower 0.4.13",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -2692,7 +2692,7 @@ dependencies = [
  "pin-project-lite",
  "socket2 0.5.7",
  "tokio",
- "tower",
+ "tower 0.4.13",
  "tower-service",
  "tracing",
 ]
@@ -3407,7 +3407,7 @@ dependencies = [
  "prompts",
  "schema",
  "tokio-util",
- "tower",
+ "tower 0.5.1",
  "tracing-subscriber",
 ]
 
@@ -5027,7 +5027,7 @@ dependencies = [
 [[package]]
 name = "railwind"
 version = "0.1.5"
-source = "git+https://github.com/nokome/railwind#e804d17b3f1e08ae96ab4aa048d237fc94e39911"
+source = "git+https://github.com/nokome/railwind?rev=e804d17b3f1e08ae96ab4aa048d237fc94e39911#e804d17b3f1e08ae96ab4aa048d237fc94e39911"
 dependencies = [
  "hex",
  "indexmap 1.9.3",
@@ -6655,7 +6655,7 @@ dependencies = [
  "socket2 0.5.7",
  "tokio",
  "tokio-stream",
- "tower",
+ "tower 0.4.13",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -6685,6 +6685,16 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
+]
+
+[[package]]
+name = "tower"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2873938d487c3cfb9aed7546dc9f2711d867c9f90c46b889989a2cb84eba6b4f"
+dependencies = [
+ "tower-layer",
+ "tower-service",
 ]
 
 [[package]]
