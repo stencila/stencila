@@ -4,9 +4,15 @@ import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import '../ui/nodes/card'
-import '../ui/nodes/properties/content-placeholder'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+
+import '../ui/nodes/commands/execution-commands'
+import '../ui/nodes/cards/block-on-demand'
+import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/provenance'
+import '../ui/nodes/properties/content-placeholder'
 
 import { Executable } from './executable'
 

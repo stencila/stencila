@@ -57,6 +57,8 @@ export class Link extends Entity {
     if (this.isHeaderLink && changedProperties.has('headingsContext')) {
       const id = this.target?.slice(1)
       const visibility = this.headingsContext[id]
+      // TODO: consider al alternative to disabling this lint error
+      // eslint-disable-next-line lit/no-property-change-update
       this.isActive = visibility
         ? visibility[0] === 0 || // <stencila-heading> within viewport
           visibility[1] === 0 || // <stencila-heading-end> within viewport

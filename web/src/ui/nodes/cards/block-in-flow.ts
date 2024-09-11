@@ -3,8 +3,9 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { withTwind } from '../../../../twind'
-import { UIBaseCard } from '../base-card'
+import { withTwind } from '../../../twind'
+
+import { UIBaseCard } from './base-card'
 
 /**
  * UI in-flow block

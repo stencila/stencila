@@ -10,6 +10,7 @@ import {
 
 import '../ui/nodes/properties/authors-provenance'
 import '../ui/document/article-headings'
+
 import { HEADING_VISIBILITY_EVENT, HeadingVisibilityEvent } from './heading'
 
 @customElement('stencila-article')

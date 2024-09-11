@@ -4,7 +4,9 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
+
 import '../ui/nodes/commands/execution-commands'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
@@ -31,10 +33,6 @@ export class CodeChunk extends CodeExecutable {
   @property({ attribute: 'is-invisible', type: Boolean })
   isInvisible?: boolean = false
 
-  /**
-   * In dynamic view, in addition to what is in static view, render a node card
-   * with execution actions and details and code read-only and collapsed.
-   */
   override render() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code Chunk',

@@ -3,9 +3,11 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import { Entity } from './entity'
-
+import '../ui/nodes/cards/block-on-demand'
+import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance'
+
+import { Entity } from './entity'
 
 /**
  * Figure
@@ -15,13 +17,7 @@ import '../ui/nodes/properties/provenance'
 @customElement('stencila-figure')
 @withTwind()
 export class Figure extends Entity {
-  /**
-   * In dynamic view render `content`, and `authors` and summary stats in a node
-   * card that is shown on hover.
-   */
   override render() {
-    // TODO: Add summary stats to card
-
     return html`
       <stencila-ui-block-on-demand
         type="Figure"

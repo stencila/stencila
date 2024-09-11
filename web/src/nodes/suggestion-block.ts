@@ -5,9 +5,13 @@ import { customElement, property } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 import { getClosest } from '../utilities/getClosest'
 
-import { Entity } from './entity'
-
 import '../ui/nodes/commands/suggestion-commands'
+import '../ui/nodes/cards/block-in-flow'
+import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/provenance'
+
+import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `SuggestionBlock` node

@@ -3,12 +3,13 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/node-card/on-demand/in-line'
 import '../ui/nodes/commands/execution-commands'
+import '../ui/nodes/cards/inline-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/provenance'
 
 import { CodeExecutable } from './code-executable'
 
@@ -20,10 +21,6 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-code-expression')
 @withTwind()
 export class CodeExpression extends CodeExecutable {
-  /**
-   * In dynamic view, in addition to what is in static view, render a node card
-   * on demand with execution actions and details and code read-only.
-   */
   override render() {
     return html`<stencila-ui-inline-on-demand
       type="CodeExpression"

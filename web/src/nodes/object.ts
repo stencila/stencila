@@ -1,24 +1,20 @@
-import { html } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
-
-import '../ui/nodes/node-card/on-demand/in-line'
 
 import { withTwind } from '../twind'
 
-import { Entity } from './entity'
+import '../ui/nodes/cards/inline-on-demand'
+
 import './object-item'
 
 /**
  * Web component representing a Stencila Schema `Object` node
  *
- * Note that this extends `Entity`, despite not doing so in Stencila Schema, to
- * make use of the various `render*View()` methods.
- *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md
  */
 @customElement('stencila-object')
 @withTwind()
-export class Object extends Entity {
+export class Object extends LitElement {
   /**
    * render a node card with the value in the content slot.
    */

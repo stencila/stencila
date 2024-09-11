@@ -2,7 +2,8 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
-import '../ui/nodes/node-card/in-flow/block'
+
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'

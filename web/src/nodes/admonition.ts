@@ -6,11 +6,11 @@ import { customElement, property, state } from 'lit/decorators'
 import { withTwind } from '../twind'
 import { admonitionUi } from '../ui/nodes/icons-and-colours'
 
-import { Entity } from './entity'
-
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance'
+
+import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `Admonition` node

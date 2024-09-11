@@ -5,12 +5,12 @@ import { customElement, property } from 'lit/decorators'
 import { withTwind } from '../twind'
 import { entityContext, EntityContext } from '../ui/nodes/context'
 
-import { Entity } from './entity'
-
 import '../ui/nodes/for-block-iteration'
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance'
+
+import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `Section` node

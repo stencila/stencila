@@ -4,6 +4,10 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
+import '../ui/nodes/cards/block-on-demand'
+import '../ui/nodes/cards/inline-on-demand'
+import '../ui/nodes/properties/authors'
+
 import { Entity } from './entity'
 
 /**

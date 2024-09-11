@@ -5,7 +5,7 @@ import { withTwind } from '../twind'
 
 import { Instruction } from './instruction'
 
-import '../ui/nodes/node-card/on-demand/in-line'
+import '../ui/nodes/cards/inline-on-demand'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
 
@@ -37,11 +37,7 @@ export class InstructionInline extends Instruction {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-execution-messages
-          type="InstructionInline"
-          warning-count=${this.warningCount}
-          error-count=${this.errorCount}
-        >
+        <stencila-ui-node-execution-messages type="InstructionInline">
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 

@@ -7,8 +7,10 @@ import { withTwind } from '../twind'
 import { IconName } from '../ui/icons/icon'
 import { EntityContext, entityContext } from '../ui/nodes/context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+
 import '../ui/animation/collapsible'
 import '../ui/nodes/properties/code/code'
+import '../ui/nodes/properties/content-placeholder'
 import '../ui/nodes/properties/programming-language'
 
 import { CodeExecutable } from './code-executable'
@@ -92,6 +94,8 @@ export class IfBlockClause extends CodeExecutable {
     if (changedProperties.has('ifBlockConsumer')) {
       // if card is closed only active path stays open
       if (!this.ifBlockConsumer.cardOpen) {
+        // TODO: consider al alternative to disabling this lint error
+        // eslint-disable-next-line lit/no-property-change-update
         this.isFolded = this.isActive === 'false'
       }
     }

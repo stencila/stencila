@@ -2,7 +2,13 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import '../ui/nodes/card'
+
+import '../ui/nodes/commands/execution-commands'
+import '../ui/nodes/cards/block-on-demand'
+import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/execution-messages'
+import '../ui/nodes/properties/provenance'
 
 import { IncludeBlock } from './include-block'
 

@@ -3,10 +3,11 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../../twind'
-import '../../../animation/collapsible'
-import { ToggleChipMixin } from '../../mixins/toggle-chip'
-import { UIBaseCard } from '../base-card'
+import { withTwind } from '../../../twind'
+import '../../animation/collapsible'
+import { ToggleChipMixin } from '../mixins/toggle-chip'
+
+import { UIBaseCard } from './base-card'
 
 /**
  * UI block-on-demand

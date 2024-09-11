@@ -3,12 +3,11 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/provenance'
 
 import { Entity } from './entity'
-
-import '../ui/nodes/properties/provenance'
 
 /**
  * Web component representing a Stencila Schema `Claim` node
@@ -21,13 +20,7 @@ export class Claim extends Entity {
   @property({ attribute: 'claim-type' })
   claimType: string
 
-  /**
-   * In dynamic view render `content`, and `authors` and summary stats in a node
-   * card that is shown on hover.
-   */
   override render() {
-    // TODO: Add summary stats to card
-
     return html`
       <stencila-ui-block-on-demand
         type="Claim"

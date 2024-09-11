@@ -1,10 +1,11 @@
-import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { ArrayValidator, NodeType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+
+import '../ui/icons/icon'
 
 import { Entity } from './entity'
 

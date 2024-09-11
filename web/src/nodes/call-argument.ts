@@ -3,7 +3,8 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import '../ui/nodes/card'
+
+import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/programming-language'
 
 import { Parameter } from './parameter'
@@ -52,7 +53,6 @@ export class CallArgument extends Parameter {
           code=${code}
           language=${language}
           read-only
-          disabled
           no-gutters
           class="flex items-center flex-grow max-w-[50%]"
           container-classes="inline-block w-full rounded-sm border border-[${borderColour}] overflow-hidden text-ellipsis"

@@ -7,7 +7,7 @@ import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Instruction } from './instruction'
 
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/execution-messages'
@@ -52,11 +52,7 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-execution-messages
-          type="InstructionBlock"
-          warning-count=${this.warningCount}
-          error-count=${this.errorCount}
-        >
+        <stencila-ui-node-execution-messages type="InstructionBlock">
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 

@@ -1,5 +1,4 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 

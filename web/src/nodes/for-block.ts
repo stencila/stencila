@@ -3,11 +3,15 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import '../ui/nodes/card'
+
 import '../ui/nodes/commands/execution-commands'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/execution-messages'
 import '../ui/nodes/properties/programming-language'
+import '../ui/nodes/properties/provenance'
 
 import { CodeExecutable } from './code-executable'
 

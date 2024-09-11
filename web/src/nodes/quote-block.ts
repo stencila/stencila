@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
@@ -18,13 +18,7 @@ import '../ui/nodes/properties/provenance'
 @customElement('stencila-quote-block')
 @withTwind()
 export class QuoteBlock extends Entity {
-  /**
-   * In dynamic view render `content` and summary stats in a node
-   * card that is shown on hover.
-   */
   override render() {
-    // TODO: Add summary stats to card
-
     return html`
       <stencila-ui-block-on-demand
         type="QuoteBlock"

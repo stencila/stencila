@@ -8,7 +8,7 @@ import { EntityContext, entityContext } from '../ui/nodes/context'
 
 import { Entity } from './entity'
 
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/authorship'
 import '../ui/nodes/properties/provenance'
@@ -22,10 +22,10 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class Paragraph extends Entity {
   /**
-   * a list of parent nodes that can require different
-   * behaviour/rendering of this node.
+   * A list of parent nodes types that require different
+   * rendering of this node.
    */
-  private static subscribedParentNodes: NodeType[] = [
+  private static parentNodeTypesSubscribedTo: NodeType[] = [
     'Admonition',
     'Claim',
     'CodeChunk',
@@ -37,13 +37,13 @@ export class Paragraph extends Entity {
   ]
 
   /**
-   * The ancester node directly above this one in the tree
+   * The node type of the parent node
    */
-  private directAncestor: NodeType
+  private parentNodeType: NodeType
 
   /**
-   * A consumer controller for the `EnityContext`,
-   * used to subscribe to the parent node's `EnityContext` if needed.
+   * A consumer controller for the `EntityContext`,
+   * used to subscribe to the parent node's `EntityContext` if needed.
    */
   private parentContext: ContextConsumer<
     { __context__: EntityContext },
@@ -53,15 +53,15 @@ export class Paragraph extends Entity {
   override connectedCallback() {
     super.connectedCallback()
 
-    this.directAncestor = this.ancestors.split('.').reverse()[0] as NodeType
+    this.parentNodeType = this.ancestors.split('.').reverse()[0] as NodeType
 
     /*
-      if this Paragraph needs to be subscribed to parent node
+      If this Paragraph needs to be subscribed to the parent node
       creates a consumer for the `entityContext`,
       this will subscribe to the nearest entityContext above this node.
     */
     if (
-      Paragraph.subscribedParentNodes.includes(this.directAncestor) &&
+      Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType) &&
       !this.parentContext
     ) {
       this.parentContext = new ContextConsumer(this, {
@@ -94,16 +94,10 @@ export class Paragraph extends Entity {
     }
   }
 
-  /**
-   * render `content`, and `authors` and summary stats in a node card
-   * that is shown on hover.
-   */
   override render() {
-    if (Paragraph.subscribedParentNodes.includes(this.directAncestor)) {
+    if (Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType)) {
       return html`<slot name="content"></slot>`
     }
-
-    // TODO: Add summary stats to card
 
     return html`
       <stencila-ui-block-on-demand

@@ -209,11 +209,15 @@ export class UIBaseCard extends UIBaseClass {
       switch (slot.name) {
         case 'content':
           if (hasItems !== this.displayContent) {
+            // TODO: consider al alternative to disabling this lint error
+            // eslint-disable-next-line lit/no-property-change-update
             this.displayContent = hasItems
           }
           break
         case 'header-right':
           if (hasItems !== this.hasHeaderContent) {
+            // TODO: consider al alternative to disabling this lint error
+            // eslint-disable-next-line lit/no-property-change-update
             this.hasHeaderContent = hasItems
           }
           break

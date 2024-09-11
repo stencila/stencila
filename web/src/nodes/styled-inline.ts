@@ -1,8 +1,8 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import '../ui/nodes/node-card/on-demand/in-line'
-import '../ui/nodes/node-card/in-flow/block'
+import '../ui/nodes/cards/inline-on-demand'
+import '../ui/nodes/cards/block-in-flow'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
@@ -16,10 +16,6 @@ import { Styled } from './styled'
  */
 @customElement('stencila-styled-inline')
 export class StyledInline extends Styled {
-  /**
-   * In dynamic view, in addition to what is in static view, render a node card
-   * with authors and code read-only.
-   */
   override render() {
     this.adoptCss()
 

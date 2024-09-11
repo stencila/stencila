@@ -3,9 +3,10 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
+import '../ui/nodes/cards/block-on-demand'
+
 import { Entity } from './entity'
 
-import '../ui/nodes/node-card/on-demand/block'
 import './datatable-column'
 
 /**
@@ -16,9 +17,6 @@ import './datatable-column'
 @customElement('stencila-datatable')
 @withTwind()
 export class Datatable extends Entity {
-  /**
-   * In dynamic view, render a node card with the table in the content slot.
-   */
   override render() {
     return html`
       <stencila-ui-block-on-demand

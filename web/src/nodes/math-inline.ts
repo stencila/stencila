@@ -3,8 +3,8 @@ import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/node-card/on-demand/in-line'
-import '../ui/nodes/node-card/in-flow/block'
+import '../ui/nodes/cards/inline-on-demand'
+import '../ui/nodes/cards/block-in-flow'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
@@ -20,7 +20,7 @@ export class MathInline extends Math {
    */
   override render() {
     return html`
-      <stencila-ui-inline-on-demand style-content type="MathInline">
+      <stencila-ui-inline-on-demand type="MathInline">
         <div slot="body">
           <stencila-ui-node-authors type="MathInline">
             <stencila-ui-node-provenance slot="provenance">

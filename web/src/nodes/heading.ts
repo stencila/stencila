@@ -3,7 +3,7 @@ import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { NodeId } from '../types'
-import '../ui/nodes/node-card/on-demand/block'
+import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/authorship'
 import '../ui/nodes/properties/provenance'
@@ -56,10 +56,6 @@ export class Heading extends Entity {
       ),
   })
 
-  /**
-   * In dynamic view, render the `content`, `authors` and summary stats in
-   * a node card that is shown on demand.
-   */
   override render() {
     return html`
       <stencila-ui-block-on-demand type="Heading" node-id=${this.id}>
