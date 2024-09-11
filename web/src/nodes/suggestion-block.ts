@@ -3,7 +3,6 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import { getClosest } from '../utilities/getClosest'
 
 import '../ui/nodes/commands/suggestion-commands'
 import '../ui/nodes/cards/block-in-flow'
@@ -37,7 +36,7 @@ export class SuggestionBlock extends Entity {
     const showSuggestion =
       !this.suggestionStatus || this.suggestionStatus === 'Proposed'
 
-    const instructionId = getClosest(this, 'stencila-instruction-block').id
+    const instructionId = this.closestGlobally('stencila-instruction-block').id
 
     return html`<stencila-ui-block-in-flow
       class=${!showSuggestion ? 'hidden' : ''}

@@ -6,7 +6,6 @@ import {
   DocumentHeadingsContext,
   documentHeadingsContext,
 } from '../ui/document/context'
-import { getClosest } from '../utilities/getClosest'
 
 import { Entity } from './entity'
 
@@ -48,7 +47,7 @@ export class Link extends Entity {
     super.connectedCallback()
 
     // Determine this initially, rather than repeatedly in `update()`
-    this.isHeaderLink = getClosest(this, 'nav[slot=headings]') !== null
+    this.isHeaderLink = this.closestGlobally('nav[slot=headings]') !== null
   }
 
   protected override update(changedProperties: PropertyValues): void {

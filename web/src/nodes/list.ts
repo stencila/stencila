@@ -5,8 +5,6 @@ import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/provenance'
 
-import { getClosest } from '../utilities/getClosest'
-
 import { Entity } from './entity'
 
 /**
@@ -18,7 +16,7 @@ import { Entity } from './entity'
 export class List extends Entity {
   override render() {
     // Do not render a node card for headings slot
-    if (getClosest(this, 'nav[slot=headings]')) {
+    if (this.closestGlobally('nav[slot=headings]')) {
       return html` <slot name="items"></slot> `
     }
 
