@@ -21,6 +21,7 @@ use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
+use kernel_mermaid::MermaidKernel;
 use kernel_nodejs::NodeJsKernel;
 use kernel_python::PythonKernel;
 use kernel_quickjs::QuickJsKernel;
@@ -40,6 +41,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
         Box::<JinjaKernel>::default() as Box<dyn Kernel>,
+        Box::<MermaidKernel>::default() as Box<dyn Kernel>,
         Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
