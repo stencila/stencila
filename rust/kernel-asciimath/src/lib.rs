@@ -99,7 +99,7 @@ impl AsciiMathKernelInstance {
                     _ => {
                         return Err(ExecutionMessage {
                             level: MessageLevel::Error,
-                            message: format!("Non-ASCII characters are not allowed"),
+                            message: "Non-ASCII characters are not allowed".to_string(),
                             code_location: Some(CodeLocation {
                                 start_line: Some(line),
                                 start_column: Some((index - line_start) as u64),
