@@ -5,6 +5,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../animation/collapsible'
+import '../chip'
 import { ToggleChipMixin } from '../mixins/toggle-chip'
 
 import { UIBaseCard } from './base-card'
@@ -66,6 +67,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     return html`
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
+        <stencila-ui-node-chip></stencila-ui-node-chip>
         ${this.renderChip(this.getIcon(), this.ui)}
         <div class="content-block ${contentStyles}">
           <slot name="content" class="relative w-full"></slot>
