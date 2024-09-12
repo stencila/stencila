@@ -5,6 +5,7 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../animation/collapsible'
+import '../chip'
 import { ToggleChipMixin } from '../mixins/toggle-chip'
 
 import { UIBaseCard } from './base-card'
@@ -101,6 +102,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
     >
+      <stencila-ui-node-chip></stencila-ui-node-chip>
       ${this.renderChip(this.getIcon(), this.ui)}
       <sl-tooltip
         trigger="manual"
