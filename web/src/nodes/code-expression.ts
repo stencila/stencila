@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { getTitleIcon } from '../ui/nodes/properties/programming-language'
 
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/cards/inline-on-demand'
@@ -22,9 +23,16 @@ import { CodeExecutable } from './code-executable'
 @withTwind()
 export class CodeExpression extends CodeExecutable {
   override render() {
+    const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
+      title: 'Code',
+      icon: 'code',
+    }
+
     return html`<stencila-ui-inline-on-demand
       type="CodeExpression"
       programming-language=${this.programmingLanguage}
+      header-icon=${icon}
+      header-title="${title} Expression"
     >
       <span slot="header-right">
         <stencila-ui-node-execution-commands

@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
+import { getTitleIcon } from '../ui/nodes/properties/programming-language'
 
 import '../ui/nodes/cards/block-in-flow'
 import '../ui/nodes/cards/inline-on-demand'
@@ -15,10 +16,22 @@ import { CodeStatic } from './code-static'
 @withTwind()
 export class CodeInline extends CodeStatic {
   override render() {
+    // If no programming language, then do not show node card to reduce visual noise
+    if (!this.programmingLanguage) {
+      return html`<slot></slot>`
+    }
+
+    const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
+      title: 'Inline Code',
+      icon: 'code',
+    }
+
     return html`
       <stencila-ui-inline-on-demand
         type="CodeInline"
         programming-language=${this.programmingLanguage}
+        header-icon=${icon}
+        header-title=${title}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeInline">
