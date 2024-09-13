@@ -10,6 +10,7 @@ import '../ui/nodes/cards/inline-on-demand'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
+import { ExecutionMessage } from './execution-message'
 
 /**
  * Web component representing a Stencila Schema `ImageObject` node
@@ -66,22 +67,68 @@ export class ImageObject extends Entity {
     const container = document.createElement('div')
     document.body.appendChild(container)
 
+    let codeChunk
+    if (this.ancestors.endsWith('CodeChunk')) {
+      codeChunk = this.closestGlobally('stencila-code-chunk')
+
+      if (codeChunk) {
+        // Clear any existing messages
+        const messages = codeChunk.querySelector('div[slot=messages]')
+        if (messages) {
+          while (messages.firstChild) {
+            messages.removeChild(messages.firstChild)
+          }
+        }
+      }
+    }
+
     try {
       const id = 'stencila-' + Date.now()
       this.svg = (await mermaid.render(id, this.content, container)).svg
     } catch (error) {
-      // TODO: if this.ancestors.endsWith('CodeChunk') then add a compilation
-      // message to that code chunk. Otherwise, render a pre element
-      // with error
+      if (codeChunk) {
+        // Get the messages slot, adding one if necessary
+        let messages = codeChunk.querySelector('div[slot=messages]')
+        if (!messages) {
+          messages = document.createElement('div')
+          messages.setAttribute('slot', 'execution-messages')
+          codeChunk.appendChild(messages)
+        }
 
-      // TODO parse error messages to get line and colum e.g.
-      /*
-      Parse error on line 2:
-      graph LR    A -> B
-      --------------^
-      Expecting 'SEMI', 'NEWLINE'
-      */
-      this.error = error.message ?? error.toString()
+        // Add the message
+        const message = document.createElement(
+          'stencila-execution-message'
+        ) as ExecutionMessage
+        message.setAttribute('level', 'Error')
+        message.setAttribute('error-type', 'ParseError')
+
+        const expected = error.hash?.expected
+        let str: string
+        if (expected) {
+          str = `expected ${expected.join(', ')}`
+        } else {
+          str = error.message ?? error.toString()
+          str = str.slice(str.lastIndexOf('-^\n')).trim()
+        }
+        message.setAttribute('message', str)
+
+        const loc = error.hash?.loc
+        const startLine = (loc.first_line ?? 1) - 1
+        const startCol = (loc.first_column ?? 0) + 1
+        const endLine = (loc.last_line ?? 1) - 1
+        const endCol = (loc.last_column ?? 0) + 1
+        if (loc) {
+          message.setAttribute(
+            'code-location',
+            `[${startLine},${startCol},${endLine},${endCol}]`
+          )
+        }
+
+        messages.appendChild(message)
+      } else {
+        // Otherwise, render a <pre> element with error
+        this.error = error.message ?? error.toString()
+      }
     }
 
     container.remove()
