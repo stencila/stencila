@@ -164,6 +164,12 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
+      name: 'mermaid',
+      load: async () => {
+        return import('codemirror-lang-mermaid').then((obj) => obj.mermaid())
+      },
+    }),
+    LanguageDescription.of({
       name: 'python',
       alias: ['py'],
       load: async () => {
