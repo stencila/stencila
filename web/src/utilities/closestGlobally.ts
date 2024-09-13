@@ -6,7 +6,10 @@
  *
  * Based on https://stackoverflow.com/questions/54520554/custom-element-getrootnode-closest-function-crossing-multiple-parent-shadowd
  */
-export function closestGlobally(elem: HTMLElement, selector: string): HTMLElement | null {
+export function closestGlobally(
+  elem: HTMLElement,
+  selector: string
+): HTMLElement | null {
   function closest(elem: HTMLElement | Document | Window): HTMLElement | null {
     if (!elem || elem === document || elem === window) return null
     const found = (elem as HTMLElement).closest(selector)

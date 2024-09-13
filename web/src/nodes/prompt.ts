@@ -13,8 +13,6 @@ export class StencilaPrompt extends LitElement {
   root: boolean
 
   override render() {
-    return html`
-      <slot name="content"></slot>
-    `
+    return html` <slot name="content"></slot> `
   }
 }
