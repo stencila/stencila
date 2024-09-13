@@ -20,6 +20,16 @@ import { EntityContext, entityContext } from '../ui/nodes/context'
  */
 export abstract class Entity extends LitElement {
   /**
+   * The Stencila Schema `id` property
+   * 
+   * Not to be confused with the Rust `node_id` which is on every node (apart
+   * from primitives) and in DOM HTML is represented as the `id` property (for
+   * fast DOM diffing with Morphdom).
+   */
+  @property({ attribute: '_id' })
+  $id?: string
+
+  /**
    * The depth of the node in the node tree
    *
    * The root node (e.g. `Article`) will have a depth of zero.

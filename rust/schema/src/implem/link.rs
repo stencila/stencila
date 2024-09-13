@@ -9,11 +9,7 @@ impl DomCodec for Link {
         // `target` and `id` properties are placed on the node element
         // for use by web components
 
-        context.push_attr("target", &self.target);
-
-        if let Some(id) = &self.id {
-            context.push_attr("@id", id);
-        }
+        context.push_id(&self.id).push_attr("target", &self.target);
 
         // `target` (as `href`) and other standard HTML attributes put on inner <a> tag
 
