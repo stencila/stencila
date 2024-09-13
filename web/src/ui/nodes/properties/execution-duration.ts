@@ -28,7 +28,6 @@ export class UINodeExecutionDuration extends LitElement {
     return html`
       <stencila-ui-node-simple-property
         icon-name="stopwatch"
-        icon-library="default"
         tooltip-content=${tooltip}
       >
         ${value}
