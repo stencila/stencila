@@ -5,6 +5,7 @@ import { property, state } from 'lit/decorators'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/context'
+import { closestGlobally } from '../utilities/closestGlobally'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -21,7 +22,7 @@ import { EntityContext, entityContext } from '../ui/nodes/context'
 export abstract class Entity extends LitElement {
   /**
    * The Stencila Schema `id` property
-   * 
+   *
    * Not to be confused with the Rust `node_id` which is on every node (apart
    * from primitives) and in DOM HTML is represented as the `id` property (for
    * fast DOM diffing with Morphdom).
@@ -79,22 +80,9 @@ export abstract class Entity extends LitElement {
 
   /**
    * Select the closest element matching a selector
-   *
-   * This is similar to the `closest` method of HTML elements but traverses
-   * up out of the shadow root is necessary.
-   *
-   * Based on https://stackoverflow.com/questions/54520554/custom-element-getrootnode-closest-function-crossing-multiple-parent-shadowd
    */
   protected closestGlobally(selector: string): HTMLElement | null {
-    function closest(
-      elem: HTMLElement | Document | Window
-    ): HTMLElement | null {
-      if (!elem || elem === document || elem === window) return null
-      const found = (elem as HTMLElement).closest(selector)
-      // @ts-expect-error because `Node` has no host property
-      return found ? found : closest(elem.getRootNode().host)
-    }
-    return closest(this)
+    return closestGlobally(this, selector)
   }
 
   /**

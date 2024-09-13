@@ -2,6 +2,7 @@ import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { closestGlobally } from '../utilities/closestGlobally'
 
 import '../ui/nodes/cards/inline-on-demand'
 
@@ -14,10 +15,10 @@ import '../ui/nodes/cards/inline-on-demand'
 @withTwind()
 export class Integer extends LitElement {
   override render() {
-    return html`
-      <stencila-ui-inline-on-demand type="Integer">
-        <div slot="content" class="w-full"><slot></slot></div>
-      </stencila-ui-inline-on-demand>
-    `
+    return closestGlobally(this, 'stencila-code-expression')
+      ? html`<slot></slot>`
+      : html`<stencila-ui-inline-on-demand type="Integer">
+          <span slot="content"><slot></slot></span>
+        </stencila-ui-inline-on-demand>`
   }
 }
