@@ -1,0 +1,12 @@
+[package]
+name = "kernel-mermaid"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+base64 = { workspace = true }
+kernel = { path = "../kernel" }
+kernel-jinja = { path = "../kernel-jinja" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

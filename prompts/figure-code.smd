@@ -28,9 +28,7 @@ First, open the figure with a three colon fence and the keyword `figure`:
 ::: figure
 ```
 
-Next, write a caption for the figure as a separate paragraph. If necessary, the caption should expand the user's instruction into a complete, accurate and descriptive sentence of what the figure is showing.
-
-Pay attention to any figure captions already in the document and use them to guide the style and length of the caption that you write.
+::: include instructions/document/figures/caption.smd
 
 Next, write an executable code block, starting with three backticks, the name of the programming language, and the keyword `exec` on the same line i.e:
 

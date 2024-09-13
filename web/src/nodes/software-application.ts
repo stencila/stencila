@@ -15,9 +15,6 @@ import { Entity } from './entity'
 @customElement('stencila-software-application')
 @withTwind()
 export class SoftwareApplication extends Entity {
-  @property({ attribute: '@id' })
-  $id?: string
-
   @property()
   name: string
 

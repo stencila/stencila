@@ -75,6 +75,7 @@ import lightning from './lightning.svg'
 import list from './list.svg'
 import markdown from './markdown.svg'
 import mathBlock from './math-block.svg'
+import mermaid from './mermaid.svg'
 import mistral from './mistral.svg'
 import nodejs from './nodejs.svg'
 import ollama from './ollama.svg'
@@ -165,6 +166,7 @@ const icons = {
   list,
   markdown,
   mathBlock,
+  mermaid,
   mistral,
   nodejs,
   ollama,

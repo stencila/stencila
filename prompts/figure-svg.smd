@@ -12,7 +12,7 @@ instruction-patterns:
   - (?i)\bsvg fig(ure)?\b
   - (?i)\bdrawing of\b
   - (?i)\bsvg\b
-node-type: RawBlock
+node-type: Figure
 ---
 
 # Instructions
@@ -27,13 +27,9 @@ First, open the figure with a three colon fence and the keyword `figure`:
 ::: figure
 ```
 
-Next, write a caption for the figure as a separate paragraph. If necessary, the caption should expand the user's instruction into a complete, accurate and descriptive sentence of what the figure is showing.
+::: include instructions/document/figures/caption.smd
 
-Pay attention to any figure captions already in the document and use them to guide the style and length of the caption that you write.
-
-You may use Markdown and inline math within the figure caption.
-
-Next, write an SVG code block, starting with three backticks, the name of the programming language, and the keyword `raw` on the same line i.e:
+Next, write an SVG code block, starting with three backticks and `svg raw` on the same line i.e:
 
 ````raw
 ```svg raw

@@ -3085,6 +3085,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-mermaid"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "common-dev",
+ "kernel",
+ "kernel-jinja",
+]
+
+[[package]]
 name = "kernel-micro"
 version = "0.0.0"
 dependencies = [
@@ -3172,6 +3182,7 @@ dependencies = [
  "kernel-bash",
  "kernel-graphviz",
  "kernel-jinja",
+ "kernel-mermaid",
  "kernel-nodejs",
  "kernel-python",
  "kernel-quickjs",

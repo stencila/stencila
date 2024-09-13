@@ -250,11 +250,11 @@ impl DomEncodeContext {
 
     /// Push the `id`` property of `Entity` nodes
     ///
-    /// Uses `@id` as the attribute to avoid conflict with `id` which is
+    /// Uses `_id` as the attribute to avoid conflict with `id` which is
     /// necessary for DOM syncing etc
     pub fn push_id(&mut self, id: &Option<String>) -> &mut Self {
         if let Some(id) = id {
-            self.push_attr("@id", id);
+            self.push_attr("_id", id);
         }
 
         self
