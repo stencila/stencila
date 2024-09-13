@@ -6,13 +6,12 @@ This document contains the help content for the `stencila` command-line program.
 
 * [`stencila`↴](#stencila)
 * [`stencila new`↴](#stencila-new)
-* [`stencila import`↴](#stencila-import)
-* [`stencila export`↴](#stencila-export)
 * [`stencila sync`↴](#stencila-sync)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila compile`↴](#stencila-compile)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
+* [`stencila preview`↴](#stencila-preview)
 * [`stencila publish`↴](#stencila-publish)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila lsp`↴](#stencila-lsp)
@@ -57,28 +56,33 @@ CLI subcommands and global options
 ###### **Subcommands:**
 
 * `new` — Create a new document
-* `import` — Import a file in another format into a new or existing document
-* `export` — Export a document to a file in another format
-* `sync` — Synchronize a document with one of more other files in other formats
-* `convert` — Convert a document between formats
+* `sync` — Synchronize a document between formats
+* `convert` — Convert a document to another format
 * `compile` — Compile a document
 * `execute` — Execute a document
 * `render` — Render a document
+* `preview` — Preview a document or site
 * `publish` — Publish a document or site
-* `serve` — Options for the `serve` function
-* `lsp` — Run the Stencila Language Server
+* `serve` — Run the HTTP/Websocket server
+* `lsp` — Run the Language Server Protocol server
 * `prompts` — Manage prompts
 * `models` — Manage generative models
 * `kernels` — Manage execution kernels
 * `codecs` — Manage format conversion codecs
 * `plugins` — Manage plugins
-* `secrets` — Manage secrets used by Stencila (e.g. API keys)
+* `secrets` — Manage secrets
 * `config` — 
 * `upgrade` — Upgrade to the latest version
 * `uninstall` — Uninstall this command line tool
 
 ###### **Options:**
 
+* `--debug` — Display debug level logging and detailed error reports
+
+   Equivalent to using `--log-level=debug`, `--log-format=pretty`, and `--error-details=all`
+* `--trace` — Display trace level logging and detailed error reports
+
+   Equivalent to using `--log-level=trace`, `--log-format=pretty`, and `--error-details=all`
 * `--log-level <LOG_LEVEL>` — The minimum log level to output
 
   Default value: `info`
@@ -100,7 +104,7 @@ CLI subcommands and global options
 
 * `--error-details <ERROR_DETAILS>` — The details to include in error reports
 
-   A comma separated list including `location`, `span`, or `env`.
+   `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
 
   Default value: `auto`
 * `--error-link` — Output a link to more easily report an issue
@@ -126,106 +130,13 @@ Create a new document
 
 
 
-## `stencila import`
-
-Import a file in another format into a new or existing document
-
-**Usage:** `stencila import [OPTIONS] <DOC> <SOURCE>`
-
-###### **Arguments:**
-
-* `<DOC>` — The path of the document to create or import to
-* `<SOURCE>` — The source file to import from
-
-###### **Options:**
-
-* `-f`, `--from <FROM>` — The format of the source file
-
-   Defaults to inferring the format from the file name extension of the source file.
-* `-l`, `--losses <LOSSES>` — What to do if there are losses when decoding
-
-  Default value: `warn`
-* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
-
-  Possible values:
-  - `authors`:
-    Strip authorship properties of nodes
-  - `provenance`:
-    Strip provenance properties of nodes
-  - `metadata`:
-    Strip metadata properties of nodes
-  - `content`:
-    Strip content properties of nodes
-  - `code`:
-    Strip code properties of executable nodes
-  - `execution`:
-    Strip execution related properties of executable nodes
-  - `output`:
-    Strip output properties of executable nodes
-  - `timestamps`:
-    Strip timestamp properties
-
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-
-
-
-## `stencila export`
-
-Export a document to a file in another format
-
-**Usage:** `stencila export [OPTIONS] <DOC> [DEST]`
-
-###### **Arguments:**
-
-* `<DOC>` — The path of the document to export from
-* `<DEST>` — The destination file to export to
-
-###### **Options:**
-
-* `-t`, `--to <TO>` — The format of the destination file
-
-   Defaults to inferring the format from the file name extension of the destination file.
-* `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding
-
-  Default value: `warn`
-* `--standalone` — Encode as a standalone document
-* `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
-* `-c`, `--compact` — Use compact form of encoding if possible
-
-   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
-* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
-
-   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
-
-  Possible values:
-  - `authors`:
-    Strip authorship properties of nodes
-  - `provenance`:
-    Strip provenance properties of nodes
-  - `metadata`:
-    Strip metadata properties of nodes
-  - `content`:
-    Strip content properties of nodes
-  - `code`:
-    Strip code properties of executable nodes
-  - `execution`:
-    Strip execution related properties of executable nodes
-  - `output`:
-    Strip output properties of executable nodes
-  - `timestamps`:
-    Strip timestamp properties
-
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-
-
-
 ## `stencila sync`
 
-Synchronize a document with one of more other files in other formats
+Synchronize a document between formats
+
+The direction of synchronization can be specified by appending the to the file path:
+
+- `:in` only sync incoming changes from the file - `:out` only sync outgoing changes to the file - `:io` sync incoming and outgoing changes (default)
 
 **Usage:** `stencila sync [OPTIONS] <DOC> [FILES]...`
 
@@ -262,6 +173,8 @@ Synchronize a document with one of more other files in other formats
     Strip metadata properties of nodes
   - `content`:
     Strip content properties of nodes
+  - `archive`:
+    Strip archive properties of node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -278,7 +191,7 @@ Synchronize a document with one of more other files in other formats
 
 ## `stencila convert`
 
-Convert a document between formats
+Convert a document to another format
 
 **Usage:** `stencila convert [OPTIONS] [INPUT] [OUTPUT]`
 
@@ -329,6 +242,8 @@ Convert a document between formats
     Strip metadata properties of nodes
   - `content`:
     Strip content properties of nodes
+  - `archive`:
+    Strip archive properties of node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -383,6 +298,8 @@ Compile a document
     Strip metadata properties of nodes
   - `content`:
     Strip content properties of nodes
+  - `archive`:
+    Strip archive properties of node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -456,6 +373,8 @@ Execute a document
     Strip metadata properties of nodes
   - `content`:
     Strip content properties of nodes
+  - `archive`:
+    Strip archive properties of node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -531,6 +450,8 @@ Equivalent to the `execute` command with the `--render` flag.
     Strip metadata properties of nodes
   - `content`:
     Strip content properties of nodes
+  - `archive`:
+    Strip archive properties of node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -545,6 +466,33 @@ Equivalent to the `execute` command with the `--render` flag.
 
 
 
+## `stencila preview`
+
+Preview a document or site
+
+Opens a preview of a document or site in the browser. When `--sync=in` (the default) the preview will update when the document is saved to disk.
+
+**Usage:** `stencila preview [OPTIONS] [PATH]`
+
+###### **Arguments:**
+
+* `<PATH>` — The path to the document file or site directory to preview
+
+   Defaults to the current directory.
+
+  Default value: `.`
+
+###### **Options:**
+
+* `--sync <SYNC>` — Which direction(s) to sync the document
+
+  Default value: `in`
+
+  Possible values: `in`, `out`, `in-out`
+
+
+
+
 ## `stencila publish`
 
 Publish a document or site
@@ -553,11 +501,15 @@ Currently only supports publishing a single document to the web via Stencila Clo
 
 In the future, it is likely that other publication platforms will be supported.
 
-**Usage:** `stencila publish [OPTIONS] <PATH>`
+**Usage:** `stencila publish [OPTIONS] [PATH]`
 
 ###### **Arguments:**
 
-* `<PATH>` — The file or directory to publish
+* `<PATH>` — The path to the document file or site directory to publish
+
+   Defaults to the current directory.
+
+  Default value: `.`
 
 ###### **Options:**
 
@@ -567,7 +519,7 @@ In the future, it is likely that other publication platforms will be supported.
 
 ## `stencila serve`
 
-Options for the `serve` function
+Run the HTTP/Websocket server
 
 **Usage:** `stencila serve [OPTIONS] [DIR]`
 
@@ -609,7 +561,7 @@ Options for the `serve` function
 
 ## `stencila lsp`
 
-Run the Stencila Language Server
+Run the Language Server Protocol server
 
 **Usage:** `stencila lsp`
 
@@ -950,7 +902,7 @@ Check a plugin
 
 ## `stencila secrets`
 
-Manage secrets used by Stencila (e.g. API keys)
+Manage secrets
 
 **Usage:** `stencila secrets [COMMAND]`
 
