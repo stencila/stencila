@@ -4,6 +4,8 @@
 
 @import './shared.css';
 
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+
 body {
   margin: 0;
   padding: 0;
@@ -13,7 +15,7 @@ body {
 
 :root {
   @apply mx-auto;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: 'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
   padding: 3rem;
 
   /* custom properties */
@@ -43,7 +45,8 @@ figure {
   color: var(--default-text-colour);
 
   > section {
-    @apply min-w-80 w-full max-w-prose mx-auto;
+    @apply min-w-80 w-full mx-auto;
+    max-width: 72ch;
   }
 
   h1,
