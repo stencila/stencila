@@ -23,7 +23,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use schema::{Article, AuthorRole, Node, NodeId, Patch};
+use schema::{Article, AuthorRole, Node, NodeId, NodeType, Patch};
 
 mod sync_directory;
 mod sync_dom;
@@ -394,6 +394,11 @@ impl Document {
     /// Get the id of the document
     pub fn id(&self) -> &DocumentId {
         &self.id
+    }
+
+    /// Get the [`NodeType`] of the root node
+    pub async fn root_type(&self) -> NodeType {
+        self.root.read().await.node_type()
     }
 
     /// Import a file into a new, or existing, document
