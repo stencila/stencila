@@ -164,6 +164,12 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
+      name: 'mermaid',
+      load: async () => {
+        return import('codemirror-lang-mermaid').then((obj) => obj.mermaid())
+      },
+    }),
+    LanguageDescription.of({
       name: 'python',
       alias: ['py'],
       load: async () => {
@@ -301,15 +307,21 @@ export class UINodeCode extends LitElement {
         (message: CompilationMessage | ExecutionMessage) =>
           message?.message?.length > 0
       ) as (CompilationMessage | ExecutionMessage)[]
+
+      if (this.editorView) {
+        this.updateDiagnostics(
+          createLinterDiagnostics(this.editorView, this.messages)
+        )
+      }
     }
+  }
 
+  /**
+   * Update the `diagnostics` property and the editor with those
+   */
+  private updateDiagnostics(diagnostics: Diagnostic[]) {
     if (this.editorView) {
-      this.diagnostics =
-        this.executionRequired === 'SemanticsChanged' ||
-        this.executionRequired === 'StateChanged'
-          ? []
-          : createLinterDiagnostics(this.editorView, this.messages)
-
+      this.diagnostics = diagnostics
       const transaction = setDiagnostics(
         this.editorView.state,
         this.diagnostics
@@ -348,8 +360,14 @@ export class UINodeCode extends LitElement {
       }
     }
 
-    if (changedProperties.has('executionRequired')) {
-      this.updateMessages()
+    // Clear diagnostics if the code has changed either explicitly, or
+    // via an update to executionRequired
+    if (
+      changedProperties.has('code') ||
+      (changedProperties.has('executionRequired') &&
+        ['StateChanged' || 'SemanticsChanged'].includes(this.executionRequired))
+    ) {
+      this.updateDiagnostics([])
     }
   }
 

@@ -23,7 +23,7 @@ use kernel::{
     KernelVariableResponder,
 };
 
-/// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
+/// A kernel for rendering Jinja templates.
 #[derive(Default)]
 pub struct JinjaKernel {}
 

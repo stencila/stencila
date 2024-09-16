@@ -60,6 +60,10 @@ export const programmingLanguages: Record<
     title: 'MathML',
     icon: 'codeSlash',
   },
+  mermaid: {
+    title: 'Mermaid',
+    icon: 'mermaid',
+  },
   node: {
     title: 'NodeJS',
     icon: 'nodejs',

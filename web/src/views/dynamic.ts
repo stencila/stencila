@@ -1,3 +1,4 @@
+import { NodeType } from '@stencila/types'
 import { CSSResultGroup, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -39,6 +40,12 @@ export class DynamicView extends DocumentView {
   access: DocumentAccess = 'code'
 
   /**
+   * The type of the root node of the document e.g. Article, Prompt
+   */
+  @property()
+  type: NodeType = 'Article'
+
+  /**
    * A read-only client which updates the document's DOM when the
    * document changes on the server
    */
@@ -77,9 +84,16 @@ export class DynamicView extends DocumentView {
   }
 
   override render() {
-    return html`
-      <stencila-article root></stencila-article>
-      ${this.renderDocumentMenu()}
-    `
+    // The empty root custom element of the correct type needs to be
+    // created here for diffs received by the `DomClient` to be applied properly
+    const root =
+      this.type === 'Prompt'
+        ? html`<stencila-prompt root></stencila-prompt>`
+        : html`<stencila-article root></stencila-article>`
+
+    // Menu needs to render after root
+    const menu = this.renderDocumentMenu()
+
+    return html`${root}${menu}`
   }
 }

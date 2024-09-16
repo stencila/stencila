@@ -8,35 +8,6 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::trace!("Compiling CodeChunk {node_id}");
 
-        // Some code chunks should be executed during "compile" to
-        // enable live updates (e.g. Graphviz, Mermaid)
-        // TODO: consider having a way to specify which code chunks and/or
-        // which kernels should execute at compile time (e.g. could have
-        // a compile method on kernels)
-        let lang = self
-            .programming_language
-            .as_ref()
-            .map_or_else(String::new, |lang| lang.trim().to_lowercase());
-        if lang == "dot" || lang == "graphviz" {
-            return self.execute(executor).await;
-        }
-
-        let info = parsers::parse(
-            &self.code,
-            self.programming_language.as_deref().unwrap_or_default(),
-        );
-
-        let execution_required =
-            execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
-        executor.patch(
-            &node_id,
-            [
-                set(NodeProperty::CompilationDigest, info.compilation_digest),
-                set(NodeProperty::ExecutionTags, info.execution_tags),
-                set(NodeProperty::ExecutionRequired, execution_required),
-            ],
-        );
-
         if let Some(label_type) = &self.label_type {
             let label = match label_type {
                 LabelType::FigureLabel => {
@@ -51,6 +22,41 @@ impl Executable for CodeChunk {
             if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
                 executor.patch(&node_id, [set(NodeProperty::Label, label)]);
             }
+        }
+
+        let lang = self.programming_language.as_deref().unwrap_or_default();
+        let info = parsers::parse(&self.code, lang);
+
+        let execution_required =
+            execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
+
+        executor.patch(
+            &node_id,
+            [
+                set(NodeProperty::CompilationDigest, info.compilation_digest.clone()),
+                set(NodeProperty::ExecutionTags, info.execution_tags.clone()),
+                set(NodeProperty::ExecutionRequired, execution_required.clone()),
+            ],
+        );
+
+        // Some code chunks should be executed during "compile" phase to
+        // enable live updates (e.g. Graphviz, Mermaid)
+        // TODO: consider having a way to specify which code chunks and/or
+        // which kernels should execute at compile time (e.g. could have
+        // a compile method on kernels)
+        if !matches!(execution_required, ExecutionRequired::No)
+            && matches!(
+                lang.trim().to_lowercase().as_str(),
+                "dot" | "graphviz" | "mermaid"
+            )
+        {
+            // These need to be set here because they may be used in `self.execute`
+            // and that method is called next, before the above patch is applied;
+            self.options.compilation_digest = Some(info.compilation_digest);
+            self.options.execution_tags = info.execution_tags;
+            self.options.execution_required = Some(execution_required);
+
+            self.execute(executor).await;
         }
 
         WalkControl::Continue

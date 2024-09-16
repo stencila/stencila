@@ -88,6 +88,7 @@ pub struct Prompt {
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
+    #[dom(elem = "section")]
     pub content: Vec<Block>,
 
     /// Non-core optional fields

@@ -37,3 +37,5 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: section

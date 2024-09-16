@@ -1,0 +1,7 @@
+Next, write a caption for the figure as a separate paragraph. If necessary, the caption should expand the user's instruction into a complete, accurate and descriptive sentence of what the figure is showing.
+
+You may use inline Markdown and inline TeX math (surrounded by dollar $ characters) within the figure caption.
+
+Pay attention to any figure captions already in the document and use them to guide the style and length of the caption that you write.
+
+Do NOT provide a label with the figure number. 

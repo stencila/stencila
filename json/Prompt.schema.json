@@ -874,6 +874,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content of the prompt.",
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

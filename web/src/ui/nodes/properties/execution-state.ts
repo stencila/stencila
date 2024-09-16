@@ -35,7 +35,6 @@ export class UINodeExecutionState extends LitElement {
     return html`
       <stencila-ui-node-simple-property
         icon-name="lightning"
-        icon-library="default"
         tooltip-content=${tooltipContent}
       >
         <span>${statusString}</span>

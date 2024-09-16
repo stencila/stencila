@@ -331,7 +331,8 @@ pub async fn serve_path(
         .await
         .map_err(InternalError::new)?
     } else {
-        format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
+        let root_type = doc.root_type().await;
+        format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
     };
 
     // The version path segment for static assets (JS & CSS)

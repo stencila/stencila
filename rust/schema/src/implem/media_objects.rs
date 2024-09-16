@@ -145,11 +145,27 @@ impl ImageObject {
 
 impl DomCodec for ImageObject {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .enter_elem("img")
-            .push_attr("src", &self.content_url)
-            .exit_elem();
+        context.enter_node(self.node_type(), self.node_id());
+
+        let mut img = true;
+        if let Some(media_type) = &self.media_type {
+            context.push_attr("media-type", &media_type);
+
+            // For media types that require rendering in the browser, add `content_url` as an
+            // attribute that is easily accessible by the <stencila-image-object> custom element
+            // and do not add an <img> tag.
+            if media_type == "text/vnd.mermaid" {
+                context.push_attr("content", &self.content_url);
+                img = false;
+            }
+        }
+
+        if img {
+            context
+                .enter_elem("img")
+                .push_attr("src", &self.content_url)
+                .exit_elem();
+        }
 
         if let Some(title) = &self.title {
             context.push_slot_fn("span", "title", |context| title.to_dom(context));
