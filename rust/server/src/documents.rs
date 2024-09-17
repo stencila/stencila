@@ -377,6 +377,7 @@ pub async fn serve_path(
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         {icon_tag}
         {theme_tag}
         {extra_head}
