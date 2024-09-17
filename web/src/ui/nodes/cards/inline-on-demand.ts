@@ -102,8 +102,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
     >
-      <stencila-ui-node-chip></stencila-ui-node-chip>
-      ${this.renderChip(this.getIcon(), this.ui)}
+      ${this.renderChip(this.type)}
       <sl-tooltip
         trigger="manual"
         class=${`${toolTipStyles}`}
