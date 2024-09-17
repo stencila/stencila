@@ -7,17 +7,12 @@ import { customElement, property } from 'lit/decorators'
 import { withTwind } from '../../twind'
 
 import { nodeUi } from './icons-and-colours'
-import { NodeColours } from './mixins/toggle-chip'
 
-const OFFSET_THRESHOLD = 10
-const OFFSET = 10
+const OFFSET = 15
 
 @customElement('stencila-ui-node-chip')
 @withTwind()
 export class UINodeChip extends LitElement {
-  @property({ type: Object })
-  colours: NodeColours
-
   @property({ type: String })
   type: NodeType
 
@@ -28,7 +23,7 @@ export class UINodeChip extends LitElement {
   nodeDisplay: 'inline' | 'block' = 'block'
 
   /**
-   *
+   * 'true' if the corresponding node card is open
    */
   @property({ type: Boolean, attribute: 'card-open' })
   cardOpen: boolean
@@ -40,7 +35,7 @@ export class UINodeChip extends LitElement {
   clickEvent: () => void
 
   /**
-   *
+   * Global list of the chip elements within the viewport
    */
   static visibleChips: UINodeChip[] = []
 
@@ -51,12 +46,21 @@ export class UINodeChip extends LitElement {
   private observer = new IntersectionController(this, {
     callback: ([entry]) => {
       if (entry.isIntersecting) {
-        this.enteredViewport(entry)
+        this.enteredViewport()
       } else {
         this.exitedViewport(entry)
       }
     },
   })
+
+  /**
+   * calculate and return the gap in pixels between `this` and another node chip.
+   */
+  private getGapBetweenChips(chip: UINodeChip) {
+    const thisTop = this.getBoundingClientRect().top
+    const otherTop = chip.getBoundingClientRect().top
+    return Math.abs(thisTop - otherTop)
+  }
 
   /**
    * Handler for when this chip enters the viewport
@@ -66,47 +70,58 @@ export class UINodeChip extends LitElement {
    * enters the viewport (due to scrolling up or down
    * or window resizing).
    */
-  enteredViewport(entry: IntersectionObserverEntry) {
-    // TODO: Move the node up or down if it overlaps with
-    // any nodes in `visibleChips`. Note that this may push
-    // the chip outside of the viewport so do not
-    // add to `visibleChips` is that is the case.
-    const precedingChip =
-      UINodeChip.visibleChips[UINodeChip.visibleChips.length - 1]
+  enteredViewport() {
+    // if visible chips has elements already
+    if (UINodeChip.visibleChips.length > 0) {
+      // copy chip array <- do not mutate the global value unless we have too
+      const chipsArray = UINodeChip.visibleChips
+      // add `this`
+      chipsArray.push(this)
+      // sort array by order on page
+      chipsArray.sort(
+        (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top
+      )
+      // get the index of the chip
+      const index = chipsArray.indexOf(this)
 
-    const precedingChipTop = precedingChip?.getBoundingClientRect().top ?? null
+      // assign prev and next chips (values will be null if they don't exist)
+      const prevChip = index > 0 ? chipsArray[index - 1] : null
+      const nextChip =
+        index < chipsArray.length - 1 ? chipsArray[index + 1] : null
 
-    const thisTop = entry.boundingClientRect.top
-
-    const diff = thisTop - precedingChipTop
-    const absoluteDiff = Math.abs(diff)
-    const isToClose = absoluteDiff <= OFFSET_THRESHOLD
-
-    let outsideViewPort: boolean = false
-    if (isToClose) {
-      // apply offset if the absolute diffence in pixels is equal or
-      // less than the threshold
-
-      const realOffset = OFFSET - absoluteDiff
-
-      if (diff > 0) {
-        this.style.top = `${realOffset}px`
-        const viewportHeight = entry.rootBounds.height
-        if (this.getBoundingClientRect().top > viewportHeight) {
-          outsideViewPort = true
+      let offsetApplied = false
+      // if scrolling up `prevChip` should be undefined, as `this` will be first element in the sorted array
+      if (prevChip) {
+        const gap = this.getGapBetweenChips(prevChip)
+        if (gap < OFFSET) {
+          const realOffset = OFFSET - gap
+          this.style.top = `${realOffset}px` // offset 'down'
+          offsetApplied = true
         }
-      } else if (diff < 0) {
-        this.style.top = `-${realOffset}px`
-        if (this.getBoundingClientRect().bottom < 0) {
-          outsideViewPort = true
+      }
+      // if no offset has been applied (or no previous chip exists), check the `nextChip`
+      if (nextChip && !offsetApplied) {
+        const gap = this.getGapBetweenChips(nextChip)
+        if (gap < OFFSET) {
+          const realOffset = OFFSET - gap
+          this.style.top = `-${realOffset}px` // offset 'up'
+          offsetApplied = true
+        }
+      }
+
+      if (offsetApplied) {
+        const rect = this.getBoundingClientRect()
+        const viewportHeight =
+          window.innerHeight || document.documentElement.clientHeight
+
+        if (rect.top >= viewportHeight && rect.bottom <= 0) {
+          // if chip is now outside the bounds,
+          // return before appending this chip to the array
+          return
         }
       }
     }
-
-    if (!outsideViewPort) {
-      UINodeChip.visibleChips.push(this)
-    }
-    // console.log('Entered', UINodeChip.visibleChips)
+    UINodeChip.visibleChips.push(this)
   }
 
   /**
