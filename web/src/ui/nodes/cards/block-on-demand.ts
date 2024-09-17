@@ -34,7 +34,6 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       'font-normal',
       this.toggle && `border-[${this.ui.borderColour}] my-2 mx-auto`,
     ])
-
     return html`<div class=${`ui-block-on-demand ${cardStyles}`}>
       <div class="relative">
         <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
@@ -67,8 +66,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     return html`
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
-        <stencila-ui-node-chip></stencila-ui-node-chip>
-        ${this.renderChip(this.getIcon(), this.ui)}
+        ${this.renderChip(this.type)}
         <div class="content-block ${contentStyles}">
           <slot name="content" class="relative w-full"></slot>
         </div>
