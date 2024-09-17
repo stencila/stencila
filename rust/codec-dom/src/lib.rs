@@ -9,7 +9,10 @@ use codec::{
     status::Status,
     Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
-use codec_dom_trait::{DomCodec as _, DomEncodeContext};
+use codec_dom_trait::{
+    html_escape::{encode_double_quoted_attribute, encode_safe},
+    DomCodec as _, DomEncodeContext,
+};
 use codec_text_trait::to_text;
 
 /// A codec for DOM HTML
@@ -71,11 +74,58 @@ impl Codec for DomCodec {
         }
 
         let html = if standalone {
+            let og_type = format!(
+                r#"<meta property="og:type" content="{}" />"#,
+                node.node_type().to_string()
+            );
+
             let title = match node {
                 Node::Article(article) => article.title.as_ref().map(to_text),
+                Node::Prompt(prompt) => prompt.id.as_ref().map(to_text),
+                _ => None,
+            };
+            let og_title = title
+                .as_ref()
+                .map(|title| {
+                    format!(
+                        r#"<meta property="og:title" content="{}" />"#,
+                        encode_double_quoted_attribute(title)
+                    )
+                })
+                .unwrap_or_default();
+            let html_title = title.map_or_else(
+                || "Untitled".to_string(),
+                |title| encode_safe(&title).to_string(),
+            );
+
+            let desc = match node {
+                Node::Article(article) => article
+                    .options
+                    .description
+                    .as_ref()
+                    .map(|cord| cord.to_string()),
+                Node::Prompt(prompt) => Some(prompt.description.to_string()),
                 _ => None,
             }
-            .unwrap_or_else(|| "Unnamed".to_string());
+            .map(|desc| encode_double_quoted_attribute(&desc).to_string());
+            let og_desc = desc
+                .as_ref()
+                .map(|desc| format!(r#"<meta property="og:description" content="{desc}" />"#,))
+                .unwrap_or_default();
+            let html_desc = desc
+                .map(|desc| format!(r#"<meta property="description" content="{desc}" />"#,))
+                .unwrap_or_default();
+
+            let og_image = context
+                .image()
+                .as_ref()
+                .map(|image| {
+                    format!(
+                        r#"<meta property="og:image" content="{}" />"#,
+                        encode_double_quoted_attribute(image)
+                    )
+                })
+                .unwrap_or_default();
 
             let alternates = options
                 .and_then(|options| options.alternates)
@@ -91,14 +141,20 @@ impl Codec for DomCodec {
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>{title}</title>
+    <title>{html_title}</title>
+    {html_desc}
+    {og_type}
+    {og_title}
+    {og_desc}
+    {og_image}
+    {alternates}
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/~static/images/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=IBM+Plex+Mono:wght@400&display=swap" />
     <link rel="stylesheet" type="text/css" href="/~static/themes/default.css" />
     <link rel="stylesheet" type="text/css" href="/~static/views/dynamic.css" />
     <script type="module" src="/~static/views/dynamic.js"></script>
-    {alternates}
     {style}
   </head>
   <body>

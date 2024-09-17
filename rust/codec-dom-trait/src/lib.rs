@@ -3,15 +3,17 @@
 
 use std::collections::HashMap;
 
+use html_escape::{encode_safe, encode_single_quoted_attribute};
+
 use common::{
     inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
     serde::Serialize, serde_json, smart_default::SmartDefault,
 };
-use html_escape::{encode_safe, encode_single_quoted_attribute};
 use node_id::NodeId;
 use node_type::NodeType;
 
 pub use codec_dom_derive::DomCodec;
+pub use html_escape;
 
 pub trait DomCodec {
     /// Encode a Stencila Schema node to DOM HTML
@@ -121,6 +123,12 @@ pub struct DomEncodeContext {
 
     /// The CSS classes in the document
     css: HashMap<String, String>,
+
+    /// The URL of the image to use as the Open Graph image (<<meta property="og:image" ...>)
+    ///
+    /// Currently the first image in the document. In the future, we may allow for another
+    /// image to be selected
+    image: Option<String>,
 
     /// Whether encoding to a standalone document
     pub standalone: bool,
@@ -355,5 +363,17 @@ impl DomEncodeContext {
         } else {
             String::new()
         }
+    }
+
+    /// Set the URL of the image to use in `<meta property="og:image" ...>` tag for the document
+    pub fn set_image(&mut self, url: &str) -> &mut Self {
+        self.image = Some(url.to_string());
+
+        self
+    }
+
+    /// Get the URL of the image to use in `<meta property="og:image" ...>` tag for the document
+    pub fn image(&self) -> &Option<String> {
+        &self.image
     }
 }

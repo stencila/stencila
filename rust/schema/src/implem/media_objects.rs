@@ -165,6 +165,10 @@ impl DomCodec for ImageObject {
                 .enter_elem("img")
                 .push_attr("src", &self.content_url)
                 .exit_elem();
+
+            if context.image().is_none() {
+                context.set_image(&self.content_url);
+            }
         }
 
         if let Some(title) = &self.title {
