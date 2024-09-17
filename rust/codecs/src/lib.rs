@@ -30,7 +30,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_json5::Json5Codec),
         Box::new(codec_jsonld::JsonLdCodec),
         Box::new(codec_markdown::MarkdownCodec),
-        Box::new(codec_swb::SwbCodec),
+        Box::new(codec_swb::SwbCodec::default()),
         Box::new(codec_text::TextCodec),
         Box::new(codec_yaml::YamlCodec),
     ];
