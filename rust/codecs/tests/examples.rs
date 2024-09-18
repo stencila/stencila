@@ -322,6 +322,10 @@ async fn examples() -> Result<()> {
     let examples = glob(&pattern)?.flatten().collect_vec();
 
     for dir in examples {
+        if !dir.is_dir() {
+            continue;
+        }
+
         let name = dir.file_name().unwrap().to_string_lossy().to_string();
 
         if let Some(include) = include.as_ref() {
