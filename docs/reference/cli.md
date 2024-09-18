@@ -514,6 +514,11 @@ In the future, it is likely that other publication platforms will be supported.
 ###### **Options:**
 
 * `-k`, `--key <KEY>` — Key or identifier required by the platform being published to
+* `--dry-run` — Perform a dry run
+* `--no-html` — Do not publish a HTML file
+* `--no-jsonld` — Do not publish a JSON-LD file
+* `--no-bots` — Disallow all bots
+* `--no-ai-bots` — Disallow AI bots
 
 
 
