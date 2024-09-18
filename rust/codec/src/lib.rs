@@ -436,7 +436,7 @@ pub struct EncodeOptions {
     pub to_path: Option<PathBuf>,
 
     /// The base URL of the file being encoded to
-    /// 
+    ///
     /// Used by some codecs when it is necessary to create absolute URLs.
     pub base_url: Option<String>,
 

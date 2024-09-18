@@ -80,7 +80,7 @@ impl Codec for DomCodec {
         let html = if standalone {
             let og_type = format!(
                 r#"<meta property="og:type" content="{}" />"#,
-                node.node_type().to_string()
+                node.node_type()
             );
 
             let title = match node {

@@ -34,6 +34,7 @@ pub struct AsciiMathKernelInstance {}
 
 impl AsciiMathKernelInstance {
     /// Transpile AsciiMath to MathML
+    #[allow(clippy::result_large_err)]
     fn transpile(&self, code: &str) -> Result<String, ExecutionMessage> {
         // Replace non-ascii characters (e.g. those introduced by LLMs)
         let mut line = 0;

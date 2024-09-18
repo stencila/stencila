@@ -55,7 +55,7 @@ impl KernelInstance for MermaidKernelInstance {
 
         // Render any Jinja templating
         let code = if code.contains("{%") || code.contains("{{") {
-            let (rendered, mut jinja_messages) = self.jinja.execute(&code).await?;
+            let (rendered, mut jinja_messages) = self.jinja.execute(code).await?;
             messages.append(&mut jinja_messages);
 
             if let Some(Node::String(rendered)) = rendered.first() {

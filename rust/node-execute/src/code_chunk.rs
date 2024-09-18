@@ -33,7 +33,10 @@ impl Executable for CodeChunk {
         executor.patch(
             &node_id,
             [
-                set(NodeProperty::CompilationDigest, info.compilation_digest.clone()),
+                set(
+                    NodeProperty::CompilationDigest,
+                    info.compilation_digest.clone(),
+                ),
                 set(NodeProperty::ExecutionTags, info.execution_tags.clone()),
                 set(NodeProperty::ExecutionRequired, execution_required.clone()),
             ],

@@ -74,6 +74,7 @@ pub struct LogEntry {
 #[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
+#[allow(clippy::large_enum_variant)]
 pub enum Command {
     /// Save the document
     SaveDocument,
