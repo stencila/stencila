@@ -74,6 +74,7 @@ pub struct LogEntry {
 #[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
+#[allow(clippy::large_enum_variant)]
 pub enum Command {
     /// Save the document
     SaveDocument,
@@ -376,8 +377,6 @@ impl Document {
     pub async fn open(path: &Path) -> Result<Self> {
         let doc = Self::at(path)?;
         doc.import(path, None).await?;
-        doc.compile(false).await?;
-
         Ok(doc)
     }
 
@@ -386,8 +385,6 @@ impl Document {
     pub async fn synced(path: &Path, sync: SyncDirection) -> Result<Self> {
         let doc = Self::at(path)?;
         doc.sync_file(path, sync, None, None).await?;
-        doc.compile(false).await?;
-
         Ok(doc)
     }
 

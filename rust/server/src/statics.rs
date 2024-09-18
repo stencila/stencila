@@ -20,12 +20,12 @@ use crate::{
 
 /// The encodings to use when serving static files
 ///
-/// In development do not serve Brotli or Gzip because `make -C web watch` does not
+/// In development do not serve Brotli files because `make -C web watch` does not
 /// build those compressed files (only `make -C web build` does).
 #[cfg(debug_assertions)]
 const STATIC_ENCODINGS: [(&str, &str); 1] = [("", "")];
 #[cfg(not(debug_assertions))]
-const STATIC_ENCODINGS: [(&str, &str); 3] = [("br", ".br"), ("gzip", ".gz"), ("", "")];
+const STATIC_ENCODINGS: [(&str, &str); 2] = [("br", ".br"), ("", "")];
 
 /// Create a router for static file routes
 pub fn router() -> Router<ServerState> {

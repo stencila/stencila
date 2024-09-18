@@ -5,9 +5,11 @@ use flate2::{write::GzEncoder, Compression};
 use codec::{
     common::{
         async_trait::async_trait,
+        clap::{self, Parser},
         eyre::{Ok, Result},
         tar::Builder,
         tempfile::TempDir,
+        tokio::fs::write,
     },
     format::Format,
     schema::Node,
@@ -27,7 +29,24 @@ use web_dist::Web;
 /// Each folder in the SWB, including the root, normally has an
 /// `index.html` that is generated from the "main" document in
 /// that folder.
-pub struct SwbCodec;
+#[derive(Debug, Default, Parser)]
+pub struct SwbCodec {
+    /// Do not publish a HTML file
+    #[arg(long)]
+    no_html: bool,
+
+    /// Do not publish a JSON-LD file
+    #[arg(long)]
+    no_jsonld: bool,
+
+    /// Disallow all bots
+    #[arg(long)]
+    no_bots: bool,
+
+    /// Disallow AI bots
+    #[arg(long, conflicts_with = "no_bots")]
+    no_ai_bots: bool,
+}
 
 #[async_trait]
 impl Codec for SwbCodec {
@@ -57,32 +76,52 @@ impl Codec for SwbCodec {
         // Create a temp dir to put all files for the bundle
         let temp_dir = TempDir::new()?;
 
-        // Create the index.html file
-        let html = temp_dir.path().join("index.html");
-        let alternates = Some(vec![(
-            "application/ld+json".to_string(),
-            "index.jsonld".to_string(),
-        )]);
-        DomCodec {}
-            .to_path(
-                node,
-                &html,
-                Some(EncodeOptions {
-                    alternates,
-                    ..options.clone()
-                }),
-            )
-            .await?;
+        if !self.no_html {
+            // Create the index.html file
+            let html = temp_dir.path().join("index.html");
 
-        // Create JSON-LD file for index
-        let jsonld = temp_dir.path().join("index.jsonld");
-        JsonLdCodec {}
-            .to_path(node, &jsonld, Some(EncodeOptions { ..options }))
-            .await?;
+            let mut alternates = Vec::new();
+            if !self.no_jsonld {
+                alternates.push((
+                    "application/ld+json".to_string(),
+                    "index.jsonld".to_string(),
+                ));
+            }
 
-        // Add web dist to `~static`
-        let statics = temp_dir.path().join("~static");
-        Web::to_path(&statics, true)?;
+            DomCodec {}
+                .to_path(
+                    node,
+                    &html,
+                    Some(EncodeOptions {
+                        alternates: Some(alternates),
+                        ..options.clone()
+                    }),
+                )
+                .await?;
+
+            // Add web dist to `~static`
+            let statics = temp_dir.path().join("~static");
+            Web::to_path(&statics, true)?;
+        }
+
+        if !self.no_jsonld {
+            // Create JSON-LD file
+            let jsonld = temp_dir.path().join("index.jsonld");
+            JsonLdCodec {}
+                .to_path(node, &jsonld, Some(options.clone()))
+                .await?;
+        }
+
+        if self.no_bots || self.no_ai_bots {
+            // Create robots.txt file
+            let content = if self.no_bots {
+                include_str!("all.robots.txt")
+            } else {
+                include_str!("ai.robots.txt")
+            };
+            let robots = temp_dir.path().join("robots.txt");
+            write(robots, content).await?;
+        }
 
         // Create a tar.gz archive of temp dir
         let tar_gz = File::create(path)?;

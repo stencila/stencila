@@ -421,6 +421,7 @@ impl EncodeOptions {
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
     pub(crate) fn build(
         &self,
+        input: Option<&Path>,
         output: Option<&Path>,
         format_or_codec: Option<String>,
         default_format: Format,
@@ -450,12 +451,15 @@ impl EncodeOptions {
 
         let render = self.render.then_some(true);
 
+        let from_path = input.map(PathBuf::from);
+
         codecs::EncodeOptions {
             codec,
             format,
             compact,
             standalone,
             render,
+            from_path,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
@@ -540,6 +544,7 @@ impl Cli {
                 let decode_options =
                     decode_options.build(from, strip_options.clone(), input_losses);
                 let encode_options = encode_options.build(
+                    input.as_deref(),
                     output.as_deref(),
                     to,
                     Format::Json,
@@ -571,6 +576,7 @@ impl Cli {
                 doc.compile(true).await?;
 
                 let encode_options = encode_options.build(
+                    Some(input.as_ref()),
                     output.as_deref(),
                     to,
                     Format::Json,
@@ -600,6 +606,7 @@ impl Cli {
                 doc.execute(execute_options, true).await?;
 
                 let encode_options = encode_options.build(
+                    Some(input.as_ref()),
                     output.as_deref(),
                     to,
                     Format::Json,
@@ -629,6 +636,7 @@ impl Cli {
                 doc.execute(execute_options, true).await?;
 
                 let mut encode_options = encode_options.build(
+                    Some(input.as_ref()),
                     output.as_deref(),
                     to,
                     Format::Markdown,

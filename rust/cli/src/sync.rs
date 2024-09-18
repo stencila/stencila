@@ -48,8 +48,8 @@ pub struct Cli {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let (path, direction) = resolve_path_direction(&self.doc);
-        let doc = Document::synced(&path, direction).await?;
+        let (main, direction) = resolve_path_direction(&self.doc);
+        let doc = Document::synced(&main, direction).await?;
 
         for (index, file) in self.files.iter().enumerate() {
             let (path, direction) = resolve_path_direction(file);
@@ -62,6 +62,7 @@ impl Cli {
                 self.losses.clone(),
             ));
             let encode_options = Some(self.encode_options.build(
+                Some(main.as_ref()),
                 Some(&path),
                 format_or_codec,
                 Format::Json,

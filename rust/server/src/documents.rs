@@ -79,11 +79,15 @@ impl Documents {
             }
         }
 
+        // Open the document
         let doc = if let Some(direction) = sync {
             Document::synced(path, direction).await?
         } else {
             Document::open(path).await?
         };
+
+        // Compile the document (so math, headings list, etc can be properly encoded to HTML)
+        doc.compile(true).await?;
 
         let uuid = doc.id().uuid();
 
@@ -358,7 +362,7 @@ pub async fn serve_path(
         String::new()
     } else if view == "print" {
         format!(
-            r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/views/print.css">
+            r#"<link rel="stylesheet" type="text/csss" href="/~static/{version}/views/print.css">
                    <script type="module" src="/~static/{version}/views/print.js"></script>"#
         )
     } else {
@@ -377,6 +381,7 @@ pub async fn serve_path(
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         {icon_tag}
         {theme_tag}
         {extra_head}

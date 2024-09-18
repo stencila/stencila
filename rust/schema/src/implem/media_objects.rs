@@ -1,4 +1,7 @@
+use std::path::PathBuf;
+
 use codec_info::lost_options;
+use common::tracing;
 
 use crate::{prelude::*, AudioObject, ImageObject, MediaObject, VideoObject};
 
@@ -149,7 +152,7 @@ impl DomCodec for ImageObject {
 
         let mut img = true;
         if let Some(media_type) = &self.media_type {
-            context.push_attr("media-type", &media_type);
+            context.push_attr("media-type", media_type);
 
             // For media types that require rendering in the browser, add `content_url` as an
             // attribute that is easily accessible by the <stencila-image-object> custom element
@@ -161,10 +164,78 @@ impl DomCodec for ImageObject {
         }
 
         if img {
-            context
-                .enter_elem("img")
-                .push_attr("src", &self.content_url)
-                .exit_elem();
+            // If the document is being encoded standalone, and the image URL is data URI
+            // or file system path (possibly with a relative URL) the ensure that we have
+            // create an on disk copy
+            if context.standalone
+                && !(self.content_url.starts_with("http://")
+                    || self.content_url.starts_with("https://"))
+            {
+                // Encode the data URI to a file
+                let images_path = match context.to_path.as_deref() {
+                    // images directory will be a sibling to the encoded file
+                    Some(to_path) => {
+                        PathBuf::from(to_path.to_string_lossy().to_string() + ".images")
+                    }
+                    // images directory will be in the current directory
+                    None => PathBuf::from("images"),
+                };
+
+                let image_path = if self.content_url.starts_with("data:") {
+                    match images::data_uri_to_path(&self.content_url, &images_path) {
+                        Ok(path) => Some(path),
+                        Err(error) => {
+                            tracing::warn!("While encoding image data URI to file: {error}");
+                            None
+                        }
+                    }
+                } else {
+                    match images::file_uri_to_path(
+                        &self.content_url,
+                        context.from_path.as_deref(),
+                        &images_path,
+                    ) {
+                        Ok(path) => Some(path),
+                        Err(error) => {
+                            tracing::warn!("While encoding image to file: {error}");
+                            None
+                        }
+                    }
+                };
+
+                let src = match image_path {
+                    Some(image_path) => {
+                        // Make the image path relative to the destination file
+                        match context.to_path.as_deref() {
+                            Some(to_path) => to_path
+                                .parent()
+                                .and_then(|dir| image_path.strip_prefix(dir).ok())
+                                .map(PathBuf::from)
+                                .unwrap_or(image_path),
+                            None => image_path,
+                        }
+                        .to_string_lossy()
+                        .to_string()
+                    }
+                    None => {
+                        // Fallback to encoding the original URL
+                        self.content_url.to_string()
+                    }
+                };
+
+                context.enter_elem("img").push_attr("src", &src).exit_elem();
+
+                // If the document image is not set yet, then set it
+                if context.image().is_none() {
+                    context.set_image(&src);
+                }
+            } else {
+                // Not standalone, so just encode content URL as image (optimize for speed)
+                context
+                    .enter_elem("img")
+                    .push_attr("src", &self.content_url)
+                    .exit_elem();
+            }
         }
 
         if let Some(title) = &self.title {

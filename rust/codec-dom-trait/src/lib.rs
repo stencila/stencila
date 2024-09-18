@@ -1,17 +1,19 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
+
+use html_escape::{encode_safe, encode_single_quoted_attribute};
 
 use common::{
     inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
     serde::Serialize, serde_json, smart_default::SmartDefault,
 };
-use html_escape::{encode_safe, encode_single_quoted_attribute};
 use node_id::NodeId;
 use node_type::NodeType;
 
 pub use codec_dom_derive::DomCodec;
+pub use html_escape;
 
 pub trait DomCodec {
     /// Encode a Stencila Schema node to DOM HTML
@@ -122,8 +124,20 @@ pub struct DomEncodeContext {
     /// The CSS classes in the document
     css: HashMap<String, String>,
 
+    /// The URL of the image to use as the Open Graph image (<<meta property="og:image" ...>)
+    ///
+    /// Currently the first image in the document. In the future, we may allow for another
+    /// image to be selected
+    image: Option<String>,
+
     /// Whether encoding to a standalone document
     pub standalone: bool,
+
+    /// The path of the source document
+    pub from_path: Option<PathBuf>,
+
+    /// The path of the destination file
+    pub to_path: Option<PathBuf>,
 
     /// The maximum number of rows of a datatable to encode
     #[default = 1000]
@@ -131,9 +145,11 @@ pub struct DomEncodeContext {
 }
 
 impl DomEncodeContext {
-    pub fn new(standalone: bool) -> Self {
+    pub fn new(standalone: bool, source_path: Option<PathBuf>, dest_path: Option<PathBuf>) -> Self {
         Self {
             standalone,
+            from_path: source_path,
+            to_path: dest_path,
             ..Default::default()
         }
     }
@@ -355,5 +371,17 @@ impl DomEncodeContext {
         } else {
             String::new()
         }
+    }
+
+    /// Set the URL of the image to use in `<meta property="og:image" ...>` tag for the document
+    pub fn set_image(&mut self, url: &str) -> &mut Self {
+        self.image = Some(url.to_string());
+
+        self
+    }
+
+    /// Get the URL of the image to use in `<meta property="og:image" ...>` tag for the document
+    pub fn image(&self) -> &Option<String> {
+        &self.image
     }
 }

@@ -1241,6 +1241,7 @@ dependencies = [
  "codec",
  "codec-dom",
  "codec-jsonld",
+ "codec-markdown",
  "flate2",
  "web-dist",
 ]
@@ -4857,6 +4858,7 @@ version = "0.0.0"
 dependencies = [
  "cli-utils",
  "cloud",
+ "codec-swb",
  "codecs",
  "common",
  "schema",
@@ -5695,6 +5697,7 @@ dependencies = [
  "common-dev",
  "format",
  "human_name",
+ "images",
  "interim",
  "monostate",
  "node-id",

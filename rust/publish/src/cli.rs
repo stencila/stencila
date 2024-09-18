@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use codec_swb::SwbCodec;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -23,10 +24,17 @@ pub struct Cli {
     /// Key or identifier required by the platform being published to
     #[arg(long, short)]
     key: Option<String>,
+
+    /// Perform a dry run
+    #[arg(long)]
+    dry_run: bool,
+
+    #[clap(flatten)]
+    swb: SwbCodec,
 }
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        super::publish_path(&self.path, &self.key).await
+        super::publish_path(&self.path, &self.key, self.dry_run, &self.swb).await
     }
 }

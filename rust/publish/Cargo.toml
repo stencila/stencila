@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 cli-utils = { "path" = "../cli-utils" }
 cloud = { path = "../cloud" }
+codec-swb = { "path" = "../codec-swb" }
 codecs = { "path" = "../codecs" }
 common = { "path" = "../common" }
 schema = { "path" = "../schema" }
