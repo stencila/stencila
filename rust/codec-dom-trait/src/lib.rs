@@ -1,7 +1,7 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 
@@ -133,15 +133,23 @@ pub struct DomEncodeContext {
     /// Whether encoding to a standalone document
     pub standalone: bool,
 
+    /// The path of the source document
+    pub from_path: Option<PathBuf>,
+
+    /// The path of the destination file
+    pub to_path: Option<PathBuf>,
+
     /// The maximum number of rows of a datatable to encode
     #[default = 1000]
     pub max_datatable_rows: usize,
 }
 
 impl DomEncodeContext {
-    pub fn new(standalone: bool) -> Self {
+    pub fn new(standalone: bool, source_path: Option<PathBuf>, dest_path: Option<PathBuf>) -> Self {
         Self {
             standalone,
+            from_path: source_path,
+            to_path: dest_path,
             ..Default::default()
         }
     }

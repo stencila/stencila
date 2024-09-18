@@ -52,9 +52,13 @@ impl Codec for DomCodec {
             .as_ref()
             .and_then(|options| options.compact)
             .unwrap_or(true);
+        let source_path = options
+            .as_ref()
+            .and_then(|options| options.from_path.clone());
+        let dest_path = options.as_ref().and_then(|options| options.to_path.clone());
 
         // Encode to DOM HTML
-        let mut context = DomEncodeContext::new(standalone);
+        let mut context = DomEncodeContext::new(standalone, source_path, dest_path);
         node.to_dom(&mut context);
 
         // Add the root attribute to the root node (the first opening tag)
@@ -116,13 +120,17 @@ impl Codec for DomCodec {
                 .map(|desc| format!(r#"<meta property="description" content="{desc}" />"#,))
                 .unwrap_or_default();
 
+            let base_url = options
+                .as_ref()
+                .and_then(|options| options.base_url.as_deref())
+                .unwrap_or_default();
             let og_image = context
                 .image()
                 .as_ref()
                 .map(|image| {
                     format!(
                         r#"<meta property="og:image" content="{}" />"#,
-                        encode_double_quoted_attribute(image)
+                        encode_double_quoted_attribute(&format!("{base_url}/{image}"))
                     )
                 })
                 .unwrap_or_default();

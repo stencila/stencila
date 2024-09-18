@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+};
 
 use common::{
     async_trait::async_trait,
@@ -299,6 +302,10 @@ pub trait Codec: Sync + Send {
             create_dir_all(parent).await?;
         }
         let mut file = File::create(path).await?;
+        let options = Some(EncodeOptions {
+            to_path: Some(path.to_path_buf()),
+            ..options.unwrap_or_default()
+        });
         self.to_file(node, &mut file, options).await
     }
 }
@@ -414,6 +421,24 @@ pub struct EncodeOptions {
     /// or "pretty-printed" (e.g. indented) forms. If not specified, the default
     /// for the format will be used.
     pub compact: Option<bool>,
+
+    /// The path of the document being encoded from
+    ///
+    /// Used by some codecs to resolve any relative paths in the document
+    /// (e.g. in the `content_url` property of `MediaObject`s)
+    pub from_path: Option<PathBuf>,
+
+    /// The path of the file being encoded to
+    ///
+    /// Used by some codecs to create sidecar files or folders. Note that
+    /// the default implementation of `Codec::to_path` will set this and any
+    /// overrides should do the same.
+    pub to_path: Option<PathBuf>,
+
+    /// The base URL of the file being encoded to
+    /// 
+    /// Used by some codecs when it is necessary to create absolute URLs.
+    pub base_url: Option<String>,
 
     /// Scopes defining which properties of nodes should be stripped before encoding
     #[serde(skip_serializing_if = "Vec::is_empty")]

@@ -1,6 +1,6 @@
 use cloud::ErrorResponse;
 use codec_swb::SwbCodec;
-use codecs::Codec;
+use codecs::{Codec, EncodeOptions};
 use common::{
     eyre::{bail, eyre, Result},
     reqwest::{
@@ -28,6 +28,7 @@ pub(super) async fn publish_node(
     let token = cloud::api_key().as_ref().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
     let key = key.as_deref().unwrap_or_default().to_string();
+    let base_url = format!("https://{key}.stencila.site");
 
     let manifest = Manifest {};
     let manifest = serde_json::to_string(&manifest)?;
@@ -35,7 +36,15 @@ pub(super) async fn publish_node(
 
     let temp_dir = TempDir::new()?;
     let temp_path = temp_dir.path().join("publish.swb");
-    swb.to_path(node, &temp_path, None).await?;
+    swb.to_path(
+        node,
+        &temp_path,
+        Some(EncodeOptions {
+            base_url: Some(base_url),
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let bundle: Vec<u8> = tokio::fs::read(temp_path).await?;
     let bundle = Part::bytes(bundle).file_name("publish.swb");
