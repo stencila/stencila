@@ -376,8 +376,6 @@ impl Document {
     pub async fn open(path: &Path) -> Result<Self> {
         let doc = Self::at(path)?;
         doc.import(path, None).await?;
-        doc.compile(false).await?;
-
         Ok(doc)
     }
 
@@ -386,8 +384,6 @@ impl Document {
     pub async fn synced(path: &Path, sync: SyncDirection) -> Result<Self> {
         let doc = Self::at(path)?;
         doc.sync_file(path, sync, None, None).await?;
-        doc.compile(false).await?;
-
         Ok(doc)
     }
 
