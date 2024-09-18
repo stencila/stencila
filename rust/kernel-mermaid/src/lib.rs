@@ -20,7 +20,7 @@ impl Kernel for MermaidKernel {
     }
 
     fn supports_languages(&self) -> Vec<Format> {
-        vec![Format::Css, Format::Html, Format::Tailwind]
+        vec![Format::Mermaid]
     }
 
     fn supports_variable_requests(&self) -> bool {

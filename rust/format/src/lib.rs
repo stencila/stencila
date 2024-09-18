@@ -50,6 +50,7 @@ pub enum Format {
     Rhai,
     // Diagramming languages
     Dot,
+    Mermaid,
     // Styling languages
     Tailwind,
     Css,
@@ -121,6 +122,7 @@ impl Format {
             JsonLd => "JSON-LD",
             Latex => "LaTeX",
             Markdown => "Markdown",
+            Mermaid => "Mermaid",
             Mkv => "Matroska",
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
@@ -218,6 +220,7 @@ impl Format {
             "jsonld" | "json-ld" => JsonLd,
             "latex" => Latex,
             "markdown" | "md" => Markdown,
+            "mermaid" => Mermaid,
             "myst" => Myst,
             "mkv" => Mkv,
             "mp3" => Mp3,
@@ -383,6 +386,7 @@ impl Display for Format {
             JsonLd => "jsonld",
             Latex => "latex",
             Markdown => "markdown",
+            Mermaid => "mermaid",
             Mkv => "mkv",
             Mp3 => "mp3",
             Mp4 => "mp4",
