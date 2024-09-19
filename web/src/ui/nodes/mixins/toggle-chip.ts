@@ -1,18 +1,19 @@
 import { consume } from '@lit/context'
-import { NodeType } from '@stencila/types'
+import { InlineTypeList, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
 import { state, property } from 'lit/decorators'
 
 import { DocumentContext, documentContext } from '../../document/context'
-import { IconName } from '../../icons/icon'
 import { nodeUi } from '../icons-and-colours'
 
 import { UIBaseClass } from './ui-base-class'
 
+import '../chip'
+
 export declare class ChipToggleInterface {
   protected documentContext: DocumentContext
-  protected renderChip: (icon: IconName, colours: NodeColours) => void
+  protected renderChip: (node: NodeType) => void
   protected toggle: boolean
   protected toggleChipPosition: string
   protected toggleChip: () => void
@@ -23,19 +24,10 @@ export declare class ChipToggleInterface {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Constructor<T> = new (...args: any[]) => T
-type NodeColours = Pick<
+export type NodeColours = Pick<
   ReturnType<typeof nodeUi>,
   'borderColour' | 'colour' | 'textColour'
 >
-
-const NON_CARD_NODES: NodeType[] = [
-  'Article',
-  'ListItem',
-  'TableCell',
-  'TableRow',
-  'Text',
-  'SuggestionBlock',
-]
 
 /**
  * A Mixin that provides a "chip" to allow for a card to have its visibility
@@ -83,32 +75,6 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     }
     // ---------------------
 
-    private static Y_OFFSET_INCREMENT_VALUE: number = 5
-
-    private static MAX_INCREMENTS: number = 4
-
-    private calculateChipOffset() {
-      let offset: number = 0
-      if (
-        this.ancestors &&
-        this.depth > 1 &&
-        this.constructor.name !== 'UIInlineOnDemand' // exclude 'inline' chips
-      ) {
-        const ancestors = (this.ancestors.split('.') as NodeType[]) ?? []
-        const maxOffset =
-          ToggleMixin.Y_OFFSET_INCREMENT_VALUE * ToggleMixin.MAX_INCREMENTS
-        ancestors.forEach((node) => {
-          if (offset >= maxOffset) {
-            return
-          }
-          if (NON_CARD_NODES.indexOf(node) === -1) {
-            offset += ToggleMixin.Y_OFFSET_INCREMENT_VALUE
-          }
-        })
-      }
-      return offset
-    }
-
     protected toggleChip() {
       this.toggle = !this.toggle
       this.dispatchToggleEvent()
@@ -124,10 +90,10 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       )
     }
 
-    protected renderChip(icon: IconName, colours: NodeColours) {
-      const { colour, borderColour, textColour } = colours
-
-      const yOffset = this.calculateChipOffset()
+    protected renderChip(node: NodeType) {
+      const nodeDisplay = InlineTypeList.includes(this.type)
+        ? 'inline'
+        : 'block'
 
       const styles = apply([
         this.docViewContext.nodeChipState === 'hidden' && 'pointer-events-none',
@@ -138,28 +104,20 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
           ? 'opacity-100'
           : 'opacity-0',
         'hover:z-50',
-        'h-8',
-        'flex items-center',
-        'transition duration-200',
-        'leading-none',
-        'px-2 py-1.5',
-        `bg-[${colour}]`,
-        `border rounded-md border-[${borderColour}]`,
-        'cursor-pointer',
-        `fill-black text-black`,
-        `hover:bg-[${borderColour}] hover:border-[${colour}]`,
         'absolute',
-        `top-[${!this.toggle ? yOffset : 0}px]`,
       ])
 
       return html`
         <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
-          <div class=${`${styles}`} @click=${this.toggleChip}>
-            <stencila-ui-icon
-              name=${this.toggle ? 'chevronDown' : icon}
-              class="text-base text-[${textColour}]"
-            ></stencila-ui-icon>
-          </div>
+          <stencila-ui-node-chip
+            class=${styles}
+            style=${nodeDisplay === 'block' ? 'top: 0px;' : ''}
+            type=${node}
+            node-display=${nodeDisplay}
+            ?card-open=${this.toggle}
+            .clickEvent=${this.toggleChip.bind(this)}
+          >
+          </stencila-ui-node-chip>
         </div>
       `
     }

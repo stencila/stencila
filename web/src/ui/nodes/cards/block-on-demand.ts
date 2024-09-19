@@ -5,6 +5,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../animation/collapsible'
+import '../chip'
 import { ToggleChipMixin } from '../mixins/toggle-chip'
 
 import { UIBaseCard } from './base-card'
@@ -33,7 +34,6 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       'font-normal',
       this.toggle && `border-[${this.ui.borderColour}] my-2 mx-auto`,
     ])
-
     return html`<div class=${`ui-block-on-demand ${cardStyles}`}>
       <div class="relative">
         <stencila-ui-collapsible-animation class=${this.toggle ? 'opened' : ''}>
@@ -66,7 +66,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     return html`
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
-        ${this.renderChip(this.getIcon(), this.ui)}
+        ${this.renderChip(this.type)}
         <div class="content-block ${contentStyles}">
           <slot name="content" class="relative w-full"></slot>
         </div>
