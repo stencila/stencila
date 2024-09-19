@@ -30,6 +30,29 @@
       "content": [
         {
           "type": "Text",
+          "value": "A 'autolink' link where content is same as the target "
+        },
+        {
+          "type": "Link",
+          "target": "https://example.com",
+          "content": [
+            {
+              "type": "Text",
+              "value": "https://example.com"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
           "value": "With a title and styled content "
         },
         {

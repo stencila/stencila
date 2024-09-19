@@ -2,6 +2,7 @@
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
     <p>A link<ext-link xlink:href="https://example.org">example.org</ext-link>.</p>
+    <p>A &apos;autolink&apos; link where content is same as the target<ext-link xlink:href="https://example.com">https://example.com</ext-link>.</p>
     <p>With a title and styled content<ext-link xlink:href="https://example.org" xlink:title="a title">
         <bold>example.org</bold>
       </ext-link>.</p>

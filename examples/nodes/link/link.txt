@@ -1,1 +1,1 @@
-A link  example.orghttps://example.org . With a title and styled content  example.orghttps://example.orga title .
+A link  example.orghttps://example.org . A 'autolink' link where content is same as the target  https://example.comhttps://example.com . With a title and styled content  example.orghttps://example.orga title .

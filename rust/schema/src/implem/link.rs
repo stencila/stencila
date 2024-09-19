@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Link};
+use crate::{prelude::*, Inline, Link};
 
 impl DomCodec for Link {
     fn to_dom(&self, context: &mut DomEncodeContext) {
@@ -34,7 +34,24 @@ impl MarkdownCodec for Link {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, rel))
+            .merge_losses(lost_options!(self, id, rel));
+
+        // If the content is equal to the target and no title then only encode the content (i.e. an "autolink")
+        // (it is better to encode the content and get a mapping entry for that than the target property)
+        if let (1, Some(Inline::Text(content)), None) =
+            (self.content.len(), self.content.first(), &self.title)
+        {
+            if content.value.string == self.target {
+                context
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        self.content.to_markdown(context)
+                    })
+                    .exit_node();
+                return;
+            }
+        }
+
+        context
             .push_str("[")
             .push_prop_fn(NodeProperty::Content, |context| {
                 self.content.to_markdown(context)

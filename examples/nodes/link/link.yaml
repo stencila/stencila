@@ -18,6 +18,20 @@ content:
   content:
   - type: Text
     value:
+      string: 'A ''autolink'' link where content is same as the target '
+  - type: Link
+    content:
+    - type: Text
+      value:
+        string: https://example.com
+    target: https://example.com
+  - type: Text
+    value:
+      string: .
+- type: Paragraph
+  content:
+  - type: Text
+    value:
       string: 'With a title and styled content '
   - type: Link
     content:

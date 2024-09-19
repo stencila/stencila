@@ -15,6 +15,19 @@
     </stencila-paragraph>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A &#x27;autolink&#x27; link where content is same as the target</stencila-text>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.com>
+          <a href=https://example.com>
+            <span slot=content>
+              <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>https:&#x2F;&#x2F;example.com</stencila-text>
+            </span>
+          </a>
+        </stencila-link>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
+      <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>With a title and styled content</stencila-text>
         <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org>
           <a href=https://example.org title='a title'>
