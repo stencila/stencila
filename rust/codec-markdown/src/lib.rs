@@ -34,7 +34,7 @@ impl Codec for MarkdownCodec {
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
-            Format::Markdown | Format::Myst => LowLoss,
+            Format::Markdown | Format::Myst | Format::Llmd => LowLoss,
             _ => None,
         }
     }

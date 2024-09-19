@@ -50,6 +50,13 @@ impl DomCodec for StyledBlock {
 
 impl MarkdownCodec for StyledBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if context.render || matches!(context.format, Format::Llmd) {
+            // Only encode content
+            self.content.to_markdown(context);
+
+            return;
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, style_language))

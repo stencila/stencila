@@ -60,6 +60,7 @@ mod person_or_organization;
 mod primitive;
 mod property_value_or_string;
 mod provenance_category;
+mod provenance_count;
 mod quote_block;
 mod raw_block;
 mod replace_block;

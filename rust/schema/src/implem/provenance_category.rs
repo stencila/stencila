@@ -10,6 +10,10 @@ impl ProvenanceCategory {
         )
     }
 
+    pub fn is_human_edited(&self) -> bool {
+        matches!(self, HwHeHv | HwHe | MwHeHv | MwHe | MwHeMv)
+    }
+
     pub fn is_machine_written(&self) -> bool {
         matches!(
             self,

@@ -1,0 +1,19 @@
+An insert instruction with no prompt:
+
+An insert instruction with a prompt:
+
+An insert instruction with a prompt but a blank instruction
+
+An edit instruction (has content) with no prompt:
+
+The paragraph to be improved.
+
+An edit instruction with a prompt:
+
+Another paragraph to be improved.
+
+An insert instruction with a prompt and a suggestion:
+
+An edit instruction with a suggestion:
+
+A rather long winded paragraph.

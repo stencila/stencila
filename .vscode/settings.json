@@ -71,6 +71,7 @@
         "jinja",
         "jsonld",
         "lezer",
+        "llmd",
         "lucide",
         "maplit",
         "mathemascii",

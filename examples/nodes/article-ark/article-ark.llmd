@@ -1,0 +1,49 @@
+This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations.
+
+This is a paragraph with ![audio](https://example.org/cat.mp3), , `inline code`, _emphasis_, ![image](https://example.org/cat.jpg), [link](https://example.org), $inline math$, [^1], , <q>inline quote</q>, [styled inline]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
+
+::: statement
+
+This is a claim
+
+:::
+
+```
+This is a code block
+```
+
+```exec
+This is a code chunk
+```
+
+::: figure
+
+This is a figure
+
+:::
+
+# This is a heading
+
+- This is a list
+
+$$
+This is a math block
+$$
+
+> This is a quote block
+
+::: section
+
+This is a section
+
+:::
+
+This is a styled block
+
+| A   |
+| --- |
+| 1   |
+
+***
+
+[^1]: A footnote
