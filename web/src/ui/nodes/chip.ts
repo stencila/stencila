@@ -54,7 +54,7 @@ export class UINodeChip extends LitElement {
   })
 
   /**
-   * calculate and return the gap in pixels between `this` and another node chip.
+   * Calculate the gap in pixels between `this` and another node chip.
    */
   private getGapBetweenChips(chip: UINodeChip) {
     const thisTop = this.getBoundingClientRect().top
@@ -143,8 +143,6 @@ export class UINodeChip extends LitElement {
     if (index > -1) {
       UINodeChip.visibleChips.splice(index, 1)
     }
-
-    // console.log('Exited', UINodeChip.visibleChips)
   }
 
   override render() {
