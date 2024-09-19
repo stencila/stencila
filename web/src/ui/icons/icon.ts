@@ -30,6 +30,7 @@ import boxArrowUpRight from './box-arrow-up-right.svg'
 import box from './box.svg'
 import bracesAsterisk from './braces-asterisk.svg'
 import braces from './braces.svg'
+import brush from './brush.svg'
 import building from './building.svg'
 import cameraVideo from './camera-video.svg'
 import cardText from './card-text.svg'
@@ -80,7 +81,6 @@ import mistral from './mistral.svg'
 import nodejs from './nodejs.svg'
 import ollama from './ollama.svg'
 import openai from './openai.svg'
-import palette from './palette.svg'
 import paragraph from './paragraph.svg'
 import person from './person.svg'
 import playCircle from './play-circle.svg'
@@ -121,6 +121,7 @@ const icons = {
   boxArrowUpRight,
   braces,
   bracesAsterisk,
+  brush,
   building,
   cameraVideo,
   cardText,
@@ -171,7 +172,6 @@ const icons = {
   nodejs,
   ollama,
   openai,
-  palette,
   paragraph,
   person,
   play,

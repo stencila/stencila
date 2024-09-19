@@ -65,8 +65,8 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   MathInline:       { icon: 'mathBlock',      ...nodeColours('cyan')},
 
   // Styled content: use neutral to avoid confusion with styling
-  StyledBlock:      { icon: 'palette',        ...nodeColours('neutral')},
-  StyledInline:     { icon: 'palette',        ...nodeColours('neutral')},
+  StyledBlock:      { icon: 'brush',        ...nodeColours('neutral')},
+  StyledInline:     { icon: 'brush',        ...nodeColours('neutral')},
   
   // Static code
   CodeBlock:        { icon: 'braces',         ...nodeColours('teal')},

@@ -9,6 +9,7 @@ icons=(
     box-arrow-up-right
     braces
     braces-asterisk
+    brush
     building
     camera-video
     card-text
@@ -41,7 +42,6 @@ icons=(
     info-circle
     lightbulb
     lightning
-    palette
     person
     play
     play-circle
