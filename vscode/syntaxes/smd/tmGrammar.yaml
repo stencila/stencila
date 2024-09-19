@@ -576,14 +576,14 @@ repository:
       ^
         (:{3,})
         \s*
-        (\{
-          .*?
-        \})
+        (style)
         \s*
+        (.*)
       $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
-      "2": # code
+      "2": { name: keyword.control.stencila } # style
+      "3": # code
         patterns:
           - begin: .*
             end: $
