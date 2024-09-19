@@ -2,6 +2,7 @@ use std::path::Path;
 
 use codec_swb::SwbCodec;
 use common::eyre::{bail, Result};
+use document::Document;
 use schema::Node;
 
 pub mod cli;
@@ -19,8 +20,10 @@ pub async fn publish_path(
     }
 
     if path.is_file() {
-        let node = codecs::from_path(path, None).await?;
-        publish_node(&node, key, dry_run, swb).await
+        let doc = Document::open(path).await?;
+        doc.compile(true).await?;
+        let node = &*doc.root_read().await;
+        publish_node(node, key, dry_run, swb).await
     } else {
         bail!("Publishing of directories is not currently supported")
     }

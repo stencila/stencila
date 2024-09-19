@@ -4858,9 +4858,10 @@ version = "0.0.0"
 dependencies = [
  "cli-utils",
  "cloud",
+ "codec",
  "codec-swb",
- "codecs",
  "common",
+ "document",
  "schema",
 ]
 
