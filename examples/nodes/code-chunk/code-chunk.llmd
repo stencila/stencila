@@ -1,0 +1,42 @@
+With no language:
+
+```exec
+No language
+```
+
+With language:
+
+```python exec
+# Some python code
+a = 3
+```
+
+With language and execution mode:
+
+```js exec
+// Javascript
+```
+
+With label:
+
+1A: 
+
+```exec
+# Chunk 1A
+```
+
+Code figure with caption:
+
+Figure 1: Y against X.
+
+```r exec
+plot(y~x)
+```
+
+Code table with caption:
+
+Table 1: Some cars.
+
+```r exec
+head(mtcars)
+```

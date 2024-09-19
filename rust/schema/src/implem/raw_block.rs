@@ -48,8 +48,8 @@ impl DomCodec for RawBlock {
 
 impl MarkdownCodec for RawBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render {
-            // Encode content if format is Markdown
+        if context.render || matches!(context.format, Format::Llmd) {
+            // Encode content if format of RawBlock is Markdown
             if Format::from_name(&self.format) == Format::Markdown {
                 context.push_str(&self.content);
 

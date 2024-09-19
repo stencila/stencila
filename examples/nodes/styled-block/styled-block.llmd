@@ -1,0 +1,19 @@
+A styled block with two paragraphs:
+
+Styled paragraph one.
+
+Styled paragraph two.
+
+With style language specified:
+
+Styled paragraph.
+
+Nested styled blocks:
+
+Outer paragraph.
+
+Inner paragraph.
+
+Containing variable interpolations:
+
+Dynamically styled paragraph.

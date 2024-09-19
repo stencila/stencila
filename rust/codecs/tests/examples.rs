@@ -255,6 +255,17 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
+            String::from("llmd"),
+            FormatConfig {
+                format: Format::Llmd,
+                decode: DecodeConfig {
+                    skip: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ),
+        (
             String::from("md"),
             FormatConfig {
                 format: Format::Markdown,

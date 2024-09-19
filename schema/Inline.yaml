@@ -3,6 +3,8 @@ title: Inline
 category: prose
 description: Union type for valid inline content.
 default: Text
+markdown:
+  derive: false
 proptest: {}
 anyOf:
   - $ref: AudioObject

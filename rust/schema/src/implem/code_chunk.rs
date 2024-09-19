@@ -98,7 +98,7 @@ impl DomCodec for CodeChunk {
 
 impl MarkdownCodec for CodeChunk {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render {
+        if context.render || matches!(context.format, Format::Llmd) {
             // Record any execution messages
             if let Some(messages) = &self.options.execution_messages {
                 for message in messages {
@@ -111,7 +111,42 @@ impl MarkdownCodec for CodeChunk {
                 }
             }
 
-            // Encode outputs as separate paragraphs
+            // Encode label and caption (ensuring blank line after)
+            if let Some(label_type) = &self.label_type {
+                context.push_str(match label_type {
+                    LabelType::FigureLabel => "Figure ",
+                    LabelType::TableLabel => "Table ",
+                });
+            }
+            if let Some(label) = &self.label {
+                context.push_str(label).push_str(": ");
+            }
+            if let Some(caption) = &self.caption {
+                caption.to_markdown(context)
+            }
+            if !context.content.ends_with("\n\n") {
+                context.push_str("\n\n");
+            }
+
+            // If encoding to LLMd, encode the code (with lang and `exec` keyword)
+            // but not with execution mode etc)
+            if matches!(context.format, Format::Llmd) {
+                context.push_str("```");
+
+                if let Some(lang) = &self.programming_language {
+                    context.push_str(lang).push_str(" ");
+                }
+
+                context.push_str("exec").newline().push_str(&self.code);
+
+                if !self.code.ends_with('\n') {
+                    context.newline();
+                }
+
+                context.push_str("```\n\n");
+            }
+
+            // Encode outputs as separate paragraphs (ensuring blank line after each)
             for output in self.outputs.iter().flatten() {
                 output.to_markdown(context);
                 if !context.content.ends_with("\n\n") {

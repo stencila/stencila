@@ -1,0 +1,15 @@
+A boolean parameter , with a default true, with a default and value true
+
+An integer parameter , with a default 123, with a default and value 456, with min, max and mult options 45
+
+A number parameter 4.5
+
+A string parameter hi with quotes in properties a"b
+
+A date parameter 2022-02-23
+
+A time parameter 22:23
+
+A date-time parameter 2022-02-22T22:23
+
+An enum parameter red

@@ -1,0 +1,38 @@
+Example using Markdown as canonical format to test alternative ways to write instruction blocks.
+
+# New instruction
+
+No content:
+
+Single block:
+
+New paragraph #1
+
+Multiple blocks:
+
+New paragraph #2
+
+New paragraph #3
+
+# Edit instruction
+
+Edit next block:
+
+Paragraph to edit #1
+
+Edit multiple blocks:
+
+Paragraph to edit #4
+
+Paragraph to edit #5
+
+# Content other than paragraphs
+
+```python exec
+
+```
+
+> ![warning]
+This is a warning
+
+Following para outside of instruction content.

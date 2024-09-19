@@ -1,0 +1,11 @@
+With a number output 42.
+
+With a string output a string.
+
+With an array output 1 2 3 .
+
+With an object output 1  .
+
+With no language specified and no output .
+
+With execution mode specified and no output .

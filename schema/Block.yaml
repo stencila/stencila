@@ -3,6 +3,8 @@ title: Block
 category: prose
 description: Union type in block content node types.
 default: Paragraph
+markdown:
+  derive: false
 proptest: {}
 anyOf:
   - $ref: Admonition

@@ -48,7 +48,7 @@ impl InstructionInline {
 
 impl MarkdownCodec for InstructionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render {
+        if context.render || matches!(context.format, Format::Llmd) {
             // Record any execution messages
             if let Some(messages) = &self.options.execution_messages {
                 for message in messages {

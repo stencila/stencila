@@ -272,3 +272,89 @@ impl From<Block> for Vec<Inline> {
         }
     }
 }
+
+impl MarkdownCodec for Inline {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if matches!(context.format, Format::Llmd) {
+            // These node types that are never encoded to LLMd
+            if matches!(
+                self,
+                Inline::SuggestionInline(..)
+                    | Inline::InsertInline(..)
+                    | Inline::DeleteInline(..)
+                    | Inline::ModifyInline(..)
+                    | Inline::ReplaceInline(..)
+            ) {
+                return;
+            }
+
+            // Most other block types are only encoded to LLMd if they meet the specified
+            // thresholds for provenance. This is not done for compound inline types (those that
+            // have nested inlines) where the provenance is calculated for the 'code' of the
+            // inline (e.g. an instruction could be machine written but its content verified).
+            if !matches!(
+                self,
+                Inline::InstructionInline(..) | Inline::StyledInline(..)
+            ) {
+                if let Some(provenance) = self.provenance() {
+                    let human = ProvenanceCount::human_percent(&provenance);
+                    let verified = ProvenanceCount::verified_percent(&provenance);
+                    if human < 50 && verified < 50 {
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Default handling for other Markdown formats and if for
+        // LLMd if provenance criteria are met (some of these have specific handling for LLMd
+        // that is usually similar/same to handling for `context.render`)
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match self {
+                    $(Inline::$variant(node) => node.to_markdown(context),)*
+                }
+            };
+        }
+        variants!(
+            AudioObject,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            DeleteInline,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InsertInline,
+            InstructionInline,
+            Link,
+            MathInline,
+            MediaObject,
+            ModifyInline,
+            Note,
+            Parameter,
+            QuoteInline,
+            ReplaceInline,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            SuggestionInline,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject,
+            Null,
+            Boolean,
+            Integer,
+            UnsignedInteger,
+            Number
+        )
+    }
+}
