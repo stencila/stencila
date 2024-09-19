@@ -1,7 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
-import { Cord } from "./Cord.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { InstructionType } from "./InstructionType.js";
 import { StringOrNumber } from "./StringOrNumber.js";
@@ -16,7 +15,7 @@ export class Prompt extends CreativeWork {
   /**
    * A description of the item.
    */
-  description: Cord;
+  description: string;
 
   /**
    * The name of the item.
@@ -48,7 +47,7 @@ export class Prompt extends CreativeWork {
    */
   content: Block[];
 
-  constructor(description: Cord, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>) {
+  constructor(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>) {
     super();
     this.type = "Prompt";
     if (options) Object.assign(this, options);
@@ -64,6 +63,6 @@ export class Prompt extends CreativeWork {
 /**
 * Create a new `Prompt`
 */
-export function prompt(description: Cord, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>): Prompt {
+export function prompt(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>): Prompt {
   return new Prompt(description, name, version, instructionTypes, nodeTypes, content, options);
 }

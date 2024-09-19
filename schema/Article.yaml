@@ -30,6 +30,7 @@ core:
   - dateReceived
   - dateAccepted
   - datePublished
+  - description
   - references
   - headings
   - archive

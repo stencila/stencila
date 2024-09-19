@@ -7,7 +7,6 @@ use super::block::Block;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
-use super::cord::Cord;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -57,6 +56,12 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// A description of the item.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "myst")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub description: Option<String>,
 
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -202,11 +207,6 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub alternate_names: Option<Vec<String>>,
-
-    /// A description of the item.
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub description: Option<Cord>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

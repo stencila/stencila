@@ -103,11 +103,7 @@ impl Codec for DomCodec {
             );
 
             let desc = match node {
-                Node::Article(article) => article
-                    .options
-                    .description
-                    .as_ref()
-                    .map(|cord| cord.to_string()),
+                Node::Article(article) => article.description.as_ref().map(|cord| cord.to_string()),
                 Node::Prompt(prompt) => Some(prompt.description.to_string()),
                 _ => None,
             }

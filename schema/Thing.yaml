@@ -16,8 +16,10 @@ properties:
   description:
     "@id": schema:description
     description: A description of the item.
-    $ref: Cord
+    type: string
     strip: [metadata]
+    patch:
+      formats: [md, myst]
   identifiers:
     "@id": schema:identifier
     description: Any kind of identifier for any kind of Thing.

@@ -62,7 +62,13 @@
       "strip": [
         "metadata"
       ],
-      "$ref": "Cord.schema.json"
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
+      "type": "string"
     },
     "identifiers": {
       "@id": "schema:identifier",

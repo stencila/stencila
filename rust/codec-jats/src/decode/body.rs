@@ -225,7 +225,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         let tag = child.tag_name().name();
         match tag {
             "alt-text" => caption = child.text().map(|content| vec![t(content)]),
-            "long-desc" => description = child.text().map(Cord::from),
+            "long-desc" => description = child.text().map(String::from),
             _ => record_node_lost(path, &child, losses),
         }
     }

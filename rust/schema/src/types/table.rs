@@ -6,7 +6,6 @@ use super::author::Author;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::comment::Comment;
-use super::cord::Cord;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -127,8 +126,9 @@ pub struct TableOptions {
 
     /// A description of the item.
     #[strip(metadata)]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub description: Option<Cord>,
+    pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

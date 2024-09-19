@@ -469,7 +469,7 @@ class Thing(Entity):
     alternate_names: list[str] | None = None
     """Alternate names (aliases) for the item."""
 
-    description: Cord | None = None
+    description: str | None = None
     """A description of the item."""
 
     identifiers: list[PropertyValue | str] | None = None

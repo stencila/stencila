@@ -25,11 +25,7 @@ impl From<&schema::Article> for Metadata {
     fn from(article: &schema::Article) -> Self {
         Self {
             title: article.title.as_ref().map(to_markdown),
-            description: article
-                .options
-                .description
-                .as_ref()
-                .map(|cord| cord.to_string()),
+            description: article.description.clone(),
             genre: article.genre.as_ref().map(|genre| genre.join(", ")),
             keywords: article
                 .keywords

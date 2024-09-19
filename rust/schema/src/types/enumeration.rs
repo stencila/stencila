@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
@@ -48,7 +47,8 @@ pub struct EnumerationOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Cord>,
+    #[patch(format = "md", format = "myst")]
+    pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

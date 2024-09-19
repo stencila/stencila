@@ -7,7 +7,6 @@ use super::block::Block;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
-use super::cord::Cord;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -53,7 +52,8 @@ pub struct Prompt {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Cord,
+    #[patch(format = "md", format = "myst")]
+    pub description: String,
 
     /// The name of the item.
     #[strip(metadata)]

@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -50,7 +49,8 @@ pub struct GrantOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Cord>,
+    #[patch(format = "md", format = "myst")]
+    pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

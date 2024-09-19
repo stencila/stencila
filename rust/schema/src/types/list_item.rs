@@ -4,7 +4,6 @@ use crate::prelude::*;
 
 use super::block::Block;
 use super::boolean::Boolean;
-use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::integer::Integer;
 use super::node::Node;
@@ -84,8 +83,9 @@ pub struct ListItemOptions {
 
     /// A description of the item.
     #[strip(metadata)]
+    #[patch(format = "md", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub description: Option<Cord>,
+    pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]

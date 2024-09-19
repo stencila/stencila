@@ -41,6 +41,7 @@
     "dateReceived",
     "dateAccepted",
     "datePublished",
+    "description",
     "references",
     "headings",
     "archive"
@@ -91,7 +92,13 @@
       "strip": [
         "metadata"
       ],
-      "$ref": "Cord.schema.json"
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
+      "type": "string"
     },
     "identifiers": {
       "@id": "schema:identifier",

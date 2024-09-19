@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::cord::Cord;
 use super::image_object::ImageObject;
 use super::number::Number;
 use super::person_or_organization::PersonOrOrganization;
@@ -51,7 +50,8 @@ pub struct MonetaryGrantOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    pub description: Option<Cord>,
+    #[patch(format = "md", format = "myst")]
+    pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
