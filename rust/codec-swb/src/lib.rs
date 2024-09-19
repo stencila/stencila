@@ -18,6 +18,7 @@ use codec::{
 };
 use codec_dom::DomCodec;
 use codec_jsonld::JsonLdCodec;
+use codec_markdown::MarkdownCodec;
 use web_dist::Web;
 
 /// A codec for creating a Stencila Web Bundle (SWB)
@@ -38,6 +39,10 @@ pub struct SwbCodec {
     /// Do not publish a JSON-LD file
     #[arg(long)]
     no_jsonld: bool,
+
+    /// Do not publish a LLM-Markdown file
+    #[arg(long)]
+    no_llmd: bool,
 
     /// Disallow all bots
     #[arg(long)]
@@ -109,6 +114,21 @@ impl Codec for SwbCodec {
             let jsonld = temp_dir.path().join("index.jsonld");
             JsonLdCodec {}
                 .to_path(node, &jsonld, Some(options.clone()))
+                .await?;
+        }
+
+        if !self.no_llmd {
+            // Create LLM-Markdown file
+            let llmd = temp_dir.path().join("index.llmd");
+            MarkdownCodec {}
+                .to_path(
+                    node,
+                    &llmd,
+                    Some(EncodeOptions {
+                        format: Some(Format::Llmd),
+                        ..options.clone()
+                    }),
+                )
                 .await?;
         }
 
