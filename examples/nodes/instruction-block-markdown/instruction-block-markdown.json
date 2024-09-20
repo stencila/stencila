@@ -30,7 +30,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "No content:"
+            "string": "Never has existing content so is self closing or explicitly closing:"
           }
         }
       ]
@@ -40,71 +40,8 @@
       "instructionType": "New"
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Single block:"
-          }
-        }
-      ]
-    },
-    {
       "type": "InstructionBlock",
-      "instructionType": "New",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "New paragraph #1"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Multiple blocks:"
-          }
-        }
-      ]
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "New",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "New paragraph #2"
-              }
-            }
-          ]
-        },
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "New paragraph #3"
-              }
-            }
-          ]
-        }
-      ]
+      "instructionType": "New"
     },
     {
       "type": "Heading",

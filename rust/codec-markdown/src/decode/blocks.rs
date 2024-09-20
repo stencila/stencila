@@ -14,9 +14,9 @@ use codec::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
-        RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock, SuggestionStatus, Table,
-        TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        InstructionType, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
+        Paragraph, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
+        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 
@@ -729,16 +729,20 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
 fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
         terminated(instruction_type, multispace0),
-        opt(delimited('@', prompt, multispace0)),
+        opt(delimited((multispace0, '@'), prompt, multispace0)),
         opt(delimited(
-            ('[', multispace0),
+            (multispace0, '[', multispace0),
             model,
             (multispace0, ']', multispace0),
         )),
-        separated(
-            0..,
-            (alt(('x', 'y', 't', 'q', 's', 'c')), digit1),
-            multispace1,
+        delimited(
+            multispace0,
+            separated(
+                0..,
+                (alt(('x', 'y', 't', 'q', 's', 'c')), digit1),
+                multispace1,
+            ),
+            multispace0,
         ),
         opt(take_while(0.., |_| true)),
     )
@@ -757,6 +761,8 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                             (message.trim_end(), None)
                         } else if let Some(message) = message.strip_suffix('>') {
                             (message.trim_end(), Some(1))
+                        } else if instruction_type == InstructionType::New {
+                            (message, None)
                         } else {
                             (message, Some(2))
                         };
@@ -1426,7 +1432,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             feedback: args.map(|value| value.to_string()),
             suggestion_status: options
                 .get("status")
-                .and_then(|value| SuggestionStatus::from_keyword(&value).ok()),
+                .and_then(|value| SuggestionStatus::from_keyword(value).ok()),
             content: decode_blocks(&value),
             ..Default::default()
         }),

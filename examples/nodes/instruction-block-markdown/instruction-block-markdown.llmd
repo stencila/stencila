@@ -2,17 +2,7 @@ Example using Markdown as canonical format to test alternative ways to write ins
 
 # New instruction
 
-No content:
-
-Single block:
-
-New paragraph #1
-
-Multiple blocks:
-
-New paragraph #2
-
-New paragraph #3
+Never has existing content so is self closing or explicitly closing:
 
 # Edit instruction
 

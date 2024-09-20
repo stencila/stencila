@@ -26,16 +26,9 @@ impl InstructionBlock {
                                     tracing::error!("While accepting block suggestion: {error}");
                                 }
                             }
-
-                            // Make the content of the suggestion the content of the instruction
-                            self.content = Some(content);
                         } else {
                             // Implicitly reject other suggestions
                             suggestion.suggestion_status = Some(SuggestionStatus::Rejected);
-                            if suggestion.feedback.is_none() {
-                                suggestion.feedback =
-                                    Some("alternative suggestion accepted".to_string());
-                            }
                         }
                     }
                 }
