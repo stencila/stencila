@@ -53,9 +53,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
           <stencila-ui-icon-button
             name="play"
             class="text-2xl mr-1"
-            .clickEvent=${(e: Event) => {
-              this.emitEvent(e, 'only')
-            }}
+            @click=${(e: Event) => this.emitEvent(e, 'only')}
           ></stencila-ui-icon-button>
         </sl-tooltip>
         ${this.renderDropdown()}
