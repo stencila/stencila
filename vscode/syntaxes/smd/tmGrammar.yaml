@@ -271,8 +271,8 @@ repository:
       "4": { name: support.function } # prompt
       "5": { name: string.quoted } # model
       "6": { name: variable.name.stencila } # options
-      "7": { name: comment.line } # message
-      "8": { name: markup.heading.stencila } # pipe or greater-than
+      "7": { name: comment.stencila.instruction } # instruction message
+      "8": { name: markup.heading.stencila } # < or >
 
   with-block:
     name: meta.stencila.with-block
@@ -304,7 +304,7 @@ repository:
       "1": { name: keyword.control.stencila } # instruction type
       "2": { name: decorator.keyword.stencila } # @
       "3": { name: decorator.keyword.stencila } # prompt
-      "4": { name: comment.line } # message
+      "4": { name: comment.stencila.instruction } # message
       "5": { name: keyword.control.stencila } # >>
 
   ########## Suggestions: Block & Inline ##########
@@ -352,6 +352,11 @@ repository:
         (:{3,})
         \s*
         (suggest)
+        (?:
+          \s+
+          (?:(accept)|(reject))
+          \s+
+        )?
         (.*?)
         (>)?
         (?:\s*)
@@ -359,8 +364,10 @@ repository:
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # suggest
-      "3": { name: comment.line } # feedback
-      "4": { name: markup.heading.stencila } # pipe or greater-than
+      "3": { name: keyword.control.stencila.accept } # status
+      "4": { name: keyword.control.stencila.reject } # status
+      "5": { name: comment.stencila.feedback } # feedback
+      "6": { name: markup.heading.stencila } # >
 
   suggestion-inline:
     name: meta.stencila.suggestion-inline
