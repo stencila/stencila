@@ -38,7 +38,7 @@ use model::{
         authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
         CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
         InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, Prompt,
-        SuggestionBlock, Timestamp, VideoObject,
+        SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
 };
@@ -448,15 +448,28 @@ pub async fn execute_instruction_block(
     for suggestion in instruction.suggestions.iter().flatten() {
         // Note: this encodes suggestion content to Markdown. Using the
         // format used by the particular prompt e.g. HTML may be more appropriate
-        let md = to_markdown(&suggestion.content);
         messages.push(InstructionMessage::assistant(
-            md,
+            to_markdown(&suggestion.content),
             suggestion.authors.clone(),
         ));
 
-        if let Some(feedback) = &suggestion.feedback {
-            messages.push(InstructionMessage::user(feedback, None));
-        }
+        // If there is feedback on the suggestion use that, otherwise generate feedback
+        // to follow the suggestion.
+        let feedback = if let Some(feedback) = &suggestion.feedback {
+            feedback
+        } else if let Some(status) = &suggestion.suggestion_status {
+            match status {
+                SuggestionStatus::Accepted => {
+                    "This is suggestion is acceptable, but please try again."
+                }
+                SuggestionStatus::Rejected => {
+                    "This is wrong or otherwise not acceptable, please try again."
+                }
+            }
+        } else {
+            "Please try again."
+        };
+        messages.push(InstructionMessage::user(feedback, None));
     }
 
     tracing::trace!("Model task messages:\n\n{messages:#?}");
