@@ -58,7 +58,9 @@ import filePlus from './file-plus.svg'
 import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
 import google from './google.svg'
+import handThumbsDownFill from './hand-thumbs-down-fill.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
+import handThumbsUpFill from './hand-thumbs-up-fill.svg'
 import handThumbsUp from './hand-thumbs-up.svg'
 import hash from './hash.svg'
 import heading from './heading.svg'
@@ -150,7 +152,9 @@ const icons = {
   fullscreen,
   google,
   handThumbsDown,
+  handThumbsDownFill,
   handThumbsUp,
+  handThumbsUpFill,
   hash,
   heading,
   hr,

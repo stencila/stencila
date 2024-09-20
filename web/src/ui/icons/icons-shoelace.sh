@@ -34,7 +34,9 @@ icons=(
     filetype-raw
     fullscreen
     hand-thumbs-down
+    hand-thumbs-down-fill
     hand-thumbs-up
+    hand-thumbs-up-fill
     hash
     hr
     image
