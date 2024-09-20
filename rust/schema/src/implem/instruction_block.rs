@@ -41,17 +41,24 @@ impl InstructionBlock {
                     PatchOp::Push(self.to_value()?),
                 );
 
-                // If the instruction has content then replace it with the content,
-                // otherwise delete it
+                // If the instruction has an accepted suggestion then replace it with that,
+                // otherwise delete it.
                 let mut path = context.path();
                 let index = match path.pop_back() {
                     Some(PatchSlot::Index(index)) => index,
                     slot => bail!("Expected index slot, got: {slot:?}"),
                 };
-                match &self.content {
+                let accepted = self.suggestions.iter().flatten().find_map(|suggestion| {
+                    matches!(
+                        suggestion.suggestion_status,
+                        Some(SuggestionStatus::Accepted)
+                    )
+                    .then_some(suggestion.content.clone())
+                });
+                match &accepted {
                     Some(content) => {
                         if content.is_empty() {
-                            // No content so just delete
+                            // No content, so just delete
                             context.op_additional(path, PatchOp::Remove(vec![index]));
                         } else if content.len() == 1 {
                             // Just one block, so replace it
@@ -71,7 +78,7 @@ impl InstructionBlock {
                         }
                     }
                     None => {
-                        // No content so just delete
+                        // No accepted suggestion, so just delete
                         context.op_additional(path, PatchOp::Remove(vec![index]));
                     }
                 }
