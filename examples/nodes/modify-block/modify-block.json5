@@ -12,7 +12,6 @@
     },
     {
       type: "ModifyBlock",
-      suggestionStatus: "Proposed",
       content: [
         {
           type: "CodeChunk",

@@ -3,7 +3,6 @@
   content: [
     {
       type: "DeleteBlock",
-      suggestionStatus: "Proposed",
       content: [
         {
           type: "Paragraph",
@@ -18,7 +17,6 @@
     },
     {
       type: "DeleteBlock",
-      suggestionStatus: "Proposed",
       feedback: "Some feedback on suggestion",
       content: [
         {

@@ -6,7 +6,6 @@ content:
     value:
       string: 'Some '
   - type: InsertInline
-    suggestionStatus: Proposed
     content:
     - type: Text
       value:
@@ -20,7 +19,6 @@ content:
     value:
       string: Several inserted inlines
   - type: InsertInline
-    suggestionStatus: Proposed
     content:
     - type: Strong
       content:

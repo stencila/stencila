@@ -1,7 +1,6 @@
 type: Article
 content:
 - type: DeleteBlock
-  suggestionStatus: Proposed
   content:
   - type: Paragraph
     content:
@@ -9,7 +8,6 @@ content:
       value:
         string: Proposed deleted paragraph
 - type: DeleteBlock
-  suggestionStatus: Proposed
   feedback: Some feedback on suggestion
   content:
   - type: Paragraph

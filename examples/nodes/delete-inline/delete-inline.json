@@ -11,7 +11,6 @@
         },
         {
           "type": "DeleteInline",
-          "suggestionStatus": "Proposed",
           "content": [
             {
               "type": "Text",
@@ -34,7 +33,6 @@
         },
         {
           "type": "DeleteInline",
-          "suggestionStatus": "Proposed",
           "content": [
             {
               "type": "Strong",

@@ -7,7 +7,6 @@
   "stencila:content": [
     {
       "@type": "stencila:ReplaceBlock",
-      "stencila:suggestionStatus": "Proposed",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -65,7 +64,6 @@
     },
     {
       "@type": "stencila:ReplaceBlock",
-      "stencila:suggestionStatus": "Proposed",
       "stencila:feedback": "Some feedback",
       "stencila:content": [
         {

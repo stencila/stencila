@@ -11,7 +11,7 @@
     </stencila-code-expression>
     <span>,</span>
     <code>inline code</code>
-    <del data-suggestion-status='Proposed'>
+    <del>
       <span>, delete</span>
     </del>
     <span>,</span>
@@ -21,7 +21,7 @@
     <span>,</span>
     <img src='https://example.org/cat.jpg' alt='image'>
     </img>
-    <ins data-suggestion-status='Proposed'>
+    <ins>
       <span>, insert</span>
     </ins>
     <span>,</span>
@@ -47,7 +47,7 @@
     <q>
       <span>inline quote</span>
     </q>
-    <stencila-replace-inline suggestion-status='Proposed' replacement='[{"type":"Text","value":{"string":", new"}}]'>
+    <stencila-replace-inline replacement='[{"type":"Text","value":{"string":", new"}}]'>
       <span>, old</span>
     </stencila-replace-inline>
     <span>,</span>
@@ -89,7 +89,7 @@
   <pre>This is a code block</pre>
   <stencila-code-chunk code='{"string":"This is a code chunk"}'>
   </stencila-code-chunk>
-  <stencila-delete-block suggestion-status='Proposed'>
+  <stencila-delete-block>
     <p>
       <span>This paragraph is to be deleted</span>
     </p>
@@ -120,7 +120,7 @@
   </stencila-if-block>
   <stencila-include-block source='this/is/an/include'>
   </stencila-include-block>
-  <stencila-insert-block suggestion-status='Proposed'>
+  <stencila-insert-block>
     <p>
       <span>This paragraph is to be inserted</span>
     </p>
@@ -139,7 +139,7 @@
       <span>This is a quote block</span>
     </p>
   </blockquote>
-  <stencila-replace-block suggestion-status='Proposed' replacement='[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"New paragraph"}}]}]'>
+  <stencila-replace-block replacement='[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"New paragraph"}}]}]'>
     <p>
       <span>Old paragraph</span>
     </p>
