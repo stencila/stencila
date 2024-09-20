@@ -68,13 +68,6 @@ export class UIBaseCard extends UIBaseClass {
   protected restrictTitleWidth: boolean = false
 
   /**
-   * Get the icon for the card
-   */
-  protected getIcon(): IconName {
-    return this.headerIcon ?? this.ui.icon
-  }
-
-  /**
    * Render the collapse card icon on the right hand side of the header.
    */
   private renderCollapse() {
@@ -124,7 +117,7 @@ export class UIBaseCard extends UIBaseClass {
       ...additionalStyles,
     ])
 
-    const icon = this.getIcon()
+    const icon = this.headerIcon ?? this.ui.icon
 
     return html`<div class=${headerStyles}>
       <div
@@ -137,7 +130,7 @@ export class UIBaseCard extends UIBaseClass {
         }}
       >
         <span class="items-center flex grow-0 shrink-0">
-          <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
+          <stencila-ui-icon name=${icon} class="text-xl"></stencila-ui-icon>
         </span>
         <div class="flex justify-between items-center gap-x-2 grow">
           <div
