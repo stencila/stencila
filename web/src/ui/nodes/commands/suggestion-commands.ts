@@ -1,3 +1,4 @@
+import { SuggestionStatus } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
@@ -21,21 +22,27 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   instructionId: string
 
   /**
+   * The current status of the suggestion
+   */
+  @property({ attribute: 'suggestion-status' })
+  suggestionStatus?: SuggestionStatus
+
+  /**
    * The current feedback on the suggestion
    */
   @property()
   feedback?: string
 
   /**
+   * Ref for the revision input
+   */
+  private reviseInputRef: Ref<HTMLInputElement> = createRef()
+
+  /**
    * Toggle the tooltip containing the input for the revise command
    */
   @state()
   private showReviseInput: boolean = false
-
-  /**
-   * Ref for the revision input
-   */
-  private reviseInputRef: Ref<HTMLInputElement> = createRef()
 
   /**
    * Method to explicitly hide the revise input if its open
@@ -116,6 +123,9 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   }
 
   protected override render() {
+    const isAccepted = this.suggestionStatus === 'Accepted'
+    const isRejected = this.suggestionStatus === 'Rejected'
+
     const containerClasses = apply([
       'relative',
       'flex flex-row gap-x-3 items-center flex-shrink-0',
@@ -130,20 +140,26 @@ export class UINodeSuggestionCommands extends UIBaseClass {
           e.stopImmediatePropagation()
         }}
       >
-        <sl-tooltip content="Accept suggestion">
+        <sl-tooltip
+          content=${isAccepted
+            ? 'Suggestion has been accepted'
+            : 'Accept suggestion'}
+        >
           <stencila-ui-icon-button
-            name="handThumbsUp"
-            .clickEvent=${(e: Event) => {
-              this.emitEvent(e, 'accept')
-            }}
+            name=${isAccepted ? 'handThumbsUpFill' : 'handThumbsUp'}
+            ?disabled=${isAccepted}
+            @click=${(e: Event) => this.emitEvent(e, 'accept')}
           ></stencila-ui-icon-button>
         </sl-tooltip>
-        <sl-tooltip content="Reject suggestion">
+        <sl-tooltip
+          content=${isRejected
+            ? 'Suggestion has been rejected'
+            : 'Reject suggestion'}
+        >
           <stencila-ui-icon-button
-            name="handThumbsDown"
-            .clickEvent=${(e: Event) => {
-              this.emitEvent(e, 'reject')
-            }}
+            name=${isRejected ? 'handThumbsDownFill' : 'handThumbsDown'}
+            ?disabled=${isRejected}
+            @click=${(e: Event) => this.emitEvent(e, 'reject')}
           ></stencila-ui-icon-button>
         </sl-tooltip>
         <sl-tooltip
@@ -153,11 +169,14 @@ export class UINodeSuggestionCommands extends UIBaseClass {
         >
           <stencila-ui-icon-button
             name="arrowClockwise"
-            .clickEvent=${() => {
+            @click=${() => {
               this.showReviseInput = !this.showReviseInput
             }}
           ></stencila-ui-icon-button>
         </sl-tooltip>
+        
+        <slot></slot>
+
         ${this.renderReviseInput()}
       </div>
     `
@@ -195,7 +214,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             class=${textAreaStyles}
             cols="45"
             rows="2"
-            placeholder="Add feedback or leave empty for generated feedback"
+            placeholder="Describe how to improve the suggestion"
             @keydown=${(e: KeyboardEvent) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
@@ -205,8 +224,8 @@ export class UINodeSuggestionCommands extends UIBaseClass {
           ></textarea>
           <stencila-ui-icon-button
             name="arrowClockwise"
-            custom-classes="text-lg"
-            .clickEvent=${submit}
+            class="text-lg"
+            @click=${submit}
           >
           </stencila-ui-icon-button>
         </div>

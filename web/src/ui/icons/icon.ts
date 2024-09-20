@@ -52,6 +52,8 @@ import elifClause from './elif-clause.svg'
 import elseClause from './else-clause.svg'
 import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
+import eyeSlash from './eye-slash.svg'
+import eye from './eye.svg'
 import feather from './feather.svg'
 import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
@@ -145,6 +147,8 @@ const icons = {
   elseClause,
   exclamationCircle,
   exclamationTriangle,
+  eye,
+  eyeSlash,
   feather,
   filePlay,
   filePlus,

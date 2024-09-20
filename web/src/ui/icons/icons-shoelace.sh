@@ -28,6 +28,8 @@ icons=(
     dash-circle
     exclamation-circle
     exclamation-triangle
+    eye
+    eye-slash
     feather
     file-play
     file-plus
