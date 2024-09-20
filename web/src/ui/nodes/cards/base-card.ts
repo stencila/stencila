@@ -29,14 +29,6 @@ export class UIBaseCard extends UIBaseClass {
   headerTitle?: string
 
   /**
-   * The programming language of the node
-   *
-   * Used to customize the icon for the node
-   */
-  @property({ attribute: 'programming-language' })
-  programmingLanguage?: string
-
-  /**
    * If the component can be collapsed, track whether it is in a collapsed state.
    */
   @property({ type: Boolean })
