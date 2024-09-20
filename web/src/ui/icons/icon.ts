@@ -21,6 +21,7 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
 import admonition from './admonition.svg'
 import anthropic from './anthropic.svg'
+import archive from './archive.svg'
 import array from './array.svg'
 import arrowClockwise from './arrow-clockwise.svg'
 import at from './at.svg'
@@ -116,6 +117,7 @@ import xCircle from './x-circle.svg'
 const icons = {
   admonition,
   anthropic,
+  archive,
   array,
   arrowClockwise,
   at,

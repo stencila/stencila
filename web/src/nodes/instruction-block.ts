@@ -2,6 +2,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
+import { documentCommandEvent } from '../clients/commands'
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
@@ -20,6 +21,21 @@ import '../ui/nodes/properties/execution-messages'
 @customElement('stencila-instruction-block')
 @withTwind()
 export class InstructionBlock extends Instruction {
+  /**
+   * Emit an event to archive the instruction
+   */
+  private archive(e: Event) {
+    e.stopImmediatePropagation()
+
+    this.dispatchEvent(
+      documentCommandEvent({
+        command: 'archive-node',
+        nodeType: 'InstructionBlock',
+        nodeIds: [this.id],
+      })
+    )
+  }
+
   override render() {
     const { borderColour } = nodeUi('InstructionBlock')
 
@@ -31,9 +47,16 @@ export class InstructionBlock extends Instruction {
     >
       <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands
-          node-id=${this.id}
           type="InstructionBlock"
+          node-id=${this.id}
         >
+          <sl-tooltip content="Archive this instruction">
+            <stencila-ui-icon-button
+              name="archive"
+              class="ml-4"
+              @click=${(e: Event) => this.archive(e)}
+            ></stencila-ui-icon-button>
+          </sl-tooltip>
         </stencila-ui-node-execution-commands>
       </span>
 
@@ -96,7 +119,7 @@ export class InstructionBlock extends Instruction {
     return html`
       <div class=${styles}>
         <span class="flex flex-row items-center grow">
-          <sl-tooltip content="Assistant assigned to prompt models">
+          <sl-tooltip content="Specified prompt">
             <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
             <input
               class="${inputStyles} w-[70%]"

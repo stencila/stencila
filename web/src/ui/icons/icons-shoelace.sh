@@ -3,6 +3,7 @@
 src="../../../../node_modules/@shoelace-style/shoelace/cdn/assets/icons"
 
 icons=(
+    archive
     arrow-clockwise
     at
     box
