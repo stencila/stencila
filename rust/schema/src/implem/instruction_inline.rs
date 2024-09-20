@@ -16,7 +16,7 @@ impl InstructionInline {
                     for suggestion in suggestions.iter_mut() {
                         if &suggestion.node_id() == suggestion_id {
                             // Mark the accepted suggestion as such
-                            suggestion.suggestion_status = SuggestionStatus::Accepted;
+                            suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
 
                             // Record the patcher as the acceptor
                             let accepter_patch = context.authors_as_acceptors();
@@ -29,11 +29,13 @@ impl InstructionInline {
 
                             // Make the content of the suggestion the content of the instruction
                             self.content = Some(content);
-                        } else if matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
-                        {
-                            // Mark suggestions that are proposed as unaccepted
-                            // (i.e. not accepted, but also not explicitly rejected)
-                            suggestion.suggestion_status = SuggestionStatus::Unaccepted;
+                        } else {
+                            // Implicitly reject other suggestions
+                            suggestion.suggestion_status = Some(SuggestionStatus::Rejected);
+                            if suggestion.feedback.is_none() {
+                                suggestion.feedback =
+                                    Some("alternative suggestion accepted".to_string());
+                            }
                         }
                     }
                 }

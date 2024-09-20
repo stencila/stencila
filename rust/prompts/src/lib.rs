@@ -38,7 +38,7 @@ use model::{
         authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
         CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
         InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, Prompt,
-        SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
+        SuggestionBlock, Timestamp, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
 };
@@ -535,7 +535,7 @@ pub async fn execute_instruction_block(
 
     // TODO: check that blocks are the correct type
 
-    let mut suggestion = SuggestionBlock::new(SuggestionStatus::Proposed, blocks);
+    let mut suggestion = SuggestionBlock::new(blocks);
 
     // Record execution time for the suggestion
     let duration = ended

@@ -15,8 +15,8 @@ use codec::{
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
         LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, QuoteBlock,
-        RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock, Table, TableCell, TableRow,
-        TableRowType, Text, ThematicBreak,
+        RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock, SuggestionStatus, Table,
+        TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 
@@ -826,34 +826,46 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse a [`SuggestionBlock`] node
 fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
-        (alt(("suggestion", "suggest")), multispace0),
-        opt(take_while(1.., |_| true)),
+        ("suggest", multispace0),
+        (
+            opt(terminated(
+                alt((
+                    "accept".value(SuggestionStatus::Accepted),
+                    "reject".value(SuggestionStatus::Rejected),
+                )),
+                multispace0,
+            )),
+            opt(take_while(1.., |_| true)),
+        ),
     )
-    .map(|feedback: Option<&str>| {
-        let (feedback, capacity) = match feedback {
-            Some(feedback) => {
-                let feedback = feedback.trim();
-                let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix('<') {
-                    (feedback.trim_end(), 0)
-                } else if let Some(feedback) = feedback.strip_suffix('>') {
-                    (feedback.trim_end(), 1)
-                } else {
-                    (feedback, 2)
-                };
+    .map(
+        |(suggestion_status, feedback): (Option<SuggestionStatus>, Option<&str>)| {
+            let (feedback, capacity) = match feedback {
+                Some(feedback) => {
+                    let feedback = feedback.trim();
+                    let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix('<') {
+                        (feedback.trim_end(), 0)
+                    } else if let Some(feedback) = feedback.strip_suffix('>') {
+                        (feedback.trim_end(), 1)
+                    } else {
+                        (feedback, 2)
+                    };
 
-                ((!feedback.is_empty()).then_some(feedback), capacity)
-            }
-            None => (None, 2),
-        };
+                    ((!feedback.is_empty()).then_some(feedback), capacity)
+                }
+                None => (None, 2),
+            };
 
-        let content = Vec::with_capacity(capacity);
+            let content = Vec::with_capacity(capacity);
 
-        Block::SuggestionBlock(SuggestionBlock {
-            feedback: feedback.map(String::from),
-            content,
-            ..Default::default()
-        })
-    })
+            Block::SuggestionBlock(SuggestionBlock {
+                suggestion_status,
+                feedback: feedback.map(String::from),
+                content,
+                ..Default::default()
+            })
+        },
+    )
     .parse_next(input)
 }
 
@@ -1412,6 +1424,9 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
         }),
         "suggest" => Block::SuggestionBlock(SuggestionBlock {
             feedback: args.map(|value| value.to_string()),
+            suggestion_status: options
+                .get("status")
+                .and_then(|value| SuggestionStatus::from_keyword(&value).ok()),
             content: decode_blocks(&value),
             ..Default::default()
         }),

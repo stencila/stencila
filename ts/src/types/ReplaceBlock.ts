@@ -2,7 +2,6 @@
 
 import { Block } from "./Block.js";
 import { SuggestionBlock } from "./SuggestionBlock.js";
-import { SuggestionStatus } from "./SuggestionStatus.js";
 
 /**
  * A suggestion to replace some block content with new block content.
@@ -16,11 +15,10 @@ export class ReplaceBlock extends SuggestionBlock {
    */
   replacement: Block[];
 
-  constructor(suggestionStatus: SuggestionStatus, content: Block[], replacement: Block[], options?: Partial<ReplaceBlock>) {
-    super(suggestionStatus, content);
+  constructor(content: Block[], replacement: Block[], options?: Partial<ReplaceBlock>) {
+    super(content);
     this.type = "ReplaceBlock";
     if (options) Object.assign(this, options);
-    this.suggestionStatus = suggestionStatus;
     this.content = content;
     this.replacement = replacement;
   }
@@ -29,6 +27,6 @@ export class ReplaceBlock extends SuggestionBlock {
 /**
 * Create a new `ReplaceBlock`
 */
-export function replaceBlock(suggestionStatus: SuggestionStatus, content: Block[], replacement: Block[], options?: Partial<ReplaceBlock>): ReplaceBlock {
-  return new ReplaceBlock(suggestionStatus, content, replacement, options);
+export function replaceBlock(content: Block[], replacement: Block[], options?: Partial<ReplaceBlock>): ReplaceBlock {
+  return new ReplaceBlock(content, replacement, options);
 }

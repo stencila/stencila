@@ -1,14 +1,9 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, SuggestionInline, SuggestionStatus};
+use crate::{prelude::*, SuggestionInline};
 
 impl MarkdownCodec for SuggestionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        // Only encode proposed suggestions to Markdown
-        if !matches!(self.suggestion_status, SuggestionStatus::Proposed) {
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))

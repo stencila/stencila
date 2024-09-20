@@ -15,12 +15,12 @@
   "proptest": {},
   "required": [
     "type",
-    "suggestionStatus",
     "content",
     "operations"
   ],
   "core": [
     "id",
+    "suggestionStatus",
     "authors",
     "provenance",
     "executionDuration",

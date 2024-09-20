@@ -2,7 +2,6 @@
 
 import { Inline } from "./Inline.js";
 import { SuggestionInline } from "./SuggestionInline.js";
-import { SuggestionStatus } from "./SuggestionStatus.js";
 
 /**
  * A suggestion to replace some inline content with new inline content.
@@ -16,11 +15,10 @@ export class ReplaceInline extends SuggestionInline {
    */
   replacement: Inline[];
 
-  constructor(suggestionStatus: SuggestionStatus, content: Inline[], replacement: Inline[], options?: Partial<ReplaceInline>) {
-    super(suggestionStatus, content);
+  constructor(content: Inline[], replacement: Inline[], options?: Partial<ReplaceInline>) {
+    super(content);
     this.type = "ReplaceInline";
     if (options) Object.assign(this, options);
-    this.suggestionStatus = suggestionStatus;
     this.content = content;
     this.replacement = replacement;
   }
@@ -29,6 +27,6 @@ export class ReplaceInline extends SuggestionInline {
 /**
 * Create a new `ReplaceInline`
 */
-export function replaceInline(suggestionStatus: SuggestionStatus, content: Inline[], replacement: Inline[], options?: Partial<ReplaceInline>): ReplaceInline {
-  return new ReplaceInline(suggestionStatus, content, replacement, options);
+export function replaceInline(content: Inline[], replacement: Inline[], options?: Partial<ReplaceInline>): ReplaceInline {
+  return new ReplaceInline(content, replacement, options);
 }

@@ -72,6 +72,7 @@ mod styled_block;
 mod styled_inline;
 mod suggestion_block;
 mod suggestion_inline;
+mod suggestion_status;
 mod table;
 mod text;
 mod time;

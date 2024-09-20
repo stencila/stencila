@@ -35,8 +35,8 @@ pub struct InsertBlock {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub suggestion_status: SuggestionStatus,
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion_status: Option<SuggestionStatus>,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -100,9 +100,8 @@ impl InsertBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Block>) -> Self {
+    pub fn new(content: Vec<Block>) -> Self {
         Self {
-            suggestion_status,
             content,
             ..Default::default()
         }

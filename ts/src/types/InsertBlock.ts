@@ -2,7 +2,6 @@
 
 import { Block } from "./Block.js";
 import { SuggestionBlock } from "./SuggestionBlock.js";
-import { SuggestionStatus } from "./SuggestionStatus.js";
 
 /**
  * A suggestion to insert some block content.
@@ -11,11 +10,10 @@ export class InsertBlock extends SuggestionBlock {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "InsertBlock";
 
-  constructor(suggestionStatus: SuggestionStatus, content: Block[], options?: Partial<InsertBlock>) {
-    super(suggestionStatus, content);
+  constructor(content: Block[], options?: Partial<InsertBlock>) {
+    super(content);
     this.type = "InsertBlock";
     if (options) Object.assign(this, options);
-    this.suggestionStatus = suggestionStatus;
     this.content = content;
   }
 }
@@ -23,6 +21,6 @@ export class InsertBlock extends SuggestionBlock {
 /**
 * Create a new `InsertBlock`
 */
-export function insertBlock(suggestionStatus: SuggestionStatus, content: Block[], options?: Partial<InsertBlock>): InsertBlock {
-  return new InsertBlock(suggestionStatus, content, options);
+export function insertBlock(content: Block[], options?: Partial<InsertBlock>): InsertBlock {
+  return new InsertBlock(content, options);
 }
