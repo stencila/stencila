@@ -40,8 +40,13 @@ export class UIBlockInFlow extends UIBaseCard {
   }
 
   protected override renderBody() {
-    const { colour } = this.ui
-    const bodyStyles = apply(['relative', 'w-full h-full', `bg-[${colour}]`])
+    const bodyStyles = apply([
+      'relative',
+      'w-full h-full',
+      `bg-[${this.ui.colour}]`,
+      `border-b border-[${this.ui.borderColour}]`,
+      `text-[${this.ui.textColour}]`,
+    ])
 
     return html`
       <div class=${bodyStyles}>
