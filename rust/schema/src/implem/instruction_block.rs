@@ -1,7 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use common::tracing;
 
-use crate::{patch, prelude::*, InstructionBlock, SuggestionStatus};
+use crate::{patch, prelude::*, InstructionBlock, InstructionType, SuggestionStatus};
 
 impl InstructionBlock {
     pub fn apply_patch_op(
@@ -248,7 +248,7 @@ impl MarkdownCodec for InstructionBlock {
             }
 
             if let Some(content) = &self.content {
-                if content.is_empty() {
+                if content.is_empty() && !matches!(self.instruction_type, InstructionType::New) {
                     context.push_str(" <").newline().newline();
                 } else {
                     if content.len() == 1 {
