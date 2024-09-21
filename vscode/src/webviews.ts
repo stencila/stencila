@@ -13,14 +13,14 @@ const documentViewPanels = new Map();
  * Create a WebView panel that display the document
  *
  * @param nodeId The id of the node that the document should scroll to
- * @param expand Whether the node card should be in expanded or not
+ * @param expand Whether the node card should be in expanded to show authorship/provenance
  */
 export async function createDocumentViewPanel(
   context: vscode.ExtensionContext,
   client: LanguageClient,
   documentUri: vscode.Uri,
   nodeId?: string,
-  expand?: boolean
+  expandAuthors?: boolean
 ): Promise<vscode.WebviewPanel> {
   if (documentViewPanels.has(documentUri)) {
     // If there is already a panel open for this document, reveal it
@@ -33,6 +33,7 @@ export async function createDocumentViewPanel(
       panel.webview.postMessage({
         type: "view-node",
         nodeId,
+        expandAuthors
       });
     }
 
@@ -135,6 +136,7 @@ export async function createDocumentViewPanel(
     panel.webview.postMessage({
       type: "view-node",
       nodeId,
+      expandAuthors
     });
   }
 

@@ -18,11 +18,11 @@ use crate::{
     text_document::TextNode,
 };
 
-// Preview node. Command implemented on the client
-pub(super) const VIEW_NODE: &str = "stencila.view-doc";
+/// Lens to view the node. Command implemented on the client
+pub(super) const VIEW_NODE: &str = "stencila.view-node";
 
-// Do not run a command, just display provenance
-pub(super) const PROV_NODE: &str = "";
+/// Lens to show the provenance of the node and view it's authors when when clicked.
+pub(super) const PROV_NODE: &str = "stencila.view-node-authors";
 
 /// Handle a request for code lenses for a document
 ///
@@ -114,7 +114,25 @@ pub(crate) async fn request(
                         });
 
                         if machine_percent > 0 {
-                            lenses.push(lens(VERIFY_NODE));
+                            // Remove any existing VIEW_NODE lens because that can be done via
+                            // the PROV_NODE lens that we're about to add
+                            lenses.retain(|lens| {
+                                let is_view_node = lens
+                                    .data
+                                    .as_ref()
+                                    .and_then(|data| data.as_array())
+                                    .and_then(|items| items.first())
+                                    .and_then(|first| first.as_str())
+                                    .map(|first| first == VIEW_NODE)
+                                    .unwrap_or_default();
+                                is_view_node
+                            });
+
+                            // Add "Verify" lens if not yet fully verified
+                            if verified_percent < 100 {
+                                lenses.push(lens(VERIFY_NODE));
+                            }
+
                             lenses.push(CodeLens {
                                 range: *range,
                                 command: None,

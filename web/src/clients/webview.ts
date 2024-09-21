@@ -2,6 +2,7 @@ import { Entity } from '../nodes/entity'
 import { NodeId } from '../types'
 import { ChipToggleInterface } from '../ui/nodes/mixins/toggle-chip'
 import { UIBaseClass } from '../ui/nodes/mixins/ui-base-class'
+import { UINodeAuthors } from '../ui/nodes/properties/authors'
 
 /**
  * A message received from VSCode by the web view
@@ -11,6 +12,7 @@ type ReceivedMessage = ViewNodeMessage
 interface ViewNodeMessage {
   type: 'view-node'
   nodeId: NodeId
+  expandAuthors: boolean
 }
 
 /**
@@ -86,7 +88,7 @@ export class WebViewClient {
   /**
    * Handle a received `ViewNodeMessage` message
    */
-  private handleViewNodeMessage({ nodeId }: ViewNodeMessage) {
+  private handleViewNodeMessage({ nodeId, expandAuthors }: ViewNodeMessage) {
     const targetEl = this.element.querySelector(`#${nodeId}`) as Entity
     if (targetEl) {
       targetEl.scrollIntoView({
@@ -100,6 +102,17 @@ export class WebViewClient {
       ) as UIBaseClass & ChipToggleInterface
       if (card) {
         card.openCard()
+      }
+
+      if (card && expandAuthors) {
+        // Note that this querySelector call is intentionally on
+        // the card itself and NOT its render root.
+        const authors = card.querySelector(
+          'stencila-ui-node-authors'
+        ) as UINodeAuthors
+        if (authors) {
+          authors.expand()
+        }
       }
     }
   }
