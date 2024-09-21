@@ -19,7 +19,8 @@ use schema::{
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
     Figure, Inline, InstructionBlock, InstructionType, Node, NodeProperty, Paragraph, Patch,
     PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person, Primitive, ProvenanceCategory,
-    ProvenanceCount, SoftwareApplication, Strong, Text, TimeUnit,
+    ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock, SuggestionStatus, Text,
+    TimeUnit,
 };
 
 /// An individual fixture
@@ -793,10 +794,10 @@ fn authorship_on_nodes() -> Result<()> {
     Ok(())
 }
 
-/// Test an archive patch
+/// Test an archive patch for a new instruction
 #[test]
-fn archive_patch() -> Result<()> {
-    // Archive an instruction with no content
+fn archive_patch_new() -> Result<()> {
+    // Archive an instruction with no accepted suggestion
     let inb = InstructionBlock::new(InstructionType::New);
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
 
@@ -815,7 +816,7 @@ fn archive_patch() -> Result<()> {
     );
     assert!(article.content.is_empty());
 
-    // Archive an instruction with one block in content
+    // Archive an instruction with an accepted suggestion with one block
     let block = Block::Paragraph(Paragraph {
         content: vec![t("one")],
         authors: Some(vec![Author::SoftwareApplication(
@@ -823,9 +824,11 @@ fn archive_patch() -> Result<()> {
         )]),
         ..Default::default()
     });
+    let mut suggest = SuggestionBlock::new(vec![block.clone()]);
+    suggest.suggestion_status = Some(SuggestionStatus::Accepted);
     let inb = InstructionBlock {
         instruction_type: InstructionType::New,
-        content: Some(vec![block.clone()]),
+        suggestions: Some(vec![suggest]),
         ..Default::default()
     };
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
@@ -861,11 +864,13 @@ fn archive_patch() -> Result<()> {
         bail!("unexpected content");
     };
 
-    // Archive an instruction with two blocks in content
+    // Archive an instruction with an accepted suggestion with two blocks
     let blocks = vec![p([t("one")]), p([t("two")])];
+    let mut suggest = SuggestionBlock::new(blocks.clone());
+    suggest.suggestion_status = Some(SuggestionStatus::Accepted);
     let inb = InstructionBlock {
         instruction_type: InstructionType::New,
-        content: Some(blocks.clone()),
+        suggestions: Some(vec![suggest]),
         ..Default::default()
     };
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
