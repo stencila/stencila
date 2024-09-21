@@ -174,7 +174,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             }}
           ></stencila-ui-icon-button>
         </sl-tooltip>
-        
+
         <slot></slot>
 
         ${this.renderReviseInput()}

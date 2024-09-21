@@ -17,7 +17,7 @@ import type { AuthorshipMarker } from './types'
 export const stencilaTheme = EditorView.theme({
   '.cm-content,.cm-lineNumbers': {
     fontFamily: "'IBM Plex Mono', Menlo, Courier, mono",
-    fontSize: '0.85rem'
+    fontSize: '0.85rem',
   },
   '.cm-diagnostic': {
     fontFamily: 'Inter, mono',
