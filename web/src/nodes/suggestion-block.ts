@@ -88,7 +88,7 @@ export class SuggestionBlock extends Entity {
         >
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors type="SuggestionBlock">
+        <stencila-ui-node-authors type="SuggestionBlock" expanded>
           <stencila-ui-node-provenance slot="provenance">
             <slot name="provenance"></slot>
           </stencila-ui-node-provenance>
