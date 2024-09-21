@@ -12,9 +12,13 @@ import { getTooltipContent } from '../authorship/utils'
 import type { AuthorshipMarker } from './types'
 
 /**
- * Custom CSS for the Stencila extensions
+ * Custom CSS for CodeMirror editor
  */
 export const stencilaTheme = EditorView.theme({
+  '.cm-content,.cm-lineNumbers': {
+    fontFamily: "'IBM Plex Mono', Menlo, Courier, mono",
+    fontSize: '0.85rem'
+  },
   '.cm-diagnostic': {
     fontFamily: 'Inter, mono',
     paddingLeft: '16px',
