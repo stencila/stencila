@@ -30,7 +30,7 @@ export class UINodeExecutionMessages extends LitElement {
         icon-name="terminal"
         header-title="Messages"
         wrapper-css=${!this.hasMessages ? 'hidden' : ''}
-        ?collapsed=${this.hasMessages}
+        ?expanded=${this.hasMessages}
       >
         <div slot="content" class="flex flex-col gap-y-3">
           <slot @slotchange=${this.onSlotChange}></slot>

@@ -20,8 +20,8 @@ export class UINodeCollapsibleProperty extends LitElement {
   @property({ attribute: 'header-title' })
   headerTitle: string
 
-  @property({ type: Boolean })
-  collapsed: boolean
+  @property({ type: Boolean, reflect: true })
+  expanded: boolean = false
 
   @property({ attribute: 'wrapper-css' })
   wrapperCSS: string | undefined = undefined
@@ -35,13 +35,13 @@ export class UINodeCollapsibleProperty extends LitElement {
       'px-4 py-1',
       'font-sans not-italic',
       `border-t border-[${borderColour}]`,
-      !this.collapsed && `border-b`,
+      this.expanded && `border-b`,
       `bg-[${colour}]`,
       'cursor-pointer',
     ])
 
     const contentClasses = apply([
-      this.collapsed ? 'max-h-0 overflow-hidden' : 'max-h-[150000px]',
+      this.expanded ? 'max-h-[150000px]' : 'max-h-0 overflow-hidden',
       'transition-max-h duration-200',
       `bg-white/50`,
     ])
@@ -51,7 +51,7 @@ export class UINodeCollapsibleProperty extends LitElement {
         <div
           class=${headerStyles}
           @click=${() => {
-            this.collapsed = !this.collapsed
+            this.expanded = !this.expanded
           }}
         >
           <stencila-ui-icon
@@ -66,7 +66,7 @@ export class UINodeCollapsibleProperty extends LitElement {
           <slot name="header-content"></slot>
 
           <stencila-ui-chevron-button
-            default-pos=${this.collapsed ? 'left' : 'down'}
+            default-pos=${this.expanded ? 'down' : 'left'}
             custom-class="flex items-center"
           ></stencila-ui-chevron-button>
         </div>
