@@ -125,7 +125,7 @@ pub(crate) async fn request(
                                     .and_then(|first| first.as_str())
                                     .map(|first| first == VIEW_NODE)
                                     .unwrap_or_default();
-                                is_view_node
+                                !is_view_node
                             });
 
                             // Add "Verify" lens if not yet fully verified
@@ -133,6 +133,8 @@ pub(crate) async fn request(
                                 lenses.push(lens(VERIFY_NODE));
                             }
 
+                            // Add provenance lens attributing authorship and showing
+                            // percent verified
                             lenses.push(CodeLens {
                                 range: *range,
                                 command: None,
