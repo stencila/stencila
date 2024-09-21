@@ -400,10 +400,8 @@ class SuggestionStatus(StrEnum):
     The status of an instruction.
     """
 
-    Proposed = "Proposed"
     Accepted = "Accepted"
     Rejected = "Rejected"
-    Unaccepted = "Unaccepted"
 
 
 class TableCellType(StrEnum):
@@ -628,7 +626,7 @@ class Suggestion(Entity):
 
     type: Literal["Suggestion"] = "Suggestion"
 
-    suggestion_status: SuggestionStatus
+    suggestion_status: SuggestionStatus | None = None
     """The status of the suggestion including whether it is proposed, accepted, or rejected."""
 
     authors: list[Author] | None = None

@@ -21,6 +21,7 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
 import admonition from './admonition.svg'
 import anthropic from './anthropic.svg'
+import archive from './archive.svg'
 import array from './array.svg'
 import arrowClockwise from './arrow-clockwise.svg'
 import at from './at.svg'
@@ -52,13 +53,17 @@ import elifClause from './elif-clause.svg'
 import elseClause from './else-clause.svg'
 import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
+import eyeSlash from './eye-slash.svg'
+import eye from './eye.svg'
 import feather from './feather.svg'
 import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
 import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
 import google from './google.svg'
+import handThumbsDownFill from './hand-thumbs-down-fill.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
+import handThumbsUpFill from './hand-thumbs-up-fill.svg'
 import handThumbsUp from './hand-thumbs-up.svg'
 import hash from './hash.svg'
 import heading from './heading.svg'
@@ -112,6 +117,7 @@ import xCircle from './x-circle.svg'
 const icons = {
   admonition,
   anthropic,
+  archive,
   array,
   arrowClockwise,
   at,
@@ -143,6 +149,8 @@ const icons = {
   elseClause,
   exclamationCircle,
   exclamationTriangle,
+  eye,
+  eyeSlash,
   feather,
   filePlay,
   filePlus,
@@ -150,7 +158,9 @@ const icons = {
   fullscreen,
   google,
   handThumbsDown,
+  handThumbsDownFill,
   handThumbsUp,
+  handThumbsUpFill,
   hash,
   heading,
   hr,

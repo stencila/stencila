@@ -34,7 +34,7 @@
         {
           "@type": "Text",
           "value": {
-            "string": "No content:"
+            "string": "Never has existing content so is self closing or explicitly closing:"
           }
         }
       ]
@@ -44,71 +44,8 @@
       "stencila:instructionType": "New"
     },
     {
-      "@type": "stencila:Paragraph",
-      "stencila:content": [
-        {
-          "@type": "Text",
-          "value": {
-            "string": "Single block:"
-          }
-        }
-      ]
-    },
-    {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "New paragraph #1"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "@type": "stencila:Paragraph",
-      "stencila:content": [
-        {
-          "@type": "Text",
-          "value": {
-            "string": "Multiple blocks:"
-          }
-        }
-      ]
-    },
-    {
-      "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "New paragraph #2"
-              }
-            }
-          ]
-        },
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "New paragraph #3"
-              }
-            }
-          ]
-        }
-      ]
+      "stencila:instructionType": "New"
     },
     {
       "@type": "stencila:Heading",

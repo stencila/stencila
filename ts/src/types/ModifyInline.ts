@@ -3,7 +3,6 @@
 import { Inline } from "./Inline.js";
 import { ModifyOperation } from "./ModifyOperation.js";
 import { SuggestionInline } from "./SuggestionInline.js";
-import { SuggestionStatus } from "./SuggestionStatus.js";
 
 /**
  * A suggestion to modify some inline content.
@@ -17,11 +16,10 @@ export class ModifyInline extends SuggestionInline {
    */
   operations: ModifyOperation[];
 
-  constructor(suggestionStatus: SuggestionStatus, content: Inline[], operations: ModifyOperation[], options?: Partial<ModifyInline>) {
-    super(suggestionStatus, content);
+  constructor(content: Inline[], operations: ModifyOperation[], options?: Partial<ModifyInline>) {
+    super(content);
     this.type = "ModifyInline";
     if (options) Object.assign(this, options);
-    this.suggestionStatus = suggestionStatus;
     this.content = content;
     this.operations = operations;
   }
@@ -30,6 +28,6 @@ export class ModifyInline extends SuggestionInline {
 /**
 * Create a new `ModifyInline`
 */
-export function modifyInline(suggestionStatus: SuggestionStatus, content: Inline[], operations: ModifyOperation[], options?: Partial<ModifyInline>): ModifyInline {
-  return new ModifyInline(suggestionStatus, content, operations, options);
+export function modifyInline(content: Inline[], operations: ModifyOperation[], options?: Partial<ModifyInline>): ModifyInline {
+  return new ModifyInline(content, operations, options);
 }

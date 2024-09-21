@@ -3,6 +3,7 @@
 src="../../../../node_modules/@shoelace-style/shoelace/cdn/assets/icons"
 
 icons=(
+    archive
     arrow-clockwise
     at
     box
@@ -28,13 +29,17 @@ icons=(
     dash-circle
     exclamation-circle
     exclamation-triangle
+    eye
+    eye-slash
     feather
     file-play
     file-plus
     filetype-raw
     fullscreen
     hand-thumbs-down
+    hand-thumbs-down-fill
     hand-thumbs-up
+    hand-thumbs-up-fill
     hash
     hr
     image

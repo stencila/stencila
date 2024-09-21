@@ -35,8 +35,8 @@ pub struct ModifyBlock {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub suggestion_status: SuggestionStatus,
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion_status: Option<SuggestionStatus>,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -107,9 +107,8 @@ impl ModifyBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Block>, operations: Vec<ModifyOperation>) -> Self {
+    pub fn new(content: Vec<Block>, operations: Vec<ModifyOperation>) -> Self {
         Self {
-            suggestion_status,
             content,
             operations,
             ..Default::default()

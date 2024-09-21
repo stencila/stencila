@@ -3,9 +3,7 @@
   <body>
     <p>Example using Markdown as canonical format to test alternative ways to write instruction blocks.</p>
     <title level="1">New instruction</title>
-    <p>No content:</p>
-    <p>Single block:</p>
-    <p>Multiple blocks:</p>
+    <p>Never has existing content so is self closing or explicitly closing:</p>
     <title level="1">Edit instruction</title>
     <p>Edit next block:</p>
     <p>Edit multiple blocks:</p>

@@ -3,7 +3,6 @@
   content: [
     {
       type: "ReplaceBlock",
-      suggestionStatus: "Proposed",
       content: [
         {
           type: "Paragraph",
@@ -51,7 +50,6 @@
     },
     {
       type: "ReplaceBlock",
-      suggestionStatus: "Proposed",
       feedback: "Some feedback",
       content: [
         {

@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, SuggestionBlock, SuggestionStatus};
+use crate::{prelude::*, SuggestionBlock};
 
 impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -14,11 +14,6 @@ impl SuggestionBlock {
 
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        // Only encode proposed suggestions to Markdown
-        if !matches!(self.suggestion_status, SuggestionStatus::Proposed) {
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
@@ -34,7 +29,15 @@ impl MarkdownCodec for SuggestionBlock {
                             .push_prop_str(NodeProperty::Feedback, feedback);
                     }
                 },
-                |_| {},
+                |context| {
+                    if let Some(status) = &self.suggestion_status {
+                        context.myst_directive_option(
+                            NodeProperty::SuggestionStatus,
+                            Some("status"),
+                            status.to_keyword(),
+                        );
+                    }
+                },
                 |context| {
                     context.push_prop_fn(NodeProperty::Content, |context| {
                         self.content.to_markdown(context)
@@ -43,6 +46,12 @@ impl MarkdownCodec for SuggestionBlock {
             );
         } else {
             context.push_colons().push_str(" suggest");
+
+            if let Some(status) = &self.suggestion_status {
+                context
+                    .push_str(" ")
+                    .push_prop_str(NodeProperty::SuggestionStatus, status.to_keyword());
+            }
 
             if let Some(feedback) = &self.feedback {
                 context

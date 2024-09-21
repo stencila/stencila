@@ -22,12 +22,32 @@ export class UINodeAuthors extends LitElement {
   type: NodeType
 
   /**
+   * Whether the list of authors is expanded
+   */
+  @property({ type: Boolean, reflect: true })
+  expanded: boolean = false
+
+  /**
    * Whether there are any authors in the list
    *
    * Used to determine if anything should be rendered.
    */
   @state()
   private hasItems = false
+
+  /**
+   * Allow the list of authors to be expanded from outside this component
+   */
+  public expand() {
+    this.expanded = true
+  }
+
+  /**
+   * Allow the list of authors to be collapsed from outside this component
+   */
+  public collapse() {
+    this.expanded = false
+  }
 
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)
@@ -48,7 +68,7 @@ export class UINodeAuthors extends LitElement {
       icon-name="feather"
       header-title="Contributors"
       wrapper-css="${this.hasItems ? '' : 'hidden'}"
-      ?collapsed=${false}
+      ?expanded=${this.expanded}
     >
       <slot name="provenance" slot="header-content"></slot>
       <slot></slot>

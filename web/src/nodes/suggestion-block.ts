@@ -1,6 +1,6 @@
 import { SuggestionStatus } from '@stencila/types'
-import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { html, PropertyValues } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -21,7 +21,7 @@ import { Entity } from './entity'
 @withTwind()
 export class SuggestionBlock extends Entity {
   @property({ attribute: 'suggestion-status' })
-  suggestionStatus: SuggestionStatus
+  suggestionStatus?: SuggestionStatus
 
   @property({ attribute: 'execution-ended', type: Number })
   executionEnded?: number
@@ -32,14 +32,27 @@ export class SuggestionBlock extends Entity {
   @property()
   feedback?: string
 
-  override render() {
-    const showSuggestion =
-      !this.suggestionStatus || this.suggestionStatus === 'Proposed'
+  /**
+   * Toggle show/hide content
+   *
+   * Defaults to true, and then is toggled off/on by user or
+   * by changes to the suggestion status.
+   */
+  @state()
+  private showContent?: boolean = true
 
+  protected override update(changedProperties: PropertyValues): void {
+    if (changedProperties.has('suggestionStatus')) {
+      this.showContent = this.suggestionStatus === 'Accepted'
+    }
+
+    super.update(changedProperties)
+  }
+
+  override render() {
     const instructionId = this.closestGlobally('stencila-instruction-block').id
 
     return html`<stencila-ui-block-in-flow
-      class=${!showSuggestion ? 'hidden' : ''}
       type="SuggestionBlock"
       node-id=${this.id}
       ?collapsed=${true}
@@ -49,8 +62,21 @@ export class SuggestionBlock extends Entity {
           type="SuggestionBlock"
           node-id=${this.id}
           instruction-id=${instructionId}
+          suggestion-status=${this.suggestionStatus}
           feedback=${this.feedback}
         >
+          <sl-tooltip
+            content=${this.showContent ? 'Hide content' : 'Show content'}
+          >
+            <stencila-ui-icon-button
+              name=${this.showContent ? 'eyeSlash' : 'eye'}
+              @click=${(e: Event) => {
+                // Stop the click behavior of the card header parent element
+                e.stopImmediatePropagation()
+                this.showContent = !this.showContent
+              }}
+            ></stencila-ui-icon-button>
+          </sl-tooltip>
         </stencila-ui-suggestion-commands>
       </span>
 
@@ -70,7 +96,7 @@ export class SuggestionBlock extends Entity {
         </stencila-ui-node-authors>
       </div>
 
-      <div slot="content" class="w-full">
+      <div slot="content" class="w-full ${this.showContent ? '' : 'hidden'}">
         <slot name="content"></slot>
       </div>
     </stencila-ui-block-in-flow>`

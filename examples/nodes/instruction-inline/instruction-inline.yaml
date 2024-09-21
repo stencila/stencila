@@ -91,7 +91,6 @@ content:
     prompt: insert-inline-math
     suggestions:
     - type: SuggestionInline
-      suggestionStatus: Proposed
       content:
       - type: MathInline
         code:
@@ -113,7 +112,6 @@ content:
         string: existing content
     suggestions:
     - type: SuggestionInline
-      suggestionStatus: Proposed
       content:
       - type: Text
         value:

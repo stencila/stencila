@@ -52,13 +52,13 @@ export class UINodeExecutionCommands extends UIBaseClass {
         <sl-tooltip content="Run this node">
           <stencila-ui-icon-button
             name="play"
-            class="text-2xl mr-1"
-            .clickEvent=${(e: Event) => {
-              this.emitEvent(e, 'only')
-            }}
+            class="text-2xl"
+            @click=${(e: Event) => this.emitEvent(e, 'only')}
           ></stencila-ui-icon-button>
         </sl-tooltip>
         ${this.renderDropdown()}
+
+        <slot></slot>
       </div>
     `
   }

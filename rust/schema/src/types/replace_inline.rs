@@ -35,8 +35,8 @@ pub struct ReplaceInline {
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "myst")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub suggestion_status: SuggestionStatus,
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion_status: Option<SuggestionStatus>,
 
     /// The authors of the suggestion
     #[serde(alias = "author")]
@@ -107,9 +107,8 @@ impl ReplaceInline {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(suggestion_status: SuggestionStatus, content: Vec<Inline>, replacement: Vec<Inline>) -> Self {
+    pub fn new(content: Vec<Inline>, replacement: Vec<Inline>) -> Self {
         Self {
-            suggestion_status,
             content,
             replacement,
             ..Default::default()

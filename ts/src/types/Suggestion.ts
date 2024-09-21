@@ -17,7 +17,7 @@ export class Suggestion extends Entity {
   /**
    * The status of the suggestion including whether it is proposed, accepted, or rejected.
    */
-  suggestionStatus: SuggestionStatus;
+  suggestionStatus?: SuggestionStatus;
 
   /**
    * The authors of the suggestion
@@ -44,17 +44,17 @@ export class Suggestion extends Entity {
    */
   feedback?: string;
 
-  constructor(suggestionStatus: SuggestionStatus, options?: Partial<Suggestion>) {
+  constructor(options?: Partial<Suggestion>) {
     super();
     this.type = "Suggestion";
     if (options) Object.assign(this, options);
-    this.suggestionStatus = suggestionStatus;
+    
   }
 }
 
 /**
 * Create a new `Suggestion`
 */
-export function suggestion(suggestionStatus: SuggestionStatus, options?: Partial<Suggestion>): Suggestion {
-  return new Suggestion(suggestionStatus, options);
+export function suggestion(options?: Partial<Suggestion>): Suggestion {
+  return new Suggestion(options);
 }

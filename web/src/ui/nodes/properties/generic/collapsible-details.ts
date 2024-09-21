@@ -26,8 +26,8 @@ export class UINodeCollapsibleDetails extends LitElement {
   @property({ attribute: 'header-title' })
   headerTitle: string
 
-  @property({ type: Boolean })
-  collapsed: boolean = true
+  @property({ type: Boolean, reflect: true })
+  expanded: boolean = false
 
   @property({ attribute: 'wrapper-css' })
   wrapperCss: string | undefined = ''
@@ -46,7 +46,7 @@ export class UINodeCollapsibleDetails extends LitElement {
         type=${this.type}
         icon-name=${this.iconName}
         header-title=${this.headerTitle}
-        ?collapsed=${this.collapsed}
+        ?expanded=${this.expanded}
         wrapper-css=${this.wrapperCss}
       >
         <slot name="header-content" slot="header-content"></slot>

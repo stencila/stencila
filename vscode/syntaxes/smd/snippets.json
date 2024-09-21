@@ -22,7 +22,7 @@
   "New Instruction": {
     "description": "An instruction to generate new content.",
     "prefix": ["::: new"],
-    "body": ["::: new ${0:instruction} <"]
+    "body": ["::: new ${0:instruction}"]
   },
   "Edit Instruction": {
     "description": "An instruction to edit existing content.",

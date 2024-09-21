@@ -16,7 +16,7 @@ impl InstructionBlock {
                     for suggestion in suggestions.iter_mut() {
                         if &suggestion.node_id() == suggestion_id {
                             // Mark the accepted suggestion as such
-                            suggestion.suggestion_status = SuggestionStatus::Accepted;
+                            suggestion.suggestion_status = Some(SuggestionStatus::Accepted);
 
                             // Record the patcher as the acceptor
                             let accepter_patch = context.authors_as_acceptors();
@@ -26,14 +26,9 @@ impl InstructionBlock {
                                     tracing::error!("While accepting block suggestion: {error}");
                                 }
                             }
-
-                            // Make the content of the suggestion the content of the instruction
-                            self.content = Some(content);
-                        } else if matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
-                        {
-                            // Mark suggestions that are proposed as unaccepted
-                            // (i.e. not accepted, but also not explicitly rejected)
-                            suggestion.suggestion_status = SuggestionStatus::Unaccepted;
+                        } else {
+                            // Implicitly reject other suggestions
+                            suggestion.suggestion_status = Some(SuggestionStatus::Rejected);
                         }
                     }
                 }
@@ -46,17 +41,24 @@ impl InstructionBlock {
                     PatchOp::Push(self.to_value()?),
                 );
 
-                // If the instruction has content then replace it with the content,
-                // otherwise delete it
+                // If the instruction has an accepted suggestion then replace it with that,
+                // otherwise delete it.
                 let mut path = context.path();
                 let index = match path.pop_back() {
                     Some(PatchSlot::Index(index)) => index,
                     slot => bail!("Expected index slot, got: {slot:?}"),
                 };
-                match &self.content {
+                let accepted = self.suggestions.iter().flatten().find_map(|suggestion| {
+                    matches!(
+                        suggestion.suggestion_status,
+                        Some(SuggestionStatus::Accepted)
+                    )
+                    .then_some(suggestion.content.clone())
+                });
+                match &accepted {
                     Some(content) => {
                         if content.is_empty() {
-                            // No content so just delete
+                            // No content, so just delete
                             context.op_additional(path, PatchOp::Remove(vec![index]));
                         } else if content.len() == 1 {
                             // Just one block, so replace it
@@ -76,40 +78,12 @@ impl InstructionBlock {
                         }
                     }
                     None => {
-                        // No content so just delete
+                        // No accepted suggestion, so just delete
                         context.op_additional(path, PatchOp::Remove(vec![index]));
                     }
                 }
 
                 return Ok(true);
-            }
-        } else if matches!(
-            path.front(),
-            Some(PatchSlot::Property(NodeProperty::Suggestions))
-        ) && matches!(context.format, Some(Format::Markdown | Format::Myst))
-        {
-            // Manually apply remove and clear patches on suggestions.
-            // Prevent non-proposed suggestions, which are not encoded to Markdown,
-            // from being deleted.
-            if let Some(suggestions) = &mut self.suggestions {
-                if let PatchOp::Remove(indices) = op {
-                    let mut index = 0usize;
-                    suggestions.retain(|suggestion| {
-                        let retain =
-                            !matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
-                                || !indices.contains(&index);
-
-                        index += 1;
-
-                        retain
-                    });
-                    return Ok(true);
-                } else if matches!(op, PatchOp::Clear | PatchOp::Set(PatchValue::None)) {
-                    suggestions.retain(|suggestion| {
-                        !matches!(suggestion.suggestion_status, SuggestionStatus::Proposed)
-                    });
-                    return Ok(true);
-                }
             }
         }
 

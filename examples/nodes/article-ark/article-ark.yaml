@@ -29,7 +29,6 @@ content:
     code:
       string: inline code
   - type: DeleteInline
-    suggestionStatus: Proposed
     content:
     - type: Text
       value:
@@ -52,7 +51,6 @@ content:
       value:
         string: image
   - type: InsertInline
-    suggestionStatus: Proposed
     content:
     - type: Text
       value:
@@ -97,7 +95,6 @@ content:
       value:
         string: inline quote
   - type: ReplaceInline
-    suggestionStatus: Proposed
     content:
     - type: Text
       value:
@@ -186,7 +183,6 @@ content:
   code:
     string: This is a code chunk
 - type: DeleteBlock
-  suggestionStatus: Proposed
   content:
   - type: Paragraph
     content:
@@ -230,7 +226,6 @@ content:
 - type: IncludeBlock
   source: this/is/an/include
 - type: InsertBlock
-  suggestionStatus: Proposed
   content:
   - type: Paragraph
     content:
@@ -258,7 +253,6 @@ content:
       value:
         string: This is a quote block
 - type: ReplaceBlock
-  suggestionStatus: Proposed
   content:
   - type: Paragraph
     content:

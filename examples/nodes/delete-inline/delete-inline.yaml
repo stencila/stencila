@@ -6,7 +6,6 @@ content:
     value:
       string: 'Some '
   - type: DeleteInline
-    suggestionStatus: Proposed
     content:
     - type: Text
       value:
@@ -20,7 +19,6 @@ content:
     value:
       string: 'Several deleted inlines '
   - type: DeleteInline
-    suggestionStatus: Proposed
     content:
     - type: Strong
       content:

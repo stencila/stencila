@@ -16,7 +16,6 @@
         },
         {
           "@type": "stencila:DeleteInline",
-          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "Text",
@@ -45,7 +44,6 @@
         },
         {
           "@type": "stencila:DeleteInline",
-          "stencila:suggestionStatus": "Proposed",
           "stencila:content": [
             {
               "@type": "stencila:Strong",

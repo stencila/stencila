@@ -10,7 +10,6 @@
         },
         {
           type: "ReplaceInline",
-          suggestionStatus: "Proposed",
           content: [
             {
               type: "Text",

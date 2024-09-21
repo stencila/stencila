@@ -24,6 +24,7 @@ export interface DocumentCommand {
     | 'accept-node'
     | 'reject-node'
     | 'revise-node'
+    | 'archive-node'
 
   /**
    * The type of the node that the command is being executed on.

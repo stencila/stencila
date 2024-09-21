@@ -4,15 +4,9 @@ extends: Enumeration
 category: edits
 description: The status of an instruction.
 anyOf:
-  - const: Proposed
-    "@id": stencila:Proposed
-    description: The suggestion has been proposed.
   - const: Accepted
     "@id": stencila:Accepted
     description: The suggestion has been accepted.
   - const: Rejected
     "@id": stencila:Rejected
     description: The suggestion has been rejected.
-  - const: Unaccepted
-    "@id": stencila:Unaccepted
-    description: The suggestion has not been accepted, but has not been explicitly rejected.

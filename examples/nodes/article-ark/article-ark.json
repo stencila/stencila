@@ -32,7 +32,6 @@
         },
         {
           "type": "DeleteInline",
-          "suggestionStatus": "Proposed",
           "content": [{ "type": "Text", "value": ", delete" }]
         },
         { "type": "Text", "value": ", " },
@@ -48,7 +47,6 @@
         },
         {
           "type": "InsertInline",
-          "suggestionStatus": "Proposed",
           "content": [{ "type": "Text", "value": ", insert" }]
         },
         { "type": "Text", "value": ", " },
@@ -85,7 +83,6 @@
         },
         {
           "type": "ReplaceInline",
-          "suggestionStatus": "Proposed",
           "content": [{ "type": "Text", "value": ", old" }],
           "replacement": [{ "type": "Text", "value": ", new" }]
         },
@@ -154,7 +151,6 @@
     },
     {
       "type": "DeleteBlock",
-      "suggestionStatus": "Proposed",
       "content": [
         {
           "type": "Paragraph",
@@ -210,7 +206,6 @@
     },
     {
       "type": "InsertBlock",
-      "suggestionStatus": "Proposed",
       "content": [
         {
           "type": "Paragraph",
@@ -250,7 +245,6 @@
     },
     {
       "type": "ReplaceBlock",
-      "suggestionStatus": "Proposed",
       "content": [
         {
           "type": "Paragraph",

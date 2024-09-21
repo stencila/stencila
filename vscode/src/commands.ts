@@ -89,6 +89,20 @@ export function registerCommands(
       "stencila.view-doc",
       // docUri and nodeType are not used but are in the arguments
       // that we pass to all commands from code lenses so need to be here
+      async (docUri, nodeType) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        await createDocumentViewPanel(context, client, editor.document.uri);
+      }
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.view-node",
       async (docUri, nodeType, nodeId) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -101,6 +115,26 @@ export function registerCommands(
           client,
           editor.document.uri,
           nodeId
+        );
+      }
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.view-node-authors",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        await createDocumentViewPanel(
+          context,
+          client,
+          editor.document.uri,
+          nodeId,
+          true
         );
       }
     )

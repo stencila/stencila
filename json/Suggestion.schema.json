@@ -10,11 +10,11 @@
   "abstract": true,
   "description": "Abstract base type for nodes that indicate a suggested change to content.",
   "required": [
-    "type",
-    "suggestionStatus"
+    "type"
   ],
   "core": [
     "id",
+    "suggestionStatus",
     "authors",
     "provenance",
     "executionDuration",
