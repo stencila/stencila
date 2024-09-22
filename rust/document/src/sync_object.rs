@@ -209,7 +209,7 @@ mod tests {
             .await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
-        if let Some(PatchOperation::Add(AddOperation { path, .. })) = &patch.ops.first() {
+        if let Some(PatchOperation::Add(AddOperation { path, .. })) = &patch.ops.get(2) {
             assert_eq!(path, "/node/content/0");
         } else {
             bail!("unexpected patch operation {patch:?}")
@@ -219,7 +219,7 @@ mod tests {
         document.update(art([p([t("Hello!")])]), None, None).await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
-        if let Some(PatchOperation::Replace(ReplaceOperation { path, .. })) = &patch.ops.get(1) {
+        if let Some(PatchOperation::Replace(ReplaceOperation { path, .. })) = &patch.ops.get(3) {
             assert_eq!(path, "/node/content/0/content/0/value/string");
         } else {
             bail!("unexpected patch operation {patch:?}")

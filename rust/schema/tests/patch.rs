@@ -8,6 +8,7 @@ use codec_markdown::MarkdownCodec;
 use common::{
     eyre::{bail, Ok, Result},
     glob::glob,
+    itertools::Itertools,
     serde::Serialize,
     tokio,
 };
@@ -552,8 +553,10 @@ fn enums() -> Result<()> {
     Ok(())
 }
 
+/// Test `merge` when the `authors` arg is supplied (new node has
+/// no existing authors)
 #[test]
-fn authors() -> Result<()> {
+fn merge_with_authors() -> Result<()> {
     let alice = AuthorRole::person(
         Person {
             given_names: Some(vec!["Alice".to_string()]),
@@ -720,22 +723,22 @@ fn authors() -> Result<()> {
     );
     assert_eq!(chunk.provenance, Some(vec![prov(Hw, 3, 100)]));
 
-    /*
-    TODO: Fix and re-enable
-
     // Edit by bob
     merge(
         &mut chunk,
         &CodeChunk::new("ant".into()),
+        None,
         Some(vec![bob.clone()]),
     )?;
     assert_eq!(chunk.code, "ant".into());
+    /*
+    //TODO: Fix and then reinstate these assertions
     assert_eq!(
-        chunk.code.runs,
+        chunk.code.authorship,
         vec![
-            CordRun::new(1, 0, 0, 1),
-            CordRun::new(1, 2, 0, 1),
-            CordRun::new(2, 513, 2, 1)
+            CordAuthorship::new(1, 0, 0, 1),
+            CordAuthorship::new(1, 2, 0, 1),
+            CordAuthorship::new(2, 513, 2, 1)
         ]
     );
     assert_eq!(
@@ -751,6 +754,94 @@ fn authors() -> Result<()> {
         Some(vec![prov(Hw, 3, 100), prov(HwHe, 1, 100)])
     );
     */
+
+    Ok(())
+}
+
+/// Test that when two nodes with existing authorship are merged,
+/// that the authorship of both is retained and provenance updated accordingly
+#[test]
+fn merge_no_authors() -> Result<()> {
+    let alice = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Alice".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
+    let bob = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Bob".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Writer,
+    );
+    let hal = AuthorRole::software(
+        SoftwareApplication {
+            name: "Hal".to_string(),
+            ..Default::default()
+        },
+        AuthorRoleName::Generator,
+    );
+    let carol = AuthorRole::person(
+        Person {
+            given_names: Some(vec!["Carol".to_string()]),
+            ..Default::default()
+        },
+        AuthorRoleName::Accepter,
+    );
+
+    let mut one = Paragraph::new(vec![t("one")]);
+    authorship(&mut one, vec![alice.clone(), bob.clone()])?;
+
+    let mut two = Paragraph::new(vec![t("one two")]);
+    authorship(&mut two, vec![hal.clone(), carol.clone()])?;
+
+    merge(&mut one, &two, None, Some(vec![hal.clone(), carol.clone()]))?;
+
+    // All authors should be in authors of merged content
+    assert_eq!(
+        one.authors
+            .into_iter()
+            .flatten()
+            .map(|author| match author {
+                Author::AuthorRole(role) => {
+                    // Need to reset last modified (which is set in merge)
+                    Author::AuthorRole(AuthorRole {
+                        last_modified: None,
+                        ..role
+                    })
+                }
+                _ => author,
+            })
+            .collect_vec(),
+        vec![
+            Author::AuthorRole(alice),
+            Author::AuthorRole(bob),
+            Author::AuthorRole(hal),
+            Author::AuthorRole(carol)
+        ]
+    );
+
+    // Provenance is updated using the author type of the first
+    // author of the merged in content - in this case a machine.
+    assert_eq!(
+        one.provenance,
+        Some(vec![
+            ProvenanceCount {
+                provenance_category: ProvenanceCategory::Hw,
+                character_count: 3,
+                character_percent: Some(43),
+                ..Default::default()
+            },
+            ProvenanceCount {
+                provenance_category: ProvenanceCategory::Mw,
+                character_count: 4,
+                character_percent: Some(57),
+                ..Default::default()
+            }
+        ])
+    );
 
     Ok(())
 }

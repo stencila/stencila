@@ -86,6 +86,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return;
         }
 
+        // Authors field is not patched
+        if field_name == "authors" {
+            return;
+        }
+
         // Provenance should not need to be patched etc
         if field_name == "provenance" {
             has_provenance = true;
@@ -191,6 +196,22 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             PatchContext::update_provenance(&mut self.provenance, vec![
                 #provenance_fields
             ]);
+        }
+    } else {
+        TokenStream::new()
+    };
+
+    let authors = if let Some(authors_on) = &type_attr.authors_on {
+        let authors = if authors_on == "options" {
+            quote! { self.options.authors }
+        } else {
+            quote! { self.authors }
+        };
+
+        quote! {
+            fn authors(&self) -> Option<Vec<Author>> {
+                #authors.clone()
+            }
         }
     } else {
         TokenStream::new()
@@ -351,6 +372,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     quote! {
         impl PatchNode for #struct_name {
+            #authors
             #authorship
             #provenance
             #similarity
@@ -366,6 +388,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
     let mut is_unit = false;
+    let mut authors_variants = TokenStream::new();
     let mut authorship_variants = TokenStream::new();
     let mut provenance_variants = TokenStream::new();
     let mut similarity_variants = TokenStream::new();
@@ -377,6 +400,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
         match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => {
+                authors_variants.extend(quote! {
+                    Self::#variant_name(me) => me.authors(),
+                });
                 authorship_variants.extend(quote! {
                     Self::#variant_name(me) => me.authorship(context),
                 });
@@ -398,6 +424,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             }
             Fields::Unit => {
                 is_unit = true;
+                authors_variants.extend(quote! {
+                    Self::#variant_name => None,
+                });
                 authorship_variants.extend(quote! {
                     Self::#variant_name => Ok(()),
                 });
@@ -490,6 +519,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     quote! {
         impl PatchNode for #enum_name {
+            fn authors(&self) -> Option<Vec<Author>> {
+                match self {
+                    #authors_variants
+                }
+            }
+
             fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
                 match self {
                     #authorship_variants
