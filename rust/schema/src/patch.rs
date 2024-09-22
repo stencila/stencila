@@ -16,8 +16,8 @@ use node_id::NodeId;
 use node_type::NodeProperty;
 
 use crate::{
-    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Block,
-    CordOp, Inline, Node, ProvenanceCount, Timestamp,
+    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, CordOp, Inline,
+    Node, ProvenanceCount, Timestamp,
 };
 
 /// Assign authorship to a node
@@ -34,13 +34,26 @@ pub fn authorship<T: PatchNode>(node: &mut T, authors: Vec<AuthorRole>) -> Resul
 
 /// Merge `new` node into `old` node and record authorship of changes
 ///
-/// This function simply combines calls to [`diff`] and [`patch`].
+/// This function combines calls to [`diff`] (to generate a patch)
+/// and [`patch`] (to apply the patch).
 pub fn merge<T: PatchNode + Debug>(
     old: &mut T,
     new: &T,
     format: Option<Format>,
     authors: Option<Vec<AuthorRole>>,
 ) -> Result<()> {
+    // If no authors are supplied then use the authors of the new node
+    // when generating the patch.
+    let authors = authors.or_else(|| {
+        Some(
+            new.authors()
+                .into_iter()
+                .flatten()
+                .map(|author| author.into_author_role_same(AuthorRoleName::Writer))
+                .collect_vec(),
+        )
+    });
+
     let ops = diff(old, new, format, authors)?;
     patch(old, ops)
 }
@@ -130,6 +143,10 @@ pub struct PatchContext {
     /// The author (0-based index) which should be using when making changes to the
     /// authorship of `Cord` nodes during a call to `patch`.
     author_index: Option<u8>,
+
+    /// The type of the author which should be using when making changes to the
+    /// authorship of `Cord` nodes during a call to `patch`.
+    author_type: Option<AuthorType>,
 }
 
 impl PatchContext {
@@ -310,8 +327,8 @@ impl PatchContext {
     ///
     /// - `authors`: the `authors` property of the node
     ///
-    /// - `take`: whether the authors of the context should be "taken" (i.e. no applied to child nodes
-    ///    of the current node)
+    /// - `take`: whether the authors of the context should be "taken"
+    ///    (i.e. should NOT be applied to child nodes of the current node)
     ///
     /// - `overwrite`: whether to overwrite (i.e. reset) the current `authors` property of the node
     pub fn update_authors(
@@ -342,10 +359,14 @@ impl PatchContext {
 
             // Set the author id to the first author
             self.author_index = Some(0u8);
+            self.author_type = context_authors
+                .first()
+                .map(|author| AuthorType::from(&author.author));
         } else if let Some(existing_authors) = authors {
             // The node has existing authors: if an author role is already present
             // update `last_modified`, otherwise add the author role.
-            let mut author_id = None;
+            let mut author_index = None;
+            let mut author_type = None;
             for new_author_role in context_authors.iter() {
                 let mut present = false;
 
@@ -361,8 +382,11 @@ impl PatchContext {
 
                             present = true;
 
-                            if author_id.is_none() {
-                                author_id = Some(existing_index);
+                            if author_index.is_none() {
+                                author_index = Some(existing_index);
+                            };
+                            if author_type.is_none() {
+                                author_type = Some(AuthorType::from(&*existing_author));
                             };
 
                             break;
@@ -370,16 +394,21 @@ impl PatchContext {
                     }
                 }
 
+                // Add the author role to the existing authors
                 if !present {
-                    if author_id.is_none() {
-                        author_id = Some(existing_authors.len());
+                    if author_index.is_none() {
+                        author_index = Some(existing_authors.len());
                     };
+                    if author_type.is_none() {
+                        author_type = Some(AuthorType::from(&new_author_role.author));
+                    };
+
                     existing_authors.push(Author::AuthorRole(new_author_role.clone()));
                 }
             }
 
-            // Set the author id to the index of the first in self.authors
-            self.author_index = Some(author_id.unwrap_or(0) as u8);
+            self.author_index = author_index.map(|index| index.min(u8::MAX as usize) as u8);
+            self.author_type = author_type;
         }
 
         if take {
@@ -401,16 +430,7 @@ impl PatchContext {
 
     /// Get the current author type for the context
     pub fn author_type(&self) -> Option<AuthorType> {
-        if let (Some(authors), Some(index)) = (&self.authors, self.author_index) {
-            authors
-                .get(index as usize)
-                .map(|author_role| match author_role.author {
-                    AuthorRoleAuthor::SoftwareApplication(..) => AuthorType::Machine,
-                    _ => AuthorType::Human,
-                })
-        } else {
-            None
-        }
+        self.author_type
     }
 
     /// Get the context authors but with a different role name
@@ -626,6 +646,11 @@ impl Debug for PatchPath {
 
 /// A trait for diffing and patching nodes
 pub trait PatchNode: Sized + Serialize + DeserializeOwned {
+    /// Get the authors of the node
+    fn authors(&self) -> Option<Vec<Author>> {
+        None
+    }
+
     /// Assign authorship to the node
     ///
     /// This default implementation does nothing. Nodes with
