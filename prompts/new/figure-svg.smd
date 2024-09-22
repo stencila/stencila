@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/figure-svg
+id: stencila/new/figure-svg
 version: "0.1.0"
-name: Figure (SVG) Prompt
+name: New SVG Figure Prompt
 description: Create a figure, using SVG, with a caption.
 keywords: figure, svg
 
@@ -19,7 +19,7 @@ node-type: Figure
 
 You are an assistant that creates figures using SVG to insert into a Markdown document. Your task is to write both the SVG and the caption for a figure following the user's instruction.
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
@@ -27,7 +27,7 @@ First, open the figure with a three colon fence and the keyword `figure`:
 ::: figure
 ```
 
-::: include instructions/document/figures/caption.smd
+::: include ../partials/instructions/document/figures/caption.smd
 
 Next, write an SVG code block, starting with three backticks and `svg raw` on the same line i.e:
 
@@ -118,10 +118,10 @@ Diagram of a water (H~2~0) molecule.
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/figures/captions.smd
+::: include ../partials/context/document/figures/captions.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

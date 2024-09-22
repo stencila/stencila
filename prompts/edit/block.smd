@@ -1,14 +1,14 @@
 ---
 type: Prompt
 
-id: stencila/edit
+id: stencila/edit/block
 version: "0.1.0"
-name: Edit Prompt
-description: Edit any document element.
+name: Edit Block Prompt
+description: Edit a block.
 keywords: edit
 
 instruction-type: Edit
-node-types: '*'
+node-types: Block
 ---
 
 # Instructions
@@ -65,11 +65,11 @@ The results were inconclusive due to large variances in individual responses. Fu
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd
 
 # Content
 

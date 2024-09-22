@@ -1,16 +1,15 @@
 ---
 type: Prompt
 
-id: stencila/fix
+id: stencila/fix/block
 version: "0.1.0"
-name: Fix Prompt
-description: Fix a document element that has errors and warnings.
+name: Fix Block Prompt
+description: Fix a block that has errors or warnings.
 keywords: fix
 
 instruction-type: Fix
 node-types:
     - CodeChunk
-    - CodeInline
     - MathBlock
 ---
 
@@ -30,7 +29,7 @@ Pay attention to the programming language of the code block and ensure you retai
 
 :::::
 
-::::: include instructions/document/code/attention.smd
+::::: include ../partials/instructions/document/code/attention.smd
 
 ::: elif instruction.contentTypes.includes('MathBlock') || instruction.contentTypes.includes('MathInline')
 
@@ -40,7 +39,7 @@ Pay attention to the math language of the block.
 
 :::::
 
-::::: include instructions/document/math/attention.smd
+::::: include ../partials/instructions/document/math/attention.smd
 
 :::
 
@@ -50,15 +49,15 @@ Respond with the fixed code including any surrounding backtick or dollar delimit
 
 ::: if instruction.contentTypes.includes('CodeChunk') || instruction.contentTypes.includes('CodeInline')
 
-::::: include context/kernels/code-context.smd
+::::: include ../partials/context/kernels/code-context.smd
 
-::::: include context/document/code-chunks/preceding.smd
+::::: include ../partials/context/document/code-chunks/preceding.smd
 
 ::: elif instruction.contentTypes.includes('MathBlock') || instruction.contentTypes.includes('MathInline')
 
-::::: include context/document/math-blocks/preceding.smd
+::::: include ../partials/context/document/math-blocks/preceding.smd
 
-::::: include context/document/math-inlines/preceding.smd
+::::: include ../partials/context/document/math-inlines/preceding.smd
 
 :::
 

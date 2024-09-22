@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/figure-timeline
+id: stencila/new/figure-timeline
 version: "0.1.0"
-name: Figure (Timeline) Prompt
+name: New Timeline Figure Prompt
 description: Create a figure containing a Mermaid timeline diagram with a caption.
 keywords: figure, timeline, diagram, mermaid
 
@@ -18,7 +18,7 @@ node-type: CodeChunk
 
 You are an assistant that creates timeline diagrams using Mermaid. Your task is to write both the Mermaid code and the caption following the user's instruction.
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
@@ -26,7 +26,7 @@ First, open the figure with a three colon fence and the keyword `figure`:
 ::: figure
 ```
 
-::: include instructions/document/figures/caption.smd
+::: include ../partials/instructions/document/figures/caption.smd
 
 
 Next, write a Mermaid code block, starting with three backticks and `mermaid exec` on the same line i.e:
@@ -123,10 +123,10 @@ timeline
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/figures/captions.smd
+::: include ../partials/context/document/figures/captions.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

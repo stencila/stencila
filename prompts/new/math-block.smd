@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/math-block
+id: stencila/new/math-block
 version: "0.1.0"
-name: Math Block Prompt
+name: New Math Block Prompt
 description: Create a math equation in TeX, AsciiMath or MathML.
 keywords: math, block, display
 
@@ -41,9 +41,9 @@ If using MathML write a code block and ensure that you use block display i.e
 </math>
 ```
 
-::: include instructions/document/math/attention.smd
+::: include ../partials/instructions/document/math/attention.smd
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 Only provide ONE math block. Do NOT provide any comments or explanation before or after the math block. 
 
@@ -103,12 +103,12 @@ $$
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/math-blocks/preceding.smd
+::: include ../partials/context/document/math-blocks/preceding.smd
 
-::: include context/document/math-inlines/preceding.smd
+::: include ../partials/context/document/math-inlines/preceding.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

@@ -107,7 +107,9 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 CompletionItemKind::INTERFACE
             };
 
-            let label = if let Some(id) = id.strip_prefix("stencila/") {
+            // If this is a Stencila prompt then strip the redundant prefix
+            let stencila_prefix = ["stencila/", &itype.to_string().to_lowercase(), "/"].concat();
+            let label = if let Some(id) = id.strip_prefix(&stencila_prefix) {
                 id.to_string()
             } else {
                 id.to_string()

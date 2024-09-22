@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/table-filled
+id: stencila/new/table-filled
 version: "0.1.0"
-name: Table (Filled) Prompt
+name: New Filled Table Prompt
 description: Create a table with a caption and filled cells.
 keywords: table, filled
 
@@ -28,7 +28,7 @@ Next, write a caption for the table as a separate paragraph. If necessary, the c
 
 Next, write the Markdown table ensuring all columns have headers and all cells are filled. Use a hyphen to indicate when a value is not available. Any columns containing numbers MUST be right aligned and use the same number of decimal places for all values.
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 Finally, close the table with a three colon fence i.e:
 
@@ -87,10 +87,10 @@ The five lightest elements with their atomic number and weight.
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/tables/captions.smd
+::: include ../partials/context/document/tables/captions.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

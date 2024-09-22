@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/table-empty
+id: stencila/new/table-empty
 version: "0.1.0"
-name: Table (Empty) Prompt
+name: New Empty Table Prompt
 description: Create an empty table.
 keywords: table, empty
 

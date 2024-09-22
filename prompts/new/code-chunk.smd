@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/code-chunk
+id: stencila/new/code-chunk
 version: "0.1.0"
-name: Code Chunk Prompt
+name: New Code Chunk Prompt
 description: Create an executable code chunk.
 keywords: executable, code
 
@@ -30,9 +30,9 @@ Use the programming language that the user specifies. If the user does not speci
 
 If the code produces outputs, such as summary data frames, you should use the `print` function (or `console.log` in JavaScript) to ensure those are written to stdout. This is not necessary if the output is the last statement / line.
 
-::: include instructions/document/code/attention.smd
+::: include ../partials/instructions/document/code/attention.smd
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 Only provide ONE code block. Provide comments in the code but do NOT provide any comments or explanation before or after the code block.
 
@@ -83,12 +83,12 @@ summary
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/kernels/code-context.smd
+::: include ../partials/context/kernels/code-context.smd
 
-::: include context/document/code-chunks/preceding.smd
+::: include ../partials/context/document/code-chunks/preceding.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

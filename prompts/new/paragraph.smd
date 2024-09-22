@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/paragraph
+id: stencila/new/paragraph
 version: "0.1.0"
-name: Paragraph Prompt
+name: New Paragraph Prompt
 description: Create a paragraph.
 keywords: paragraph
 
@@ -24,12 +24,12 @@ Only provide ONE paragraph. Do NOT provide any comments or explanation.
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/sections/guidelines.smd
+::: include ../partials/context/document/sections/guidelines.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/paragraphs/next.smd
+::: include ../partials/context/document/paragraphs/next.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

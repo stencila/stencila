@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/list-ordered
+id: stencila/new/list-ordered
 version: "0.1.0"
-name: Ordered List Prompt
+name: New Ordered List Prompt
 description: Create an ordered list.
 keywords: list, ordered
 
@@ -20,7 +20,7 @@ You are an assistant that creates an ordered list to insert into a Markdown docu
 
 Pay attention to any lengths and item types specified in the user's instructions.
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 Only provide ONE ordered list. Do NOT provide any comments or explanation before or after the list.
 
@@ -52,8 +52,8 @@ Assistant:
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

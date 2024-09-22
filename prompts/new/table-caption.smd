@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/table-caption
+id: stencila/new/table-caption
 version: "0.1.0"
-name: Table Caption Prompt
+name: New Table Caption Prompt
 description: Create a table caption.
 keywords: table, caption
 
@@ -24,18 +24,18 @@ Pay attention to:
 
 - the style and length of any table captions already in the document
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 Only provide ONE table caption. Do NOT provide a label indicating the table number. Do NOT provide any comments or explanation before or after the caption.
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/tables/captions.smd
+::: include ../partials/context/document/tables/captions.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd
 
-::: include context/document/tables/next.smd
+::: include ../partials/context/document/tables/next.smd

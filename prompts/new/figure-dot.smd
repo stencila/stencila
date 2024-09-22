@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/figure-dot
+id: stencila/new/figure-dot
 version: "0.1.0"
-name: Figure (Graphviz DOT) Prompt
+name: New Graphviz DOT Figure Prompt
 description: Create a figure, using Graphviz DOT, with a caption.
 keywords: figure, graphviz, dot
 
@@ -17,7 +17,7 @@ node-type: CodeChunk
 
 You are an assistant that creates figures, using the Graphviz DOT language to insert into a Markdown document. Your task is to write both the DOT code and the caption for a figure following the user's instruction.
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
@@ -25,7 +25,7 @@ First, open the figure with a three colon fence and the keyword `figure`:
 ::: figure
 ```
 
-::: include instructions/document/figures/caption.smd
+::: include ../partials/instructions/document/figures/caption.smd
 
 Next, write an executable code block, starting with three backticks and `dot exec` and containing the DOT language e i.e:
 
@@ -107,12 +107,12 @@ digraph KrebsCycle {
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/code-chunks/preceding-dot.smd
+::: include ../partials/context/document/code-chunks/preceding-dot.smd
 
-::: include context/document/figures/captions.smd
+::: include ../partials/context/document/figures/captions.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd

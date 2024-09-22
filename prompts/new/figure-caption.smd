@@ -1,9 +1,9 @@
 ---
 type: Prompt
 
-id: stencila/figure-caption
+id: stencila/new/figure-caption
 version: "0.1.0"
-name: Figure Caption Prompt
+name: New Figure Caption Prompt
 description: Create a figure caption.
 keywords: figure
 
@@ -20,16 +20,16 @@ If necessary, the caption should expand the user's instruction into one or more 
 
 Pay attention to the style and length of any figure captions already in the document.
 
-::: include instructions/document/paragraphs/previous.smd
+::: include ../partials/instructions/document/paragraphs/previous.smd
 
 Only provide ONE figure caption. Do NOT provide a label indicating the figure number. Do NOT provide any comments or explanation before or after the caption.
 
 # Context
 
-::: include context/document/metadata.smd
+::: include ../partials/context/document/metadata.smd
 
-::: include context/document/block-context.smd
+::: include ../partials/context/document/block-context.smd
 
-::: include context/document/figures/captions.smd
+::: include ../partials/context/document/figures/captions.smd
 
-::: include context/document/paragraphs/previous.smd
+::: include ../partials/context/document/paragraphs/previous.smd
