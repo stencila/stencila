@@ -22,22 +22,22 @@
   "New Instruction": {
     "description": "An instruction to generate new content.",
     "prefix": ["::: new"],
-    "body": ["::: new ${0:instruction}"]
+    "body": ["::: new ${0:what}"]
   },
   "Edit Instruction": {
     "description": "An instruction to edit existing content.",
     "prefix": ["::: edit"],
-    "body": ["::: edit ${0:instruction} >"]
+    "body": ["::: edit ${0} >"]
   },
   "Fix Instruction": {
     "description": "An instruction to fix code or math.",
     "prefix": ["::: fix"],
-    "body": ["::: fix ${0:instruction} >"]
+    "body": ["::: fix ${0} >"]
   },
   "Describe Instruction": {
     "description": "An instruction to describe existing content.",
     "prefix": ["::: describe"],
-    "body": ["::: describe ${0:instruction} >"]
+    "body": ["::: describe ${0:what} <"]
   },
   "If Block": {
     "description": "Only show block content if the expression is true.",
