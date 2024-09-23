@@ -4,6 +4,6 @@
 
 The previous math block, before the current position in the document, is:
 
-{{ document.mathBlocks.next.markdown }}
+{{ document.mathBlocks.previous.markdown }}
 
 :::

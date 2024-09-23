@@ -1,12 +1,98 @@
+use kernel_quickjs::kernel::common::itertools::Itertools;
+
 use crate::prelude::*;
 
 use super::node::Node;
+
+/// A code chunk in the current document
+#[derive(Default, Clone, Trace)]
+#[rquickjs::class]
+pub struct CodeChunk {
+    /// The language of the code chunk
+    #[qjs(get, enumerable)]
+    language: Option<String>,
+
+    /// The code of the code chunk
+    #[qjs(get, enumerable)]
+    code: String,
+
+    /// The outputs of the code chunk
+    #[qjs(get, enumerable)]
+    outputs: Option<Vec<Node>>,
+
+    /// The label type of the code chunk
+    pub label_type: Option<String>,
+
+    /// The label of the code chunk
+    pub label: Option<String>,
+
+    /// The Markdown representation of the code chunk (without outputs)
+    markdown: String,
+}
+
+impl CodeChunk {
+    #[cfg(test)]
+    pub fn new(language: &str, code: &str, outputs: Option<Vec<Node>>) -> Self {
+        Self {
+            language: (!language.is_empty()).then(|| language.into()),
+            code: code.into(),
+            outputs,
+            label_type: None,
+            label: None,
+            markdown: String::new(),
+        }
+    }
+}
+
+impl From<&schema::CodeChunk> for CodeChunk {
+    fn from(code_chunk: &schema::CodeChunk) -> Self {
+        Self {
+            language: code_chunk.programming_language.clone(),
+            code: code_chunk.code.string.clone(),
+            outputs: code_chunk
+                .outputs
+                .as_ref()
+                .map(|outputs| outputs.iter().map(Node::from).collect()),
+            label_type: code_chunk.label_type.as_ref().map(|lt| lt.to_string()),
+            label: code_chunk.label.clone(),
+            markdown: to_markdown(code_chunk),
+        }
+    }
+}
+
+impl CodeChunk {
+    pub fn markdown(&self) -> String {
+        self.markdown.clone()
+    }
+
+    pub fn markdown_with_outputs(&self) -> String {
+        let outputs = self
+            .outputs
+            .iter()
+            .flatten()
+            .map(|node| &node.markdown)
+            .join("\n\n");
+        [&self.markdown, "\n\nOutputs:\n\n", &outputs].concat()
+    }
+}
+
+#[rquickjs::methods]
+impl CodeChunk {
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("language", self.language.clone())?;
+        obj.set("code", self.code.clone())?;
+        obj.set("outputs", self.outputs.clone())?;
+        Ok(obj)
+    }
+}
 
 /// The code chunks in a document
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct CodeChunks {
-    items: Vec<CodeChunk>,
+    pub items: Vec<CodeChunk>,
     cursor: Option<usize>,
     current: Option<usize>,
 }
@@ -85,7 +171,7 @@ impl CodeChunks {
 
     /// Get the previous code chunk (if any)
     #[qjs(get)]
-    fn previous(&self) -> Option<CodeChunk> {
+    pub fn previous(&self) -> Option<CodeChunk> {
         self.cursor.and_then(|cursor| {
             let index = if self.current.is_some() {
                 // Currently in a code chunk
@@ -112,62 +198,9 @@ impl CodeChunks {
 
     /// Get the next code chunk (if any)
     #[qjs(get)]
-    fn next(&self) -> Option<CodeChunk> {
+    pub fn next(&self) -> Option<CodeChunk> {
         self.cursor
             .map(|cursor| self.items.get(cursor + 1).cloned())
             .unwrap_or_else(|| self.first())
-    }
-}
-
-/// A code chunk in the current document
-#[derive(Default, Clone, Trace)]
-#[rquickjs::class]
-pub struct CodeChunk {
-    /// The language of the code chunk
-    #[qjs(get, enumerable)]
-    language: Option<String>,
-
-    /// The code of the code chunk
-    #[qjs(get, enumerable)]
-    code: String,
-
-    /// The outputs of the code chunk
-    #[qjs(get, enumerable)]
-    outputs: Option<Vec<Node>>,
-}
-
-impl CodeChunk {
-    #[cfg(test)]
-    pub fn new(language: &str, code: &str, outputs: Option<Vec<Node>>) -> Self {
-        Self {
-            language: (!language.is_empty()).then(|| language.into()),
-            code: code.into(),
-            outputs,
-        }
-    }
-}
-
-impl From<&schema::CodeChunk> for CodeChunk {
-    fn from(code_chunk: &schema::CodeChunk) -> Self {
-        Self {
-            language: code_chunk.programming_language.clone(),
-            code: code_chunk.code.string.clone(),
-            outputs: code_chunk
-                .outputs
-                .as_ref()
-                .map(|outputs| outputs.iter().map(Node::from).collect()),
-        }
-    }
-}
-
-#[rquickjs::methods]
-impl CodeChunk {
-    #[qjs(rename = PredefinedAtom::ToJSON)]
-    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
-        let obj = Object::new(ctx)?;
-        obj.set("language", self.language.clone())?;
-        obj.set("code", self.code.clone())?;
-        obj.set("outputs", self.outputs.clone())?;
-        Ok(obj)
     }
 }

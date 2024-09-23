@@ -4,6 +4,6 @@
 
 The next paragraph, after the current position in the document, is:
 
-{{ document.paragraphs.next.content }}
+{{ document.paragraphs.next.markdown }}
 
 :::

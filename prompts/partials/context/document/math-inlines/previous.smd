@@ -4,6 +4,6 @@
 
 The previous inline math, before the current position in the document, is:
 
-{{ document.mathInlines.next.markdown }}
+{{ document.mathInlines.previous.markdown }}
 
 :::

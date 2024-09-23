@@ -9,6 +9,9 @@ pub struct MathBlock {
     language: Option<String>,
 
     /// The Markdown representation of the math block
+    /// 
+    /// This is a property, rather than a getter, because
+    /// its structure varies depending upon the language.
     #[qjs(get, enumerable)]
     markdown: String,
 }
@@ -19,6 +22,12 @@ impl From<&schema::MathBlock> for MathBlock {
             language: math_block.math_language.clone(),
             markdown: to_markdown(math_block),
         }
+    }
+}
+
+impl MathBlock {
+    pub fn markdown(&self) -> String {
+        self.markdown.clone()
     }
 }
 
@@ -87,7 +96,7 @@ impl MathBlocks {
 
     /// Get the preceding math blocks (if any)
     #[qjs(get)]
-    fn preceding(&self) -> Vec<MathBlock> {
+    pub fn preceding(&self) -> Vec<MathBlock> {
         let Some(cursor) = self.cursor else {
             return Vec::new();
         };
@@ -97,14 +106,14 @@ impl MathBlocks {
 
     /// Get the previous math block (if any)
     #[qjs(get)]
-    fn previous(&self) -> Option<MathBlock> {
+    pub fn previous(&self) -> Option<MathBlock> {
         self.cursor
             .and_then(|cursor| self.items.get(cursor).cloned())
     }
 
     /// Get the next math block (if any)
     #[qjs(get)]
-    fn next(&self) -> Option<MathBlock> {
+    pub fn next(&self) -> Option<MathBlock> {
         self.cursor
             .map(|cursor| self.items.get(cursor + 1).cloned())
             .unwrap_or_else(|| self.first())

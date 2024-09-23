@@ -1,5 +1,53 @@
 use crate::prelude::*;
 
+/// A heading in the current document
+#[derive(Default, Clone, Trace)]
+#[rquickjs::class]
+pub struct Heading {
+    // The level of the heading
+    #[qjs(get, enumerable)]
+    level: i32,
+
+    /// The Markdown content of the heading
+    #[qjs(get, enumerable)]
+    content: String,
+}
+
+impl Heading {
+    #[cfg(test)]
+    pub fn new(level: i32, content: &str) -> Self {
+        Self {
+            level,
+            content: content.to_string(),
+        }
+    }
+}
+
+impl From<&schema::Heading> for Heading {
+    fn from(heading: &schema::Heading) -> Self {
+        Self {
+            level: heading.level as i32,
+            content: to_markdown(&heading.content),
+        }
+    }
+}
+
+#[rquickjs::methods]
+impl Heading {
+    #[qjs()]
+    pub fn markdown(&self) -> String {
+        format!("{} {}\n", "#".repeat(self.level as usize), self.content)
+    }
+
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("level", self.level)?;
+        obj.set("content", self.content.clone())?;
+        Ok(obj)
+    }
+}
+
 /// The headings in a document
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
@@ -67,7 +115,7 @@ impl Headings {
 
     /// Get the previous heading (if any)
     #[qjs(get)]
-    fn previous(&self) -> Option<Heading> {
+    pub fn previous(&self) -> Option<Heading> {
         self.cursor.and_then(|cursor| {
             let index = if self.current.is_some() {
                 // Currently in a heading
@@ -94,7 +142,7 @@ impl Headings {
 
     /// Get the next heading (if any)
     #[qjs(get)]
-    fn next(&self) -> Option<Heading> {
+    pub fn next(&self) -> Option<Heading> {
         self.cursor
             .map(|cursor| self.items.get(cursor + 1).cloned())
             .unwrap_or_else(|| self.first())
@@ -126,48 +174,5 @@ impl Headings {
 
         headings.reverse();
         headings
-    }
-}
-
-/// A heading in the current document
-#[derive(Default, Clone, Trace)]
-#[rquickjs::class]
-pub struct Heading {
-    // The level of the heading
-    #[qjs(get, enumerable)]
-    level: i32,
-
-    /// The Markdown content of the heading
-    #[qjs(get, enumerable)]
-    content: String,
-}
-
-impl Heading {
-    #[cfg(test)]
-    pub fn new(level: i32, content: &str) -> Self {
-        Self {
-            level,
-            content: content.to_string(),
-        }
-    }
-}
-
-impl From<&schema::Heading> for Heading {
-    fn from(heading: &schema::Heading) -> Self {
-        Self {
-            level: heading.level as i32,
-            content: to_markdown(&heading.content),
-        }
-    }
-}
-
-#[rquickjs::methods]
-impl Heading {
-    #[qjs(rename = PredefinedAtom::ToJSON)]
-    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
-        let obj = Object::new(ctx)?;
-        obj.set("level", self.level)?;
-        obj.set("content", self.content.clone())?;
-        Ok(obj)
     }
 }

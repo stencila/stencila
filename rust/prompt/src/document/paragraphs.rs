@@ -1,5 +1,46 @@
 use crate::prelude::*;
 
+/// A paragraph in the current document
+#[derive(Default, Clone, Trace)]
+#[rquickjs::class]
+pub struct Paragraph {
+    /// The Markdown content of the paragraph
+    #[qjs(get, enumerable)]
+    content: String,
+}
+
+impl Paragraph {
+    #[cfg(test)]
+    pub fn new(content: &str) -> Self {
+        Self {
+            content: content.to_string(),
+        }
+    }
+}
+
+impl From<&schema::Paragraph> for Paragraph {
+    fn from(paragraph: &schema::Paragraph) -> Self {
+        Self {
+            content: to_markdown(&paragraph.content),
+        }
+    }
+}
+
+#[rquickjs::methods]
+impl Paragraph {
+    #[qjs()]
+    pub fn markdown(&self) -> String {
+        self.content.clone()
+    }
+
+    #[qjs(rename = PredefinedAtom::ToJSON)]
+    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
+        let obj = Object::new(ctx)?;
+        obj.set("content", self.content.clone())?;
+        Ok(obj)
+    }
+}
+
 /// The paragraphs in a document
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
@@ -79,7 +120,7 @@ impl Paragraphs {
 
     /// Get the previous paragraph (if any)
     #[qjs(get)]
-    fn previous(&self) -> Option<Paragraph> {
+    pub fn previous(&self) -> Option<Paragraph> {
         self.cursor.and_then(|cursor| {
             let index = if self.current.is_some() {
                 // Currently in a paragraph
@@ -106,45 +147,9 @@ impl Paragraphs {
 
     /// Get the next paragraph (if any)
     #[qjs(get)]
-    fn next(&self) -> Option<Paragraph> {
+    pub fn next(&self) -> Option<Paragraph> {
         self.cursor
             .map(|cursor| self.items.get(cursor + 1).cloned())
             .unwrap_or_else(|| self.first())
-    }
-}
-
-/// A paragraph in the current document
-#[derive(Default, Clone, Trace)]
-#[rquickjs::class]
-pub struct Paragraph {
-    /// The Markdown content of the paragraph
-    #[qjs(get, enumerable)]
-    content: String,
-}
-
-impl Paragraph {
-    #[cfg(test)]
-    pub fn new(content: &str) -> Self {
-        Self {
-            content: content.to_string(),
-        }
-    }
-}
-
-impl From<&schema::Paragraph> for Paragraph {
-    fn from(paragraph: &schema::Paragraph) -> Self {
-        Self {
-            content: to_markdown(&paragraph.content),
-        }
-    }
-}
-
-#[rquickjs::methods]
-impl Paragraph {
-    #[qjs(rename = PredefinedAtom::ToJSON)]
-    fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
-        let obj = Object::new(ctx)?;
-        obj.set("content", self.content.clone())?;
-        Ok(obj)
     }
 }

@@ -4,6 +4,6 @@
 
 The previous paragraph, before the current position in the document, is:
 
-{{ document.paragraphs.previous.content }}
+{{ document.paragraphs.previous.markdown }}
 
 :::

@@ -30,6 +30,14 @@ impl From<&schema::Figure> for Figure {
 
 #[rquickjs::methods]
 impl Figure {
+    #[qjs()]
+    pub fn markdown(&self) -> String {
+        format!(
+            "::: figure\n\n{}\n\n:::\n",
+            self.caption.as_deref().unwrap_or_default()
+        )
+    }
+
     #[qjs(rename = PredefinedAtom::ToJSON)]
     fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
         let obj = Object::new(ctx)?;
@@ -95,7 +103,7 @@ impl Figures {
 
     /// Get the previous figure (if any)
     #[qjs(get)]
-    fn previous(&self) -> Option<Figure> {
+    pub fn previous(&self) -> Option<Figure> {
         self.cursor.and_then(|cursor| {
             let index = if self.current.is_some() {
                 // Currently in a figure
@@ -122,7 +130,7 @@ impl Figures {
 
     /// Get the next figure (if any)
     #[qjs(get)]
-    fn next(&self) -> Option<Figure> {
+    pub fn next(&self) -> Option<Figure> {
         self.cursor
             .map(|cursor| self.items.get(cursor + 1).cloned())
             .unwrap_or_else(|| self.first())
