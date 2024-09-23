@@ -12,13 +12,13 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.16.2",
-    "@cloudflare/workers-types": "4.20240909.0",
+    "@arethetypeswrong/cli": "0.16.4",
+    "@cloudflare/workers-types": "4.20240919.0",
     "@types/benchmark": "2.1.5",
-    "@types/jest": "29.5.12",
+    "@types/jest": "29.5.13",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/eslint-plugin": "8.5.0",
-    "@typescript-eslint/parser": "8.5.0",
+    "@typescript-eslint/eslint-plugin": "8.7.0",
+    "@typescript-eslint/parser": "8.7.0",
     "benchmark": "2.1.4",
     "better-npm-audit": "3.11.0",
     "depcheck": "1.4.7",
@@ -29,11 +29,11 @@
     "jest": "29.7.0",
     "prettier": "3.3.3",
     "process": "0.11.10",
-    "publint": "0.2.10",
+    "publint": "0.2.11",
     "tmp": "0.2.3",
     "ts-jest": "29.2.5",
-    "tsup": "8.2.4",
+    "tsup": "8.3.0",
     "typescript": "5.6.2",
-    "wrangler": "3.76.0"
+    "wrangler": "3.78.8"
   }
 }
