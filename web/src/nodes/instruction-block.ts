@@ -121,7 +121,9 @@ export class InstructionBlock extends Instruction {
       <div class=${styles}>
         <span class="flex flex-row items-center">
           <sl-tooltip content="Instruction type">
-            <span class="font-mono font-bold text-base">${this.instructionType.toLowerCase()}</span>
+            <span class="font-mono font-bold text-base"
+              >${this.instructionType.toLowerCase()}</span
+            >
           </sl-tooltip>
         </span>
 
