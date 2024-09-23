@@ -1,0 +1,13 @@
+::: if document.codeChunks.preceding.length > 0
+
+### Preceding code chunks
+
+The preceding code chunks, before the current position in the document, are:
+
+::::: for chunk in document.codeChunks.preceding
+
+{{ chunk.markdown }}
+
+:::::
+
+:::

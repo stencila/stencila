@@ -1,5 +1,5 @@
 use cli_utils::{
-    table::{self, Attribute, Cell},
+    table::{self, Attribute, Cell, Color},
     Code, ToStdout,
 };
 use codecs::{EncodeOptions, Format};
@@ -56,6 +56,7 @@ impl List {
                 id,
                 version,
                 description,
+                instruction_types,
                 ..
             } = prompt.inner;
 
@@ -64,8 +65,18 @@ impl List {
                 StringOrNumber::Number(version) => version.to_string(),
             };
 
+            let color = match instruction_types.first() {
+                Some(InstructionType::New) => Color::Green,
+                Some(InstructionType::Edit) => Color::Blue,
+                Some(InstructionType::Fix) => Color::Cyan,
+                Some(InstructionType::Describe) => Color::Yellow,
+                None => Color::Grey,
+            };
+
             table.add_row([
-                Cell::new(id.unwrap_or_default()).add_attribute(Attribute::Bold),
+                Cell::new(id.unwrap_or_default())
+                    .add_attribute(Attribute::Bold)
+                    .fg(color),
                 Cell::new(version),
                 Cell::new(description.as_str()),
             ]);
@@ -90,7 +101,7 @@ struct Show {
 
 impl Show {
     async fn run(self) -> Result<()> {
-        let prompt = super::get(&self.id).await?;
+        let prompt = super::get(&self.id, &InstructionType::New).await?;
 
         let content = codecs::to_string(
             &Node::Prompt(prompt.inner),

@@ -1,9 +1,0 @@
-::: if document.codeChunks.next
-
-### Next code chunk
-
-The next code chunk, after the current position in the document, is:
-
-{{ "```" + document.codeChunks.next.language + " exec\n" + document.codeChunks.next.code + "\n```" }}
-
-:::

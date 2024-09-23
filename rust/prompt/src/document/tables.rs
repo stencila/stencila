@@ -32,6 +32,12 @@ impl From<&schema::Table> for Table {
     }
 }
 
+impl Table {
+    pub fn markdown(&self) -> String {
+        self.markdown.clone()
+    }
+}
+
 #[rquickjs::methods]
 impl Table {
     #[qjs(rename = PredefinedAtom::ToJSON)]
@@ -100,7 +106,7 @@ impl Tables {
 
     /// Get the previous table (if any)
     #[qjs(get)]
-    fn previous(&self) -> Option<Table> {
+    pub fn previous(&self) -> Option<Table> {
         self.cursor.and_then(|cursor| {
             let index = if self.current.is_some() {
                 // Currently in a table
@@ -127,7 +133,7 @@ impl Tables {
 
     /// Get the next table (if any)
     #[qjs(get)]
-    fn next(&self) -> Option<Table> {
+    pub fn next(&self) -> Option<Table> {
         self.cursor
             .map(|cursor| self.items.get(cursor + 1).cloned())
             .unwrap_or_else(|| self.first())

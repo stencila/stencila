@@ -93,7 +93,7 @@ impl InstructionBlock {
                             .op_additional(path, PatchOp::Insert(blocks));
                     }
                 }
-                InstructionType::Edit => {
+                InstructionType::Edit | InstructionType::Fix | InstructionType::Describe => {
                     // Merge the accepted content into the existing content and replace
                     // the instruction with that merged content
                     let merged = if let Some(content) = self.content.as_ref() {
@@ -131,7 +131,6 @@ impl InstructionBlock {
                         .op_additional(path.clone(), PatchOp::Remove(vec![index]))
                         .op_additional(path, PatchOp::Insert(blocks));
                 }
-                _ => {}
             };
 
             Ok(true)

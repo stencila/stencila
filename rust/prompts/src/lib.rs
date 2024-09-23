@@ -1,7 +1,8 @@
 #![recursion_limit = "256"]
 
 use std::{
-    fs::{self, read_dir},
+    cmp::Ordering,
+    fs,
     io::Cursor,
     path::{Path, PathBuf},
     time::Duration,
@@ -14,6 +15,7 @@ use common::{
     chrono::Utc,
     eyre::{eyre, OptionExt},
     futures::future::try_join_all,
+    glob::glob,
     regex::Regex,
     reqwest::Client,
     tar::Archive,
@@ -117,16 +119,30 @@ pub async fn list() -> Vec<PromptInstance> {
         .await
         .into_iter()
         .flatten()
-        .sorted_by(|a, b| a.id.cmp(&b.id))
+        .sorted_by(|a, b| {
+            match a
+                .instruction_types
+                .first()
+                .cmp(&b.instruction_types.first())
+            {
+                Ordering::Equal => a.id.cmp(&b.id),
+                cmp => cmp,
+            }
+        })
         .collect_vec()
 }
 
 /// Get a prompt by id
-pub async fn get(id: &str) -> Result<PromptInstance> {
+pub async fn get(id: &str, instruction_type: &InstructionType) -> Result<PromptInstance> {
     let id = if id.contains('/') {
         id.to_string()
     } else {
-        ["stencila/", id].concat()
+        let instruction_type = [&instruction_type.to_string().to_lowercase(), "/"].concat();
+        if !id.starts_with(&instruction_type) {
+            ["stencila/", &instruction_type, id].concat()
+        } else {
+            ["stencila/", id].concat()
+        }
     };
 
     list()
@@ -197,12 +213,18 @@ async fn list_local() -> Result<Vec<PromptInstance>> {
 }
 
 /// List prompts in a directory
+///
+/// Lists all files (including in subdirectories) with one of the supported formats
+/// (currently only `.smd`) except "partials".
 async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
     tracing::trace!("Attempting to read prompts from `{}`", dir.display());
 
     let mut prompts = vec![];
-    for entry in read_dir(dir)?.flatten() {
-        let path = entry.path();
+    for path in glob(&format!("{}/**/*.smd", dir.display()))?.flatten() {
+        if path.components().any(|c| c.as_os_str() == "partials") {
+            continue;
+        }
+
         let (Some(filename), Some(ext)) = (path.file_name(), path.extension()) else {
             continue;
         };
@@ -219,7 +241,11 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
         .await?;
 
         if let Node::Prompt(prompt) = node {
-            prompts.push(PromptInstance::new(prompt, dir.to_path_buf())?)
+            let home = path
+                .parent()
+                .ok_or_eyre("prompt not in a dir")?
+                .to_path_buf();
+            prompts.push(PromptInstance::new(prompt, home)?)
         } else {
             bail!(
                 "Expected `{}` to be an `Prompt`, got a `{}`",
@@ -306,7 +332,7 @@ pub async fn select(
 
     // If there is a prompt then get it
     if let Some(prompt) = prompt {
-        return get(prompt).await;
+        return get(prompt, instruction_type).await;
     }
 
     // Filter the prompts to those that support the instruction type

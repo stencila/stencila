@@ -9,6 +9,9 @@ pub struct MathInline {
     language: Option<String>,
 
     /// The Markdown representation of the inline math
+    ///
+    /// This is a property, rather than a getter, because
+    /// its structure varies depending upon the language.
     #[qjs(get, enumerable)]
     markdown: String,
 }
@@ -19,6 +22,12 @@ impl From<&schema::MathInline> for MathInline {
             language: math_block.math_language.clone(),
             markdown: to_markdown(math_block),
         }
+    }
+}
+
+impl MathInline {
+    pub fn markdown(&self) -> String {
+        self.markdown.clone()
     }
 }
 

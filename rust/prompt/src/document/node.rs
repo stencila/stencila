@@ -12,15 +12,15 @@ use crate::prelude::*;
 pub struct Node {
     /// The type of the node
     #[qjs(get, enumerable)]
-    r#type: String,
+    pub r#type: String,
 
     /// The node as a JSON string
     #[qjs(get, enumerable)]
-    json: String,
+    pub json: String,
 
     /// The node as a Markdown string
     #[qjs(get, enumerable)]
-    markdown: String,
+    pub markdown: String,
 }
 
 impl Node {

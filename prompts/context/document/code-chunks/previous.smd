@@ -1,9 +1,0 @@
-::: if document.codeChunks.previous
-
-### Previous code chunk
-
-The previous code chunk, before the current position in the document, is:
-
-{{ "```" + document.codeChunks.previous.language + " exec\n" + document.codeChunks.previous.code + "\n```" }}
-
-:::
