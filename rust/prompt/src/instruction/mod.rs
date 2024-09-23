@@ -33,7 +33,7 @@ impl Instruction {
     ///
     /// The instruction message is parsed and the target block is resolved.
     #[qjs(get, enumerable)]
-    pub fn target<'js>(&self, ctx: Ctx<'js>) -> String {
+    pub fn target(&self, ctx: Ctx<'_>) -> String {
         let Ok(document) = ctx.globals().get::<_, DocumentContext>("document") else {
             // No document, so just return empty content
             return String::new();

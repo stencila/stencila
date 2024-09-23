@@ -116,33 +116,33 @@ impl Document {
     }
 
     /// Get the previous block as Markdown
-    /// 
+    ///
     /// Because this context does not keep track of the all blocks
     /// as a collection (yet!), this method takes the approach of
     /// returning the more complex node types first
     pub fn previous_block(&self) -> String {
         if let Some(previous) = self.code_chunks.previous() {
-            return previous.markdown()
+            return previous.markdown();
         }
 
         if let Some(previous) = self.figures.previous() {
-            return previous.markdown()
+            return previous.markdown();
         }
 
         if let Some(previous) = self.tables.previous() {
-            return previous.markdown()
+            return previous.markdown();
         }
 
         if let Some(previous) = self.math_blocks.previous() {
-            return previous.markdown()
+            return previous.markdown();
         }
 
         if let Some(previous) = self.paragraphs.previous() {
-            return previous.markdown()
+            return previous.markdown();
         }
 
         if let Some(previous) = self.headings.previous() {
-            return previous.markdown()
+            return previous.markdown();
         }
 
         String::new()
@@ -151,27 +151,27 @@ impl Document {
     /// Get the next block as Markdown
     pub fn next_block(&self) -> String {
         if let Some(next) = self.code_chunks.next() {
-            return next.markdown()
+            return next.markdown();
         }
 
         if let Some(next) = self.figures.next() {
-            return next.markdown()
+            return next.markdown();
         }
 
         if let Some(next) = self.tables.next() {
-            return next.markdown()
+            return next.markdown();
         }
 
         if let Some(next) = self.math_blocks.next() {
-            return next.markdown()
+            return next.markdown();
         }
 
         if let Some(next) = self.paragraphs.next() {
-            return next.markdown()
+            return next.markdown();
         }
 
         if let Some(next) = self.headings.next() {
-            return next.markdown()
+            return next.markdown();
         }
 
         String::new()

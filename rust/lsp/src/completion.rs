@@ -33,7 +33,6 @@ pub(super) async fn request(
         .and_then(|context| context.trigger_character)
         .unwrap_or_default();
 
-
     // Unable to proceed if no source available
     let Some(source) = source else {
         return Ok(None);

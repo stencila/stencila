@@ -9,7 +9,7 @@ pub struct MathBlock {
     language: Option<String>,
 
     /// The Markdown representation of the math block
-    /// 
+    ///
     /// This is a property, rather than a getter, because
     /// its structure varies depending upon the language.
     #[qjs(get, enumerable)]
