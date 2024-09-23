@@ -8,6 +8,9 @@ import { Executable } from './executable'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction.md
  */
 export abstract class Instruction extends Executable {
+  @property({ attribute: 'instruction-type' })
+  instructionType: string
+
   @property()
   prompt?: string
 

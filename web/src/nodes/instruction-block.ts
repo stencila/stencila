@@ -106,7 +106,8 @@ export class InstructionBlock extends Instruction {
       'px-3 py-1.5',
       `bg-[${colour}]`,
       'text-xs leading-tight font-sans',
-      `border-t border-[${borderColour}]`
+      `border-t border-[${borderColour}]`,
+      'gap-x-3'
     )
 
     const inputStyles = apply([
@@ -118,6 +119,12 @@ export class InstructionBlock extends Instruction {
 
     return html`
       <div class=${styles}>
+        <span class="flex flex-row items-center">
+          <sl-tooltip content="Instruction type">
+            <span class="font-mono font-bold text-base">${this.instructionType.toLowerCase()}</span>
+          </sl-tooltip>
+        </span>
+
         <span class="flex flex-row items-center grow">
           <sl-tooltip content="Specified prompt">
             <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
