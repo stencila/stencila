@@ -23,15 +23,16 @@ pub(super) async fn request(
     source: Option<Arc<RwLock<String>>>,
 ) -> Result<Option<CompletionResponse>, ResponseError> {
     // Get the trigger for the completion
-    let trigger_kind = params.context.as_ref().map(|context| context.trigger_kind);
-    let trigger_character = params.context.and_then(|context| context.trigger_character);
+    let trigger_kind = params
+        .context
+        .as_ref()
+        .map(|context| context.trigger_kind)
+        .unwrap_or(CompletionTriggerKind::INVOKED);
+    let trigger_character = params
+        .context
+        .and_then(|context| context.trigger_character)
+        .unwrap_or_default();
 
-    // Shortcuts that do not require getting the source
-    if (Some(CompletionTriggerKind::TRIGGER_CHARACTER), Some("@"))
-        == (trigger_kind, trigger_character.as_deref())
-    {
-        return prompt_completion("::: new").await;
-    }
 
     // Unable to proceed if no source available
     let Some(source) = source else {
@@ -45,12 +46,14 @@ pub(super) async fn request(
     let end = positions
         .index_at_position16(position_to_position16(cursor))
         .unwrap_or_else(|| source.chars().count());
-    let start = end.saturating_sub(10);
+    let start = end.saturating_sub(16);
     let take = end - start;
     let source_before: String = source.chars().skip(start).take(take).collect();
 
     // Dispatch based on source before cursor
-    if source_before.ends_with('@') {
+    if source_before.ends_with('@')
+        || (trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER && trigger_character == "@")
+    {
         return prompt_completion(&source_before).await;
     }
 
