@@ -241,7 +241,11 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
         .await?;
 
         if let Node::Prompt(prompt) = node {
-            prompts.push(PromptInstance::new(prompt, dir.to_path_buf())?)
+            let home = path
+                .parent()
+                .ok_or_eyre("prompt not in a dir")?
+                .to_path_buf();
+            prompts.push(PromptInstance::new(prompt, home)?)
         } else {
             bail!(
                 "Expected `{}` to be an `Prompt`, got a `{}`",
