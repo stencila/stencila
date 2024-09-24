@@ -29,7 +29,6 @@ export class CodeInline extends CodeStatic {
     return html`
       <stencila-ui-inline-on-demand
         type="CodeInline"
-        programming-language=${this.programmingLanguage}
         header-icon=${icon}
         header-title=${title}
       >

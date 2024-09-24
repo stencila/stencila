@@ -30,7 +30,6 @@ export class CodeExpression extends CodeExecutable {
 
     return html`<stencila-ui-inline-on-demand
       type="CodeExpression"
-      programming-language=${this.programmingLanguage}
       header-icon=${icon}
       header-title="${title} Expression"
     >
