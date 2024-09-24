@@ -122,7 +122,7 @@ impl Document {
     /// returning the more complex node types first
     pub fn previous_block(&self) -> String {
         if let Some(previous) = self.code_chunks.previous() {
-            return previous.markdown();
+            return previous.markdown_with_outputs();
         }
 
         if let Some(previous) = self.figures.previous() {
@@ -151,7 +151,7 @@ impl Document {
     /// Get the next block as Markdown
     pub fn next_block(&self) -> String {
         if let Some(next) = self.code_chunks.next() {
-            return next.markdown();
+            return next.markdown_with_outputs();
         }
 
         if let Some(next) = self.figures.next() {
