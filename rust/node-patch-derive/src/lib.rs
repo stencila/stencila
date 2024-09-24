@@ -201,6 +201,26 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         TokenStream::new()
     };
 
+    // Special implementations for node types that belong to
+    // properties that are not `Block`s or `Inline`s.
+    let to_from_value = if struct_name == "SuggestionBlock" {
+        quote! {
+            fn to_value(&self) -> Result<PatchValue> {
+                Ok(PatchValue::#struct_name(self.clone()))
+            }
+
+            fn from_value(value: PatchValue) -> Result<Self> {
+                match value {
+                    PatchValue::#struct_name(me) => Ok(me),
+                    PatchValue::Json(json) => Ok(serde_json::from_value(json)?),
+                    _ => bail!("Invalid value for `{}`", stringify!(#struct_name)),
+                }
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
+
     let authors = if let Some(authors_on) = &type_attr.authors_on {
         let authors = if authors_on == "options" {
             quote! { self.options.authors }
@@ -372,6 +392,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     quote! {
         impl PatchNode for #struct_name {
+            #to_from_value
             #authors
             #authorship
             #provenance
