@@ -374,7 +374,20 @@ execute <- function(lines) {
       last <- tail(lines, 1)
       blank <- nchar(trimws(last)) == 0
       comment <- startsWith(last, "#")
-      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last)
+      assignment <- grepl("^\\s*\\w+\\s*((<-)|=)", last)
+      if (assignment) {
+        # Check that assignment is not actually the last arg of a function
+        # call e.g. xlab = 'X')
+        count <- 0
+        for (char in strsplit(last, "")[[1]]) {
+          if (char == "(") count <- count + 1
+          if (char == ")") count <- count - 1
+          if (count < 0) {
+            assignment <- FALSE
+            break
+          }
+        }
+      }
       if (!blank && !comment && !assignment) print(value)
     }
   }
