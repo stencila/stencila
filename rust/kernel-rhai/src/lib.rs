@@ -319,6 +319,8 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             }
         }
 
+        fork.set_status(KernelStatus::Ready)?;
+
         Ok(Box::new(fork))
     }
 }

@@ -341,6 +341,7 @@ impl KernelInstance for QuickJsKernelInstance {
 
         fork.runtime = Some(runtime);
         fork.runtime_context = Some(context);
+        fork.set_status(KernelStatus::Ready)?;
 
         Ok(Box::new(fork))
     }
