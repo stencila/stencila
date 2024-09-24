@@ -4,6 +4,10 @@ use crate::prelude::*;
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Table {
+    /// The label of the table
+    #[qjs(get, enumerable)]
+    pub label: Option<String>,
+
     // The caption as a Markdown string
     #[qjs(get, enumerable)]
     caption: Option<String>,
@@ -17,6 +21,7 @@ impl Table {
     #[cfg(test)]
     pub fn new(caption: Option<&str>, markdown: &str) -> Self {
         Self {
+            label: None,
             caption: caption.map(String::from),
             markdown: markdown.into(),
         }
@@ -26,6 +31,7 @@ impl Table {
 impl From<&schema::Table> for Table {
     fn from(table: &schema::Table) -> Self {
         Self {
+            label: table.label.clone(),
             caption: table.caption.as_ref().map(to_markdown),
             markdown: to_markdown(table),
         }
@@ -53,7 +59,7 @@ impl Table {
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Tables {
-    items: Vec<Table>,
+    pub items: Vec<Table>,
     cursor: Option<usize>,
     current: Option<usize>,
 }

@@ -21,12 +21,15 @@ pub struct CodeChunk {
     outputs: Option<Vec<Node>>,
 
     /// The label type of the code chunk
+    #[qjs(get, enumerable)]
     pub label_type: Option<String>,
 
     /// The label of the code chunk
+    #[qjs(get, enumerable)]
     pub label: Option<String>,
 
     /// The Markdown representation of the code chunk (without outputs)
+    #[qjs(get, enumerable)]
     markdown: String,
 }
 
@@ -72,7 +75,12 @@ impl CodeChunk {
             .flatten()
             .map(|node| &node.markdown)
             .join("\n\n");
-        [&self.markdown, "\n\nOutputs:\n\n", &outputs].concat()
+
+        if outputs.is_empty() {
+            self.markdown.clone()
+        } else {
+            [&self.markdown, "\n\nOutputs:\n\n", &outputs].concat()
+        }
     }
 }
 

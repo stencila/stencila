@@ -6,6 +6,10 @@ use crate::prelude::*;
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Figure {
+    /// The label of the figure
+    #[qjs(get, enumerable)]
+    pub label: Option<String>,
+
     // The caption as a Markdown string
     #[qjs(get, enumerable)]
     caption: Option<String>,
@@ -15,6 +19,7 @@ impl Figure {
     #[cfg(test)]
     pub fn new(caption: Option<&str>) -> Self {
         Self {
+            label: None,
             caption: caption.map(String::from),
         }
     }
@@ -23,6 +28,7 @@ impl Figure {
 impl From<&schema::Figure> for Figure {
     fn from(figure: &schema::Figure) -> Self {
         Self {
+            label: figure.label.clone(),
             caption: figure.caption.as_ref().map(to_markdown),
         }
     }
@@ -50,7 +56,7 @@ impl Figure {
 #[derive(Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Figures {
-    items: Vec<Figure>,
+    pub items: Vec<Figure>,
     cursor: Option<usize>,
     current: Option<usize>,
 }

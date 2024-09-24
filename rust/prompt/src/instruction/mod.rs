@@ -1,4 +1,6 @@
-use kernel_quickjs::kernel::common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex};
+use kernel_quickjs::kernel::common::{
+    itertools::Itertools, once_cell::sync::Lazy, regex::Regex, strum::Display,
+};
 use schema::MessagePart;
 
 use crate::{prelude::*, DocumentContext};
@@ -63,6 +65,7 @@ impl Instruction {
             _ => None,
         });
 
+        #[derive(Display)]
         enum TargetType {
             Code,
             Figure,
@@ -84,6 +87,7 @@ impl Instruction {
 
         let target_label = captures.get(7).map(|value| value.as_str());
         if let Some(target_label) = target_label {
+            // Check for code chunks with matching label type and label first
             for chunk in &document.code_chunks.items {
                 let (Some(label_type), Some(label)) = (&chunk.label_type, &chunk.label) else {
                     continue;
@@ -95,10 +99,47 @@ impl Instruction {
                     return chunk.markdown_with_outputs();
                 }
             }
+
+            // Check for figures or tables with matching label
+            if matches!(target_type, TargetType::Figure) {
+                for figure in &document.figures.items {
+                    if figure.label.as_deref() == Some(target_label) {
+                        return figure.markdown();
+                    }
+                }
+            } else if matches!(target_type, TargetType::Table) {
+                for table in &document.tables.items {
+                    if table.label.as_deref() == Some(target_label) {
+                        return table.markdown();
+                    }
+                }
+            }
+
+            return format!("Error: could not find {target_type} {target_label}");
         };
 
-        // No targeting keywords found so just return the next block
-        document.next_block()
+        // Target type but no label, so use target pos, if any
+        if matches!(target_pos, Some(TargetPos::Previous)) {
+            match target_type {
+                TargetType::Code => document
+                    .code_chunks
+                    .previous()
+                    .map(|chunk| chunk.markdown_with_outputs()),
+                TargetType::Figure => document.figures.previous().map(|figure| figure.markdown()),
+                TargetType::Table => document.tables.previous().map(|table| table.markdown()),
+            }
+            .unwrap_or_else(|| format!("Error: no previous {target_type}"))
+        } else {
+            match target_type {
+                TargetType::Code => document
+                    .code_chunks
+                    .next()
+                    .map(|chunk| chunk.markdown_with_outputs()),
+                TargetType::Figure => document.figures.next().map(|figure| figure.markdown()),
+                TargetType::Table => document.tables.next().map(|table| table.markdown()),
+            }
+            .unwrap_or_else(|| format!("Error: no next {target_type}"))
+        }
     }
 
     #[qjs(rename = PredefinedAtom::ToJSON)]
