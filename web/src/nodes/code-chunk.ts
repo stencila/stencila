@@ -30,8 +30,14 @@ export class CodeChunk extends CodeExecutable {
   @property()
   label?: string
 
-  @property({ attribute: 'is-invisible', type: Boolean })
-  isInvisible?: boolean = false
+  @property({
+    attribute: 'is-invisible',
+    type: Boolean,
+    // Converter needed because encoded not a boolean attribute (present or absent)
+    // but as a stringified boolean
+    converter: (attr) => attr == 'true',
+  })
+  isInvisible: boolean = false
 
   override render() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
@@ -52,6 +58,19 @@ export class CodeChunk extends CodeExecutable {
           node-id=${this.id}
           type="CodeChunk"
         >
+          <sl-tooltip
+            content=${this.isInvisible ? 'Show output' : 'Hide output'}
+          >
+            <stencila-ui-icon-button
+              class="ml-3"
+              name=${this.isInvisible ? 'eye' : 'eyeSlash'}
+              @click=${(e: Event) => {
+                // Stop the click behavior of the card header parent element
+                e.stopImmediatePropagation()
+                this.isInvisible = !this.isInvisible
+              }}
+            ></stencila-ui-icon-button>
+          </sl-tooltip>
         </stencila-ui-node-execution-commands>
       </span>
 

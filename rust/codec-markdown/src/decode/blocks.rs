@@ -1362,6 +1362,9 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             Block::CodeChunk(CodeChunk {
                 code: value.into(),
                 programming_language,
+                is_invisible: options
+                    .get("invisible")
+                    .and_then(|mode| mode.parse::<bool>().ok()),
                 execution_mode: options.get("mode").and_then(|mode| mode.parse().ok()),
                 label_type: options.get("type").and_then(|&type_| match type_ {
                     "figure" => Some(LabelType::FigureLabel),
@@ -1470,7 +1473,15 @@ fn code_to_block(code: mdast::Code) -> Block {
 
     if is_exec {
         let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
-        let is_invisible = value.contains("@invisible").then_some(true);
+
+        let (is_invisible, execution_mode) = if meta.contains("invisible") {
+            (
+                Some(true),
+                execution_mode(&mut meta.replace("invisible", "").trim()).ok(),
+            )
+        } else {
+            (None, execution_mode(&mut meta).ok())
+        };
 
         Block::CodeChunk(CodeChunk {
             code: value.into(),
@@ -1479,7 +1490,7 @@ fn code_to_block(code: mdast::Code) -> Block {
             } else {
                 lang
             },
-            execution_mode: execution_mode(&mut meta).ok(),
+            execution_mode,
             is_invisible,
             ..Default::default()
         })

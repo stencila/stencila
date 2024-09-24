@@ -147,10 +147,13 @@ impl MarkdownCodec for CodeChunk {
             }
 
             // Encode outputs as separate paragraphs (ensuring blank line after each)
-            for output in self.outputs.iter().flatten() {
-                output.to_markdown(context);
-                if !context.content.ends_with("\n\n") {
-                    context.push_str("\n\n");
+            // (unless invisible)
+            if !matches!(self.is_invisible, Some(true)) {
+                for output in self.outputs.iter().flatten() {
+                    output.to_markdown(context);
+                    if !context.content.ends_with("\n\n") {
+                        context.push_str("\n\n");
+                    }
                 }
             }
 
@@ -174,6 +177,14 @@ impl MarkdownCodec for CodeChunk {
                     }
                 },
                 |context| {
+                    if matches!(self.is_invisible, Some(true)) {
+                        context.myst_directive_option(
+                            NodeProperty::IsInvisible,
+                            Some("invisible"),
+                            "true",
+                        );
+                    }
+
                     if let Some(execution_mode) = &self.execution_mode {
                         context.myst_directive_option(
                             NodeProperty::ExecutionMode,
@@ -258,6 +269,12 @@ impl MarkdownCodec for CodeChunk {
             }
 
             context.push_str("exec");
+
+            if matches!(self.is_invisible, Some(true)) {
+                context
+                    .push_str(" ")
+                    .push_prop_str(NodeProperty::IsInvisible, "invisible");
+            }
 
             if let Some(mode) = &self.execution_mode {
                 context.push_str(" ").push_prop_str(
