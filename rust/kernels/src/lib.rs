@@ -77,7 +77,7 @@ pub fn default() -> Box<dyn Kernel> {
 /// An entry for a kernel instance
 struct KernelInstanceEntry {
     /// The kernel that the instance is an instance of
-    kernel: Box<dyn Kernel>,
+    kernel: Arc<Box<dyn Kernel>>,
 
     /// The name of the instance. Used to avoid needing to take
     /// a lock on the instance just to get its name (which is constant)
@@ -241,7 +241,7 @@ impl Kernels {
 
         let mut instances = self.instances.write().await;
         instances.push(KernelInstanceEntry {
-            kernel,
+            kernel: Arc::new(kernel),
             name,
             instance: instance.clone(),
         });
@@ -252,7 +252,7 @@ impl Kernels {
     /// Add a kernel to the set of instances
     pub async fn add_instance(
         &mut self,
-        kernel: Box<dyn Kernel>,
+        kernel: Arc<Box<dyn Kernel>>,
         instance: Box<dyn KernelInstance>,
     ) -> Result<()> {
         let name = instance.name();
@@ -375,6 +375,20 @@ impl Kernels {
         let mut instance = instance.lock().await;
         instance.remove(name).await
     }
+
+    /// Fork the kernels
+    /// 
+    /// Creates a new [`Kernels`] set with a fork of each current instance.
+    /// Errors if any of the forks fails (i.e. a complete fork is not possible).
+    pub async fn fork(&self) -> Result<Self> {
+        let mut kernels = Self::new(&self.home);
+        for entry in self.instances.read().await.iter() {
+            let kernel = entry.kernel.clone();
+            let instance = entry.instance.lock().await.fork().await?;
+            kernels.add_instance(kernel, instance).await?;
+        }
+        Ok(kernels)
+    }
 }
 
 #[cfg(test)]
@@ -387,7 +401,7 @@ mod tests {
 
     use super::*;
 
-    // Test on-demand variable requests from to Jinja kernel
+    // Test on-demand variable requests from Rhai to Jinja kernel
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn variables_to_jinja() -> Result<()> {
         let mut kernels = Kernels::new_here();
@@ -408,6 +422,41 @@ mod tests {
         assert_eq!(messages[0].level, MessageLevel::Exception);
         assert_eq!(messages[0].message, "invalid operation: tried to use + operator on unsupported types undefined and number (in <string>:1)");
         assert_eq!(node, vec![Node::String("{{foo + 4}}".to_string())]);
+
+        Ok(())
+    }
+
+    // Test forking a set of kernels
+    #[tokio::test()]
+    async fn fork() -> Result<()> {
+        let mut kernels = Kernels::new_here();
+        kernels.execute("var a = 1", Some("js")).await?;
+        kernels.execute("let b = 2", Some("rhai")).await?;
+
+        let mut fork = kernels.fork().await?;
+        fork.execute("a = 11", Some("js")).await?;
+        fork.execute("b = 22", Some("rhai")).await?;
+        fork.execute("var c = 33", Some("js")).await?;
+
+        let (node, messages) = kernels.evaluate("a", Some("js")).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(node, Node::Integer(1));
+
+        let node = kernels.get("b").await?;
+        assert_eq!(node, Some(Node::Integer(2)));
+
+        let node = kernels.get("c").await?;
+        assert_eq!(node, None);
+
+        let (node, messages) = fork.evaluate("a", Some("js")).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(node, Node::Integer(11));
+
+        let node = fork.get("b").await?;
+        assert_eq!(node, Some(Node::Integer(22)));
+
+        let node = fork.get("c").await?;
+        assert_eq!(node, Some(Node::Integer(33)));
 
         Ok(())
     }
