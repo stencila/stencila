@@ -8,9 +8,9 @@ use kernel::{
 };
 use kernel_jinja::JinjaKernelInstance;
 
-/// A kernel for
+/// A kernel for rendering Mermaid diagrams
 #[derive(Default)]
-pub struct MermaidKernel {}
+pub struct MermaidKernel;
 
 const NAME: &str = "mermaid";
 
