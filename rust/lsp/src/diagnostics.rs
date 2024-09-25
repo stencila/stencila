@@ -16,8 +16,7 @@ use common::{
     tracing,
 };
 use schema::{
-    Author, AuthorRoleName, ExecutionRequired, ExecutionStatus, MessageLevel, NodeType,
-    StringOrNumber,
+    Author, AuthorRoleName, ExecutionKind, ExecutionRequired, ExecutionStatus, MessageLevel, NodeType, StringOrNumber
 };
 
 use crate::text_document::{TextNode, TextNodeExecution};
@@ -179,6 +178,10 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                 "Succeeded"
             }
             .to_string();
+
+            if let Some(ExecutionKind::Fork) = &execution.kind {
+                message.push_str(" (in forked kernel)");
+            }
 
             if let Some(outputs) = &execution.outputs {
                 message.push_str(" with ");
