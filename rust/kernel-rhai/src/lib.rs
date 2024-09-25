@@ -26,7 +26,7 @@ use kernel::{
         SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
         Variable,
     },
-    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
+    Kernel, KernelForks, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 /// A kernel for executing Rhai.
@@ -47,6 +47,10 @@ impl Kernel for RhaiKernel {
         vec![Format::Rhai]
     }
 
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
+    }
+
     fn supports_terminate(&self) -> KernelTerminate {
         KernelTerminate::Yes
     }
@@ -65,8 +69,8 @@ impl Kernel for RhaiKernel {
 }
 
 pub struct RhaiKernelInstance<'lt> {
-    /// The id of this instance
-    id: String,
+    /// The name of this instance
+    name: String,
 
     /// The Rhai execution scope for this instance
     scope: Scope<'lt>,
@@ -90,7 +94,7 @@ pub struct RhaiKernelInstance<'lt> {
 #[async_trait]
 impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
     fn name(&self) -> String {
-        self.id.clone()
+        self.name.clone()
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -305,7 +309,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         // Create fork id
         let id = format!(
             "{}-fork-{}",
-            self.id,
+            self.name,
             self.forks.fetch_add(1, Ordering::SeqCst)
         );
 
@@ -327,7 +331,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
 impl<'lt> RhaiKernelInstance<'lt> {
     /// Create a new kernel instance
-    fn new(id: String) -> Self {
+    fn new(name: String) -> Self {
         let scope = Scope::new();
         let engine = Engine::new();
 
@@ -347,7 +351,7 @@ impl<'lt> RhaiKernelInstance<'lt> {
         });
 
         Self {
-            id,
+            name,
             scope,
             engine,
             status,
