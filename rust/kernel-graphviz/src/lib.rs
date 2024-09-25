@@ -6,10 +6,13 @@ use layout::{
 use kernel::{
     common::{
         async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
-    }, format::Format, schema::{
+    },
+    format::Format,
+    schema::{
         ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
-    }, Kernel, KernelForks, KernelInstance
+    },
+    Kernel, KernelForks, KernelInstance,
 };
 
 const NAME: &str = "graphviz";

@@ -1,7 +1,10 @@
 use kernel::{
-    common::{async_trait::async_trait, eyre::Result, tracing}, format::Format, schema::{
+    common::{async_trait::async_trait, eyre::Result, tracing},
+    format::Format,
+    schema::{
         ExecutionMessage, ImageObject, Node, SoftwareApplication, SoftwareApplicationOptions,
-    }, Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder
+    },
+    Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 
@@ -99,7 +102,7 @@ impl KernelInstance for MermaidKernelInstance {
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self::default()))
+        Ok(Box::<MermaidKernelInstance>::default())
     }
 }
 

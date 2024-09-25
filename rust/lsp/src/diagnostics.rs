@@ -16,7 +16,8 @@ use common::{
     tracing,
 };
 use schema::{
-    Author, AuthorRoleName, ExecutionKind, ExecutionRequired, ExecutionStatus, MessageLevel, NodeType, StringOrNumber
+    Author, AuthorRoleName, ExecutionKind, ExecutionRequired, ExecutionStatus, MessageLevel,
+    NodeType, StringOrNumber,
 };
 
 use crate::text_document::{TextNode, TextNodeExecution};
