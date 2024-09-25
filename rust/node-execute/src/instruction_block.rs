@@ -249,7 +249,9 @@ impl Executable for InstructionBlock {
                         match executor.fork().await {
                             Ok(mut fork) => {
                                 tokio::spawn(async move {
-                                    if let Err(error) = suggestion.walk_async(&mut fork).await {
+                                    if let Err(error) =
+                                        fork.compile_prepare_execute(&mut suggestion).await
+                                    {
                                         tracing::error!("While executing suggestion: {error}");
                                     }
                                 });

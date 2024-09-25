@@ -30,14 +30,18 @@ impl Executable for CodeChunk {
         let execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
 
+        // These need to be set here because they may be used in `self.execute`
+        // before the following patch is applied (below, or if `Executor.compile_prepare_execute`)
+        // has been called.
+        self.options.compilation_digest = Some(info.compilation_digest.clone());
+        self.options.execution_tags = info.execution_tags.clone();
+        self.options.execution_required = Some(execution_required.clone());
+
         executor.patch(
             &node_id,
             [
-                set(
-                    NodeProperty::CompilationDigest,
-                    info.compilation_digest.clone(),
-                ),
-                set(NodeProperty::ExecutionTags, info.execution_tags.clone()),
+                set(NodeProperty::CompilationDigest, info.compilation_digest),
+                set(NodeProperty::ExecutionTags, info.execution_tags),
                 set(NodeProperty::ExecutionRequired, execution_required.clone()),
             ],
         );
@@ -53,12 +57,6 @@ impl Executable for CodeChunk {
                 "dot" | "graphviz" | "mermaid"
             )
         {
-            // These need to be set here because they may be used in `self.execute`
-            // and that method is called next, before the above patch is applied;
-            self.options.compilation_digest = Some(info.compilation_digest);
-            self.options.execution_tags = info.execution_tags;
-            self.options.execution_required = Some(execution_required);
-
             self.execute(executor).await;
         }
 

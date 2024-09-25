@@ -386,6 +386,20 @@ impl Executor {
         root.walk_async(self).await
     }
 
+    /// Run the compile, prepare and execute phases on am executable node
+    ///
+    /// Used when recursively executing new content that has not necessarily
+    /// been compiled or prepared yet (e.g. a suggestion). If this is not
+    /// done, the execution status, digests etc of the node make not be correct.
+    async fn compile_prepare_execute<W: WalkNode>(&mut self, node: &mut W) -> Result<()> {
+        for phase in [Phase::Compile, Phase::Prepare, Phase::Execute] {
+            self.phase = phase;
+            node.walk_async(self).await?;
+        }
+
+        Ok(())
+    }
+
     /// Obtain a write lock to the kernels
     ///
     /// Used by [`Executable`] nodes to execute and evaluate code and manage variables.
