@@ -250,11 +250,22 @@ impl Kernels {
     }
 
     /// Add a kernel to the set of instances
+    ///
+    /// It is assumed that the instance is already started (e.g. is a fork).
+    /// If the kernel supports variable requests then it will connected to the
+    /// variable channel.
     pub async fn add_instance(
         &mut self,
         kernel: Arc<Box<dyn Kernel>>,
-        instance: Box<dyn KernelInstance>,
+        mut instance: Box<dyn KernelInstance>,
     ) -> Result<()> {
+        if kernel.supports_variable_requests() {
+            instance.variable_channel(
+                self.variable_request_sender.clone(),
+                self.variable_response_sender.subscribe(),
+            );
+        }
+
         let name = instance.name();
         let instance = Arc::new(Mutex::new(instance));
 
@@ -377,7 +388,7 @@ impl Kernels {
     }
 
     /// Fork the kernels
-    /// 
+    ///
     /// Creates a new [`Kernels`] set with a fork of each current instance.
     /// Errors if any of the forks fails (i.e. a complete fork is not possible).
     pub async fn fork(&self) -> Result<Self> {
@@ -401,7 +412,9 @@ mod tests {
 
     use super::*;
 
-    // Test on-demand variable requests from Rhai to Jinja kernel
+    /// Test on-demand variable requests from Rhai to Jinja kernel
+    ///
+    /// Multithreaded test needed so that variable request does not hang.
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn variables_to_jinja() -> Result<()> {
         let mut kernels = Kernels::new_here();
@@ -426,8 +439,11 @@ mod tests {
         Ok(())
     }
 
-    // Test forking a set of kernels
-    #[tokio::test()]
+    /// Test forking a set of kernels
+    ///
+    /// The `evaluate` calls using Jinja test variable connections
+    /// are also "forked".
+    #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn fork() -> Result<()> {
         let mut kernels = Kernels::new_here();
         kernels.execute("var a = 1", Some("js")).await?;
@@ -437,6 +453,8 @@ mod tests {
         fork.execute("a = 11", Some("js")).await?;
         fork.execute("b = 22", Some("rhai")).await?;
         fork.execute("var c = 33", Some("js")).await?;
+
+        // In original kernels post forking
 
         let (node, messages) = kernels.evaluate("a", Some("js")).await?;
         assert_eq!(messages, vec![]);
@@ -448,6 +466,16 @@ mod tests {
         let node = kernels.get("c").await?;
         assert_eq!(node, None);
 
+        let (node, messages) = kernels.evaluate("a + b", Some("jinja")).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(node, Node::Integer(3));
+
+        let (nodes, messages) = kernels.execute("{{ c }}", Some("jinja")).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(nodes[0], Node::String(String::new()));
+
+        // In fork
+
         let (node, messages) = fork.evaluate("a", Some("js")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(11));
@@ -457,6 +485,10 @@ mod tests {
 
         let node = fork.get("c").await?;
         assert_eq!(node, Some(Node::Integer(33)));
+
+        let (node, messages) = fork.evaluate("a + b + c", Some("jinja")).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(node, Node::Integer(66));
 
         Ok(())
     }
