@@ -150,15 +150,21 @@ export class UINodeAuthor extends LitElement {
   private renderSoftwareIcon() {
     const [provider] = this.$id?.trim().split('/') ?? []
 
-    const icon = iconMaybe(provider)
-    if (!icon) {
-      return this.renderAvatar()
+    let icon = iconMaybe(provider)
+
+    if (
+      !icon &&
+      (this.name.includes('Prompt') || this.roleName.includes('Prompt'))
+    ) {
+      icon = 'chatSquareText'
     }
 
-    return html`<stencila-ui-icon
-      name=${icon}
-      class=${`text-2xl`}
-    ></stencila-ui-icon>`
+    return icon
+      ? html`<stencila-ui-icon
+          name=${icon}
+          class=${`text-2xl`}
+        ></stencila-ui-icon>`
+      : this.renderAvatar()
   }
 
   private renderOrgIcon() {
