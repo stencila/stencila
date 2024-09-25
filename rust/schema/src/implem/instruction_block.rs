@@ -315,8 +315,10 @@ impl MarkdownCodec for InstructionBlock {
                         context.push_colons().newline().newline();
                     }
                 }
-            } else {
+            } else if !matches!(self.instruction_type, InstructionType::New) {
                 context.push_str(" <").newline().newline();
+            } else {
+                context.newline().newline();
             }
         }
 
