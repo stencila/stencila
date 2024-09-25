@@ -210,17 +210,17 @@
       ],
       "$ref": "ExecutionStatus.schema.json"
     },
-    "executionActor": {
-      "@id": "stencila:executionActor",
-      "description": "The id of the actor that the node was last executed by.",
+    "executionKind": {
+      "@id": "stencila:executionKind",
+      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
       "aliases": [
-        "execution-actor",
-        "execution_actor"
+        "execution-kind",
+        "execution_kind"
       ],
       "strip": [
         "execution"
       ],
-      "type": "string"
+      "$ref": "ExecutionKind.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",

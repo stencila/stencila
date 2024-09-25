@@ -8,7 +8,7 @@ pub use schema::{
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
     WalkNode,
 };
-use schema::{CompilationDigest, CompilationMessage};
+use schema::{CompilationDigest, CompilationMessage, ExecutionKind};
 
 pub(crate) use crate::{Executable, Executor};
 
@@ -71,6 +71,12 @@ pub fn execution_status(messages: &Option<Vec<ExecutionMessage>>) -> ExecutionSt
     } else {
         ExecutionStatus::Succeeded
     }
+}
+
+/// Create a value for `execution_kind` based on whether the executor's `kind` is not `Main`
+/// or not
+pub fn execution_kind(executor: &Executor) -> Option<ExecutionKind> {
+    (!matches!(executor.kind, ExecutionKind::Main)).then_some(executor.kind.clone())
 }
 
 /// Create a value for `execution_required` based on execution and compilation digests

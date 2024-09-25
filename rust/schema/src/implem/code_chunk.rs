@@ -48,6 +48,7 @@ impl DomCodec for CodeChunk {
         exec_option!("execution-count", execution_count);
         exec_option!("execution-required", execution_required);
         exec_option!("execution-status", execution_status);
+        exec_option!("execution-kind", execution_kind);
 
         if let Some(value) = &self.options.execution_ended {
             Timestamp::to_dom_attr("execution-ended", value, context);

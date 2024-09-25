@@ -1,5 +1,8 @@
 use codec_cbor::r#trait::CborCodec;
-use common::futures::future;
+use common::{
+    futures::stream::{FuturesUnordered, StreamExt},
+    tokio,
+};
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
     InstructionModel, SoftwareApplication,
@@ -190,7 +193,7 @@ impl Executable for InstructionBlock {
         }
 
         // Create a future for each replicate
-        let mut futures = Vec::new();
+        let mut futures = FuturesUnordered::new();
         for _ in 0..replicates {
             // TODO: rather than repeating all this prep work to create a model task
             // within `prompts::execute_instruction_block` it could be done
@@ -226,12 +229,40 @@ impl Executable for InstructionBlock {
             })
         }
 
-        // Wait for all suggestions to be generated and collect them and any error messages
-        let mut suggestions = self.suggestions.clone().unwrap_or_default();
+        // Wait for each future, adding the suggestion (or error message) to the instruction
+        // as it arrives, and then (optionally) executing the suggestion
+        //
+        // If the executor kernels support forking then fork the executor
+        // and execute each suggestion in parallel.
+        // TODO: check for run/!run
+        let execute_suggestions = executor.kernels().await.supports_forks().await;
         let mut messages = Vec::new();
-        for result in future::join_all(futures).await {
+        while let Some(result) = futures.next().await {
             match result {
-                Ok(suggestion) => suggestions.push(suggestion),
+                Ok(mut suggestion) => {
+                    executor.patch(
+                        &node_id,
+                        [push(NodeProperty::Suggestions, suggestion.clone())],
+                    );
+
+                    if execute_suggestions {
+                        match executor.fork().await {
+                            Ok(mut fork) => {
+                                tokio::spawn(async move {
+                                    if let Err(error) = suggestion.walk_async(&mut fork).await {
+                                        tracing::error!("While executing suggestion: {error}");
+                                    }
+                                });
+                            }
+                            Err(error) => {
+                                messages.push(error_to_execution_message(
+                                    "While forking suggestion executor",
+                                    error,
+                                ));
+                            }
+                        };
+                    }
+                }
                 Err(error) => messages.push(error_to_execution_message(
                     "While executing instruction",
                     error,
@@ -251,7 +282,6 @@ impl Executable for InstructionBlock {
         executor.patch(
             &node_id,
             [
-                set(NodeProperty::Suggestions, Some(suggestions)),
                 set(NodeProperty::ExecutionStatus, status),
                 set(NodeProperty::ExecutionRequired, required),
                 set(NodeProperty::ExecutionMessages, messages),

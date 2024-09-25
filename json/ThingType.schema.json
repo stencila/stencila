@@ -57,6 +57,9 @@
       "$ref": "ExecutionDependencyRelation.schema.json"
     },
     {
+      "$ref": "ExecutionKind.schema.json"
+    },
+    {
       "$ref": "ExecutionMode.schema.json"
     },
     {

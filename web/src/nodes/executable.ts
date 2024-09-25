@@ -1,4 +1,5 @@
 import {
+  ExecutionKind,
   ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
@@ -28,6 +29,9 @@ export abstract class Executable extends Entity {
 
   @property({ attribute: 'execution-status' })
   executionStatus?: ExecutionStatus
+
+  @property({ attribute: 'execution-kind' })
+  executionKind?: ExecutionKind
 
   @property({ attribute: 'execution-ended', type: Number })
   executionEnded?: number

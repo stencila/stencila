@@ -8,6 +8,7 @@ use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
+use super::execution_kind::ExecutionKind;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
@@ -156,11 +157,11 @@ pub struct IncludeBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_status: Option<ExecutionStatus>,
 
-    /// The id of the actor that the node was last executed by.
-    #[serde(alias = "execution-actor", alias = "execution_actor")]
+    /// The kind (e.g. main kernel vs kernel fork) of the last execution.
+    #[serde(alias = "execution-kind", alias = "execution_kind")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_actor: Option<String>,
+    pub execution_kind: Option<ExecutionKind>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

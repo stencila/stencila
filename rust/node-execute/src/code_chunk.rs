@@ -140,6 +140,7 @@ impl Executable for CodeChunk {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
+            let kind = execution_kind(executor);
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
@@ -152,7 +153,8 @@ impl Executable for CodeChunk {
                     &node_id,
                     [
                         set(NodeProperty::Outputs, outputs),
-                        set(NodeProperty::ExecutionStatus, status.clone()),
+                        set(NodeProperty::ExecutionStatus, status),
+                        set(NodeProperty::ExecutionKind, kind),
                         set(NodeProperty::ExecutionRequired, required),
                         set(NodeProperty::ExecutionMessages, messages),
                         set(NodeProperty::ExecutionDuration, duration),

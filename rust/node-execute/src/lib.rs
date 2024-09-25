@@ -13,8 +13,9 @@ use common::{
 use kernels::Kernels;
 use prompts::prompt::DocumentContext;
 use schema::{
-    Block, CompilationDigest, ExecutionMode, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
-    NodeProperty, Paragraph, Patch, PatchOp, PatchPath, VisitorAsync, WalkControl, WalkNode,
+    Block, CompilationDigest, ExecutionKind, ExecutionMode, Inline, Link, List, ListItem,
+    ListOrder, Node, NodeId, NodeProperty, Paragraph, Patch, PatchOp, PatchPath, VisitorAsync,
+    WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -120,6 +121,7 @@ trait Executable {
 }
 
 /// A visitor that walks over a tree of nodes and executes them
+#[derive(Clone)]
 pub struct Executor {
     /// The stack of directories being executed, included or called
     ///
@@ -144,6 +146,9 @@ pub struct Executor {
 
     /// The phase of execution
     phase: Phase,
+
+    /// The kind of execution
+    kind: ExecutionKind,
 
     /// The document context for prompts
     document_context: DocumentContext,
@@ -172,7 +177,7 @@ pub struct Executor {
 
 /// Records information about a heading in order to created
 /// a nested list of headings for a document.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HeadingInfo {
     /// The level of the heading
     level: i64,
@@ -295,6 +300,7 @@ pub struct ExecuteOptions {
 ///
 /// These phases determine which method of each [`Executable`] is called as
 /// the executor walks over the root node.
+#[derive(Clone)]
 enum Phase {
     Compile,
     Prepare,
@@ -318,6 +324,7 @@ impl Executor {
             patch_sender,
             node_ids,
             phase: Phase::Prepare,
+            kind: ExecutionKind::Main,
             document_context: DocumentContext::default(),
             headings: Vec::new(),
             table_count: 0,
@@ -326,6 +333,25 @@ impl Executor {
             is_last: false,
             options: options.unwrap_or_default(),
         }
+    }
+
+    /// Fork the executor
+    ///
+    /// Create a clone of the executor, except having a fork of
+    /// its [`Kernels`] and with `node_ids` cleared.
+    ///
+    /// This allows the executor to execute nodes within a document,
+    /// without effecting the main kernel processes. Specifically, this
+    /// is used to execute suggestions.
+    async fn fork(&self) -> Result<Self> {
+        let kernels = self.kernels().await.fork().await?;
+        let kernels = Arc::new(RwLock::new(kernels));
+        Ok(Self {
+            kernels,
+            node_ids: None,
+            kind: ExecutionKind::Fork,
+            ..self.clone()
+        })
     }
 
     /// Run [`Phase::Compile`]

@@ -15,7 +15,8 @@ use kernel::{
     },
     format::Format,
     schema::{ExecutionMessage, Node},
-    Kernel, KernelInstance, KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
+    Kernel, KernelForks, KernelInstance, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponse,
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
@@ -385,6 +386,15 @@ impl Kernels {
 
         let mut instance = instance.lock().await;
         instance.remove(name).await
+    }
+
+    /// Whether all kernels in the set support forking
+    pub async fn supports_forks(&self) -> bool {
+        self.instances
+            .read()
+            .await
+            .iter()
+            .all(|entry| matches!(entry.kernel.supports_forks(), KernelForks::Yes))
     }
 
     /// Fork the kernels
