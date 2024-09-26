@@ -19,7 +19,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
    * Needed for emitting the `accept-node` command.
    */
   @property({ attribute: 'instruction-id' })
-  instructionId: string
+  instructionId?: string
 
   /**
    * The current status of the suggestion
@@ -125,6 +125,7 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   protected override render() {
     const isAccepted = this.suggestionStatus === 'Accepted'
     const isRejected = this.suggestionStatus === 'Rejected'
+    const isRevisable = this.instructionId?.length > 0
 
     const containerClasses = apply([
       'relative',
@@ -162,24 +163,28 @@ export class UINodeSuggestionCommands extends UIBaseClass {
             @click=${(e: Event) => this.emitEvent(e, 'reject')}
           ></stencila-ui-icon-button>
         </sl-tooltip>
-        <sl-tooltip
-          content="Revise suggestion with feedback"
-          style="--show-delay: 1000ms;"
-          ?disabled=${this.showReviseInput}
-        >
-          <stencila-ui-icon-button
-            name="arrowClockwise"
-            @click=${() => {
-              this.showReviseInput = !this.showReviseInput
-            }}
-          ></stencila-ui-icon-button>
-        </sl-tooltip>
+        ${isRevisable ? this.renderReviseButton() : ''}
 
         <slot></slot>
 
-        ${this.renderReviseInput()}
+        ${isRevisable ? this.renderReviseInput() : ''}
       </div>
     `
+  }
+
+  private renderReviseButton() {
+    return html`<sl-tooltip
+      content="Revise suggestion with feedback"
+      style="--show-delay: 1000ms;"
+      ?disabled=${this.showReviseInput}
+    >
+      <stencila-ui-icon-button
+        name="arrowClockwise"
+        @click=${() => {
+          this.showReviseInput = !this.showReviseInput
+        }}
+      ></stencila-ui-icon-button>
+    </sl-tooltip>`
   }
 
   private renderReviseInput() {
