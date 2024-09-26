@@ -77,9 +77,9 @@ impl DomCodec for CodeChunk {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
-        if let (Some(LabelType::TableLabel), Some(caption)) = (&self.label_type, &self.caption) {
+        if let Some(LabelType::TableLabel) = &self.label_type {
             context.push_slot_fn("div", "caption", |context| {
-                caption_to_dom(context, "table-label", "Table", &self.label, caption)
+                caption_to_dom(context, "table-label", "Table", &self.label, &self.caption)
             });
         }
 
@@ -87,9 +87,15 @@ impl DomCodec for CodeChunk {
             context.push_slot_fn("div", "outputs", |context| outputs.to_dom(context));
         }
 
-        if let (Some(LabelType::FigureLabel), Some(caption)) = (&self.label_type, &self.caption) {
+        if let Some(LabelType::FigureLabel) = &self.label_type {
             context.push_slot_fn("div", "caption", |context| {
-                caption_to_dom(context, "figure-label", "Figure", &self.label, caption)
+                caption_to_dom(
+                    context,
+                    "figure-label",
+                    "Figure",
+                    &self.label,
+                    &self.caption,
+                )
             });
         }
 
