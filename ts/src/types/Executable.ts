@@ -6,6 +6,7 @@ import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
+import { ExecutionKind } from "./ExecutionKind.js";
 import { ExecutionMessage } from "./ExecutionMessage.js";
 import { ExecutionMode } from "./ExecutionMode.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
@@ -72,9 +73,9 @@ export class Executable extends Entity {
   executionStatus?: ExecutionStatus;
 
   /**
-   * The id of the actor that the node was last executed by.
+   * The kind (e.g. main kernel vs kernel fork) of the last execution.
    */
-  executionActor?: string;
+  executionKind?: ExecutionKind;
 
   /**
    * The timestamp when the last execution ended.

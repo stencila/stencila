@@ -31,19 +31,19 @@ impl Executable for CodeExpression {
         let node_id = self.node_id();
         tracing::trace!("Preparing CodeExpression {node_id}");
 
-        if executor.should_execute(
+        // Set execution status
+        if let Some(status) = executor.node_execution_status(
+            self.node_type(),
             &node_id,
             &self.execution_mode.clone().or(Some(ExecutionMode::Always)),
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            // Set the execution status to pending
-            executor.patch(
-                &node_id,
-                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
-            );
+            self.options.execution_status = Some(status.clone());
+            executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
+        // Break the walk since none of the child nodes are executed
         WalkControl::Break
     }
 
@@ -51,11 +51,9 @@ impl Executable for CodeExpression {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute(
-            &node_id,
-            &self.execution_mode.clone().or(Some(ExecutionMode::Always)),
-            &self.options.compilation_digest,
-            &self.options.execution_digest,
+        if !matches!(
+            self.options.execution_status,
+            Some(ExecutionStatus::Pending)
         ) {
             tracing::trace!("Skipping CodeExpression {node_id}");
             return WalkControl::Break;

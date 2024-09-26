@@ -50,7 +50,9 @@ export class SuggestionBlock extends Entity {
   }
 
   override render() {
-    const instructionId = this.closestGlobally('stencila-instruction-block').id
+    // Suggestion blocks are normally nested in an instruction block but can
+    // be free standing
+    const instructionId = this.closestGlobally('stencila-instruction-block')?.id
 
     return html`<stencila-ui-block-in-flow
       type="SuggestionBlock"

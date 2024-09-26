@@ -258,7 +258,12 @@ repository:
           \s*
         )?
         (
-          (?:(?:x|y|q|s|c|t)\d+\s*)*
+          (?:
+            (?:
+              (?:(?:x|y|q|s|c|t)\d+)|
+              (?:\!?run)
+            )\s+
+          )*
         )?
         (.*?)
         (<|>)?
@@ -270,7 +275,7 @@ repository:
       "3": { name: markup.heading.stencila } # forward slash
       "4": { name: support.function } # prompt
       "5": { name: string.quoted } # model
-      "6": { name: variable.name.stencila } # options
+      "6": { name: variable.parameter.stencila } # options
       "7": { name: comment.stencila.instruction } # instruction message
       "8": { name: markup.heading.stencila } # < or >
 

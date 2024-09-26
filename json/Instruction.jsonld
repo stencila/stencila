@@ -165,15 +165,15 @@
       }
     },
     {
-      "@id": "stencila:executionActor",
+      "@id": "stencila:executionKind",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionActor",
-      "rdfs:comment": "The id of the actor that the node was last executed by.",
+      "rdfs:label": "executionKind",
+      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "stencila:ExecutionKind"
       }
     },
     {
@@ -288,6 +288,18 @@
       },
       "schema:rangeIncludes": {
         "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:recursion",
+      "@type": "rdfs:Property",
+      "rdfs:label": "recursion",
+      "rdfs:comment": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     }
   ]

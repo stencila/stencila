@@ -48,6 +48,7 @@ impl DomCodec for CodeChunk {
         exec_option!("execution-count", execution_count);
         exec_option!("execution-required", execution_required);
         exec_option!("execution-status", execution_status);
+        exec_option!("execution-kind", execution_kind);
 
         if let Some(value) = &self.options.execution_ended {
             Timestamp::to_dom_attr("execution-ended", value, context);
@@ -76,9 +77,9 @@ impl DomCodec for CodeChunk {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
-        if let (Some(LabelType::TableLabel), Some(caption)) = (&self.label_type, &self.caption) {
+        if let Some(LabelType::TableLabel) = &self.label_type {
             context.push_slot_fn("div", "caption", |context| {
-                caption_to_dom(context, "table-label", "Table", &self.label, caption)
+                caption_to_dom(context, "table-label", "Table", &self.label, &self.caption)
             });
         }
 
@@ -86,9 +87,15 @@ impl DomCodec for CodeChunk {
             context.push_slot_fn("div", "outputs", |context| outputs.to_dom(context));
         }
 
-        if let (Some(LabelType::FigureLabel), Some(caption)) = (&self.label_type, &self.caption) {
+        if let Some(LabelType::FigureLabel) = &self.label_type {
             context.push_slot_fn("div", "caption", |context| {
-                caption_to_dom(context, "figure-label", "Figure", &self.label, caption)
+                caption_to_dom(
+                    context,
+                    "figure-label",
+                    "Figure",
+                    &self.label,
+                    &self.caption,
+                )
             });
         }
 

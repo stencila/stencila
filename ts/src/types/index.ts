@@ -66,6 +66,7 @@ export * from "./ExecutionDependantRelation.js";
 export * from "./ExecutionDependency.js";
 export * from "./ExecutionDependencyNode.js";
 export * from "./ExecutionDependencyRelation.js";
+export * from "./ExecutionKind.js";
 export * from "./ExecutionMessage.js";
 export * from "./ExecutionMode.js";
 export * from "./ExecutionRequired.js";

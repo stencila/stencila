@@ -12,14 +12,14 @@ use kernel::{
         ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance,
+    Kernel, KernelForks, KernelInstance,
 };
 
 const NAME: &str = "graphviz";
 
 /// A kernel for rendering Graphviz DOT to SVGs
 #[derive(Default)]
-pub struct GraphvizKernel {}
+pub struct GraphvizKernel;
 
 impl Kernel for GraphvizKernel {
     fn name(&self) -> String {
@@ -30,15 +30,16 @@ impl Kernel for GraphvizKernel {
         vec![Format::Dot]
     }
 
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
+    }
+
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(GraphvizKernelInstance {}))
+        Ok(Box::new(GraphvizKernelInstance))
     }
 }
 
-#[derive(Default)]
-pub struct GraphvizKernelInstance {}
-
-impl GraphvizKernelInstance {}
+pub struct GraphvizKernelInstance;
 
 #[async_trait]
 impl KernelInstance for GraphvizKernelInstance {
@@ -110,6 +111,10 @@ impl KernelInstance for GraphvizKernelInstance {
             }),
             ..Default::default()
         })
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::new(Self))
     }
 }
 

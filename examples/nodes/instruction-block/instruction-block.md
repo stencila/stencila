@@ -1,14 +1,14 @@
 An insert instruction with no prompt:
 
-::: new a 4x10 table <
+::: new a 4x10 table
 
 An insert instruction with a prompt:
 
-::: new @table top five highest mountains, with height in metres <
+::: new @table top five highest mountains, with height in metres
 
 An insert instruction with a prompt but a blank instruction
 
-::: new @code-chunk  <
+::: new @code-chunk 
 
 An edit instruction (has content) with no prompt:
 
@@ -24,7 +24,7 @@ Another paragraph to be improved.
 
 An insert instruction with a prompt and a suggestion:
 
-::: new @code-chunk analyze data <
+::: new @code-chunk analyze data
 
 ::: suggest >
 

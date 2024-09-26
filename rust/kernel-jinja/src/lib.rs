@@ -19,21 +19,27 @@ use kernel::{
     schema::{
         ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelVariableRequest, KernelVariableRequester,
+    Kernel, KernelForks, KernelInstance, KernelVariableRequest, KernelVariableRequester,
     KernelVariableResponder,
 };
 
+const NAME: &str = "jinja";
+
 /// A kernel for rendering Jinja templates.
 #[derive(Default)]
-pub struct JinjaKernel {}
+pub struct JinjaKernel;
 
 impl Kernel for JinjaKernel {
     fn name(&self) -> String {
-        "jinja".to_string()
+        NAME.to_string()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Jinja]
+    }
+
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
     }
 
     fn supports_variable_requests(&self) -> bool {
@@ -41,7 +47,7 @@ impl Kernel for JinjaKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(JinjaKernelInstance::new(&self.name())))
+        Ok(Box::new(JinjaKernelInstance::new(NAME)))
     }
 }
 
@@ -181,6 +187,10 @@ impl KernelInstance for JinjaKernelInstance {
             instance: self.name(),
             variable_channel: Mutex::new((requester, responder)),
         }));
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::new(Self::new(&self.name)))
     }
 }
 

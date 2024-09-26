@@ -47,6 +47,7 @@ impl Figure {
     #[qjs(rename = PredefinedAtom::ToJSON)]
     fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
         let obj = Object::new(ctx)?;
+        obj.set("label", self.label.clone())?;
         obj.set("caption", self.caption.clone())?;
         Ok(obj)
     }

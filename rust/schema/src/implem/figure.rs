@@ -28,11 +28,15 @@ impl DomCodec for Figure {
 
         self.content.to_dom(context);
 
-        if let Some(caption) = &self.caption {
-            context.push_slot_fn("figcaption", "caption", |context| {
-                caption_to_dom(context, "figure-label", "Figure", &self.label, caption)
-            });
-        }
+        context.push_slot_fn("figcaption", "caption", |context| {
+            caption_to_dom(
+                context,
+                "figure-label",
+                "Figure",
+                &self.label,
+                &self.caption,
+            )
+        });
 
         context.exit_elem().exit_node();
     }

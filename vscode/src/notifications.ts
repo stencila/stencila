@@ -8,6 +8,7 @@ import {
   skippedDecoration,
   staleDecoration,
   succeededDecoration,
+  succeededForkDecoration,
   unexecutedDecoration,
 } from "./decorations";
 
@@ -22,6 +23,7 @@ interface Status {
     | "Pending"
     | "Running"
     | "Succeeded"
+    | "SucceededFork"
     | "Active";
   message: string;
 }
@@ -79,6 +81,7 @@ export function registerNotifications(client: LanguageClient) {
       decorationsFor("Skipped", skippedDecoration);
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
+      decorationsFor("SucceededFork", succeededForkDecoration);
       decorationsFor("Active", activeDecoration);
     }
   );

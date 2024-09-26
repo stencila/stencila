@@ -30,14 +30,18 @@ impl Executable for CodeChunk {
         let execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
 
+        // These need to be set here because they may be used in `self.execute`
+        // before the following patch is applied (below, or if `Executor.compile_prepare_execute`)
+        // has been called.
+        self.options.compilation_digest = Some(info.compilation_digest.clone());
+        self.options.execution_tags = info.execution_tags.clone();
+        self.options.execution_required = Some(execution_required.clone());
+
         executor.patch(
             &node_id,
             [
-                set(
-                    NodeProperty::CompilationDigest,
-                    info.compilation_digest.clone(),
-                ),
-                set(NodeProperty::ExecutionTags, info.execution_tags.clone()),
+                set(NodeProperty::CompilationDigest, info.compilation_digest),
+                set(NodeProperty::ExecutionTags, info.execution_tags),
                 set(NodeProperty::ExecutionRequired, execution_required.clone()),
             ],
         );
@@ -53,12 +57,6 @@ impl Executable for CodeChunk {
                 "dot" | "graphviz" | "mermaid"
             )
         {
-            // These need to be set here because they may be used in `self.execute`
-            // and that method is called next, before the above patch is applied;
-            self.options.compilation_digest = Some(info.compilation_digest);
-            self.options.execution_tags = info.execution_tags;
-            self.options.execution_required = Some(execution_required);
-
             self.execute(executor).await;
         }
 
@@ -73,17 +71,16 @@ impl Executable for CodeChunk {
         // Add code chunk to document context
         executor.document_context.code_chunks.push((&*self).into());
 
-        if executor.should_execute(
+        // Set execution status
+        if let Some(status) = executor.node_execution_status(
+            self.node_type(),
             &node_id,
             &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            // Set the execution status to pending
-            executor.patch(
-                &node_id,
-                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
-            );
+            self.options.execution_status = Some(status.clone());
+            executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
         // Break the walk since none of the child nodes are executed
@@ -97,11 +94,9 @@ impl Executable for CodeChunk {
         // Enter the code chunk context
         executor.document_context.code_chunks.enter();
 
-        if !executor.should_execute(
-            &node_id,
-            &self.execution_mode,
-            &self.options.compilation_digest,
-            &self.options.execution_digest,
+        if !matches!(
+            self.options.execution_status,
+            Some(ExecutionStatus::Pending)
         ) {
             tracing::trace!("Skipping CodeChunk {node_id}");
             return WalkControl::Break;
@@ -140,6 +135,7 @@ impl Executable for CodeChunk {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
+            let kind = execution_kind(executor);
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
@@ -152,7 +148,8 @@ impl Executable for CodeChunk {
                     &node_id,
                     [
                         set(NodeProperty::Outputs, outputs),
-                        set(NodeProperty::ExecutionStatus, status.clone()),
+                        set(NodeProperty::ExecutionStatus, status),
+                        set(NodeProperty::ExecutionKind, kind),
                         set(NodeProperty::ExecutionRequired, required),
                         set(NodeProperty::ExecutionMessages, messages),
                         set(NodeProperty::ExecutionDuration, duration),

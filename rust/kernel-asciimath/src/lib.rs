@@ -5,8 +5,10 @@ use kernel::{
         CodeLocation, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance,
+    Kernel, KernelForks, KernelInstance,
 };
+
+const NAME: &str = "asciimath";
 
 /// A kernel for compiling AsciiMath math to MathML.
 ///
@@ -14,23 +16,27 @@ use kernel::{
 /// as a kernel, rather than a codec, because the conversion is at the level of
 /// an individual node (i.e. `MathBlock` or `MathInline`) rather than at the document level.
 #[derive(Default)]
-pub struct AsciiMathKernel {}
+pub struct AsciiMathKernel;
 
 impl Kernel for AsciiMathKernel {
     fn name(&self) -> String {
-        "asciimath".to_string()
+        NAME.to_string()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::AsciiMath]
     }
 
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
+    }
+
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(AsciiMathKernelInstance {}))
+        Ok(Box::new(AsciiMathKernelInstance))
     }
 }
 
-pub struct AsciiMathKernelInstance {}
+pub struct AsciiMathKernelInstance;
 
 impl AsciiMathKernelInstance {
     /// Transpile AsciiMath to MathML
@@ -120,7 +126,7 @@ impl AsciiMathKernelInstance {
 #[async_trait]
 impl KernelInstance for AsciiMathKernelInstance {
     fn name(&self) -> String {
-        "asciimath".to_string()
+        NAME.to_string()
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -166,6 +172,10 @@ impl KernelInstance for AsciiMathKernelInstance {
             }),
             ..Default::default()
         })
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::new(Self))
     }
 }
 

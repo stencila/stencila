@@ -119,6 +119,14 @@
       }
     },
     {
+      "scope": [
+        "variable.parameter.stencila"
+      ],
+      "settings": {
+        "foreground": "#9e25ef"
+      }
+    },
+    {
       "scope": ["comment.stencila.instruction", "comment.stencila.feedback"],
       "settings": {
         "foreground": "#2c3aff",

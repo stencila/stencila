@@ -8,12 +8,16 @@ impl Executable for InstructionInline {
         let node_id = self.node_id();
         tracing::trace!("Preparing InstructionInline {node_id}");
 
-        if executor.should_execute_instruction(&node_id, &self.execution_mode, &None, &None) {
-            // Set the execution status to pending
-            executor.patch(
-                &node_id,
-                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
-            );
+        // Set execution status
+        if let Some(status) = executor.node_execution_status(
+            self.node_type(),
+            &node_id,
+            &self.execution_mode,
+            &self.options.compilation_digest,
+            &self.options.execution_digest,
+        ) {
+            self.options.execution_status = Some(status.clone());
+            executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
         // Continue to mark executable nodes in `content` as pending
@@ -24,7 +28,10 @@ impl Executable for InstructionInline {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        if !executor.should_execute_instruction(&node_id, &self.execution_mode, &None, &None) {
+        if !matches!(
+            self.options.execution_status,
+            Some(ExecutionStatus::Pending)
+        ) {
             tracing::trace!("Skipping InstructionInline {node_id}");
 
             return WalkControl::Break;

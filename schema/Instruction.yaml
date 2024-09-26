@@ -11,6 +11,7 @@ core:
   - prompt
   - model
   - replicates
+  - recursion
 properties:
   instructionType:
     "@id": stencila:instructionType
@@ -52,5 +53,11 @@ properties:
     "@id": stencila:replicates
     description: The number of suggestions to generate for the instruction
     $ref: UnsignedInteger
+    patch:
+      formats: [md, myst]
+  recursion:
+    "@id": stencila:recursion
+    description: A string identifying which operations should, or should not, automatically be applied to generated suggestions.
+    $ref: String
     patch:
       formats: [md, myst]

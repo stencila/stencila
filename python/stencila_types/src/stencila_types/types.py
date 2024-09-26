@@ -228,6 +228,15 @@ class ExecutionDependencyRelation(StrEnum):
     Uses = "Uses"
 
 
+class ExecutionKind(StrEnum):
+    """
+    The kind of execution of a document node.
+    """
+
+    Main = "Main"
+    Fork = "Fork"
+
+
 class ExecutionMode(StrEnum):
     """
     Under which circumstances the document node should be executed.
@@ -266,6 +275,7 @@ class ExecutionStatus(StrEnum):
     Pending = "Pending"
     Skipped = "Skipped"
     Locked = "Locked"
+    Rejected = "Rejected"
     Empty = "Empty"
     Running = "Running"
     Succeeded = "Succeeded"
@@ -605,8 +615,8 @@ class Executable(Entity):
     execution_status: ExecutionStatus | None = None
     """Status of the most recent, including any current, execution."""
 
-    execution_actor: str | None = None
-    """The id of the actor that the node was last executed by."""
+    execution_kind: ExecutionKind | None = None
+    """The kind (e.g. main kernel vs kernel fork) of the last execution."""
 
     execution_ended: Timestamp | None = None
     """The timestamp when the last execution ended."""
@@ -763,6 +773,9 @@ class Instruction(Executable):
 
     replicates: UnsignedInteger | None = None
     """The number of suggestions to generate for the instruction"""
+
+    recursion: str | None = None
+    """A string identifying which operations should, or should not, automatically be applied to generated suggestions."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3264,6 +3277,7 @@ ThingType = Union[
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
+    ExecutionKind,
     ExecutionMode,
     ExecutionRequired,
     ExecutionStatus,

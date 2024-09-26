@@ -1,4 +1,5 @@
 import {
+  ExecutionKind,
   ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
@@ -12,6 +13,7 @@ import { customElement, property } from 'lit/decorators'
 import './execution-count'
 import './execution-duration'
 import './execution-ended'
+import './execution-kind'
 import './execution-state'
 
 import { withTwind } from '../../../twind'
@@ -47,6 +49,9 @@ export class UINodeExecutionDetails extends LitElement {
 
   @property()
   status?: ExecutionStatus
+
+  @property()
+  kind?: ExecutionKind
 
   @property({ type: Number })
   ended?: number
@@ -88,7 +93,10 @@ export class UINodeExecutionDetails extends LitElement {
         ? html`<stencila-ui-node-execution-count
               value=${this.count}
             ></stencila-ui-node-execution-count>
-            ${this.renderTimeAndDuration()}`
+            ${this.renderTimeAndDuration()}
+            <stencila-ui-node-execution-kind
+              value=${this.kind}
+            ></stencila-ui-node-execution-kind>`
         : ''}`
   }
 

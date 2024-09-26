@@ -10,8 +10,27 @@ pub(super) fn caption_to_dom(
     class: &str,
     kind: &str,
     label: &Option<String>,
-    caption: &[Block],
+    caption: &Option<Vec<Block>>,
 ) {
+    let Some(caption) = caption else {
+        // No caption so just render label type and label. Render within a pseudo-<stencila-paragraph>
+        // element for styling consistency with when there is a caption (the usual case)
+
+        context
+            .enter_elem("stencila-paragraph")
+            .enter_elem_attrs("p", [("slot", "content")])
+            .enter_elem_attrs("span", [("class", class)])
+            .push_text(kind);
+
+        if let Some(label) = label {
+            context.push_text(" ").push_text(label);
+        }
+
+        context.exit_elem().exit_elem().exit_elem();
+
+        return;
+    };
+
     for (index, block) in caption.iter().enumerate() {
         if let (0, Block::Paragraph(paragraph)) = (index, block) {
             context.enter_node(paragraph.node_type(), paragraph.node_id());

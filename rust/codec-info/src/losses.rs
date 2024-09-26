@@ -234,7 +234,7 @@ macro_rules! lost_exec_options {
             execution_count,
             execution_required,
             execution_status,
-            execution_actor,
+            execution_kind,
             execution_ended,
             execution_duration,
             execution_messages

@@ -24,6 +24,8 @@ import anthropic from './anthropic.svg'
 import archive from './archive.svg'
 import array from './array.svg'
 import arrowClockwise from './arrow-clockwise.svg'
+import arrowNarrowUp from './arrow-narrow-up.svg'
+import arrowRampRight3 from './arrow-ramp-right-3.svg'
 import at from './at.svg'
 import bars from './bars.svg'
 import bash from './bash.svg'
@@ -99,6 +101,7 @@ import r from './r.svg'
 import repeat from './repeat.svg'
 import replaceBlock from './replace-block.svg'
 import robot from './robot.svg'
+import sandbox from './sandbox.svg'
 import skipEnd from './skip-end.svg'
 import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
@@ -120,6 +123,8 @@ const icons = {
   archive,
   array,
   arrowClockwise,
+  arrowNarrowUp,
+  arrowRampRight3,
   at,
   bars,
   bash,
@@ -195,6 +200,7 @@ const icons = {
   repeat,
   replaceBlock,
   robot,
+  sandbox,
   skipEnd,
   skipStart,
   slashCircle,

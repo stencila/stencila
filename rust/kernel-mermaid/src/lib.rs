@@ -4,7 +4,7 @@ use kernel::{
     schema::{
         ExecutionMessage, ImageObject, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelVariableRequester, KernelVariableResponder,
+    Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 
@@ -21,6 +21,10 @@ impl Kernel for MermaidKernel {
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Mermaid]
+    }
+
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
     }
 
     fn supports_variable_requests(&self) -> bool {
@@ -95,6 +99,10 @@ impl KernelInstance for MermaidKernelInstance {
         responder: KernelVariableResponder,
     ) {
         self.jinja.variable_channel(requester, responder)
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::<MermaidKernelInstance>::default())
     }
 }
 

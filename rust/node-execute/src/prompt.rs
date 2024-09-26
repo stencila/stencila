@@ -69,7 +69,9 @@ pub async fn for_instruction_block(
 
     // Create a set of kernels to execute the prompt and add the kernel instance to it
     let mut kernels = Kernels::new(&home);
-    kernels.add_instance(kernel, kernel_instance).await?;
+    kernels
+        .add_instance(Arc::new(kernel), kernel_instance)
+        .await?;
 
     // Execute the prompt without patching
     let mut executor = Executor::new(home, Arc::new(RwLock::new(kernels)), None, None, None);

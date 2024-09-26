@@ -14,14 +14,14 @@ use kernel::{
         CodeLocation, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelVariableRequester, KernelVariableResponder,
+    Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder,
 };
+
+const NAME: &str = "style";
 
 /// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
 #[derive(Default)]
-pub struct StyleKernel {}
-
-const NAME: &str = "style";
+pub struct StyleKernel;
 
 impl Kernel for StyleKernel {
     fn name(&self) -> String {
@@ -30,6 +30,10 @@ impl Kernel for StyleKernel {
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Css, Format::Html, Format::Tailwind]
+    }
+
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
     }
 
     fn supports_variable_requests(&self) -> bool {
@@ -182,7 +186,7 @@ impl StyleKernelInstance {
 #[async_trait]
 impl KernelInstance for StyleKernelInstance {
     fn name(&self) -> String {
-        "style".to_string()
+        NAME.to_string()
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -215,6 +219,10 @@ impl KernelInstance for StyleKernelInstance {
         responder: KernelVariableResponder,
     ) {
         self.jinja.variable_channel(requester, responder)
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::<StyleKernelInstance>::default())
     }
 }
 

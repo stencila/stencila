@@ -1,5 +1,8 @@
 use codec_cbor::r#trait::CborCodec;
-use common::futures::future;
+use common::{
+    futures::stream::{FuturesUnordered, StreamExt},
+    tokio,
+};
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
     InstructionModel, SoftwareApplication,
@@ -57,17 +60,16 @@ impl Executable for InstructionBlock {
         let node_id = self.node_id();
         tracing::trace!("Preparing InstructionBlock {node_id}");
 
-        if executor.should_execute_instruction(
+        // Set execution status
+        if let Some(status) = executor.node_execution_status(
+            self.node_type(),
             &node_id,
             &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            // Set the execution status to pending
-            executor.patch(
-                &node_id,
-                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
-            );
+            self.options.execution_status = Some(status.clone());
+            executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
         // Continue to mark executable nodes in `content` and/or `suggestion` as pending
@@ -78,7 +80,7 @@ impl Executable for InstructionBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        // Get options which may be overridden if this is a suggestion
+        // Get options which may be overridden if this is a revision
         // Note: to avoid accidentally generating many replicates, hard code maximum 10 here
         let mut replicates = (self.replicates.unwrap_or(1) as usize).min(10);
         let mut model_id_pattern = self
@@ -125,16 +127,14 @@ impl Executable for InstructionBlock {
             };
 
         if !is_revision
-            && !executor.should_execute_instruction(
-                &node_id,
-                &self.execution_mode,
-                &self.options.compilation_digest,
-                &self.options.execution_digest,
+            && !matches!(
+                self.options.execution_status,
+                Some(ExecutionStatus::Pending)
             )
         {
             tracing::trace!("Skipping InstructionBlock {node_id}");
 
-            // Continue to execute executable nodes in `content` and/or `suggestion`
+            // Continue to execute executable nodes in `content` and/or `suggestions`
             return WalkControl::Continue;
         }
 
@@ -190,7 +190,7 @@ impl Executable for InstructionBlock {
         }
 
         // Create a future for each replicate
-        let mut futures = Vec::new();
+        let mut futures = FuturesUnordered::new();
         for _ in 0..replicates {
             // TODO: rather than repeating all this prep work to create a model task
             // within `prompts::execute_instruction_block` it could be done
@@ -226,12 +226,29 @@ impl Executable for InstructionBlock {
             })
         }
 
-        // Wait for all suggestions to be generated and collect them and any error messages
-        let mut suggestions = self.suggestions.clone().unwrap_or_default();
+        // Wait for each future, adding the suggestion (or error message) to the instruction
+        // as it arrives, and then (optionally) executing the suggestion
+        let recursion = self.recursion.as_deref().unwrap_or_default();
+        let run = recursion.contains("run") && !recursion.contains("!run");
         let mut messages = Vec::new();
-        for result in future::join_all(futures).await {
+        while let Some(result) = futures.next().await {
             match result {
-                Ok(suggestion) => suggestions.push(suggestion),
+                Ok(mut suggestion) => {
+                    executor.patch(
+                        &node_id,
+                        [push(NodeProperty::Suggestions, suggestion.clone())],
+                    );
+
+                    if run {
+                        let mut fork = executor.fork_for_all();
+                        tokio::spawn(async move {
+                            if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await
+                            {
+                                tracing::error!("While executing suggestion: {error}");
+                            }
+                        });
+                    }
+                }
                 Err(error) => messages.push(error_to_execution_message(
                     "While executing instruction",
                     error,
@@ -251,7 +268,6 @@ impl Executable for InstructionBlock {
         executor.patch(
             &node_id,
             [
-                set(NodeProperty::Suggestions, Some(suggestions)),
                 set(NodeProperty::ExecutionStatus, status),
                 set(NodeProperty::ExecutionRequired, required),
                 set(NodeProperty::ExecutionMessages, messages),

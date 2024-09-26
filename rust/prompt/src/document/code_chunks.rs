@@ -92,6 +92,10 @@ impl CodeChunk {
         obj.set("language", self.language.clone())?;
         obj.set("code", self.code.clone())?;
         obj.set("outputs", self.outputs.clone())?;
+        obj.set("label_type", self.label_type.clone())?;
+        obj.set("label", self.label.clone())?;
+        obj.set("markdown", self.markdown.clone())?;
+
         Ok(obj)
     }
 }

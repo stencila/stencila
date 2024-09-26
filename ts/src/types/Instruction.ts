@@ -38,6 +38,11 @@ export class Instruction extends Executable {
    */
   replicates?: UnsignedInteger;
 
+  /**
+   * A string identifying which operations should, or should not, automatically be applied to generated suggestions.
+   */
+  recursion?: string;
+
   constructor(instructionType: InstructionType, options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";

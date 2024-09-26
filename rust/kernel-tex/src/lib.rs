@@ -6,9 +6,11 @@ use kernel::{
     schema::{
         ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance,
+    Kernel, KernelForks, KernelInstance,
 };
 use latex2mathml::{latex_to_mathml, DisplayStyle};
+
+const NAME: &str = "tex";
 
 /// A kernel for compiling TeX math to MathML.
 ///
@@ -16,15 +18,19 @@ use latex2mathml::{latex_to_mathml, DisplayStyle};
 /// as a kernel, rather than a codec, because the conversion is at the level of
 /// an individual node (i.e. `MathBlock` or `MatchInline`) rather than at the document level.
 #[derive(Default)]
-pub struct TexKernel {}
+pub struct TexKernel;
 
 impl Kernel for TexKernel {
     fn name(&self) -> String {
-        "tex".to_string()
+        NAME.to_string()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Tex, Format::Latex]
+    }
+
+    fn supports_forks(&self) -> kernel::KernelForks {
+        KernelForks::Yes
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
@@ -32,7 +38,7 @@ impl Kernel for TexKernel {
     }
 }
 
-pub struct TexKernelInstance {}
+pub struct TexKernelInstance;
 
 impl TexKernelInstance {
     /// Transpile TeX to MathML
@@ -74,7 +80,7 @@ impl TexKernelInstance {
 #[async_trait]
 impl KernelInstance for TexKernelInstance {
     fn name(&self) -> String {
-        "tex".to_string()
+        NAME.to_string()
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -106,6 +112,10 @@ impl KernelInstance for TexKernelInstance {
             }),
             ..Default::default()
         })
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::new(Self))
     }
 }
 

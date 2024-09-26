@@ -82,6 +82,7 @@ export class CodeChunk extends CodeExecutable {
           status=${this.executionStatus}
           required=${this.executionRequired}
           count=${this.executionCount}
+          kind=${this.executionKind}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
         >

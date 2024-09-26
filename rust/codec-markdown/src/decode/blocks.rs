@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use markdown::{mdast, unist::Position};
 use winnow::{
-    ascii::{alphanumeric1, digit1, multispace0, multispace1, space0, Caseless},
+    ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
     token::{take_till, take_until, take_while},
     IResult, Located, PResult, Parser,
@@ -24,8 +24,8 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{mds_to_inlines, mds_to_string},
     shared::{
-        attrs, execution_mode, instruction_type, model, name, node_to_string, primitive_node,
-        prompt, string_to_instruction_message,
+        attrs, execution_mode, instruction_options, instruction_type, model, name, node_to_string,
+        primitive_node, prompt, string_to_instruction_message,
     },
     Context,
 };
@@ -735,56 +735,47 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             model,
             (multispace0, ']', multispace0),
         )),
-        delimited(
-            multispace0,
-            separated(
-                0..,
-                (alt(('x', 'y', 't', 'q', 's', 'c')), digit1),
-                multispace1,
-            ),
-            multispace0,
-        ),
+        delimited(multispace0, instruction_options, multispace0),
         opt(take_while(0.., |_| true)),
     )
-        .map(
-            |(instruction_type, prompt, id_pattern, options, message): (
-                _,
-                _,
-                _,
-                Vec<(char, &str)>,
-                _,
-            )| {
-                let (message, capacity) = match message {
-                    Some(message) => {
-                        let message = message.trim();
-                        let (message, capacity) = if let Some(message) = message.strip_suffix('<') {
-                            (message.trim_end(), None)
-                        } else if let Some(message) = message.strip_suffix('>') {
-                            (message.trim_end(), Some(1))
-                        } else if instruction_type == InstructionType::New {
-                            (message, None)
-                        } else {
-                            (message, Some(2))
-                        };
+        .map(|(instruction_type, prompt, id_pattern, options, message)| {
+            let (message, capacity) = match message {
+                Some(message) => {
+                    let message = message.trim();
+                    let (message, capacity) = if let Some(message) = message.strip_suffix('<') {
+                        (message.trim_end(), None)
+                    } else if let Some(message) = message.strip_suffix('>') {
+                        (message.trim_end(), Some(1))
+                    } else if instruction_type == InstructionType::New {
+                        (message, None)
+                    } else {
+                        (message, Some(2))
+                    };
 
-                        ((!message.is_empty()).then_some(message), capacity)
-                    }
-                    None => (None, Some(2)),
-                };
+                    ((!message.is_empty()).then_some(message), capacity)
+                }
+                None => (None, Some(2)),
+            };
 
-                let message = message.map(string_to_instruction_message);
+            let message = message.map(string_to_instruction_message);
 
-                let content = capacity.map(Vec::with_capacity);
+            let content = capacity.map(Vec::with_capacity);
 
-                let mut replicates: Option<u64> = None;
-                let mut minimum_score: Option<u64> = None;
-                let mut temperature: Option<u64> = None;
-                let mut quality_weight: Option<u64> = None;
-                let mut speed_weight: Option<u64> = None;
-                let mut cost_weight: Option<u64> = None;
-                for (tag, value) in options {
-                    let value = value.parse().ok();
-                    match tag {
+            let mut recursion = Vec::new();
+            let mut replicates: Option<u64> = None;
+            let mut minimum_score: Option<u64> = None;
+            let mut temperature: Option<u64> = None;
+            let mut quality_weight: Option<u64> = None;
+            let mut speed_weight: Option<u64> = None;
+            let mut cost_weight: Option<u64> = None;
+            for option in options {
+                if matches!(option, "run" | "!run") {
+                    recursion.push(option);
+                } else {
+                    let mut chars = option.chars();
+                    let letter = chars.next().expect("Should be at least one char");
+                    let value = chars.collect::<String>().parse().ok();
+                    match letter {
                         'x' => replicates = value,
                         'y' => minimum_score = value,
                         't' => temperature = value,
@@ -792,40 +783,42 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                         's' => speed_weight = value,
                         'c' => cost_weight = value,
                         _ => {}
-                    }
+                    };
                 }
+            }
+            let recursion = (!recursion.is_empty()).then_some(recursion.join(" "));
 
-                let model = if id_pattern.is_some()
-                    || minimum_score.is_some()
-                    || temperature.is_some()
-                    || quality_weight.is_some()
-                    || speed_weight.is_some()
-                    || cost_weight.is_some()
-                {
-                    Some(Box::new(InstructionModel {
-                        id_pattern: id_pattern.map(String::from),
-                        minimum_score,
-                        temperature,
-                        quality_weight,
-                        speed_weight,
-                        cost_weight,
-                        ..Default::default()
-                    }))
-                } else {
-                    None
-                };
-
-                Block::InstructionBlock(InstructionBlock {
-                    instruction_type,
-                    message,
-                    content,
-                    prompt: prompt.map(String::from),
-                    replicates,
-                    model,
+            let model = if id_pattern.is_some()
+                || minimum_score.is_some()
+                || temperature.is_some()
+                || quality_weight.is_some()
+                || speed_weight.is_some()
+                || cost_weight.is_some()
+            {
+                Some(Box::new(InstructionModel {
+                    id_pattern: id_pattern.map(String::from),
+                    minimum_score,
+                    temperature,
+                    quality_weight,
+                    speed_weight,
+                    cost_weight,
                     ..Default::default()
-                })
-            },
-        )
+                }))
+            } else {
+                None
+            };
+
+            Block::InstructionBlock(InstructionBlock {
+                instruction_type,
+                message,
+                content,
+                prompt: prompt.map(String::from),
+                replicates,
+                recursion,
+                model,
+                ..Default::default()
+            })
+        })
         .parse_next(input)
 }
 

@@ -60,9 +60,9 @@ impl DomCodec for Table {
         // Strictly, <caption> should be within <table>, but that causes issues for styling of web component,
         // so we make it a sibling <div> (because the browser will unwrap a <caption> if not within a <table>)
         // See https://github.com/stencila/stencila/pull/2240#issuecomment-2136358172
-        if let Some(caption) = &self.caption {
+        if self.caption.is_some() {
             context.push_slot_fn("div", "caption", |context| {
-                caption_to_dom(context, "table-label", "Table", &self.label, caption)
+                caption_to_dom(context, "table-label", "Table", &self.label, &self.caption)
             });
         }
 
