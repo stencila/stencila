@@ -462,7 +462,8 @@ async fn code_chunks() -> Result<()> {
       "json": "3",
       "markdown": "3"
     }
-  ]
+  ],
+  "markdown": ""
 }"#
     );
 
