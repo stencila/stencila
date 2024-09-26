@@ -291,6 +291,18 @@
       }
     },
     {
+      "@id": "stencila:recursion",
+      "@type": "rdfs:Property",
+      "rdfs:label": "recursion",
+      "rdfs:comment": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

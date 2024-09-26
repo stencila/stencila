@@ -774,6 +774,9 @@ class Instruction(Executable):
     replicates: UnsignedInteger | None = None
     """The number of suggestions to generate for the instruction"""
 
+    recursion: str | None = None
+    """A string identifying which operations should, or should not, automatically be applied to generated suggestions."""
+
 
 @dataclass(kw_only=True, repr=False)
 class Mark(Entity):

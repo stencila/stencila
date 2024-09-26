@@ -197,6 +197,7 @@ pub enum NodeProperty {
     Publisher,
     QualityWeight,
     RandomSeed,
+    Recursion,
     References,
     Rel,
     Replacement,

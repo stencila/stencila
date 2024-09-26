@@ -80,6 +80,11 @@ pub struct InstructionInline {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub replicates: Option<UnsignedInteger>,
 
+    /// A string identifying which operations should, or should not, automatically be applied to generated suggestions.
+    #[patch(format = "md", format = "myst")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub recursion: Option<String>,
+
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]

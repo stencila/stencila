@@ -19,7 +19,8 @@
     "message",
     "prompt",
     "model",
-    "replicates"
+    "replicates",
+    "recursion"
   ],
   "properties": {
     "type": {
@@ -346,6 +347,17 @@
         ]
       },
       "$ref": "UnsignedInteger.schema.json"
+    },
+    "recursion": {
+      "@id": "stencila:recursion",
+      "description": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
+      "patch": {
+        "formats": [
+          "md",
+          "myst"
+        ]
+      },
+      "$ref": "String.schema.json"
     }
   }
 }

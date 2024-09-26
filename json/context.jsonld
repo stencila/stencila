@@ -379,6 +379,7 @@
     "publisher": "schema:publisher",
     "qualityWeight": "stencila:qualityWeight",
     "randomSeed": "stencila:randomSeed",
+    "recursion": "stencila:recursion",
     "references": "schema:citation",
     "rel": "schema:linkRelationship",
     "replacement": "stencila:replacement",
