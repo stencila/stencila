@@ -208,12 +208,6 @@ figure {
     max-width: 100%;
   }
 
-  stencila-code-chunk {
-    [slot='caption'] {
-      @apply hidden;
-    }
-  }
-
   stencila-datatable {
     table {
       @apply mx-0;
