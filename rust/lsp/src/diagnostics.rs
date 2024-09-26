@@ -143,18 +143,19 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
         {
             // Do not generate a status for these since we generate an LSP diagnostic (below) for them
             return None;
-        } else if let Some(status @ (ExecutionStatus::Locked | ExecutionStatus::Skipped)) =
-            &execution.status
+        } else if let Some(
+            status @ (ExecutionStatus::Skipped
+            | ExecutionStatus::Locked
+            | ExecutionStatus::Rejected),
+        ) = &execution.status
         {
             // Skipped nodes
             let mut message = "Skipped: ".to_string();
 
             if matches!(status, ExecutionStatus::Locked) {
                 message += "locked"
-            } else if matches!(status, ExecutionStatus::Skipped)
-                && matches!(execution.required, Some(ExecutionRequired::No))
-            {
-                message += "execution unnecessary";
+            } else if matches!(status, ExecutionStatus::Rejected) {
+                message += "rejected suggestion";
             }
 
             if let Some(ended) = &execution.ended {
@@ -179,10 +180,6 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                 "Succeeded"
             }
             .to_string();
-
-            if let Some(ExecutionKind::Fork) = &execution.kind {
-                message.push_str(" (in forked kernel)");
-            }
 
             if let Some(outputs) = &execution.outputs {
                 message.push_str(" with ");
@@ -252,7 +249,15 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                 }
             }
 
-            ("Succeeded".to_string(), message)
+            let status = if let Some(ExecutionKind::Fork) = &execution.kind {
+                message.push_str(" in forked kernel");
+                "SucceededFork"
+            } else {
+                "Succeeded"
+            }
+            .to_string();
+
+            (status, message)
         } else {
             return None;
         };

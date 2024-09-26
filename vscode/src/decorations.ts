@@ -89,7 +89,7 @@ export const runningDecoration = vscode.window.createTextEditorDecorationType({
   },
 });
 
-const skipped = "160deg";
+const skipped = "170deg";
 const skippedMid = `hsl(${skipped} 100% 30%)`;
 const skippedLight = `hsl(${skipped} 100% 95%)`;
 const skippedDark = `hsl(${skipped} 100% 5%)`;
@@ -132,6 +132,30 @@ export const succeededDecoration = vscode.window.createTextEditorDecorationType(
       after: {
         color: succeededMid,
         backgroundColor: succeededDark,
+      },
+    },
+  }
+);
+
+const succeededFork = "160deg";
+const succeededForkMid = `hsl(${succeededFork} 90% 30%)`;
+const succeededForkLight = `hsl(${succeededFork} 90% 95%)`;
+const succeededForkDark = `hsl(${succeededFork} 90% 5%)`;
+
+export const succeededForkDecoration = vscode.window.createTextEditorDecorationType(
+  {
+    overviewRulerColor: succeededForkMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: succeededForkMid,
+        backgroundColor: succeededForkLight,
+      },
+    },
+    dark: {
+      after: {
+        color: succeededForkMid,
+        backgroundColor: succeededForkDark,
       },
     },
   }
