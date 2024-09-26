@@ -14,13 +14,16 @@ pub enum ExecutionStatus {
     /// Execution of the node is pending.
     Pending,
 
-    /// Execution of the node has been skipped because it is unnecessary.
+    /// Execution of the node or node type was explicitly skipped by the user.
     Skipped,
 
-    /// Execution of the node has been skipped because it is locked.
+    /// Execution of the node was skipped because it is locked.
     Locked,
 
-    /// Execution of the node has been skipped because it has code, or other property, that is empty.
+    /// Execution of the node was skipped because it is a rejected suggestion.
+    Rejected,
+
+    /// Execution of the node was skipped because it has code, or other property, that is empty.
     Empty,
 
     /// The node is currently being executed.

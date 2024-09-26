@@ -275,6 +275,7 @@ class ExecutionStatus(StrEnum):
     Pending = "Pending"
     Skipped = "Skipped"
     Locked = "Locked"
+    Rejected = "Rejected"
     Empty = "Empty"
     Running = "Running"
     Succeeded = "Succeeded"

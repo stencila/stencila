@@ -7,6 +7,7 @@ export type ExecutionStatus =
   'Pending' |
   'Skipped' |
   'Locked' |
+  'Rejected' |
   'Empty' |
   'Running' |
   'Succeeded' |
