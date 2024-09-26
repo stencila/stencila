@@ -228,10 +228,8 @@ impl Executable for InstructionBlock {
 
         // Wait for each future, adding the suggestion (or error message) to the instruction
         // as it arrives, and then (optionally) executing the suggestion
-        //
-        // If the executor kernels support forking then fork the executor
-        // and execute each suggestion in parallel.
-        // TODO: check for run/!run
+        let recursion = self.recursion.as_deref().unwrap_or_default();
+        let run = recursion.contains("run") && !recursion.contains("!run");
         let mut messages = Vec::new();
         while let Some(result) = futures.next().await {
             match result {
@@ -241,12 +239,15 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    let mut fork = executor.fork_for_all();
-                    tokio::spawn(async move {
-                        if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await {
-                            tracing::error!("While executing suggestion: {error}");
-                        }
-                    });
+                    if run {
+                        let mut fork = executor.fork_for_all();
+                        tokio::spawn(async move {
+                            if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await
+                            {
+                                tracing::error!("While executing suggestion: {error}");
+                            }
+                        });
+                    }
                 }
                 Err(error) => messages.push(error_to_execution_message(
                     "While executing instruction",

@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use markdown::mdast;
 use winnow::{
-    ascii::{dec_int, float, multispace0, multispace1, take_escaped, Caseless},
+    ascii::{dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless},
     combinator::{alt, delimited, not, opt, peek, separated, separated_pair, terminated},
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
@@ -56,6 +56,20 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
             _ => unreachable!(),
         })
         .parse_next(input)
+}
+
+/// Parse instruction options
+pub(super) fn instruction_options<'s>(input: &mut Located<&'s str>) -> PResult<Vec<&'s str>> {
+    separated(
+        0..,
+        alt((
+            "run",
+            "!run",
+            (alt(('x', 'y', 'q', 's', 'c', 't')), digit1).take(),
+        )),
+        multispace1,
+    )
+    .parse_next(input)
 }
 
 /// Parse the name of a prompt of an instruction (e.g. `insert-image-object`, `joe@example.org`)

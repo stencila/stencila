@@ -290,6 +290,10 @@ impl MarkdownCodec for InstructionBlock {
                     .push_str(" ");
             }
 
+            if let Some(recursion) = &self.recursion {
+                context.push_str(&recursion.to_string()).push_str(" ");
+            }
+
             if let Some(message) = &self.message {
                 context.push_prop_fn(NodeProperty::Message, |context| {
                     message.to_markdown(context)
