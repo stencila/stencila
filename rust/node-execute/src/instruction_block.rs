@@ -60,17 +60,16 @@ impl Executable for InstructionBlock {
         let node_id = self.node_id();
         tracing::trace!("Preparing InstructionBlock {node_id}");
 
-        if executor.should_execute_instruction(
+        // Set execution status
+        if let Some(status) = executor.node_execution_status(
+            self.node_type(),
             &node_id,
             &self.execution_mode,
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            // Set the execution status to pending
-            executor.patch(
-                &node_id,
-                [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
-            );
+            self.options.execution_status = Some(status.clone());
+            executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
         // Continue to mark executable nodes in `content` and/or `suggestion` as pending
@@ -81,7 +80,7 @@ impl Executable for InstructionBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        // Get options which may be overridden if this is a suggestion
+        // Get options which may be overridden if this is a revision
         // Note: to avoid accidentally generating many replicates, hard code maximum 10 here
         let mut replicates = (self.replicates.unwrap_or(1) as usize).min(10);
         let mut model_id_pattern = self
@@ -128,16 +127,14 @@ impl Executable for InstructionBlock {
             };
 
         if !is_revision
-            && !executor.should_execute_instruction(
-                &node_id,
-                &self.execution_mode,
-                &self.options.compilation_digest,
-                &self.options.execution_digest,
+            && !matches!(
+                self.options.execution_status,
+                Some(ExecutionStatus::Pending)
             )
         {
             tracing::trace!("Skipping InstructionBlock {node_id}");
 
-            // Continue to execute executable nodes in `content` and/or `suggestion`
+            // Continue to execute executable nodes in `content` and/or `suggestions`
             return WalkControl::Continue;
         }
 
@@ -235,7 +232,6 @@ impl Executable for InstructionBlock {
         // If the executor kernels support forking then fork the executor
         // and execute each suggestion in parallel.
         // TODO: check for run/!run
-        let execute_suggestions = executor.kernels().await.supports_forks().await;
         let mut messages = Vec::new();
         while let Some(result) = futures.next().await {
             match result {
@@ -245,25 +241,12 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    if execute_suggestions {
-                        match executor.fork().await {
-                            Ok(mut fork) => {
-                                tokio::spawn(async move {
-                                    if let Err(error) =
-                                        fork.compile_prepare_execute(&mut suggestion).await
-                                    {
-                                        tracing::error!("While executing suggestion: {error}");
-                                    }
-                                });
-                            }
-                            Err(error) => {
-                                messages.push(error_to_execution_message(
-                                    "While forking suggestion executor",
-                                    error,
-                                ));
-                            }
-                        };
-                    }
+                    let mut fork = executor.fork_for_all();
+                    tokio::spawn(async move {
+                        if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await {
+                            tracing::error!("While executing suggestion: {error}");
+                        }
+                    });
                 }
                 Err(error) => messages.push(error_to_execution_message(
                     "While executing instruction",

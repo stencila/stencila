@@ -13,9 +13,9 @@ use common::{
 use kernels::Kernels;
 use prompts::prompt::DocumentContext;
 use schema::{
-    Block, CompilationDigest, ExecutionKind, ExecutionMode, Inline, Link, List, ListItem,
-    ListOrder, Node, NodeId, NodeProperty, Paragraph, Patch, PatchOp, PatchPath, VisitorAsync,
-    WalkControl, WalkNode,
+    Block, CompilationDigest, ExecutionKind, ExecutionMode, ExecutionStatus, Inline, Link, List,
+    ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchOp,
+    PatchPath, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -42,6 +42,7 @@ mod raw_block;
 mod section;
 mod styled_block;
 mod styled_inline;
+mod suggestion_block;
 mod table;
 
 /// Walk over a root node and compile it and child nodes
@@ -147,8 +148,14 @@ pub struct Executor {
     /// The phase of execution
     phase: Phase,
 
+    /// The execution status to apply to nodes
+    ///
+    /// Currently, only used during [`Phase::Prepare`] and defaults
+    /// to pending.
+    execution_status: ExecutionStatus,
+
     /// The kind of execution
-    kind: ExecutionKind,
+    execution_kind: ExecutionKind,
 
     /// The document context for prompts
     document_context: DocumentContext,
@@ -324,7 +331,8 @@ impl Executor {
             patch_sender,
             node_ids,
             phase: Phase::Prepare,
-            kind: ExecutionKind::Main,
+            execution_status: ExecutionStatus::Pending,
+            execution_kind: ExecutionKind::Main,
             document_context: DocumentContext::default(),
             headings: Vec::new(),
             table_count: 0,
@@ -335,21 +343,61 @@ impl Executor {
         }
     }
 
-    /// Fork the executor
+    /// Create a fork of the executor that has `node_ids: None`
     ///
-    /// Create a clone of the executor, except having a fork of
-    /// its [`Kernels`] and with `node_ids` cleared.
+    /// This allows the newly forked executor to execute nodes that are not
+    /// listed in the `node_ids` of the parent executor, specifically within
+    /// newly created suggestions.
+    fn fork_for_all(&self) -> Self {
+        Self {
+            node_ids: None,
+            ..self.clone()
+        }
+    }
+
+    /// Create a fork of the executor for [`Phase::Compile`]
     ///
+    /// This allows the executor to compile nodes within parts of the document,
+    /// specifically within rejected or proposed suggestions, without changing
+    /// the main executor's:
+    ///
+    /// - headings list
+    /// - table, figure and equation counts
+    /// - document context
+    fn fork_for_compile(&self) -> Self {
+        Self {
+            phase: Phase::Compile,
+            ..self.clone()
+        }
+    }
+
+    /// Create a fork of the executor for [`Phase::Prepare`]
+    ///
+    /// This allows the executor to prepare nodes within parts of the document,
+    /// specifically within rejected or proposed suggestions, and mark them
+    /// as [`ExecutionStatus::Rejected`] rather than [`ExecutionStatus::Pending`].
+    fn fork_for_prepare(&self, execution_status: ExecutionStatus) -> Self {
+        Self {
+            phase: Phase::Prepare,
+            execution_status,
+            ..self.clone()
+        }
+    }
+
+    /// Create a fork of the executor for [`Phase::Execute`]
+    ///
+    /// Create a clone of the executor, except for having a fork of its [`Kernels`].
     /// This allows the executor to execute nodes within a document,
     /// without effecting the main kernel processes. Specifically, this
     /// is used to execute suggestions.
-    async fn fork(&self) -> Result<Self> {
+    async fn fork_for_execute(&self) -> Result<Self> {
         let kernels = self.kernels().await.fork().await?;
         let kernels = Arc::new(RwLock::new(kernels));
+
         Ok(Self {
+            phase: Phase::Execute,
+            execution_kind: ExecutionKind::Fork,
             kernels,
-            node_ids: None,
-            kind: ExecutionKind::Fork,
             ..self.clone()
         })
     }
@@ -407,65 +455,52 @@ impl Executor {
         self.kernels.write().await
     }
 
-    /// Should the executor execute a node
-    pub fn should_execute(
+    /// Get the execution status for a node based on state of node
+    /// and options of the executor
+    pub fn node_execution_status(
         &self,
+        node_type: NodeType,
         node_id: &NodeId,
         execution_mode: &Option<ExecutionMode>,
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
-    ) -> bool {
+    ) -> Option<ExecutionStatus> {
         if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
-            return true;
+            return Some(ExecutionStatus::Pending);
         }
 
         if matches!(execution_mode, Some(ExecutionMode::Locked)) {
-            return false;
+            return Some(ExecutionStatus::Locked);
         }
 
         if let Some(node_ids) = &self.node_ids {
-            return node_ids.contains(node_id);
+            if node_ids.contains(node_id) {
+                return Some(ExecutionStatus::Pending);
+            }
         }
 
-        if self.options.skip_code {
-            return false;
+        if matches!(
+            node_type,
+            NodeType::InstructionBlock | NodeType::InstructionInline
+        ) {
+            if self.options.skip_instructions {
+                return Some(ExecutionStatus::Skipped);
+            }
+        } else if self.options.skip_code {
+            return Some(ExecutionStatus::Skipped);
         }
 
-        // If the node has never been executed (both digests are none),
-        // or if the digest has changed since last executed, then execute the node
-        (compilation_digest.is_none() && execution_digest.is_none())
+        if (compilation_digest.is_none() && execution_digest.is_none())
             || compilation_digest != execution_digest
-    }
-
-    /// Should the executor execute an `Instruction`
-    #[allow(unreachable_code, unused_variables)]
-    pub fn should_execute_instruction(
-        &self,
-        node_id: &NodeId,
-        execution_mode: &Option<ExecutionMode>,
-        compilation_digest: &Option<CompilationDigest>,
-        execution_digest: &Option<CompilationDigest>,
-    ) -> bool {
-        if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
-            return true;
+        {
+            // If the node has never been executed (both digests are none),
+            // or if the digest has changed since last executed, then return
+            // `self.execution_status` (usually Pending)
+            Some(self.execution_status.clone())
+        } else {
+            // No change to execution status required
+            None
         }
-
-        if matches!(execution_mode, Some(ExecutionMode::Locked)) {
-            return false;
-        }
-
-        if let Some(node_ids) = &self.node_ids {
-            return node_ids.contains(node_id);
-        }
-
-        if self.options.skip_instructions {
-            return false;
-        }
-
-        // If the node has never been executed (both digests are none),
-        // or if the digest has changed since last executed, then execute the node
-        (compilation_digest.is_none() && execution_digest.is_none())
-            || compilation_digest != execution_digest
     }
 
     /// Patch several properties of a node
@@ -549,6 +584,13 @@ impl VisitorAsync for Executor {
         })
     }
 
+    async fn visit_suggestion_block(
+        &mut self,
+        block: &mut schema::SuggestionBlock,
+    ) -> Result<WalkControl> {
+        Ok(self.visit_executable(block).await)
+    }
+
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         use Block::*;
         Ok(match block {
@@ -565,6 +607,7 @@ impl VisitorAsync for Executor {
             RawBlock(node) => self.visit_executable(node).await,
             Section(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
+            SuggestionBlock(node) => self.visit_executable(node).await,
             Table(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })

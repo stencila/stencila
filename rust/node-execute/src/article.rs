@@ -55,7 +55,8 @@ impl Executable for Article {
         // Add article metadata to document context
         executor.document_context.metadata = (&*self).into();
 
-        // Set the execution status to pending
+        // Set execution status
+        self.options.execution_status = Some(ExecutionStatus::Pending);
         executor.patch(
             &node_id,
             [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
