@@ -25,7 +25,6 @@ test: install
 
 # Compile (build in development mode)
 compile: install
-	make -C ../ts build
 	npm run compile
 
 # Package into a vsix file for current platform

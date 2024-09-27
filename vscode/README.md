@@ -24,11 +24,17 @@ There is also a test suite which can be run using
 npm test
 ```
 
-If you prefer, there is also a `Makefile` with recipes for these (and other tasks),
+If you prefer, there is also a `Makefile` with recipes for these and other tasks e.g.
 
 ```sh
-make install compile test
+make fix test
 ```
+
+> [!NOTE] Not in root NPM workspace
+>
+> This package can not be part of the root NPM workspace in this
+> repository as that causes issues with packaging (trust me, I tried :/)
+
 
 ### Writing walkthroughs
 

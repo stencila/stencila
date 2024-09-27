@@ -3,7 +3,6 @@
     "node/stencila-node",
     "node/stencila-plugin",
     "ts",
-    "vscode",
     "web"
   ],
   "scripts": {
