@@ -3,6 +3,7 @@
 src/**
 .gitignore
 .yarnrc
+*.vsix
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
