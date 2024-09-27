@@ -14,6 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/stencila/stencila.git"
   },
+  "icon": "icons/stencila-icon-128x128.png",
   "engines": {
     "vscode": "^1.93.0"
   },

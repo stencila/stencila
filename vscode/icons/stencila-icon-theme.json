@@ -1,14 +1,36 @@
 {
   "iconDefinitions": {
     "_stencila": {
-      "iconPath": "./stencila-icon-32x32.svg"
+      "iconPath": "./stencila-128.png"
     },
     "_myst": {
-      "iconPath": "./myst-icon-128x128.png"
+      "iconPath": "./myst-128.png"
     }
+  },
+  "fileExtensions": {
+    "smd": "_stencila",
+    "myst": "_myst"
+  },
+  "languageIds": {
+    "smd": "_stencila",
+    "myst": "_myst"
   },
   "light": {
     "fileExtensions": {
+      "smd": "_stencila",
+      "myst": "_myst"
+    },
+    "languageIds": {
+      "smd": "_stencila",
+      "myst": "_myst"
+    }
+  },
+  "dark": {
+    "fileExtensions": {
+      "smd": "_stencila",
+      "myst": "_myst"
+    },
+    "languageIds": {
       "smd": "_stencila",
       "myst": "_myst"
     }
