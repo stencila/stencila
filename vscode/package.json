@@ -1,8 +1,8 @@
 {
   "name": "stencila",
-  "publisher": "stencila",
   "displayName": "Stencila",
-  "description": "Programmable, reproducible, interactive documents",
+  "publisher": "stencila",
+  "description": "Documents with scientific intelligence",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
@@ -18,24 +18,17 @@
     "vscode": "^1.93.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages",
+    "Snippets",
+    "Data Science",
+    "Visualization",
+    "Notebooks"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
-    "categories": [
-      "Programming Languages",
-      "Snippets",
-      "Data Science",
-      "Visualization",
-      "Notebooks"
-    ],
-    "activationEvents": [
-      "onLanguage:smd",
-      "onLanguage:myst",
-      "onCommand:stencila.walkthrough-file-open",
-      "workspaceContains:**/*.smd"
-    ],
     "configuration": {
       "title": "Stencila Configuration",
       "properties": {
