@@ -24,6 +24,7 @@ The `ThingType` type has these members:
 - [`Enumeration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)
 - [`ExecutionDependantRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependant-relation.md)
 - [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-relation.md)
+- [`ExecutionKind`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-kind.md)
 - [`ExecutionMode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-mode.md)
 - [`ExecutionRequired`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-required.md)
 - [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-status.md)

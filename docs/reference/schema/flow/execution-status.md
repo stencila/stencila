@@ -12,6 +12,7 @@ The `ExecutionStatus` type has these members:
 - `Pending`
 - `Skipped`
 - `Locked`
+- `Rejected`
 - `Empty`
 - `Running`
 - `Succeeded`
