@@ -95,15 +95,15 @@ pub(crate) async fn request(
                     // Only show provenance code lens for certain node types
                     // (e.g. not for paragraphs or list in list items, or in captions of
                     // code chunks, tables etc)
-                    if !matches!(
+                    if !(matches!(
                         node_type,
                         NodeType::InstructionBlock | NodeType::SuggestionBlock
-                    ) && !matches!(parent_type, NodeType::ListItem)
-                        && !(matches!(node_type, NodeType::Paragraph)
+                    ) || matches!(parent_type, NodeType::ListItem)
+                        || (matches!(node_type, NodeType::Paragraph)
                             && matches!(
                                 parent_type,
                                 NodeType::CodeChunk | NodeType::Figure | NodeType::Table
-                            ))
+                            )))
                     {
                         let machine_percent = provenance.iter().fold(0u64, |sum, prov| {
                             if prov.provenance_category.is_machine_written() {
