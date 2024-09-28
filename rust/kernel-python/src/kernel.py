@@ -792,13 +792,14 @@ def main() -> None:
                             if frame.lineno is not None
                             else None
                         ),
-                        "startColumn": frame.colno,
+                        # Some line and column numbers only available in Python >=3.11
                         "endLine": (
-                            frame.end_lineno - 1 + add_lines
-                            if frame.end_lineno is not None
+                            frame.end_lineno - 1 + add_lines # type: ignore
+                            if getattr(frame, "end_lineno", None) is not None
                             else None
                         ),
-                        "endColumn": frame.end_colno,
+                        "startColumn": getattr(frame, "colno", None),
+                        "endColumn": getattr(frame, "end_colno", None),
                     }
 
             if len(stack_trace) == 0:
