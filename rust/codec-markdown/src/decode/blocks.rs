@@ -1181,7 +1181,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             return None;
         }
 
-        mdast::Node::BlockQuote(mdast::BlockQuote { children, position }) => (
+        mdast::Node::Blockquote(mdast::Blockquote { children, position }) => (
             mds_to_quote_block_or_admonition(children, context),
             position,
         ),

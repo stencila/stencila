@@ -6,5 +6,5 @@ edition = "2021"
 [dependencies]
 insta = { version = "1.38.0", features = ["json", "yaml", "redactions"] }
 ntest = "0.9.3"
-pretty_assertions = "1.4.0"
+pretty_assertions = "1.4.1"
 proptest = "1.4.0"

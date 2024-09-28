@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 kernel = { path = "../kernel" }
 kernel-jinja = { path = "../kernel-jinja" }
-lightningcss = "1.0.0-alpha.55"
+lightningcss = "1.0.0-alpha.59"
 railwind = { git = "https://github.com/nokome/railwind", rev = "e804d17b3f1e08ae96ab4aa048d237fc94e39911" }
 
 [dev-dependencies]

@@ -8,8 +8,8 @@ codec = { path = "../codec" }
 codec-json5-trait = { path = "../codec-json5-trait" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
-markdown = "1.0.0-alpha.20"
-winnow = "0.6.18"
+markdown = "1.0.0-alpha.21"
+winnow = "0.6.20"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

@@ -6,11 +6,11 @@ edition = "2021"
 [dependencies]
 Inflector = "0.11.4"
 async-recursion = "1.1.1"
-async-trait = "0.1.81"
+async-trait = "0.1.83"
 bs58 = "0.5.1"
 chrono = { version = "0.4.38", features = ["serde"] }
 chrono-humanize = "0.2.3"
-clap = { version = "4.5.16", features = ["derive", "color"] }
+clap = { version = "4.5.18", features = ["derive", "color"] }
 derivative = "2.2.0"
 derive_more = "0.99.18"
 dirs = "5.0.1"
@@ -37,8 +37,8 @@ slug = "0.1.6"
 smart-default = "0.7.1"
 smol_str = "0.2.1"
 strum = { version = "0.26.3", features = ["derive"] }
-syn = "2.0.76"
-tar = "0.4.41"
+syn = "2.0.79"
+tar = "0.4.42"
 tempfile = "3.10.1"
 tokio = { version = "1.39.3", features = ["full", "tracing"] }
 toml = "0.8.19"
