@@ -359,30 +359,62 @@ impl KernelInstance for MicrokernelInstance {
             );
         }
 
-        tracing::debug!(
-            "Starting `{}` in `{}`",
-            self.executable_name,
-            directory.display()
-        );
+        let mut exec_name = self.executable_name.clone();
+        let mut exec_args = self.executable_args.clone();
+        let mut exec_path = None;
+
+        // Search for an environment in the current, or a parent, directories
+        let mut current_dir = directory.to_path_buf();
+        loop {
+            // Check for devbox.json
+            let devbox_path = current_dir.join("devbox.json");
+            if devbox_path.is_file() {
+                // Run `devbox run -- ...`
+                exec_args.splice(0..0, ["run".to_string(), "--".to_string(), exec_name]);
+                exec_name = "devbox".to_string();
+                break;
+            }
+
+            // Check for .venv directory with exec in it
+            let venv_path = current_dir
+                .join(".venv")
+                .join("bin")
+                .join(exec_name.clone());
+            if venv_path.exists() {
+                // Set the executable path to the one in the venv
+                exec_path = Some(venv_path);
+                break;
+            }
+
+            // Move up to the parent directory
+            if !current_dir.pop() {
+                // We've reached the root of the file system so stop
+                break;
+            }
+        }
 
         // Get the path to the executable, failing early if it can not be found
-        let exec_path = which(&self.executable_name).map_err(|error| {
+        let exec_path = exec_path.unwrap_or(which(&exec_name).map_err(|error| {
             eyre!(
-                "While searching for '{}' on PATH '{}': {error}",
-                self.executable_name,
+                "While searching for '{exec_name}' on PATH '{}': {error}",
                 std::env::var("PATH").unwrap_or_default()
             )
-        })?;
-
-        let exec_args = &self.executable_args;
+        })?);
 
         // Create the command
         let mut command = Command::new(exec_path);
         command
-            .args(exec_args)
+            .args(exec_args.clone())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
+
+        tracing::debug!(
+            "Running `{} {}` in `{}`",
+            exec_name,
+            exec_args.join(" "),
+            directory.display()
+        );
 
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
         let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {
