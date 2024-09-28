@@ -17,6 +17,25 @@ SET = ifelse(DEV_MODE, "SET", "\U00107070")
 REMOVE = ifelse(DEV_MODE, "REMOVE", "\U0010C41C")
 END = ifelse(DEV_MODE, "END", "\U0010CB40")
 
+# Set UTF-8 locale if necessary to ensure above codes are output properly
+current_locale <- Sys.getlocale("LC_CTYPE")
+if (!grepl("UTF-8|utf8", current_locale, ignore.case = TRUE)) {
+  tryCatch(
+    Sys.setlocale(category = "LC_ALL", locale = "C.UTF-8"),
+    warning = function(w) print(paste("Warning:", w$message)),
+    error = function(e) {
+      tryCatch(
+        Sys.setlocale(category = "LC_ALL", locale = "en_US.UTF-8"),
+        warning = function(w) print(paste("Warning:", w$message)),
+        error = function(e) {
+          print(paste("Error:", e$message))
+          print("Failed to set UTF-8 locale")
+        }
+      )
+    }
+  )
+}
+
 # Ensure that required packages are attached and installed
 requires <- function() {
   pkgs <- c("jsonlite", "base64enc")

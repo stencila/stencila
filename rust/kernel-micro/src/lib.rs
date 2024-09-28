@@ -139,14 +139,8 @@ pub trait Microkernel: Sync + Send + Kernel {
             format!("{}-{index}", self.name())
         };
 
-        // Get the path to the executable, failing early if it can not be found
+        // Get the name of the executable for this microkernel
         let executable_name = self.executable_name();
-        let executable_path = which(&executable_name).map_err(|error| {
-            eyre!(
-                "While searching for '{executable_name}' on PATH '{}': {error}",
-                std::env::var("PATH").unwrap_or_default()
-            )
-        })?;
 
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
@@ -154,8 +148,8 @@ pub trait Microkernel: Sync + Send + Kernel {
         let script_file = kernels_dir.join(self.name());
         write(&script_file, self.microkernel_script())?;
 
-        // Replace placeholder in args with the script path
-        let args: Vec<String> = self
+        // Get args to the executable and replace placeholder in args with the script path
+        let executable_args: Vec<String> = self
             .executable_arguments()
             .into_iter()
             .map(|arg| {
@@ -167,14 +161,6 @@ pub trait Microkernel: Sync + Send + Kernel {
             })
             .collect();
 
-        // Create the command
-        let mut command = Command::new(executable_path);
-        command
-            .args(args)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
-
         let default_message_level = self.default_message_level();
 
         // Set up status and status channel
@@ -183,8 +169,10 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         Ok(Box::new(MicrokernelInstance {
             id,
-            command: Some(command),
+            executable_name,
+            executable_args,
             default_message_level,
+            command: None,
             child: None,
             pid: 0,
             status,
@@ -203,6 +191,12 @@ pub trait Microkernel: Sync + Send + Kernel {
 pub struct MicrokernelInstance {
     /// The id of the microkernel instance
     id: String,
+
+    /// The name of the executable
+    executable_name: String,
+
+    /// The arguments of the executable
+    executable_args: Vec<String>,
 
     /// The command used to start the microkernel instance (for main processes only, not forks)
     command: Option<Command>,
@@ -353,7 +347,7 @@ impl KernelInstance for MicrokernelInstance {
     async fn start(&mut self, directory: &Path) -> Result<()> {
         self.set_status(KernelStatus::Starting)?;
 
-        let Some(command) = &mut self.command else {
+        if self.executable_name.is_empty() {
             // Must be a fork (already started, so return early)
             return Ok(());
         };
@@ -365,8 +359,60 @@ impl KernelInstance for MicrokernelInstance {
             );
         }
 
+        let mut exec_name = self.executable_name.clone();
+        let mut exec_args = self.executable_args.clone();
+        let mut exec_path = None;
+
+        // Search for an environment in the current, or a parent, directories
+        let mut current_dir = directory.to_path_buf();
+        loop {
+            // Check for devbox.json
+            let devbox_path = current_dir.join("devbox.json");
+            if devbox_path.is_file() {
+                // Run `devbox run -- ...`
+                exec_args.splice(0..0, ["run".to_string(), "--".to_string(), exec_name]);
+                exec_name = "devbox".to_string();
+                break;
+            }
+
+            // Check for .venv directory with exec in it
+            let venv_path = current_dir
+                .join(".venv")
+                .join("bin")
+                .join(exec_name.clone());
+            if venv_path.exists() {
+                // Set the executable path to the one in the venv
+                exec_path = Some(venv_path);
+                break;
+            }
+
+            // Move up to the parent directory
+            if !current_dir.pop() {
+                // We've reached the root of the file system so stop
+                break;
+            }
+        }
+
+        // Get the path to the executable, failing early if it can not be found
+        let exec_path = exec_path.unwrap_or(which(&exec_name).map_err(|error| {
+            eyre!(
+                "While searching for '{exec_name}' on PATH '{}': {error}",
+                std::env::var("PATH").unwrap_or_default()
+            )
+        })?);
+
+        // Create the command
+        let mut command = Command::new(exec_path);
+        command
+            .args(exec_args.clone())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+
         tracing::debug!(
-            "Starting {command:?} in directory `{}`",
+            "Running `{} {}` in `{}`",
+            exec_name,
+            exec_args.join(" "),
             directory.display()
         );
 
@@ -381,6 +427,8 @@ impl KernelInstance for MicrokernelInstance {
                     .unwrap_or_default()
             )
         })?;
+
+        self.command = Some(command);
 
         let pid = child
             .id()
@@ -636,6 +684,8 @@ impl KernelInstance for MicrokernelInstance {
 
             Ok(Box::new(Self {
                 id,
+                executable_name: Default::default(),
+                executable_args: Default::default(),
                 command: None,
                 default_message_level,
                 child: None,
