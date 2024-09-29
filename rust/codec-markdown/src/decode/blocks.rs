@@ -15,8 +15,9 @@ use codec::{
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
         InstructionType, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
-        Paragraph, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
-        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
+        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
+        ThematicBreak,
     },
 };
 
@@ -239,7 +240,12 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             {
                                 content.capacity() != 1
                             } else {
-                                !matches!(block, Block::IncludeBlock(..) | Block::CallBlock(..))
+                                !matches!(
+                                    block,
+                                    Block::IncludeBlock(..)
+                                        | Block::CallBlock(..)
+                                        | Block::PromptBlock(..)
+                                )
                             };
 
                         // Add boundary and map position
@@ -466,6 +472,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
         alt((
             call_block,
             include_block,
+            prompt_block,
             code_chunk,
             figure,
             table,
@@ -554,6 +561,18 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
         })
     })
     .parse_next(input)
+}
+
+/// Parse a [`PromptBlock`] node
+fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
+    preceded(("prompt", multispace1), take_while(1.., |_| true))
+        .map(|prompt: &str| {
+            Block::PromptBlock(PromptBlock {
+                prompt: prompt.trim().to_string(),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`Claim`] node
