@@ -38,6 +38,7 @@ mod math_inline;
 mod paragraph;
 mod parameter;
 mod prompt;
+mod prompt_block;
 mod raw_block;
 mod section;
 mod styled_block;
@@ -436,9 +437,10 @@ impl Executor {
 
     /// Run the compile, prepare and execute phases on am executable node
     ///
-    /// Used when recursively executing new content that has not necessarily
-    /// been compiled or prepared yet (e.g. a suggestion). If this is not
-    /// done, the execution status, digests etc of the node make not be correct.
+    /// Used when recursively executing new content that has not necessarily been compiled
+    /// or prepared yet (e.g. a suggestion or for loop iteration).
+    /// If this is not done, the execution status, digests etc of the node may not be correct
+    /// when it is executed.
     async fn compile_prepare_execute<W: WalkNode>(&mut self, node: &mut W) -> Result<()> {
         for phase in [Phase::Compile, Phase::Prepare, Phase::Execute] {
             self.phase = phase;
@@ -474,9 +476,13 @@ impl Executor {
         }
 
         if let Some(node_ids) = &self.node_ids {
-            if node_ids.contains(node_id) {
-                return Some(ExecutionStatus::Pending);
-            }
+            // If the executor has any node ids then the current
+            // node id must be amongst them
+            return if node_ids.contains(node_id) {
+                Some(ExecutionStatus::Pending)
+            } else {
+                None
+            };
         }
 
         if matches!(
@@ -604,6 +610,7 @@ impl VisitorAsync for Executor {
             InstructionBlock(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
             Paragraph(node) => self.visit_executable(node).await,
+            PromptBlock(node) => self.visit_executable(node).await,
             RawBlock(node) => self.visit_executable(node).await,
             Section(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
