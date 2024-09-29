@@ -1,11 +1,15 @@
 ---
-description: |
-    A prompt partial for providing prompts that create or edit block nodes with 
-    context about the position in the document and the surrounding content.
+description: |-
+  A prompt partial for providing prompts that create or edit block nodes
+  with context about the position in the document and the surrounding content.
 ---
+
+::: if document.sections.current || document.headings.hierarchy
 
 ## Document context
 
-::: include sections/current.smd
+::::: include sections/current.smd
 
-::: include headings/hierarchy.smd
+::::: include headings/hierarchy.smd
+
+:::
