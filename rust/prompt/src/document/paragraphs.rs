@@ -1,48 +1,47 @@
 use crate::prelude::*;
 
 /// A paragraph in the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Debug, Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Paragraph {
     /// The Markdown content of the paragraph
     #[qjs(get, enumerable)]
-    content: String,
+    markdown: String,
 }
 
 impl Paragraph {
     #[cfg(test)]
     pub fn new(content: &str) -> Self {
         Self {
-            content: content.to_string(),
+            markdown: content.to_string(),
         }
+    }
+
+    pub fn markdown(&self) -> String {
+        self.markdown.clone()
     }
 }
 
 impl From<&schema::Paragraph> for Paragraph {
     fn from(paragraph: &schema::Paragraph) -> Self {
         Self {
-            content: to_markdown(&paragraph.content),
+            markdown: to_markdown(&paragraph.content),
         }
     }
 }
 
 #[rquickjs::methods]
 impl Paragraph {
-    #[qjs()]
-    pub fn markdown(&self) -> String {
-        self.content.clone()
-    }
-
     #[qjs(rename = PredefinedAtom::ToJSON)]
     fn to_json<'js>(&self, ctx: Ctx<'js>) -> Result<Object<'js>, Error> {
         let obj = Object::new(ctx)?;
-        obj.set("content", self.content.clone())?;
+        obj.set("markdown", self.markdown.clone())?;
         Ok(obj)
     }
 }
 
 /// The paragraphs in a document
-#[derive(Default, Clone, Trace)]
+#[derive(Debug, Default, Clone, Trace)]
 #[rquickjs::class]
 pub struct Paragraphs {
     /// Whether to ignore paragraphs that are pushed, entered and exited

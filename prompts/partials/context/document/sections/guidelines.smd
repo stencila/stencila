@@ -4,6 +4,8 @@ description: |
     within the current section (if any) of the document.
 ---
 
+## Guidelines for current section
+
 ::: if document.sections.current === "Abstract"
 
 ::::: include guidelines/abstract.smd

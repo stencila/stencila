@@ -1,4 +1,4 @@
-::: if document.paragraphs.previous?.content
+::: if document.paragraphs.previous?.markdown
 
 ### Previous paragraph
 
