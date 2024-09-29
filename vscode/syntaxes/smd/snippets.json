@@ -39,6 +39,11 @@
     "prefix": ["::: describe"],
     "body": ["::: describe ${0:what} <"]
   },
+  "Prompt Block": {
+    "description": "Preview how a prompt would be rendered.",
+    "prefix": ["::: prompt"],
+    "body": ["::: prompt ${0:id}"]
+  },
   "If Block": {
     "description": "Only show block content if the expression is true.",
     "prefix": ["::: if"],

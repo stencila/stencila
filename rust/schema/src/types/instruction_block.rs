@@ -18,6 +18,7 @@ use super::instruction_message::InstructionMessage;
 use super::instruction_model::InstructionModel;
 use super::instruction_type::InstructionType;
 use super::integer::Integer;
+use super::prompt_block::PromptBlock;
 use super::string::String;
 use super::suggestion_block::SuggestionBlock;
 use super::timestamp::Timestamp;
@@ -214,6 +215,13 @@ pub struct InstructionBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
+
+    /// The prompt chosen, rendered and provided to the model
+    #[serde(alias = "prompt-provided", alias = "prompt_provided")]
+    #[patch()]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub prompt_provided: Option<PromptBlock>,
 }
 
 impl InstructionBlock {

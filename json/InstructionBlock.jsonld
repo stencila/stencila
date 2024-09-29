@@ -259,9 +259,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "prompt",
       "rdfs:comment": "An identifier for the prompt to be used for the instruction",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -300,6 +305,18 @@
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:promptProvided",
+      "@type": "rdfs:Property",
+      "rdfs:label": "promptProvided",
+      "rdfs:comment": "The prompt chosen, rendered and provided to the model",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:PromptBlock"
       }
     },
     {
@@ -364,6 +381,9 @@
         },
         {
           "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
         },
         {
           "@id": "stencila:QuoteBlock"

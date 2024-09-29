@@ -92,6 +92,7 @@ import { type Person } from "./Person.js";
 import { type PostalAddress } from "./PostalAddress.js";
 import { type Product } from "./Product.js";
 import { type Prompt } from "./Prompt.js";
+import { type PromptBlock } from "./PromptBlock.js";
 import { type PropertyValue } from "./PropertyValue.js";
 import { type ProvenanceCount } from "./ProvenanceCount.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
@@ -232,6 +233,7 @@ export type Node =
   PostalAddress |
   Product |
   Prompt |
+  PromptBlock |
   PropertyValue |
   ProvenanceCount |
   PublicationIssue |
@@ -368,6 +370,7 @@ export function node(other: Node): Node {
     case "PostalAddress":
     case "Product":
     case "Prompt":
+    case "PromptBlock":
     case "PropertyValue":
     case "ProvenanceCount":
     case "PublicationIssue":

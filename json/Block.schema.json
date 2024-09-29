@@ -167,6 +167,15 @@
       "$ref": "Paragraph.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `PromptBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "PromptBlock.schema.json"
+    },
+    {
       "$ref": "QuoteBlock.schema.json"
     },
     {

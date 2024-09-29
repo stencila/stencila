@@ -99,6 +99,10 @@ impl Executable for CodeChunk {
             Some(ExecutionStatus::Pending)
         ) {
             tracing::trace!("Skipping CodeChunk {node_id}");
+
+            // Exit the code chunk context
+            executor.document_context.code_chunks.exit();
+
             return WalkControl::Break;
         }
 

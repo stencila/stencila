@@ -19,6 +19,7 @@ export type BlockType =
   | "MathBlock"
   | "ModifyBlock"
   | "Paragraph"
+  | "PromptBlock"
   | "QuoteBlock"
   | "RawBlock"
   | "ReplaceBlock"
@@ -47,6 +48,7 @@ export const BlockTypeList = [
   "MathBlock",
   "ModifyBlock",
   "Paragraph",
+  "PromptBlock",
   "QuoteBlock",
   "RawBlock",
   "ReplaceBlock",

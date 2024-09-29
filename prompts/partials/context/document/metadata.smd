@@ -8,7 +8,7 @@ An overview of the document's metadata follows. Use this information to guide th
 
 ::::::: if document.metadata[property]
 
-- {{ property }}: {{ document.metadata[property] }}
+{{ property }}: {{ document.metadata[property] }}
 
 :::::::
 

@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Form",
-  "name": "Form",
+  "@id": "https://stencila.org/PromptBlock",
+  "name": "PromptBlock",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Form",
+      "@id": "stencila:PromptBlock",
       "@type": "rdfs:Class",
-      "rdfs:label": "Form",
-      "rdfs:comment": "A form to batch updates in document parameters.",
+      "rdfs:label": "PromptBlock",
+      "rdfs:comment": "A preview of how a prompt will be rendered at a location in the document",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }
@@ -223,10 +223,27 @@
       }
     },
     {
+      "@id": "stencila:prompt",
+      "@type": "rdfs:Property",
+      "rdfs:label": "prompt",
+      "rdfs:comment": "An identifier for the prompt to be rendered",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content within the form, usually containing at least one `Parameter`.",
+      "rdfs:comment": "The executed content of the prompt",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -316,47 +333,6 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
       }
-    },
-    {
-      "@id": "stencila:deriveFrom",
-      "@type": "rdfs:Property",
-      "rdfs:label": "deriveFrom",
-      "rdfs:comment": "The dotted path to the object (e.g a database table) that the form should be derived from",
-      "schema:domainIncludes": {
-        "@id": "stencila:Form"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:deriveAction",
-      "@type": "rdfs:Property",
-      "rdfs:label": "deriveAction",
-      "rdfs:comment": "The action (create, update or delete) to derive for the form",
-      "schema:domainIncludes": {
-        "@id": "stencila:Form"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:FormDeriveAction"
-      }
-    },
-    {
-      "@id": "stencila:deriveItem",
-      "@type": "rdfs:Property",
-      "rdfs:label": "deriveItem",
-      "rdfs:comment": "An identifier for the item to be the target of Update or Delete actions",
-      "schema:domainIncludes": {
-        "@id": "stencila:Form"
-      },
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:Number"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
     }
   ]
 }

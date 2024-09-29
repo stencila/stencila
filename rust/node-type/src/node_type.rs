@@ -103,6 +103,7 @@ pub enum NodeType {
     PostalAddress,
     Product,
     Prompt,
+    PromptBlock,
     PropertyValue,
     ProvenanceCount,
     PublicationIssue,

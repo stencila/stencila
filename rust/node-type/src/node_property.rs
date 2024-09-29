@@ -191,6 +191,7 @@ pub enum NodeProperty {
     ProductId,
     ProgrammingLanguage,
     Prompt,
+    PromptProvided,
     PropertyId,
     Provenance,
     ProvenanceCategory,

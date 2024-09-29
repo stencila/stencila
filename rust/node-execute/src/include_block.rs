@@ -1,40 +1,47 @@
 use std::path::PathBuf;
 
 use codecs::DecodeOptions;
-use schema::{Article, Block, IncludeBlock};
+use schema::{Article, Block, CompilationMessage, IncludeBlock};
 
 use crate::{interrupt_impl, prelude::*, Phase};
 
 impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
-        // Return early if no source, has content or execution status
-        if self.source.trim().is_empty()
-            || self.content.is_some()
-            || self.options.execution_status.is_some()
-        {
+        // Return early if no source, or already has content
+        if self.source.trim().is_empty() || self.content.is_some() {
             return WalkControl::Continue;
         }
 
         let node_id = self.node_id();
         tracing::trace!("Compiling IncludeBlock {node_id}");
 
-        // Note that this is a simplified version of what happens in execute().
-        // In particular, there is NO recursive execution of the content.
-
-        let started = Timestamp::now();
-
         // Get the content from the source
-        let (content, pop_dir, messages) =
+        let (content, pop_dir, mut messages) =
             source_to_content(&self.source, &self.media_type, executor).await;
 
-        // Patch the content on the include
-        let op = if let Some(content) = content {
-            set(NodeProperty::Content, content)
+        // Add the content to the include block
+        if let Some(content) = content {
+            self.content = Some(content.clone());
+            executor.patch(
+                &node_id,
+                [
+                    // It is important to use `none` and `append` here because
+                    // the later retains node ids so they are the same as in `self.content`
+                    none(NodeProperty::Content),
+                    append(NodeProperty::Content, content),
+                ],
+            );
         } else {
-            none(NodeProperty::Content)
+            self.content = None;
+            executor.patch(&node_id, [none(NodeProperty::Content)])
         };
-        executor.patch(&node_id, [op]);
+
+        // Compile the content. This needs to be done here between (possibly)
+        // pushing and popping from the directory stack.
+        if let Err(error) = self.content.walk_async(executor).await {
+            messages.push(error_to_compilation_message(error));
+        };
 
         // Pop off the directory stack if necessary
         if pop_dir {
@@ -43,27 +50,11 @@ impl Executable for IncludeBlock {
 
         let messages = (!messages.is_empty()).then_some(messages);
 
-        let ended = Timestamp::now();
+        self.options.compilation_messages = messages.clone();
+        executor.patch(&node_id, [set(NodeProperty::CompilationMessages, messages)]);
 
-        let status = execution_status(&messages);
-        let required = execution_required_status(&status);
-        let duration = execution_duration(&started, &ended);
-        let count = self.options.execution_count.unwrap_or_default() + 1;
-
-        executor.patch(
-            &node_id,
-            [
-                set(NodeProperty::ExecutionStatus, status),
-                set(NodeProperty::ExecutionRequired, required),
-                set(NodeProperty::ExecutionMessages, messages),
-                set(NodeProperty::ExecutionDuration, duration),
-                set(NodeProperty::ExecutionEnded, ended),
-                set(NodeProperty::ExecutionCount, count),
-            ],
-        );
-
-        // Continue walk to compile nodes in the content
-        WalkControl::Continue
+        // Break because `content` already compiled above
+        WalkControl::Break
     }
 
     #[tracing::instrument(skip_all)]
@@ -95,11 +86,11 @@ impl Executable for IncludeBlock {
             self.options.execution_status,
             Some(ExecutionStatus::Pending)
         ) {
-            tracing::trace!("Skipping IncludeBlock {node_id}");
+            tracing::trace!("Skipping IncludeBlock {node_id}: {}", self.source);
             return WalkControl::Break;
         }
 
-        tracing::debug!("Executing IncludeBlock {node_id}");
+        tracing::debug!("Executing IncludeBlock {node_id}: {}", self.source);
 
         executor.patch(
             &node_id,
@@ -110,40 +101,15 @@ impl Executable for IncludeBlock {
         );
 
         // Include the source (if it is not empty)
-        let source = self.source.trim();
-        if !source.is_empty() {
+        if self.content.is_some() {
+            let mut messages = Vec::new();
             let started = Timestamp::now();
 
-            // Get the content for the source
-            let (mut content, pop_dir, mut messages) =
-                source_to_content(source, &self.media_type, executor).await;
 
-            if let Some(content) = &mut content {
-                // Clear any existing content while ensuring an array to append to
-                let reset = if self.content.is_some() {
-                    clear(NodeProperty::Content)
-                } else {
-                    set(NodeProperty::Content, Vec::<Block>::new())
-                };
 
-                // Append the content as a Vec<Block> to avoid loosing ids which
-                // may be needed when executing the content (which would happen if used set)
-                executor.patch(
-                    &node_id,
-                    [reset, append(NodeProperty::Content, content.clone())],
-                );
-
-                // Execute the content
-                if let Err(error) = content.walk_async(executor).await {
-                    messages.push(error_to_execution_message("While executing content", error));
-                }
-            } else {
-                executor.patch(&node_id, [none(NodeProperty::Content)]);
-            }
-
-            // Pop off the directory stack if necessary
-            if pop_dir {
-                executor.directory_stack.pop();
+            // Execute the content
+            if let Err(error) = self.content.walk_async(executor).await {
+                messages.push(error_to_execution_message("While executing content", error));
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
@@ -156,7 +122,6 @@ impl Executable for IncludeBlock {
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
             if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                self.content = content;
                 self.options.execution_messages = messages.clone();
             } else {
                 executor.patch(
@@ -183,6 +148,7 @@ impl Executable for IncludeBlock {
             );
         }
 
+        // Break walk because already executed `content`
         WalkControl::Break
     }
 
@@ -203,7 +169,7 @@ async fn source_to_content(
     source: &str,
     media_type: &Option<String>,
     executor: &mut Executor,
-) -> (Option<Vec<Block>>, bool, Vec<ExecutionMessage>) {
+) -> (Option<Vec<Block>>, bool, Vec<CompilationMessage>) {
     let mut messages = Vec::new();
 
     // Resolve the source into a fully qualified URL (including `file://` URL)
@@ -245,7 +211,7 @@ async fn source_to_content(
             match node {
                 Node::Article(Article { content, .. }) => Some(content),
                 _ => {
-                    messages.push(ExecutionMessage::new(
+                    messages.push(CompilationMessage::new(
                         MessageLevel::Error,
                         "Expected source to be an article, got `{node}`".to_string(),
                     ));
@@ -254,7 +220,7 @@ async fn source_to_content(
             }
         }
         Err(error) => {
-            messages.push(error_to_execution_message("While decoding source", error));
+            messages.push(error_to_compilation_message(error));
             None
         }
     };

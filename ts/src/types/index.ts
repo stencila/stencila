@@ -133,6 +133,7 @@ export * from "./PostalAddressOrString.js";
 export * from "./Primitive.js";
 export * from "./Product.js";
 export * from "./Prompt.js";
+export * from "./PromptBlock.js";
 export * from "./PropertyValue.js";
 export * from "./PropertyValueOrString.js";
 export * from "./ProvenanceCategory.js";

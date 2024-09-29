@@ -1,0 +1,36 @@
+title: PromptBlock
+'@id': stencila:PromptBlock
+nick: prb
+extends: Executable
+category: edits
+description: A preview of how a prompt will be rendered at a location in the document
+$comment: |
+  Used on an `Instruction` to render a prompt and display the rendering to the user.
+  Can also be used standalone to preview how a prompt is rendered at a particular
+  position in a document.
+status: experimental
+markdown:
+  derive: false
+required:
+  - prompt
+core:
+  - content
+properties:
+  prompt:
+    '@id': stencila:prompt
+    description: An identifier for the prompt to be rendered
+    type: string
+    patch:
+      formats: [md, myst]
+  content:
+    '@id': stencila:content
+    description: The executed content of the prompt
+    type: array
+    items:
+      $ref: Block
+    strip: [output]
+    patch:
+      # Do not merge content because it is derived from `source`
+      formats: []
+    dom:
+      elem: div
