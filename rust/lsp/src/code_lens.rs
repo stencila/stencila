@@ -63,7 +63,8 @@ pub(crate) async fn request(
                     | NodeType::CodeChunk
                     | NodeType::ForBlock
                     | NodeType::IfBlock
-                    | NodeType::IncludeBlock => {
+                    | NodeType::IncludeBlock
+                    | NodeType::PromptBlock => {
                         // It would be nice to show/hide the run and cancel buttons
                         // based on the execution status of the node but doing this
                         // while avoiding race conditions is difficult.

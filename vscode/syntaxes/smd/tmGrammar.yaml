@@ -27,6 +27,7 @@ repository:
       - include: "#call-block"
       - include: "#instruction-block"
       - include: "#suggestion-block"
+      - include: "#prompt-block"
       - include: "#insert-block"
       - include: "#delete-block"
       - include: "#replace-block"
@@ -459,6 +460,16 @@ repository:
     captures:
       "1": { name: keyword.control.stencila } # replace
       "3": { name: keyword.control.stencila } # >>
+
+  ########## PromptBlock ##########
+
+  prompt-block:
+    name: meta.stencila.prompt-block
+    match: ^(:{3,})\s*(prompt)\s+(.*)$
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # prompt
+      "3": { name: variable.name.stencila } # id
 
   ########## IncludeBlock ##########
 

@@ -9,11 +9,11 @@ use schema::{
     Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
     ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
     InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
-    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, ProvenanceCount,
-    QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong,
-    StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table,
-    TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor,
-    WalkControl,
+    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, PromptBlock,
+    ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section,
+    Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline,
+    Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline,
+    VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -146,6 +146,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             MathBlock,
             ModifyBlock,
             Paragraph,
+            PromptBlock,
             QuoteBlock,
             RawBlock,
             ReplaceBlock,
@@ -487,6 +488,33 @@ impl Inspect for Paragraph {
     }
 }
 
+impl Inspect for RawBlock {
+    fn inspect(&self, inspector: &mut Inspector) {
+        // eprintln!("INSPECT COMPILED {}", self.node_id());
+
+        let execution = Some(TextNodeExecution {
+            messages: self.compilation_messages.as_ref().map(|messages| {
+                messages
+                    .iter()
+                    .map(|message| message.clone().into())
+                    .collect()
+            }),
+            ..Default::default()
+        });
+
+        inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            None,
+            None,
+            execution,
+            self.provenance.clone(),
+        );
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
 /// Default implementation for inline and content nodes
 macro_rules! default {
     ($( $type:ident ),*) => {
@@ -549,32 +577,6 @@ default!(
 );
 
 /// Implementation for nodes with compilation messages
-impl Inspect for RawBlock {
-    fn inspect(&self, inspector: &mut Inspector) {
-        // eprintln!("INSPECT COMPILED {}", self.node_id());
-
-        let execution = Some(TextNodeExecution {
-            messages: self.compilation_messages.as_ref().map(|messages| {
-                messages
-                    .iter()
-                    .map(|message| message.clone().into())
-                    .collect()
-            }),
-            ..Default::default()
-        });
-
-        inspector.enter_node(
-            self.node_type(),
-            self.node_id(),
-            None,
-            None,
-            execution,
-            self.provenance.clone(),
-        );
-        inspector.visit(self);
-        inspector.exit_node();
-    }
-}
 macro_rules! compiled_options {
     ($( $type:ident ),*) => {
         $(impl Inspect for $type {
@@ -669,11 +671,37 @@ executable!(
     CallBlock,
     ForBlock,
     IfBlock,
-    IncludeBlock,
     Parameter,
     InstructionBlock,
     InstructionInline
 );
+
+/// Implementation for executable nodes but not recursing into
+/// `content` to avoid lenses for content not rendered to Markdown
+macro_rules! executable_not_content {
+    ($( $type:ident ),*) => {
+        $(impl Inspect for $type {
+            fn inspect(&self, inspector: &mut Inspector) {
+                // eprintln!("INSPECT EXEC NO CONTENT {}", self.node_id());
+
+                let execution =  Some(TextNodeExecution{
+                    mode: self.execution_mode.clone(),
+                    status: self.options.execution_status.clone(),
+                    required: self.options.execution_required.clone(),
+                    duration: self.options.execution_duration.clone(),
+                    ended: self.options.execution_ended.clone(),
+                    messages: self.options.execution_messages.clone(),
+                    ..Default::default()
+                });
+
+                inspector.enter_node(self.node_type(), self.node_id(), None, None, execution, None);
+                inspector.exit_node();
+            }
+        })*
+    };
+}
+
+executable_not_content!(IncludeBlock, PromptBlock);
 
 /// Implementation for executable nodes with provenance
 macro_rules! executable_with_provenance {
