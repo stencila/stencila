@@ -61,3 +61,12 @@ properties:
     $ref: String
     patch:
       formats: [md, myst]
+  promptProvided:
+    "@id": stencila:promptProvided
+    description: The prompt chosen, rendered and provided to the model
+    $ref: PromptBlock
+    patch:
+      # Do not patch derived property
+      formats: []
+    dom:
+      elem: div

@@ -659,6 +659,9 @@
           "@id": "stencila:Prompt"
         },
         {
+          "@id": "stencila:PromptBlock"
+        },
+        {
           "@id": "stencila:QuoteBlock"
         },
         {

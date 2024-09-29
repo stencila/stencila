@@ -95,6 +95,7 @@ use super::person::Person;
 use super::postal_address::PostalAddress;
 use super::product::Product;
 use super::prompt::Prompt;
+use super::prompt_block::PromptBlock;
 use super::property_value::PropertyValue;
 use super::provenance_count::ProvenanceCount;
 use super::publication_issue::PublicationIssue;
@@ -330,6 +331,8 @@ pub enum Node {
     Product(Product),
 
     Prompt(Prompt),
+
+    PromptBlock(PromptBlock),
 
     PropertyValue(PropertyValue),
 

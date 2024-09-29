@@ -4,6 +4,7 @@ import { Executable } from "./Executable.js";
 import { InstructionMessage } from "./InstructionMessage.js";
 import { InstructionModel } from "./InstructionModel.js";
 import { InstructionType } from "./InstructionType.js";
+import { PromptBlock } from "./PromptBlock.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
@@ -42,6 +43,11 @@ export class Instruction extends Executable {
    * A string identifying which operations should, or should not, automatically be applied to generated suggestions.
    */
   recursion?: string;
+
+  /**
+   * The prompt chosen, rendered and provided to the model
+   */
+  promptProvided?: PromptBlock;
 
   constructor(instructionType: InstructionType, options?: Partial<Instruction>) {
     super();

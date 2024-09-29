@@ -20,6 +20,7 @@ import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type ModifyBlock } from "./ModifyBlock.js";
 import { type Paragraph } from "./Paragraph.js";
+import { type PromptBlock } from "./PromptBlock.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type RawBlock } from "./RawBlock.js";
 import { type ReplaceBlock } from "./ReplaceBlock.js";
@@ -51,6 +52,7 @@ export type Block =
   MathBlock |
   ModifyBlock |
   Paragraph |
+  PromptBlock |
   QuoteBlock |
   RawBlock |
   ReplaceBlock |
@@ -83,6 +85,7 @@ export function block(other: Block): Block {
     case "MathBlock":
     case "ModifyBlock":
     case "Paragraph":
+    case "PromptBlock":
     case "QuoteBlock":
     case "RawBlock":
     case "ReplaceBlock":

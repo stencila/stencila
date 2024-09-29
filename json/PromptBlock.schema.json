@@ -1,35 +1,27 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/InstructionInline.schema.json",
-  "@id": "stencila:InstructionInline",
-  "title": "InstructionInline",
-  "nick": "isi",
+  "$id": "https://stencila.org/PromptBlock.schema.json",
+  "@id": "stencila:PromptBlock",
+  "title": "PromptBlock",
+  "nick": "prb",
   "extends": [
-    "Instruction"
+    "Executable"
   ],
   "category": "edits",
-  "description": "An instruction to edit some inline content.",
-  "patch": {
-    "applyWith": "InstructionInline::apply_patch_op"
-  },
+  "description": "A preview of how a prompt will be rendered at a location in the document",
+  "$comment": "Used on an `Instruction` to render a prompt and display the rendering to the user.\nCan also be used standalone to preview how a prompt is rendered at a particular\nposition in a document.\n",
+  "status": "experimental",
   "markdown": {
     "derive": false
   },
-  "proptest": {},
   "required": [
     "type",
-    "instructionType"
+    "prompt"
   ],
   "core": [
     "id",
     "executionMode",
-    "message",
-    "prompt",
-    "model",
-    "replicates",
-    "recursion",
-    "content",
-    "suggestions"
+    "content"
   ],
   "properties": {
     "type": {
@@ -284,96 +276,22 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
-    "instructionType": {
-      "@id": "stencila:instructionType",
-      "description": "The type of instruction describing the operation to be performed.",
-      "aliases": [
-        "instruction-type",
-        "instruction_type"
-      ],
-      "$ref": "InstructionType.schema.json"
-    },
-    "message": {
-      "@id": "stencila:message",
-      "description": "The instruction message, possibly including images, audio, or other media.",
-      "patch": {
-        "formats": [
-          "md",
-          "myst"
-        ]
-      },
-      "dom": {
-        "elem": "div"
-      },
-      "$ref": "InstructionMessage.schema.json"
-    },
     "prompt": {
       "@id": "stencila:prompt",
-      "description": "An identifier for the prompt to be used for the instruction",
+      "description": "An identifier for the prompt to be rendered",
       "patch": {
         "formats": [
           "md",
           "myst"
         ]
-      },
-      "proptest": {
-        "min": {
-          "description": "No prompt",
-          "value": "None"
-        },
-        "high": {
-          "description": "Generate an arbitrary id using expected characters",
-          "strategy": "option::of(r\"[a-zA-Z][a-zA-Z\\-_/.@]\")"
-        },
-        "max": {
-          "description": "Generate an arbitrary prompt id using any characters",
-          "strategy": "option::of(String::arbitrary())"
-        }
       },
       "type": "string"
     },
-    "model": {
-      "@id": "stencila:model",
-      "description": "The name, and other options, for the model that the assistant should use to generate suggestions.",
-      "patch": {
-        "formats": [
-          "md",
-          "myst"
-        ]
-      },
-      "dom": {
-        "elem": "div"
-      },
-      "$ref": "InstructionModel.schema.json"
-    },
-    "replicates": {
-      "@id": "stencila:replicates",
-      "description": "The number of suggestions to generate for the instruction",
-      "patch": {
-        "formats": [
-          "md",
-          "myst"
-        ]
-      },
-      "$ref": "UnsignedInteger.schema.json"
-    },
-    "recursion": {
-      "@id": "stencila:recursion",
-      "description": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
-      "patch": {
-        "formats": [
-          "md",
-          "myst"
-        ]
-      },
-      "$ref": "String.schema.json"
-    },
-    "promptProvided": {
-      "@id": "stencila:promptProvided",
-      "description": "The prompt chosen, rendered and provided to the model",
-      "aliases": [
-        "prompt-provided",
-        "prompt_provided"
+    "content": {
+      "@id": "stencila:content",
+      "description": "The executed content of the prompt",
+      "strip": [
+        "output"
       ],
       "patch": {
         "formats": []
@@ -381,57 +299,9 @@
       "dom": {
         "elem": "div"
       },
-      "$ref": "PromptBlock.schema.json"
-    },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The content to which the instruction applies.",
-      "walk": true,
-      "dom": {
-        "elem": "span"
-      },
-      "proptest": {
-        "min": {
-          "description": "No content",
-          "value": "None"
-        },
-        "low": {
-          "description": "Generate a single arbitrary, non-recursive, inline node",
-          "strategy": "option::of(vec_inlines_non_recursive(1))"
-        },
-        "high": {
-          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
-          "strategy": "option::of(vec_inlines_non_recursive(2))"
-        },
-        "max": {
-          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
-          "strategy": "option::of(vec_inlines_non_recursive(4))"
-        }
-      },
       "type": "array",
       "items": {
-        "$ref": "Inline.schema.json"
-      }
-    },
-    "suggestions": {
-      "@id": "stencila:suggestions",
-      "description": "Suggestions for the instruction",
-      "aliases": [
-        "suggestion"
-      ],
-      "patch": {
-        "formats": [
-          "md",
-          "myst"
-        ]
-      },
-      "walk": true,
-      "dom": {
-        "elem": "span"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "SuggestionInline.schema.json"
+        "$ref": "Block.schema.json"
       }
     }
   }

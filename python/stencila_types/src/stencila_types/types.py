@@ -777,6 +777,9 @@ class Instruction(Executable):
     recursion: str | None = None
     """A string identifying which operations should, or should not, automatically be applied to generated suggestions."""
 
+    prompt_provided: PromptBlock | None = None
+    """The prompt chosen, rendered and provided to the model"""
+
 
 @dataclass(kw_only=True, repr=False)
 class Mark(Entity):
@@ -2351,6 +2354,21 @@ class Prompt(CreativeWork, Executable):
 
 
 @dataclass(kw_only=True, repr=False)
+class PromptBlock(Executable):
+    """
+    A preview of how a prompt will be rendered at a location in the document
+    """
+
+    type: Literal["PromptBlock"] = "PromptBlock"
+
+    prompt: str
+    """An identifier for the prompt to be rendered"""
+
+    content: list[Block] | None = None
+    """The executed content of the prompt"""
+
+
+@dataclass(kw_only=True, repr=False)
 class PropertyValue(Thing):
     """
     A property-value pair.
@@ -2975,6 +2993,7 @@ Block = Union[
     MathBlock,
     ModifyBlock,
     Paragraph,
+    PromptBlock,
     QuoteBlock,
     RawBlock,
     ReplaceBlock,
@@ -3211,6 +3230,7 @@ Node = Union[
     PostalAddress,
     Product,
     Prompt,
+    PromptBlock,
     PropertyValue,
     ProvenanceCount,
     PublicationIssue,
@@ -3440,6 +3460,7 @@ TYPES = [
     PostalAddress,
     Product,
     Prompt,
+    PromptBlock,
     PropertyValue,
     ProvenanceCount,
     PublicationIssue,

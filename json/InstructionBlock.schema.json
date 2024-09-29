@@ -368,6 +368,21 @@
       },
       "$ref": "String.schema.json"
     },
+    "promptProvided": {
+      "@id": "stencila:promptProvided",
+      "description": "The prompt chosen, rendered and provided to the model",
+      "aliases": [
+        "prompt-provided",
+        "prompt_provided"
+      ],
+      "patch": {
+        "formats": []
+      },
+      "dom": {
+        "elem": "div"
+      },
+      "$ref": "PromptBlock.schema.json"
+    },
     "content": {
       "@id": "stencila:content",
       "description": "The content to which the instruction applies.",

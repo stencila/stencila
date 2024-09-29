@@ -17,7 +17,8 @@ export type ExecutableType =
   | "InstructionBlock"
   | "InstructionInline"
   | "Parameter"
-  | "Prompt";
+  | "Prompt"
+  | "PromptBlock";
 
 export const ExecutableTypeList = [
   "Article",
@@ -37,4 +38,5 @@ export const ExecutableTypeList = [
   "InstructionInline",
   "Parameter",
   "Prompt",
+  "PromptBlock",
 ];
