@@ -207,7 +207,7 @@ impl Executable for ForBlock {
                 // Temporarily remove any executor node ids so that nodes within
                 // the iteration content are executed.
                 let node_ids = executor.node_ids.take();
-                if let Err(error) = iteration.walk_async(executor).await {
+                if let Err(error) = executor.compile_prepare_execute(&mut iteration).await {
                     messages.push(error_to_execution_message(
                         "While executing iteration",
                         error,

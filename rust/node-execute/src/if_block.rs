@@ -57,6 +57,7 @@ impl Executable for IfBlock {
         }
 
         // Break so that clauses (and `content` in clauses) are not made pending
+        // (because we do not know if they will be executed or not)
         WalkControl::Break
     }
 
@@ -255,8 +256,13 @@ impl Executable for IfBlockClause {
             // Execute nodes in `content` if truthy
             if truthy {
                 tracing::trace!("Executing if clause content");
-                if let Err(error) = self.content.walk_async(executor).await {
-                    messages.push(error_to_execution_message("While executing content", error))
+                // Compile, prepare and execute the content. Need to do prepare at least because
+                // this is not done in `IfBlock::prepare` (that method intentionally breaks the walk)
+                if let Err(error) = executor.compile_prepare_execute(&mut self.content).await {
+                    messages.push(error_to_execution_message(
+                        "While executing if clause content",
+                        error,
+                    ))
                 };
             }
 
