@@ -105,8 +105,6 @@ impl Executable for IncludeBlock {
             let mut messages = Vec::new();
             let started = Timestamp::now();
 
-
-
             // Execute the content
             if let Err(error) = self.content.walk_async(executor).await {
                 messages.push(error_to_execution_message("While executing content", error));
