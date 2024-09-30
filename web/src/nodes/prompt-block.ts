@@ -1,5 +1,5 @@
-import { html, PropertyValues } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { html } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
