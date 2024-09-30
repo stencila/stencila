@@ -354,15 +354,15 @@ async fn paragraphs() -> Result<()> {
     assert_eq!(
         serde_json::to_string_pretty(&output)?,
         r#"{
-  "content": "Para one."
+  "markdown": "Para one."
 }"#
     );
 
-    let (output, messages) = kernel.evaluate("ps.first.content").await?;
+    let (output, messages) = kernel.evaluate("ps.first.markdown").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para one.".into()));
 
-    let (output, messages) = kernel.evaluate("ps.last.content").await?;
+    let (output, messages) = kernel.evaluate("ps.last.markdown").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para two.".into()));
 
@@ -374,7 +374,7 @@ async fn paragraphs() -> Result<()> {
     assert_eq!(messages, []);
     assert_eq!(output, Node::Null(Null));
 
-    let (output, messages) = kernel.evaluate("ps.next.content").await?;
+    let (output, messages) = kernel.evaluate("ps.next.markdown").await?;
     assert_eq!(messages, []);
     assert_eq!(output, Node::String("Para one.".into()));
 
@@ -385,11 +385,11 @@ async fn paragraphs() -> Result<()> {
         assert_eq!(messages, []);
         assert_eq!(output, Node::Null(Null));
 
-        let (output, messages) = kernel.evaluate("ps.current.content").await?;
+        let (output, messages) = kernel.evaluate("ps.current.markdown").await?;
         assert_eq!(messages, []);
         assert_eq!(output, Node::String("Para one.".into()));
 
-        let (output, messages) = kernel.evaluate("ps.next.content").await?;
+        let (output, messages) = kernel.evaluate("ps.next.markdown").await?;
         assert_eq!(messages, []);
         assert_eq!(output, Node::String("Para two.".into()));
 
@@ -401,11 +401,11 @@ async fn paragraphs() -> Result<()> {
     {
         kernel.execute("ps._enter()").await?;
 
-        let (output, messages) = kernel.evaluate("ps.previous.content").await?;
+        let (output, messages) = kernel.evaluate("ps.previous.markdown").await?;
         assert_eq!(messages, []);
         assert_eq!(output, Node::String("Para one.".into()));
 
-        let (output, messages) = kernel.evaluate("ps.current.content").await?;
+        let (output, messages) = kernel.evaluate("ps.current.markdown").await?;
         assert_eq!(messages, []);
         assert_eq!(output, Node::String("Para two.".into()));
 
