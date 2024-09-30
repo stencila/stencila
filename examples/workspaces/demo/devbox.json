@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.1/.schema/devbox.schema.json",
+  "packages": [
+    "python@3.11",
+    "python311Packages.matplotlib@latest",
+    "python311Packages.numpy@latest",
+    "python311Packages.pandas@latest",
+    "R@4.4.1",
+    "rPackages.Cairo@latest",
+    "rPackages.data_table@latest",
+    "rPackages.tidyverse@latest"
+  ]
+}
