@@ -100,6 +100,7 @@ The `Node` type has these members:
 - [`PostalAddress`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal-address.md)
 - [`Product`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)
 - [`Prompt`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)
+- [`PromptBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt-block.md)
 - [`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md)
 - [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-count.md)
 - [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)

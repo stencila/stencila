@@ -163,6 +163,7 @@ Support and degree of loss for node types:
 | [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | 🟢 No loss | 🟢 No loss |       |
 | [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | 🟢 No loss | 🟢 No loss |       |
+| [PromptBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt_block.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [ReplaceBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_block.md)               | 🟢 No loss | 🟢 No loss |       |
 | [ReplaceInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_inline.md)             | 🟢 No loss | 🟢 No loss |       |
 | [StringOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_operation.md)         | 🟢 No loss | 🟢 No loss |       |

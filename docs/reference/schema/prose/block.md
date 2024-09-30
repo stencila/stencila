@@ -26,6 +26,7 @@ The `Block` type has these members:
 - [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
 - [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-block.md)
 - [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
+- [`PromptBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt-block.md)
 - [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
 - [`RawBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/raw-block.md)
 - [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace-block.md)
@@ -72,6 +73,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `InsertBlock`      | Min+       | Do not generate `InsertBlock` nodes in block content.      | -                 |
 | `InstructionBlock` | Min+       | Do not generate `InstructionBlock` nodes in block content. | -                 |
 | `ModifyBlock`      | Min+       | Do not generate `ModifyBlock` nodes in block content.      | -                 |
+| `PromptBlock`      | Min+       | Do not generate `PromptBlock` nodes in block content.      | -                 |
 | `ReplaceBlock`     | Min+       | Do not generate `ReplaceBlock` nodes in block content.     | -                 |
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |

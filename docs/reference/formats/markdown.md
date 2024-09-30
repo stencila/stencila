@@ -180,6 +180,7 @@ Support and degree of loss for node types:
 | [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | ⚠️ High loss |            |                                                       |
+| [PromptBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt_block.md)                 | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ReplaceBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_block.md)               | ⚠️ High loss |            | Encoded using implemented function                    |
 | [ReplaceInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_inline.md)             | ⚠️ High loss |            | Encoded as `[[replace {{content}}>>{{replacement}}]]` |
 | [StringOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_operation.md)         | ⚠️ High loss |            |                                                       |
