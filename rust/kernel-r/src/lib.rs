@@ -258,6 +258,15 @@ b",
         assert!(messages[0].stack_trace.is_none());
         assert_eq!(outputs, vec![]);
 
+        // rlang error (emitted by some packages esp tidyverse ones)
+        let (outputs, messages) = kernel
+            .execute("tidyr::pivot_longer(mtcars, cols = -foo)")
+            .await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
+        assert_eq!(messages[0].message, "Can't subset columns that don't exist.\n✖ Column `foo` doesn't exist.");
+        assert!(messages[0].stack_trace.is_none());
+        assert_eq!(outputs, vec![]);
+
         Ok(())
     }
 

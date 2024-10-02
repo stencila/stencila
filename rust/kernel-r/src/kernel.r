@@ -85,10 +85,16 @@ stderr <- stderr()
 
 # Functions to print an `ExecutionMessage` to stderr
 message <- function(msg, level, error_type = NULL) {
+  if (inherits(msg, 'condition')) {
+    msg <- conditionMessage(msg)
+  } else {
+    msg <- trimws(as.character(ifelse(is.list(msg) && "message" %in% names(msg), msg$message, msg)))
+  }
+
   message <- list(
     type = "ExecutionMessage",
     level = level,
-    message = trimws(as.character(ifelse(is.list(msg) && "message" %in% names(msg), msg$message, msg))),
+    message = msg,
     errorType = error_type
   )
 
