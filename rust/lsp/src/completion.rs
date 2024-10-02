@@ -50,7 +50,8 @@ pub(super) async fn request(
     let source_before: String = source.chars().skip(start).take(take).collect();
 
     // Dispatch based on source before cursor
-    if source_before.ends_with('@')
+    if source_before.ends_with("::: prompt ")
+        || source_before.ends_with('@')
         || (trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER && trigger_character == "@")
     {
         return prompt_completion(&source_before).await;
@@ -62,13 +63,15 @@ pub(super) async fn request(
 /// Provide completion list for prompts of an instruction
 async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, ResponseError> {
     let itype = if before.contains("::: new") {
-        InstructionType::New
+        Some(InstructionType::New)
     } else if before.contains("::: edit") {
-        InstructionType::Edit
+        Some(InstructionType::Edit)
     } else if before.contains("::: fix") {
-        InstructionType::Fix
+        Some(InstructionType::Fix)
     } else if before.contains("::: describe") {
-        InstructionType::Describe
+        Some(InstructionType::Describe)
+    } else if before.contains("::: prompt") {
+        None
     } else {
         return Ok(None);
     };
@@ -89,8 +92,10 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 return None;
             };
 
-            if !instruction_types.contains(&itype) {
-                return None;
+            if let Some(itype) = &itype {
+                if !instruction_types.contains(itype) {
+                    return None;
+                }
             }
 
             // This attempts to maintain consistency with the symbols used for
@@ -110,9 +115,14 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
             };
 
             // If this is a Stencila prompt then strip the redundant prefix
-            let stencila_prefix = ["stencila/", &itype.to_string().to_lowercase(), "/"].concat();
-            let label = if let Some(id) = id.strip_prefix(&stencila_prefix) {
-                id.to_string()
+            let label = if let Some(itype) = &itype {
+                let stencila_prefix =
+                    ["stencila/", &itype.to_string().to_lowercase(), "/"].concat();
+                if let Some(id) = id.strip_prefix(&stencila_prefix) {
+                    id.to_string()
+                } else {
+                    id.to_string()
+                }
             } else {
                 id.to_string()
             };
