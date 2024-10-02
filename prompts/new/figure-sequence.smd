@@ -56,6 +56,7 @@ photosynthesis
 
 Assistant:
 
+````raw
 ::: figure
 
 This diagram illustrates the basic steps of photosynthesis in plants.
@@ -76,6 +77,7 @@ sequenceDiagram
 ```
 
 :::
+````
 
 User:
 
@@ -83,6 +85,7 @@ computer network comms
 
 Assistant:
 
+````raw
 ::: figure
 
 A simplified illustration of how data packets are sent between two computers on a network.
@@ -102,6 +105,7 @@ sequenceDiagram
 ```
 
 :::
+````
 
 User:
 
@@ -109,6 +113,7 @@ dna replication
 
 Assistant:
 
+````raw
 ::: figure
 
 DNA Replication Process. This sequence diagram illustrates the key steps and enzymes involved in DNA replication. It shows how DNA is unwound by helicase, replicated by DNA polymerase, and finally sealed by ligase to create two identical DNA molecules from the original template.
@@ -126,6 +131,7 @@ sequenceDiagram
     DNA Polymerase->>Ligase: Join Okazaki fragments
     Ligase->>DNA: Seal nicks in sugar-phosphate backbone
 ```
+````
 
 :::
 

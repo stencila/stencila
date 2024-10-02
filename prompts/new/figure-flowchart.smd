@@ -57,6 +57,7 @@ a decision tree on whether to take an umbrella outside
 
 Assistant:
 
+````raw
 ::: figure
 
 A decision tree for whether to take an umbrella when going outside.
@@ -72,6 +73,7 @@ graph TD
 ```
 
 :::
+````
 
 User:
 
@@ -79,6 +81,7 @@ software dev lifecycle
 
 Assistant:
 
+````raw
 ::: figure
 
 Simplified representation of the iterative software development lifecycle, showing the cyclic nature of the process.
@@ -96,6 +99,7 @@ graph TD
 ```
 
 :::
+````
 
 User:
 
@@ -103,6 +107,7 @@ flowchart of scientific methods
 
 Assistant:
 
+````raw
 ::: figure
 
 Flowchart depicting the scientific method, from hypothesis formulation to publication or refinement.
@@ -121,6 +126,7 @@ graph TD
 ```
 
 :::
+````
 
 # Context
 

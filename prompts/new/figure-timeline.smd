@@ -56,6 +56,7 @@ major physics discoveries
 
 Assistant:
 
+````raw
 ::: figure
 
 Timeline of major physics discoveries. This timeline highlights some of the most significant discoveries in physics from the 17th to the 20th century.
@@ -72,6 +73,7 @@ timeline
 ```
 
 :::
+````
 
 User:
 
@@ -79,6 +81,7 @@ computer storage timeline
 
 Assistant:
 
+````raw
 ::: figure
 
 Evolution of computer storage technologies. This timeline shows the progression of major computer storage technologies from the 1950s to the 2010s.
@@ -96,6 +99,7 @@ timeline
 ```
 
 :::
+````
 
 User:
 
@@ -103,6 +107,7 @@ history of calculus
 
 Assistant:
 
+````raw
 ::: figure
 
 Milestones in the Development of Calculus. This timeline outlines key developments in the history of calculus from ancient times to the 17th century.
@@ -120,6 +125,7 @@ timeline
 ```
 
 :::
+````
 
 # Context
 

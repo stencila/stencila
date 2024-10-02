@@ -59,6 +59,7 @@ drug development gantt chart
 
 Assistant:
 
+````raw
 ::: figure
 
 Gantt Chart of a Simplified Drug Development Process. This Gantt chart outlines the major phases and timeline of a typical drug development process, from initial discovery through clinical trials to market approval.
@@ -82,6 +83,7 @@ gantt
 ```
 
 :::
+````
 
 User:
 
@@ -89,6 +91,7 @@ mindmap of the solar system
 
 Assistant:
 
+````raw
 ::: figure
 
 Mind Map of the Solar System. This mind map provides an overview of the major components of our solar system, focusing on the Sun and the types of planets.
@@ -115,6 +118,7 @@ mindmap
       Asteroids
       Comets
 ```
+````
 
 # Context
 
