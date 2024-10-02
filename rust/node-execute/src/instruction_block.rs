@@ -1,14 +1,19 @@
+use std::ops::Deref;
+
 use codec_cbor::r#trait::CborCodec;
+use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
+use codecs::Format;
 use common::{
     futures::stream::{FuturesUnordered, StreamExt},
+    itertools::Itertools,
     tokio,
 };
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
-    InstructionModel, SoftwareApplication,
+    InstructionModel, PromptBlock, SoftwareApplication,
 };
 
-use crate::{interrupt_impl, prelude::*, prompt};
+use crate::{interrupt_impl, prelude::*};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -149,34 +154,68 @@ impl Executable for InstructionBlock {
         );
 
         let started = Timestamp::now();
+        let mut messages = Vec::new();
 
-        // Select a prompt and generate a system prompt
-        let (prompter, system_prompt) = match prompt::for_instruction_block(self, executor).await {
-            Ok(result) => result,
+        // Determine the types of nodes in the content of the instruction
+        let node_types = self
+            .content
+            .iter()
+            .flatten()
+            .map(|block| block.node_type().to_string())
+            .collect_vec();
+
+        // Select the best prompt for the instruction
+        let prompt = match prompts::select(
+            &self.instruction_type,
+            &self.message,
+            &self.prompt,
+            &Some(node_types),
+        )
+        .await
+        {
+            Ok(prompt) => prompt,
             Err(error) => {
+                messages.push(error_to_execution_message("While selecting prompt", error));
+
                 executor.patch(
                     &node_id,
                     [
-                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Exceptions),
+                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Errors),
                         set(
                             NodeProperty::ExecutionRequired,
                             ExecutionRequired::ExecutionFailed,
                         ),
-                        set(
-                            NodeProperty::ExecutionMessages,
-                            vec![error_to_execution_message(
-                                "While rendering prompt for instruction",
-                                error,
-                            )],
-                        ),
+                        set(NodeProperty::ExecutionMessages, messages),
                     ],
                 );
 
-                return WalkControl::Break;
+                return WalkControl::Continue;
             }
         };
+        let prompt_id = prompt.id.clone().unwrap_or_default();
 
-        tracing::debug!("Using prompt:\n\n{system_prompt}");
+        // Create a new `PromptBlock` to render the prompt and patch it to `prompt_provided`
+        // so that when it is executed it gets patched
+        let mut prompt_block = PromptBlock::new(prompt_id);
+        //self.options.prompt_provided = Some(prompt_block.clone());
+        executor.patch(
+            &node_id,
+            [set(NodeProperty::PromptProvided, prompt_block.clone())],
+        );
+
+        // Execute the `PromptBlock`
+        prompt_block.execute(executor).await;
+
+        // Render the `PromptBlock` into a system prompt
+        let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
+        prompt_block.content.to_markdown(&mut context);
+        let system_prompt = context.content;
+
+        // Create an author role for the prompt
+        let prompter = AuthorRole {
+            last_modified: Some(Timestamp::now()),
+            ..prompt.deref().clone().into()
+        };
 
         // Get the authors of the instruction
         let mut instructors = Vec::new();
@@ -230,7 +269,6 @@ impl Executable for InstructionBlock {
         // as it arrives, and then (optionally) executing the suggestion
         let recursion = self.recursion.as_deref().unwrap_or_default();
         let run = recursion.contains("run") && !recursion.contains("!run");
-        let mut messages = Vec::new();
         while let Some(result) = futures.next().await {
             match result {
                 Ok(mut suggestion) => {

@@ -1,6 +1,6 @@
 use schema::{CodeChunk, LabelType, NodeProperty};
 
-use crate::{interrupt_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*};
 
 impl Executable for CodeChunk {
     #[tracing::instrument(skip_all)]
@@ -144,25 +144,24 @@ impl Executable for CodeChunk {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                self.outputs = outputs;
-                self.options.execution_messages = messages.clone();
-            } else {
-                executor.patch(
-                    &node_id,
-                    [
-                        set(NodeProperty::Outputs, outputs),
-                        set(NodeProperty::ExecutionStatus, status),
-                        set(NodeProperty::ExecutionKind, kind),
-                        set(NodeProperty::ExecutionRequired, required),
-                        set(NodeProperty::ExecutionMessages, messages),
-                        set(NodeProperty::ExecutionDuration, duration),
-                        set(NodeProperty::ExecutionEnded, ended),
-                        set(NodeProperty::ExecutionCount, count),
-                        set(NodeProperty::ExecutionDigest, compilation_digest),
-                    ],
-                );
-            }
+            // Set properties that may be using in rendering
+            self.outputs = outputs.clone();
+            self.options.execution_messages = messages.clone();
+
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::Outputs, outputs),
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionKind, kind),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
+                ],
+            );
         } else {
             executor.patch(
                 &node_id,

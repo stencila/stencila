@@ -17,7 +17,7 @@ use node_type::NodeProperty;
 
 use crate::{
     prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, CordOp, Inline,
-    Node, ProvenanceCount, SuggestionBlock, Timestamp,
+    Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
 };
 
 /// Assign authorship to a node
@@ -568,10 +568,11 @@ pub enum PatchOp {
 /// often involved in patches for execution with a fallback
 /// variant of a [`serde_json::Value`].
 ///
-/// There is a `SuggestionBlock` variant because without it the JSON value
-/// fallback is used which results in ids being lost. Given how suggestions
-/// are added and then (optionally) executed, this is undesirable because
-/// the execution patches do not get applied (because no node in the doc with
+/// There are `PromptBlock` and `SuggestionBlock` variants because without them the JSON value
+/// fallback is used which results in ids being lost.
+///
+/// Given how prompts and suggestions are added and then (optionally) executed, this is
+/// undesirable because the execution patches do not get applied (because no node in the doc with
 /// the correct id).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
@@ -579,6 +580,7 @@ pub enum PatchValue {
     Inline(Inline),
     Block(Block),
     Node(Node),
+    PromptBlock(PromptBlock),
     SuggestionBlock(SuggestionBlock),
     String(String),
     Json(JsonValue),

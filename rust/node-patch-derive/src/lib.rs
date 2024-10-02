@@ -203,7 +203,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     // Special implementations for node types that belong to
     // properties that are not `Block`s or `Inline`s.
-    let to_from_value = if struct_name == "SuggestionBlock" {
+    let to_from_value = if struct_name == "SuggestionBlock" || struct_name == "PromptBlock" {
         quote! {
             fn to_value(&self) -> Result<PatchValue> {
                 Ok(PatchValue::#struct_name(self.clone()))

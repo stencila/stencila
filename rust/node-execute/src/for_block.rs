@@ -1,7 +1,7 @@
 use codec_cbor::r#trait::CborCodec;
 use schema::{replicate, Block, ForBlock, Section, SectionType};
 
-use crate::{interrupt_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*};
 
 impl Executable for ForBlock {
     #[tracing::instrument(skip_all)]
@@ -165,14 +165,12 @@ impl Executable for ForBlock {
             };
 
             // Clear any existing iterations while ensuring an array to push to later
-            if !matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                let reset = if self.iterations.is_some() {
-                    clear(NodeProperty::Iterations)
-                } else {
-                    set(NodeProperty::Iterations, Vec::<Section>::new())
-                };
-                executor.patch(&node_id, [reset]);
-            }
+            let reset = if self.iterations.is_some() {
+                clear(NodeProperty::Iterations)
+            } else {
+                set(NodeProperty::Iterations, Vec::<Section>::new())
+            };
+            executor.patch(&node_id, [reset]);
 
             // Iterate over iterable, and iterations, setting the variable and executing each iteration.
             for node in iterator.iter() {
@@ -188,12 +186,10 @@ impl Executable for ForBlock {
                     content,
                     ..Default::default()
                 });
-                if !matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                    executor.patch(
-                        &node_id,
-                        [push(NodeProperty::Iterations, iteration.clone())],
-                    );
-                }
+                executor.patch(
+                    &node_id,
+                    [push(NodeProperty::Iterations, iteration.clone())],
+                );
 
                 // Set the loop's variable
                 if let Err(error) = executor.kernels.write().await.set(variable, node).await {
@@ -215,10 +211,8 @@ impl Executable for ForBlock {
                 }
                 executor.node_ids = node_ids;
 
-                if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                    // Store iteration for using later
-                    iterations.push(iteration)
-                }
+                // Store iteration for using later
+                iterations.push(iteration)
             }
 
             // Remove the loop's variable (if it was set)
@@ -248,14 +242,15 @@ impl Executable for ForBlock {
 
         let messages = (!messages.is_empty()).then_some(messages);
 
-        if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-            self.iterations = has_iterations.then_some(iterations);
-            self.options.execution_messages = messages.clone();
-        } else if !is_empty {
+        if !is_empty {
             let status = execution_status(&messages);
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
+
+            // Set properties that may be using in rendering
+            self.iterations = has_iterations.then_some(iterations);
+            self.options.execution_messages = messages.clone();
 
             executor.patch(
                 &node_id,

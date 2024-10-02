@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use codecs::DecodeOptions;
 use schema::{Article, Block, CompilationMessage, IncludeBlock};
 
-use crate::{interrupt_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*};
 
 impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
@@ -119,21 +119,20 @@ impl Executable for IncludeBlock {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                self.options.execution_messages = messages.clone();
-            } else {
-                executor.patch(
-                    &node_id,
-                    [
-                        set(NodeProperty::ExecutionStatus, status),
-                        set(NodeProperty::ExecutionRequired, required),
-                        set(NodeProperty::ExecutionMessages, messages),
-                        set(NodeProperty::ExecutionDuration, duration),
-                        set(NodeProperty::ExecutionEnded, ended),
-                        set(NodeProperty::ExecutionCount, count),
-                    ],
-                );
-            }
+            // Set properties that may be using in rendering
+            self.options.execution_messages = messages.clone();
+
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                ],
+            );
         } else {
             executor.patch(
                 &node_id,

@@ -37,7 +37,6 @@ mod math_block;
 mod math_inline;
 mod paragraph;
 mod parameter;
-mod prompt;
 mod prompt_block;
 mod raw_block;
 mod section;
@@ -313,7 +312,6 @@ enum Phase {
     Compile,
     Prepare,
     Execute,
-    ExecuteWithoutPatches,
     Interrupt,
 }
 
@@ -575,7 +573,7 @@ impl Executor {
         match self.phase {
             Phase::Compile => node.compile(self).await,
             Phase::Prepare => node.prepare(self).await,
-            Phase::Execute | Phase::ExecuteWithoutPatches => node.execute(self).await,
+            Phase::Execute => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
         }
     }

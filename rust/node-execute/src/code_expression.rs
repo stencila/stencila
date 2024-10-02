@@ -1,6 +1,6 @@
 use schema::{CodeExpression, ExecutionMode};
 
-use crate::{interrupt_impl, prelude::*, Phase};
+use crate::{interrupt_impl, prelude::*};
 
 impl Executable for CodeExpression {
     #[tracing::instrument(skip_all)]
@@ -99,24 +99,23 @@ impl Executable for CodeExpression {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            if matches!(executor.phase, Phase::ExecuteWithoutPatches) {
-                self.output = Some(Box::new(output));
-                self.options.execution_messages = messages.clone();
-            } else {
-                executor.patch(
-                    &node_id,
-                    [
-                        set(NodeProperty::Output, output),
-                        set(NodeProperty::ExecutionStatus, status.clone()),
-                        set(NodeProperty::ExecutionRequired, required),
-                        set(NodeProperty::ExecutionMessages, messages),
-                        set(NodeProperty::ExecutionDuration, duration),
-                        set(NodeProperty::ExecutionEnded, ended),
-                        set(NodeProperty::ExecutionCount, count),
-                        set(NodeProperty::ExecutionDigest, compilation_digest),
-                    ],
-                );
-            }
+            // Set properties that may be using in rendering
+            self.output = Some(Box::new(output.clone()));
+            self.options.execution_messages = messages.clone();
+
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::Output, output),
+                    set(NodeProperty::ExecutionStatus, status.clone()),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    set(NodeProperty::ExecutionCount, count),
+                    set(NodeProperty::ExecutionDigest, compilation_digest),
+                ],
+            );
         } else {
             executor.patch(
                 &node_id,
