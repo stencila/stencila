@@ -1,0 +1,43 @@
+---
+type: Prompt
+
+id: stencila/echo/document
+version: "0.1.0"
+name: Echo Document Prompt
+description: A debugging prompt for displaying the current document context.
+
+instruction-type: New
+node-types: Block
+---
+
+# Document
+
+A summary of the current representation of the document in the prompt context.
+
+## Metadata
+
+The properties in the document's metadata:
+
+```js exec
+JSON.stringify(document.metadata.properties);
+```
+
+The JSON of the document's metadata:
+
+```js exec
+JSON.stringify(document.metadata, null, "  ");
+```
+
+## Paragraphs
+
+The Markdown of the previous paragraph:
+
+```js exec
+document.paragraphs.previous.markdown;
+```
+
+The Markdown of the next paragraph:
+
+```js exec
+document.paragraphs.next.markdown;
+```
