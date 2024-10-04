@@ -23,8 +23,8 @@ async fn standalone() -> Result<()> {
         .await?;
     assert_eq!(
         yaml,
-        r#"$schema: https://stencila.org/Article.schema.json
-'@context': https://stencila.org/context.jsonld
+        format!(r#"$schema: https://stencila.org/v{STENCILA_VERSION}/Article.schema.json
+'@context': https://stencila.org/v{STENCILA_VERSION}/context.jsonld
 type: Article
 content:
 - type: Paragraph
@@ -32,7 +32,7 @@ content:
   - type: Text
     value:
       string: Hello world
-"#
+"#)
     );
 
     let (doc2, ..) = codec.from_str(&yaml, None).await?;

@@ -20,6 +20,11 @@ use codec::{
 pub mod r#trait;
 use r#trait::JsonCodec as _;
 
+/// The current version of Stencila
+///
+/// Used to include the version number for the `$schema` and `@content` URLs.
+pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// A codec for JSON
 pub struct JsonCodec;
 
@@ -158,6 +163,10 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
     // Implement `to_path, rather than `to_bytes`, so that, if encoding to `json.zip`,
     // the single file in the Zip archive can have the name minus `.zip`
 
+    let mut options = options.unwrap_or_default();
+    options.standalone = Some(true);
+    let options = Some(options);
+
     let (string, ..) = to_string(node, options.clone())?;
 
     if let Some(parent) = path.parent() {
@@ -222,11 +231,15 @@ pub fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<(String,
         let mut root = Map::with_capacity(object.len() + 1);
         root.insert(
             String::from("$schema"),
-            Value::String(format!("https://stencila.org/{type}.schema.json")),
+            Value::String(format!(
+                "https://stencila.org/v{STENCILA_VERSION}/{type}.schema.json"
+            )),
         );
         root.insert(
             String::from("@context"),
-            Value::String(String::from("https://stencila.org/context.jsonld")),
+            Value::String(format!(
+                "https://stencila.org/v{STENCILA_VERSION}/context.jsonld"
+            )),
         );
         for (key, value) in object.into_iter() {
             root.insert(key, value);
