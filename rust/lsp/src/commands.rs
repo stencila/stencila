@@ -31,7 +31,7 @@ use common::{
     },
     tracing,
 };
-use document::{Command, CommandNodes, CommandScope, Document};
+use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
 use node_execute::ExecuteOptions;
 use schema::{
     AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
@@ -346,10 +346,11 @@ pub(super) async fn execute_command(
     if update_after {
         let mut status_receiver = status_receiver.resubscribe();
         let mut client = client.clone();
+        let uri = uri.clone();
         tokio::spawn(async move {
             while let Ok((id, status)) = status_receiver.recv().await {
-                if id == command_id && status.is_finished() {
-                    // Wait an arbitrary amount of time
+                if id == command_id && status.finished() {
+                    // Wait an arbitrary amount of time for any patches to be applied (see note above)
                     tokio::time::sleep(Duration::from_millis(100)).await;
 
                     // Currently this applies a whole document formatting.
@@ -387,11 +388,22 @@ pub(super) async fn execute_command(
     }
 
     // Create a progress notification and spawn a task to update it
-    let progress_sender = create_progress(client, title, cancellable).await;
+    let progress_sender = create_progress(client.clone(), title, cancellable).await;
     tokio::spawn(async move {
         while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id && status.is_finished() {
+            if id == command_id && status.finished() {
                 progress_sender.send((100, None)).ok();
+
+                // Notify the user if the command failed
+                if let CommandStatus::Failed(error) = status {
+                    client
+                        .show_message(ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: format!("{error}\n\n{uri}"),
+                        })
+                        .ok();
+                }
+
                 break;
             }
         }

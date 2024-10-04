@@ -556,7 +556,7 @@ pub(super) fn did_save(
         let mut client = state.client.clone();
         tokio::spawn(async move {
             let doc = doc.read().await;
-            if let Err(error) = doc.save(CommandWait::No).await {
+            if let Err(error) = doc.save(CommandWait::Yes).await {
                 client
                     .show_message(ShowMessageParams {
                         typ: MessageType::ERROR,
