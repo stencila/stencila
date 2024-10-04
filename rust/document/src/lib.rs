@@ -143,14 +143,40 @@ pub enum CommandStatus {
     Waiting,
     Running,
     Succeeded,
-    Failed,
+    Failed(String),
     Interrupted,
 }
 
 impl CommandStatus {
-    pub fn is_finished(&self) -> bool {
+    /// Did the command finish successfully
+    ///
+    /// Returns an `Err` if the command did not succeed.
+    pub fn ok(self) -> Result<()> {
         use CommandStatus::*;
-        matches!(self, Ignored | Succeeded | Failed | Interrupted)
+        match self {
+            Ignored => bail!("Command was ignored"),
+            Waiting => bail!("Command is waiting"),
+            Running => bail!("Command is running"),
+            Succeeded => Ok(()),
+            Failed(error) => bail!("Command failed: {error}"),
+            Interrupted => bail!("Command was interrupted"),
+        }
+    }
+
+    /// Did the command succeed?
+    pub fn succeeded(&self) -> bool {
+        matches!(self, CommandStatus::Succeeded)
+    }
+
+    /// Did the command fail?
+    pub fn failed(&self) -> bool {
+        matches!(self, CommandStatus::Failed(..))
+    }
+
+    /// Has the command finished (includes failed or interrupted but not waiting or running)
+    pub fn finished(&self) -> bool {
+        use CommandStatus::*;
+        matches!(self, Ignored | Succeeded | Failed(..) | Interrupted)
     }
 }
 
@@ -518,7 +544,14 @@ impl Document {
         // Wait for the command status to be finished
         tracing::trace!("Waiting for command to finish");
         while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id && status.is_finished() {
+            if id == command_id && status.finished() {
+                tracing::trace!("Command finished");
+
+                // Bail if command failed
+                if let CommandStatus::Failed(error) = status {
+                    bail!("Command failed: {error}")
+                }
+
                 break;
             }
         }
