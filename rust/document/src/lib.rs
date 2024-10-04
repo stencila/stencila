@@ -154,6 +154,13 @@ impl CommandStatus {
     }
 }
 
+/// Whether or not to wait for a command
+#[derive(Debug)]
+pub enum CommandWait {
+    Yes,
+    No,
+}
+
 /// An update to the root node of the document
 #[derive(Debug, Default)]
 pub(crate) struct Update {
@@ -459,21 +466,30 @@ impl Document {
             .await?)
     }
 
-    /// Perform a command on the document
+    /// Perform a command on the document and optionally wait for it to complete
+    pub async fn command(&self, command: Command, wait: CommandWait) -> Result<()> {
+        match wait {
+            CommandWait::No => self.command_send(command).await,
+            CommandWait::Yes => self.command_wait(command).await,
+        }
+    }
+
+    /// Send a command to the document without waiting for it or subscribing to its status
     #[tracing::instrument(skip(self))]
-    pub async fn command(&self, command: Command) -> Result<()> {
-        tracing::trace!("Performing document command");
+    pub async fn command_send(&self, command: Command) -> Result<()> {
+        tracing::trace!("Sending document command");
+
         Ok(self.command_sender.send((command, 0)).await?)
     }
 
-    /// Perform a command on the document and obtain a command id and
+    /// Send a command to the document and obtain a command id and
     /// a receiver to receive updates on its status
     #[tracing::instrument(skip(self))]
     pub async fn command_subscribe(
         &self,
         command: Command,
     ) -> Result<(u64, DocumentCommandStatusReceiver)> {
-        tracing::trace!("Performing document command and returning status subscription");
+        tracing::trace!("Sending document command and returning status subscription");
 
         let command_id: u64 = self
             .command_counter
@@ -485,10 +501,10 @@ impl Document {
         Ok((command_id, status_receiver))
     }
 
-    /// Perform a command on the document and optionally wait for it to complete
+    /// Send a command to the document and wait for it to complete
     #[tracing::instrument(skip(self))]
     pub async fn command_wait(&self, command: Command) -> Result<()> {
-        tracing::trace!("Performing document command and waiting for it to finish");
+        tracing::trace!("Sending document command and waiting for it to finish");
 
         // Set up things to be able to wait for completion
         let command_id: u64 = self
@@ -516,25 +532,27 @@ impl Document {
         Ok(())
     }
 
+    /// Save the document
+    #[tracing::instrument(skip(self))]
+    pub async fn save(&self, wait: CommandWait) -> Result<()> {
+        tracing::trace!("Saving document");
+
+        self.command(Command::SaveDocument, wait).await
+    }
+
     /// Compile the document
     #[tracing::instrument(skip(self))]
-    pub async fn compile(&self, wait: bool) -> Result<()> {
+    pub async fn compile(&self, wait: CommandWait) -> Result<()> {
         tracing::trace!("Compiling document");
-        let command = Command::CompileDocument;
-        match wait {
-            false => self.command(command).await,
-            true => self.command_wait(command).await,
-        }
+
+        self.command(Command::CompileDocument, wait).await
     }
 
     /// Execute the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, options: ExecuteOptions, wait: bool) -> Result<()> {
+    pub async fn execute(&self, options: ExecuteOptions, wait: CommandWait) -> Result<()> {
         tracing::trace!("Executing document");
-        let command = Command::ExecuteDocument(options);
-        match wait {
-            false => self.command(command).await,
-            true => self.command_wait(command).await,
-        }
+
+        self.command(Command::ExecuteDocument(options), wait).await
     }
 }

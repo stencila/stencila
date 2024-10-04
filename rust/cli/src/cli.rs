@@ -8,7 +8,7 @@ use common::{
     eyre::Result,
     tracing,
 };
-use document::Document;
+use document::{CommandWait, Document};
 use format::Format;
 use node_execute::ExecuteOptions;
 use node_strip::StripScope;
@@ -573,7 +573,7 @@ impl Cli {
                 strip_options,
             } => {
                 let doc = Document::open(&input).await?;
-                doc.compile(true).await?;
+                doc.compile(CommandWait::Yes).await?;
 
                 let encode_options = encode_options.build(
                     Some(input.as_ref()),
@@ -602,8 +602,8 @@ impl Cli {
                 strip_options,
             } => {
                 let doc = Document::open(&input).await?;
-                doc.compile(true).await?;
-                doc.execute(execute_options, true).await?;
+                doc.compile(CommandWait::Yes).await?;
+                doc.execute(execute_options, CommandWait::Yes).await?;
 
                 let encode_options = encode_options.build(
                     Some(input.as_ref()),
@@ -632,8 +632,8 @@ impl Cli {
                 strip_options,
             } => {
                 let doc = Document::open(&input).await?;
-                doc.compile(true).await?;
-                doc.execute(execute_options, true).await?;
+                doc.compile(CommandWait::Yes).await?;
+                doc.execute(execute_options, CommandWait::Yes).await?;
 
                 let mut encode_options = encode_options.build(
                     Some(input.as_ref()),

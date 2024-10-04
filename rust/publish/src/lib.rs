@@ -2,7 +2,7 @@ use std::path::Path;
 
 use codec_swb::SwbCodec;
 use common::eyre::{bail, Result};
-use document::Document;
+use document::{CommandWait, Document};
 use schema::Node;
 
 pub mod cli;
@@ -21,7 +21,7 @@ pub async fn publish_path(
 
     if path.is_file() {
         let doc = Document::open(path).await?;
-        doc.compile(true).await?;
+        doc.compile(CommandWait::Yes).await?;
         let node = &*doc.root_read().await;
         publish_node(node, key, dry_run, swb).await
     } else {

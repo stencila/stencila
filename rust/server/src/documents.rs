@@ -41,7 +41,7 @@ use common::{
     tracing,
     uuid::Uuid,
 };
-use document::{Command, Document, DocumentId, SyncDirection};
+use document::{Command, CommandWait, Document, DocumentId, SyncDirection};
 use format::Format;
 
 use crate::{
@@ -87,7 +87,7 @@ impl Documents {
         };
 
         // Compile the document (so math, headings list, etc can be properly encoded to HTML)
-        doc.compile(true).await?;
+        doc.compile(CommandWait::Yes).await?;
 
         let uuid = doc.id().uuid();
 
@@ -497,7 +497,9 @@ async fn command_document(
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
-    doc.command(command).await.map_err(InternalError::new)?;
+    doc.command(command, CommandWait::No)
+        .await
+        .map_err(InternalError::new)?;
 
     Ok(StatusCode::OK.into_response())
 }
