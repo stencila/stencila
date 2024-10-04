@@ -212,7 +212,7 @@ impl TextDocument {
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
-        let doc = Document::init(home.into(), None)?;
+        let doc = Document::init(home.into(), Some(path))?;
 
         let format = Format::from_name(&format);
 

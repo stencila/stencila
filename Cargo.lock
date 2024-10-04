@@ -1173,7 +1173,7 @@ dependencies = [
 
 [[package]]
 name = "codec-json"
-version = "0.0.0"
+version = "2.0.0-beta.5"
 dependencies = [
  "codec",
  "common-dev",
@@ -1272,7 +1272,7 @@ dependencies = [
 
 [[package]]
 name = "codec-yaml"
-version = "0.0.0"
+version = "2.0.0-beta.5"
 dependencies = [
  "codec",
 ]
@@ -1943,6 +1943,7 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
+ "codec-json",
  "codecs",
  "common",
  "common-dev",

@@ -1,9 +1,11 @@
 #![recursion_limit = "256"]
 
 use std::{
+    fs::File,
+    io,
     path::{Path, PathBuf},
     sync::{atomic::AtomicU64, Arc},
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -235,15 +237,6 @@ type DocumentCommandStatusSender = broadcast::Sender<(u64, CommandStatus)>;
 type DocumentCommandStatusReceiver = broadcast::Receiver<(u64, CommandStatus)>;
 
 /// A document
-///
-/// Each document has:
-///
-/// - A unique `id` which is used for things like establishing a WebSocket connection to it
-/// - An Automerge `store` that has a [`Node`] at its root.
-/// - An optional `path` that the `store` can be read from, and written to.
-/// - A `watch_receiver` which can be cloned to watch for changes to the root [`Node`].
-/// - An `update_sender` which can be cloned to send updates to the root [`Node`].
-/// - A `command_sender` which can be cloned to send commands to the document
 #[allow(unused)]
 #[derive(Debug)]
 pub struct Document {
@@ -253,9 +246,10 @@ pub struct Document {
     /// The document's home directory
     home: PathBuf,
 
-    /// The filesystem path to the document's Automerge store
+    /// The path to the document's source file
     path: Option<PathBuf>,
 
+    /// The root node of the document
     root: DocumentRoot,
 
     /// The document's execution kernels
@@ -281,6 +275,31 @@ pub struct Document {
 }
 
 impl Document {
+    /// Get the path to the sidecar file for a document
+    ///
+    /// Returns the first existing path matching the ordered list
+    /// of possible sidecar formats, falling back to a `.json.zip`
+    /// file if no existing file exists.
+    pub fn sidecar_path(path: &Path) -> PathBuf {
+        static SIDECAR_FORMATS: [Format; 2] = [Format::JsonZip, Format::Json];
+
+        // See if any existing paths have one of the formats
+        // Having extensions with two dots requires setting extension on difference
+        // instances of the original path inside the loop with `.json.json`
+        for format in &SIDECAR_FORMATS {
+            let mut candidate = path.to_path_buf();
+            candidate.set_extension(format.extension());
+            if candidate.exists() {
+                return candidate;
+            }
+        }
+
+        // Fallback to using the preferred format
+        let mut path = path.to_path_buf();
+        path.set_extension(SIDECAR_FORMATS[0].extension());
+        path
+    }
+
     /// Initialize a new document
     ///
     /// This initializes the document's "watch", "update", and "command" channels, and
@@ -292,8 +311,27 @@ impl Document {
         // Create the document's kernels with the same home directory
         let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
 
-        // Load the node from the store to initialize the watch channel
-        let root = Node::Article(Article::default());
+        // Create the root node from the sidecar file or an empty article
+        let root = match &path {
+            Some(path) => {
+                let sidecar = Self::sidecar_path(path);
+                if sidecar.exists() {
+                    match codec_json::from_path(&sidecar, None) {
+                        Ok((node, ..)) => node,
+                        Err(error) => {
+                            tracing::warn!(
+                                "Unable to read sidecar file {}: {error}",
+                                sidecar.display()
+                            );
+                            Node::Article(Article::default())
+                        }
+                    }
+                } else {
+                    Node::Article(Article::default())
+                }
+            }
+            None => Node::Article(Article::default()),
+        };
         let (watch_sender, watch_receiver) = watch::channel(root.clone());
         let root = Arc::new(RwLock::new(root));
 
@@ -324,6 +362,7 @@ impl Document {
         // Start the command task
         {
             let home = home.clone();
+            let path = path.clone();
             let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
@@ -332,6 +371,7 @@ impl Document {
                     command_receiver,
                     command_status_sender,
                     home,
+                    path,
                     root,
                     kernels,
                     patch_sender,
@@ -361,34 +401,6 @@ impl Document {
         Self::init(home, None)
     }
 
-    /// Create a new document
-    ///
-    /// Creates a new Automerge store with a document of `type` at the `path`,
-    /// optionally overwriting any existing file at the path by using the `overwrite` option.
-    ///
-    /// The document can be initialized from a `source` file, in which case `format` may
-    /// be used to specify the format of that file, or `codec` the name of the codec to
-    /// decode it with.
-    #[tracing::instrument]
-    pub async fn create(
-        path: &Path,
-        overwrite: bool,
-        source: Option<&Path>,
-        format: Option<Format>,
-        codec: Option<String>,
-    ) -> Result<Self> {
-        if path.exists() && !overwrite {
-            bail!("Path already exists; remove the file or use the `--overwrite` option")
-        }
-
-        let home = path
-            .parent()
-            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
-            .to_path_buf();
-
-        Self::init(home, None)
-    }
-
     /// Initialize a document at a path
     ///
     /// Note that this does not read the document from the path. Use `open`
@@ -399,17 +411,79 @@ impl Document {
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(home, None)
+        Self::init(home, Some(path.to_path_buf()))
+    }
+
+    /// Create a new document at a path
+    #[tracing::instrument]
+    pub async fn create(path: &Path, force: bool, sidecar_format: Option<Format>) -> Result<Self> {
+        // Check for existing file
+        if path.exists() && !force {
+            bail!("File already exists; remove the file or use the `--force` option")
+        }
+
+        // Check for existing sidecar (regardless of its format)
+        let sidecar = Self::sidecar_path(path);
+        if sidecar.exists() && !force {
+            bail!(
+                "Sidecar file already exists at `{}`; remove the file or use the `--force` option",
+                sidecar.display()
+            )
+        }
+
+        // If a sidecar format was specified then use that
+        let sidecar = if let Some(format) = sidecar_format {
+            let mut path = path.to_path_buf();
+            path.set_extension(format.extension());
+            path
+        } else {
+            sidecar
+        };
+
+        // Create the empty article and write to path
+        let node = Node::Article(Article::default());
+        codecs::to_path(&node, path, None).await?;
+
+        // Create the sidecar file
+        codecs::to_path(&node, &sidecar, None).await?;
+
+        Self::at(path)
     }
 
     /// Open an existing document
     ///
-    /// If the path is a store the loads from that store, otherwise
-    /// uses `codec` to import from the path and dump into a new store.
+    /// If there is no sidecar file for the `path`, the file at `path` is
+    /// loaded into memory.
+    ///
+    /// If there is a sidecar file for the `path`, that will be loaded into
+    /// memory first and then the file at `path` will be merged into it, but
+    /// only if it has a last modification time after the sidecar file.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
-        let doc = Self::at(path)?;
-        doc.import(path, None).await?;
+        if !path.exists() {
+            bail!("File does not exist: {}", path.display());
+        }
+
+        let mut doc = Self::at(path)?;
+
+        let mut import = true;
+
+        let sidecar = Self::sidecar_path(path);
+        if sidecar.exists() {
+            fn modification_time(path: &Path) -> io::Result<SystemTime> {
+                let metadata = File::open(path)?.metadata()?;
+                metadata.modified()
+            }
+
+            if modification_time(path)? <= modification_time(&sidecar)? {
+                import = false;
+            }
+        }
+
+        if import {
+            doc.import(path, None).await?;
+        }
+
         Ok(doc)
     }
 
@@ -441,21 +515,20 @@ impl Document {
     /// By default the format of the `source` file is inferred from its extension but
     /// this can be overridden by providing the `format` option.
     #[tracing::instrument(skip(self))]
-    pub async fn import(&self, source: &Path, options: Option<DecodeOptions>) -> Result<()> {
+    pub async fn import(&mut self, source: &Path, options: Option<DecodeOptions>) -> Result<()> {
         let node = codecs::from_path(source, options).await?;
+        let format = Format::from_path(source);
 
-        let mut root = self.root.write().await;
-        *root = node;
+        let root = &mut *self.root.write().await;
+        schema::merge(root, &node, Some(format), None)?;
 
         Ok(())
     }
 
     /// Export a document to a file in another format
     ///
-    /// This loads the root [`Node`] from the document's store and encodes it to
-    /// the destination format. By default the format is inferred from the extension
+    /// By default the format is inferred from the extension
     /// of the `dest` file but this can be overridden by providing the `format` option.
-    ///
     /// If `dest` is `None`, then the root node is encoded as a string and returned. This
     /// is usually only desireable for text-based formats (e.g. JSON, Markdown).
     #[tracing::instrument(skip(self))]

@@ -15,8 +15,7 @@ use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
 use crate::{
-    logging::{LoggingFormat, LoggingLevel},
-    preview, sync, uninstall, upgrade,
+    logging::{LoggingFormat, LoggingLevel}, new, preview, sync, uninstall, upgrade
 };
 
 /// CLI subcommands and global options
@@ -102,27 +101,9 @@ impl Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Create a new document
-    New {
-        /// The path of the document to create
-        path: PathBuf,
+    New(new::Cli),
 
-        /// The source file to import from
-        #[arg(long, short)]
-        source: Option<PathBuf>,
-
-        /// The format of the source file
-        #[arg(long, short)]
-        format: Option<Format>,
-
-        /// The codec to use to decode the source
-        #[arg(long)]
-        codec: Option<String>,
-
-        /// Overwrite the document if it already exists
-        #[arg(long, short)]
-        overwrite: bool,
-    },
+    Sync(sync::Cli),
 
     /*
     /// Import a file in another format into a new or existing document
@@ -177,7 +158,6 @@ pub enum Command {
         strip_options: StripOptions,
     },
     */
-    Sync(sync::Cli),
 
     /// Convert a document to another format
     Convert {
@@ -489,9 +469,9 @@ impl Cli {
         tracing::trace!("Running CLI command");
 
         match self.command {
-            Command::New { .. } => {
-                Document::new()?;
-            }
+            Command::New(new) => new.run().await?,
+            
+            Command::Sync(sync) => sync.run().await?,
 
             /*
             Command::Import {
@@ -528,7 +508,6 @@ impl Cli {
                 }
             }
             */
-            Command::Sync(sync) => sync.run().await?,
 
             Command::Convert {
                 input,

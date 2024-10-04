@@ -19,6 +19,7 @@ impl Document {
         mut command_receiver: DocumentCommandReceiver,
         status_sender: DocumentCommandStatusSender,
         home: PathBuf,
+        path: Option<PathBuf>,
         root: DocumentRoot,
         kernels: DocumentKernels,
         patch_sender: DocumentPatchSender,
@@ -119,6 +120,7 @@ impl Document {
             }
 
             let home = home.clone();
+            let path = path.clone();
             let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
@@ -197,15 +199,40 @@ impl Document {
                     // so just ignore them
                     send_status(&status_sender, command_id, CommandStatus::Ignored);
                 }
+
+                // Note: the following commands are not cancellable; the `current` variable is not set
                 SaveDocument => {
-                    let status = CommandStatus::Failed(format!(
-                        "Document command `{command}` not handled yet"
-                    ));
-                    send_status(&status_sender, command_id, status);
+                    // Save the document to its source and sidecar
+                    if let Some(path) = &path {
+                        let status_sender = status_sender.clone();
+                        let path = path.to_path_buf();
+                        tokio::spawn(async move {
+                            let root = &*root.read().await;
+                            let status = match async {
+                                to_path(root, &path, None).await?;
+                                to_path(root, &Document::sidecar_path(&path), None).await
+                            }
+                            .await
+                            {
+                                Ok(..) => CommandStatus::Succeeded,
+                                Err(error) => {
+                                    CommandStatus::Failed(format!("While saving: {error}"))
+                                }
+                            };
+                            send_status(&status_sender, command_id, status);
+                        });
+                    } else {
+                        send_status(
+                            &status_sender,
+                            command_id,
+                            CommandStatus::Failed("Document does not have a path".to_string()),
+                        );
+                    }
                 }
                 ExportDocument((path, options)) => {
+                    // Export the document to a path (usually a different format)
                     let status_sender = status_sender.clone();
-                    let task = tokio::spawn(async move {
+                    tokio::spawn(async move {
                         let root = &*root.read().await;
                         let status = match to_path(root, &path, Some(options)).await {
                             Ok(..) => CommandStatus::Succeeded,
@@ -215,7 +242,6 @@ impl Document {
                         };
                         send_status(&status_sender, command_id, status);
                     });
-                    current = Some((command, command_id, task));
                 }
             }
         }
