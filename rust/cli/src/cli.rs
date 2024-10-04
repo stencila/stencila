@@ -15,7 +15,8 @@ use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
 use crate::{
-    logging::{LoggingFormat, LoggingLevel}, new, preview, sync, uninstall, upgrade
+    logging::{LoggingFormat, LoggingLevel},
+    new, preview, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -158,7 +159,6 @@ pub enum Command {
         strip_options: StripOptions,
     },
     */
-
     /// Convert a document to another format
     Convert {
         /// The path of the input file
@@ -470,7 +470,7 @@ impl Cli {
 
         match self.command {
             Command::New(new) => new.run().await?,
-            
+
             Command::Sync(sync) => sync.run().await?,
 
             /*
@@ -508,7 +508,6 @@ impl Cli {
                 }
             }
             */
-
             Command::Convert {
                 input,
                 output,
