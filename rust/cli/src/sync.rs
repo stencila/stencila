@@ -8,7 +8,7 @@ use common::{
 use document::{Document, SyncDirection};
 use format::Format;
 
-use crate::cli::{DecodeOptions, EncodeOptions, StripOptions};
+use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
 /// Synchronize a document between formats
 ///
