@@ -490,8 +490,10 @@ impl Document {
     /// Open an existing document with syncing
     #[tracing::instrument]
     pub async fn synced(path: &Path, sync: SyncDirection) -> Result<Self> {
-        let doc = Self::at(path)?;
+        let doc = Self::open(path).await?;
+        
         doc.sync_file(path, sync, None, None).await?;
+
         Ok(doc)
     }
 

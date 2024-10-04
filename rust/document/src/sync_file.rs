@@ -38,27 +38,38 @@ impl Document {
     ) -> Result<()> {
         tracing::trace!("Syncing file");
 
-        // Before starting watches import and export as necessary.
-        let node = match direction {
-            SyncDirection::In => {
-                let node = codecs::from_path(path, decode_options.clone()).await?;
-                *self.root.write().await = node.clone();
-                node
-            }
-            SyncDirection::Out => {
-                let node = self.root.read().await;
-                codecs::to_path(&node, path, encode_options.clone()).await?;
-                node.clone()
-            }
-            SyncDirection::InOut => {
-                if path.exists() {
+        let is_directory;
+        fn node_is_dir(node: &Node) -> bool {
+            matches!(node, Node::Directory(..))
+        }
+        if Some(path) == self.path.as_deref() {
+            // If the path is the path of this document, then it should already
+            // be loaded, including handling any sidecar file, so just return root node
+            is_directory = node_is_dir(&*self.root.read().await);
+        } else {
+            // Before starting watches import and/or export to the synced path
+            // as necessary.
+            match direction {
+                SyncDirection::In => {
                     let node = codecs::from_path(path, decode_options.clone()).await?;
-                    *self.root.write().await = node.clone();
-                    node
-                } else {
+                    is_directory = node_is_dir(&node);
+                    *self.root.write().await = node;
+                }
+                SyncDirection::Out => {
                     let node = self.root.read().await;
+                    is_directory = node_is_dir(&node);
                     codecs::to_path(&node, path, encode_options.clone()).await?;
-                    node.clone()
+                }
+                SyncDirection::InOut => {
+                    if path.exists() {
+                        let node = codecs::from_path(path, decode_options.clone()).await?;
+                        is_directory = node_is_dir(&node);
+                        *self.root.write().await = node;
+                    } else {
+                        let node = self.root.read().await;
+                        is_directory = node_is_dir(&node);
+                        codecs::to_path(&node, path, encode_options.clone()).await?;
+                    }
                 }
             }
         };
@@ -191,9 +202,7 @@ impl Document {
         }
 
         // Spawn a task to write non-`Directory` nodes to the file when the node changes
-        if !matches!(node, Node::Directory(..))
-            && matches!(direction, SyncDirection::Out | SyncDirection::InOut)
-        {
+        if !is_directory && matches!(direction, SyncDirection::Out | SyncDirection::InOut) {
             let mut receiver = self.watch_receiver.clone();
             let path_buf = path.to_path_buf();
             tokio::spawn(async move {
