@@ -16,7 +16,7 @@
   },
   "icon": "icons/stencila-128.png",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.84.0"
   },
   "categories": [
     "Programming Languages",
@@ -565,12 +565,12 @@
   "devDependencies": {
     "@types/mocha": "10.0.8",
     "@types/node": "20.x",
-    "@types/vscode": "1.93.0",
+    "@types/vscode": "1.84.0",
     "@typescript-eslint/eslint-plugin": "8.7.0",
     "@typescript-eslint/parser": "8.7.0",
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.4.1",
-    "@vscode/vsce": "3.1.0",
+    "@vscode/vsce": "3.1.1",
     "eslint": "8.57.0",
     "js-yaml": "4.1.0"
   }
