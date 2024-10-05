@@ -7,8 +7,9 @@ import {
   ServerOptions,
 } from "vscode-languageclient/node";
 
-import { registerNotifications } from "./notifications";
+import { registerAuthenticationProvider } from "./authentication";
 import { registerCommands } from "./commands";
+import { registerNotifications } from "./notifications";
 
 let client: LanguageClient;
 
@@ -57,14 +58,10 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   await client.start();
 
-  // Register commands, notifications
+  // Register auth provider, commands, notifications etc
+  registerAuthenticationProvider(context);
   registerCommands(context, client);
   registerNotifications(client);
-
-  // Define the default theme for this extension.
-  vscode.workspace
-    .getConfiguration("workbench")
-    .update("colorTheme", "StencilaLight", vscode.ConfigurationTarget.Global);
 }
 
 /**

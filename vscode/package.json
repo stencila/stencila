@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/stencila/stencila.git"
   },
-  "icon": "icons/stencila-icon-128x128.png",
+  "icon": "icons/stencila-128.png",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -30,6 +30,12 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "authentication": [
+      {
+        "id": "stencila",
+        "label": "Stencila Cloud"
+      }
+    ],
     "configuration": {
       "title": "Stencila Configuration",
       "properties": {
@@ -160,6 +166,16 @@
         "title": "Export document",
         "shortTitle": "Export doc",
         "icon": "$(export)"
+      },
+      {
+        "command": "stencila.cloud.signin",
+        "title": "Stencila: Sign in",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "stencila.cloud.signout",
+        "title": "Stencila: Sign out",
+        "icon": "$(sign-out)"
       }
     ],
     "keybindings": [
@@ -378,7 +394,7 @@
     "themes": [
       {
         "id": "StencilaLight",
-        "label": "Stencila light",
+        "label": "Stencila Light",
         "uiTheme": "vs",
         "path": "./themes/stencila-light-color-theme.json"
       }
