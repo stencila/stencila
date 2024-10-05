@@ -1,5 +1,5 @@
 use std::{
-    fs::File,
+    fs::{self, File},
     io::{Cursor, Read, Write},
     path::Path,
 };
@@ -7,9 +7,8 @@ use std::{
 use codec::{
     common::{
         async_trait::async_trait,
-        eyre::Result,
+        eyre::{bail, Result},
         serde_json::{Map, Value},
-        tokio::{self, fs::create_dir_all},
         zip::{self, write::FileOptions, ZipArchive},
     },
     format::Format,
@@ -20,6 +19,11 @@ use codec::{
 
 pub mod r#trait;
 use r#trait::JsonCodec as _;
+
+/// The current version of Stencila
+///
+/// Used to include the version number for the `$schema` and `@content` URLs.
+pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A codec for JSON
 pub struct JsonCodec;
@@ -60,26 +64,28 @@ impl Codec for JsonCodec {
         CodecSupport::NoLoss
     }
 
+    async fn from_path(
+        &self,
+        path: &Path,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, DecodeInfo)> {
+        from_path(path, options)
+    }
+
     async fn from_bytes(
         &self,
         bytes: &[u8],
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let string = if let Some(Format::JsonZip) =
-            options.as_ref().and_then(|options| options.format.as_ref())
-        {
-            let reader = Cursor::new(bytes);
-            let mut zip = ZipArchive::new(reader)?;
-            let mut file = zip.by_index(0)?;
+        from_bytes(bytes, options)
+    }
 
-            let mut contents = String::new();
-            file.read_to_string(&mut contents)?;
-            contents
-        } else {
-            String::from_utf8(bytes.to_vec())?
-        };
-
-        self.from_str(&string, options).await
+    async fn from_str(
+        &self,
+        str: &str,
+        _options: Option<DecodeOptions>,
+    ) -> Result<(Node, DecodeInfo)> {
+        from_str(str)
     }
 
     async fn to_path(
@@ -88,45 +94,7 @@ impl Codec for JsonCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        // Implement `to_path, rather than `to_bytes`, so that, if encoding to `json.zip`,
-        // the single file in the Zip archive can have the name minus `.zip`
-
-        let (string, ..) = self.to_string(node, options.clone()).await?;
-
-        if let Some(parent) = path.parent() {
-            create_dir_all(parent).await?;
-        }
-
-        if let Some(Format::JsonZip) = options.and_then(|options| options.format) {
-            let zip_file = File::create(path)?;
-            let mut zip = zip::ZipWriter::new(&zip_file);
-
-            let filename = path
-                .file_name()
-                .and_then(|name| name.to_str())
-                .and_then(|name| name.split('.').next())
-                .unwrap_or("document");
-            let filename = [filename, ".json"].concat();
-
-            let options = FileOptions::default().unix_permissions(0o755);
-            zip.start_file(filename, options)?;
-            zip.write_all(string.as_bytes())?;
-            zip.finish()?;
-        } else {
-            tokio::fs::write(path, string).await?;
-        };
-
-        Ok(EncodeInfo::none())
-    }
-
-    async fn from_str(
-        &self,
-        str: &str,
-        _options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        let node = Node::from_json(str)?;
-
-        Ok((node, DecodeInfo::none()))
+        to_path(node, path, options)
     }
 
     async fn to_string(
@@ -134,59 +102,159 @@ impl Codec for JsonCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let EncodeOptions {
-            standalone,
-            compact,
-            ..
-        } = options.unwrap_or_default();
+        to_string(node, options)
+    }
+}
 
-        if !standalone.unwrap_or_default() {
-            return Ok((
-                match compact {
-                    Some(true) => node.to_json(),
-                    Some(false) | None => node.to_json_pretty(),
-                }?,
-                EncodeInfo::none(),
-            ));
-        }
+/**
+ * Decode a node from a JSON or JSON+zip file
+ */
+pub fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+    if !path.exists() {
+        bail!("Path `{}` does not exist", path.display());
+    }
 
-        let value = node.to_json_value()?;
+    let mut options = options.unwrap_or_default();
+    if options.format.is_none() {
+        let format = Format::from_path(path);
+        options.format = Some(format);
+    }
 
-        let value = if let (Some(true), Some(r#type)) = (
-            standalone,
-            value
-                .as_object()
-                .and_then(|object| object.get("type"))
-                .and_then(|r#type| r#type.as_str())
-                .map(String::from),
-        ) {
-            let object = value.as_object().expect("checked above").to_owned();
+    let mut file = fs::File::open(path)?;
+    let mut content = Vec::new();
+    file.read_to_end(&mut content)?;
+    from_bytes(&content, Some(options))
+}
 
-            // Insert the `$schema` and `@context` at the top of the root
-            let mut root = Map::with_capacity(object.len() + 1);
-            root.insert(
-                String::from("$schema"),
-                Value::String(format!("https://stencila.org/{type}.schema.json")),
-            );
-            root.insert(
-                String::from("@context"),
-                Value::String(String::from("https://stencila.org/context.jsonld")),
-            );
-            for (key, value) in object.into_iter() {
-                root.insert(key, value);
-            }
+/**
+ * Decode a node from JSON or JSON+zip bytes
+ */
+pub fn from_bytes(bytes: &[u8], options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+    let string = if let Some(Format::JsonZip) =
+        options.as_ref().and_then(|options| options.format.as_ref())
+    {
+        let reader = Cursor::new(bytes);
+        let mut zip = ZipArchive::new(reader)?;
+        let mut file = zip.by_index(0)?;
 
-            Value::Object(root)
-        } else {
-            value
-        };
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        contents
+    } else {
+        String::from_utf8(bytes.to_vec())?
+    };
 
-        Ok((
+    from_str(&string)
+}
+
+/**
+ * Decode a node from a JSON string
+ */
+pub fn from_str(str: &str) -> Result<(Node, DecodeInfo)> {
+    let node = Node::from_json(str)?;
+
+    Ok((node, DecodeInfo::none()))
+}
+
+/**
+ * Encode a node to a JSON or JSON+zip file
+ */
+pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<EncodeInfo> {
+    // Implement `to_path, rather than `to_bytes`, so that, if encoding to `json.zip`,
+    // the single file in the Zip archive can have the name minus `.zip`
+
+    let mut options = options.unwrap_or_default();
+    options.standalone = Some(true);
+    let options = Some(options);
+
+    let (string, ..) = to_string(node, options.clone())?;
+
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    if let Some(Format::JsonZip) = options.and_then(|options| options.format) {
+        let zip_file = File::create(path)?;
+        let mut zip = zip::ZipWriter::new(&zip_file);
+
+        let filename = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .and_then(|name| name.split('.').next())
+            .unwrap_or("document");
+        let filename = [filename, ".json"].concat();
+
+        let options = FileOptions::default().unix_permissions(0o755);
+        zip.start_file(filename, options)?;
+        zip.write_all(string.as_bytes())?;
+        zip.finish()?;
+    } else {
+        fs::write(path, string)?;
+    };
+
+    Ok(EncodeInfo::none())
+}
+
+/**
+ * Encode a node to a JSON string
+ */
+pub fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
+    let EncodeOptions {
+        standalone,
+        compact,
+        ..
+    } = options.unwrap_or_default();
+
+    if !standalone.unwrap_or_default() {
+        return Ok((
             match compact {
-                Some(true) => value.to_json(),
-                Some(false) | None => value.to_json_pretty(),
+                Some(true) => node.to_json(),
+                Some(false) | None => node.to_json_pretty(),
             }?,
             EncodeInfo::none(),
-        ))
+        ));
     }
+
+    let value = node.to_json_value()?;
+
+    let value = if let (Some(true), Some(r#type)) = (
+        standalone,
+        value
+            .as_object()
+            .and_then(|object| object.get("type"))
+            .and_then(|r#type| r#type.as_str())
+            .map(String::from),
+    ) {
+        let object = value.as_object().expect("checked above").to_owned();
+
+        // Insert the `$schema` and `@context` at the top of the root
+        let mut root = Map::with_capacity(object.len() + 1);
+        root.insert(
+            String::from("$schema"),
+            Value::String(format!(
+                "https://stencila.org/v{STENCILA_VERSION}/{type}.schema.json"
+            )),
+        );
+        root.insert(
+            String::from("@context"),
+            Value::String(format!(
+                "https://stencila.org/v{STENCILA_VERSION}/context.jsonld"
+            )),
+        );
+        for (key, value) in object.into_iter() {
+            root.insert(key, value);
+        }
+
+        Value::Object(root)
+    } else {
+        value
+    };
+
+    Ok((
+        match compact {
+            Some(true) => value.to_json(),
+            Some(false) | None => value.to_json_pretty(),
+        }?,
+        EncodeInfo::none(),
+    ))
 }

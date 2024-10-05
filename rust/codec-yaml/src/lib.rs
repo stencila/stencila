@@ -16,6 +16,11 @@ use r#trait::YamlCodec as _;
 #[cfg(test)]
 mod tests;
 
+/// The current version of Stencila
+///
+/// Used to include the version number for the `$schema` and `@content` URLs.
+pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// A codec for YAML
 pub struct YamlCodec;
 
@@ -85,11 +90,15 @@ impl Codec for YamlCodec {
             let mut root = serde_yaml::Mapping::with_capacity(object.len() + 1);
             root.insert(
                 Value::String(String::from("$schema")),
-                Value::String(format!("https://stencila.org/{type}.schema.json")),
+                Value::String(format!(
+                    "https://stencila.org/v{STENCILA_VERSION}/{type}.schema.json"
+                )),
             );
             root.insert(
                 Value::String(String::from("@context")),
-                Value::String(String::from("https://stencila.org/context.jsonld")),
+                Value::String(format!(
+                    "https://stencila.org/v{STENCILA_VERSION}/context.jsonld"
+                )),
             );
             for (key, value) in object.into_iter() {
                 root.insert(key, value);

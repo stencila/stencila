@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use codecs::to_path;
+use codecs::{to_path, EncodeOptions, LossesResponse};
 use common::{
     tokio::{self, task::JoinHandle},
     tracing,
@@ -17,19 +17,21 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub(super) async fn command_task(
         mut command_receiver: DocumentCommandReceiver,
-        command_status_sender: DocumentCommandStatusSender,
+        status_sender: DocumentCommandStatusSender,
         home: PathBuf,
+        path: Option<PathBuf>,
         root: DocumentRoot,
         kernels: DocumentKernels,
         patch_sender: DocumentPatchSender,
     ) {
         tracing::debug!("Document command task started");
 
-        let send_status = |id, status| {
-            if let Err(error) = command_status_sender.send((id, status)) {
+        // Local function to send back command status and log any error when doing so
+        fn send_status(sender: &DocumentCommandStatusSender, id: u64, status: CommandStatus) {
+            if let Err(error) = sender.send((id, status)) {
                 tracing::error!("While sending command status: {error}");
             }
-        };
+        }
 
         let mut current: Option<(Command, u64, JoinHandle<()>)> = None;
         while let Some((command, command_id)) = command_receiver.recv().await {
@@ -44,12 +46,13 @@ impl Document {
                     match (&command, current_command) {
                         (CompileDocument | ExecuteDocument(..), ExecuteDocument(..)) => {
                             tracing::debug!("Ignoring document command: already executing");
-                            send_status(command_id, CommandStatus::Ignored);
+                            send_status(&status_sender, command_id, CommandStatus::Ignored);
+
                             continue;
                         }
                         (InterruptDocument, ExecuteDocument(..) | ExecuteNodes(..)) => {
                             tracing::debug!("Interrupting document execution");
-                            send_status(command_id, CommandStatus::Running);
+                            send_status(&status_sender, command_id, CommandStatus::Running);
 
                             current_task.abort();
 
@@ -62,14 +65,19 @@ impl Document {
                             )
                             .await
                             {
-                                tracing::error!("While interrupting document: {error}");
-                                CommandStatus::Failed
+                                CommandStatus::Failed(format!(
+                                    "While interrupting document: {error}"
+                                ))
                             } else {
-                                send_status(*current_command_id, CommandStatus::Interrupted);
+                                send_status(
+                                    &status_sender,
+                                    *current_command_id,
+                                    CommandStatus::Interrupted,
+                                );
                                 CommandStatus::Succeeded
                             };
 
-                            send_status(command_id, status);
+                            send_status(&status_sender, command_id, status);
                             continue;
                         }
                         (
@@ -77,7 +85,7 @@ impl Document {
                             ExecuteDocument(..) | ExecuteNodes(..),
                         ) => {
                             tracing::debug!("Interrupting node execution");
-                            send_status(command_id, CommandStatus::Running);
+                            send_status(&status_sender, command_id, CommandStatus::Running);
 
                             // Abort the current task if it has the same node_ids and scope
                             if &command == current_command {
@@ -93,14 +101,17 @@ impl Document {
                             )
                             .await
                             {
-                                tracing::error!("While interrupting nodes: {error}");
-                                CommandStatus::Failed
+                                CommandStatus::Failed(format!("While interrupting nodes: {error}"))
                             } else {
-                                send_status(*current_command_id, CommandStatus::Interrupted);
+                                send_status(
+                                    &status_sender,
+                                    *current_command_id,
+                                    CommandStatus::Interrupted,
+                                );
                                 CommandStatus::Succeeded
                             };
 
-                            send_status(command_id, status);
+                            send_status(&status_sender, command_id, status);
                             continue;
                         }
                         _ => {}
@@ -109,53 +120,53 @@ impl Document {
             }
 
             let home = home.clone();
+            let path = path.clone();
             let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
-            let status_sender = command_status_sender.clone();
 
             match command.clone() {
                 PatchNode(patch) => {
                     let status = if let Err(error) = patch_sender.send(patch) {
-                        tracing::error!("While sending patch: {error}");
-                        CommandStatus::Failed
+                        CommandStatus::Failed(format!("While sending patch: {error}"))
                     } else {
                         CommandStatus::Succeeded
                     };
-                    send_status(command_id, status);
+                    send_status(&status_sender, command_id, status);
                 }
                 CompileDocument => {
+                    let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
                             compile(home, root, kernels, Some(patch_sender), None, None).await
                         {
-                            tracing::error!("While compiling document: {error}");
-                            CommandStatus::Failed
+                            CommandStatus::Failed(format!("While compiling document: {error}"))
                         } else {
                             CommandStatus::Succeeded
                         };
 
-                        status_sender.send((command_id, status)).ok();
+                        send_status(&status_sender, command_id, status);
                     });
                     current = Some((command, command_id, task));
                 }
                 ExecuteDocument(options) => {
+                    let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
                             execute(home, root, kernels, Some(patch_sender), None, Some(options))
                                 .await
                         {
-                            tracing::error!("While executing document: {error}");
-                            CommandStatus::Failed
+                            CommandStatus::Failed(format!("While executing document: {error}"))
                         } else {
                             CommandStatus::Succeeded
                         };
 
-                        status_sender.send((command_id, status)).ok();
+                        send_status(&status_sender, command_id, status);
                     });
                     current = Some((command, command_id, task));
                 }
                 ExecuteNodes(CommandNodes { node_ids, .. }) => {
+                    let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let options = ExecuteOptions::default();
                         // TODO: set other options based on scope
@@ -170,13 +181,12 @@ impl Document {
                         )
                         .await
                         {
-                            tracing::error!("While executing nodes: {error}");
-                            CommandStatus::Failed
+                            CommandStatus::Failed(format!("While executing nodes: {error}"))
                         } else {
                             CommandStatus::Succeeded
                         };
 
-                        status_sender.send((command_id, status)).ok();
+                        send_status(&status_sender, command_id, status);
                     });
                     current = Some((
                         Command::ExecuteNodes(CommandNodes::default()),
@@ -184,31 +194,65 @@ impl Document {
                         task,
                     ));
                 }
+                InterruptDocument | InterruptNodes(..) => {
+                    // If these have fallen down to here it means that no execution was happening at the time
+                    // so just ignore them
+                    send_status(&status_sender, command_id, CommandStatus::Ignored);
+                }
+
+                // Note: the following commands are not cancellable; the `current` variable is not set
+                SaveDocument => {
+                    // Save the document to its source and sidecar
+                    if let Some(path) = &path {
+                        let status_sender = status_sender.clone();
+                        let path = path.to_path_buf();
+                        tokio::spawn(async move {
+                            let root = &*root.read().await;
+                            let status = match async {
+                                to_path(
+                                    root,
+                                    &path,
+                                    Some(EncodeOptions {
+                                        // Ignore losses because lossless sidecar file is
+                                        // encoded next.
+                                        losses: LossesResponse::Ignore,
+                                        ..Default::default()
+                                    }),
+                                )
+                                .await?;
+
+                                to_path(root, &Document::sidecar_path(&path), None).await
+                            }
+                            .await
+                            {
+                                Ok(..) => CommandStatus::Succeeded,
+                                Err(error) => {
+                                    CommandStatus::Failed(format!("While saving: {error}"))
+                                }
+                            };
+                            send_status(&status_sender, command_id, status);
+                        });
+                    } else {
+                        send_status(
+                            &status_sender,
+                            command_id,
+                            CommandStatus::Failed("Document does not have a path".to_string()),
+                        );
+                    }
+                }
                 ExportDocument((path, options)) => {
-                    let task = tokio::spawn(async move {
+                    // Export the document to a path (usually a different format)
+                    let status_sender = status_sender.clone();
+                    tokio::spawn(async move {
                         let root = &*root.read().await;
                         let status = match to_path(root, &path, Some(options)).await {
                             Ok(..) => CommandStatus::Succeeded,
                             Err(error) => {
-                                // TODO: This and (other errors) should go back in failed status
-                                tracing::error!("While encoding to path: {error}");
-                                CommandStatus::Failed
+                                CommandStatus::Failed(format!("While encoding to path: {error}"))
                             }
                         };
-                        status_sender.send((command_id, status)).ok();
+                        send_status(&status_sender, command_id, status);
                     });
-                    current = Some((command, command_id, task));
-                }
-                InterruptDocument | InterruptNodes(..) => {
-                    // If these have fallen down to here it means that no execution was happening at the time
-                    // so just ignore them
-                    status_sender
-                        .send((command_id, CommandStatus::Ignored))
-                        .ok();
-                }
-                _ => {
-                    tracing::warn!("Document command `{command}` not handled yet");
-                    status_sender.send((command_id, CommandStatus::Failed)).ok();
                 }
             }
         }

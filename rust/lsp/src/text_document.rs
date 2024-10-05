@@ -8,8 +8,8 @@ use std::{ops::ControlFlow, path::PathBuf, sync::Arc};
 use async_lsp::{
     lsp_types::{
         Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-        DidOpenTextDocumentParams, DidSaveTextDocumentParams, Position, PublishDiagnosticsParams,
-        Range, Url,
+        DidOpenTextDocumentParams, DidSaveTextDocumentParams, MessageType, Position,
+        PublishDiagnosticsParams, Range, ShowMessageParams, Url,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
@@ -26,7 +26,7 @@ use common::{
     },
     tracing,
 };
-use document::Document;
+use document::{CommandWait, Document};
 use schema::{
     Author, AuthorRole, AuthorRoleName, Duration, ExecutionKind, ExecutionMessage, ExecutionMode,
     ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp,
@@ -212,7 +212,7 @@ impl TextDocument {
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
-        let doc = Document::init(home.into(), None)?;
+        let doc = Document::init(home.into(), Some(path))?;
 
         let format = Format::from_name(&format);
 
@@ -509,7 +509,7 @@ pub(super) fn did_open(
     let client = state.client.clone();
     let user = state.options.user.clone();
 
-    let doc = match TextDocument::new(uri.clone(), format, source, client, user) {
+    let text_doc = match TextDocument::new(uri.clone(), format, source, client, user) {
         Ok(doc) => doc,
         Err(error) => {
             return ControlFlow::Break(Err(Error::Response(ResponseError::new(
@@ -519,7 +519,7 @@ pub(super) fn did_open(
         }
     };
 
-    state.documents.insert(uri, doc);
+    state.documents.insert(uri, text_doc);
 
     ControlFlow::Continue(())
 }
@@ -530,11 +530,11 @@ pub(super) fn did_change(
     params: DidChangeTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
-    if let Some(doc) = state.documents.get_mut(&uri) {
+    if let Some(text_doc) = state.documents.get_mut(&uri) {
         // TODO: This assumes a whole document change (with TextDocumentSyncKind::FULL in initialize):
         // needs more defensiveness and potentially implement incremental sync
         let source = params.content_changes[0].text.clone();
-        if let Err(error) = doc.update_sender.send(source) {
+        if let Err(error) = text_doc.update_sender.send(source) {
             tracing::error!("While sending updated source: {error}");
         }
     } else {
@@ -545,14 +545,37 @@ pub(super) fn did_change(
 }
 
 /// Handle a notification from the client that a text document was save
+///
+/// Saves the document's sidecar file to disk.
 pub(super) fn did_save(
-    _state: &mut ServerState,
-    _params: DidSaveTextDocumentParams,
+    state: &mut ServerState,
+    params: DidSaveTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
+    if let Some(text_doc) = state.documents.get(&params.text_document.uri) {
+        let doc = text_doc.doc.clone();
+        let mut client = state.client.clone();
+        tokio::spawn(async move {
+            let doc = doc.read().await;
+            if let Err(error) = doc.save(CommandWait::Yes).await {
+                client
+                    .show_message(ShowMessageParams {
+                        typ: MessageType::ERROR,
+                        message: format!("Error saving document: {error}"),
+                    })
+                    .ok();
+            }
+        });
+    }
+
     ControlFlow::Continue(())
 }
 
 /// Handle a notification from the client that a text document was closed
+///
+/// Removes the document from the server state's list of documents.
+/// Does NOT save the document because the editor (e.g. VSCode) should
+/// have prompted the user asking if they wanted to save any changes already
+/// (and may have said no to saving unsaved changes).
 pub(super) fn did_close(
     state: &mut ServerState,
     params: DidCloseTextDocumentParams,

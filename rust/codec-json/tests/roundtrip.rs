@@ -12,7 +12,7 @@ use codec::{
 };
 use common_dev::pretty_assertions::assert_eq;
 
-use codec_json::JsonCodec;
+use codec_json::{JsonCodec, STENCILA_VERSION};
 
 /// Test serialization and deserialization of a high level creative work type
 ///
@@ -110,24 +110,26 @@ async fn standalone() -> Result<()> {
         .await?;
     assert_eq!(
         json,
-        r#"{
-  "$schema": "https://stencila.org/Article.schema.json",
-  "@context": "https://stencila.org/context.jsonld",
+        format!(
+            r#"{{
+  "$schema": "https://stencila.org/v{STENCILA_VERSION}/Article.schema.json",
+  "@context": "https://stencila.org/v{STENCILA_VERSION}/context.jsonld",
   "type": "Article",
   "content": [
-    {
+    {{
       "type": "Paragraph",
       "content": [
-        {
+        {{
           "type": "Text",
-          "value": {
+          "value": {{
             "string": "Hello world"
-          }
-        }
+          }}
+        }}
       ]
-    }
+    }}
   ]
-}"#
+}}"#
+        )
     );
 
     let (doc2, ..) = codec.from_str(&json, None).await?;
