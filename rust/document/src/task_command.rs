@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use codecs::to_path;
+use codecs::{to_path, EncodeOptions, LossesResponse};
 use common::{
     tokio::{self, task::JoinHandle},
     tracing,
@@ -209,7 +209,18 @@ impl Document {
                         tokio::spawn(async move {
                             let root = &*root.read().await;
                             let status = match async {
-                                to_path(root, &path, None).await?;
+                                to_path(
+                                    root,
+                                    &path,
+                                    Some(EncodeOptions {
+                                        // Ignore losses because lossless sidecar file is
+                                        // encoded next.
+                                        losses: LossesResponse::Ignore,
+                                        ..Default::default()
+                                    }),
+                                )
+                                .await?;
+
                                 to_path(root, &Document::sidecar_path(&path), None).await
                             }
                             .await
