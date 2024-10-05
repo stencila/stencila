@@ -42,6 +42,10 @@ pub struct Cli {
 
     #[command(flatten)]
     strip_options: StripOptions,
+
+    /// Do not save the document after compiling it
+    #[arg(long)]
+    no_save: bool,
 }
 
 impl Cli {
@@ -53,11 +57,16 @@ impl Cli {
             execute_options,
             encode_options,
             strip_options,
+            no_save,
         } = self;
 
         let doc = Document::open(&input).await?;
         doc.compile(CommandWait::Yes).await?;
         doc.execute(execute_options, CommandWait::Yes).await?;
+
+        if !no_save {
+            doc.save(CommandWait::Yes).await?;
+        }
 
         let mut encode_options = encode_options.build(
             Some(input.as_ref()),

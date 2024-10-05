@@ -8,7 +8,6 @@ use common::{
 };
 use document::{CommandWait, Document};
 use format::Format;
-use node_execute::ExecuteOptions;
 
 use crate::options::{EncodeOptions, StripOptions};
 
@@ -32,14 +31,15 @@ pub struct Cli {
     #[arg(long, short)]
     to: Option<String>,
 
-    #[clap(flatten)]
-    execute_options: ExecuteOptions,
-
     #[command(flatten)]
     encode_options: EncodeOptions,
 
     #[command(flatten)]
     strip_options: StripOptions,
+
+    /// Do not save the document after compiling it
+    #[arg(long)]
+    no_save: bool,
 }
 
 impl Cli {
@@ -50,27 +50,34 @@ impl Cli {
             to,
             encode_options,
             strip_options,
+            no_save,
             ..
         } = self;
 
         let doc = Document::open(&input).await?;
         doc.compile(CommandWait::Yes).await?;
 
-        let encode_options = encode_options.build(
-            Some(input.as_ref()),
-            output.as_deref(),
-            to,
-            Format::Json,
-            strip_options,
-            LossesResponse::Debug,
-        );
+        if !no_save {
+            doc.save(CommandWait::Yes).await?;
+        }
 
-        let content = doc
-            .export(output.as_deref(), Some(encode_options.clone()))
-            .await?;
+        if output.is_some() || to.is_some() {
+            let encode_options = encode_options.build(
+                Some(input.as_ref()),
+                output.as_deref(),
+                to,
+                Format::Json,
+                strip_options,
+                LossesResponse::Debug,
+            );
 
-        if !content.is_empty() {
-            Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
+            let content = doc
+                .export(output.as_deref(), Some(encode_options.clone()))
+                .await?;
+
+            if !content.is_empty() {
+                Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
+            }
         }
 
         Ok(())
