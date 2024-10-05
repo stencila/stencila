@@ -465,7 +465,7 @@ impl Executor {
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> Option<ExecutionStatus> {
-        if self.options.force_all || matches!(execution_mode, Some(ExecutionMode::Always)) {
+        if self.options.force_all {
             return Some(ExecutionStatus::Pending);
         }
 
@@ -492,6 +492,11 @@ impl Executor {
             }
         } else if self.options.skip_code {
             return Some(ExecutionStatus::Skipped);
+        }
+
+        // Check execution mode of node after `skip_` options
+        if matches!(execution_mode, Some(ExecutionMode::Always)) {
+            return Some(ExecutionStatus::Pending);
         }
 
         if (compilation_digest.is_none() && execution_digest.is_none())
