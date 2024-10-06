@@ -62,7 +62,7 @@ export function registerSecretsCommands(context: vscode.ExtensionContext) {
       // Store the secret
       await context.secrets.store(secretName, secretValue);
       vscode.window.showInformationMessage(
-        `Secret ${secretName} has been set.`
+        `Secret ${secretName} set. Restart Stencila LSP Server for change to take effect.`
       );
     }
   );
@@ -97,7 +97,7 @@ export function registerSecretsCommands(context: vscode.ExtensionContext) {
       // Delete the secret
       await context.secrets.delete(secretToDelete);
       vscode.window.showInformationMessage(
-        `Secret ${secretToDelete} has been removed.`
+        `Secret ${secretToDelete} removed. Restart Stencila LSP Server for change to take effect.`
       );
     }
   );
