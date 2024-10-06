@@ -77,7 +77,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         },
         {
           label: "$(server-process) Restart",
-          description: "Restart the Stencila LSP Server",
+          description: "Restart the Stencila Language Server",
           command: "stencila.lsp-server.restart",
         },
       ];
@@ -114,7 +114,8 @@ class ExtensionStatusBar {
 
   public updateStatusBarItem(document: vscode.TextDocument | undefined): void {
     if (!document) {
-      this.statusBarItem.text = "Stencila is active";
+      this.statusBarItem.text = "$(circle-large-outline) Stencila";
+      this.statusBarItem.tooltip = "Stencila is active";
       return;
     }
 

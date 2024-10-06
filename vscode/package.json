@@ -192,7 +192,7 @@
       {
         "command": "stencila.lsp-server.restart",
         "category": "Stencila",
-        "title": "Restart Stencila LSP server"
+        "title": "Restart Language Server"
       },
       {
         "command": "stencila.cloud.signin",
