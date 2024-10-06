@@ -1,6 +1,11 @@
 import * as vscode from "vscode";
 
-const ID = "stencila";
+export const PROVIDER_ID = "stencila";
+
+// If developing against Stencila Cloud running locally use
+// http://localhost:5173 and http://localhost:8787/v1
+const CLOUD_URL = "https://stencila.cloud";
+const API_URL = "https://api.stencila.cloud/v1";
 
 /**
  * Register the Stencila Cloud authentication provider
@@ -10,7 +15,7 @@ export function registerAuthenticationProvider(
 ) {
   context.subscriptions.push(
     vscode.authentication.registerAuthenticationProvider(
-      ID,
+      PROVIDER_ID,
       "Stencila Cloud",
       new StencilaCloudProvider(context),
       { supportsMultipleAccounts: false }
@@ -20,9 +25,13 @@ export function registerAuthenticationProvider(
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.cloud.signin", async () => {
       try {
-        const session = await vscode.authentication.getSession(ID, [], {
-          createIfNone: true,
-        });
+        const session = await vscode.authentication.getSession(
+          PROVIDER_ID,
+          [],
+          {
+            createIfNone: true,
+          }
+        );
         vscode.window.showInformationMessage(
           `Signed in to Stencila Cloud as ${session.account.label}`
         );
@@ -37,9 +46,13 @@ export function registerAuthenticationProvider(
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.cloud.signout", async () => {
       try {
-        const session = await vscode.authentication.getSession(ID, [], {
-          silent: true,
-        });
+        const session = await vscode.authentication.getSession(
+          PROVIDER_ID,
+          [],
+          {
+            silent: true,
+          }
+        );
         if (session) {
           const provider = new StencilaCloudProvider(context);
           await provider.removeSession(session.id);
@@ -73,26 +86,6 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     return this.sessionChangeEmitter.event;
   }
 
-  getCloudUrl(): string {
-    //return "http://localhost:5173";
-    switch (this.context.extensionMode) {
-      case vscode.ExtensionMode.Development:
-      case vscode.ExtensionMode.Test:
-      case vscode.ExtensionMode.Production:
-        return "https://stencila.cloud";
-    }
-  }
-
-  getApiUrl(): string {
-    //return "http://localhost:8787/v1";
-    switch (this.context.extensionMode) {
-      case vscode.ExtensionMode.Development:
-      case vscode.ExtensionMode.Test:
-      case vscode.ExtensionMode.Production:
-        return "https://api.stencila.cloud/v1";
-    }
-  }
-
   async getSessions(): Promise<vscode.AuthenticationSession[]> {
     const storedSessions = await this.context.secrets.get("sessions");
     if (storedSessions) {
@@ -118,7 +111,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       "Access token for Stencila VSCode extension"
     );
     const authUri = vscode.Uri.parse(
-      `${this.getCloudUrl()}/access-tokens/otc?callback=${cb}&name=${name}&description=${desc}`
+      `${CLOUD_URL}/access-tokens/otc?callback=${cb}&name=${name}&description=${desc}`
     );
     vscode.env.openExternal(authUri);
 
@@ -140,7 +133,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     }
 
     // Swap the code for the API token
-    const tokenResponse = await fetch(`${this.getApiUrl()}/access-tokens/otc`, {
+    const tokenResponse = await fetch(`${API_URL}/access-tokens/otc`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -169,7 +162,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
 
     // Get the user from the user_id. This also checks that the
     // access_token is valid
-    const userResponse = await fetch(`${this.getApiUrl()}/users/me`, {
+    const userResponse = await fetch(`${API_URL}/users/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -224,16 +217,13 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     let token = session?.accessToken;
     if (token) {
       // Delete the access token on Stencila Cloud
-      const response = await fetch(
-        `${this.getApiUrl()}/access-tokens/token/${token}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/access-tokens/token/${token}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         let message;
         try {

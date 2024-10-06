@@ -180,6 +180,21 @@
         "icon": "$(export)"
       },
       {
+        "command": "stencila.secrets.set",
+        "category": "Stencila",
+        "title": "Add/set secret"
+      },
+      {
+        "command": "stencila.secrets.delete",
+        "category": "Stencila",
+        "title": "Remove secret"
+      },
+      {
+        "command": "stencila.lsp-server.restart",
+        "category": "Stencila",
+        "title": "Restart Stencila LSP server"
+      },
+      {
         "command": "stencila.cloud.signin",
         "category": "Stencila Cloud",
         "title": "Sign in",
