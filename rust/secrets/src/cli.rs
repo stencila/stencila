@@ -22,11 +22,11 @@ enum Command {
     /// Set a secret used by Stencila
     ///
     /// You will be prompted for the secret
-    #[command(alias="add")]
+    #[command(alias = "add")]
     Set(Set),
 
     /// Delete a secret previously set using Stencila
-    #[command(alias="remove")]
+    #[command(alias = "remove")]
     Delete(Delete),
 }
 
