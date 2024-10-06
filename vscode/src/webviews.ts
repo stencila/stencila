@@ -1,13 +1,13 @@
 import path from "path";
 
 import * as vscode from "vscode";
-import { LanguageClient } from "vscode-languageclient/node";
+import { subscribeToContent } from "./extension";
 
 /**
  * A map of document view panels used to ensure that only one
  * view of a document exists at a time
  */
-const documentViewPanels = new Map();
+const documentViewPanels = new Map<vscode.Uri, vscode.WebviewPanel>();
 
 /**
  * Create a WebView panel that display the document
@@ -17,7 +17,6 @@ const documentViewPanels = new Map();
  */
 export async function createDocumentViewPanel(
   context: vscode.ExtensionContext,
-  client: LanguageClient,
   documentUri: vscode.Uri,
   nodeId?: string,
   expandAuthors?: boolean
@@ -33,7 +32,7 @@ export async function createDocumentViewPanel(
       panel.webview.postMessage({
         type: "view-node",
         nodeId,
-        expandAuthors
+        expandAuthors,
       });
     }
 
@@ -98,36 +97,17 @@ export async function createDocumentViewPanel(
   `;
   };
 
-  const FORMAT = "dom.html";
-
-  const content = (await client.sendRequest("stencila/subscribeContent", {
-    uri: documentUri.toString(),
-    format: FORMAT,
-  })) as string;
-  panel.webview.html = createDocumentViewHTML(content);
-
-  client.onNotification(
-    "stencila/publishContent",
-    ({
-      uri,
-      format,
-      content,
-    }: {
-      uri: string;
-      format: string;
-      content: string;
-    }) => {
-      if (uri === documentUri.toString() && format === FORMAT) {
-        panel.webview.html = createDocumentViewHTML(content);
-      }
-    }
-  );
+  // Subscribe to updates of DOM HTML for document
+  await subscribeToContent(documentUri, "dom.html", (content: string) => {
+    panel.webview.html = createDocumentViewHTML(content);
+  });
 
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);
 
   // Handle when the webview is disposed
   panel.onDidDispose(() => {
+    // TODO: should unsubscribe to content updates
     documentViewPanels.delete(documentUri);
   }, null);
 
@@ -136,7 +116,7 @@ export async function createDocumentViewPanel(
     panel.webview.postMessage({
       type: "view-node",
       nodeId,
-      expandAuthors
+      expandAuthors,
     });
   }
 
@@ -177,4 +157,24 @@ export async function createDocumentViewPanel(
   );
 
   return panel;
+}
+
+/**
+ * Close all document view panels
+ *
+ * This is necessary when the server is restarted because the client that the
+ * panels are subscribed to will no longer exist.
+ */
+export function closeDocumentViewPanels() {
+  if (documentViewPanels.size > 0) {
+    vscode.window.showInformationMessage("Closing document view panels");
+  } else {
+    return;
+  }
+
+  for (const panel of documentViewPanels.values()) {
+    panel.dispose();
+  }
+
+  documentViewPanels.clear();
 }

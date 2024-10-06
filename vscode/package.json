@@ -14,9 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/stencila/stencila.git"
   },
-  "icon": "icons/stencila-icon-128x128.png",
+  "icon": "icons/stencila-128.png",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.84.0"
   },
   "categories": [
     "Programming Languages",
@@ -30,6 +30,12 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "authentication": [
+      {
+        "id": "stencila",
+        "label": "Stencila Cloud"
+      }
+    ],
     "configuration": {
       "title": "Stencila Configuration",
       "properties": {
@@ -78,88 +84,127 @@
     "commands": [
       {
         "command": "stencila.new-smd",
+        "category": "Create",
         "title": "New Stencila Markdown Document",
         "shortTitle": "Stencila Markdown",
-        "icon": "$(new-file)",
-        "category": "Create"
+        "icon": "$(new-file)"
       },
       {
         "command": "stencila.new-myst",
+        "category": "Create",
         "title": "New MyST Document",
         "shortTitle": "MyST",
-        "icon": "$(new-file)",
-        "category": "Create"
+        "icon": "$(new-file)"
       },
       {
         "command": "stencila.view-doc",
+        "category": "Stencila",
         "title": "Preview Document",
         "shortTitle": "Preview doc",
         "icon": "$(preview)"
       },
       {
         "command": "stencila.invoke.run-curr",
+        "category": "Stencila",
         "title": "Run this node",
         "shortTitle": "Run node",
         "icon": "$(run)"
       },
       {
         "command": "stencila.invoke.run-above",
+        "category": "Stencila",
         "title": "Run nodes above and then this node",
         "shortTitle": "Run above",
         "icon": "$(run-above)"
       },
       {
         "command": "stencila.invoke.run-below",
+        "category": "Stencila",
         "title": "Run this node and then nodes below",
         "shortTitle": "Run below",
         "icon": "$(run-below)"
       },
       {
         "command": "stencila.invoke.run-doc",
+        "category": "Stencila",
         "title": "Run document",
         "shortTitle": "Run doc",
         "icon": "$(run-all)"
       },
       {
         "command": "stencila.invoke.run-code",
+        "category": "Stencila",
         "title": "Run code nodes in document",
         "shortTitle": "Run code",
         "icon": "$(zap)"
       },
       {
         "command": "stencila.invoke.run-instruct",
+        "category": "Stencila",
         "title": "Run assistant instructions in document",
         "shortTitle": "Run assistant instructions",
         "icon": "$(sparkle)"
       },
       {
         "command": "stencila.invoke.cancel-curr",
+        "category": "Stencila",
         "title": "Cancel node",
         "icon": "$(stop)"
       },
       {
         "command": "stencila.invoke.cancel-doc",
+        "category": "Stencila",
         "title": "Cancel all running nodes in the document",
         "shortTitle": "Cancel all",
         "icon": "$(stop)"
       },
       {
         "command": "stencila.invoke.lock-curr",
+        "category": "Stencila",
         "title": "Lock this node",
         "shortTitle": "Lock node",
         "icon": "$(lock)"
       },
       {
         "command": "stencila.invoke.unlock-curr",
+        "category": "Stencila",
         "title": "Unlock this node",
         "shortTitle": "Unlock node",
         "icon": "$(unlock)"
       },
       {
         "command": "stencila.invoke.export-doc",
+        "category": "Stencila",
         "title": "Export document",
         "shortTitle": "Export doc",
         "icon": "$(export)"
+      },
+      {
+        "command": "stencila.secrets.set",
+        "category": "Stencila",
+        "title": "Add/set secret"
+      },
+      {
+        "command": "stencila.secrets.delete",
+        "category": "Stencila",
+        "title": "Remove secret"
+      },
+      {
+        "command": "stencila.lsp-server.restart",
+        "category": "Stencila",
+        "title": "Restart Stencila LSP server"
+      },
+      {
+        "command": "stencila.cloud.signin",
+        "category": "Stencila Cloud",
+        "title": "Sign in",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "stencila.cloud.signout",
+        "category": "Stencila Cloud",
+        "title": "Sign out",
+        "icon": "$(sign-out)"
       }
     ],
     "keybindings": [
@@ -378,7 +423,7 @@
     "themes": [
       {
         "id": "StencilaLight",
-        "label": "Stencila light",
+        "label": "Stencila Light",
         "uiTheme": "vs",
         "path": "./themes/stencila-light-color-theme.json"
       }
@@ -549,12 +594,12 @@
   "devDependencies": {
     "@types/mocha": "10.0.8",
     "@types/node": "20.x",
-    "@types/vscode": "1.93.0",
+    "@types/vscode": "1.84.0",
     "@typescript-eslint/eslint-plugin": "8.7.0",
     "@typescript-eslint/parser": "8.7.0",
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.4.1",
-    "@vscode/vsce": "3.1.0",
+    "@vscode/vsce": "3.1.1",
     "eslint": "8.57.0",
     "js-yaml": "4.1.0"
   }

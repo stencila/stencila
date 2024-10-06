@@ -2,7 +2,7 @@
 //!
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#lifeCycleMessages
 
-use std::ops::ControlFlow;
+use std::{ops::ControlFlow, process};
 
 use async_lsp::{
     lsp_types::{
@@ -16,7 +16,7 @@ use async_lsp::{
 
 use common::serde_json;
 
-use crate::{commands, ServerState};
+use crate::{commands, ServerState, ServerStatus};
 
 pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -71,4 +71,27 @@ pub(super) fn initialized(
     _params: InitializedParams,
 ) -> ControlFlow<Result<(), Error>> {
     ControlFlow::Continue(())
+}
+
+/// Shutdown the language server
+///
+/// Currently does nothing except change the status of the server.
+pub(super) fn shutdown(state: &mut ServerState) -> Result<(), ResponseError> {
+    state.status = ServerStatus::Shutdown;
+
+    Ok(())
+}
+
+/// Exit the language server
+///
+/// This exits with a code 0 or 1 as per https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#exit
+pub(super) fn exit(state: &mut ServerState) -> ControlFlow<Result<(), Error>> {
+    let code = match state.status {
+        ServerStatus::Running => 1,
+        ServerStatus::Shutdown => 0,
+    };
+    process::exit(code);
+
+    #[allow(unreachable_code)]
+    ControlFlow::Break(Ok(()))
 }

@@ -31,6 +31,11 @@ compile: install
 package: install
 	npm run package
 
+# Install the extension locally
+install-ext: install
+	npm run package-vsix
+	code --install-extension stencila-*.vsix
+
 # Clean up development artifacts
 clean:
 	rm -rf dist out
