@@ -8,10 +8,12 @@ import {
 } from "vscode-languageclient/node";
 
 import { registerAuthenticationProvider } from "./authentication";
-import { registerCommands } from "./commands";
+import { registerDocumentCommands } from "./commands";
 import { registerNotifications } from "./notifications";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
+import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
+
 
 let client: LanguageClient | undefined;
 
@@ -24,8 +26,9 @@ export async function activate(context: vscode.ExtensionContext) {
   // so this needs to be done first
   registerAuthenticationProvider(context);
   registerSecretsCommands(context);
-  registerCommands(context);
+  registerDocumentCommands(context);
   registerRestartServer(context);
+  registerStatusBar(context)
 
   await startServer(context);
 }

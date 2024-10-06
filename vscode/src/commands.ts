@@ -5,9 +5,9 @@ import * as vscode from "vscode";
 import { createDocumentViewPanel } from "./webviews";
 
 /**
- * Register commands provided by the extension
+ * Register document related commands provided by the extension
  */
-export function registerCommands(context: vscode.ExtensionContext) {
+export function registerDocumentCommands(context: vscode.ExtensionContext) {
   // Create document commands
   for (const format of ["smd", "myst"]) {
     context.subscriptions.push(

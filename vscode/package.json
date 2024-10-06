@@ -227,6 +227,11 @@
         "command": "stencila.invoke.run-doc",
         "key": "ctrl+shift+enter",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "stencila.command-picker",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
       }
     ],
     "menus": {
