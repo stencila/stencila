@@ -33,6 +33,14 @@ pub(crate) struct ServerState {
 
     /// The documents opened by the client that are handled by this server
     documents: HashMap<Url, TextDocument>,
+
+    /// The status of the server
+    status: ServerStatus,
+}
+
+pub(crate) enum ServerStatus {
+    Running,
+    Shutdown,
 }
 
 #[derive(Debug, Default, Deserialize)]

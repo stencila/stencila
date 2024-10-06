@@ -12,7 +12,7 @@ use common::serde_json;
 
 use crate::{
     code_lens, commands, completion, content, formatting, lifecycle, symbols, text_document,
-    ServerState,
+    ServerState, ServerStatus,
 };
 
 /// Run the language server
@@ -22,6 +22,7 @@ pub async fn run() {
             client: client.clone(),
             documents: HashMap::new(),
             options: Default::default(),
+            status: ServerStatus::Running,
         });
 
         router
@@ -135,6 +136,13 @@ pub async fn run() {
                 }
             }
         });
+
+        router.request::<request::Shutdown, _>(|state, _params| {
+            let result = lifecycle::shutdown(state);
+            async move { result }
+        });
+
+        router.notification::<notification::Exit>(|state, _params| lifecycle::exit(state));
 
         ServiceBuilder::new()
             .layer(TracingLayer::default())
