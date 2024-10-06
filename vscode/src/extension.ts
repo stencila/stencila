@@ -11,7 +11,9 @@ import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerNotifications } from "./notifications";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
+import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
+
 
 let client: LanguageClient | undefined;
 
@@ -26,6 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerSecretsCommands(context);
   registerDocumentCommands(context);
   registerRestartServer(context);
+  registerStatusBar(context)
 
   await startServer(context);
 }
