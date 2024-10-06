@@ -1,16 +1,13 @@
-import * as vscode from "vscode";
-import { LanguageClient } from "vscode-languageclient/node";
 import { writeFileSync } from "fs";
+
+import * as vscode from "vscode";
 
 import { createDocumentViewPanel } from "./webviews";
 
 /**
  * Register commands provided by the extension
  */
-export function registerCommands(
-  context: vscode.ExtensionContext,
-  client: LanguageClient
-) {
+export function registerCommands(context: vscode.ExtensionContext) {
   // Create document commands
   for (const format of ["smd", "myst"]) {
     context.subscriptions.push(
@@ -96,7 +93,7 @@ export function registerCommands(
           return;
         }
 
-        await createDocumentViewPanel(context, client, editor.document.uri);
+        await createDocumentViewPanel(context, editor.document.uri);
       }
     )
   );
@@ -110,12 +107,7 @@ export function registerCommands(
           return;
         }
 
-        await createDocumentViewPanel(
-          context,
-          client,
-          editor.document.uri,
-          nodeId
-        );
+        await createDocumentViewPanel(context, editor.document.uri, nodeId);
       }
     )
   );
@@ -131,7 +123,6 @@ export function registerCommands(
 
         await createDocumentViewPanel(
           context,
-          client,
           editor.document.uri,
           nodeId,
           true

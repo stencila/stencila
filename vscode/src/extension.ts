@@ -11,25 +11,23 @@ import { registerAuthenticationProvider } from "./authentication";
 import { registerCommands } from "./commands";
 import { registerNotifications } from "./notifications";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
+import { closeDocumentViewPanels } from "./webviews";
 
-let CLIENT: LanguageClient | undefined;
+let client: LanguageClient | undefined;
 
 /**
  * Activate the extension
  */
 export async function activate(context: vscode.ExtensionContext) {
-  // Register auth provider and secrets commands (used when collecting secrets in `startServer`)
+  // Register auth provider, commands etc
+  // Some of these (e.g. auth provider) are used when collecting secrets in `startServer`
+  // so this needs to be done first
   registerAuthenticationProvider(context);
   registerSecretsCommands(context);
-
-  await startServer(context);
-
-  // Register command to restart server
+  registerCommands(context);
   registerRestartServer(context);
 
-  // Register commands and notifications (which need to have a client passed to them)
-  registerCommands(context, CLIENT!);
-  registerNotifications(CLIENT!);
+  await startServer(context);
 }
 
 /**
@@ -73,13 +71,16 @@ async function startServer(context: vscode.ExtensionContext) {
       supportHtml: true,
     },
   };
-  CLIENT = new LanguageClient(
+  client = new LanguageClient(
     "stencila",
     "Stencila",
     serverOptions,
     clientOptions
   );
-  await CLIENT.start();
+  await client.start();
+
+  // Register notifications on the client
+  registerNotifications(client);
 }
 
 /**
@@ -88,17 +89,20 @@ async function startServer(context: vscode.ExtensionContext) {
 function registerRestartServer(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.lsp-server.restart", async () => {
-      if (CLIENT) {
+      if (client) {
         try {
-          await CLIENT.stop();
+          await client.stop();
         } catch (error) {
           vscode.window.showWarningMessage(
             `Error stopping the server: ${error}. Proceeding with restart.`
           );
         } finally {
-          CLIENT = undefined;
+          client = undefined;
         }
       }
+
+      // Close all doc view panels which will otherwise be left unresponsive
+      closeDocumentViewPanels();
 
       // Wait a bit before starting the new server
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -116,7 +120,41 @@ function registerRestartServer(context: vscode.ExtensionContext) {
  * Deactivate the extension
  */
 export function deactivate() {
-  if (CLIENT) {
-    CLIENT.stop();
+  if (client) {
+    client.stop();
   }
+}
+
+/**
+ * Subscribe to content of a document in a specific format
+ */
+export async function subscribeToContent(
+  documentUri: vscode.Uri,
+  format: string,
+  callback: (content: string) => void
+): Promise<string> {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  const content = (await client.sendRequest("stencila/subscribeContent", {
+    uri: documentUri.toString(),
+    format,
+  })) as string;
+
+  callback(content);
+
+  client.onNotification(
+    "stencila/publishContent",
+    (published: { uri: string; format: string; content: string }) => {
+      if (
+        published.uri === documentUri.toString() &&
+        published.format === format
+      ) {
+        callback(published.content);
+      }
+    }
+  );
+
+  return content;
 }
