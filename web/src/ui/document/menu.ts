@@ -89,7 +89,7 @@ export class DocumentMenu extends LitElement {
       'ml-auto',
       'w-10 h-10',
       'drop-shadow',
-      !this.open ? 'grayscale hover:grayscale-0' : '',
+      !this.open ? 'grayscale' : '',
       'cursor-pointer',
     ])
 
