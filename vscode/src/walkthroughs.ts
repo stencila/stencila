@@ -2,7 +2,25 @@ import * as vscode from "vscode";
 
 export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
   // The document being used in the current walkthrough
-  let walkthroughDocument: vscode.TextDocument;
+  let walkthroughDoc: vscode.TextDocument | undefined;
+
+  // Handler for when the walkthrough doc s closed
+  let disposable: vscode.Disposable | undefined;
+
+  async function createWalkthroughDoc(format: string) {
+    let newDoc = await vscode.workspace.openTextDocument({
+      language: format,
+    });
+
+    disposable = vscode.workspace.onDidCloseTextDocument((doc) => {
+      if (doc === walkthroughDoc) {
+        walkthroughDoc = undefined;
+        disposable?.dispose();
+      }
+    });
+
+    return newDoc;
+  }
 
   // Command to open an empty file (usually Stencila Markdown) during walkthroughs
   // Opens an untitled (temporary) file. Previously we created a file on disk which
@@ -13,10 +31,8 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
       "stencila.walkthrough.open",
       async (format) => {
         try {
-          walkthroughDocument = await vscode.workspace.openTextDocument({
-            language: format,
-          });
-          await vscode.window.showTextDocument(walkthroughDocument, {
+          walkthroughDoc = await createWalkthroughDoc(format);
+          await vscode.window.showTextDocument(walkthroughDoc, {
             viewColumn: vscode.ViewColumn.Beside,
             preview: false,
             preserveFocus: true,
@@ -34,11 +50,17 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "stencila.walkthrough.type",
-      async (source) => {
+      async (format, source) => {
+        // If there is not yet a walkthrough document, or if it
+        // is of the wrong language, create one
+        if (!walkthroughDoc || walkthroughDoc.languageId !== format) {
+          walkthroughDoc = await createWalkthroughDoc(format);
+        }
+
         // Get the document editor
         let editor;
         try {
-          editor = await vscode.window.showTextDocument(walkthroughDocument, {
+          editor = await vscode.window.showTextDocument(walkthroughDoc, {
             viewColumn: vscode.ViewColumn.Beside,
             preview: false,
             preserveFocus: true,

@@ -66,7 +66,7 @@ function markdownToStep(stepFile, format) {
       const trimmed = source.replace(/^\n|\n$/g, "").replace(/===/g, "---");
 
       // JSON-ify and URI encode the arguments
-      let arg = encodeURIComponent(JSON.stringify(trimmed));
+      let arg = encodeURIComponent(JSON.stringify([format, trimmed]));
       // These chars are not encoded by the above function but need to
       // be because if they are in source we don't want them to 'escape' the Markdown link
       // we are about to create.
