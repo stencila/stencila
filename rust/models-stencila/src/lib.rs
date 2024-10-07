@@ -57,7 +57,7 @@ impl Model for StencilaModel {
     }
 
     fn r#type(&self) -> ModelType {
-        if self.provider == "stencila" && self.identifier == "auto" {
+        if self.provider == "stencila" && self.identifier == "router" {
             ModelType::Router
         } else {
             ModelType::Proxied
