@@ -1,3 +1,5 @@
+use std::io::{stdin, IsTerminal, Read};
+
 use cli_utils::{rpassword::prompt_password, ToStdout};
 use common::{
     clap::{self, Args, Parser, Subcommand},
@@ -21,7 +23,8 @@ enum Command {
 
     /// Set a secret used by Stencila
     ///
-    /// You will be prompted for the secret
+    /// You will be prompted for the secret. Alternatively, you can echo the
+    /// password into this command i.e. `echo <TOKEN> | stencila secrets set STENCILA_API_TOKEN`
     #[command(alias = "add")]
     Set(Set),
 
@@ -54,7 +57,16 @@ impl Cli {
 
         match command {
             Command::List => list()?.to_stdout(),
-            Command::Set(Set { name }) => set(&name, &prompt_password("Enter secret: ")?)?,
+            Command::Set(Set { name }) => {
+                let value = if !stdin().is_terminal() {
+                    let mut input = String::new();
+                    stdin().read_to_string(&mut input)?;
+                    input
+                } else {
+                    prompt_password("Enter secret: ")?
+                };
+                set(&name, &value)?
+            }
             Command::Delete(Delete { name }) => delete(&name)?,
         }
 
