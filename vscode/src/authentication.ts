@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { runCli } from "./clis";
 
 export const PROVIDER_ID = "stencila";
 
@@ -159,6 +160,9 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     if (!token || !userId) {
       throw new Error("Invalid response: missing token or userId");
     }
+
+    // Set the token as a secret so it is available to Stencila
+    await runCli(this.context, ["secrets", "set", "STENCILA_API_TOKEN"], token);
 
     // Get the user from the user_id. This also checks that the
     // access_token is valid

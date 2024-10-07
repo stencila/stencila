@@ -62,13 +62,14 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(workspace-trusted) Add Secret",
-          description: "Add or set a secret to the Stencila extension",
+          label: "$(workspace-trusted) Set Secret",
+          description:
+            "Add a secret, such as an API key, to Stencila's key ring",
           command: "stencila.secrets.set",
         },
         {
-          label: "$(workspace-untrusted) Remove Secret",
-          description: "Remove a secret from the Stencila extension",
+          label: "$(workspace-untrusted) Delete Secret",
+          description: "Remove a secret from Stencila's key ring",
           command: "stencila.secrets.delete",
         },
         {

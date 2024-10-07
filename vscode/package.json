@@ -182,12 +182,12 @@
       {
         "command": "stencila.secrets.set",
         "category": "Stencila",
-        "title": "Add/set secret"
+        "title": "Set secret"
       },
       {
         "command": "stencila.secrets.delete",
         "category": "Stencila",
-        "title": "Remove secret"
+        "title": "Delete secret"
       },
       {
         "command": "stencila.lsp-server.restart",

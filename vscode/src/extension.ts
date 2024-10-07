@@ -1,5 +1,3 @@
-import * as path from "path";
-
 import * as vscode from "vscode";
 import {
   LanguageClient,
@@ -10,10 +8,10 @@ import {
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerNotifications } from "./notifications";
-import { collectSecrets, registerSecretsCommands } from "./secrets";
+import { registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
-
+import { cliPath } from "./clis";
 
 let client: LanguageClient | undefined;
 
@@ -28,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerSecretsCommands(context);
   registerDocumentCommands(context);
   registerRestartServer(context);
-  registerStatusBar(context)
+  registerStatusBar(context);
 
   await startServer(context);
 }
@@ -37,19 +35,19 @@ export async function activate(context: vscode.ExtensionContext) {
  * Start the Stencila LSP server
  */
 async function startServer(context: vscode.ExtensionContext) {
-  // Determine which binary to run based on mode
-  let command: string;
+  // Get the path to the CLI
+  let command = cliPath(context);
+
+  // Determine the arguments to the CLI
   let args: string[];
   switch (context.extensionMode) {
     case vscode.ExtensionMode.Development:
     case vscode.ExtensionMode.Test: {
-      command = path.join(__dirname, "..", "..", "target", "debug", "stencila");
       args = ["lsp", "--log-level=debug", "--log-format=pretty"];
       break;
     }
     case vscode.ExtensionMode.Production: {
-      command = "stencila";
-      args = ["lsp", "--log-level=debug", "--log-format=compact"];
+      args = ["lsp", "--log-level=warn", "--log-format=compact"];
       break;
     }
   }
@@ -57,14 +55,10 @@ async function startServer(context: vscode.ExtensionContext) {
   // Get config options
   const initializationOptions = vscode.workspace.getConfiguration("stencila");
 
-  // Collect secrets to pass as env vars to LSP server
-  const secrets = await collectSecrets(context);
-
   // Start the language server client passing secrets as env vars
   const serverOptions: ServerOptions = {
     command,
     args,
-    options: { env: { ...process.env, ...secrets } },
   };
   const clientOptions: LanguageClientOptions = {
     initializationOptions,
@@ -97,7 +91,7 @@ function registerRestartServer(context: vscode.ExtensionContext) {
           await client.stop();
         } catch (error) {
           vscode.window.showWarningMessage(
-            `Error stopping the server: ${error}. Proceeding with restart.`
+            `Error stopping the Stencila Language Server: ${error}. Proceeding with restart.`
           );
         } finally {
           client = undefined;
@@ -113,7 +107,7 @@ function registerRestartServer(context: vscode.ExtensionContext) {
       await startServer(context);
 
       vscode.window.showInformationMessage(
-        "Stencila LSP Server has been restarted."
+        "Stencila Language Server has been restarted."
       );
     })
   );
