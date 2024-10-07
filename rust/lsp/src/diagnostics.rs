@@ -195,8 +195,10 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                     .iter()
                     .filter_map(|author| match author {
                         Author::AuthorRole(role) => match role.role_name {
-                            // Only show generator role
-                            AuthorRoleName::Generator => role.to_author(),
+                            // Only show prompt and generator roles
+                            AuthorRoleName::Prompter | AuthorRoleName::Generator => {
+                                role.to_author()
+                            }
                             _ => None,
                         },
                         _ => Some(author.clone()),
@@ -230,8 +232,8 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                         }
                         Author::AuthorRole(_) => String::new(),
                     })
-                    .join(", ");
-                message.push_str(&list);
+                    .collect_vec();
+                message.push_str(&list.join(if list.len() == 2 { " and " } else { ", " }));
             }
 
             if let Some(duration) = &execution.duration {
