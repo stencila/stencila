@@ -44,12 +44,14 @@ import checkCircleFill from './check-circle-fill.svg'
 import checkCircle from './check-circle.svg'
 import check from './check.svg'
 import chevronDown from './chevron-down.svg'
+import chip from './chip.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
 import codeChunk from './code-chunk.svg'
 import codeSlash from './code-slash.svg'
 import code from './code.svg'
 import currencyDollar from './currency-dollar.svg'
+import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
 import elifClause from './elif-clause.svg'
 import elseClause from './else-clause.svg'
@@ -69,6 +71,7 @@ import handThumbsUpFill from './hand-thumbs-up-fill.svg'
 import handThumbsUp from './hand-thumbs-up.svg'
 import hash from './hash.svg'
 import heading from './heading.svg'
+import highlights from './highlights.svg'
 import hr from './hr.svg'
 import ifBlock from './if-block.svg'
 import ifClause from './if-clause.svg'
@@ -145,10 +148,12 @@ const icons = {
   checkCircleFill,
   chevronDown,
   circle,
+  chip,
   clock,
   code,
   codeChunk,
   codeSlash,
+  cursor,
   currencyDollar,
   dashCircle,
   elifClause,
@@ -169,6 +174,7 @@ const icons = {
   handThumbsUpFill,
   hash,
   heading,
+  highlights,
   hr,
   ifBlock,
   ifClause,

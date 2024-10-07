@@ -1,10 +1,11 @@
+import { consume } from '@lit/context'
 import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
-import { NodeChipState } from './context'
+import { documentContext, DocumentContext, NodeChipState } from './context'
 
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
@@ -18,20 +19,30 @@ import '@shoelace-style/shoelace/dist/components/menu-label/menu-label.js'
 @customElement('stencila-document-menu')
 @withTwind()
 export class DocumentMenu extends LitElement {
+  @consume({ context: documentContext, subscribe: true })
+  @state()
+  protected context: DocumentContext
+
+  @state()
+  protected get showAuthorshipHighlight(): boolean {
+    return this.context?.showAllAuthorshipHighlight ?? false
+  }
+
+  @state()
+  protected get nodeChipState(): NodeChipState {
+    return this.context?.nodeChipState ?? 'hidden'
+  }
+
+  @state()
+  protected get showAuthorProvenance(): boolean {
+    return this.context?.showAuthorProvenance ?? false
+  }
+
   @state()
   protected open: boolean = false
 
   @property({ type: Boolean })
   visible: boolean = false
-
-  @property({ type: Boolean, attribute: 'show-authorship-highlight' })
-  showAuthorshipHighlight: boolean
-
-  @property({ type: String, attribute: 'node-chip-state' })
-  nodeChipState: NodeChipState
-
-  @property({ type: Boolean, attribute: 'show-author-provenance' })
-  showAuthorProvenance: boolean
 
   /**
    * Remove the default checked icon space.
@@ -40,15 +51,12 @@ export class DocumentMenu extends LitElement {
    * as it is being overidden by the twind base.
    */
   static override styles = css`
-    sl-menu-item::part(checked-icon) {
-      display: none;
-    }
     sl-divider {
       border-top: solid var(--width) var(--color);
     }
   `
 
-  private eventDispatch = (eventName: string, detail?: unknown) =>
+  private eventDispatch = (eventName: string, detail?: unknown) => {
     this.shadowRoot.dispatchEvent(
       new CustomEvent(eventName, {
         bubbles: true,
@@ -56,6 +64,7 @@ export class DocumentMenu extends LitElement {
         detail,
       })
     )
+  }
 
   protected override render() {
     const styles = apply(['fixed right-8 top-8 z-50', 'font-sans'])
@@ -95,84 +104,75 @@ export class DocumentMenu extends LitElement {
     `
   }
 
+  handleSelect(event: CustomEvent) {
+    const selectedItem = event.detail.item
+    if (selectedItem) {
+      const eventName = selectedItem.getAttribute('data-event')
+      if (eventName) {
+        if (eventName === 'update-nodecard-state') {
+          const value = selectedItem.getAttribute('value')
+          this.eventDispatch(eventName, value)
+        } else {
+          this.eventDispatch(eventName)
+        }
+      }
+    }
+  }
+
   renderMenu = () => {
     return html`
-      <sl-menu class="mt-1 bg-gray-50 border border-gray-200">
-        ${this.renderMenuItem(
-          'Show article authors and provenance',
-          'toggle-author-provenance',
-          this.showAuthorProvenance
-        )}
-        ${this.renderMenuItem(
-          'Show authorship highlighting',
-          'toggle-authorship-highlight',
-          this.showAuthorshipHighlight
-        )}
+      <sl-menu
+        class="mt-1 bg-gray-50 border border-gray-200"
+        id="preview-menu"
+        @sl-select=${this.handleSelect}
+      >
+        <sl-menu-item type="checkbox" data-event="toggle-author-provenance">
+          <stencila-ui-icon name="feather" slot="prefix"></stencila-ui-icon>
+          ${'Show article authors and provenance'}
+        </sl-menu-item>
+        <sl-menu-item type="checkbox" data-event="toggle-authorship-highlight">
+          <stencila-ui-icon name="highlights" slot="prefix"></stencila-ui-icon>
+          ${'Show authorship highlighting'}
+        </sl-menu-item>
         <sl-divider></sl-divider>
-        <sl-menu-label>Display Node Info</sl-menu-label>
-        ${this.renderMenuItem(
-          'Hide All',
-          'update-nodecard-state',
-          this.nodeChipState === 'hidden',
-          'hidden'
-        )}
-        ${this.renderMenuItem(
-          'Show on hover',
-          'update-nodecard-state',
-          this.nodeChipState === 'hover-only',
-          'hover-only'
-        )}
-        ${this.renderMenuItem(
-          'Show all',
-          'update-nodecard-state',
-          this.nodeChipState === 'show-all',
-          'show-all'
-        )}
+        <sl-menu-label>
+          <div class="flex items-center gap-2 text-lg">
+            <stencila-ui-icon
+              name="chip"
+              slot="prefix"
+              class="text-2xl"
+            ></stencila-ui-icon>
+            Display Node Chips
+          </div>
+        </sl-menu-label>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="hidden"
+          ?checked=${this.nodeChipState === 'hidden'}
+        >
+          <stencila-ui-icon name="eyeSlash" slot="prefix"></stencila-ui-icon>
+          ${'Hide All'}
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="hover-only"
+          ?checked=${this.nodeChipState === 'hover-only'}
+        >
+          <stencila-ui-icon name="cursor" slot="prefix"></stencila-ui-icon>
+          ${'Show on hover'}
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="show-all"
+          ?checked=${this.nodeChipState === 'show-all'}
+        >
+          <stencila-ui-icon name="eye" slot="prefix"></stencila-ui-icon>
+          ${'Show all'}
+        </sl-menu-item>
       </sl-menu>
-    `
-  }
-
-  renderMenuItem(
-    text: string,
-    event: string,
-    active: boolean,
-    eventDetail?: unknown
-  ) {
-    return html`
-      <sl-menu-item @click=${() => this.eventDispatch(event, eventDetail)}>
-        <stencila-ui-icon
-          name="check"
-          slot="prefix"
-          class="${active ? 'opacity-100' : 'opacity-0'}"
-        ></stencila-ui-icon>
-        ${text}
-      </sl-menu-item>
-    `
-  }
-
-  renderChipOptions() {
-    return html`
-      <div class="py-1">
-        <div class="font-bold text-sm mb-1 pl-2 pr-4">Display Node Info</div>
-        ${this.renderMenuItem(
-          'Hide All',
-          'update-nodecard-state',
-          this.nodeChipState === 'hidden',
-          'hidden'
-        )}
-        ${this.renderMenuItem(
-          'Show on hover',
-          'update-nodecard-state',
-          this.nodeChipState === 'hover-only',
-          'hover-only'
-        )}
-        ${this.renderMenuItem(
-          'Show all',
-          'update-nodecard-state',
-          this.nodeChipState === 'show-all',
-          'show-all'
-        )}
-      </div>
     `
   }
 }
