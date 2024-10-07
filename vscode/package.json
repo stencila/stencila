@@ -463,7 +463,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Stencila Markdown supports display math TeX equations surrounded by double dollars [like this](command:stencila.walkthrough.type?%22%5CnThe%20area%20of%20a%20circle%20is%2C%5Cn%5Cn%24%24%5CnA%20%3D%20%5C%5Cpi%20r%5E2%5Cn%24%24%5Cn%22).\n\n• You can also [add](command:stencila.walkthrough.type?%22%5Cnwhere%20%24r%24%20is%20the%20radius%20of%20the%20circle.%5Cn%22) inline math within paragraphs using single dollars.\n\n"
+            "description": "\n\n• Stencila Markdown supports display math TeX equations surrounded by double dollars [like this](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5CnThe%20area%20of%20a%20circle%20is%2C%5Cn%5Cn%24%24%5CnA%20%3D%20%5C%5Cpi%20r%5E2%5Cn%24%24%5Cn%22%5D).\n\n• You can also [add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5Cnwhere%20%24r%24%20is%20the%20radius%20of%20the%20circle.%5Cn%22%5D) inline math within paragraphs using single dollars.\n\n"
           },
           {
             "title": "Using AsciiMath",
@@ -472,7 +472,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Stencila Markdown also supports writing math using AsciiMath, a simpler syntax than TeX.\n\n• [Add](command:stencila.walkthrough.type?%22%5CnThe%20circumference%20of%20a%20circle%20is%2C%5Cn%5Cn%60%60%60asciimath%5CnC%20%3D%202%20pi%20r%5Cn%60%60%60%5Cn%22) display AsciiMath equations using a code block with ``asciimath`` as the language.\n\n• You can also [add](command:stencila.walkthrough.type?%22%5Cnwhere%20%60r%60%7Basciimath%7D%20is%20the%20radius%20of%20the%20circle.%5Cn%22) inline AsciiMath within paragraphs.\n\n"
+            "description": "\n\n• Stencila Markdown also supports writing math using AsciiMath, a simpler syntax than TeX.\n\n• [Add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5CnThe%20circumference%20of%20a%20circle%20is%2C%5Cn%5Cn%60%60%60asciimath%5CnC%20%3D%202%20pi%20r%5Cn%60%60%60%5Cn%22%5D) display AsciiMath equations using a code block with ``asciimath`` as the language.\n\n• You can also [add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5Cnwhere%20%60r%60%7Basciimath%7D%20is%20the%20radius%20of%20the%20circle.%5Cn%22%5D) inline AsciiMath within paragraphs.\n\n"
           },
           {
             "title": "Using LLMs",
@@ -481,7 +481,51 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• The ``math-block`` prompt is specialized to write display math blocks. It will default to using TeX unless you specify AsciiMath or MathML.\n\n• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously. This means you don't need to repeat youself when writing instructions\n\n• To illustrate, let's [add](command:stencila.walkthrough.type?%22%5CnThe%20probability%20density%20function%20for%20the%20normal%20distribution%20is%2C%5Cn%5Cn%3A%3A%3A%20new%20equation%5Cn%22) a paragraph, followed by an instruction to create a new equation. Press the $(run) icon to execute the instruction using a LLM.\n\n"
+            "description": "\n\n• The ``stencila/new/math-block`` prompt is specialized to write display math blocks. It will default to using TeX unless you specify AsciiMath or MathML.\n\n• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously. This means you don't need to repeat youself when writing instructions\n\n• To illustrate, let's [add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5CnThe%20probability%20density%20function%20for%20the%20normal%20distribution%20is%2C%5Cn%5Cn%3A%3A%3A%20new%20equation%5Cn%22%5D) a paragraph, followed by an instruction to create a new equation. Press the $(run) icon to execute the instruction using a LLM.\n\n"
+          }
+        ]
+      },
+      {
+        "title": "Mermaid in Stencila Markdown",
+        "description": "Creating diagrams using Mermaid and LLMs in Stencila Markdown.",
+        "format": "smd",
+        "id": "mermaid-smd",
+        "steps": [
+          {
+            "title": "Setting Up",
+            "id": "step0",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• This is an interactive walkthrough. Click on the links below to create a document and add content to it.\n\n• First, create a new, empty Stencila Markdown [file](command:stencila.walkthrough.open?%22smd%22).\n\n• You can preview the document by clicking on the $(preview) icons that will appear in the Markdown, or by using the ``Stencila: Preview document`` command.\n"
+          },
+          {
+            "title": "Creating diagrams manually",
+            "id": "step1",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Mermaid is a JavaScript library that renders diagrams and flowcharts from Markdown-like text, simplifying the creation of visualization for technical documentation.\n\n• [Add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5Cn%60%60%60mermaid%20exec%5Cngraph%20LR%5Cn%20%20%20%20User%20--%3E%20%7CInteracts%20with%7C%20Frontend%5Cn%20%20%20%20Frontend%20--%3E%20%7CSends%20requests%7C%20Backend%5Cn%20%20%20%20Backend%20--%3E%20%7CQueries%7C%20Database%5Cn%20%20%20%20Backend%20--%3E%20%7CReturns%20data%7C%20Frontend%5Cn%60%60%60%5Cn%22%5D) a Mermaid diagram to your document using an code block with ``mermaid`` as the language and the ``exec`` keyword.\n\n• Check out the excellent Mermaid documentation for details on the syntax and variety of diagrams available.\n\n"
+          },
+          {
+            "title": "Using LLMs to create diagrams",
+            "id": "step2",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• Stencila has several built-in prompts specialized for creating certain types of Mermaid diagrams.\n\n• For example, the ``stencila/new/figure-flowchart`` prompt is specialized to create flowchards. It makes use of the document context, including metadata and the preceding paragraph. This means you don't need to repeat youself when writing instructions.\n\n• To illustrate this, let's [add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5CnCell%20culture%20involves%20isolating%20cells%20from%20an%20organism%2C%20providing%20them%20with%20necessary%20nutrients%2C%20and%20maintaining%20controlled%20environmental%20conditions%20to%20support%20cell%20growth%2C%20proliferation%2C%20and%20viability%20in%20vitro.%5Cn%5Cn%3A%3A%3A%20new%20%40figure-flowchart%22%5D) a paragraph, followed by an instruction to create a new flowchart. Press the $(run) icon to execute the instruction using a LLM.\n\n• Note that as well as generating the Mermaid code, this prompt wraps it in a figure and add a caption that is based on the document context.\n\n• If you don't like the suggested provided by the LLM, you can add feedback after the ``suggest`` keyword and press the $(refresh) icon (or do the same in the preview window).\n\n"
+          },
+          {
+            "title": "Using LLMs to edit diagrams",
+            "id": "step3",
+            "media": {
+              "image": "walkthroughs/blank.svg",
+              "altText": ""
+            },
+            "description": "\n\n• In addition to helping create Mermaid diagrams, LLMs can be useful for editing and refining them.\n\n• Lets say that you have written a diagram photosynthsis but want to change the color of some blocks.\n\n• [Insert](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5Cn%3A%3A%3A%20edit%20make%20photosynthesis%20light%20green%20and%20glucose%20light%20red%20%3E%5Cn%5Cn%60%60%60mermaid%20exec%5Cngraph%20TD%5Cn%20%20%20%20A%5BLight%20Energy%5D%20--%3E%20B%7BPhotosynthesis%7D%5Cn%20%20%20%20B%20--%3E%20C%5BLight%20Reactions%5D%5Cn%20%20%20%20C%20--%3E%20D%5BATP%5D%5Cn%20%20%20%20C%20--%3E%20E%5BNADPH%5D%5Cn%20%20%20%20B%20--%3E%20F%5BCarbon%20Fixation%5D%5Cn%20%20%20%20F%20--%3E%20G%5BCalvin%20Cycle%5D%5Cn%20%20%20%20G%20--%3E%20H%5BGlucose%5D%5Cn%20%20%20%20D%20--%3E%20G%5Cn%20%20%20%20E%20--%3E%20G%5Cn%60%60%60%5Cn%22%5D) an ``edit`` instruction immediately before the diagram and ending with a ``>`` character (to indicate that you want to edit the following block only). Press $(play) to run the instruction.\n\n"
           }
         ]
       }
