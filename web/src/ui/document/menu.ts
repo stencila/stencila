@@ -45,10 +45,8 @@ export class DocumentMenu extends LitElement {
   visible: boolean = false
 
   /**
-   * Remove the default checked icon space.
-   *
    * Make sure the divider's border-top property is set,
-   * as it is being overidden by the twind base.
+   * this is being overidden by the twind base stylesheet.
    */
   static override styles = css`
     sl-divider {
@@ -56,6 +54,9 @@ export class DocumentMenu extends LitElement {
     }
   `
 
+  /**
+   * custom event dispatch to update the document context based on menu item selection
+   */
   private eventDispatch = (eventName: string, detail?: unknown) => {
     this.shadowRoot.dispatchEvent(
       new CustomEvent(eventName, {
@@ -64,6 +65,24 @@ export class DocumentMenu extends LitElement {
         detail,
       })
     )
+  }
+
+  /**
+   * Handle the shoelace `sl-select` event for the menu
+   */
+  handleSelect(event: CustomEvent) {
+    const selectedItem = event.detail.item
+    if (selectedItem) {
+      const eventName = selectedItem.getAttribute('data-event')
+      if (eventName) {
+        if (eventName === 'update-nodecard-state') {
+          const value = selectedItem.getAttribute('value')
+          this.eventDispatch(eventName, value)
+        } else {
+          this.eventDispatch(eventName)
+        }
+      }
+    }
   }
 
   protected override render() {
@@ -102,21 +121,6 @@ export class DocumentMenu extends LitElement {
         <stencila-ui-icon class="text-4xl" name="stencila"></stencila-ui-icon>
       </div>
     `
-  }
-
-  handleSelect(event: CustomEvent) {
-    const selectedItem = event.detail.item
-    if (selectedItem) {
-      const eventName = selectedItem.getAttribute('data-event')
-      if (eventName) {
-        if (eventName === 'update-nodecard-state') {
-          const value = selectedItem.getAttribute('value')
-          this.eventDispatch(eventName, value)
-        } else {
-          this.eventDispatch(eventName)
-        }
-      }
-    }
   }
 
   renderMenu = () => {
