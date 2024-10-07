@@ -108,6 +108,7 @@ import slashCircle from './slash-circle.svg'
 import speedometer from './speedometer.svg'
 import square from './square.svg'
 import starFill from './star-fill.svg'
+import stencila from './stencila.svg'
 import stopwatch from './stopwatch.svg'
 import table from './table.svg'
 import terminal from './terminal.svg'
@@ -207,6 +208,7 @@ const icons = {
   speedometer,
   square,
   starFill,
+  stencila,
   stopwatch,
   table,
   terminal,

@@ -1,11 +1,16 @@
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { LitElement, html, css } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
 import { NodeChipState } from './context'
 
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
+import '@shoelace-style/shoelace/dist/components/menu/menu.js'
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
+import '@shoelace-style/shoelace/dist/components/divider/divider.js'
+import '@shoelace-style/shoelace/dist/components/menu-label/menu-label.js'
 /**
  * A menu allowing the user to control the display of the document
  * and perform actions on it.
@@ -28,6 +33,21 @@ export class DocumentMenu extends LitElement {
   @property({ type: Boolean, attribute: 'show-author-provenance' })
   showAuthorProvenance: boolean
 
+  /**
+   * Remove the default checked icon space.
+   *
+   * Make sure the divider's border-top property is set,
+   * as it is being overidden by the twind base.
+   */
+  static override styles = css`
+    sl-menu-item::part(checked-icon) {
+      display: none;
+    }
+    sl-divider {
+      border-top: solid var(--width) var(--color);
+    }
+  `
+
   private eventDispatch = (eventName: string, detail?: unknown) =>
     this.shadowRoot.dispatchEvent(
       new CustomEvent(eventName, {
@@ -38,55 +58,46 @@ export class DocumentMenu extends LitElement {
     )
 
   protected override render() {
-    const styles = apply([
-      'fixed right-8 top-8 z-50',
-      'font-sans',
-      !this.visible && 'opacity-0',
-      !this.visible && 'pointer-events-none',
-    ])
+    const styles = apply(['fixed right-8 top-8 z-50', 'font-sans'])
 
     return html`
-      <div class=${styles}>${this.renderMenuToggle()} ${this.renderMenu()}</div>
+      <div class=${styles} @mouseleave=${() => (this.open = false)}>
+        <sl-dropdown
+          ?open=${this.open}
+          @sl-hide=${() => (this.open = false)}
+          class=${styles}
+          placement="bottom-end"
+        >
+          ${this.renderMenuToggle()} ${this.renderMenu()}
+        </sl-dropdown>
+      </div>
     `
   }
 
   renderMenuToggle = () => {
     const styles = apply([
+      'flex justify-center items-center',
       'ml-auto',
-      'block',
-      'bg-gray-100',
-      'border rounded',
-      'drop-shadow-xl',
+      'w-10 h-10',
+      'drop-shadow',
+      !this.open ? 'grayscale hover:grayscale-0' : '',
+      'cursor-pointer',
     ])
 
     return html`
-      <button class=${styles} @click=${() => (this.open = !this.open)}>
-        <div
-          class="flex justify-center items-center w-8 h-8 hover:text-gray-400"
-        >
-          <stencila-ui-icon
-            name=${this.open ? 'chevronDown' : 'bars'}
-          ></stencila-ui-icon>
-        </div>
-      </button>
+      <div
+        class=${styles}
+        slot="trigger"
+        @mouseenter=${() => (this.open = true)}
+      >
+        <stencila-ui-icon class="text-4xl" name="stencila"></stencila-ui-icon>
+      </div>
     `
   }
 
   renderMenu = () => {
-    const styles = apply([
-      this.open ? 'opacity-100' : 'opacity-0',
-      this.open ? 'max-w-300 max-h-500' : 'max-w-0 max-h-0',
-      'mt-2',
-      'bg-gray-100',
-      'drop-shadow-xl',
-      'border rounded',
-      'transition-all duration-200',
-      'overflow-hidden',
-      !this.open && 'pointer-events-none',
-    ])
-
     return html`
-      <div class=${styles}>
+      <sl-menu class="mt-1 bg-gray-50 border border-gray-200">
         ${this.renderMenuItem(
           'Show article authors and provenance',
           'toggle-author-provenance',
@@ -97,8 +108,27 @@ export class DocumentMenu extends LitElement {
           'toggle-authorship-highlight',
           this.showAuthorshipHighlight
         )}
-        ${this.renderChipOptions()}
-      </div>
+        <sl-divider></sl-divider>
+        <sl-menu-label>Display Node Info</sl-menu-label>
+        ${this.renderMenuItem(
+          'Hide All',
+          'update-nodecard-state',
+          this.nodeChipState === 'hidden',
+          'hidden'
+        )}
+        ${this.renderMenuItem(
+          'Show on hover',
+          'update-nodecard-state',
+          this.nodeChipState === 'hover-only',
+          'hover-only'
+        )}
+        ${this.renderMenuItem(
+          'Show all',
+          'update-nodecard-state',
+          this.nodeChipState === 'show-all',
+          'show-all'
+        )}
+      </sl-menu>
     `
   }
 
@@ -108,31 +138,22 @@ export class DocumentMenu extends LitElement {
     active: boolean,
     eventDetail?: unknown
   ) {
-    const styles = apply([
-      'flex items-center justify-between',
-      'px-4 py-1',
-      'cursor-pointer',
-      'hover:bg-gray-300',
-    ])
-
     return html`
-      <div
-        class=${styles}
-        @click=${() => this.eventDispatch(event, eventDetail)}
-      >
-        <span class="leading-none text-sm mr-2">${text}</span>
+      <sl-menu-item @click=${() => this.eventDispatch(event, eventDetail)}>
         <stencila-ui-icon
           name="check"
-          class="text-sm ${active ? 'opacity-100' : 'opacity-0'}"
+          slot="prefix"
+          class="${active ? 'opacity-100' : 'opacity-0'}"
         ></stencila-ui-icon>
-      </div>
+        ${text}
+      </sl-menu-item>
     `
   }
 
   renderChipOptions() {
     return html`
       <div class="py-1">
-        <div class="font-bold text-sm mb-1 px-4">Display Node Info</div>
+        <div class="font-bold text-sm mb-1 pl-2 pr-4">Display Node Info</div>
         ${this.renderMenuItem(
           'Hide All',
           'update-nodecard-state',
