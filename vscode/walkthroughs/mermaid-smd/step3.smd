@@ -1,0 +1,28 @@
+---
+title: Using LLMs to edit diagrams
+---
+
+• In addition to helping create Mermaid diagrams, LLMs can be useful for editing and refining them.
+
+• Lets say that you have written a diagram photosynthsis but want to change the color of some blocks.
+
+• [Insert](type:0) an ``edit`` instruction immediately before the diagram and ending with a ``>`` character (to indicate that you want to edit the following block only). Press $(play) to run the instruction.
+
+***
+
+::: edit make photosynthesis light green and glucose light red >
+
+```mermaid exec
+graph TD
+    A[Light Energy] --> B{Photosynthesis}
+    B --> C[Light Reactions]
+    C --> D[ATP]
+    C --> E[NADPH]
+    B --> F[Carbon Fixation]
+    F --> G[Calvin Cycle]
+    G --> H[Glucose]
+    D --> G
+    E --> G
+```
+
+***

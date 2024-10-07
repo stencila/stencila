@@ -58,6 +58,11 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.cloud.signout",
         },
         {
+          label: "$(server-process) Restart",
+          description: "Restart the Stencila Language Server",
+          command: "stencila.lsp-server.restart",
+        },
+        {
           label: "Secrets",
           kind: vscode.QuickPickItemKind.Separator,
         },
@@ -73,24 +78,20 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.secrets.delete",
         },
         {
-          label: "Server",
+          label: "Markdown Walkthroughs",
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(server-process) Restart",
-          description: "Restart the Stencila Language Server",
-          command: "stencila.lsp-server.restart",
-        },
-        {
-          label: "Walkthroughs",
-          kind: vscode.QuickPickItemKind.Separator,
-        },
-        {
-          label: "$(symbol-operator) Math in Stencila Markdown",
-          description:
-            "Writing math equations using TeX, AsciiMath and prompts",
+          label: "$(symbol-operator) Math",
+          description: "Creating math equations using TeX, AsciiMath and LLMs",
           command: "workbench.action.openWalkthrough",
           args: ["stencila.stencila#math-smd", false],
+        },
+        {
+          label: "$(circuit-board) Diagrams",
+          description: "Creating diagrams with Mermaid and LLMs",
+          command: "workbench.action.openWalkthrough",
+          args: ["stencila.stencila#mermaid-smd", false],
         },
       ];
 

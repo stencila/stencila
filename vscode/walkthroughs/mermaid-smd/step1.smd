@@ -1,0 +1,21 @@
+---
+title: Creating diagrams manually
+---
+
+• Mermaid is a JavaScript library that renders diagrams and flowcharts from Markdown-like text, simplifying the creation of visualization for technical documentation.
+
+• [Add](type:0) a Mermaid diagram to your document using an code block with ``mermaid`` as the language and the ``exec`` keyword.
+
+• Check out the excellent Mermaid documentation for details on the syntax and variety of diagrams available.
+
+***
+
+```mermaid exec
+graph LR
+    User --> |Interacts with| Frontend
+    Frontend --> |Sends requests| Backend
+    Backend --> |Queries| Database
+    Backend --> |Returns data| Frontend
+```
+
+***
