@@ -6,8 +6,8 @@ This document contains the help content for the `stencila` command-line program.
 
 * [`stencila`↴](#stencila)
 * [`stencila new`↴](#stencila-new)
-* [`stencila sync`↴](#stencila-sync)
 * [`stencila convert`↴](#stencila-convert)
+* [`stencila sync`↴](#stencila-sync)
 * [`stencila compile`↴](#stencila-compile)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
@@ -43,9 +43,9 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila secrets list`↴](#stencila-secrets-list)
 * [`stencila secrets set`↴](#stencila-secrets-set)
 * [`stencila secrets delete`↴](#stencila-secrets-delete)
-* [`stencila config`↴](#stencila-config)
 * [`stencila upgrade`↴](#stencila-upgrade)
 * [`stencila uninstall`↴](#stencila-uninstall)
+* [`stencila config`↴](#stencila-config)
 
 ## `stencila`
 
@@ -55,9 +55,9 @@ CLI subcommands and global options
 
 ###### **Subcommands:**
 
-* `new` — Create a new document
-* `sync` — Synchronize a document between formats
+* `new` — Create a new document with sidecar file
 * `convert` — Convert a document to another format
+* `sync` — Synchronize a document between formats
 * `compile` — Compile a document
 * `execute` — Execute a document
 * `render` — Render a document
@@ -71,9 +71,9 @@ CLI subcommands and global options
 * `codecs` — Manage format conversion codecs
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets
-* `config` — 
 * `upgrade` — Upgrade to the latest version
 * `uninstall` — Uninstall this command line tool
+* `config` — 
 
 ###### **Options:**
 
@@ -113,7 +113,7 @@ CLI subcommands and global options
 
 ## `stencila new`
 
-Create a new document
+Create a new document with sidecar file
 
 **Usage:** `stencila new [OPTIONS] <PATH>`
 
@@ -123,69 +123,11 @@ Create a new document
 
 ###### **Options:**
 
-* `-s`, `--source <SOURCE>` — The source file to import from
-* `-f`, `--format <FORMAT>` — The format of the source file
-* `--codec <CODEC>` — The codec to use to decode the source
-* `-o`, `--overwrite` — Overwrite the document if it already exists
+* `-f`, `--force` — Overwrite the document, and any sidecar file, if they already exist
+* `-s`, `--sidecar <SIDECAR>` — The format of the sidecar file
 
+  Possible values: `json.zip`, `json`
 
-
-## `stencila sync`
-
-Synchronize a document between formats
-
-The direction of synchronization can be specified by appending the to the file path:
-
-- `:in` only sync incoming changes from the file - `:out` only sync outgoing changes to the file - `:io` sync incoming and outgoing changes (default)
-
-**Usage:** `stencila sync [OPTIONS] <DOC> [FILES]...`
-
-###### **Arguments:**
-
-* `<DOC>` — The path of the document to synchronize
-* `<FILES>` — The files to synchronize with
-
-###### **Options:**
-
-* `-f`, `--format <FORMATS>` — The formats of the files (or the name of codecs to use)
-
-   This option can be provided separately for each file.
-* `-l`, `--losses <LOSSES>` — What to do if there are losses when either encoding or decoding between any of the files
-
-  Default value: `warn`
-* `--standalone` — Encode as a standalone document
-* `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
-* `-c`, `--compact` — Use compact form of encoding if possible
-
-   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
-* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
-
-   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
-
-  Possible values:
-  - `authors`:
-    Strip authorship properties of nodes
-  - `provenance`:
-    Strip provenance properties of nodes
-  - `metadata`:
-    Strip metadata properties of nodes
-  - `content`:
-    Strip content properties of nodes
-  - `archive`:
-    Strip archive properties of node
-  - `code`:
-    Strip code properties of executable nodes
-  - `execution`:
-    Strip execution related properties of executable nodes
-  - `output`:
-    Strip output properties of executable nodes
-  - `timestamps`:
-    Strip timestamp properties
-
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
 
 
@@ -258,6 +200,65 @@ Convert a document to another format
 
 
 
+## `stencila sync`
+
+Synchronize a document between formats
+
+The direction of synchronization can be specified by appending the to the file path:
+
+- `:in` only sync incoming changes from the file - `:out` only sync outgoing changes to the file - `:io` sync incoming and outgoing changes (default)
+
+**Usage:** `stencila sync [OPTIONS] <DOC> [FILES]...`
+
+###### **Arguments:**
+
+* `<DOC>` — The path of the document to synchronize
+* `<FILES>` — The files to synchronize with
+
+###### **Options:**
+
+* `-f`, `--format <FORMATS>` — The formats of the files (or the name of codecs to use)
+
+   This option can be provided separately for each file.
+* `-l`, `--losses <LOSSES>` — What to do if there are losses when either encoding or decoding between any of the files
+
+  Default value: `warn`
+* `--standalone` — Encode as a standalone document
+* `--not-standalone` — Do not encode as a standalone document when writing to file
+* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
+* `-c`, `--compact` — Use compact form of encoding if possible
+
+   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `authors`:
+    Strip authorship properties of nodes
+  - `provenance`:
+    Strip provenance properties of nodes
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `archive`:
+    Strip archive properties of node
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+  - `timestamps`:
+    Strip timestamp properties
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+
+
 ## `stencila compile`
 
 Compile a document
@@ -266,10 +267,10 @@ Compile a document
 
 ###### **Arguments:**
 
-* `<INPUT>` — The path of the file to compile
+* `<INPUT>` — The path of the file to execute
 
    If not supplied the input content is read from `stdin`.
-* `<OUTPUT>` — The path of the file to write the compiled document to
+* `<OUTPUT>` — The path of the file to write the executed document to
 
    If not supplied the output content is written to `stdout`.
 
@@ -311,6 +312,7 @@ Compile a document
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+* `--no-save` — Do not save the document after compiling it
 
 
 
@@ -386,6 +388,7 @@ Execute a document
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+* `--no-save` — Do not save the document after compiling it
 
 
 
@@ -463,6 +466,7 @@ Equivalent to the `execute` command with the `--render` flag.
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+* `--no-save` — Do not save the document after compiling it
 
 
 
@@ -932,7 +936,7 @@ List the secrets used by Stencila
 
 Set a secret used by Stencila
 
-You will be prompted for the secret
+You will be prompted for the secret. Alternatively, you can echo the password into this command i.e. `echo <TOKEN> | stencila secrets set STENCILA_API_TOKEN`
 
 **Usage:** `stencila secrets set <NAME>`
 
@@ -954,22 +958,6 @@ Delete a secret previously set using Stencila
 
 
 
-## `stencila config`
-
-**Usage:** `stencila config [OPTIONS]`
-
-###### **Options:**
-
-* `--dir <DIR>`
-
-  Default value: `config`
-
-  Possible values: `config`, `cache`, `prompts`, `plugins`, `kernels`
-
-* `--ensure`
-
-
-
 ## `stencila upgrade`
 
 Upgrade to the latest version
@@ -988,6 +976,22 @@ Upgrade to the latest version
 Uninstall this command line tool
 
 **Usage:** `stencila uninstall`
+
+
+
+## `stencila config`
+
+**Usage:** `stencila config [OPTIONS]`
+
+###### **Options:**
+
+* `--dir <DIR>`
+
+  Default value: `config`
+
+  Possible values: `config`, `cache`, `prompts`, `plugins`, `kernels`
+
+* `--ensure`
 
 
 
