@@ -1,7 +1,7 @@
 import { consume } from '@lit/context'
 import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
@@ -40,9 +40,6 @@ export class DocumentMenu extends LitElement {
 
   @state()
   protected open: boolean = false
-
-  @property({ type: Boolean })
-  visible: boolean = false
 
   /**
    * Make sure the divider's border-top property is set,
