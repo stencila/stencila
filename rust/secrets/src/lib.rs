@@ -11,6 +11,7 @@ use common::{
     once_cell::sync::Lazy,
     serde::Serialize,
     serde_with::skip_serializing_none,
+    tracing,
 };
 
 pub mod cli;
@@ -211,5 +212,12 @@ pub fn delete(name: &str) -> Result<()> {
         bail!("Only secrets used by Stencila can be deleted by Stencila")
     }
 
-    Ok(entry(name)?.delete_password()?)
+    match entry(name)?.delete_password() {
+        Err(keyring::Error::NoEntry) => {
+            tracing::warn!("No secret named {name} to delete");
+            Ok(())
+        }
+        Err(error) => bail!(error),
+        Ok(..) => Ok(()),
+    }
 }
