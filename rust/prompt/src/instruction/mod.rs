@@ -9,7 +9,7 @@ use crate::{prelude::*, DocumentContext};
 mod tests;
 
 /// The instruction of the current prompt
-#[derive(Default, Trace)]
+#[derive(Default, Clone, Trace)]
 #[rquickjs::class(rename_all = "camelCase")]
 pub struct Instruction {
     /// The type of the instruction

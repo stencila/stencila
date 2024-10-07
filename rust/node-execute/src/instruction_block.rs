@@ -197,14 +197,16 @@ impl Executable for InstructionBlock {
         // Create a new `PromptBlock` to render the prompt and patch it to `prompt_provided`
         // so that when it is executed it gets patched
         let mut prompt_block = PromptBlock::new(prompt_id);
-        //self.options.prompt_provided = Some(prompt_block.clone());
         executor.patch(
             &node_id,
             [set(NodeProperty::PromptProvided, prompt_block.clone())],
         );
 
-        // Execute the `PromptBlock`
+        // Execute the `PromptBlock`. The instruction context needs to 
+        // be set for the prompt context to be complete (i.e. include `instruction` variable)
+        executor.instruction_context = Some((&*self).into());
         prompt_block.execute(executor).await;
+        executor.instruction_context = None;
 
         // Render the `PromptBlock` into a system prompt
         let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));

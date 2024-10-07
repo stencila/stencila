@@ -7,7 +7,7 @@ use common::{
 };
 use kernels::Kernels;
 use prompts::prompt::{KernelsContext, PromptContext};
-use schema::{replicate, CompilationDigest, InstructionBlock, InstructionType, PromptBlock};
+use schema::{replicate, CompilationDigest, InstructionType, PromptBlock};
 
 use crate::prelude::*;
 
@@ -112,7 +112,7 @@ impl Executable for PromptBlock {
 
         // Execute content using fork that
         let home = prompt.home();
-        match prompt_executor(&home, executor, None).await {
+        match prompt_executor(&home, executor).await {
             Ok(mut prompt_executor) => {
                 prompt_executor.directory_stack.push(home);
                 if let Err(error) = prompt_executor
@@ -159,16 +159,12 @@ impl Executable for PromptBlock {
 }
 
 /// Create a new executor to execute a prompt
-async fn prompt_executor(
-    home: &Path,
-    executor: &Executor,
-    instruction: Option<&InstructionBlock>,
-) -> Result<Executor> {
+async fn prompt_executor(home: &Path, executor: &Executor) -> Result<Executor> {
     // Create a prompt context
     // TODO: allow prompts to specify whether they need various parts of context
     // as an optimization, particularly to avoid getting kernel contexts unnecessarily.
     let context = PromptContext {
-        instruction: instruction.map(|instruction| instruction.into()),
+        instruction: executor.instruction_context.clone(),
         document: Some(executor.document_context.clone()),
         kernels: Some(KernelsContext::from_kernels(executor.kernels.read().await.deref()).await?),
     };

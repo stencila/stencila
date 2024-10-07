@@ -11,7 +11,7 @@ use common::{
     tracing,
 };
 use kernels::Kernels;
-use prompts::prompt::DocumentContext;
+use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     Block, CompilationDigest, ExecutionKind, ExecutionMode, ExecutionStatus, Inline, Link, List,
     ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchOp,
@@ -159,6 +159,9 @@ pub struct Executor {
 
     /// The document context for prompts
     document_context: DocumentContext,
+
+    /// The instruction context for prompts
+    instruction_context: Option<InstructionContext>,
 
     /// Information on the headings in the document
     headings: Vec<HeadingInfo>,
@@ -333,6 +336,7 @@ impl Executor {
             execution_status: ExecutionStatus::Pending,
             execution_kind: ExecutionKind::Main,
             document_context: DocumentContext::default(),
+            instruction_context: None,
             headings: Vec::new(),
             table_count: 0,
             figure_count: 0,
