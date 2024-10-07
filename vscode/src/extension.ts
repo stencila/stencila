@@ -12,6 +12,7 @@ import { registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
 import { cliPath } from "./clis";
+import { registerWalkthroughCommands } from "./walkthroughs";
 
 let client: LanguageClient | undefined;
 
@@ -27,6 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerDocumentCommands(context);
   registerRestartServer(context);
   registerStatusBar(context);
+  registerWalkthroughCommands(context);
 
   await startServer(context);
 }

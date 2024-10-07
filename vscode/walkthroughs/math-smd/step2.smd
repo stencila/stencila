@@ -1,0 +1,23 @@
+---
+title: Using AsciiMath
+---
+
+• Stencila Markdown also supports writing math using AsciiMath, a simpler syntax than TeX.
+
+• Add display AsciiMath equations as a code block with `asciimath` as the language [like this](type:0).
+
+• You can also add inline AsciiMath within paragraphs [like this](type:1).
+
+***
+
+The circumference of a circle is,
+
+```asciimath
+C = 2pi r
+```
+
+***
+
+where `r`{asciimath} is the radius of the circle.
+
+***

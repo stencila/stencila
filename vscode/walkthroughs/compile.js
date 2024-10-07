@@ -22,27 +22,29 @@ writeFileSync(packagePath, JSON.stringify(package, null, "  "), "utf8");
 
 // Create a walkthrough from the content of a folder
 function folderToWalkthrough(folder) {
-  // Read in main
-  const walkthrough = yaml.load(readFileSync(path.join(folder, "main.yaml")));
+  // Read in index
+  const walkthrough = yaml.load(readFileSync(path.join(folder, "index.yaml")));
   walkthrough.id = path.basename(folder);
+
+  // Get the format
+  const format = walkthrough.format;
 
   // Parse step Markdown files and add to it
   walkthrough.steps = readdirSync(folder)
-    .filter((file) => path.extname(file) === ".md")
-    .map((file) =>
-      markdownToStep(path.join(folder, file), `${walkthrough.id}.smd`)
-    );
+    .filter((file) => path.extname(file) === `.${format}`)
+    .map((file) => markdownToStep(path.join(folder, file), walkthrough.format));
 
   return walkthrough;
 }
 
 /// Create a walkthrough step from a Markdown file
-function markdownToStep(stepFile, demoFile) {
+function markdownToStep(stepFile, format) {
   const md = readFileSync(stepFile, "utf8");
-  const [ignore, header, description, ...sources] = md.split("---");
+  const [ignore, header, body] = md.split("---");
+  const [description, ...sources] = body.split("***");
 
   const step = yaml.load(header);
-  step.id = path.basename(stepFile, ".md");
+  step.id = path.basename(stepFile, `.${format}`);
 
   if (step.media === undefined) {
     // Each step has to define `media` to show on right.
@@ -51,8 +53,8 @@ function markdownToStep(stepFile, demoFile) {
 
   step.description = description
     .replace(/\(file\:open\)/g, () => {
-      const arg = encodeURIComponent(JSON.stringify(demoFile));
-      return `(command:stencila.walkthrough-file-open?${arg})`;
+      const arg = encodeURIComponent(JSON.stringify(format));
+      return `(command:stencila.walkthrough.open?${arg})`;
     })
     .replace(/\(type\:(\d+)\)/g, (match, index) => {
       const source = sources[index];
@@ -63,8 +65,8 @@ function markdownToStep(stepFile, demoFile) {
       // Remove the first and last newlines and replace `===` with `---
       const trimmed = source.replace(/^\n|\n$/g, "").replace(/===/g, "---");
 
-      // JSONify and URI encode the arguments
-      let arg = encodeURIComponent(JSON.stringify([demoFile, trimmed]));
+      // JSON-ify and URI encode the arguments
+      let arg = encodeURIComponent(JSON.stringify(trimmed));
       // These chars are not encoded by the above function but need to
       // be because if they are in source we don't want them to 'escape' the Markdown link
       // we are about to create.
@@ -76,7 +78,7 @@ function markdownToStep(stepFile, demoFile) {
       };
       arg = arg.replace(/[\[\]()]/g, (match) => charMap[match]);
 
-      return `(command:stencila.walkthrough-file-type?${arg})`;
+      return `(command:stencila.walkthrough.type?${arg})`;
     });
 
   return step;

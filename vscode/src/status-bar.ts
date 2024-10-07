@@ -81,14 +81,29 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           description: "Restart the Stencila Language Server",
           command: "stencila.lsp-server.restart",
         },
+        {
+          label: "Walkthroughs",
+          kind: vscode.QuickPickItemKind.Separator,
+        },
+        {
+          label: "$(symbol-operator) Math in Stencila Markdown",
+          description:
+            "Writing math equations using TeX, AsciiMath and prompts",
+          command: "workbench.action.openWalkthrough",
+          args: ["stencila.stencila#math-smd", false],
+        },
       ];
 
-      const selectedItem = await vscode.window.showQuickPick(commands, {
+      const item = await vscode.window.showQuickPick(commands, {
         placeHolder: "Select a Stencila command to run",
       });
 
-      if (selectedItem?.command) {
-        vscode.commands.executeCommand(selectedItem.command);
+      if (item?.command) {
+        if (item.args) {
+          vscode.commands.executeCommand(item.command, ...item.args);
+        } else {
+          vscode.commands.executeCommand(item.command);
+        }
       }
     }
   );
@@ -98,6 +113,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
 
 interface CommandPickerItem extends vscode.QuickPickItem {
   command?: string;
+  args?: (string | boolean)[];
 }
 
 class ExtensionStatusBar {

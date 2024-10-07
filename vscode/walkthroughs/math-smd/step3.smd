@@ -1,0 +1,17 @@
+---
+title: Using prompts
+---
+
+• The ``math-block`` prompt is specialized to write display math blocks. It will default to using TeX unless you specify AsciiMath or MathML.
+
+• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously.
+
+• This means you don't need to repeat youself when writing instructions. [Like this](type:0).
+
+***
+
+The probability density function for the normal distribution is,
+
+::: new equation
+
+***
