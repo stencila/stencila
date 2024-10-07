@@ -168,14 +168,14 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn perform_task_auto() -> Result<()> {
+    async fn perform_task_router() -> Result<()> {
         if cloud::api_key().is_none() {
             return Ok(());
         }
 
         let model = StencilaModel {
             provider: "stencila".to_string(),
-            identifier: "auto".to_string(),
+            identifier: "router".to_string(),
             ..Default::default()
         };
         let output = model.perform_task(&test_task_repeat_word()).await?;
