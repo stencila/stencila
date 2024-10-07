@@ -1,12 +1,12 @@
 ---
-title: Using prompts
+title: Using LLMs
 ---
 
 • The ``math-block`` prompt is specialized to write display math blocks. It will default to using TeX unless you specify AsciiMath or MathML.
 
-• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously.
+• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously. This means you don't need to repeat youself when writing instructions
 
-• This means you don't need to repeat youself when writing instructions. [Like this](type:0).
+• To illustrate, let's [add](type:0) a paragraph, followed by an instruction to create a new equation. Press the $(run) icon to execute the instruction using a LLM.
 
 ***
 

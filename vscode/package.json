@@ -443,7 +443,7 @@
     "walkthroughs": [
       {
         "title": "Math in Stencila Markdown",
-        "description": "Writing math equations using TeX, AsciiMath and prompts in Stencila Markdown.",
+        "description": "Creating math equations using TeX, AsciiMath and LLMs in Stencila Markdown.",
         "format": "smd",
         "id": "math-smd",
         "steps": [
@@ -454,7 +454,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• This is an interactive walkthrough, click on the links, to create a document and add content to it.\n\n• First, create a new Stencila Markdown [file](command:stencila.walkthrough.open?%22smd%22).\n\n• You can preview the rendered document by clicking on the $(preview) icons in the Markdown.\n"
+            "description": "\n\n• This is an interactive walkthrough. Click on the links below to create a document and add content to it.\n\n• First, create a new, empty Stencila Markdown [file](command:stencila.walkthrough.open?%22smd%22).\n\n• You can preview the rendered document by clicking on the $(preview) icons that will appear in the Markdown when you add content, or by using ``Stencila: Preview document`` command.\n"
           },
           {
             "title": "Using TeX",
@@ -463,7 +463,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Stencila Markdown supports display math TeX equations surrounded by double dollars [like this](command:stencila.walkthrough.type?%22%5CnThe%20area%20of%20a%20circle%20is%2C%5Cn%5Cn%24%24%5CnA%20%3D%20%5C%5Cpi%20r%5E2%5Cn%24%24%5Cn%22).\n\n• You can also add inline math within paragraphs using single dollars `$` [like this](command:stencila.walkthrough.type?%22%5Cnwhere%20%24r%24%20is%20the%20radius%20of%20the%20circle.%5Cn%22).\n\n"
+            "description": "\n\n• Stencila Markdown supports display math TeX equations surrounded by double dollars [like this](command:stencila.walkthrough.type?%22%5CnThe%20area%20of%20a%20circle%20is%2C%5Cn%5Cn%24%24%5CnA%20%3D%20%5C%5Cpi%20r%5E2%5Cn%24%24%5Cn%22).\n\n• You can also [add](command:stencila.walkthrough.type?%22%5Cnwhere%20%24r%24%20is%20the%20radius%20of%20the%20circle.%5Cn%22) inline math within paragraphs using single dollars.\n\n"
           },
           {
             "title": "Using AsciiMath",
@@ -472,16 +472,16 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Stencila Markdown also supports writing math using AsciiMath, a simpler syntax than TeX.\n\n• Add display AsciiMath equations as a code block with `asciimath` as the language [like this](command:stencila.walkthrough.type?%22%5CnThe%20circumference%20of%20a%20circle%20is%2C%5Cn%5Cn%60%60%60asciimath%5CnC%20%3D%202pi%20r%5Cn%60%60%60%5Cn%22).\n\n• You can also add inline AsciiMath within paragraphs [like this](command:stencila.walkthrough.type?%22%5Cnwhere%20%60r%60%7Basciimath%7D%20is%20the%20radius%20of%20the%20circle.%5Cn%22).\n\n"
+            "description": "\n\n• Stencila Markdown also supports writing math using AsciiMath, a simpler syntax than TeX.\n\n• [Add](command:stencila.walkthrough.type?%22%5CnThe%20circumference%20of%20a%20circle%20is%2C%5Cn%5Cn%60%60%60asciimath%5CnC%20%3D%202%20pi%20r%5Cn%60%60%60%5Cn%22) display AsciiMath equations using a code block with ``asciimath`` as the language.\n\n• You can also [add](command:stencila.walkthrough.type?%22%5Cnwhere%20%60r%60%7Basciimath%7D%20is%20the%20radius%20of%20the%20circle.%5Cn%22) inline AsciiMath within paragraphs.\n\n"
           },
           {
-            "title": "Using prompts",
+            "title": "Using LLMs",
             "id": "step3",
             "media": {
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• The ``math-block`` prompt is specialized to write display math blocks. It will default to using TeX unless you specify AsciiMath or MathML.\n\n• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously.\n\n• This means you don't need to repeat youself when writing instructions. [Like this](command:stencila.walkthrough.type?%22%5CnThe%20probability%20density%20function%20for%20the%20normal%20distribution%20is%2C%5Cn%5Cn%3A%3A%3A%20new%20equation%5Cn%22).\n\n"
+            "description": "\n\n• The ``math-block`` prompt is specialized to write display math blocks. It will default to using TeX unless you specify AsciiMath or MathML.\n\n• The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously. This means you don't need to repeat youself when writing instructions\n\n• To illustrate, let's [add](command:stencila.walkthrough.type?%22%5CnThe%20probability%20density%20function%20for%20the%20normal%20distribution%20is%2C%5Cn%5Cn%3A%3A%3A%20new%20equation%5Cn%22) a paragraph, followed by an instruction to create a new equation. Press the $(run) icon to execute the instruction using a LLM.\n\n"
           }
         ]
       }

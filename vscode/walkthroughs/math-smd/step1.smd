@@ -4,7 +4,7 @@ title: Using TeX
 
 • Stencila Markdown supports display math TeX equations surrounded by double dollars [like this](type:0).
 
-• You can also add inline math within paragraphs using single dollars `$` [like this](type:1).
+• You can also [add](type:1) inline math within paragraphs using single dollars.
 
 ***
 
