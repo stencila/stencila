@@ -78,6 +78,7 @@ class AuthorRoleName(StrEnum):
     Accepter = "Accepter"
     Instructor = "Instructor"
     Prompter = "Prompter"
+    Router = "Router"
     Generator = "Generator"
 
 

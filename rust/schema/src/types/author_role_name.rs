@@ -26,6 +26,9 @@ pub enum AuthorRoleName {
     /// The author, usually a `SoftwareApplication`, prompted another author, also usually a `SoftwareApplication`, to generate content.
     Prompter,
 
+    /// The author, usually a `SoftwareApplication`, routed an instruction to another author, also usually a `SoftwareApplication`, to generate content.
+    Router,
+
     /// The author is a `SoftwareApplication` that generated content such as prose, code, or images.
     Generator,
 }

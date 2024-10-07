@@ -9,6 +9,7 @@ export type AuthorRoleName =
   'Accepter' |
   'Instructor' |
   'Prompter' |
+  'Router' |
   'Generator';
 
 

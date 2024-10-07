@@ -154,6 +154,11 @@
       "const": "Prompter"
     },
     {
+      "@id": "stencila:Router",
+      "description": "The author, usually a `SoftwareApplication`, routed an instruction to another author, also usually a `SoftwareApplication`, to generate content.",
+      "const": "Router"
+    },
+    {
       "@id": "stencila:Generator",
       "description": "The author is a `SoftwareApplication` that generated content such as prose, code, or images.",
       "const": "Generator"
