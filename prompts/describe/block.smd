@@ -5,7 +5,7 @@ id: stencila/describe/block
 version: "0.1.0"
 name: Describe Block Prompt
 description: Describe a block.
-keywords: edit
+keywords: describe
 
 instruction-type: Describe
 node-types: Block
