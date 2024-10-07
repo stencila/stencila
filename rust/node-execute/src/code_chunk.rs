@@ -57,6 +57,9 @@ impl Executable for CodeChunk {
                 "dot" | "graphviz" | "mermaid"
             )
         {
+            // Need to set execution status to pending so avoid early return from
+            // the execute methods
+            self.options.execution_status = Some(ExecutionStatus::Pending);
             self.execute(executor).await;
         }
 
