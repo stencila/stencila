@@ -43,8 +43,13 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.view-doc",
         },
         {
-          label: "Services",
+          label: "Settings & Services",
           kind: vscode.QuickPickItemKind.Separator,
+        },
+        {
+          label: "$(gear) Settings",
+          description: "Changes Stencila settings",
+          command: "stencila.settings",
         },
         {
           label: "$(sign-in) Sign In",

@@ -37,10 +37,26 @@
       }
     ],
     "configuration": {
-      "title": "Stencila Configuration",
+      "title": "Stencila",
       "properties": {
-        "stencila.user": {
-          "description": "Your details to use as author information.",
+        "stencila.user.name": {
+          "order": 1,
+          "type": "string",
+          "default": "",
+          "description": "Your full name (optional). Used when attributing document changes."
+        },
+        "stencila.user.affiliations": {
+          "order": 2,
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Your professional affiliations (optional). You can add multiple affiliations. Used when attributing document changes."
+        },
+        "stencila.user.object": {
+          "order": 3,
+          "description": "A https://schema.org/Person object representing you (optional). Used when attributing document changes. Overrides other `user` settings above.",
           "type": [
             "object",
             "null"
@@ -205,6 +221,11 @@
         "category": "Stencila Cloud",
         "title": "Sign out",
         "icon": "$(sign-out)"
+      },
+      {
+        "command": "stencila.settings",
+        "category": "Stencila",
+        "title": "Settings"
       }
     ],
     "keybindings": [
@@ -516,7 +537,7 @@
               "image": "walkthroughs/blank.svg",
               "altText": ""
             },
-            "description": "\n\n• Stencila has several built-in prompts specialized for creating certain types of Mermaid diagrams.\n\n• For example, the ``stencila/new/figure-flowchart`` prompt is specialized to create flowchards. It makes use of the document context, including metadata and the preceding paragraph. This means you don't need to repeat youself when writing instructions.\n\n• To illustrate this, let's [add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5CnCell%20culture%20involves%20isolating%20cells%20from%20an%20organism%2C%20providing%20them%20with%20necessary%20nutrients%2C%20and%20maintaining%20controlled%20environmental%20conditions%20to%20support%20cell%20growth%2C%20proliferation%2C%20and%20viability%20in%20vitro.%5Cn%5Cn%3A%3A%3A%20new%20%40figure-flowchart%22%5D) a paragraph, followed by an instruction to create a new flowchart. Press the $(run) icon to execute the instruction using a LLM.\n\n• Note that as well as generating the Mermaid code, this prompt wraps it in a figure and add a caption that is based on the document context.\n\n• If you don't like the suggested provided by the LLM, you can add feedback after the ``suggest`` keyword and press the $(refresh) icon (or do the same in the preview window).\n\n"
+            "description": "\n\n• Stencila has several built-in prompts specialized for creating certain types of Mermaid diagrams.\n\n• For example, the ``stencila/new/figure-flowchart`` prompt is specialized to create flowchards. It makes use of the document context, including metadata and the preceding paragraph. This means you don't need to repeat youself when writing instructions.\n\n• To illustrate this, let's [add](command:stencila.walkthrough.type?%5B%22smd%22%2C%22%5CnCell%20culture%20involves%20isolating%20cells%20from%20an%20organism%2C%20providing%20them%20with%20necessary%20nutrients%2C%20and%20maintaining%20controlled%20environmental%20conditions%20to%20support%20cell%20growth%2C%20proliferation%2C%20and%20viability%20in%20vitro.%5Cn%5Cn%3A%3A%3A%20new%20%40figure-flowchart%5Cn%22%5D) a paragraph, followed by an instruction to create a new flowchart. Press the $(run) icon to execute the instruction using a LLM.\n\n• Note that as well as generating the Mermaid code, this prompt wraps it in a figure and add a caption that is based on the document context.\n\n• If you don't like the suggested provided by the LLM, you can add feedback after the ``suggest`` keyword and press the $(refresh) icon (or do the same in the preview window).\n\n"
           },
           {
             "title": "Using LLMs to edit diagrams",

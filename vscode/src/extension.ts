@@ -26,9 +26,9 @@ export async function activate(context: vscode.ExtensionContext) {
   registerAuthenticationProvider(context);
   registerSecretsCommands(context);
   registerDocumentCommands(context);
-  registerRestartServer(context);
   registerStatusBar(context);
   registerWalkthroughCommands(context);
+  registerOtherCommands(context);
 
   await startServer(context);
 }
@@ -83,9 +83,20 @@ async function startServer(context: vscode.ExtensionContext) {
 }
 
 /**
- * Register command to restart the server (e.g. after setting or removing secrets)
+ * Register other commands
  */
-function registerRestartServer(context: vscode.ExtensionContext) {
+function registerOtherCommands(context: vscode.ExtensionContext) {
+  // Command to open stencila settings
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.settings", () => {
+      vscode.commands.executeCommand(
+        "workbench.action.openSettings",
+        "stencila"
+      );
+    })
+  );
+
+  // Command to restart the server (e.g. after setting or removing secrets)
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.lsp-server.restart", async () => {
       if (client) {
