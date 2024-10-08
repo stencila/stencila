@@ -1,7 +1,12 @@
 .vscode-test
-*.vsix
 dist
 out
+
+# Ignore CLI binary downloaded/copied into this folder
+/cli
+
+# Ignore VSIX packages built in this folder
+/*.vsix
 
 # Ignore generated grammar files
 /syntaxes/**/tmGrammar.json

@@ -564,8 +564,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
-    "package-cli": "node fetch-cli.js",
-    "package-vsix": "vsce package",
+    "install-cli": "bash install-cli.sh",
     "package": "npm run package-cli && npm run package-vsix"
   },
   "dependencies": {

@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
 import * as vscode from "vscode";
@@ -14,7 +16,14 @@ export function cliPath(context: vscode.ExtensionContext): string {
     case vscode.ExtensionMode.Test:
       return path.join(__dirname, "..", "..", "target", "debug", "stencila");
     case vscode.ExtensionMode.Production: {
-      return "stencila";
+      // Attempt to obtain from the `cli` sub-dir of the extension, falling back to
+      // searching for `stencila` on the path
+      const cli = path.join(
+        context.extensionPath,
+        "cli",
+        os.platform() === "win32" ? "stencila.exe" : "stencila"
+      );
+      return fs.existsSync(cli) ? cli : "stencila";
     }
   }
 }
