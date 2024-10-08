@@ -107,7 +107,6 @@ export class StencilaAuthorship extends LitElement {
   }
 
   override render() {
-    console.log('authorship render', this.entityContext)
     const showHighlights =
       this.previewContext.showAllAuthorshipHighlight ||
       this.entityContext.cardOpen

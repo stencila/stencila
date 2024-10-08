@@ -98,7 +98,6 @@ export class Paragraph extends Entity {
     if (Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType)) {
       return html`<slot name="content"></slot>`
     }
-    console.log('paragraph', this.id, this.context)
     return html`
       <stencila-ui-block-on-demand
         type="Paragraph"
