@@ -564,8 +564,9 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
+    "build-ext": "npm run compile-dist && npm run compile-syntaxes && npm run compile-walkthroughs && npm run compile-ts",
     "install-cli": "bash install-cli.sh",
-    "package": "npm run package-cli && npm run package-vsix"
+    "package": "npm run package-vsix"
   },
   "dependencies": {
     "vscode-languageclient": "9.0.1"
