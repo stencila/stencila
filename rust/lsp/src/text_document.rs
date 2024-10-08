@@ -507,7 +507,11 @@ pub(super) fn did_open(
     let source = params.text_document.text;
 
     let client = state.client.clone();
-    let user = state.options.user.clone();
+    let user = state
+        .options
+        .user
+        .as_ref()
+        .and_then(|user| user.object.clone());
 
     let text_doc = match TextDocument::new(uri.clone(), format, source, client, user) {
         Ok(doc) => doc,
