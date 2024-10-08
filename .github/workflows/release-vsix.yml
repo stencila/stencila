@@ -1,0 +1,107 @@
+# Workflow for creating releases of VSCode extension
+#
+# Mostly based on https://github.com/rust-lang/stencila/blob/master/.github/workflows/release.yaml
+
+name: Release VSCode extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist:
+        description: Build extension distribution for various platforms
+        type: boolean
+        default: true
+      publish:
+        description: Publish the extension
+        type: boolean
+        default: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  dist:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            code-target: linux-x64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            code-target: darwin-x64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            code-target: darwin-arm64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            code-target: win32-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: vscode
+
+      - name: Install CLI
+        run: npm run install-cli
+        working-directory: vscode
+
+      - name: Package Extension
+        run: npx vsce package -o "../dist/stencila-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
+        working-directory: vscode
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.target }}
+          path: ./dist
+
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+    needs: ["dist"]
+    steps:
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-unknown-linux-gnu
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-aarch64-apple-darwin
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-apple-darwin
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-pc-windows-msvc
+          path: dist
+      - run: ls -al ./dist
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: vscode
+
+      - name: Publish Extension to Code Marketplace
+        if: github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
+        run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
+        working-directory: vscode
