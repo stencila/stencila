@@ -564,8 +564,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
-    "build-ext": "npm run compile-dist && npm run compile-syntaxes && npm run compile-walkthroughs && npm run compile-ts",
-    "install-cli": "bash install-cli.sh",
+    "build": "npm run compile-dist && npm run compile-syntaxes && npm run compile-walkthroughs && npm run compile-ts",
     "package": "npm run package-vsix"
   },
   "dependencies": {

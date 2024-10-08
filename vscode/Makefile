@@ -1,6 +1,7 @@
 all: fix test build
 
 # Install dependencies
+# Including making local modules that are dependencies
 # Note: this package is not currently part of the repo's npm
 # workspace and so, unlike other packages in this repo, the
 # install is done in this folder.
@@ -10,6 +11,7 @@ ifdef CI
 else
 	npm install
 endif
+	make -C ../web build
 
 # Make formatting and linting fixes
 fix: install
@@ -27,15 +29,16 @@ test: install
 compile: install
 	npm run compile
 
-# Package into a vsix file for current platform
-package: install
-	npm run package
+# Build the extension including installing the CLI
+build: install
+	npm run build
+	bash install-cli.sh
 
 # Install the extension locally
-install-ext: install
-	npm run package-vsix
+install-ext: compile
+	npm run package
 	code --install-extension stencila-*.vsix
 
 # Clean up development artifacts
 clean:
-	rm -rf dist out
+	rm -rf cli dist out
