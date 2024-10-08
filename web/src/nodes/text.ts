@@ -3,13 +3,15 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-// import { Entity } from './entity'
-
 /**
  * Web component representing a Stencila Schema `Text` node
  *
  * Similar to an HTML <span>. This component currently only exists to allow for
  * editing of a `Text` node when it one of the `parts` of an `InstructionMessage`.
+ *
+ * **IMPORTANT** This element serves as parts of more contextual stencila node entities, eg `Paragraph`, `Heading`, `List`,
+ *  it should NEVER subclass the abstract `Entity` class,
+ *  as it will affect some of the context related functionality between its parent node  and the text content.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md
  */
