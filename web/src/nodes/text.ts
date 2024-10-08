@@ -1,9 +1,9 @@
-import { html } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import { Entity } from './entity'
+// import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `Text` node
@@ -15,7 +15,7 @@ import { Entity } from './entity'
  */
 @customElement('stencila-text')
 @withTwind()
-export class Text extends Entity {
+export class Text extends LitElement {
   override render() {
     return html`<slot></slot>`
   }
