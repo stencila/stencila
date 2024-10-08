@@ -1,6 +1,6 @@
 # Stencila VSCode Extension
 
-This extension provides a user interface to Stencila, enabling the creation of executable documents using Markdown. The extension enables advanced features of Stencila such as Provenance browsing, LLM code generation based on a growing prompt library, and premium features of the Stencila Cloud such as LLM routing, model evaluation and shared prompt libraries. 
+This extension provides a user interface to Stencila, enabling the creation of executable documents using Markdown. The extension enables advanced features of Stencila such as provenance browsing, LLM code generation based on a growing prompt library, and premium features of the Stencila Cloud such as LLM routing, model evaluation and shared prompt libraries. 
 
 ## 👋 Write rich executable scholarly documents in VSCode
 
@@ -13,7 +13,7 @@ We're glad to have you here, [Stencila](https://stencila.io) is a tool to help s
 ### Features of Stencila: 
 
 - [The Stencila Schema](https://github.com/stencila/stencila/tree/main/schema) - a rich descriptive schema to describe scholarly texts
-- [Stencila CLI](https://github.com/stencila/stencila/releases/) - a commandline interface to the underlying Rust code that makes Stencila run
+- [Stencila CLI](https://github.com/stencila/stencila/releases/) - a command line interface to the underlying Rust code that makes Stencila run
 - Stencila VSCode Extension, [Stencila Cloud](https://stencila.cloud) and LLM capabilities - a new effort to bring LLM routing, prompt libraries and traceable LLM usage to scientific manuscript preparation. 
 
 ## Installing the Extension 
