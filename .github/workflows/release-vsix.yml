@@ -56,7 +56,7 @@ jobs:
         run: mkdir -p dist
 
       - name: Package Extension
-        run: npx vsce package -o "../dist/stencila-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
+        run: npx vsce package --pre-release -o "../dist/stencila-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
         working-directory: vscode
 
       - name: Upload artifacts
