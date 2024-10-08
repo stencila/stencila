@@ -11,6 +11,11 @@ export abstract class CodeExecutable extends Executable {
   @property()
   code: string
 
+  /**
+   * A 'stringified' JS array,
+   * Important should be kept as a `String`
+   * to avoid errors when passing down to children.
+   */
   @property({ attribute: 'code-authorship' })
   codeAuthorship?: string
 
