@@ -107,10 +107,11 @@ export class StencilaAuthorship extends LitElement {
   }
 
   override render() {
-    if (
+    const showHighlights =
       this.previewContext.showAllAuthorshipHighlight ||
       this.entityContext.cardOpen
-    ) {
+
+    if (showHighlights) {
       return this.renderHighlights()
     } else {
       return html`<slot></slot>`

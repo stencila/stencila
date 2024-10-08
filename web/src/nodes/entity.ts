@@ -64,6 +64,9 @@ export abstract class Entity extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
+
+    this.context.nodeId = this.id
+
     this.shadowRoot.addEventListener(
       `toggle-${this.id}`,
       (e: Event & { detail: EntityContext }) => {
