@@ -49,10 +49,12 @@ export class UINodeCode extends LitElement {
   code: string
 
   /**
-   * The runs of authorship of the code
+   * The runs of authorship of the code.
+   *
+   * **IMPORTANT** this will be a stringified array, and must be parsed before using
    */
-  @property({ attribute: 'code-authorship', type: Array })
-  codeAuthorship?: AuthorshipRun[]
+  @property({ attribute: 'code-authorship', type: String })
+  codeAuthorship?: string
 
   /**
    * The language of the code. Used to determine the syntax highlighting
@@ -255,15 +257,22 @@ export class UINodeCode extends LitElement {
    * @returns `CodeAuthorshipMarker[] | null`
    */
   private getAuthorshipMarkers = (): AuthorshipMarker[] | null => {
-    return this.codeAuthorship
-      ? this.codeAuthorship.map((run) => ({
+    if (this.codeAuthorship) {
+      try {
+        const authorshipRun = JSON.parse(this.codeAuthorship) as AuthorshipRun[]
+        return authorshipRun.map((run) => ({
           from: run[0],
           to: run[1],
           count: run[2],
           provenance: run[4],
           mi: run[5],
         }))
-      : null
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        return null
+      }
+    }
+    return null
   }
 
   /**
