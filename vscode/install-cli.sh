@@ -9,9 +9,14 @@ ARCH=$(uname -m)
 
 # Function to determine the latest version if not specified
 get_latest_version() {
-    curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" |
-    grep '"tag_name":' |
-    sed 's/.*"tag_name": *"\([^"]*\)".*/\1/'
+    case "$OS" in
+        'Darwin')
+            curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -o '"tag_name": "[^"]*"' | cut -d '"' -f 4
+            ;;
+        *)
+            curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")'
+            ;;
+    esac
 }
 
 # Set the version to install (default to latest)
