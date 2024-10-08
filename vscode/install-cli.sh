@@ -3,26 +3,13 @@
 # A script to download the CLI binary for the platform
 # and put it in the `cli` subdir.
 
+VERSION="v2.0.0-beta.6"
+
 # Detect the operating system
 OS=$(uname -s)
 ARCH=$(uname -m)
 
-# Function to determine the latest version if not specified
-get_latest_version() {
-    case "$OS" in
-        'Darwin')
-            curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -o '"tag_name": "[^"]*"' | cut -d '"' -f 4
-            ;;
-        *)
-            curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")'
-            ;;
-    esac
-}
-
-# Set the version to install (default to latest)
-VERSION=${1:-$(get_latest_version)}
-
-echo "Installing Stencila $VERSION for $OS $ARCH"
+echo "Installing Stencila CLI $VERSION for $OS $ARCH"
 
 # Determine the appropriate file name based on OS and architecture
 case "$OS" in
