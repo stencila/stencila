@@ -97,7 +97,7 @@ jobs:
         with:
           name: dist-x86_64-pc-windows-msvc
           path: dist
-      - run: ls -al ./dist
+      - run: ls -lah ./dist
 
       - name: Install dependencies
         run: npm ci
@@ -105,5 +105,5 @@ jobs:
 
       - name: Publish Extension to Code Marketplace
         if: github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
-        run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
+        run: npx vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
         working-directory: vscode
