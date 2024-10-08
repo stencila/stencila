@@ -52,6 +52,9 @@ jobs:
       - name: Build extension
         run: make -C vscode build
 
+      - name: Ensure dist directory
+        run: mkdir -p dist
+
       - name: Package Extension
         run: npx vsce package -o "../dist/stencila-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
         working-directory: vscode
@@ -74,6 +77,9 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Ensure dist directory
+        run: mkdir -p dist
 
       - uses: actions/download-artifact@v4
         with:
@@ -98,6 +104,6 @@ jobs:
         working-directory: vscode
 
       - name: Publish Extension to Code Marketplace
-        if: false && github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
+        if: github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
         run: npx vsce publish --pat ${{ secrets.MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
         working-directory: vscode
