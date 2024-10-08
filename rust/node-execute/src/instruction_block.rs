@@ -202,7 +202,7 @@ impl Executable for InstructionBlock {
             [set(NodeProperty::PromptProvided, prompt_block.clone())],
         );
 
-        // Execute the `PromptBlock`. The instruction context needs to 
+        // Execute the `PromptBlock`. The instruction context needs to
         // be set for the prompt context to be complete (i.e. include `instruction` variable)
         executor.instruction_context = Some((&*self).into());
         prompt_block.execute(executor).await;
