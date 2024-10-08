@@ -80,7 +80,7 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let token = cloud::api_key().as_ref().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+        let token = cloud::api_key().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
         if task.dry_run {
             return ModelOutput::empty(self);

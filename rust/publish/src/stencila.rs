@@ -25,7 +25,7 @@ pub(super) async fn publish_node(
     dry_run: bool,
     swb: &SwbCodec,
 ) -> Result<()> {
-    let token = cloud::api_key().as_ref().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+    let token = cloud::api_key().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
     let key = key.as_deref().unwrap_or_default().to_string();
     let base_url = format!("https://{key}.stencila.site");

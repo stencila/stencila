@@ -1,6 +1,6 @@
-use std::env;
+use std::{env, sync::OnceLock};
 
-use common::{once_cell::sync::Lazy, serde::Deserialize};
+use common::serde::Deserialize;
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -15,13 +15,23 @@ pub fn base_url() -> String {
 /// The name of the env var or secret for the API key
 const API_KEY_NAME: &str = "STENCILA_API_TOKEN";
 
-/// The API key value. Stored to avoid repeated access to secrets (which is
-/// relatively slow) for each model
-static API_KEY: Lazy<Option<String>> = Lazy::new(|| secrets::env_or_get(API_KEY_NAME).ok());
+/// The API key value.
+///
+/// Stored to on first successful get to avoid repeated access
+/// to secrets (which is relatively slow). Note that this means
+/// that if the key is changed in the secrets store that the
+/// process will need to be restarted for changes to take effect.
+static API_KEY: OnceLock<String> = OnceLock::new();
 
 /// Get the API key for the Stencila Cloud API
-pub fn api_key() -> &'static Option<String> {
-    &API_KEY
+pub fn api_key() -> Option<String> {
+    API_KEY.get().cloned().or_else(|| {
+        secrets::env_or_get(API_KEY_NAME).ok().map(|key| {
+            // If we successfully retrieved the key, store it for future use
+            API_KEY.set(key.clone()).ok();
+            key
+        })
+    })
 }
 
 /// An error response from Stencila Cloud
