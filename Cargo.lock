@@ -973,7 +973,7 @@ checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 
 [[package]]
 name = "cli"
-version = "2.0.0-beta.5"
+version = "2.0.0-beta.6"
 dependencies = [
  "app",
  "cli-utils",
@@ -1173,7 +1173,7 @@ dependencies = [
 
 [[package]]
 name = "codec-json"
-version = "2.0.0-beta.5"
+version = "2.0.0-beta.6"
 dependencies = [
  "codec",
  "common-dev",
@@ -1272,7 +1272,7 @@ dependencies = [
 
 [[package]]
 name = "codec-yaml"
-version = "2.0.0-beta.5"
+version = "2.0.0-beta.6"
 dependencies = [
  "codec",
 ]
@@ -5988,7 +5988,7 @@ dependencies = [
 
 [[package]]
 name = "server"
-version = "2.0.0-beta.5"
+version = "2.0.0-beta.6"
 dependencies = [
  "axum",
  "codecs",
