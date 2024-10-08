@@ -44,7 +44,6 @@ import checkCircleFill from './check-circle-fill.svg'
 import checkCircle from './check-circle.svg'
 import check from './check.svg'
 import chevronDown from './chevron-down.svg'
-import chip from './chip.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
 import codeChunk from './code-chunk.svg'
@@ -148,7 +147,6 @@ const icons = {
   checkCircleFill,
   chevronDown,
   circle,
-  chip,
   clock,
   code,
   codeChunk,
