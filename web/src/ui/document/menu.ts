@@ -115,7 +115,7 @@ export class DocumentMenu extends LitElement {
         slot="trigger"
         @mouseenter=${() => (this.open = true)}
       >
-        <stencila-ui-icon class="text-4xl" name="stencila"></stencila-ui-icon>
+        <stencila-ui-icon class="text-xl" name="stencila"></stencila-ui-icon>
       </div>
     `
   }
@@ -127,34 +127,21 @@ export class DocumentMenu extends LitElement {
         id="preview-menu"
         @sl-select=${this.handleSelect}
       >
+        <sl-menu-label>
+          <div class="flex items-center gap-2">Document</div>
+        </sl-menu-label>
         <sl-menu-item type="checkbox" data-event="toggle-author-provenance">
           <stencila-ui-icon name="feather" slot="prefix"></stencila-ui-icon>
-          ${'Show article authors and provenance'}
+          <span class="text-sm">Show authors and provenance</span>
         </sl-menu-item>
         <sl-menu-item type="checkbox" data-event="toggle-authorship-highlight">
           <stencila-ui-icon name="highlights" slot="prefix"></stencila-ui-icon>
-          ${'Show authorship highlighting'}
+          <span class="text-sm">Show authorship highlighting</span>
         </sl-menu-item>
         <sl-divider></sl-divider>
         <sl-menu-label>
-          <div class="flex items-center gap-2 text-lg">
-            <stencila-ui-icon
-              name="chip"
-              slot="prefix"
-              class="text-2xl"
-            ></stencila-ui-icon>
-            Display Node Chips
-          </div>
+          <div class="flex items-center gap-2">Node Chips</div>
         </sl-menu-label>
-        <sl-menu-item
-          type="checkbox"
-          data-event="update-nodecard-state"
-          value="hidden"
-          ?checked=${this.nodeChipState === 'hidden'}
-        >
-          <stencila-ui-icon name="eyeSlash" slot="prefix"></stencila-ui-icon>
-          ${'Hide All'}
-        </sl-menu-item>
         <sl-menu-item
           type="checkbox"
           data-event="update-nodecard-state"
@@ -162,7 +149,7 @@ export class DocumentMenu extends LitElement {
           ?checked=${this.nodeChipState === 'hover-only'}
         >
           <stencila-ui-icon name="cursor" slot="prefix"></stencila-ui-icon>
-          ${'Show on hover'}
+          <span class="text-sm">Show on hover</span>
         </sl-menu-item>
         <sl-menu-item
           type="checkbox"
@@ -171,7 +158,16 @@ export class DocumentMenu extends LitElement {
           ?checked=${this.nodeChipState === 'show-all'}
         >
           <stencila-ui-icon name="eye" slot="prefix"></stencila-ui-icon>
-          ${'Show all'}
+          <span class="text-sm">Show all</span>
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="hidden"
+          ?checked=${this.nodeChipState === 'hidden'}
+        >
+          <stencila-ui-icon name="eyeSlash" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Hide All</span>
         </sl-menu-item>
       </sl-menu>
     `
