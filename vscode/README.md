@@ -1,7 +1,5 @@
 # Stencila VSCode Extension
 
-# Stencila extension for Visual Studio Code 
-
 This extension provides a user interface to Stencila, enabling the creation of executable documents using Markdown. The extension enables advanced features of Stencila such as Provenance browsing, LLM code generation based on a growing prompt library, and premium features of the Stencila Cloud such as LLM routing, model evaluation and shared prompt libraries. 
 
 ## 👋 Write rich executable scholarly documents in VSCode
