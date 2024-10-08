@@ -218,6 +218,10 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     // Find the session
     const session = sessions.find((session) => session.id === sessionId);
 
+    if (!session) {
+      return;
+    }
+
     let token = session?.accessToken;
     if (token) {
       // Delete the access token on Stencila Cloud
@@ -251,7 +255,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
 
     this.sessionChangeEmitter.fire({
       added: [],
-      removed: [{ id: sessionId } as vscode.AuthenticationSession],
+      removed: [session],
       changed: [],
     });
   }
