@@ -1,11 +1,17 @@
+import { consume } from '@lit/context'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { LitElement, html, css } from 'lit'
+import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 
-import { NodeChipState } from './context'
+import { documentContext, DocumentContext, NodeChipState } from './context'
 
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
+import '@shoelace-style/shoelace/dist/components/menu/menu.js'
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
+import '@shoelace-style/shoelace/dist/components/divider/divider.js'
+import '@shoelace-style/shoelace/dist/components/menu-label/menu-label.js'
 /**
  * A menu allowing the user to control the display of the document
  * and perform actions on it.
@@ -13,22 +19,42 @@ import { NodeChipState } from './context'
 @customElement('stencila-document-menu')
 @withTwind()
 export class DocumentMenu extends LitElement {
+  @consume({ context: documentContext, subscribe: true })
+  @state()
+  protected context: DocumentContext
+
+  @state()
+  protected get showAuthorshipHighlight(): boolean {
+    return this.context?.showAllAuthorshipHighlight ?? false
+  }
+
+  @state()
+  protected get nodeChipState(): NodeChipState {
+    return this.context?.nodeChipState ?? 'hidden'
+  }
+
+  @state()
+  protected get showAuthorProvenance(): boolean {
+    return this.context?.showAuthorProvenance ?? false
+  }
+
   @state()
   protected open: boolean = false
 
-  @property({ type: Boolean })
-  visible: boolean = false
+  /**
+   * Make sure the divider's border-top property is set,
+   * this is being overidden by the twind base stylesheet.
+   */
+  static override styles = css`
+    sl-divider {
+      border-top: solid var(--width) var(--color);
+    }
+  `
 
-  @property({ type: Boolean, attribute: 'show-authorship-highlight' })
-  showAuthorshipHighlight: boolean
-
-  @property({ type: String, attribute: 'node-chip-state' })
-  nodeChipState: NodeChipState
-
-  @property({ type: Boolean, attribute: 'show-author-provenance' })
-  showAuthorProvenance: boolean
-
-  private eventDispatch = (eventName: string, detail?: unknown) =>
+  /**
+   * custom event dispatch to update the document context based on menu item selection
+   */
+  private eventDispatch = (eventName: string, detail?: unknown) => {
     this.shadowRoot.dispatchEvent(
       new CustomEvent(eventName, {
         bubbles: true,
@@ -36,122 +62,114 @@ export class DocumentMenu extends LitElement {
         detail,
       })
     )
+  }
+
+  /**
+   * Handle the shoelace `sl-select` event for the menu
+   */
+  handleSelect(event: CustomEvent) {
+    const selectedItem = event.detail.item
+    if (selectedItem) {
+      const eventName = selectedItem.getAttribute('data-event')
+      if (eventName) {
+        if (eventName === 'update-nodecard-state') {
+          const value = selectedItem.getAttribute('value')
+          this.eventDispatch(eventName, value)
+        } else {
+          this.eventDispatch(eventName)
+        }
+      }
+    }
+  }
 
   protected override render() {
-    const styles = apply([
-      'fixed right-8 top-8 z-50',
-      'font-sans',
-      !this.visible && 'opacity-0',
-      !this.visible && 'pointer-events-none',
-    ])
+    const styles = apply(['fixed right-8 top-8 z-50', 'font-sans'])
 
     return html`
-      <div class=${styles}>${this.renderMenuToggle()} ${this.renderMenu()}</div>
+      <div class=${styles} @mouseleave=${() => (this.open = false)}>
+        <sl-dropdown
+          ?open=${this.open}
+          @sl-hide=${() => (this.open = false)}
+          class=${styles}
+          placement="bottom-end"
+        >
+          ${this.renderMenuToggle()} ${this.renderMenu()}
+        </sl-dropdown>
+      </div>
     `
   }
 
   renderMenuToggle = () => {
     const styles = apply([
+      'flex justify-center items-center',
       'ml-auto',
-      'block',
-      'bg-gray-100',
-      'border rounded',
-      'drop-shadow-xl',
-    ])
-
-    return html`
-      <button class=${styles} @click=${() => (this.open = !this.open)}>
-        <div
-          class="flex justify-center items-center w-8 h-8 hover:text-gray-400"
-        >
-          <stencila-ui-icon
-            name=${this.open ? 'chevronDown' : 'bars'}
-          ></stencila-ui-icon>
-        </div>
-      </button>
-    `
-  }
-
-  renderMenu = () => {
-    const styles = apply([
-      this.open ? 'opacity-100' : 'opacity-0',
-      this.open ? 'max-w-300 max-h-500' : 'max-w-0 max-h-0',
-      'mt-2',
-      'bg-gray-100',
-      'drop-shadow-xl',
-      'border rounded',
-      'transition-all duration-200',
-      'overflow-hidden',
-      !this.open && 'pointer-events-none',
-    ])
-
-    return html`
-      <div class=${styles}>
-        ${this.renderMenuItem(
-          'Show article authors and provenance',
-          'toggle-author-provenance',
-          this.showAuthorProvenance
-        )}
-        ${this.renderMenuItem(
-          'Show authorship highlighting',
-          'toggle-authorship-highlight',
-          this.showAuthorshipHighlight
-        )}
-        ${this.renderChipOptions()}
-      </div>
-    `
-  }
-
-  renderMenuItem(
-    text: string,
-    event: string,
-    active: boolean,
-    eventDetail?: unknown
-  ) {
-    const styles = apply([
-      'flex items-center justify-between',
-      'px-4 py-1',
+      'w-10 h-10',
+      'drop-shadow',
+      !this.open ? 'grayscale' : '',
       'cursor-pointer',
-      'hover:bg-gray-300',
     ])
 
     return html`
       <div
         class=${styles}
-        @click=${() => this.eventDispatch(event, eventDetail)}
+        slot="trigger"
+        @mouseenter=${() => (this.open = true)}
       >
-        <span class="leading-none text-sm mr-2">${text}</span>
-        <stencila-ui-icon
-          name="check"
-          class="text-sm ${active ? 'opacity-100' : 'opacity-0'}"
-        ></stencila-ui-icon>
+        <stencila-ui-icon class="text-xl" name="stencila"></stencila-ui-icon>
       </div>
     `
   }
 
-  renderChipOptions() {
+  renderMenu = () => {
     return html`
-      <div class="py-1">
-        <div class="font-bold text-sm mb-1 px-4">Display Node Info</div>
-        ${this.renderMenuItem(
-          'Hide All',
-          'update-nodecard-state',
-          this.nodeChipState === 'hidden',
-          'hidden'
-        )}
-        ${this.renderMenuItem(
-          'Show on hover',
-          'update-nodecard-state',
-          this.nodeChipState === 'hover-only',
-          'hover-only'
-        )}
-        ${this.renderMenuItem(
-          'Show all',
-          'update-nodecard-state',
-          this.nodeChipState === 'show-all',
-          'show-all'
-        )}
-      </div>
+      <sl-menu
+        class="mt-1 bg-gray-50 border border-gray-200"
+        id="preview-menu"
+        @sl-select=${this.handleSelect}
+      >
+        <sl-menu-label>
+          <div class="flex items-center gap-2">Document</div>
+        </sl-menu-label>
+        <sl-menu-item type="checkbox" data-event="toggle-author-provenance">
+          <stencila-ui-icon name="feather" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Show authors and provenance</span>
+        </sl-menu-item>
+        <sl-menu-item type="checkbox" data-event="toggle-authorship-highlight">
+          <stencila-ui-icon name="highlights" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Show authorship highlighting</span>
+        </sl-menu-item>
+        <sl-divider></sl-divider>
+        <sl-menu-label>
+          <div class="flex items-center gap-2">Node Chips</div>
+        </sl-menu-label>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="hover-only"
+          ?checked=${this.nodeChipState === 'hover-only'}
+        >
+          <stencila-ui-icon name="cursor" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Show on hover</span>
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="show-all"
+          ?checked=${this.nodeChipState === 'show-all'}
+        >
+          <stencila-ui-icon name="eye" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Show all</span>
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
+          data-event="update-nodecard-state"
+          value="hidden"
+          ?checked=${this.nodeChipState === 'hidden'}
+        >
+          <stencila-ui-icon name="eyeSlash" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Hide All</span>
+        </sl-menu-item>
+      </sl-menu>
     `
   }
 }
