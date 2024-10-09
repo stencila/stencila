@@ -157,8 +157,8 @@
       {
         "command": "stencila.invoke.run-instruct",
         "category": "Stencila",
-        "title": "Run assistant instructions in document",
-        "shortTitle": "Run assistant instructions",
+        "title": "Run instruction nodes in document",
+        "shortTitle": "Run instructions",
         "icon": "$(sparkle)"
       },
       {
