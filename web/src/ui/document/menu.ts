@@ -43,7 +43,7 @@ export class DocumentMenu extends LitElement {
 
   /**
    * Make sure the divider's border-top property is set,
-   * this is being overidden by the twind base stylesheet.
+   * this is being overridden by the twind base stylesheet.
    */
   static override styles = css`
     sl-divider {
@@ -115,7 +115,10 @@ export class DocumentMenu extends LitElement {
         slot="trigger"
         @mouseenter=${() => (this.open = true)}
       >
-        <stencila-ui-icon class="text-xl" name="stencila"></stencila-ui-icon>
+        <stencila-ui-icon
+          class="text-xl"
+          name="stencilaColor"
+        ></stencila-ui-icon>
       </div>
     `
   }
