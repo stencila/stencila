@@ -31,6 +31,10 @@ const nodeColours = (name: string) => ({
 
 // prettier-ignore
 const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
+  // Article level
+  Article:          {                        ...nodeColours('gray')},
+
+
   // Primitive data types
   Boolean:          { icon: 'toggleOff',     ...nodeColours('slate')},
   Integer:          { icon: 'hash',          ...nodeColours('slate')},

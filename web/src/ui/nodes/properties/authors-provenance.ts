@@ -2,10 +2,10 @@ import { consume } from '@lit/context'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-// import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../twind'
 import { DocumentContext, documentContext } from '../../document/context'
+import { nodeUi } from '../icons-and-colours'
 
 import '../../animation/collapsible'
 
@@ -31,10 +31,13 @@ export class UIAuthorsProvenance extends LitElement {
   // private buttonRef: Ref<HTMLDivElement> = createRef()
 
   protected override render() {
+    const { textColour, colour, borderColour } = nodeUi('Article')
+
     const contentStyles = apply([
       'p-4 text-sans',
-      'bg-gray-100',
-      'border border-black/20 rounded',
+      `bg-[${colour}]`,
+      `text-[${textColour}]`,
+      `border border-[${borderColour}] rounded`,
       'transition-all ease-in duration-200',
     ])
 
