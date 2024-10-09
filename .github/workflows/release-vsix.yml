@@ -56,7 +56,7 @@ jobs:
         run: mkdir -p dist
 
       - name: Package Extension
-        run: npx vsce package --pre-release -o "../dist/stencila-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
+        run: npx vsce package -o "../dist/stencila-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
         working-directory: vscode
 
       - name: Upload artifacts
@@ -105,5 +105,5 @@ jobs:
 
       - name: Publish Extension to VSCode Marketplace
         if: github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
-        run: npx vsce publish --pre-release --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
+        run: npx vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
         working-directory: vscode
