@@ -19,6 +19,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila prompts list`↴](#stencila-prompts-list)
 * [`stencila prompts show`↴](#stencila-prompts-show)
 * [`stencila prompts select`↴](#stencila-prompts-select)
+* [`stencila prompts update`↴](#stencila-prompts-update)
+* [`stencila prompts reset`↴](#stencila-prompts-reset)
 * [`stencila models`↴](#stencila-models)
 * [`stencila models list`↴](#stencila-models-list)
 * [`stencila models execute`↴](#stencila-models-execute)
@@ -588,6 +590,8 @@ Manage prompts
 * `list` — List the prompts available
 * `show` — Show a prompt
 * `select` — Select a prompt
+* `update` — Update builtin prompts
+* `reset` — Reset builtin prompts
 
 
 
@@ -629,6 +633,24 @@ Useful for checking which prompt will be matched to a given instruction
 
 * `<TYPE>` — The type of instruction
 * `<MESSAGE>` — The instruction message
+
+
+
+## `stencila prompts update`
+
+Update builtin prompts
+
+**Usage:** `stencila prompts update`
+
+
+
+## `stencila prompts reset`
+
+Reset builtin prompts
+
+Reinitializes the builtin prompts directory to those prompts embedded in this version of Stencila
+
+**Usage:** `stencila prompts reset`
 
 
 
