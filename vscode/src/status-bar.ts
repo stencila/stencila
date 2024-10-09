@@ -58,6 +58,12 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.cloud.signin",
         },
         {
+          label: "$(sign-in) Sign In with Access Token",
+          description:
+            "Sign in to Stencila Cloud to use model router and other services",
+          command: "stencila.cloud.signintoken",
+        },
+        {
           label: "$(sign-out) Sign Out",
           description: "Sign out from Stencila Cloud",
           command: "stencila.cloud.signout",

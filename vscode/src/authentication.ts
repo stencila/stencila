@@ -45,6 +45,32 @@ export function registerAuthenticationProvider(
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.cloud.signintoken", async () => {
+      // Ask user to input the token value
+      const secretValue = await vscode.window.showInputBox({
+        prompt: `Enter an Access Token from your Stencila Cloud account`,
+        password: true,
+      });
+
+      if (secretValue === undefined) {
+        return; // User cancelled the input
+      }
+
+      // Store the secret
+      try {
+        await runCli(
+          context,
+          ["secrets", "set", "STENCILA_API_TOKEN"],
+          secretValue
+        );
+        vscode.window.showInformationMessage(`Secret STENCILA_API_TOKEN set.`);
+      } catch (error) {
+        vscode.window.showErrorMessage(`Error setting secret: ${error}`);
+      }
+    })
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand("stencila.cloud.signout", async () => {
       try {
         const session = await vscode.authentication.getSession(
