@@ -3432,6 +3432,7 @@ dependencies = [
  "common",
  "document",
  "node-execute",
+ "percent-encoding",
  "prompts",
  "schema",
  "tokio-util",

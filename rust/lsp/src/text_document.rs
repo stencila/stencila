@@ -208,7 +208,10 @@ impl TextDocument {
         client: ClientSocket,
         user: Option<Person>,
     ) -> Result<Self, Report> {
-        let path = PathBuf::from(uri.path());
+        // Get path without percent encodings (e.g. for spaces)
+        let path = percent_encoding::percent_decode_str(uri.path()).decode_utf8_lossy();
+
+        let path = PathBuf::from(path.as_ref());
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
