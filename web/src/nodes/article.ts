@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { LitElement, html } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
@@ -63,15 +63,34 @@ export class StencilaArticle extends LitElement {
     )
   }
 
+  /**
+   * Provide some formatting rules for the authors and provenance elements
+   */
+  static override styles = css`
+    [slot='authors'] > slot::slotted(*) {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem; // gap-3
+    }
+
+    [slot='provenance'] > slot::slotted(*) {
+      display: flex;
+      flex-direction: row;
+      gap: 0.75rem; // gap-3
+    }
+  `
+
   override render() {
     return html`
       <aside class="min-w-80 max-w-prose mx-auto">
         <stencila-ui-authors-provenance>
           <div class="flex flex-col gap-y-4">
             <div slot="authors">
+              <label class="block text-sm mb-4">Contributers</label>
               <slot name="authors"></slot>
             </div>
             <div slot="provenance">
+              <label class="block text-sm mb-4">Provenance</label>
               <slot name="provenance"></slot>
             </div>
           </div>
