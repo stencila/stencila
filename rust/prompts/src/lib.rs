@@ -2,10 +2,8 @@
 
 use std::{
     cmp::Ordering,
-    fs,
     io::Cursor,
     path::{Path, PathBuf},
-    time::Duration,
 };
 
 use app::{get_app_dir, DirType};
@@ -13,29 +11,22 @@ use codec_markdown_trait::to_markdown;
 use codecs::{DecodeOptions, EncodeOptions, Format};
 use common::{
     chrono::Utc,
-    eyre::{eyre, OptionExt},
-    futures::future::try_join_all,
+    derive_more::{Deref, DerefMut},
+    eyre::{bail, eyre, OptionExt, Result},
+    futures::future::{join_all, try_join_all},
     glob::glob,
+    itertools::Itertools,
     regex::Regex,
     reqwest::Client,
     tar::Archive,
-    tokio::{
-        fs::{create_dir_all, read_to_string, write},
-        time,
-    },
+    tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
+    tracing,
 };
 use flate2::read::GzDecoder;
 use images::ensure_http_or_data_uri;
 use rust_embed::RustEmbed;
 
 use model::{
-    common::{
-        derive_more::{Deref, DerefMut},
-        eyre::{bail, Result},
-        futures::future::join_all,
-        itertools::Itertools,
-        tokio, tracing,
-    },
     schema::{
         authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
         CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
@@ -168,36 +159,7 @@ pub async fn list_builtin() -> Result<Vec<PromptInstance>> {
         return list_dir(&dir).await;
     }
 
-    let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
-    if !dir.exists() {
-        create_dir_all(&dir).await?;
-    }
-
-    let initialized_at = dir.join("initialized-at.txt");
-    let fetched_at = dir.join("fetched-at.txt");
-
-    // If the built-ins have not yet been fetched then write them into
-    // the directory. This needs to be done, rather than loading directly from memory
-    // (as we used to do) so that inclusions work correctly.
-    if !initialized_at.exists() && !fetched_at.exists() {
-        let futures = Builtin::iter()
-            .filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
-            .map(|(filename, content)| {
-                let dir = dir.clone();
-                async move {
-                    let path = dir.join(filename.to_string());
-                    if let Some(parent) = path.parent() {
-                        create_dir_all(parent).await?;
-                    }
-                    write(path, content).await
-                }
-            });
-        try_join_all(futures).await?;
-
-        // Write timestamp
-        write(initialized_at, Utc::now().to_rfc3339()).await?;
-    }
-
+    let dir = initialize_builtin(false).await?;
     list_dir(&dir).await
 }
 
@@ -258,29 +220,66 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
     Ok(prompts)
 }
 
-/// Refresh the builtin prompts directory
+/// Initialize the builtin prompts directory
 ///
-/// So that users can get the latest version of prompts, without installing a new version of
-/// the binary. If not updated in last day, creates an `prompts/builtin` app directory
-/// (if not yet exists), fetches a tarball of the prompts and extracts it into the directory.
-async fn fetch_builtin() -> Result<()> {
-    const FETCH_EVERY_SECS: u64 = 12 * 3_600;
-
-    let dir = get_app_dir(DirType::Prompts, true)?.join("builtin");
-
-    // Check for the last time this was done
-    let fetched_at = dir.join("fetched-at.txt");
-    if let Ok(metadata) = fs::metadata(&fetched_at) {
-        if let Ok(modified) = metadata.modified() {
-            if let Ok(elapsed) = modified.elapsed() {
-                if elapsed < Duration::from_secs(FETCH_EVERY_SECS) {
-                    return Ok(());
-                }
-            }
-        }
+/// Saves the embedded prompts to disk
+async fn initialize_builtin(force: bool) -> Result<PathBuf> {
+    let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
+    if !dir.exists() {
+        create_dir_all(&dir).await?;
     }
 
-    tracing::debug!("Updating builtin prompts");
+    let initialized_at = dir.join("initialized-at.txt");
+    let updated_at = dir.join("updated-at.txt");
+
+    // If the built-ins have not yet been initialized or updated then write them into
+    // the directory. This needs to be done, rather than loading directly from memory
+    // (as we used to do) so that inclusions work correctly.
+    if force || (!initialized_at.exists() && !updated_at.exists()) {
+        let futures = Builtin::iter()
+            .filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
+            .map(|(filename, content)| {
+                let dir = dir.clone();
+                async move {
+                    let path = dir.join(filename.to_string());
+                    if let Some(parent) = path.parent() {
+                        create_dir_all(parent).await?;
+                    }
+                    write(path, content).await
+                }
+            });
+        try_join_all(futures).await?;
+
+        // Write timestamp
+        write(initialized_at, Utc::now().to_rfc3339()).await?;
+    }
+
+    Ok(dir)
+}
+
+/// Reset the builtin prompts directory
+async fn reset_builtin() -> Result<()> {
+    let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
+    if dir.exists() {
+        remove_dir_all(&dir).await?;
+    }
+
+    initialize_builtin(true).await?;
+
+    Ok(())
+}
+
+/// Update the builtin prompts directory
+///
+/// So that users can get the latest version of prompts, without installing a new version of
+/// the binary.Fetches a tarball of the prompts and extracts it into the `prompts/builtin` directory.
+async fn update_builtin() -> Result<()> {
+    let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
+    if !dir.exists() {
+        create_dir_all(&dir).await?;
+    }
+
+    tracing::info!("Updating builtin prompts");
 
     // Fetch the repo tar ball
     let tar_gz = Client::new()
@@ -297,28 +296,17 @@ async fn fetch_builtin() -> Result<()> {
         let mut entry = entry?;
         let path = entry.path()?;
         if let Ok(relative_path) = path.strip_prefix("stencila-main") {
-            if let Ok(name) = relative_path.strip_prefix("prompts/builtin/") {
+            if let Ok(name) = relative_path.strip_prefix("prompts/") {
                 entry.unpack(&dir.join(name))?;
             }
         }
     }
 
     // Write timestamp
-    write(fetched_at, Utc::now().to_rfc3339()).await?;
+    let updated_at = dir.join("updated-at.txt");
+    write(updated_at, Utc::now().to_rfc3339()).await?;
 
     Ok(())
-}
-
-/// Runs `fetch_builtin` in an async background task and log any errors
-pub fn update_builtin() {
-    tokio::spawn(async {
-        loop {
-            if let Err(error) = fetch_builtin().await {
-                tracing::debug!("While fetching builtin prompts: {error}");
-            }
-            time::sleep(Duration::from_secs(3_600)).await;
-        }
-    });
 }
 
 /// Select the most appropriate prompt for an instruction

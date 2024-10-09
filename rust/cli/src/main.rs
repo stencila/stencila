@@ -22,8 +22,6 @@ async fn main() -> Result<()> {
     errors::setup(error_details, cli.error_link)?;
     logging::setup(log_level, &cli.log_filter, log_format)?;
 
-    prompts::update_builtin();
-
     let skip_upgrade = matches!(cli.command, Command::Lsp | Command::Upgrade(..));
     if !skip_upgrade {
         upgrade::check(false);

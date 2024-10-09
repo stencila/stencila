@@ -23,6 +23,8 @@ enum Command {
     List(List),
     Show(Show),
     Select(Select),
+    Update(Update),
+    Reset(Reset),
 }
 
 impl Cli {
@@ -36,6 +38,8 @@ impl Cli {
             Command::List(list) => list.run().await?,
             Command::Show(show) => show.run().await?,
             Command::Select(select) => select.run().await?,
+            Command::Update(update) => update.run().await?,
+            Command::Reset(update) => update.run().await?,
         }
 
         Ok(())
@@ -143,5 +147,28 @@ impl Select {
         println!("{}", prompt.id.clone().unwrap_or_default());
 
         Ok(())
+    }
+}
+
+/// Update builtin prompts
+#[derive(Debug, Args)]
+struct Update {}
+
+impl Update {
+    async fn run(self) -> Result<()> {
+        super::update_builtin().await
+    }
+}
+
+/// Reset builtin prompts
+///
+/// Reinitializes the builtin prompts directory to those prompts
+/// embedded in this version of Stencila
+#[derive(Debug, Args)]
+struct Reset {}
+
+impl Reset {
+    async fn run(self) -> Result<()> {
+        super::reset_builtin().await
     }
 }
