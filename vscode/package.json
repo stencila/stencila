@@ -56,7 +56,7 @@
         },
         "stencila.user.object": {
           "order": 3,
-          "description": "A https://schema.org/Person object representing you (optional). Used when attributing document changes. Overrides other `user` settings above.",
+          "description": "Advanced. A https://schema.org/Person object representing you (optional). Used when attributing document changes. Overrides other `user` settings above.",
           "type": [
             "object",
             "null"
@@ -94,6 +94,30 @@
               }
             }
           }
+        },
+        "stencila.languageServer.logLevel": {
+          "order": 4,
+          "description": "The logging level of the Stencila Language Server (server restart required)",
+          "enum": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "default": "info"
+        },
+        "stencila.languageServer.logFormat": {
+          "order": 5,
+          "description": "The logging format of the Stencila Language Server (server restart required)",
+          "enum": [
+            "simple",
+            "compact",
+            "pretty",
+            "full",
+            "json"
+          ],
+          "default": "compact"
         }
       }
     },
@@ -209,6 +233,11 @@
         "command": "stencila.lsp-server.restart",
         "category": "Stencila",
         "title": "Restart Language Server"
+      },
+      {
+        "command": "stencila.lsp-server.logs",
+        "category": "Stencila",
+        "title": "Language Server Logs"
       },
       {
         "command": "stencila.cloud.signin",

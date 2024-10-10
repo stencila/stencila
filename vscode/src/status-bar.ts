@@ -48,7 +48,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         },
         {
           label: "$(gear) Settings",
-          description: "Changes Stencila settings",
+          description: "Update Stencila settings",
           command: "stencila.settings",
         },
         {
@@ -72,6 +72,11 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           label: "$(server-process) Restart",
           description: "Restart the Stencila Language Server",
           command: "stencila.lsp-server.restart",
+        },
+        {
+          label: "$(output) Logs",
+          description: "View the logging output of the Stencila Language Server",
+          command: "stencila.lsp-server.logs",
         },
         {
           label: "Secrets",
