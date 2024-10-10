@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:ee691411e54db8694cdc0f1d526e3ef54d50922fe543cfe487f602829e1be34d"
+content_hash = "sha256:2c3e9ceccb5caec17089431a5b5358c115892c58f29660bce2caf7ef329e3a11"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -26,13 +26,13 @@ files = [
 
 [[package]]
 name = "beartype"
-version = "0.18.5"
-requires_python = ">=3.8.0"
-summary = "Unbearably fast runtime type checking in pure Python."
+version = "0.19.0"
+requires_python = ">=3.8"
+summary = "Unbearably fast near-real-time hybrid runtime-static type-checking in pure Python."
 groups = ["default"]
 files = [
-    {file = "beartype-0.18.5-py3-none-any.whl", hash = "sha256:5301a14f2a9a5540fe47ec6d34d758e9cd8331d36c4760fc7a5499ab86310089"},
-    {file = "beartype-0.18.5.tar.gz", hash = "sha256:264ddc2f1da9ec94ff639141fbe33d22e12a9f75aa863b83b7046ffff1381927"},
+    {file = "beartype-0.19.0-py3-none-any.whl", hash = "sha256:33b2694eda0daf052eb2aff623ed9a8a586703bbf0a90bbc475a83bbf427f699"},
+    {file = "beartype-0.19.0.tar.gz", hash = "sha256:de42dfc1ba5c3710fde6c3002e3bd2cad236ed4d2aabe876345ab0b4234a6573"},
 ]
 
 [[package]]
