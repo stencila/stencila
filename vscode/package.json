@@ -56,7 +56,7 @@
         },
         "stencila.user.object": {
           "order": 3,
-          "description": "Advanced. A https://schema.org/Person object representing you (optional). Used when attributing document changes. Overrides other `user` settings above.",
+          "description": "Advanced. A https://schema.org/Person object representing you, used when attributing document changes. Overrides other `user` settings above.",
           "type": [
             "object",
             "null"

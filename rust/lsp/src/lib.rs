@@ -103,15 +103,16 @@ impl ServerOptionsUser {
             }
         }
 
-        // Override specific settings
+        // Fill in properties that can be set individually
         if self.name.is_some() || self.affiliations.is_some() {
             let mut person = self.object.clone().unwrap_or_default();
 
-            if let Some(name) = &self.name {
+            if let (true, Some(name)) = (person.options.name.is_none(), &self.name) {
                 person.options.name = Some(name.clone());
             }
 
-            if let Some(affiliations) = &self.affiliations {
+            if let (true, Some(affiliations)) = (person.affiliations.is_none(), &self.affiliations)
+            {
                 person.affiliations = Some(
                     affiliations
                         .iter()
