@@ -177,10 +177,16 @@ export class ImageObject extends Entity {
   }
 
   private renderSvg() {
-    /* 
-     Reset styles on svg to stop any inner text elements
-     inheriting the tailwind prose styles
-    */
+    /**
+     * Reset styles on SVG
+     * 
+     * Sets all properties to their default values as defined by the CSS specification.
+     * This effectively strips away any inherited styles or previously applied styles,
+     * resetting the SVG to its most basic, unstyled state.
+     *
+     * We do this to prevent inherited properties (e.g. line-height) from the current
+     * theme for the document.
+     */
     const svgStyles = css`
       & svg {
         all: initial;
