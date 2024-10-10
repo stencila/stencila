@@ -177,7 +177,19 @@ export class ImageObject extends Entity {
   }
 
   private renderSvg() {
-    return html`<div slot="content">${unsafeSVG(this.svg)}</div>`
+    /* 
+     Reset styles on svg to stop any inner text elements
+     inheriting the tailwind prose styles
+    */
+    const svgStyles = css`
+      & svg {
+        all: initial;
+      }
+    `
+
+    return html`
+      <div slot="content" class=${svgStyles}>${unsafeSVG(this.svg)}</div>
+    `
   }
 
   private renderImg() {
