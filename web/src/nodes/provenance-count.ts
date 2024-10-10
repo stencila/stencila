@@ -38,7 +38,6 @@ export class ProvenanceCount extends Entity {
 
   override render() {
     const nodeType = this.ancestors.split('.').reverse()[0] as NodeType
-
     const { colour, borderColour, textColour } = nodeUi(nodeType)
 
     const styles = apply([
