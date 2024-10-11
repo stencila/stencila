@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use cached::proc_macro::{cached, io_cached};
+use cached::proc_macro::cached;
 use ollama_rs::{
     generation::{
         chat::{request::ChatMessageRequest, ChatMessage, MessageRole},
@@ -265,10 +265,9 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 
 /// Fetch the list of models
 ///
-/// Disk cached for 5 minutes to reduce the number of times that Ollama needs to
+/// In-memory cached for 5 minutes to reduce the number of times that Ollama needs to
 /// be started while allowing for new models to be pulled and to appear here.
-/// For some reason the `io_cached` macro requires at least one function argument.
-#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
+#[cached(time = 3000, result = true)]
 async fn list_ollama_models(_unused: u8) -> Result<Vec<LocalModel>> {
     Ok(Ollama::default().list_local_models().await?)
 }

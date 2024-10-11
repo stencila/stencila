@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use cached::proc_macro::{cached, io_cached};
+use cached::proc_macro::cached;
 
 use model::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Result},
+        eyre::{bail, Result},
         itertools::Itertools,
         reqwest::Client,
         serde::{Deserialize, Serialize},
@@ -342,7 +342,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         return Ok(vec![]);
     };
 
-    let models = list_google_models(0)
+    let models = list_google_models()
         .await?
         .models
         .into_iter()
@@ -371,10 +371,9 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 
 /// Fetch the list of models
 ///
-/// Disk cached for six hours to reduce calls to remote API.
-/// For some reason the `io_cached` macro requires at least one function argument.
-#[io_cached(disk = true, time = 21_600, map_error = r##"|e| eyre!(e)"##)]
-async fn list_google_models(_unused: u8) -> Result<ModelsResponse> {
+/// In-memory cached for six hours to reduce requests to remote API.
+#[cached(time = 21_600, result = true)]
+async fn list_google_models() -> Result<ModelsResponse> {
     let response = Client::new()
         .get(format!("{}/models", BASE_URL))
         .query(&[("key", secrets::env_or_get(API_KEY)?)])
