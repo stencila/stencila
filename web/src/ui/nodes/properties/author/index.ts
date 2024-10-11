@@ -107,44 +107,46 @@ export class UINodeAuthor extends LitElement {
       }
     })()
 
-    return html`<div class="@container w-full">
-      <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
-        <div class="flex flex-row flex-grow">
-          <div class="flex items-center justify-center mr-2">
-            <div
-              class="w-6 h-6 flex items-center justify-center grow-0 stretch-0"
-            >
-              ${this.renderIconOrAvatar()}
+    return html`
+      <div class="@container w-full">
+        <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
+          <div class="flex flex-row flex-grow">
+            <div class="flex items-center justify-center mr-2">
+              <div
+                class="w-6 h-6 flex items-center justify-center grow-0 stretch-0"
+              >
+                ${this.renderIconOrAvatar()}
+              </div>
+            </div>
+            <div class="grow flex flex-col justify-center">
+              <span
+                class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
+                >${this.roleName}
+                ${this.format
+                  ? html`<span class="opacity-60"> ${this.format}</span>`
+                  : ''}</span
+              >
+              <span
+                class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
+                >${this.name}</span
+              >
+              <span
+                class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block ${this.details ? '' : 'hidden'}`}
+                >${this.details}</span
+              >
             </div>
           </div>
-          <div class="grow flex flex-col justify-center">
-            <span
-              class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
-              >${this.roleName}
-              ${this.format
-                ? html`<span class="opacity-60"> ${this.format}</span>`
-                : ''}</span
-            >
-            <span
-              class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
-              >${this.name}</span
-            >
-            <span
-              class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block ${this.details ? '' : 'hidden'}`}
-              >${this.details}</span
-            >
+          <div
+            class=${`relative grow-0 shrink-0 text-2xs @xs:text-right ${this.roleName ? 'pt-3' : 'pt-1'}`}
+          >
+            <stencila-ui-node-last-modified
+              value=${this.timestamp}
+              role-label=${roleLabel}
+            ></stencila-ui-node-last-modified>
           </div>
         </div>
-        <div
-          class=${`grow-0 shrink-0 text-2xs @xs:text-right ${this.roleName ? 'pt-3' : 'pt-1'}`}
-        >
-          <stencila-ui-node-last-modified
-            value=${this.timestamp}
-            role-label=${roleLabel}
-          ></stencila-ui-node-last-modified>
-        </div>
       </div>
-    </div>`
+    `
   }
 
   private renderSoftwareIcon() {
@@ -182,11 +184,14 @@ export class UINodeAuthor extends LitElement {
       'rounded-full',
       'bg-black/90',
     ])
-    return html`<div class=${classes}>
-      <span class="text-white text-xs leading-none m-auto mix-blend-difference"
-        >${this.name.charAt(0)}</span
-      >
-    </div>`
+    return html`
+      <div class=${classes}>
+        <span
+          class="text-white text-xs leading-none m-auto mix-blend-difference"
+          >${this.name.charAt(0)}</span
+        >
+      </div>
+    `
   }
 
   private renderIconOrAvatar() {
