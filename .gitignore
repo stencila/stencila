@@ -9,3 +9,7 @@ node_modules
 
 # Path specific patterns ignored
 /target
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

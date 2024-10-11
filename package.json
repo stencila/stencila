@@ -14,8 +14,10 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.16.4",
     "@cloudflare/workers-types": "4.20241004.0",
+    "@playwright/test": "^1.48.0",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.13",
+    "@types/node": "^22.7.5",
     "@types/tmp": "0.2.6",
     "@typescript-eslint/eslint-plugin": "8.8.0",
     "@typescript-eslint/parser": "8.8.0",
