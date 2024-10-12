@@ -10,6 +10,7 @@ use kernel::{
         seahash::SeaHasher, tracing,
     },
     format::Format,
+    generate_id,
     schema::{
         CodeLocation, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
@@ -17,11 +18,11 @@ use kernel::{
     Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder,
 };
 
-const NAME: &str = "style";
-
 /// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
 #[derive(Default)]
 pub struct StyleKernel;
+
+const NAME: &str = "style";
 
 impl Kernel for StyleKernel {
     fn name(&self) -> String {
@@ -41,21 +42,33 @@ impl Kernel for StyleKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(StyleKernelInstance {
-            // It is important to give the Jinja kernel the same name since
-            // it acting as a proxy to this kernel and a different name can
-            // cause deadlocks for variable requests
-            jinja: JinjaKernelInstance::new(NAME),
-        }))
+        Ok(Box::new(StyleKernelInstance::new()))
     }
 }
 
 #[derive(Default)]
 pub struct StyleKernelInstance {
+    /// The unique id of the kernel instance
+    id: String,
+
+    /// The Jinja kernel instance used to render any Jinja templating
     jinja: JinjaKernelInstance,
 }
 
 impl StyleKernelInstance {
+    /// Create a new instance
+    pub fn new() -> Self {
+        let id = generate_id(NAME);
+        Self {
+            // It is important to give the Jinja kernel the same id since
+            // it acting as a proxy to this kernel and a different id can
+            // cause deadlocks for variable requests
+            jinja: JinjaKernelInstance::with_id(&id),
+
+            id,
+        }
+    }
+
     /// Transpile code (CSS, Tailwind classes, or HTML) to CSS
     async fn code_to_css(&mut self, code: &str) -> Result<(String, String, Vec<ExecutionMessage>)> {
         let mut messages = Vec::new();
@@ -185,8 +198,8 @@ impl StyleKernelInstance {
 
 #[async_trait]
 impl KernelInstance for StyleKernelInstance {
-    fn name(&self) -> String {
-        NAME.to_string()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {

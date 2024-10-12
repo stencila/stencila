@@ -1,9 +1,4 @@
-use std::{
-    fs::write,
-    path::Path,
-    process::Stdio,
-    sync::atomic::{AtomicU64, Ordering},
-};
+use std::{fs::write, path::Path, process::Stdio};
 
 use which::which;
 
@@ -31,6 +26,7 @@ use kernel::{
         },
         tracing, which,
     },
+    generate_id,
     schema::{
         ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareSourceCode,
         Variable,
@@ -129,15 +125,11 @@ pub trait Microkernel: Sync + Send + Kernel {
     }
 
     /// An implementation of `Kernel::create_instance` for microkernels
-    fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
+    fn microkernel_create_instance(&self, kernel_name: &str) -> Result<Box<dyn KernelInstance>> {
         tracing::debug!("Creating microkernel instance");
 
-        // Assign an id for the instance using the index, if necessary, to ensure it is unique
-        let id = if index == 0 {
-            self.name()
-        } else {
-            format!("{}-{index}", self.name())
-        };
+        let id = generate_id(kernel_name);
+        let kernel_name = kernel_name.to_string();
 
         // Get the name of the executable for this microkernel
         let executable_name = self.executable_name();
@@ -169,6 +161,7 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         Ok(Box::new(MicrokernelInstance {
             id,
+            kernel_name,
             executable_name,
             executable_args,
             default_message_level,
@@ -182,7 +175,6 @@ pub trait Microkernel: Sync + Send + Kernel {
             input: None,
             output: None,
             errors: None,
-            forks: Default::default(),
         }))
     }
 }
@@ -191,6 +183,11 @@ pub trait Microkernel: Sync + Send + Kernel {
 pub struct MicrokernelInstance {
     /// The id of the microkernel instance
     id: String,
+
+    /// The name of the kernel the instance is for
+    ///
+    /// Used to generate ids for forks that are consistent with the parent kernel.
+    kernel_name: String,
 
     /// The name of the executable
     executable_name: String,
@@ -234,9 +231,6 @@ pub struct MicrokernelInstance {
 
     /// The error stream for the process
     errors: Option<MicrokernelErrors>,
-
-    /// A counter of forks of this microkernel instance
-    forks: AtomicU64,
 }
 
 /// An input stream for a microkernel instance
@@ -325,8 +319,8 @@ impl MicrokernelFlag {
 
 #[async_trait]
 impl KernelInstance for MicrokernelInstance {
-    fn name(&self) -> String {
-        self.id.clone()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -420,7 +414,7 @@ impl KernelInstance for MicrokernelInstance {
         let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {
             format!(
                 "unable to start microkernel {}: {}",
-                self.name(),
+                self.id(),
                 self.command
                     .as_ref()
                     .map(|command| format!("{:?}", command))
@@ -472,7 +466,7 @@ impl KernelInstance for MicrokernelInstance {
             .get_status()
             .wrap_err_with(|| eyre!("Unable to check status of starting kernel"))?;
         if matches!(status, KernelStatus::Failed | KernelStatus::Stopped) {
-            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.name())
+            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.id())
         }
 
         self.set_status(KernelStatus::Ready)?;
@@ -500,7 +494,7 @@ impl KernelInstance for MicrokernelInstance {
                 };
 
                 if let Err(error) = kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
-                    tracing::warn!("While killing `{}` kernel: {error}", self.name())
+                    tracing::warn!("While killing `{}` kernel: {error}", self.id())
                 }
             }
         }
@@ -629,7 +623,7 @@ impl KernelInstance for MicrokernelInstance {
             let Some(Node::Integer(pid)) = outputs.first() else {
                 bail!(
                     "Did not receive pid for fork of microkernel `{}`",
-                    self.name()
+                    self.id()
                 )
             };
             let pid = *pid as u32;
@@ -670,13 +664,8 @@ impl KernelInstance for MicrokernelInstance {
             let output = Some(MicrokernelOutput::Pipe(stdout_reader));
             let errors = Some(MicrokernelErrors::Pipe(stderr_reader));
 
-            // Create fork id
-            let id = format!(
-                "{}-fork-{}",
-                self.id,
-                self.forks.fetch_add(1, Ordering::SeqCst)
-            );
-
+            let id = generate_id(&self.kernel_name);
+            let kernel_name = self.kernel_name.clone();
             let status = KernelStatus::Ready;
             let status_sender = Self::setup_status_channel(status);
 
@@ -684,6 +673,7 @@ impl KernelInstance for MicrokernelInstance {
 
             Ok(Box::new(Self {
                 id,
+                kernel_name,
                 executable_name: Default::default(),
                 executable_args: Default::default(),
                 command: None,
@@ -697,7 +687,6 @@ impl KernelInstance for MicrokernelInstance {
                 input,
                 output,
                 errors,
-                forks: Default::default(),
             }))
         }
 
@@ -831,7 +820,7 @@ impl MicrokernelInstance {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.name()
+                    self.id()
                 );
                 *previous = status;
                 true
@@ -867,7 +856,7 @@ impl MicrokernelInstance {
     /// Send a task to this microkernel instance
     async fn send(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
         let Some(input) = self.input.as_mut() else {
-            bail!("Microkernel `{}` has not been started yet!", self.name());
+            bail!("Microkernel `{}` has not been started yet!", self.id());
         };
 
         match input {
@@ -898,7 +887,7 @@ impl MicrokernelInstance {
         if messages.iter().any(|m| m.level == MessageLevel::Error) {
             bail!(
                 "While {action} in microkernel `{}`: {}",
-                self.name(),
+                self.id(),
                 messages.into_iter().map(|message| message.message).join("")
             )
         } else {

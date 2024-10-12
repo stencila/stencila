@@ -1,6 +1,7 @@
 use kernel::{
     common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
     format::Format,
+    generate_id,
     schema::{
         CodeLocation, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
         SoftwareApplicationOptions,
@@ -32,13 +33,29 @@ impl Kernel for AsciiMathKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(AsciiMathKernelInstance))
+        Ok(Box::new(AsciiMathKernelInstance::new()))
     }
 }
 
-pub struct AsciiMathKernelInstance;
+pub struct AsciiMathKernelInstance {
+    /// The unique id of the kernel instance
+    id: String,
+}
+
+impl Default for AsciiMathKernelInstance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl AsciiMathKernelInstance {
+    /// Create a new instance
+    pub fn new() -> Self {
+        Self {
+            id: generate_id(NAME),
+        }
+    }
+
     /// Transpile AsciiMath to MathML
     #[allow(clippy::result_large_err)]
     fn transpile(&self, code: &str) -> Result<String, ExecutionMessage> {
@@ -125,8 +142,8 @@ impl AsciiMathKernelInstance {
 
 #[async_trait]
 impl KernelInstance for AsciiMathKernelInstance {
-    fn name(&self) -> String {
-        NAME.to_string()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -175,7 +192,7 @@ impl KernelInstance for AsciiMathKernelInstance {
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self))
+        Ok(Box::new(Self::new()))
     }
 }
 
@@ -188,7 +205,7 @@ mod tests {
 
     #[tokio::test]
     async fn execute() -> Result<()> {
-        let mut instance = AsciiMathKernelInstance {};
+        let mut instance = AsciiMathKernelInstance::new();
 
         let (outputs, messages) = instance.execute(r"a = pi r^2").await?;
         assert_eq!(messages, vec![]);
@@ -199,7 +216,7 @@ mod tests {
 
     #[tokio::test]
     async fn evaluate() -> Result<()> {
-        let mut instance = AsciiMathKernelInstance {};
+        let mut instance = AsciiMathKernelInstance::new();
 
         let (output, messages) = instance.evaluate(r"pi r^2").await?;
         assert_eq!(messages, vec![]);
@@ -210,7 +227,7 @@ mod tests {
 
     #[tokio::test]
     async fn evaluate_non_ascii() -> Result<()> {
-        let mut instance = AsciiMathKernelInstance {};
+        let mut instance = AsciiMathKernelInstance::new();
 
         let (output, messages) = instance.evaluate(r"π Ω^2").await?;
         assert_eq!(messages, vec![]);

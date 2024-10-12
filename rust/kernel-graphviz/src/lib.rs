@@ -8,6 +8,7 @@ use kernel::{
         async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
     },
     format::Format,
+    generate_id,
     schema::{
         ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
@@ -35,16 +36,34 @@ impl Kernel for GraphvizKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(GraphvizKernelInstance))
+        Ok(Box::new(GraphvizKernelInstance::new()))
     }
 }
 
-pub struct GraphvizKernelInstance;
+pub struct GraphvizKernelInstance {
+    /// The unique id of the kernel instance
+    id: String,
+}
+
+impl Default for GraphvizKernelInstance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl GraphvizKernelInstance {
+    /// Create a new instance
+    pub fn new() -> Self {
+        Self {
+            id: generate_id(NAME),
+        }
+    }
+}
 
 #[async_trait]
 impl KernelInstance for GraphvizKernelInstance {
-    fn name(&self) -> String {
-        NAME.to_string()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -114,7 +133,7 @@ impl KernelInstance for GraphvizKernelInstance {
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self))
+        Ok(Box::new(Self::new()))
     }
 }
 
@@ -127,7 +146,7 @@ mod tests {
 
     #[tokio::test]
     async fn empty() -> Result<()> {
-        let mut kernel = GraphvizKernelInstance {};
+        let mut kernel = GraphvizKernelInstance::new();
 
         let (outputs, messages) = kernel.execute("").await?;
         assert_eq!(messages[0].message, "Expected (graph|digraph)");
@@ -146,7 +165,7 @@ mod tests {
 
     #[tokio::test]
     async fn syntax_errors() -> Result<()> {
-        let mut kernel = GraphvizKernelInstance {};
+        let mut kernel = GraphvizKernelInstance::new();
 
         let (outputs, messages) = kernel.execute("digraph { A -> B").await?;
         assert_eq!(messages[0].message, "Unknown token");

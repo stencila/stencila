@@ -1,7 +1,7 @@
 use std::{
     path::Path,
     sync::{
-        atomic::{AtomicU64, AtomicU8, Ordering},
+        atomic::{AtomicU8, Ordering},
         Arc, RwLock,
     },
 };
@@ -21,6 +21,7 @@ use kernel::{
         tracing,
     },
     format::Format,
+    generate_id,
     schema::{
         ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null, ObjectHint,
         SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
@@ -33,14 +34,13 @@ use kernel::{
 ///
 /// Rhai is an embedded scripting language and engine for Rust (https://rhai.rs/).
 #[derive(Default)]
-pub struct RhaiKernel {
-    /// A counter of instances of this kernel
-    instances: AtomicU64,
-}
+pub struct RhaiKernel;
+
+const NAME: &str = "mermaid";
 
 impl Kernel for RhaiKernel {
     fn name(&self) -> String {
-        "rhai".to_string()
+        NAME.to_string()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
@@ -56,21 +56,13 @@ impl Kernel for RhaiKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        // Assign an id for the instance using the index, if necessary, to ensure it is unique
-        let index = self.instances.fetch_add(1, Ordering::SeqCst);
-        let id = if index == 0 {
-            self.name()
-        } else {
-            format!("{}-{index}", self.name())
-        };
-
-        Ok(Box::new(RhaiKernelInstance::new(id)))
+        Ok(Box::new(RhaiKernelInstance::new()))
     }
 }
 
 pub struct RhaiKernelInstance<'lt> {
     /// The name of this instance
-    name: String,
+    id: String,
 
     /// The Rhai execution scope for this instance
     scope: Scope<'lt>,
@@ -86,15 +78,12 @@ pub struct RhaiKernelInstance<'lt> {
 
     /// A channel sender for sending signals to the instance
     signal_sender: mpsc::Sender<KernelSignal>,
-
-    /// A counter of forks of this instance
-    forks: AtomicU64,
 }
 
 #[async_trait]
 impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -122,10 +111,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!(
-                "Kernel `{}` is not ready; status is `{status}`",
-                self.name()
-            )
+            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
         }
 
         self.set_status(KernelStatus::Busy)?;
@@ -186,10 +172,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!(
-                "Kernel `{}` is not ready; status is `{status}`",
-                self.name()
-            )
+            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
         }
 
         if code.trim().is_empty() {
@@ -306,15 +289,8 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
         tracing::trace!("Forking Rhai kernel instance");
 
-        // Create fork id
-        let id = format!(
-            "{}-fork-{}",
-            self.name,
-            self.forks.fetch_add(1, Ordering::SeqCst)
-        );
-
         // Create instance
-        let mut fork = RhaiKernelInstance::new(id);
+        let mut fork = RhaiKernelInstance::new();
 
         // Clone variables into fork's scope
         for (name, ..) in self.scope.iter() {
@@ -331,7 +307,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
 impl<'lt> RhaiKernelInstance<'lt> {
     /// Create a new kernel instance
-    fn new(name: String) -> Self {
+    fn new() -> Self {
         let scope = Scope::new();
         let engine = Engine::new();
 
@@ -351,13 +327,12 @@ impl<'lt> RhaiKernelInstance<'lt> {
         });
 
         Self {
-            name,
+            id: generate_id(NAME),
             scope,
             engine,
             status,
             status_sender,
             signal_sender,
-            forks: Default::default(),
         }
     }
 
@@ -381,7 +356,7 @@ impl<'lt> RhaiKernelInstance<'lt> {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.name()
+                    self.id()
                 );
                 *previous = status;
                 true

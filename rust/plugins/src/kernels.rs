@@ -134,7 +134,7 @@ pub struct PluginKernelInstance {
     /// The plugin instance started when this kernel is started
     plugin_instance: Option<PluginInstance>,
 
-    /// The name of the kernel instance on the plugin instance
+    /// The id of the kernel instance on the plugin instance
     kernel_instance: Option<String>,
 }
 
@@ -159,13 +159,14 @@ impl PluginKernelInstance {
 
 #[async_trait]
 impl KernelInstance for PluginKernelInstance {
-    fn name(&self) -> String {
+    fn id(&self) -> &str {
         // This should only be called once the kernel has stated and
-        // has a name. But in case it has not, and because this method
-        // is infallible, default to "unnamed".
-        self.kernel_instance
-            .clone()
-            .unwrap_or_else(|| String::from("unnamed"))
+        // has a id. But in case it has not, and because this method
+        // is infallible, default to "noid".
+        match &self.kernel_instance {
+            Some(id) => id.as_str(),
+            None => "noid",
+        }
     }
 
     async fn start(&mut self, _directory: &Path) -> Result<()> {
