@@ -91,6 +91,7 @@ pub enum NodeProperty {
     ExecutionDigest,
     ExecutionDuration,
     ExecutionEnded,
+    ExecutionInstance,
     ExecutionKind,
     ExecutionMessages,
     ExecutionMode,

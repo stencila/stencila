@@ -616,6 +616,9 @@ class Executable(Entity):
     execution_status: ExecutionStatus | None = None
     """Status of the most recent, including any current, execution."""
 
+    execution_instance: str | None = None
+    """The id of the kernel instance that performed the last execution."""
+
     execution_kind: ExecutionKind | None = None
     """The kind (e.g. main kernel vs kernel fork) of the last execution."""
 

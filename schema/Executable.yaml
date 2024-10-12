@@ -84,6 +84,14 @@ properties:
     description: Status of the most recent, including any current, execution.
     strip: [execution]
     $ref: ExecutionStatus
+  executionInstance:
+    '@id': stencila:executionInstance
+    description: The id of the kernel instance that performed the last execution.
+    $comment: |
+      Used to help identify whether execution is required due to the last execution
+      being in a difference instance (e.g. after a kernel restart).
+    strip: [execution]
+    type: string
   executionKind:
     '@id': stencila:executionKind
     description: The kind (e.g. main kernel vs kernel fork) of the last execution.

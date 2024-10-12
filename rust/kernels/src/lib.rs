@@ -80,9 +80,9 @@ struct KernelInstanceEntry {
     /// The kernel that the instance is an instance of
     kernel: Arc<Box<dyn Kernel>>,
 
-    /// The name of the instance. Used to avoid needing to take
-    /// a lock on the instance just to get its name (which is constant)
-    name: String,
+    /// The id of the kernel instance. Used to avoid needing to take
+    /// a lock on the instance just to get its id (which is constant)
+    id: String,
 
     /// The instance itself
     instance: Arc<Mutex<Box<dyn KernelInstance>>>,
@@ -177,14 +177,14 @@ impl Kernels {
                 // If the candidate instance is the same as the request instance then
                 // skip - because unnecessary because likely to cause deadlock in
                 // next step.
-                if entry.name == request.instance {
+                if entry.id == request.instance {
                     continue;
                 }
 
                 let mut instance = entry.instance.lock().await;
                 if let Ok(Some(value)) = instance.get(&response.variable).await {
                     response.value = Some(value);
-                    response.instance = Some(entry.name.clone());
+                    response.instance = Some(entry.id.clone());
                     break;
                 }
             }
@@ -230,7 +230,7 @@ impl Kernels {
         };
 
         let mut instance = kernel.create_instance()?;
-        let name = instance.name();
+        let id = instance.id().to_string();
         if kernel.supports_variable_requests() {
             instance.variable_channel(
                 self.variable_request_sender.clone(),
@@ -243,7 +243,7 @@ impl Kernels {
         let mut instances = self.instances.write().await;
         instances.push(KernelInstanceEntry {
             kernel: Arc::new(kernel),
-            name,
+            id,
             instance: instance.clone(),
         });
 
@@ -267,13 +267,13 @@ impl Kernels {
             );
         }
 
-        let name = instance.name();
+        let id = instance.id().to_string();
         let instance = Arc::new(Mutex::new(instance));
 
         let mut instances = self.instances.write().await;
         instances.push(KernelInstanceEntry {
             kernel,
-            name,
+            id,
             instance,
         });
 
@@ -298,7 +298,7 @@ impl Kernels {
                 return Ok(Some(entry.instance.clone()));
             };
 
-            if entry.name == language {
+            if entry.id == language {
                 return Ok(Some(entry.instance.clone()));
             }
 
@@ -310,6 +310,15 @@ impl Kernels {
         }
 
         Ok(None)
+    }
+
+    /// Determine if the kernels set has an instance with the given id
+    pub async fn has_instance(&mut self, id: &str) -> bool {
+        self.instances
+            .read()
+            .await
+            .iter()
+            .any(|entry| entry.id == id)
     }
 
     /// Get a reference to each of the kernel instances
@@ -327,14 +336,17 @@ impl Kernels {
         &mut self,
         code: &str,
         language: Option<&str>,
-    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
+    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>, String)> {
         let instance = match self.get_instance(language).await? {
             Some(instance) => instance,
             None => self.create_instance(language).await?,
         };
 
         let mut instance = instance.lock().await;
-        instance.execute(code).await
+        let (nodes, messages) = instance.execute(code).await?;
+        let id = instance.id().to_string();
+
+        Ok((nodes, messages, id))
     }
 
     /// Evaluate a code expression in a kernel instance
@@ -342,14 +354,17 @@ impl Kernels {
         &mut self,
         code: &str,
         language: Option<&str>,
-    ) -> Result<(Node, Vec<ExecutionMessage>)> {
+    ) -> Result<(Node, Vec<ExecutionMessage>, String)> {
         let instance = match self.get_instance(language).await? {
             Some(instance) => instance,
             None => self.create_instance(language).await?,
         };
 
         let mut instance = instance.lock().await;
-        instance.evaluate(code).await
+        let (node, messages) = instance.evaluate(code).await?;
+        let id = instance.id().to_string();
+
+        Ok((node, messages, id))
     }
 
     /// Get a variable from the kernels
@@ -429,18 +444,18 @@ mod tests {
     async fn variables_to_jinja() -> Result<()> {
         let mut kernels = Kernels::new_here();
 
-        let (.., messages) = kernels.execute("let a = 123", Some("rhai")).await?;
+        let (_, messages, ..) = kernels.execute("let a = 123", Some("rhai")).await?;
         assert_eq!(messages, vec![]);
 
-        let (node, messages) = kernels.evaluate("a * 2", Some("jinja")).await?;
+        let (node, messages, ..) = kernels.evaluate("a * 2", Some("jinja")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(246));
 
-        let (node, messages) = kernels.execute("{{a * 3}}", Some("jinja")).await?;
+        let (node, messages, ..) = kernels.execute("{{a * 3}}", Some("jinja")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, vec![Node::String("369".to_string())]);
 
-        let (node, messages) = kernels.execute("{{foo + 4}}", Some("jinja")).await?;
+        let (node, messages, ..) = kernels.execute("{{foo + 4}}", Some("jinja")).await?;
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].level, MessageLevel::Exception);
         assert_eq!(messages[0].message, "invalid operation: tried to use + operator on unsupported types undefined and number (in <string>:1)");
@@ -466,7 +481,7 @@ mod tests {
 
         // In original kernels post forking
 
-        let (node, messages) = kernels.evaluate("a", Some("js")).await?;
+        let (node, messages, ..) = kernels.evaluate("a", Some("js")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(1));
 
@@ -476,17 +491,17 @@ mod tests {
         let node = kernels.get("c").await?;
         assert_eq!(node, None);
 
-        let (node, messages) = kernels.evaluate("a + b", Some("jinja")).await?;
+        let (node, messages, ..) = kernels.evaluate("a + b", Some("jinja")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(3));
 
-        let (nodes, messages) = kernels.execute("{{ c }}", Some("jinja")).await?;
+        let (nodes, messages, ..) = kernels.execute("{{ c }}", Some("jinja")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(nodes[0], Node::String(String::new()));
 
         // In fork
 
-        let (node, messages) = fork.evaluate("a", Some("js")).await?;
+        let (node, messages, ..) = fork.evaluate("a", Some("js")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(11));
 
@@ -496,7 +511,7 @@ mod tests {
         let node = fork.get("c").await?;
         assert_eq!(node, Some(Node::Integer(33)));
 
-        let (node, messages) = fork.evaluate("a + b + c", Some("jinja")).await?;
+        let (node, messages, ..) = fork.evaluate("a + b + c", Some("jinja")).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(66));
 

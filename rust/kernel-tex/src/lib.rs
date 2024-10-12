@@ -3,6 +3,7 @@ use kernel::{
         async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
     },
     format::Format,
+    generate_id,
     schema::{
         ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
@@ -34,13 +35,29 @@ impl Kernel for TexKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(TexKernelInstance {}))
+        Ok(Box::new(TexKernelInstance::new()))
     }
 }
 
-pub struct TexKernelInstance;
+pub struct TexKernelInstance {
+    /// The unique id of the kernel instance
+    id: String,
+}
+
+impl Default for TexKernelInstance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl TexKernelInstance {
+    /// Create a new instance
+    pub fn new() -> Self {
+        Self {
+            id: generate_id(NAME),
+        }
+    }
+
     /// Transpile TeX to MathML
     fn transpile(&self, tex: &str, style: DisplayStyle) -> (Option<String>, Vec<ExecutionMessage>) {
         match latex_to_mathml(tex, style) {
@@ -79,8 +96,8 @@ impl TexKernelInstance {
 
 #[async_trait]
 impl KernelInstance for TexKernelInstance {
-    fn name(&self) -> String {
-        NAME.to_string()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -115,7 +132,7 @@ impl KernelInstance for TexKernelInstance {
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self))
+        Ok(Box::new(Self::new()))
     }
 }
 
@@ -128,7 +145,7 @@ mod tests {
 
     #[tokio::test]
     async fn execute() -> Result<()> {
-        let mut instance = TexKernelInstance {};
+        let mut instance = TexKernelInstance::new();
 
         let (outputs, messages) = instance.execute(r"a = \pi r^2").await?;
         assert_eq!(messages, vec![]);
@@ -151,7 +168,7 @@ mod tests {
 
     #[tokio::test]
     async fn evaluate() -> Result<()> {
-        let mut instance = TexKernelInstance {};
+        let mut instance = TexKernelInstance::new();
 
         let (output, messages) = instance.evaluate(r"\pi r^2").await?;
         assert_eq!(messages, vec![]);

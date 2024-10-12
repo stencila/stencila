@@ -74,7 +74,7 @@ impl Executable for CodeExpression {
         if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
-            let (output, messages) = executor
+            let (output, messages, ..) = executor
                 .kernels
                 .write()
                 .await
@@ -87,6 +87,7 @@ impl Executable for CodeExpression {
                             "While evaluating expression",
                             error,
                         )],
+                        String::new(),
                     )
                 });
 

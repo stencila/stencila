@@ -33,7 +33,7 @@ pub struct PromptContext {
 impl PromptContext {
     /// Create a QuickJS kernel instance for the context
     pub async fn into_kernel(self) -> Result<Box<dyn KernelInstance>> {
-        let mut instance = QuickJsKernelInstance::new("prompt".to_string());
+        let mut instance = QuickJsKernelInstance::new();
         instance.start_here().await?;
         instance
             .runtime_context()?

@@ -1,5 +1,3 @@
-use std::sync::atomic::{AtomicU64, Ordering};
-
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
     KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
@@ -7,14 +5,13 @@ use kernel_micro::{
 
 /// A kernel for executing JavaScript code in Node.js
 #[derive(Default)]
-pub struct NodeJsKernel {
-    /// A counter of instances of this microkernel
-    instances: AtomicU64,
-}
+pub struct NodeJsKernel;
+
+const NAME: &str = "nodejs";
 
 impl Kernel for NodeJsKernel {
     fn name(&self) -> String {
-        "nodejs".to_string()
+        NAME.to_string()
     }
 
     fn availability(&self) -> KernelAvailability {
@@ -44,7 +41,7 @@ impl Kernel for NodeJsKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(self.instances.fetch_add(1, Ordering::SeqCst))
+        self.microkernel_create_instance(NAME)
     }
 }
 

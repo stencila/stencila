@@ -73,6 +73,11 @@ export class Executable extends Entity {
   executionStatus?: ExecutionStatus;
 
   /**
+   * The id of the kernel instance that performed the last execution.
+   */
+  executionInstance?: string;
+
+  /**
    * The kind (e.g. main kernel vs kernel fork) of the last execution.
    */
   executionKind?: ExecutionKind;

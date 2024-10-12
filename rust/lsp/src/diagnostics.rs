@@ -114,6 +114,7 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             (status.clone(), status)
         } else if let Some(
             reason @ (ExecutionRequired::NeverExecuted
+            | ExecutionRequired::KernelRestarted
             | ExecutionRequired::StateChanged
             | ExecutionRequired::SemanticsChanged
             | ExecutionRequired::DependenciesChanged
@@ -130,6 +131,9 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             };
             let message = match reason {
                 NeverExecuted => "Not executed".to_string(),
+                KernelRestarted => {
+                    "Stale: not yet executed in the current kernel instance".to_string()
+                }
                 StateChanged => "Stale: changes since last executed".to_string(),
                 SemanticsChanged => "Stale: semantic changes since last executed".to_string(),
                 DependenciesChanged => "Stale: one or more dependencies have changed".to_string(),

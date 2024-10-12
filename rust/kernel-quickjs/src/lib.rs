@@ -4,7 +4,7 @@ use std::{
     collections::HashMap,
     path::Path,
     sync::{
-        atomic::{AtomicU64, AtomicU8, Ordering},
+        atomic::{AtomicU8, Ordering},
         Arc,
     },
 };
@@ -29,6 +29,7 @@ use kernel::{
         tracing,
     },
     format::Format,
+    generate_id,
     schema::{
         Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null,
         Object, ObjectHint, Primitive, SoftwareApplication, SoftwareApplicationOptions,
@@ -42,14 +43,13 @@ pub use kernel;
 
 /// A kernel for executing JavaScript using the QuickJS engine.
 #[derive(Default)]
-pub struct QuickJsKernel {
-    /// A counter of instances of this kernel
-    instances: AtomicU64,
-}
+pub struct QuickJsKernel;
+
+const NAME: &str = "quickjs";
 
 impl Kernel for QuickJsKernel {
     fn name(&self) -> String {
-        "quickjs".to_string()
+        NAME.to_string()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
@@ -65,15 +65,7 @@ impl Kernel for QuickJsKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        // Assign an id for the instance using the index, if necessary, to ensure it is unique
-        let index = self.instances.fetch_add(1, Ordering::SeqCst);
-        let id = if index == 0 {
-            self.name()
-        } else {
-            format!("{}-{index}", self.name())
-        };
-
-        Ok(Box::new(QuickJsKernelInstance::new(id)))
+        Ok(Box::new(QuickJsKernelInstance::new()))
     }
 }
 
@@ -95,15 +87,12 @@ pub struct QuickJsKernelInstance {
 
     /// A channel sender for sending signals to the instance
     signal_sender: mpsc::Sender<KernelSignal>,
-
-    /// A counter of forks of this instance
-    forks: AtomicU64,
 }
 
 #[async_trait]
 impl KernelInstance for QuickJsKernelInstance {
-    fn name(&self) -> String {
-        self.id.clone()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -141,10 +130,7 @@ impl KernelInstance for QuickJsKernelInstance {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!(
-                "Kernel `{}` is not ready; status is `{status}`",
-                self.name()
-            )
+            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
         }
 
         self.run_code(code).await
@@ -155,10 +141,7 @@ impl KernelInstance for QuickJsKernelInstance {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!(
-                "Kernel `{}` is not ready; status is `{status}`",
-                self.name()
-            )
+            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
         }
 
         let (mut outputs, messages) = self.run_code(code).await?;
@@ -292,15 +275,8 @@ impl KernelInstance for QuickJsKernelInstance {
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
         tracing::trace!("Forking QuickJS kernel instance");
 
-        // Create fork id
-        let id = format!(
-            "{}-fork-{}",
-            self.id,
-            self.forks.fetch_add(1, Ordering::SeqCst)
-        );
-
         // Create instance
-        let mut fork = QuickJsKernelInstance::new(id);
+        let mut fork = QuickJsKernelInstance::new();
 
         // Clone global variables into fork
         // Currently works by converting variables to/from Stencila nodes.
@@ -544,9 +520,17 @@ fn object_to_js_object<'js>(ctx: Ctx<'js>, object: &Object) -> Result<Value<'js>
     Ok(Value::from_object(js_object))
 }
 
+impl Default for QuickJsKernelInstance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QuickJsKernelInstance {
     /// Create a new kernel instance
-    pub fn new(id: String) -> Self {
+    pub fn new() -> Self {
+        let id = generate_id(NAME);
+
         let status = Arc::new(AtomicU8::new(KernelStatus::Pending.into()));
         let (status_sender, ..) = watch::channel(KernelStatus::Pending);
 
@@ -569,7 +553,6 @@ impl QuickJsKernelInstance {
             status,
             status_sender,
             signal_sender,
-            forks: Default::default(),
         }
     }
 
@@ -593,7 +576,7 @@ impl QuickJsKernelInstance {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.name()
+                    self.id()
                 );
                 *previous = status;
                 true

@@ -1,6 +1,7 @@
 use kernel::{
     common::{async_trait::async_trait, eyre::Result, tracing},
     format::Format,
+    generate_id,
     schema::{
         ExecutionMessage, ImageObject, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
@@ -32,24 +33,38 @@ impl Kernel for MermaidKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(MermaidKernelInstance {
-            // It is important to give the Jinja kernel the same name since
-            // it acting as a proxy to this kernel and a different name can
-            // cause deadlocks for variable requests
-            jinja: JinjaKernelInstance::new(NAME),
-        }))
+        Ok(Box::new(MermaidKernelInstance::new()))
     }
 }
 
 #[derive(Default)]
 pub struct MermaidKernelInstance {
+    /// The unique id of the kernel instance
+    id: String,
+
+    /// The Jinja kernel instance used to render any Jinja templating
     jinja: JinjaKernelInstance,
+}
+
+impl MermaidKernelInstance {
+    /// Create a new instance
+    pub fn new() -> Self {
+        let id = generate_id(NAME);
+        Self {
+            // It is important to give the Jinja kernel the same id since
+            // it acting as a proxy to this kernel and a different id can
+            // cause deadlocks for variable requests
+            jinja: JinjaKernelInstance::with_id(&id),
+
+            id,
+        }
+    }
 }
 
 #[async_trait]
 impl KernelInstance for MermaidKernelInstance {
-    fn name(&self) -> String {
-        NAME.to_string()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
