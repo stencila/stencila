@@ -226,7 +226,7 @@ impl Executable for IfBlockClause {
         let is_empty = self.code.trim().is_empty();
         let (is_active, mut status) = if !is_empty {
             // Evaluate code in kernels
-            let (output, mut code_messages) = executor
+            let (output, mut code_messages, ..) = executor
                 .kernels
                 .write()
                 .await
@@ -236,6 +236,7 @@ impl Executable for IfBlockClause {
                     (
                         Node::Null(Null),
                         vec![error_to_execution_message("While evaluating clause", error)],
+                        String::new(),
                     )
                 });
             messages.append(&mut code_messages);

@@ -188,6 +188,12 @@ pub struct InstructionInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_status: Option<ExecutionStatus>,
 
+    /// The id of the kernel instance that performed the last execution.
+    #[serde(alias = "execution-instance", alias = "execution_instance")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_instance: Option<String>,
+
     /// The kind (e.g. main kernel vs kernel fork) of the last execution.
     #[serde(alias = "execution-kind", alias = "execution_kind")]
     #[strip(execution)]

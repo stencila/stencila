@@ -699,6 +699,18 @@
       }
     },
     {
+      "@id": "stencila:executionInstance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionInstance",
+      "rdfs:comment": "The id of the kernel instance that performed the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:executionKind",
       "@type": "rdfs:Property",
       "rdfs:label": "executionKind",

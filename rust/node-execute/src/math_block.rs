@@ -46,7 +46,7 @@ impl Executable for MathBlock {
                     .await
                     .map_or_else(
                         |error| (None, vec![error_to_compilation_message(error)]),
-                        |(mut outputs, messages)| {
+                        |(mut outputs, messages, ..)| {
                             let output = (!outputs.is_empty()).then(|| outputs.swap_remove(0));
                             let mathml = match output {
                                 Some(Node::String(mathml)) => Some(mathml),

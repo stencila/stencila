@@ -102,7 +102,7 @@ impl Executable for ForBlock {
             is_empty = false;
 
             // Evaluate code in kernels to get the iterable
-            let (output, mut code_messages) = executor
+            let (output, mut code_messages, _instance) = executor
                 .kernels
                 .write()
                 .await
@@ -115,6 +115,7 @@ impl Executable for ForBlock {
                             "While evaluating expression",
                             error,
                         )],
+                        String::new(),
                     )
                 });
             messages.append(&mut code_messages);

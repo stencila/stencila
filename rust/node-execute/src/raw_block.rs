@@ -32,7 +32,7 @@ impl Executable for RawBlock {
                 .await
                 .map_or_else(
                     |error| (None, vec![error_to_compilation_message(error)]),
-                    |(outputs, messages)| {
+                    |(outputs, messages, ..)| {
                         let messages = messages.into_iter().map(CompilationMessage::from).collect();
                         (Some(outputs), messages)
                     },
