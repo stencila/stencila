@@ -724,9 +724,9 @@ dependencies = [
 
 [[package]]
 name = "bytemuck"
-version = "1.18.0"
+version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94bbb0ad554ad961ddc5da507a12a29b14e4ae5bda06b19f575a3e6079d2e2ae"
+checksum = "8334215b81e418a0a7bdb8ef0849474f40bb10c8b71f1c4ed315cff49f32494d"
 
 [[package]]
 name = "byteorder"
@@ -823,9 +823,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.28"
+version = "1.1.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e80e3b6a3ab07840e1cae9b0666a63970dc28e8ed5ffbcdacbfc760c281bfc1"
+checksum = "b16803a61b81d9eabb7eae2588776c4c1e584b738ede45fdbb4c972cec1e9945"
 dependencies = [
  "jobserver",
  "libc",
@@ -969,7 +969,7 @@ checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 
 [[package]]
 name = "cli"
-version = "2.0.0-beta.8"
+version = "2.0.0-beta.9"
 dependencies = [
  "app",
  "cli-utils",
@@ -1169,7 +1169,7 @@ dependencies = [
 
 [[package]]
 name = "codec-json"
-version = "2.0.0-beta.8"
+version = "2.0.0-beta.9"
 dependencies = [
  "codec",
  "common-dev",
@@ -1268,7 +1268,7 @@ dependencies = [
 
 [[package]]
 name = "codec-yaml"
-version = "2.0.0-beta.8"
+version = "2.0.0-beta.9"
 dependencies = [
  "codec",
 ]
@@ -2589,9 +2589,9 @@ checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
 
 [[package]]
 name = "human_name"
-version = "2.0.3"
+version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d40d3a11bc31949eb1d5070deb0cbb481bbd17d9423ecd3afdb3db5d81499b9"
+checksum = "fbd70ad9620f3a33a270cedfa47114c9566660c28ff8d0b3772b5c8dc1dac085"
 dependencies = [
  "compact_str",
  "crossbeam-utils",
@@ -4339,9 +4339,9 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pathdiff"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8835116a5c179084a830efb3adc117ab007512b535bc1a21c991d3b32a6b44dd"
+checksum = "d61c5ce1153ab5b689d0c074c4e7fc613e942dfb7dd9eea5ab202d2ad91fe361"
 
 [[package]]
 name = "pbkdf2"
@@ -5919,7 +5919,7 @@ dependencies = [
 
 [[package]]
 name = "server"
-version = "2.0.0-beta.8"
+version = "2.0.0-beta.9"
 dependencies = [
  "axum",
  "codecs",
