@@ -150,10 +150,21 @@ export class UINodeAuthor extends LitElement {
   }
 
   private renderSoftwareIcon() {
-    const [provider] = this.$id?.trim().split('/') ?? []
+    // Try getting icon from id
+    let icon = iconMaybe(this.$id.toLowerCase())
 
-    let icon = iconMaybe(provider)
+    // Fallback to using name
+    if (!icon) {
+      icon = iconMaybe(this.name.toLowerCase())
+    }
 
+    // Fallback to provider (first segment of id)
+    if (!icon) {
+      const [provider] = this.$id?.trim().split('/') ?? []
+      icon = iconMaybe(provider.toLowerCase())
+    }
+
+    // Fallback to using prompt icon if appropriate
     if (
       !icon &&
       (this.name.includes('Prompt') || this.roleName.includes('Prompt'))
@@ -182,13 +193,13 @@ export class UINodeAuthor extends LitElement {
       'w-6 h-6',
       'overflow-clip',
       'rounded-full',
-      'bg-black/90',
+      'bg-black/70',
     ])
     return html`
       <div class=${classes}>
         <span
           class="text-white text-xs leading-none m-auto mix-blend-difference"
-          >${this.name.charAt(0)}</span
+          >${this.name.charAt(0).toUpperCase()}</span
         >
       </div>
     `

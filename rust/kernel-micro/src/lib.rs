@@ -1,4 +1,8 @@
-use std::{fs::write, path::Path, process::Stdio};
+use std::{
+    fs::write,
+    path::{Path, PathBuf},
+    process::Stdio,
+};
 
 use which::which;
 
@@ -12,6 +16,7 @@ pub use kernel::{
 use kernel::{
     common::{
         async_trait::async_trait,
+        dirs,
         eyre::{bail, eyre, Context, OptionExt, Result},
         itertools::Itertools,
         serde_json,
@@ -165,6 +170,8 @@ pub trait Microkernel: Sync + Send + Kernel {
             executable_name,
             executable_args,
             default_message_level,
+            executable_path: None,
+            working_dir: None,
             command: None,
             child: None,
             pid: 0,
@@ -195,8 +202,14 @@ pub struct MicrokernelInstance {
     /// The arguments of the executable
     executable_args: Vec<String>,
 
+    /// The resolved path to the executable
+    executable_path: Option<PathBuf>,
+
     /// The command used to start the microkernel instance (for main processes only, not forks)
     command: Option<Command>,
+
+    /// The working directory of the microkernel instance
+    working_dir: Option<PathBuf>,
 
     /// The default level for execution messages
     default_message_level: MessageLevel,
@@ -396,12 +409,14 @@ impl KernelInstance for MicrokernelInstance {
         })?);
 
         // Create the command
-        let mut command = Command::new(exec_path);
+        let mut command = Command::new(&exec_path);
         command
             .args(exec_args.clone())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
+
+        self.executable_path = Some(exec_path);
 
         tracing::debug!(
             "Running `{} {}` in `{}`",
@@ -524,10 +539,34 @@ impl KernelInstance for MicrokernelInstance {
         let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, []).await?;
         self.check_for_errors(messages, "getting info")?;
 
-        match nodes.pop() {
-            Some(Node::SoftwareApplication(node)) => Ok(node),
-            node => bail!("Expected a `SoftwareApplication`, got {node:#?}"),
+        let Some(Node::SoftwareApplication(mut app)) = nodes.pop() else {
+            bail!("Expected a `SoftwareApplication`, got another node type")
+        };
+
+        if let Some(path) = self.executable_path.as_ref() {
+            let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::new());
+
+            let url = if let Some(relative) = self
+                .working_dir
+                .as_ref()
+                .and_then(|working_dir| path.strip_prefix(&working_dir).ok())
+            {
+                // Strip the working directory if this in is the working directory
+                relative.to_string_lossy().to_string()
+            } else if let Ok(relative_to_home) = path.strip_prefix(&home_dir) {
+                // Strip users home dir
+                PathBuf::from("~")
+                    .join(relative_to_home)
+                    .to_string_lossy()
+                    .to_string()
+            } else {
+                path.to_string_lossy().to_string()
+            };
+
+            app.options.url = Some(url);
         }
+
+        Ok(app)
     }
 
     async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
@@ -676,6 +715,8 @@ impl KernelInstance for MicrokernelInstance {
                 kernel_name,
                 executable_name: Default::default(),
                 executable_args: Default::default(),
+                working_dir: None,
+                executable_path: None,
                 command: None,
                 default_message_level,
                 child: None,
