@@ -3,7 +3,7 @@ compact.jats.xml:
     strip-types:
       # TODO: Fix issues with encoding and decoding `CodeExpression`
       - CodeExpression
-md:
+smd:
   encode:
     strip-props:
       # Output properties are not supported in Markdown

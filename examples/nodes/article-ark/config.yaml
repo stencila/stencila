@@ -23,7 +23,7 @@ compact.jats.xml:
       - MathBlock
       - StyledBlock
       - Table
-md:
+smd:
   encode:
     strip-types:
       # TODO: check why this needs to be stripped

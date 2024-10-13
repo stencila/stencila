@@ -3,7 +3,7 @@ compact.jats.xml:
     strip-types:
       - ModifyBlock
 
-md:
+smd:
   decode:
     strip-props:
       # This stripping should be part of the codec/merging

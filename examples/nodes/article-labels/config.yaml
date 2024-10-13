@@ -1,4 +1,4 @@
-md:
+smd:
   canonical: true
   decode:
     skip: true
