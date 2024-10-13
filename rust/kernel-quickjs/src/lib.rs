@@ -47,6 +47,10 @@ pub struct QuickJsKernel;
 
 const NAME: &str = "quickjs";
 
+// From https://github.com/bellard/quickjs/blob/6e2e68fd0896957f92eb6c242a2e048c1ef3cae0/VERSION
+// which is the commit used in the currently used version of https://github.com/DelSkayn/rquickjs
+const QUICKJS_VERSION: &str = "2024-02-14";
+
 impl Kernel for QuickJsKernel {
     fn name(&self) -> String {
         NAME.to_string()
@@ -160,7 +164,7 @@ impl KernelInstance for QuickJsKernelInstance {
         Ok(SoftwareApplication {
             name: "QuickJS".to_string(),
             options: Box::new(SoftwareApplicationOptions {
-                software_version: Some("1".to_string()),
+                software_version: Some(QUICKJS_VERSION.to_string()),
                 operating_system: Some(std::env::consts::OS.to_string()),
                 ..Default::default()
             }),
