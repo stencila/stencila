@@ -556,7 +556,7 @@ def get_info() -> None:
 
     sw_app: SoftwareApplication = {
         "type": "SoftwareApplication",
-        "name": "python",
+        "name": "Python",
         "software_version": f"{pv.major}.{pv.minor}.{pv.micro}",
         "operating_system": f"{os_name} {platform}",
     }
