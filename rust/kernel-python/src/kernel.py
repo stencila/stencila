@@ -92,6 +92,7 @@ class ImageObject(TypedDict):
 class SoftwareApplication(TypedDict):
     type: Literal["SoftwareApplication"]
     name: str
+    url: str
     software_version: str
     operating_system: str
 
