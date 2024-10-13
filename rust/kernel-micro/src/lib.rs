@@ -553,12 +553,12 @@ impl KernelInstance for MicrokernelInstance {
 
         if let Some(path) = path {
             let path = path.canonicalize().unwrap_or(path);
-            let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::new());
+            let home_dir = dirs::home_dir().unwrap_or_default();
 
             let url = if let Some(relative) = self
                 .working_dir
                 .as_ref()
-                .and_then(|working_dir| path.strip_prefix(&working_dir).ok())
+                .and_then(|working_dir| path.strip_prefix(working_dir).ok())
             {
                 // Strip the working directory if this in is the working directory
                 relative.to_string_lossy().to_string()

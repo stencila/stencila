@@ -523,7 +523,7 @@ impl Executor {
         execution_instance: &Option<String>,
     ) -> Option<AuthorRole> {
         if execution_instance.as_ref() != Some(instance) {
-            if let Some(instance) = self.kernels().await.get_instance(&instance).await {
+            if let Some(instance) = self.kernels().await.get_instance(instance).await {
                 if let Ok(app) = instance.lock().await.info().await {
                     let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
                     role.last_modified = Some(Timestamp::now());
