@@ -92,6 +92,7 @@ class ImageObject(TypedDict):
 class SoftwareApplication(TypedDict):
     type: Literal["SoftwareApplication"]
     name: str
+    url: str
     software_version: str
     operating_system: str
 
@@ -556,7 +557,8 @@ def get_info() -> None:
 
     sw_app: SoftwareApplication = {
         "type": "SoftwareApplication",
-        "name": "python",
+        "name": "Python",
+        "url": sys.executable,
         "software_version": f"{pv.major}.{pv.minor}.{pv.micro}",
         "operating_system": f"{os_name} {platform}",
     }

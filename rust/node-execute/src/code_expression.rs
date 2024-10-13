@@ -74,7 +74,7 @@ impl Executable for CodeExpression {
         if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
-            let (output, messages, ..) = executor
+            let (output, messages, instance) = executor
                 .kernels
                 .write()
                 .await
@@ -104,10 +104,23 @@ impl Executable for CodeExpression {
             self.output = Some(Box::new(output.clone()));
             self.options.execution_messages = messages.clone();
 
+            // Patch output using kernel as author if instance has changed
+            if let Some(author) = executor
+                .node_execution_instance_author(&instance, &self.options.execution_instance)
+                .await
+            {
+                executor.patch_with_authors(
+                    &node_id,
+                    vec![author],
+                    [set(NodeProperty::Output, output)],
+                );
+            } else {
+                executor.patch(&node_id, [set(NodeProperty::Output, output)]);
+            }
+
             executor.patch(
                 &node_id,
                 [
-                    set(NodeProperty::Output, output),
                     set(NodeProperty::ExecutionStatus, status.clone()),
                     set(NodeProperty::ExecutionRequired, required),
                     set(NodeProperty::ExecutionMessages, messages),

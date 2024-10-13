@@ -31,4 +31,7 @@ pub enum AuthorRoleName {
 
     /// The author is a `SoftwareApplication` that generated content such as prose, code, or images.
     Generator,
+
+    /// The author is a `SoftwareApplication` that executed code which created outputs such as text, tables, or images.
+    Executor,
 }

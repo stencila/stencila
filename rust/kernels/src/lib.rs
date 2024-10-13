@@ -280,14 +280,33 @@ impl Kernels {
         Ok(())
     }
 
-    /// Get a kernel instance
+    /// Determine if the kernels set has an instance with the given id
+    pub async fn has_instance(&mut self, id: &str) -> bool {
+        self.instances
+            .read()
+            .await
+            .iter()
+            .any(|entry| entry.id == id)
+    }
+
+    /// Get the instance with the given id
+    pub async fn get_instance(&mut self, id: &str) -> Option<Arc<Mutex<Box<dyn KernelInstance>>>> {
+        self.instances
+            .read()
+            .await
+            .iter()
+            .find(|entry| entry.id == id)
+            .map(|entry| entry.instance.clone())
+    }
+
+    /// Get a kernel instance for a language
     ///
     /// The `language` argument can be the name of a programming language, or
     /// the id of an existing kernel instance.
     ///
     /// If no language specified, and there is at least one kernel instance, returns the
     /// first instance.
-    async fn get_instance(
+    async fn get_instance_for(
         &mut self,
         language: Option<&str>,
     ) -> Result<Option<Arc<Mutex<Box<dyn KernelInstance>>>>> {
@@ -312,15 +331,6 @@ impl Kernels {
         Ok(None)
     }
 
-    /// Determine if the kernels set has an instance with the given id
-    pub async fn has_instance(&mut self, id: &str) -> bool {
-        self.instances
-            .read()
-            .await
-            .iter()
-            .any(|entry| entry.id == id)
-    }
-
     /// Get a reference to each of the kernel instances
     pub async fn instances(&self) -> Vec<Arc<Mutex<Box<dyn KernelInstance>>>> {
         self.instances
@@ -337,7 +347,7 @@ impl Kernels {
         code: &str,
         language: Option<&str>,
     ) -> Result<(Vec<Node>, Vec<ExecutionMessage>, String)> {
-        let instance = match self.get_instance(language).await? {
+        let instance = match self.get_instance_for(language).await? {
             Some(instance) => instance,
             None => self.create_instance(language).await?,
         };
@@ -355,7 +365,7 @@ impl Kernels {
         code: &str,
         language: Option<&str>,
     ) -> Result<(Node, Vec<ExecutionMessage>, String)> {
-        let instance = match self.get_instance(language).await? {
+        let instance = match self.get_instance_for(language).await? {
             Some(instance) => instance,
             None => self.create_instance(language).await?,
         };
@@ -383,7 +393,7 @@ impl Kernels {
 
     /// Set a variable in the first kernel instance
     pub async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
-        let instance = match self.get_instance(None).await? {
+        let instance = match self.get_instance_for(None).await? {
             Some(instance) => instance,
             None => self.create_instance(None).await?,
         };
@@ -395,7 +405,7 @@ impl Kernels {
     /// Remove a variable from the kernels
     pub async fn remove(&mut self, name: &str) -> Result<()> {
         // TODO: remove from all kernels that the variable has been mirrored to
-        let Some(instance) = self.get_instance(None).await? else {
+        let Some(instance) = self.get_instance_for(None).await? else {
             bail!("No kernel instances to remove variable from")
         };
 

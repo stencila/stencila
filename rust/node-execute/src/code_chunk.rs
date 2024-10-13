@@ -159,10 +159,23 @@ impl Executable for CodeChunk {
             self.outputs = outputs.clone();
             self.options.execution_messages = messages.clone();
 
+            // Patch outputs using kernel as author if instance has changed
+            if let Some(author) = executor
+                .node_execution_instance_author(&instance, &self.options.execution_instance)
+                .await
+            {
+                executor.patch_with_authors(
+                    &node_id,
+                    vec![author],
+                    [set(NodeProperty::Outputs, outputs)],
+                );
+            } else {
+                executor.patch(&node_id, [set(NodeProperty::Outputs, outputs)]);
+            }
+
             executor.patch(
                 &node_id,
                 [
-                    set(NodeProperty::Outputs, outputs),
                     set(NodeProperty::ExecutionStatus, status),
                     set(NodeProperty::ExecutionInstance, instance),
                     set(NodeProperty::ExecutionKind, kind),

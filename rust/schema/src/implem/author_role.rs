@@ -134,13 +134,27 @@ impl DomCodec for AuthorRole {
                 context.push_attr("_id", id);
             }
 
+            let mut details = String::new();
+
             if let Some(version) = &app.options.software_version.clone().or_else(|| {
                 app.version.as_ref().map(|version| match version {
                     StringOrNumber::String(string) => string.clone(),
                     StringOrNumber::Number(number) => number.to_string(),
                 })
             }) {
-                context.push_attr("details", &["v", version].concat());
+                details.push('v');
+                details.push_str(version);
+            }
+
+            if let Some(url) = &app.options.url {
+                if !details.is_empty() {
+                    details.push(' ')
+                };
+                details.push_str(url);
+            }
+
+            if !details.is_empty() {
+                context.push_attr("details", &details);
             }
         }
 

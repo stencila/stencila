@@ -80,6 +80,7 @@ class AuthorRoleName(StrEnum):
     Prompter = "Prompter"
     Router = "Router"
     Generator = "Generator"
+    Executor = "Executor"
 
 
 class CitationIntent(StrEnum):
