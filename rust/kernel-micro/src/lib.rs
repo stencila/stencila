@@ -438,6 +438,7 @@ impl KernelInstance for MicrokernelInstance {
         })?;
 
         self.command = Some(command);
+        self.working_dir = directory.to_path_buf().canonicalize().ok();
 
         let pid = child
             .id()
@@ -543,7 +544,15 @@ impl KernelInstance for MicrokernelInstance {
             bail!("Expected a `SoftwareApplication`, got another node type")
         };
 
-        if let Some(path) = self.executable_path.as_ref() {
+        // Use the resolved executable path if no url (executable path) provided
+        let path = match (&app.options.url, self.executable_path.as_ref()) {
+            (Some(url), _) => Some(PathBuf::from(url)),
+            (None, Some(path)) => Some(path.to_path_buf()),
+            _ => None,
+        };
+
+        if let Some(path) = path {
+            let path = path.canonicalize().unwrap_or(path);
             let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::new());
 
             let url = if let Some(relative) = self

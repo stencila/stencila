@@ -177,6 +177,7 @@ function info() {
   const info = {
     type: "SoftwareApplication",
     name: "Node.js",
+    url: process.execPath,
     // Use `process.versions.node` rather than `process.version` which is prefixed with a v
     softwareVersion: process.versions.node,
     operatingSystem: `${os.type()} ${os.arch()} ${os.release()}`,
