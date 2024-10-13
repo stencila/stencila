@@ -409,7 +409,7 @@ baz()
         };
 
         let sw = kernel_micro::tests::info(instance).await?;
-        assert_eq!(sw.name, "python");
+        assert_eq!(sw.name, "Python");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.software_version.unwrap().starts_with("3."));
         assert!(sw.options.operating_system.is_some());
