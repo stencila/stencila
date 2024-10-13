@@ -10,6 +10,7 @@ export type AuthorRoleName =
   'Instructor' |
   'Prompter' |
   'Router' |
-  'Generator';
+  'Generator' |
+  'Executor';
 
 
