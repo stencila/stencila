@@ -13,9 +13,9 @@ use common::{
 use kernels::Kernels;
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    Block, CompilationDigest, ExecutionKind, ExecutionMode, ExecutionStatus, Inline, Link, List,
-    ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchOp,
-    PatchPath, VisitorAsync, WalkControl, WalkNode,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, ExecutionKind, ExecutionMode,
+    ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType,
+    Paragraph, Patch, PatchOp, PatchPath, Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -514,6 +514,25 @@ impl Executor {
             // No change to execution status required
             None
         }
+    }
+
+    /// Get the [`AuthorRole`] for the kernel instance if it is different from the current
+    pub async fn node_execution_instance_author(
+        &self,
+        instance: &String,
+        execution_instance: &Option<String>,
+    ) -> Option<AuthorRole> {
+        if execution_instance.as_ref() != Some(instance) {
+            if let Some(instance) = self.kernels().await.get_instance(&instance).await {
+                if let Ok(app) = instance.lock().await.info().await {
+                    let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
+                    role.last_modified = Some(Timestamp::now());
+                    return Some(role);
+                }
+            }
+        }
+
+        None
     }
 
     /// Patch several properties of a node
