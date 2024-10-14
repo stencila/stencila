@@ -365,7 +365,7 @@ impl TextDocument {
             if let Err(error) = doc
                 .update(
                     node.clone(),
-                    Some(Format::Markdown),
+                    Some(format.clone()),
                     Some(vec![author_role.clone()]),
                 )
                 .await
