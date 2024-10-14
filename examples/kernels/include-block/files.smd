@@ -1,7 +1,7 @@
-::: include includee.md
+::: include includee.smd
 
-::: include child/includee.md
+::: include child/includee.smd
 
-::: include child/grandchild/includee.md
+::: include child/grandchild/includee.smd
 
-::: include ../code-chunk/hello-world-rhai.md
+::: include ../code-chunk/hello-world-rhai.smd
