@@ -17,4 +17,4 @@ properties:
     description: The value that the node must have.
     $ref: Node
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]

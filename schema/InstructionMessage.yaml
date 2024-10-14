@@ -24,7 +24,7 @@ properties:
     items:
       $ref: MessagePart
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
     dom:
       elem: div
   authors:

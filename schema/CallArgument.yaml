@@ -22,7 +22,7 @@ properties:
     $ref: Cord
     strip: [code]
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
     proptest:
       min:
         description: Generate a simple fixed string of code.
@@ -43,11 +43,11 @@ properties:
     description: The current value of the argument.
     $ref: Node
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
     strip: [code]
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]

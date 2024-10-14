@@ -28,7 +28,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: span
   thumbnail:

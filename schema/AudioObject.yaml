@@ -23,7 +23,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     html:
       attr: alt
   transcript:

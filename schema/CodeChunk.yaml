@@ -30,7 +30,7 @@ properties:
       series of figures, or in the series of tables.
     $ref: LabelType
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
     proptest:
       min:
         description: No label type
@@ -43,7 +43,7 @@ properties:
     description: A short label for the chunk.
     type: string
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
     proptest:
       min:
         description: No label
@@ -59,7 +59,7 @@ properties:
     description: Whether the label should be automatically updated.
     type: boolean
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
   caption:
     "@id": schema:caption
     description: A caption for the chunk.
@@ -68,7 +68,7 @@ properties:
       $ref: Block
     walk: true
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
     dom:
       elem: div
     proptest:
@@ -95,7 +95,7 @@ properties:
     description: Whether the outputs of the code chunk should be invisible to the reader.
     type: boolean
     patch:
-      formats: [md, myst]
+      formats: [smd, myst]
   executionPure:
     "@id": stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.

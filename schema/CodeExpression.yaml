@@ -26,7 +26,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md]
+      formats: [smd]
     jats:
       attr: language
   executionMode:
@@ -38,7 +38,7 @@ properties:
     $ref: ExecutionMode
     strip: [execution]
     patch:
-      formats: [md]
+      formats: [smd]
   output:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.
