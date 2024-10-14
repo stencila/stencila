@@ -1,4 +1,4 @@
-md:
+smd:
   decode:
     # Skip decoding since encoding is lossy
     skip: true
