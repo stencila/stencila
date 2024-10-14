@@ -52,7 +52,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -67,7 +67,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -78,7 +78,7 @@
       "description": "An array node is valid if at least one of its items is valid against the `contains` schema.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -93,7 +93,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -109,7 +109,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -125,7 +125,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },

@@ -39,7 +39,7 @@ pub struct Form {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The content within the form, usually containing at least one `Parameter`.

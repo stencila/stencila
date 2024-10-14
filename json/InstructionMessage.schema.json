@@ -54,7 +54,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },

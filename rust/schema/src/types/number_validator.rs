@@ -22,26 +22,26 @@ pub struct NumberValidator {
     pub id: Option<String>,
 
     /// The inclusive lower limit for a numeric node.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub minimum: Option<Number>,
 
     /// The exclusive lower limit for a numeric node.
     #[serde(alias = "exclusive-minimum", alias = "exclusive_minimum")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub exclusive_minimum: Option<Number>,
 
     /// The inclusive upper limit for a numeric node.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub maximum: Option<Number>,
 
     /// The exclusive upper limit for a numeric node.
     #[serde(alias = "exclusive-maximum", alias = "exclusive_maximum")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub exclusive_maximum: Option<Number>,
 
     /// A number that a numeric node must be a multiple of.
     #[serde(alias = "multiple-of", alias = "multiple_of")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub multiple_of: Option<Number>,
 
     /// A unique identifier for a node within a document

@@ -25,15 +25,15 @@ pub struct TimestampValidator {
     /// The time units that the timestamp can have.
     #[serde(alias = "time-units", alias = "time_units", alias = "timeUnit", alias = "time-unit", alias = "time_unit")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub time_units: Option<Vec<TimeUnit>>,
 
     /// The inclusive lower limit for a timestamp.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub minimum: Option<Timestamp>,
 
     /// The inclusive upper limit for a timestamp.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub maximum: Option<Timestamp>,
 
     /// A unique identifier for a node within a document

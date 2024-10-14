@@ -23,16 +23,16 @@ pub struct StringValidator {
 
     /// The minimum length for a string node.
     #[serde(alias = "min-length", alias = "min_length")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub min_length: Option<Integer>,
 
     /// The maximum length for a string node.
     #[serde(alias = "max-length", alias = "max_length")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub max_length: Option<Integer>,
 
     /// A regular expression that a string node must match.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     pub pattern: Option<String>,
 
     /// A unique identifier for a node within a document

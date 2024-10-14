@@ -59,7 +59,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -300,7 +300,7 @@
       "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -333,7 +333,7 @@
       "description": "A short label for the parameter.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -349,7 +349,7 @@
       "description": "The default value of the parameter.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -361,7 +361,7 @@
       "$comment": "This property is large (in terms of bytes) so is best kept as a non-core\nproperty, so as not to inflate the size of the `Inline` enum in Rust.\n",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },

@@ -43,7 +43,7 @@ pub struct Section {
 
     /// The type of section.
     #[serde(alias = "section-type", alias = "section_type")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]

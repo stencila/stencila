@@ -62,7 +62,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -311,7 +311,7 @@
       "description": "The instruction message, possibly including images, audio, or other media.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -325,7 +325,7 @@
       "description": "An identifier for the prompt to be used for the instruction",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -350,7 +350,7 @@
       "description": "The name, and other options, for the model that the assistant should use to generate suggestions.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -364,7 +364,7 @@
       "description": "The number of suggestions to generate for the instruction",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -375,7 +375,7 @@
       "description": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -434,7 +434,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },

@@ -70,7 +70,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -313,7 +313,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -352,7 +352,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -423,7 +423,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -444,7 +444,7 @@
       "description": "A short label for the chunk.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -473,7 +473,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -484,7 +484,7 @@
       "description": "A caption for the chunk.",
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
@@ -536,7 +536,7 @@
       ],
       "patch": {
         "formats": [
-          "md",
+          "smd",
           "myst"
         ]
       },
