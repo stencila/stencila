@@ -567,6 +567,9 @@ async fn websocket_for_document(
         Format::Json5,
         Format::JsonLd,
         Format::Markdown,
+        Format::Smd,
+        Format::Qmd,
+        Format::Myst,
         Format::Yaml,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));

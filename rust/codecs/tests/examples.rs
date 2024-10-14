@@ -268,7 +268,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
         (
             String::from("smd"),
             FormatConfig {
-                format: Format::Markdown,
+                format: Format::Smd,
                 ..Default::default()
             },
         ),
