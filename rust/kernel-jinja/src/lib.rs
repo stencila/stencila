@@ -20,8 +20,8 @@ use kernel::{
     schema::{
         ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
+    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequest,
+    KernelVariableRequester, KernelVariableResponder,
 };
 
 const NAME: &str = "jinja";
@@ -33,6 +33,10 @@ pub struct JinjaKernel;
 impl Kernel for JinjaKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Templating
     }
 
     fn supports_languages(&self) -> Vec<Format> {

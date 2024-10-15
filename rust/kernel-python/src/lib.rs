@@ -1,6 +1,6 @@
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
+    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Python code
@@ -12,6 +12,10 @@ const NAME: &str = "python";
 impl Kernel for PythonKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn provider(&self) -> KernelProvider {
+        KernelProvider::Environment
     }
 
     fn availability(&self) -> KernelAvailability {

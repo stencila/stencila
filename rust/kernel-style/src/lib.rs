@@ -15,7 +15,8 @@ use kernel::{
         CodeLocation, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder,
+    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequester,
+    KernelVariableResponder,
 };
 
 /// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
@@ -27,6 +28,10 @@ const NAME: &str = "style";
 impl Kernel for StyleKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Styling
     }
 
     fn supports_languages(&self) -> Vec<Format> {

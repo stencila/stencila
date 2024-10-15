@@ -3,6 +3,7 @@ use std::path::Path;
 use common::{
     async_trait::async_trait,
     bs58,
+    clap::{self, ValueEnum},
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
     strum::Display,
@@ -32,6 +33,11 @@ pub trait Kernel: Sync + Send {
     ///
     /// This name should be unique amongst all kernels.
     fn name(&self) -> String;
+
+    /// Get the type of the kernel
+    fn r#type(&self) -> KernelType {
+        KernelType::Programming
+    }
 
     /// Get the provider of the kernel
     fn provider(&self) -> KernelProvider {
@@ -87,9 +93,23 @@ pub trait Kernel: Sync + Send {
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
 }
 
+/// The type of a kernel
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum KernelType {
+    // Note that the order here influences how kernels are displayed
+    // in the `stencila kernels list` command. So change with intent.
+    Programming,
+    Diagrams,
+    Templating,
+    Math,
+    Styling,
+}
+
 /// The provider of a kernel
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum KernelProvider {
     Builtin,
+    Environment,
     Plugin(String),
 }
 

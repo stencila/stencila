@@ -10,7 +10,7 @@ use which::which;
 // the `Microkernel` trait
 pub use kernel::{
     common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
+    KernelInterrupt, KernelKill, KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 use kernel::{

@@ -1,6 +1,7 @@
 use kernel_micro::{
     common::eyre::Result, format::Format, schema::MessageLevel, Kernel, KernelAvailability,
-    KernelForks, KernelInstance, KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
+    KernelForks, KernelInstance, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate,
+    Microkernel,
 };
 
 /// A kernel for executing R code
@@ -12,6 +13,10 @@ const NAME: &str = "r";
 impl Kernel for RKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn provider(&self) -> KernelProvider {
+        KernelProvider::Environment
     }
 
     fn availability(&self) -> KernelAvailability {

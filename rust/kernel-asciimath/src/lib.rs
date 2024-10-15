@@ -6,7 +6,7 @@ use kernel::{
         CodeLocation, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance,
+    Kernel, KernelForks, KernelInstance, KernelType,
 };
 
 const NAME: &str = "asciimath";
@@ -22,6 +22,10 @@ pub struct AsciiMathKernel;
 impl Kernel for AsciiMathKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Math
     }
 
     fn supports_languages(&self) -> Vec<Format> {
