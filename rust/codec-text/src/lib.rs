@@ -18,7 +18,7 @@ impl Codec for TextCodec {
     }
 
     fn status(&self) -> Status {
-        Status::Alpha
+        Status::Beta
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

@@ -60,7 +60,7 @@ impl Codec for SwbCodec {
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
+        Status::Alpha
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

@@ -20,7 +20,7 @@ impl Codec for MarkdownCodec {
     }
 
     fn status(&self) -> Status {
-        Status::Alpha
+        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
