@@ -20,7 +20,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     proptest:
       min:
         description: Generate a fixed path.
@@ -49,14 +49,14 @@ properties:
       MIME type (e.g. `text/md`).
     strip: [code]
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   select:
     '@id': stencila:select
     description: A query to select a subset of content from the source
     type: string
     strip: [code]
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   content:
     '@id': stencila:content
     description: The structured content decoded from the source.

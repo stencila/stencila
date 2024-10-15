@@ -44,7 +44,7 @@ properties:
     description: The type of section.
     $ref: SectionType
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     jats:
       attr: content-type
     proptest:

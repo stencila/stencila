@@ -48,7 +48,7 @@ pub struct ListItem {
 
     /// A flag to indicate if this list item is checked.
     #[serde(alias = "is-checked", alias = "is_checked")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_checked: Option<Boolean>,
 
@@ -83,7 +83,7 @@ pub struct ListItemOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub description: Option<String>,
 

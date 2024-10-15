@@ -127,7 +127,7 @@ print('Hello, world!')
             None,
         )
         .await?;
-    merge(&mut node, &edited, Some(Format::Markdown), Some(vec![bob]))?;
+    merge(&mut node, &edited, Some(Format::Smd), Some(vec![bob]))?;
 
     assert_yaml_snapshot!(node, {
       ".authors[].lastModified.value" => "redacted",

@@ -17,31 +17,31 @@ properties:
     description: A pattern to filter model ids by.
     type: string
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   qualityWeight:
     '@id': stencila:qualityWeight
     description: The relative weighting given to model quality (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   speedWeight:
     '@id': stencila:speedWeight
     description: The relative weighting given to model speed (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   costWeight:
     '@id': stencila:costWeight
     description: The relative weighting given to model cost (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   minimumScore:
     '@id': stencila:minimumScore
     description: The minimum score for models to be selected (0-100).
     $ref: UnsignedInteger
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   temperature:
     '@id': stencila:temperature
     description: The temperature option for model inference (0-100).
@@ -51,7 +51,7 @@ properties:
       to more diverse and creative outputs.
     $ref: UnsignedInteger
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   randomSeed:
     '@id': stencila:randomSeed
     description: The random seed used for the model (if possible)

@@ -59,6 +59,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -302,6 +303,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -341,6 +343,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },

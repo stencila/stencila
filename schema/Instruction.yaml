@@ -22,7 +22,7 @@ properties:
     description: The instruction message, possibly including images, audio, or other media.
     $ref: InstructionMessage
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: div
   prompt:
@@ -30,7 +30,7 @@ properties:
     description: An identifier for the prompt to be used for the instruction
     type: string
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     proptest:
       min:
         description: No prompt
@@ -46,7 +46,7 @@ properties:
     description: The name, and other options, for the model that the assistant should use to generate suggestions.
     $ref: InstructionModel
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: div
   replicates:
@@ -54,13 +54,13 @@ properties:
     description: The number of suggestions to generate for the instruction
     $ref: UnsignedInteger
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   recursion:
     "@id": stencila:recursion
     description: A string identifying which operations should, or should not, automatically be applied to generated suggestions.
     $ref: String
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   promptProvided:
     "@id": stencila:promptProvided
     description: The prompt chosen, rendered and provided to the model

@@ -140,6 +140,7 @@ expression: specs
     "status": "alpha",
     "supports_from_formats": {
       "markdown": "LowLoss",
+      "smd": "LowLoss",
       "myst": "LowLoss"
     },
     "supports_from_bytes": false,
@@ -147,6 +148,7 @@ expression: specs
     "supports_from_path": true,
     "supports_to_formats": {
       "markdown": "LowLoss",
+      "smd": "LowLoss",
       "myst": "LowLoss",
       "llmd": "LowLoss"
     },

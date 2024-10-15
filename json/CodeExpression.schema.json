@@ -64,7 +64,7 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "smd"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -307,6 +307,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -346,7 +347,7 @@
       ],
       "patch": {
         "formats": [
-          "md"
+          "smd"
         ]
       },
       "jats": {

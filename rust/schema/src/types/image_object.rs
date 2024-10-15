@@ -46,13 +46,13 @@ pub struct ImageObject {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub title: Option<Vec<Inline>>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[serde(alias = "content-url", alias = "content_url")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("https://example.org/image.png")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"https://\w+\.\w+/\w+\.png"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,100}"#))]
@@ -67,7 +67,7 @@ pub struct ImageObject {
 
     /// The caption for this image.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "alt")]
     pub caption: Option<Vec<Inline>>,
@@ -99,7 +99,7 @@ pub struct ImageObjectOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub description: Option<String>,
 
@@ -232,7 +232,7 @@ pub struct ImageObjectOptions {
     /// Genre of the creative work, broadcast channel or group.
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub genre: Option<Vec<String>>,
 
@@ -240,7 +240,7 @@ pub struct ImageObjectOptions {
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,
 

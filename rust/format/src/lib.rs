@@ -32,11 +32,14 @@ pub enum Format {
     Dom,
     Html,
     Jats,
-    // Text formats
-    Latex,
-    Markdown,
+    // Markdown and derivatives
+    Markdown, // Commonmark Markdown with GitHub Flavored Markdown extensions (as in the `markdown` crate)
+    Smd,
+    Qmd,
     Myst,
     Llmd,
+    // Typesetting/text formats
+    Latex,
     Text,
     // Math languages
     AsciiMath,
@@ -128,14 +131,16 @@ impl Format {
             Mkv => "Matroska",
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
-            Myst => "MyST",
+            Myst => "MyST Markdown",
             Ogg => "Ogg Vorbis",
             Ogv => "Ogg Vorbis Video",
             Png => "PNG",
             Python => "Python",
+            Qmd => "Quarto Markdown",
             R => "R",
             Rhai => "Rhai",
             Shell => "Shell",
+            Smd => "Stencila Markdown",
             Swb => "Stencila Web Bundle",
             Svg => "SVG",
             Tailwind => "Tailwind",
@@ -194,6 +199,12 @@ impl Format {
         matches!(self, Avi | Mkv | Mp4 | Ogv | WebM)
     }
 
+    /// Is this format a flavor or Markdown?
+    pub fn is_markdown_flavor(&self) -> bool {
+        use Format::*;
+        matches!(self, Markdown | Smd | Myst | Qmd | Llmd)
+    }
+
     /// Resolve a [`Format`] from a name for the format
     pub fn from_name(name: &str) -> Self {
         use Format::*;
@@ -232,10 +243,11 @@ impl Format {
             "ogv" => Ogv,
             "png" => Png,
             "python" | "py" => Python,
+            "qmd" => Qmd,
             "r" => R,
             "rhai" => Rhai,
             "shell" | "sh" => Shell,
-            "smd" => Markdown,
+            "smd" => Smd,
             "svg" => Svg,
             "swb" => Swb,
             "tailwind" => Tailwind,
@@ -399,10 +411,12 @@ impl Display for Format {
             Ogv => "ogv",
             Png => "png",
             Python => "python",
+            Qmd => "qmd",
             R => "r",
             Rhai => "rhai",
             Shell => "shell",
             Svg => "svg",
+            Smd => "smd",
             Swb => "swb",
             Tailwind => "tailwind",
             Tex => "tex",

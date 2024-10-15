@@ -31,7 +31,7 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
     let format = options
         .as_ref()
         .and_then(|options| options.format.clone())
-        .unwrap_or(Format::Markdown);
+        .unwrap_or(Format::Smd); // Default to Stencila Markdown
 
     // Check the content and return early if any messages and in strict mode
     let messages = check::check(content, &format);

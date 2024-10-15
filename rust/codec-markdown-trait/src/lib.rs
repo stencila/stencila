@@ -62,7 +62,7 @@ pub struct MarkdownEncodeContext {
 impl MarkdownEncodeContext {
     pub fn new(format: Option<Format>, render: Option<bool>) -> Self {
         Self {
-            format: format.unwrap_or(Format::Markdown),
+            format: format.unwrap_or(Format::Smd), // Default to Stencila Markdown
             render: render.unwrap_or_default(),
             ..Default::default()
         }

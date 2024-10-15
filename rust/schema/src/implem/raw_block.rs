@@ -49,8 +49,8 @@ impl DomCodec for RawBlock {
 impl MarkdownCodec for RawBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render || matches!(context.format, Format::Llmd) {
-            // Encode content if format of RawBlock is Markdown
-            if Format::from_name(&self.format) == Format::Markdown {
+            // Encode content if format of RawBlock is any Markdown flavor
+            if Format::from_name(&self.format).is_markdown_flavor() {
                 context.push_str(&self.content);
 
                 // Add as many newlines to separate from following blocks

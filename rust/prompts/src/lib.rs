@@ -8,7 +8,7 @@ use std::{
 
 use app::{get_app_dir, DirType};
 use codec_markdown_trait::to_markdown;
-use codecs::{DecodeOptions, EncodeOptions, Format};
+use codecs::{DecodeOptions, Format};
 use common::{
     chrono::Utc,
     derive_more::{Deref, DerefMut},
@@ -358,22 +358,6 @@ pub async fn select(
         .take();
 
     prompt.ok_or_eyre("No prompts found for instruction")
-}
-
-/// Render and prompt's content to Markdown to use as a system prompt
-pub async fn render(prompt: PromptInstance) -> Result<String> {
-    codecs::to_string(
-        &Node::Article(Article {
-            content: prompt.content.clone(),
-            ..Default::default()
-        }),
-        Some(EncodeOptions {
-            format: Some(Format::Markdown),
-            render: Some(true),
-            ..Default::default()
-        }),
-    )
-    .await
 }
 
 /// Execute an [`InstructionBlock`]
