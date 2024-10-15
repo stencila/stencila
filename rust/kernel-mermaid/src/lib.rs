@@ -5,7 +5,8 @@ use kernel::{
     schema::{
         ExecutionMessage, ImageObject, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelVariableRequester, KernelVariableResponder,
+    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequester,
+    KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 
@@ -18,6 +19,10 @@ const NAME: &str = "mermaid";
 impl Kernel for MermaidKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Diagrams
     }
 
     fn supports_languages(&self) -> Vec<Format> {

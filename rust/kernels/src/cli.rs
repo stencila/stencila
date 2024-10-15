@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use cli_utils::{
     table::{self, Attribute, Cell, CellAlignment, Color},
     Code, ToStdout,
@@ -12,6 +14,7 @@ use kernel::{
     format::Format,
     schema::StringOrNumber,
     KernelAvailability, KernelForks, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate,
+    KernelType,
 };
 
 use crate::{list, Kernels};
@@ -35,7 +38,7 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            return List {}.run().await;
+            return List::default().run().await;
         };
 
         match command {
@@ -49,14 +52,38 @@ impl Cli {
 }
 
 /// List the kernels available
-#[derive(Debug, Args)]
-struct List;
+#[derive(Debug, Default, Args)]
+struct List {
+    /// Only show languages of a particular type
+    #[arg(short, long)]
+    r#type: Option<KernelType>,
+}
 
 impl List {
     async fn run(self) -> Result<()> {
+        let list = list().await;
+        let list = if let Some(type_) = self.r#type {
+            list.into_iter()
+                .filter(|kernel| kernel.r#type() == type_)
+                .collect()
+        } else {
+            list
+        };
+
+        let list = list
+            .into_iter()
+            .sorted_by(|a, b| match a.r#type().cmp(&b.r#type()) {
+                Ordering::Equal => match a.provider().cmp(&b.provider()) {
+                    Ordering::Equal => a.name().cmp(&b.name()),
+                    ordering => ordering,
+                },
+                ordering => ordering,
+            });
+
         let mut table = table::new();
         table.set_header([
             "Name",
+            "Type",
             "Provider",
             "Availability",
             "Languages",
@@ -66,9 +93,10 @@ impl List {
             "Kill",
         ]);
 
-        for kernel in list().await {
+        for kernel in list {
             use KernelAvailability::*;
 
+            let r#type = kernel.r#type();
             let provider = kernel.provider();
             let availability = kernel.availability();
             let langs = kernel
@@ -83,8 +111,16 @@ impl List {
 
             table.add_row([
                 Cell::new(kernel.name()).add_attribute(Attribute::Bold),
+                match r#type {
+                    KernelType::Diagrams => Cell::new("diagrams").fg(Color::DarkYellow),
+                    KernelType::Math => Cell::new("math").fg(Color::Blue),
+                    KernelType::Programming => Cell::new("programming").fg(Color::Green),
+                    KernelType::Styling => Cell::new("styling").fg(Color::Magenta),
+                    KernelType::Templating => Cell::new("templating").fg(Color::Cyan),
+                },
                 match provider {
                     KernelProvider::Builtin => Cell::new("builtin").fg(Color::Green),
+                    KernelProvider::Environment => Cell::new("environ").fg(Color::Cyan),
                     KernelProvider::Plugin(name) => {
                         Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
                     }

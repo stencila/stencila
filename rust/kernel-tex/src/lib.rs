@@ -7,7 +7,7 @@ use kernel::{
     schema::{
         ExecutionMessage, MessageLevel, Node, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance,
+    Kernel, KernelForks, KernelInstance, KernelType,
 };
 use latex2mathml::{latex_to_mathml, DisplayStyle};
 
@@ -24,6 +24,10 @@ pub struct TexKernel;
 impl Kernel for TexKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Math
     }
 
     fn supports_languages(&self) -> Vec<Format> {

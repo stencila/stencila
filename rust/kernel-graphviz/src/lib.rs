@@ -13,7 +13,7 @@ use kernel::{
         ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance,
+    Kernel, KernelForks, KernelInstance, KernelType,
 };
 
 const NAME: &str = "graphviz";
@@ -25,6 +25,10 @@ pub struct GraphvizKernel;
 impl Kernel for GraphvizKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Diagrams
     }
 
     fn supports_languages(&self) -> Vec<Format> {
