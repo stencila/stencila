@@ -416,7 +416,11 @@
         "extensions": [
           ".smd"
         ],
-        "configuration": "./syntaxes/smd/configuration.json"
+        "configuration": "./syntaxes/smd/configuration.json",
+        "icon": {
+          "light": "./icons/stencila-128.png",
+          "dark": "./icons/stencila-128.png"
+        }
       },
       {
         "id": "myst",
@@ -426,7 +430,11 @@
         "extensions": [
           ".myst"
         ],
-        "configuration": "./syntaxes/myst/configuration.jsonc"
+        "configuration": "./syntaxes/myst/configuration.jsonc",
+        "icon": {
+          "light": "./icons/myst-128.png",
+          "dark": "./icons/myst-128.png"
+        }
       }
     ],
     "grammars": [
@@ -481,13 +489,6 @@
         "label": "Stencila Light",
         "uiTheme": "vs",
         "path": "./themes/stencila-light-color-theme.json"
-      }
-    ],
-    "iconThemes": [
-      {
-        "id": "StencilaIcons",
-        "label": "Stencila Icons",
-        "path": "./icons/stencila-icon-theme.json"
       }
     ],
     "walkthroughs": [
