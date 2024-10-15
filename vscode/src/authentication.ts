@@ -202,12 +202,19 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     let userLabel;
     if (userResponse.status === 200) {
       // Check if the required properties exist in the response
-      const { username, firstName, lastName } = (await userResponse.json()) as {
-        username?: string;
-        firstName?: string;
-        lastName?: string;
-      };
-      userLabel = username ?? firstName ?? lastName ?? userId.slice(0, 12);
+      const { username, firstName, lastName, emailAddresses } =
+        (await userResponse.json()) as {
+          username?: string;
+          firstName?: string;
+          lastName?: string;
+          emailAddresses?: any[];
+        };
+      userLabel =
+        username ??
+        firstName ??
+        lastName ??
+        emailAddresses?.find((e) => e.email_address)?.email_address ??
+        userId.slice(0, 12);
     } else if (userResponse.status === 404) {
       // It is possible that we do not yet have an entry in the users table
       // yet so use the user id
