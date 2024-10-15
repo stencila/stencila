@@ -43,6 +43,6 @@ properties:
       $ref: SuggestionBlock
     walk: true
     patch:
-      formats: [smd, myst]
+      formats: [md, smd, myst]
     dom:
       elem: div

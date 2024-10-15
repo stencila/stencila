@@ -26,7 +26,7 @@ properties:
     description: The format of the raw content.
     type: string
     patch:
-      formats: [smd, myst]
+      formats: [md, smd, myst]
     proptest:
       min:
         description: Fixed as Markdown
@@ -42,7 +42,7 @@ properties:
     description: The raw content.
     $ref: Cord
     patch:
-      formats: [smd, myst]
+      formats: [md, smd, myst]
     proptest:
       min:
         description: Generate a simple fixed string.

@@ -59,13 +59,13 @@ pub struct Claim {
 
     /// The type of the claim.
     #[serde(alias = "claim-type", alias = "claim_type")]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[jats(attr = "content-type")]
     pub claim_type: ClaimType,
 
     /// A short label for the claim.
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[jats(elem = "label")]
     pub label: Option<String>,

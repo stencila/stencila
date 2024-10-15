@@ -617,6 +617,7 @@
       "description": "A short label for the table.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -632,6 +633,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -643,6 +645,7 @@
       "description": "A caption for the table.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -718,6 +721,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

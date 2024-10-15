@@ -47,7 +47,7 @@ pub struct InstructionInline {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
@@ -57,13 +57,13 @@ pub struct InstructionInline {
     pub instruction_type: InstructionType,
 
     /// The instruction message, possibly including images, audio, or other media.
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub message: Option<InstructionMessage>,
 
     /// An identifier for the prompt to be used for the instruction
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
@@ -71,18 +71,18 @@ pub struct InstructionInline {
     pub prompt: Option<String>,
 
     /// The name, and other options, for the model that the assistant should use to generate suggestions.
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub model: Option<Box<InstructionModel>>,
 
     /// The number of suggestions to generate for the instruction
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub replicates: Option<UnsignedInteger>,
 
     /// A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub recursion: Option<String>,
 
@@ -101,7 +101,7 @@ pub struct InstructionInline {
     #[serde(alias = "suggestion")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub suggestions: Option<Vec<SuggestionInline>>,

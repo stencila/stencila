@@ -130,6 +130,7 @@
       "description": "The relation between the target and the current thing.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

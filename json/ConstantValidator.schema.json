@@ -44,6 +44,7 @@
       "description": "The value that the node must have.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

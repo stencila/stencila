@@ -49,6 +49,7 @@
       "$comment": "A number is valid if it is greater than, or exactly equal to, `minimum`.\n",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -65,6 +66,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -77,6 +79,7 @@
       "$comment": "A number is valid if it is less than, or exactly equal to, `maximum`.\n",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -93,6 +96,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -109,6 +113,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

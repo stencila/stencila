@@ -79,7 +79,7 @@ properties:
       The relation between the target and the current thing.
       # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
     patch:
-      formats: [smd, myst]
+      formats: [md, smd, myst]
     type: string
     html:
       attr: rel

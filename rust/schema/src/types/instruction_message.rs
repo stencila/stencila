@@ -31,7 +31,7 @@ pub struct InstructionMessage {
     /// Parts of the message.
     #[serde(alias = "part")]
     #[serde(deserialize_with = "one_or_many")]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[dom(elem = "div")]
     pub parts: Vec<MessagePart>,
 

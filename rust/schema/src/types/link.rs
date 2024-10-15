@@ -51,7 +51,7 @@ pub struct Link {
     pub title: Option<String>,
 
     /// The relation between the target and the current thing.
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,

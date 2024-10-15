@@ -55,7 +55,7 @@ pub struct Admonition {
 
     /// Whether the admonition is folded.
     #[serde(alias = "is-folded", alias = "is_folded")]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(bool::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(bool::arbitrary())"#))]

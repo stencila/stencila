@@ -52,6 +52,7 @@
       "description": "The format of the raw content.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -77,6 +78,7 @@
       "description": "The raw content.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

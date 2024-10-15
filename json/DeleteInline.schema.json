@@ -60,6 +60,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -136,6 +137,7 @@
       "description": "Feedback on the suggestion",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

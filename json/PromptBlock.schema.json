@@ -54,6 +54,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -294,6 +295,7 @@
       "description": "An identifier for the prompt to be rendered",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

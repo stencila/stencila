@@ -613,6 +613,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -627,6 +628,7 @@
       "description": "A short label for the claim.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

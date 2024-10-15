@@ -35,7 +35,7 @@ pub struct DeleteInline {
     /// The status of the suggestion including whether it is proposed, accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub suggestion_status: Option<SuggestionStatus>,
 
@@ -69,7 +69,7 @@ pub struct DeleteInline {
     pub execution_ended: Option<Timestamp>,
 
     /// Feedback on the suggestion
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub feedback: Option<String>,
 

@@ -67,7 +67,7 @@ pub struct Prompt {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The types of instructions that the prompt supports

@@ -49,6 +49,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -64,6 +65,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -79,6 +81,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -94,6 +97,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -109,6 +113,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -121,6 +126,7 @@
       "$comment": "The lower the temperature, the more deterministic the output because the most\nprobable next token is more likely to be picked. Increasing temperature generally leads\nto more diverse and creative outputs.\n",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]

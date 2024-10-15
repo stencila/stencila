@@ -34,7 +34,7 @@ pub struct ReplaceInline {
     /// The status of the suggestion including whether it is proposed, accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub suggestion_status: Option<SuggestionStatus>,
 
@@ -68,7 +68,7 @@ pub struct ReplaceInline {
     pub execution_ended: Option<Timestamp>,
 
     /// Feedback on the suggestion
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub feedback: Option<String>,
 
@@ -85,7 +85,7 @@ pub struct ReplaceInline {
 
     /// The new replacement inline content.
     #[serde(deserialize_with = "one_or_many")]
-    #[patch(format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "span")]
     pub replacement: Vec<Inline>,

@@ -64,7 +64,7 @@ properties:
       can be toggled to be visible or hidden.
     type: boolean
     patch:
-      formats: [smd, myst]
+      formats: [md, smd, myst]
     jats:
       attr: is-folded
     proptest:

@@ -45,6 +45,7 @@
       "description": "The code of the equation in the `styleLanguage`.",
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
@@ -81,6 +82,7 @@
       ],
       "patch": {
         "formats": [
+          "md",
           "smd",
           "myst"
         ]
