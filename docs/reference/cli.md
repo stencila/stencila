@@ -714,7 +714,14 @@ Manage execution kernels
 
 List the kernels available
 
-**Usage:** `stencila kernels list`
+**Usage:** `stencila kernels list [OPTIONS]`
+
+###### **Options:**
+
+* `-t`, `--type <TYPE>` — Only show languages of a particular type
+
+  Possible values: `programming`, `diagrams`, `templating`, `math`, `styling`
+
 
 
 
