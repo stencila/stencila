@@ -1,11 +1,8 @@
 all: fix test audit build
 
 # Install dependencies
-#
-# This does not presently include Rust (since that is uneccessary),
-# but ensures install of the top level NPM workspaces,
-# and Python module.
 install:
+	make -C rust -B setup
 	make -C ts -B install
 	make -C node -B install
 	make -C python -B install
