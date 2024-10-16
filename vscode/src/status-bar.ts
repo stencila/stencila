@@ -1,15 +1,82 @@
 import * as vscode from "vscode";
 
-export function registerStatusBar(context: vscode.ExtensionContext) {
-  const statusBar = new ExtensionStatusBar();
+/**
+ * The status bar for the extension
+ */
+class ExtensionStatusBar {
+  private statusBarItem: vscode.StatusBarItem;
 
+  constructor() {
+    this.statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      0
+    );
+    this.statusBarItem.text = "$(circle-large-outline) Stencila";
+    this.statusBarItem.tooltip = "Click for Stencila menu";
+    this.statusBarItem.command = "stencila.command-picker";
+    this.statusBarItem.show();
+  }
+
+  public updateForDocumentEditor(
+    document: vscode.TextDocument | undefined
+  ): void {
+    if (!document) {
+      this.setInactive();
+    } else if (this.isSupportedDocument(document)) {
+      this.setActive();
+    } else {
+      this.setInactive();
+    }
+  }
+
+  public updateForDocumentView(active: boolean): void {
+    if (active) {
+      this.setActive();
+    } else {
+      this.setInactive();
+    }
+  }
+
+  private setActive() {
+    this.statusBarItem.text = "$(circle-large-filled) Stencila";
+    this.statusBarItem.show();
+  }
+
+  private setInactive() {
+    this.statusBarItem.text = "$(circle-large-outline) Stencila";
+    this.statusBarItem.show();
+  }
+
+  private isSupportedDocument(document: vscode.TextDocument): boolean {
+    const lang = document.languageId;
+    const path = document.uri.fsPath;
+    return (
+      ["smd", "myst"].includes(lang) ||
+      path.endsWith(".smd") ||
+      path.endsWith(".myst")
+    );
+  }
+
+  public dispose(): void {
+    this.statusBarItem.dispose();
+  }
+}
+
+export const statusBar = new ExtensionStatusBar();
+
+interface CommandPickerItem extends vscode.QuickPickItem {
+  command?: string;
+  args?: (string | boolean)[];
+}
+
+export function registerStatusBar(context: vscode.ExtensionContext) {
   // Initial update for the current active editor
-  statusBar.updateStatusBarItem(vscode.window.activeTextEditor?.document);
+  statusBar.updateForDocumentEditor(vscode.window.activeTextEditor?.document);
 
   // Update status bar based on active editor changes
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      statusBar.updateStatusBarItem(editor?.document);
+      statusBar.updateForDocumentEditor(editor?.document);
     })
   );
 
@@ -59,8 +126,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         },
         {
           label: "$(key) Sign In with Access Token",
-          description:
-            "Sign in to Stencila Cloud using an access token",
+          description: "Sign in to Stencila Cloud using an access token",
           command: "stencila.cloud.signintoken",
         },
         {
@@ -75,7 +141,8 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         },
         {
           label: "$(output) Logs",
-          description: "View the logging output of the Stencila Language Server",
+          description:
+            "View the logging output of the Stencila Language Server",
           command: "stencila.lsp-server.logs",
         },
         {
@@ -126,56 +193,4 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(statusBar, menu);
-}
-
-interface CommandPickerItem extends vscode.QuickPickItem {
-  command?: string;
-  args?: (string | boolean)[];
-}
-
-class ExtensionStatusBar {
-  private statusBarItem: vscode.StatusBarItem;
-
-  constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      0
-    );
-    this.statusBarItem.text = "$(circle-large-outline) Stencila";
-    this.statusBarItem.tooltip = "Stencila is active";
-    this.statusBarItem.command = "stencila.command-picker";
-  }
-
-  public updateStatusBarItem(document: vscode.TextDocument | undefined): void {
-    if (!document) {
-      this.statusBarItem.text = "$(circle-large-outline) Stencila";
-      this.statusBarItem.tooltip = "Stencila is active";
-      return;
-    }
-
-    if (this.isSupportedDocument(document)) {
-      this.statusBarItem.text = "$(circle-large-filled) Stencila";
-      this.statusBarItem.tooltip = "Stencila is active on this document";
-    } else {
-      this.statusBarItem.text = "$(circle-large-outline) Stencila";
-      this.statusBarItem.tooltip =
-        "Stencila is active but not on this document";
-    }
-
-    this.statusBarItem.show();
-  }
-
-  private isSupportedDocument(document: vscode.TextDocument): boolean {
-    const lang = document.languageId;
-    const path = document.uri.fsPath;
-    return (
-      ["smd", "myst"].includes(lang) ||
-      path.endsWith(".smd") ||
-      path.endsWith(".myst")
-    );
-  }
-
-  public dispose(): void {
-    this.statusBarItem.dispose();
-  }
 }
