@@ -16,12 +16,9 @@ else
 endif
 
 # Setup local development environment
-# Nightly toolchain is required to run `cargo udeps`
 setup:
 	cargo install cargo-binstall
-	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-outdated cargo-watch
-	rustup toolchain install nightly
-	cargo install cargo-udeps --locked
+	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-machete cargo-outdated cargo-watch
 
 # Make formatting and linting fixes
 fix:
@@ -101,13 +98,11 @@ outdated:
 # Audit dependencies
 # Not that this operates at the root dir of the repo on the Cargo.lock file
 audit:
-	cd .. && cargo audit
+	cd .. && cargo machete && cargo audit
 
 # List unused dependencies
-# Not included in `audit` recipe (as in SDK Makefiles) because
-# requires nightly Rust compiler and so complicates running audit on CI
 unused:
-	cargo +nightly udeps --workspace --all-targets
+	cargo machete
 
 # Run the CLI serve command
 serve:
