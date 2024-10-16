@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 
+import { PROVIDER_ID } from "./authentication";
+
 /**
  * The status bar for the extension
  */
@@ -118,22 +120,37 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           description: "Update Stencila settings",
           command: "stencila.settings",
         },
-        {
-          label: "$(sign-in) Sign In",
-          description:
-            "Sign in to Stencila Cloud to use model router and other services",
-          command: "stencila.cloud.signin",
-        },
-        {
-          label: "$(key) Sign In with Access Token",
-          description: "Sign in to Stencila Cloud using an access token",
-          command: "stencila.cloud.signintoken",
-        },
-        {
-          label: "$(sign-out) Sign Out",
-          description: "Sign out from Stencila Cloud",
-          command: "stencila.cloud.signout",
-        },
+      ];
+
+      // Add sign in/out commands based on whether there is a session of not
+      const session = await vscode.authentication.getSession(PROVIDER_ID, [], {
+        createIfNone: false,
+      });
+      commands.push(
+        ...(!session
+          ? [
+              {
+                label: "$(sign-in) Sign In",
+                description:
+                  "Sign in to Stencila Cloud to use model router and other services",
+                command: "stencila.cloud.signin",
+              },
+              {
+                label: "$(key) Sign In with Access Token",
+                description: "Sign in to Stencila Cloud using an access token",
+                command: "stencila.cloud.signintoken",
+              },
+            ]
+          : [
+              {
+                label: "$(sign-out) Sign Out",
+                description: "Sign out from Stencila Cloud",
+                command: "stencila.cloud.signout",
+              },
+            ])
+      );
+
+      commands.push(
         {
           label: "$(server-process) Restart",
           description: "Restart the Stencila Language Server",
@@ -175,8 +192,8 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           description: "Creating diagrams with Mermaid and LLMs",
           command: "workbench.action.openWalkthrough",
           args: ["stencila.stencila#mermaid-smd", false],
-        },
-      ];
+        }
+      );
 
       const item = await vscode.window.showQuickPick(commands, {
         placeHolder: "Select a Stencila command to run",
