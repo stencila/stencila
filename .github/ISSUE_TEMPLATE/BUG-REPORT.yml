@@ -9,8 +9,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report 🙏.
-        Please help us fix it faster by providing a few details.
+        Thanks for taking the time to fill out this bug report 🙏. Please help us fix it faster by providing a few details.
   - type: textarea
     id: what-happened
     attributes:
@@ -25,8 +24,8 @@ body:
       label: Which product?
       description: Where were you when you encountered the issue.
       options:
-        - Stencila VSCode extension
         - Stencila CLI
+        - Stencila VSCode extension
         - Other
       default: 0
   - type: input

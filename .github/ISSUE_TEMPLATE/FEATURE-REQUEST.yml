@@ -9,14 +9,24 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to give us your idea ✨.
+        Thanks for taking the time to share your idea ✨. We're excited to find out more!
   - type: dropdown
     id: product
     attributes:
-      label: Which product?
-      description: Which Stencila product is this idea for.
+      label: Which component?
+      description: Which component of Stencila is this idea for.
       options:
-        - Stencila VSCode extension
         - Stencila CLI
+        - Stencila VSCode extension
+        - Built-in prompts
+        - Prompt libraries
         - Other
       default: 0
+  - type: textarea
+    id: your-suggestion
+    attributes:
+      label: What's your idea?
+      description: Tell us all about it. Sketches and screenshots welcome too!
+      placeholder: It would be great if...
+    validations:
+      required: true
