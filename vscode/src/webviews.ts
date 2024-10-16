@@ -56,7 +56,7 @@ export async function createDocumentViewPanel(
   panel.iconPath = vscode.Uri.joinPath(
     context.extensionUri,
     "icons",
-    "stencila-icon-32x32.svg"
+    "stencila-128.png"
   );
 
   const createDocumentViewHTML = (content: string) => {
