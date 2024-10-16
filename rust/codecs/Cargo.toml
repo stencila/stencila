@@ -30,21 +30,4 @@ node-strip = { path = "../node-strip" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
-divan = "=0.1.5"
 json_value_merge = "2.0.0"
-
-[[bench]]
-name = "from_str"
-harness = false
-
-[[bench]]
-name = "from_bytes"
-harness = false
-
-[[bench]]
-name = "to_string"
-harness = false
-
-[[bench]]
-name = "to_bytes"
-harness = false
