@@ -4,7 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-cli-utils = { "path" = "../cli-utils" }
 cloud = { path = "../cloud" }
 codec = { "path" = "../codec" }
 codec-swb = { "path" = "../codec-swb" }

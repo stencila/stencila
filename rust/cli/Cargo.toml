@@ -30,7 +30,6 @@ node-strip = { path = "../node-strip" }
 plugins = { path = "../plugins" }
 prompts = { path = "../prompts" }
 publish = { path = "../publish" }
-rustyline = "14.0.0"
 secrets = { path = "../secrets" }
 self-replace = "1.3.7"
 server = { path = "../server" }

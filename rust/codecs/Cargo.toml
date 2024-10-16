@@ -25,7 +25,6 @@ codec-markdown = { path = "../codec-markdown" }
 codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
-node-id = { path = "../node-id" }
 node-strip = { path = "../node-strip" }
 
 [dev-dependencies]

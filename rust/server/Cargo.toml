@@ -11,8 +11,6 @@ common = { path = "../common" }
 document = { path = "../document" }
 format = { path = "../format" }
 mime_guess = { workspace = true }
-node-id = { path = "../node-id" }
-secrets = { path = "../secrets" }
 tower-cookies = "0.10.0"
 tower-http = { version = "0.6.1", features = ["trace"] }
 web-dist = { path = "../web-dist" }

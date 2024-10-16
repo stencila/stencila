@@ -4,7 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec-markdown-trait = {path = "../codec-markdown-trait" }
 kernel = { path = "../kernel" }
 rquickjs = { version = "0.6.2", features = ["futures", "macro", "parallel"] }
 

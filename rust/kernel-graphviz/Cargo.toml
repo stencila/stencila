@@ -9,3 +9,6 @@ layout-rs = { git = "https://github.com/nadavrot/layout", rev = "2ce7e8e6261f9b0
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[package.metadata.cargo-machete]
+ignored = ["layout-rs"]
