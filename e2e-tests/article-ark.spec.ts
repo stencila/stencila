@@ -23,7 +23,7 @@ test('show document menu', async ({ page }) => {
   await expect(dropdown).toBeVisible()
 })
 
-// test('argos screenshot article ark', async ({ page }) => {
-//   await page.goto(url)
-//   await argosScreenshot(page, 'article-ark')
-// })
+test('argos screenshot article ark', async ({ page }) => {
+  await page.goto(url)
+  await argosScreenshot(page, 'article-ark')
+})
