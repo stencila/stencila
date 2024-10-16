@@ -85,9 +85,6 @@ jobs:
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Install onnxruntime.so
-        run: ./scripts/install-onnxruntime.sh
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
