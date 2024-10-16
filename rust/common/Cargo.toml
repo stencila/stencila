@@ -25,7 +25,7 @@ proc-macro2 = "1.0.86"
 quote = "1.0.37"
 rand = "0.8.5"
 regex = "1.11.0"
-reqwest = { version = "0.12.8", features = ["json"] }
+reqwest = { version = "0.12.8", default-features = false, features = ["json", "rustls-tls"] }
 seahash = "4.1.0"
 serde = { version = "1.0.209", features = ["derive", "rc"] }
 serde_json = { version = "1.0.127", features = ["preserve_order"] }
