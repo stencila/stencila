@@ -206,12 +206,21 @@ export class DocumentMenu extends LitElement {
           <span class="text-sm">Hide All</span>
         </sl-menu-item>
         <sl-divider></sl-divider>
+        <sl-menu-label>
+          <div class="flex items-center gap-2">Node Cards</div>
+        </sl-menu-label>
         <sl-menu-item @click=${() => this.nodeCardToggle('expand')}>
-          <stencila-ui-icon name="box" slot="prefix"></stencila-ui-icon>
+          <stencila-ui-icon
+            name="arrowsExpand"
+            slot="prefix"
+          ></stencila-ui-icon>
           <span class="text-sm">Expand all</span>
         </sl-menu-item>
         <sl-menu-item @click=${() => this.nodeCardToggle('collapse')}>
-          <stencila-ui-icon name="box" slot="prefix"></stencila-ui-icon>
+          <stencila-ui-icon
+            name="arrowsCollapse"
+            slot="prefix"
+          ></stencila-ui-icon>
           <span class="text-sm">Collapse all</span>
         </sl-menu-item>
       </sl-menu>

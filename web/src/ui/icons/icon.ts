@@ -26,6 +26,8 @@ import array from './array.svg'
 import arrowClockwise from './arrow-clockwise.svg'
 import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
+import arrowsCollapse from './arrows-collapse.svg'
+import arrowsExpand from './arrows-expand.svg'
 import at from './at.svg'
 import bars from './bars.svg'
 import bash from './bash.svg'
@@ -129,6 +131,8 @@ const icons = {
   arrowClockwise,
   arrowNarrowUp,
   arrowRampRight3,
+  arrowsCollapse,
+  arrowsExpand,
   at,
   bars,
   bash,
