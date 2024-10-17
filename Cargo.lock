@@ -3329,6 +3329,7 @@ dependencies = [
  "schema",
  "tokio-util",
  "tower 0.5.1",
+ "tracing-subscriber",
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
 use app::DirType;
 use common::{
     clap::{self, Args, Parser, Subcommand},
-    eyre::Result,
+    eyre::{bail, Result},
     tracing,
 };
 use server::{self, ServeOptions};
@@ -157,7 +157,6 @@ impl Cli {
             Command::Publish(publish) => publish.run().await?,
 
             Command::Serve(options) => server::serve(options).await?,
-            Command::Lsp => lsp::run().await,
 
             Command::Prompts(prompts) => prompts.run().await?,
             Command::Models(models) => models.run().await?,
@@ -174,6 +173,9 @@ impl Cli {
                 let dir = app::get_app_dir(options.dir, options.ensure)?;
                 println!("{}", dir.display());
             }
+
+            // Handled before this function
+            Command::Lsp => bail!("The LSP command should already been run"),
         }
 
         Ok(())

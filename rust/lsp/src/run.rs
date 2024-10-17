@@ -9,15 +9,18 @@ use async_lsp::{
 use tower::ServiceBuilder;
 
 use common::serde_json;
+use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
-    code_lens, commands, completion, content, formatting, lifecycle, symbols, text_document,
-    ServerState, ServerStatus,
+    code_lens, commands, completion, content, formatting, lifecycle, logging, symbols,
+    text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
-pub async fn run() {
+pub async fn run(log_level: LevelFilter, log_filter: &str) {
     let (server, _) = MainLoop::new_server(|client| {
+        logging::setup(log_level, log_filter, client.clone());
+
         let mut router = Router::new(ServerState {
             client: client.clone(),
             documents: HashMap::new(),
