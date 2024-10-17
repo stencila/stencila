@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { runCli } from "./clis";
 
 export const PROVIDER_ID = "stencila";
 
@@ -45,7 +44,7 @@ export function registerAuthenticationProvider(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("stencila.cloud.signintoken", async () => {
+    vscode.commands.registerCommand("stencila.cloud.signin-token", async () => {
       // Ask user to input the token value
       const secretValue = await vscode.window.showInputBox({
         prompt: `Enter an Access Token from your Stencila Cloud account`,
@@ -57,16 +56,10 @@ export function registerAuthenticationProvider(
       }
 
       // Store the secret
-      try {
-        await runCli(
-          context,
-          ["secrets", "set", "STENCILA_API_TOKEN"],
-          secretValue
-        );
-        vscode.window.showInformationMessage(`Secret STENCILA_API_TOKEN set.`);
-      } catch (error) {
-        vscode.window.showErrorMessage(`Error setting secret: ${error}`);
-      }
+      await context.secrets.store("STENCILA_API_TOKEN", secretValue);
+      vscode.window.showInformationMessage(
+        `STENCILA_API_TOKEN set. Restart Stencila Language Server for change to take effect.`
+      );
     })
   );
 
@@ -187,9 +180,6 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       throw new Error("Invalid response: missing token or userId");
     }
 
-    // Set the token as a secret so it is available to Stencila
-    await runCli(this.context, ["secrets", "set", "STENCILA_API_TOKEN"], token);
-
     // Get the user from the user_id. This also checks that the
     // access_token is valid
     const userResponse = await fetch(`${API_URL}/users/me`, {
@@ -242,6 +232,9 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       changed: [],
     });
 
+    // Restart the language server so that the STENCILA_API_TOKEN env var is set
+    vscode.commands.executeCommand("stencila.lsp-server.restart");
+
     return session;
   }
 
@@ -291,5 +284,8 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       removed: [session],
       changed: [],
     });
+
+    // Restart the language server so that the STENCILA_API_TOKEN env var is no longer present
+    vscode.commands.executeCommand("stencila.lsp-server.restart");
   }
 }

@@ -8,14 +8,16 @@ import {
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerNotifications } from "./notifications";
-import { registerSecretsCommands } from "./secrets";
+import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
 import { cliPath } from "./clis";
 import { registerWalkthroughCommands } from "./walkthroughs";
 
 let client: LanguageClient | undefined;
-let outputChannel = vscode.window.createOutputChannel("Stencila Language Server");
+let outputChannel = vscode.window.createOutputChannel(
+  "Stencila Language Server"
+);
 
 /**
  * Activate the extension
@@ -68,10 +70,14 @@ async function startServer(context: vscode.ExtensionContext) {
     }
   }
 
+  // Collect secrets to pass as env vars to LSP server
+  const secrets = await collectSecrets(context);
+
   // Start the language server client passing secrets as env vars
   const serverOptions: ServerOptions = {
     command,
     args,
+    options: { env: { ...process.env, ...secrets } },
   };
   const clientOptions: LanguageClientOptions = {
     initializationOptions,
