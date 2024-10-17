@@ -83,6 +83,19 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     // Get the list models
     let models = list().await;
 
+    // Check that there is at least one model available so we can advise the user
+    // that they might need to provide an API key or run a model locally
+    if !models.iter().any(|any| any.is_available()) {
+        let message =
+            "No AI models available. Please sign in to Stencila Cloud, set STENCILA_API_TOKEN, or configure local models.";
+
+        // Log message so it is visible in console or an the LSP client
+        tracing::error!(message);
+
+        // Throw message so it is set as an `ExecutionMessage` on the `Instruction`
+        bail!(message)
+    }
+
     // If a model router is available and the task does not specify a id pattern
     // then use the first router
     if task
@@ -129,7 +142,8 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
         .collect_vec();
 
     if models.is_empty() {
-        bail!("No models available that match criteria")
+        // This gets set as an `ExecutionMessage` on the `Instruction`
+        bail!("No AI models available that support this command")
     }
 
     if models.len() == 1 {
