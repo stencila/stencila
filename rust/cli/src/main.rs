@@ -19,18 +19,22 @@ async fn main() -> Result<()> {
         (cli.log_level, cli.log_format, cli.error_details.as_str())
     };
 
-    errors::setup(error_details, cli.error_link)?;
-    logging::setup(log_level, &cli.log_filter, log_format)?;
+    if matches!(cli.command, Command::Lsp) {
+        lsp::run(log_level.into(), &cli.log_filter).await
+    } else {
+        errors::setup(error_details, cli.error_link)?;
+        logging::setup(log_level, &cli.log_filter, log_format)?;
 
-    let skip_upgrade = matches!(cli.command, Command::Lsp | Command::Upgrade(..));
-    if !skip_upgrade {
-        upgrade::check(false);
-    }
+        let skip_upgrade = matches!(cli.command, Command::Upgrade(..));
+        if !skip_upgrade {
+            upgrade::check(false);
+        }
 
-    cli.run().await?;
+        cli.run().await?;
 
-    if !skip_upgrade {
-        upgrade::notify();
+        if !skip_upgrade {
+            upgrade::notify();
+        }
     }
 
     Ok(())

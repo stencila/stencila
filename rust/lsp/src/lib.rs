@@ -12,6 +12,7 @@ mod diagnostics;
 mod formatting;
 mod inspect;
 mod lifecycle;
+mod logging;
 mod run;
 mod symbols;
 mod text_document;
