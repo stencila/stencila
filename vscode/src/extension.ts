@@ -49,23 +49,14 @@ async function startServer(context: vscode.ExtensionContext) {
   // Determine the arguments to the CLI
   let args: string[];
   const logLevel = initializationOptions.languageServer?.logLevel;
-  const logFormat = initializationOptions.languageServer?.logFormat;
   switch (context.extensionMode) {
     case vscode.ExtensionMode.Development:
     case vscode.ExtensionMode.Test: {
-      args = [
-        "lsp",
-        `--log-level=${logLevel ?? "debug"}`,
-        `--log-format=${logFormat ?? "pretty"}`,
-      ];
+      args = ["lsp", `--log-level=${logLevel ?? "debug"}`];
       break;
     }
     case vscode.ExtensionMode.Production: {
-      args = [
-        "lsp",
-        `--log-level=${logLevel ?? "warn"}`,
-        `--log-format=${logFormat ?? "compact"}`,
-      ];
+      args = ["lsp", `--log-level=${logLevel ?? "warn"}`];
       break;
     }
   }

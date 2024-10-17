@@ -106,18 +106,6 @@
             "error"
           ],
           "default": "info"
-        },
-        "stencila.languageServer.logFormat": {
-          "order": 5,
-          "description": "The logging format of the Stencila Language Server (server restart required)",
-          "enum": [
-            "simple",
-            "compact",
-            "pretty",
-            "full",
-            "json"
-          ],
-          "default": "compact"
         }
       }
     },
