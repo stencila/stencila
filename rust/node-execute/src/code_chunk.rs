@@ -1,4 +1,4 @@
-use schema::{CodeChunk, LabelType, NodeProperty};
+use schema::{CodeChunk, ExecutionKind, LabelType, NodeProperty};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -30,8 +30,11 @@ impl Executable for CodeChunk {
         let mut execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
 
-        // Check whether the kernel instance used last time is active in the kernels set
-        if let Some(id) = &self.options.execution_instance {
+        // Check whether the kernel instance used last time is active in the kernels set (if not forked)
+        if let (Some(ExecutionKind::Main), Some(id)) = (
+            &self.options.execution_kind,
+            &self.options.execution_instance,
+        ) {
             if !executor.kernels().await.has_instance(id).await {
                 execution_required = ExecutionRequired::KernelRestarted;
             }
