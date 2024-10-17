@@ -182,7 +182,7 @@ pub(super) async fn execute_command(
                     true,
                 )
             } else {
-                tracing::warn!("No node found at position {position:?}");
+                tracing::error!("No node to run at current position");
                 return Ok(None);
             }
         }
@@ -207,7 +207,7 @@ pub(super) async fn execute_command(
             let node_id = if let Some(node_id) = root.read().await.node_id_at(position) {
                 node_id
             } else {
-                tracing::warn!("No node found at position {position:?}");
+                tracing::error!("No node to lock at current position");
                 return Ok(None);
             };
 
@@ -230,7 +230,7 @@ pub(super) async fn execute_command(
             let node_id = if let Some(node_id) = root.read().await.node_id_at(position) {
                 node_id
             } else {
-                tracing::warn!("No node found at position {position:?}");
+                tracing::error!("No node to unlock at current position");
                 return Ok(None);
             };
 
