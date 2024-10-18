@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [lib]
-proc_macro = true
+proc-macro = true
 
 [dependencies]
 common = { path = "../common" }
