@@ -62,8 +62,8 @@ pub(super) async fn request(
 
 /// Provide completion list for prompts of an instruction
 async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, ResponseError> {
-    let itype = if before.contains("::: new") {
-        Some(InstructionType::New)
+    let itype = if before.contains("::: create") {
+        Some(InstructionType::Create)
     } else if before.contains("::: edit") {
         Some(InstructionType::Edit)
     } else if before.contains("::: fix") {

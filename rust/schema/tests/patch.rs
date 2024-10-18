@@ -889,7 +889,7 @@ fn authorship_on_nodes() -> Result<()> {
 #[test]
 fn archive_patch_new() -> Result<()> {
     // Archive an instruction with no accepted suggestion
-    let inb = InstructionBlock::new(InstructionType::New);
+    let inb = InstructionBlock::new(InstructionType::Create);
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
 
     patch(
@@ -918,7 +918,7 @@ fn archive_patch_new() -> Result<()> {
     let mut suggest = SuggestionBlock::new(vec![block.clone()]);
     suggest.suggestion_status = Some(SuggestionStatus::Accepted);
     let inb = InstructionBlock {
-        instruction_type: InstructionType::New,
+        instruction_type: InstructionType::Create,
         suggestions: Some(vec![suggest]),
         ..Default::default()
     };
@@ -960,7 +960,7 @@ fn archive_patch_new() -> Result<()> {
     let mut suggest = SuggestionBlock::new(blocks.clone());
     suggest.suggestion_status = Some(SuggestionStatus::Accepted);
     let inb = InstructionBlock {
-        instruction_type: InstructionType::New,
+        instruction_type: InstructionType::Create,
         suggestions: Some(vec![suggest]),
         ..Default::default()
     };

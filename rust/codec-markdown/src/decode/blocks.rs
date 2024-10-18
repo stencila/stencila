@@ -765,7 +765,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                         (message.trim_end(), None)
                     } else if let Some(message) = message.strip_suffix('>') {
                         (message.trim_end(), Some(1))
-                    } else if instruction_type == InstructionType::New {
+                    } else if instruction_type == InstructionType::Create {
                         (message, None)
                     } else {
                         (message, Some(2))
