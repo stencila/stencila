@@ -98,6 +98,7 @@ pub(super) struct TextNodeExecution {
     pub ended: Option<Timestamp>,
     pub outputs: Option<usize>,
     pub messages: Option<Vec<ExecutionMessage>>,
+    pub code_range: Option<Range>,
     pub authors: Option<Vec<Author>>,
 }
 

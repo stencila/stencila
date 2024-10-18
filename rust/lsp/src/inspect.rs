@@ -9,11 +9,11 @@ use schema::{
     Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
     ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
     InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
-    ModifyBlock, ModifyInline, Node, NodeId, NodeType, Note, Paragraph, Parameter, PromptBlock,
-    ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section,
-    Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline,
-    Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline,
-    VideoObject, Visitor, WalkControl,
+    ModifyBlock, ModifyInline, Node, NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter,
+    PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline,
+    Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock,
+    SuggestionInline, Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time,
+    Timestamp, Underline, VideoObject, Visitor, WalkControl,
 };
 
 use crate::{
@@ -273,12 +273,20 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
+        let node_id = clause.node_id();
+
+        let code_range = self
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Code)
+            .map(range16_to_range);
+
         let execution = Some(TextNodeExecution {
             status: clause.options.execution_status.clone(),
             required: clause.options.execution_required.clone(),
             duration: clause.options.execution_duration.clone(),
             ended: clause.options.execution_ended.clone(),
             messages: clause.options.execution_messages.clone(),
+            code_range,
             ..Default::default()
         });
 
@@ -286,7 +294,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
 
         let node = self.enter_node(
             clause.node_type(),
-            clause.node_id(),
+            node_id,
             None,
             None,
             execution,
@@ -409,6 +417,13 @@ impl Inspect for CodeChunk {
             Some(detail)
         };
 
+        let node_id = self.node_id();
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Code)
+            .map(range16_to_range);
+
         let execution = Some(TextNodeExecution {
             mode: self.execution_mode.clone(),
             status: self.options.execution_status.clone(),
@@ -418,6 +433,7 @@ impl Inspect for CodeChunk {
             ended: self.options.execution_ended.clone(),
             outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
             messages: self.options.execution_messages.clone(),
+            code_range,
             ..Default::default()
         });
 
@@ -425,12 +441,69 @@ impl Inspect for CodeChunk {
 
         inspector.enter_node(
             self.node_type(),
-            self.node_id(),
+            node_id,
             Some(name),
             detail,
             execution,
             provenance,
         );
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
+impl Inspect for CodeExpression {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let node_id = self.node_id();
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Code)
+            .map(range16_to_range);
+
+        let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
+            outputs: self.output.is_some().then_some(1),
+            code_range,
+            ..Default::default()
+        });
+
+        let provenance = self.provenance.clone();
+
+        inspector.enter_node(self.node_type(), node_id, None, None, execution, provenance);
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
+impl Inspect for ForBlock {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let node_id = self.node_id();
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Code)
+            .map(range16_to_range);
+
+        let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
+            code_range,
+            ..Default::default()
+        });
+
+        let provenance = self.provenance.clone();
+
+        inspector.enter_node(self.node_type(), node_id, None, None, execution, provenance);
         inspector.visit(self);
         inspector.exit_node();
     }
@@ -488,23 +561,66 @@ impl Inspect for Paragraph {
     }
 }
 
-impl Inspect for RawBlock {
+impl Inspect for MathBlock {
     fn inspect(&self, inspector: &mut Inspector) {
-        // eprintln!("INSPECT COMPILED {}", self.node_id());
+        let node_id = self.node_id();
+
+        let messages = self.options.compilation_messages.as_ref().map(|messages| {
+            messages
+                .iter()
+                .map(|message| message.clone().into())
+                .collect()
+        });
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Code)
+            .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            messages: self.compilation_messages.as_ref().map(|messages| {
-                messages
-                    .iter()
-                    .map(|message| message.clone().into())
-                    .collect()
-            }),
+            messages,
+            code_range,
             ..Default::default()
         });
 
         inspector.enter_node(
             self.node_type(),
-            self.node_id(),
+            node_id,
+            None,
+            None,
+            execution,
+            self.provenance.clone(),
+        );
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
+impl Inspect for RawBlock {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let node_id = self.node_id();
+
+        let messages = self.compilation_messages.as_ref().map(|messages| {
+            messages
+                .iter()
+                .map(|message| message.clone().into())
+                .collect()
+        });
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Content)
+            .map(range16_to_range);
+
+        let execution = Some(TextNodeExecution {
+            messages,
+            code_range,
+            ..Default::default()
+        });
+
+        inspector.enter_node(
+            self.node_type(),
+            node_id,
             None,
             None,
             execution,
@@ -600,7 +716,7 @@ macro_rules! compiled_options {
         })*
     };
 }
-compiled_options!(MathBlock, StyledBlock);
+compiled_options!(StyledBlock);
 
 /// Implementation for tables and figures which have a label and caption to used for details
 macro_rules! captioned {
@@ -669,7 +785,6 @@ macro_rules! executable {
 
 executable!(
     CallBlock,
-    ForBlock,
     IfBlock,
     Parameter,
     InstructionBlock,
@@ -702,33 +817,3 @@ macro_rules! executable_not_content {
 }
 
 executable_not_content!(IncludeBlock, PromptBlock);
-
-/// Implementation for executable nodes with provenance
-macro_rules! executable_with_provenance {
-    ($( $type:ident ),*) => {
-        $(impl Inspect for $type {
-            fn inspect(&self, inspector: &mut Inspector) {
-                // eprintln!("INSPECT EXEC PROV {}", self.node_id());
-
-                let execution =  Some(TextNodeExecution{
-                    mode: self.execution_mode.clone(),
-                    status: self.options.execution_status.clone(),
-                    required: self.options.execution_required.clone(),
-                    duration: self.options.execution_duration.clone(),
-                    ended: self.options.execution_ended.clone(),
-                    messages: self.options.execution_messages.clone(),
-                    outputs: self.output.is_some().then_some(1),
-                    ..Default::default()
-                });
-
-                let provenance = self.provenance.clone();
-
-                inspector.enter_node(self.node_type(), self.node_id(), None, None, execution, provenance);
-                inspector.visit(self);
-                inspector.exit_node();
-            }
-        })*
-    };
-}
-
-executable_with_provenance!(CodeExpression);

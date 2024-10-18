@@ -1,4 +1,5 @@
 use node_id::NodeId;
+use node_type::NodeProperty;
 
 use crate::{Mapping, Position16, Position8, Positions, Range16, Range8, Shifter};
 
@@ -63,6 +64,27 @@ where
     /// Get the [`Range16`] for a [`NodeId`]
     pub fn node_id_to_range16(&self, node_id: &NodeId) -> Option<Range16> {
         let generated_range = self.mapping.range_of_node(node_id)?;
+
+        let start_index = self.shifter.generated_to_source(generated_range.start);
+        let end_index = self
+            .shifter
+            .generated_to_source(generated_range.end.saturating_sub(1));
+
+        let start_position = self.positions.position16_at_index(start_index);
+        let end_position = self
+            .positions
+            .position16_at_index(end_index.saturating_add(1));
+
+        Some(Range16::new(start_position, end_position))
+    }
+
+    /// Get the [`Range16`] for a [`NodeProperty`] of a node
+    pub fn node_property_to_range16(
+        &self,
+        node_id: &NodeId,
+        property: NodeProperty,
+    ) -> Option<Range16> {
+        let generated_range = self.mapping.range_of_property(node_id, property)?;
 
         let start_index = self.shifter.generated_to_source(generated_range.start);
         let end_index = self

@@ -306,49 +306,50 @@ fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<D
         .map(|message| {
             // Calculate range of diagnostic
             let range = if let Some(location) = &message.code_location {
-                let line_offset = if matches!(
-                    node.node_type,
-                    NodeType::CodeChunk | NodeType::MathBlock | NodeType::RawBlock
-                ) {
-                    // Plus one for line with code chunk back ticks, double dollars etc
-                    1
-                } else {
-                    0
-                };
+                // Use the available code location offset from range of the code if it is available
+                let code_range = execution.code_range.unwrap_or(node.range);
 
                 let start_line = if let Some(line) = location.start_line {
-                    node.range.start.line + line_offset + line as u32
+                    code_range.start.line + line as u32
                 } else {
-                    node.range.start.line + line_offset
+                    code_range.start.line
                 };
 
                 let start_column = if let Some(column) = location.start_column {
-                    node.range.start.character + column as u32
+                    code_range.start.character + column as u32
                 } else {
-                    node.range.start.character
+                    code_range.start.character
                 };
 
                 let end_line = if let Some(line) = location.end_line {
-                    node.range.start.line + line_offset + line as u32
+                    code_range.start.line + line as u32
                 } else {
                     // End line unknown so assume on same line as start
                     start_line
                 };
 
                 let end_column = if let Some(column) = location.start_column {
-                    node.range.start.character + column as u32
+                    code_range.start.character + column as u32
                 } else {
-                    // End column unknown so apply to rest of line from start column
-                    start_column + 100
+                    // End column unknown so if on a single line use code range end
+                    // otherwise use a largish number to take to the end of the line
+                    if end_line == code_range.end.line {
+                        code_range.end.character
+                    } else {
+                        start_column + 100
+                    }
                 };
 
                 Range::new(
                     Position::new(start_line, start_column),
                     Position::new(end_line, end_column),
                 )
+            } else if let Some(code_range) = execution.code_range {
+                // Use the range of the code
+                code_range
             } else {
-                // Range is just start (avoids having too many squiggly lines across
-                // whole of code chunk)
+                // Range is just start or node (avoids having too many squiggly lines across
+                // whole of the node)
                 Range::new(node.range.start, node.range.start)
             };
 
