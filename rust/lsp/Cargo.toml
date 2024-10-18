@@ -5,11 +5,13 @@ edition = "2021"
 
 [dependencies]
 async-lsp = { version = "0.2.0", features = ["tokio"] }
+codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 document = { path = "../document" }
 node-execute = { path = "../node-execute" }
+node-find = { path = "../node-find" }
 percent-encoding = "2.3.1"
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }

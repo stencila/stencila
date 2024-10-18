@@ -10,6 +10,7 @@ mod completion;
 mod content;
 mod diagnostics;
 mod formatting;
+mod hover;
 mod inspect;
 mod lifecycle;
 mod logging;
