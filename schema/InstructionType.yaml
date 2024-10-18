@@ -4,14 +4,17 @@ extends: Enumeration
 category: works
 description: The type of an instruction describing the operation to be performed.
 proptest: {}
-default: New
+default: Create
 anyOf:
-  - const: New
-    "@id": stencila:New
+  - const: Create
+    "@id": stencila:Create
     description: |
       Create new document content, usually a single document node (e.g. `Paragraph` or `Table`),
       ignoring any existing content nested within the instruction. The instruction message will
       normally include the type of content to produce (e.g. "paragraph", "table", "list").
+    aliases:
+      # Alias for name in v2.0.0-beta.9 and below. Do NOT remove unless handled elsewhere.
+      - "New"
   - const: Edit
     "@id": stencila:Edit
     description: |

@@ -126,9 +126,12 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:New",
+      "@id": "stencila:Create",
       "description": "Create new document content, usually a single document node (e.g. `Paragraph` or `Table`),\nignoring any existing content nested within the instruction. The instruction message will\nnormally include the type of content to produce (e.g. \"paragraph\", \"table\", \"list\").\n",
-      "const": "New"
+      "aliases": [
+        "New"
+      ],
+      "const": "Create"
     },
     {
       "@id": "stencila:Edit",
@@ -146,5 +149,5 @@
       "const": "Describe"
     }
   ],
-  "default": "New"
+  "default": "Create"
 }

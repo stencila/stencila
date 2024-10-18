@@ -10,7 +10,9 @@ use crate::prelude::*;
 pub enum InstructionType {
     /// Create new document content, usually a single document node (e.g. `Paragraph` or `Table`), ignoring any existing content nested within the instruction. The instruction message will normally include the type of content to produce (e.g. "paragraph", "table", "list"). 
     #[default]
-    New,
+    #[serde(alias = "New")]
+    #[strum(serialize = "New")]
+    Create,
 
     /// Edit existing document nodes. Expected to return the same node types as existing nodes. 
     Edit,

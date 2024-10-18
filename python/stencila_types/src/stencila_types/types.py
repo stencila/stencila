@@ -304,7 +304,7 @@ class InstructionType(StrEnum):
     The type of an instruction describing the operation to be performed.
     """
 
-    New = "New"
+    Create = "Create"
     Edit = "Edit"
     Fix = "Fix"
     Describe = "Describe"
