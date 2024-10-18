@@ -639,7 +639,7 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     let mut children = vec![t("Children: ")];
-    if context.children.get(title).is_none() {
+    if context.children.contains_key(title) {
         children.push(t("none"));
     } else {
         for (index, child) in context.children[title].iter().enumerate() {

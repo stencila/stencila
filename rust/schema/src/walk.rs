@@ -311,7 +311,10 @@ pub trait WalkNode {
 
     /// Walk over, and potentially mutate, a node's children asynchronously and fallibly
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         Ok(())
     }
 }
@@ -338,7 +341,10 @@ where
     }
 
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         self.as_mut().walk_async(visitor).await
     }
 }
@@ -360,7 +366,10 @@ where
     }
 
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         if let Some(value) = self {
             value.walk_async(visitor).await
         } else {
@@ -390,7 +399,10 @@ where
     }
 
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         for (index, node) in self.iter_mut().enumerate() {
             visitor.enter_index(index);
             node.walk_async(visitor).await?;

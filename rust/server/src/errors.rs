@@ -19,9 +19,9 @@ impl InternalError {
     ///
     /// Creates an error log entry with all the debugging niceties
     /// of `eyre`.
-    pub fn new<T: Display>(error: T) -> Self
+    pub fn new<T>(error: T) -> Self
     where
-        T: Debug,
+        T: Display + Debug,
     {
         tracing::error!("{error:?}");
         Self

@@ -72,9 +72,7 @@ pub(super) async fn request(
 
 /// Render the outputs of a code chunk as Markdown
 fn code_chunk(node: CodeChunk) -> Option<String> {
-    let Some(outputs) = node.outputs else {
-        return None;
-    };
+    let outputs = node.outputs?;
 
     if outputs.is_empty() {
         return None;
@@ -111,11 +109,7 @@ fn code_chunk(node: CodeChunk) -> Option<String> {
 
 /// Render the output of a code expression as Markdown
 fn code_expression(node: CodeExpression) -> Option<String> {
-    eprintln!("{node:?}");
-
-    let Some(output) = node.output else {
-        return None;
-    };
+    let output = node.output?;
 
     let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
     output.to_markdown(&mut context);

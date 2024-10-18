@@ -166,7 +166,7 @@ impl TextNode {
     }
 
     /// Get the [`NodeId`] at a position (if any)
-    /// 
+    ///
     /// Similar to [`TextNode::text_node_at`] but more efficient if only
     /// the [`NodeId`] is required and not the whole [`TextNode`].
     pub fn node_id_at(&self, position: Position) -> Option<NodeId> {

@@ -124,7 +124,7 @@ impl StyleKernelInstance {
             // Prefix with letter to avoid a number ever being first
             let class = ["s", &bs58::encode(digest.to_be_bytes()).into_string()].concat();
 
-            let css = [".", &class, "{", &code, "}"].concat();
+            let css = [".", &class, "{", code, "}"].concat();
             (css, class)
         };
 

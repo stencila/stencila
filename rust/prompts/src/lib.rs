@@ -297,7 +297,7 @@ async fn update_builtin() -> Result<()> {
         let path = entry.path()?;
         if let Ok(relative_path) = path.strip_prefix("stencila-main") {
             if let Ok(name) = relative_path.strip_prefix("prompts/") {
-                entry.unpack(&dir.join(name))?;
+                entry.unpack(dir.join(name))?;
             }
         }
     }

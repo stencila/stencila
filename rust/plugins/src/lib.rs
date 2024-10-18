@@ -829,7 +829,7 @@ impl ToStdout for PluginList {
 
             table.add_row([
                 if let Some(suffix) = suffix {
-                    Cell::new(&[&plugin.name, "\n", suffix].concat())
+                    Cell::new([&plugin.name, "\n", suffix].concat())
                 } else {
                     Cell::new(&plugin.name).add_attribute(Attribute::Bold)
                 },

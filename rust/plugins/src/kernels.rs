@@ -202,6 +202,7 @@ impl KernelInstance for PluginKernelInstance {
         Ok(())
     }
 
+    #[allow(dependency_on_unit_never_type_fallback)]
     async fn stop(&mut self) -> Result<()> {
         #[derive(Serialize)]
         #[serde(crate = "common::serde")]

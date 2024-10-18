@@ -26,10 +26,9 @@ static API_KEY: OnceLock<String> = OnceLock::new();
 /// Get the API key for the Stencila Cloud API
 pub fn api_key() -> Option<String> {
     API_KEY.get().cloned().or_else(|| {
-        secrets::env_or_get(API_KEY_NAME).ok().map(|key| {
+        secrets::env_or_get(API_KEY_NAME).ok().inspect(|key| {
             // If we successfully retrieved the key, store it for future use
             API_KEY.set(key.clone()).ok();
-            key
         })
     })
 }
