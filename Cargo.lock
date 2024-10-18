@@ -3319,11 +3319,13 @@ name = "lsp"
 version = "0.0.0"
 dependencies = [
  "async-lsp",
+ "codec-markdown-trait",
  "codec-text-trait",
  "codecs",
  "common",
  "document",
  "node-execute",
+ "node-find",
  "percent-encoding",
  "prompts",
  "schema",
@@ -3714,6 +3716,13 @@ dependencies = [
  "kernels",
  "parsers",
  "prompts",
+ "schema",
+]
+
+[[package]]
+name = "node-find"
+version = "0.0.0"
+dependencies = [
  "schema",
 ]
 
