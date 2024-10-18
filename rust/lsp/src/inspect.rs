@@ -717,6 +717,7 @@ macro_rules! executable_with_provenance {
                     duration: self.options.execution_duration.clone(),
                     ended: self.options.execution_ended.clone(),
                     messages: self.options.execution_messages.clone(),
+                    outputs: self.output.is_some().then_some(1),
                     ..Default::default()
                 });
 
