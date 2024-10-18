@@ -639,10 +639,8 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     let mut children = vec![t("Children: ")];
-    if context.children.contains_key(title) {
-        children.push(t("none"));
-    } else {
-        for (index, child) in context.children[title].iter().enumerate() {
+    if let Some(title) = context.children.get(title) {
+        for (index, child) in title.iter().enumerate() {
             if index != 0 {
                 children.push(t(", "))
             }
@@ -651,6 +649,8 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
                 context.urls.get(child).expect("Missing URL for child"),
             ));
         }
+    } else {
+        children.push(t("none"));
     }
 
     vec![
