@@ -78,7 +78,7 @@ pub trait Visitor: Sized {
     }
 
     /// Visit an `IfBlockClause` node
-    fn visit_if_block_clause(&mut self, inline: &IfBlockClause) -> WalkControl {
+    fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -153,7 +153,7 @@ pub trait VisitorMut: Sized {
     }
 
     /// Visit, and potentially mutate, a `SuggestionInline` node type
-    fn visit_suggestion_inline(&mut self, inline: &mut SuggestionInline) -> WalkControl {
+    fn visit_suggestion_inline(&mut self, clause: &mut SuggestionInline) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -249,7 +249,7 @@ pub trait VisitorAsync: Send + Sync {
     /// Visit, and potentially mutate, an `IfBlockClause` node
     fn visit_if_block_clause(
         &mut self,
-        inline: &mut IfBlockClause,
+        clause: &mut IfBlockClause,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
