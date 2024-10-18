@@ -43,7 +43,7 @@ on:
         default: true
 
 env:
-  RUST_VERSION: "1.76.0"
+  RUST_VERSION: "1.81.0"
   NODE_VERSION: "20"
 
 jobs:

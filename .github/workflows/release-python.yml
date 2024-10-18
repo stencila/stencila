@@ -31,7 +31,7 @@ on:
         default: true
 
 env:
-  RUST_VERSION: "1.76.0"
+  RUST_VERSION: "1.81.0"
   PYTHON_VERSION: "3.12"
 
 jobs:

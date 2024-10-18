@@ -29,7 +29,7 @@ on:
         default: true
 
 env:
-  RUST_VERSION: "1.77.0"
+  RUST_VERSION: "1.81.0"
 
 jobs:
   # Create a draft release
