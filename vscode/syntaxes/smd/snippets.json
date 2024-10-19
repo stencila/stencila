@@ -10,57 +10,57 @@
     "body": ["::: table ${1:label}", "", "${2:caption}", "", "$0", "", ":::"]
   },
   "Include Block": {
-    "description": "Include block content from another document.",
+    "description": "Include block content from another document",
     "prefix": ["::: include"],
     "body": ["::: include ${1}"]
   },
   "Call Block": {
-    "description": "Execute another document and include its content.",
+    "description": "Execute another document and include its content",
     "prefix": ["::: call"],
     "body": ["::: call ${1} ($2)"]
   },
-  "New Instruction": {
-    "description": "An instruction to generate new content.",
-    "prefix": ["::: new"],
-    "body": ["::: new ${0:what}"]
+  "New Command": {
+    "description": "Command to create new content",
+    "prefix": ["::: create"],
+    "body": ["::: create ${0}"]
   },
-  "Edit Instruction": {
-    "description": "An instruction to edit existing content.",
+  "Edit Command": {
+    "description": "Command to edit existing content",
     "prefix": ["::: edit"],
     "body": ["::: edit ${0} >"]
   },
-  "Fix Instruction": {
-    "description": "An instruction to fix code or math.",
+  "Fix Command": {
+    "description": "Command to fix code or math",
     "prefix": ["::: fix"],
     "body": ["::: fix ${0} >"]
   },
-  "Describe Instruction": {
-    "description": "An instruction to describe existing content.",
+  "Describe Command": {
+    "description": "Command to describe existing content",
     "prefix": ["::: describe"],
-    "body": ["::: describe ${0:what} <"]
+    "body": ["::: describe ${0} <"]
   },
   "Prompt Block": {
-    "description": "Preview how a prompt would be rendered.",
+    "description": "Preview how a prompt would be rendered",
     "prefix": ["::: prompt"],
     "body": ["::: prompt ${0:id}"]
   },
   "If Block": {
-    "description": "Only show block content if the expression is true.",
+    "description": "Only show block content if the expression is true",
     "prefix": ["::: if"],
     "body": ["::: if ${1:expression}", "", "$0", "", ":::"]
   },
-  "Elif Block": {      
-    "description": "Only show block content if the preceding 'if' conditions are false and its own condition is true.",
+  "Else if Block": {      
+    "description": "Only show block content if the preceding 'if' conditions are false and its own condition is true",
     "prefix": ["::: elif"],
     "body": ["::: elif ${1:expression}", "", "$0", "", ":::"]
   },
   "Else Block": {
-    "description": "Only show block content if none of the preceding conditions are true.",
+    "description": "Only show block content if none of the preceding conditions are true",
     "prefix": ["::: else"],
     "body": ["::: else", "", "$0", "", ":::"]
   },
   "For Block": {
-    "description": "Repeat block content for each value of a variable in an expression.",
+    "description": "Repeat block content for each value of a variable in an expression",
     "prefix": ["::: for"],
     "body": ["::: for ${1:variable} in ${2:expression}", "", "$0", "", ":::"]
   }
