@@ -76,7 +76,12 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             |node| (node.node_type, node.node_id.clone()),
         );
 
-        let name = name.unwrap_or_else(|| node_type.to_string());
+        let name = name.unwrap_or_else(|| match node_type {
+            NodeType::InstructionBlock | NodeType::InstructionInline => "Command".to_string(),
+            NodeType::SuggestionBlock | NodeType::SuggestionInline => "Suggestion".to_string(),
+            NodeType::PromptBlock => "Prompt Preview".to_string(),
+            _ => node_type.to_string(),
+        });
 
         self.stack.push(TextNode {
             range,
@@ -511,7 +516,7 @@ impl Inspect for ForBlock {
 
 impl Inspect for Heading {
     fn inspect(&self, inspector: &mut Inspector) {
-        let name = Some(format!("H{}", self.level));
+        let name = Some(format!("Heading {}", self.level));
 
         let (detail, provenance) = if !inspector.in_table_cell {
             (
@@ -537,8 +542,6 @@ impl Inspect for Heading {
 
 impl Inspect for Paragraph {
     fn inspect(&self, inspector: &mut Inspector) {
-        let name = Some("Para.".to_string());
-
         let (detail, provenance) = if !inspector.in_table_cell {
             (
                 self.content.first().map(|first| first.to_text().0),
@@ -551,7 +554,7 @@ impl Inspect for Paragraph {
         inspector.enter_node(
             self.node_type(),
             self.node_id(),
-            name,
+            None,
             detail,
             None,
             provenance,
