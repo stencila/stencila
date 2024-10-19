@@ -86,7 +86,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   IncludeBlock:     { icon: 'filePlus',       ...nodeColours('sky')},
   CallBlock:        { icon: 'filePlay',       ...nodeColours('lime')},
   
-  InstructionBlock:   { icon: 'chatRightDots', ...nodeColours('violet')},
+  InstructionBlock:   { icon: 'chatRightDots', ...nodeColours('violet'), title: 'Command' },
   InstructionMessage: { icon: 'chatRightText', ...nodeColours('violet')},
   SuggestionBlock:    { icon: 'cardText',      ...nodeColours('indigo'),  title: 'Suggestion' },
   PromptBlock:        { icon: 'chatRightText', ...nodeColours('purple'),  title: 'Prompt Preview'},

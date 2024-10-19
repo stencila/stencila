@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/figure-mermaid
+id: stencila/create/figure-mermaid
 version: "0.1.0"
-name: New Mermaid Figure Prompt
+name: Create Mermaid Figure Prompt
 description: Create a figure containing a Mermaid diagram with a caption.
 keywords: figure, diagram, mermaid
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\b(class)|(state)|(erd)|(user journey)|(requirement)(git)(block) diag(ram)?\b
   - (?i)\b(gantt)|(quadrant)(sankey) (chart)|(diag(ram)?)\b

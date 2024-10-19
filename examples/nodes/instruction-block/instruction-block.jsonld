@@ -18,7 +18,7 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
+      "stencila:instructionType": "Create",
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -44,7 +44,7 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
+      "stencila:instructionType": "Create",
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -71,7 +71,7 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
+      "stencila:instructionType": "Create",
       "stencila:prompt": "code-chunk"
     },
     {
@@ -166,7 +166,7 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
+      "stencila:instructionType": "Create",
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [

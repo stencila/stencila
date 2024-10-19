@@ -25,7 +25,7 @@ Self closing colon fences:
 
 ::: call something()
 
-::: new instruction <
+::: create instruction <
 
 ::: edit instruction >
 

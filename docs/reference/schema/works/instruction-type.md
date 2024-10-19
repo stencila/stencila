@@ -8,7 +8,7 @@
 
 The `InstructionType` type has these members:
 
-- `New`
+- `Create`
 - `Edit`
 - `Fix`
 - `Describe`

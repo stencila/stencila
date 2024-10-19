@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/figure-flowchart
+id: stencila/create/figure-flowchart
 version: "0.1.0"
-name: New Flowchart Figure Prompt
+name: Create Flowchart Figure Prompt
 description: Create a figure containing a Mermaid flowchart with a caption.
 keywords: figure, flowchart, mermaid
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\bflowchart\b
   - (?i)\bdecision tree\b

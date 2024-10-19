@@ -46,7 +46,7 @@ impl Executable for PromptBlock {
     #[tracing::instrument(skip_all)]
     async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::info!("Preparing PromptBlock {node_id}");
+        tracing::trace!("Preparing PromptBlock {node_id}");
 
         // Set execution status
         if let Some(status) = executor.node_execution_status(
@@ -76,7 +76,7 @@ impl Executable for PromptBlock {
         executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
 
         // Get the prompt
-        let prompt = match prompts::get(&self.prompt, &InstructionType::New).await {
+        let prompt = match prompts::get(&self.prompt, &InstructionType::Create).await {
             Ok(prompt) => prompt,
             Err(error) => {
                 executor.patch(

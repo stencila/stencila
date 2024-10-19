@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/figure-svg
+id: stencila/create/figure-svg
 version: "0.1.0"
-name: New SVG Figure Prompt
+name: Create SVG Figure Prompt
 description: Create a figure, using SVG, with a caption.
 keywords: figure, svg
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\bsvg fig(ure)?\b
   - (?i)\bdrawing of\b

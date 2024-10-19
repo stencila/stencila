@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/paragraph
+id: stencila/create/paragraph
 version: "0.1.0"
-name: New Paragraph Prompt
+name: Create Paragraph Prompt
 description: Create a paragraph.
 keywords: paragraph
 
-instruction-type: New
+instruction-type: Create 
 instruction-pattern: (?i)\b(para(graph)?)\b
 node-type: Paragraph
 ---

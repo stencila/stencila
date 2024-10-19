@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/list-unordered
+id: stencila/create/list-unordered
 version: "0.1.0"
-name: New Unordered List Prompt
+name: Create Unordered List Prompt
 description: Create an unordered list.
 keywords: list, unordered
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\bunordered list\b
   - (?i)\bbullet(ed)? list\b

@@ -246,7 +246,7 @@ repository:
       (?x)
       ^
         (?:
-          (?:(:{3,})\s*(new|edit|fix|describe))|
+          (?:(:{3,})\s*(create|edit|fix|describe))|
           (/)
         )
         \s+
@@ -293,7 +293,7 @@ repository:
       (?x)
       \[\[
         \s*
-        (new|edit|update)
+        (create|edit)
         \s+
         (?:
           (@)

@@ -31,11 +31,11 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "New"
+      instructionType: "Create"
     },
     {
       type: "InstructionBlock",
-      instructionType: "New"
+      instructionType: "Create"
     },
     {
       type: "Heading",
@@ -136,7 +136,7 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "New",
+      instructionType: "Create",
       message: {
         type: "InstructionMessage",
         parts: [

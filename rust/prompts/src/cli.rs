@@ -70,7 +70,7 @@ impl List {
             };
 
             let color = match instruction_types.first() {
-                Some(InstructionType::New) => Color::Green,
+                Some(InstructionType::Create) => Color::Green,
                 Some(InstructionType::Edit) => Color::Blue,
                 Some(InstructionType::Fix) => Color::Cyan,
                 Some(InstructionType::Describe) => Color::Yellow,
@@ -105,7 +105,7 @@ struct Show {
 
 impl Show {
     async fn run(self) -> Result<()> {
-        let prompt = super::get(&self.id, &InstructionType::New).await?;
+        let prompt = super::get(&self.id, &InstructionType::Create).await?;
 
         let content = codecs::to_string(
             &Node::Prompt(prompt.inner),

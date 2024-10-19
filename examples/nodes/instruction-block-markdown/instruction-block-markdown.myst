@@ -4,11 +4,11 @@ Example using Markdown as canonical format to test alternative ways to write ins
 
 Never has existing content so is self closing or explicitly closing:
 
-:::{new}
+:::{create}
 
 :::
 
-:::{new}
+:::{create}
 
 :::
 
@@ -42,7 +42,7 @@ Paragraph to edit #5
 
 :::
 
-:::{new} admonition
+:::{create} admonition
 
 > ![warning]
 This is a warning

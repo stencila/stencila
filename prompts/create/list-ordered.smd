@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/list-ordered
+id: stencila/create/list-ordered
 version: "0.1.0"
-name: New Ordered List Prompt
+name: Create Ordered List Prompt
 description: Create an ordered list.
 keywords: list, ordered
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\bordered list\b
   - (?i)\bnumber(ed)? list\b

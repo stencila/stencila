@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/code-chunk
+id: stencila/create/code-chunk
 version: "0.1.0"
-name: New Code Chunk Prompt
+name: Create Code Chunk Prompt
 description: Create an executable code chunk.
 keywords: executable, code
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\bcode( (chunk|cell))?\b
   - (?i)\bexec(utable)?\b

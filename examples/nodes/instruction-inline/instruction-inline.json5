@@ -10,7 +10,7 @@
         },
         {
           type: "InstructionInline",
-          instructionType: "New",
+          instructionType: "Create",
           message: {
             type: "InstructionMessage",
             parts: [
@@ -36,7 +36,7 @@
         },
         {
           type: "InstructionInline",
-          instructionType: "New",
+          instructionType: "Create",
           message: {
             type: "InstructionMessage",
             parts: [
@@ -68,7 +68,7 @@
         },
         {
           type: "InstructionInline",
-          instructionType: "New",
+          instructionType: "Create",
           message: {
             type: "InstructionMessage",
             parts: [
@@ -86,7 +86,7 @@
         },
         {
           type: "InstructionInline",
-          instructionType: "New",
+          instructionType: "Create",
           prompt: "insert-math-inline"
         },
         {
@@ -128,7 +128,7 @@
         },
         {
           type: "InstructionInline",
-          instructionType: "New",
+          instructionType: "Create",
           message: {
             type: "InstructionMessage",
             parts: [

@@ -62,8 +62,8 @@ pub(super) async fn request(
 
 /// Provide completion list for prompts of an instruction
 async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, ResponseError> {
-    let itype = if before.contains("::: new") {
-        Some(InstructionType::New)
+    let itype = if before.contains("::: create") {
+        Some(InstructionType::Create)
     } else if before.contains("::: edit") {
         Some(InstructionType::Edit)
     } else if before.contains("::: fix") {
@@ -132,11 +132,11 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 StringOrNumber::Number(version) => version.to_string(),
             };
 
-            let detail = Some(format!("{} v{}", name, version));
+            let detail = Some(name.to_string());
 
             let documentation = Some(Documentation::MarkupContent(MarkupContent {
                 kind: MarkupKind::Markdown,
-                value: description.to_string(),
+                value: format!("{description}\n\n{id} v{version}"),
             }));
 
             Some(CompletionItem {

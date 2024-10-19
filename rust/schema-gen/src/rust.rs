@@ -1009,6 +1009,18 @@ impl {title} {{
                     }
                 }
 
+                // Add serde aliases if the variant has any
+                if !variant_schema.aliases.is_empty() {
+                    attrs.push(format!(
+                        "#[serde({})]",
+                        variant_schema
+                            .aliases
+                            .iter()
+                            .map(|alias| format!(r#"alias = "{alias}""#))
+                            .join(", ")
+                    ));
+                }
+
                 // Add proptest related attributes
                 if let Some(proptest) = &variant_schema.proptest {
                     let mut modifiers = None;
