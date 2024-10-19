@@ -16,6 +16,6 @@ title: Using LLMs to create diagrams
 
 Cell culture involves isolating cells from an organism, providing them with necessary nutrients, and maintaining controlled environmental conditions to support cell growth, proliferation, and viability in vitro.
 
-::: new @figure-flowchart
+::: create @figure-flowchart
 
 ***
