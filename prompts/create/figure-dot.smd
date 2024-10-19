@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/figure-dot
+id: stencila/create/figure-dot
 version: "0.1.0"
-name: New Graphviz DOT Figure Prompt
+name: Create Graphviz DOT Figure Prompt
 description: Create a figure, using Graphviz DOT, with a caption.
 keywords: figure, graphviz, dot
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\b(graphviz|dot)( fig(ure)?)?\b
 node-type: CodeChunk

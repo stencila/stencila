@@ -1,13 +1,13 @@
 ---
 type: Prompt
 
-id: stencila/new/figure-sequence
+id: stencila/create/figure-sequence
 version: "0.1.0"
-name: New Sequence Diagram Figure Prompt
+name: Create Sequence Diagram Figure Prompt
 description: Create a figure containing a Mermaid sequence diagram with a caption.
 keywords: figure, sequence, diagram, mermaid
 
-instruction-type: New
+instruction-type: Create 
 instruction-patterns:
   - (?i)\bseq(uence)? diag(ram)?\b
   - (?i)\bmermaid\b

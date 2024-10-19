@@ -4,7 +4,7 @@ title: Using LLMs to create diagrams
 
 • Stencila has several built-in prompts specialized for creating certain types of Mermaid diagrams.
 
-• For example, the ``stencila/new/figure-flowchart`` prompt is specialized to create flowchards. It makes use of the document context, including metadata and the preceding paragraph. This means you don't need to repeat youself when writing instructions.
+• For example, the ``stencila/create/figure-flowchart`` prompt is specialized to create flowchards. It makes use of the document context, including metadata and the preceding paragraph. This means you don't need to repeat youself when writing instructions.
 
 • To illustrate this, let's [add](type:0) a paragraph, followed by an instruction to create a new flowchart. Press the $(run) icon to execute the instruction using a LLM.
 
