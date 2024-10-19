@@ -6,7 +6,7 @@ content:
     value:
       string: 'An insert instruction with no prompt:'
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
   message:
     type: InstructionMessage
     parts:
@@ -19,7 +19,7 @@ content:
     value:
       string: 'An insert instruction with a prompt:'
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
   message:
     type: InstructionMessage
     parts:
@@ -33,7 +33,7 @@ content:
     value:
       string: An insert instruction with a prompt but a blank instruction
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
   prompt: code-chunk
 - type: Paragraph
   content:
@@ -80,7 +80,7 @@ content:
     value:
       string: 'An insert instruction with a prompt and a suggestion:'
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
   message:
     type: InstructionMessage
     parts:

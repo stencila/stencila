@@ -17,9 +17,9 @@ content:
     value:
       string: 'Never has existing content so is self closing or explicitly closing:'
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
 - type: Heading
   level: 1
   content:
@@ -77,7 +77,7 @@ content:
       string: ''
     programmingLanguage: python
 - type: InstructionBlock
-  instructionType: New
+  instructionType: Create
   message:
     type: InstructionMessage
     parts:

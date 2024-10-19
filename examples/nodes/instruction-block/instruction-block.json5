@@ -12,7 +12,7 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "New",
+      instructionType: "Create",
       message: {
         type: "InstructionMessage",
         parts: [
@@ -34,7 +34,7 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "New",
+      instructionType: "Create",
       message: {
         type: "InstructionMessage",
         parts: [
@@ -57,7 +57,7 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "New",
+      instructionType: "Create",
       prompt: "code-chunk"
     },
     {
@@ -138,7 +138,7 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "New",
+      instructionType: "Create",
       message: {
         type: "InstructionMessage",
         parts: [

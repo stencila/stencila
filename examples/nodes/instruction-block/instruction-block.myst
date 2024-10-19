@@ -1,19 +1,19 @@
 An insert instruction with no prompt:
 
-:::{new} a 4x10 table
+:::{create} a 4x10 table
 
 :::
 
 An insert instruction with a prompt:
 
-:::{new} top five highest mountains, with height in metres
+:::{create} top five highest mountains, with height in metres
 :prompt: table
 
 :::
 
 An insert instruction with a prompt but a blank instruction
 
-:::{new}
+:::{create}
 :prompt: code-chunk
 
 :::
@@ -37,7 +37,7 @@ Another paragraph to be improved.
 
 An insert instruction with a prompt and a suggestion:
 
-:::{new} analyze data
+:::{create} analyze data
 :prompt: code-chunk
 
 :::
