@@ -50,7 +50,7 @@ export class InstructionBlock extends Instruction {
           type="InstructionBlock"
           node-id=${this.id}
         >
-          <sl-tooltip content="Archive this instruction">
+          <sl-tooltip content="Archive this command">
             <stencila-ui-icon-button
               name="archive"
               class="ml-4"
@@ -120,7 +120,7 @@ export class InstructionBlock extends Instruction {
     return html`
       <div class=${styles}>
         <span class="flex flex-row items-center">
-          <sl-tooltip content="Instruction type">
+          <sl-tooltip content="Command type">
             <span class="font-mono font-bold text-base"
               >${this.instructionType.toLowerCase()}</span
             >
