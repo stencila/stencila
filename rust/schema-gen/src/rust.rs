@@ -1009,7 +1009,7 @@ impl {title} {{
                     }
                 }
 
-                // Add strum and serde aliases in the variant has any
+                // Add serde aliases if the variant has any
                 if !variant_schema.aliases.is_empty() {
                     attrs.push(format!(
                         "#[serde({})]",
@@ -1019,15 +1019,6 @@ impl {title} {{
                             .map(|alias| format!(r#"alias = "{alias}""#))
                             .join(", ")
                     ));
-
-                    attrs.push(format!(
-                        "#[strum({})]",
-                        variant_schema
-                            .aliases
-                            .iter()
-                            .map(|alias| format!(r#"serialize = "{alias}""#))
-                            .join(", ")
-                    ))
                 }
 
                 // Add proptest related attributes
