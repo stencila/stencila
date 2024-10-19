@@ -1431,7 +1431,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             select: options.get("select").map(|select| select.to_string()),
             ..Default::default()
         }),
-        "new" | "edit" | "fix" | "describe" => Block::InstructionBlock(InstructionBlock {
+        "create" | "edit" | "fix" | "describe" => Block::InstructionBlock(InstructionBlock {
             instruction_type: name.parse().unwrap_or_default(),
             message: args.map(InstructionMessage::from),
             prompt: options.get("prompt").map(|value| value.to_string()),
