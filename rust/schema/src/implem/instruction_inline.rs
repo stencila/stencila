@@ -4,7 +4,8 @@ use common::tracing;
 use crate::{patch, prelude::*, InstructionInline, SuggestionStatus};
 
 impl InstructionInline {
-    pub fn apply_patch_op(
+    /// Custom implementation of [`PatchNode::apply`]
+    pub fn apply_with(
         &mut self,
         path: &mut PatchPath,
         op: &PatchOp,

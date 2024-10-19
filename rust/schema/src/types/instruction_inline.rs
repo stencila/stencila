@@ -32,7 +32,7 @@ use super::unsigned_integer::UnsignedInteger;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "InstructionInline")]
-#[patch(apply_with = "InstructionInline::apply_patch_op")]
+#[patch(apply_with = "InstructionInline::apply_with")]
 pub struct InstructionInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

@@ -10,7 +10,7 @@
   "category": "edits",
   "description": "An instruction to edit some inline content.",
   "patch": {
-    "applyWith": "InstructionInline::apply_patch_op"
+    "applyWith": "InstructionInline::apply_with"
   },
   "markdown": {
     "derive": false
