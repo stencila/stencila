@@ -96,13 +96,12 @@ outdated:
 	cargo outdated -d 1
 
 # Audit dependencies
-# Not that this operates at the root dir of the repo on the Cargo.lock file
 audit:
-	cd .. && cargo machete && cargo audit
+	cd .. && cargo audit
 
 # List unused dependencies
 unused:
-	cargo machete
+	cd .. && cargo machete
 
 # Run the CLI serve command
 serve:
