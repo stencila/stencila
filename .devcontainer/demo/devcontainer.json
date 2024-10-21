@@ -9,7 +9,14 @@
     "extensions": [
       "stencila.stencila"
     ]
+  },
+  "secrets": {
+  "STENCILA_API_TOKEN": {
+    "description": "Add your stencila API token from stencila.cloud",
+    "documentationUrl": "https:\\stencila.cloud"
   }
+}
+
 }
 
 
