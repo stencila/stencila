@@ -4,6 +4,7 @@ import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
 import { state, property } from 'lit/decorators'
 
+import { isTestMode } from '../../../utilities/isTestMode'
 import { DocumentContext, documentContext } from '../../document/context'
 import { nodeUi } from '../icons-and-colours'
 
@@ -120,6 +121,14 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
           </stencila-ui-node-chip>
         </div>
       `
+    }
+
+    override connectedCallback(): void {
+      super.connectedCallback()
+      const isTest = isTestMode(window)
+      if (isTest) {
+        this.toggle = true
+      }
     }
 
     protected override update(

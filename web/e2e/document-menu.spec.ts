@@ -1,4 +1,3 @@
-import { argosScreenshot } from '@argos-ci/playwright'
 import { test, expect } from '@playwright/test'
 
 const url = 'paragraph/simple'
