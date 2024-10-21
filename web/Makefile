@@ -21,6 +21,10 @@ lint: install
 test: install
 	npm run test
 
+# Run end-to-end tests
+e2e: build
+	npm run e2e
+
 # Run watch
 run: install
 	npm start
