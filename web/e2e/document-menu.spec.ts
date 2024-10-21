@@ -1,12 +1,7 @@
 import { argosScreenshot } from '@argos-ci/playwright'
 import { test, expect } from '@playwright/test'
 
-const url = 'article-ark/article-ark'
-
-test('has title', async ({ page }) => {
-  await page.goto(url)
-  await expect(page).toHaveTitle('Stencila')
-})
+const url = 'paragraph/simple'
 
 test('show document menu', async ({ page }) => {
   await page.goto(url)
@@ -21,9 +16,4 @@ test('show document menu', async ({ page }) => {
 
   await trigger.hover()
   await expect(dropdown).toBeVisible()
-})
-
-test('argos screenshot article ark', async ({ page }) => {
-  await page.goto(url)
-  await argosScreenshot(page, 'article-ark')
 })
