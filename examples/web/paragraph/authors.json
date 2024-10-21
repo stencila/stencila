@@ -23,7 +23,7 @@
       "format": "Markdown",
       "lastModified": {
         "type": "Timestamp",
-        "value": 1729480330882,
+        "value": 1729486045431,
         "timeUnit": "Millisecond"
       }
     }
@@ -32,7 +32,7 @@
     {
       "type": "ProvenanceCount",
       "provenanceCategory": "Hw",
-      "characterCount": 26,
+      "characterCount": 27,
       "characterPercent": 100
     }
   ],
@@ -43,13 +43,13 @@
         {
           "type": "Text",
           "value": {
-            "string": "A pargraph with an author.",
+            "string": "A paragraph with an author.",
             "authorship": [
               [
                 1,
                 0,
                 0,
-                26
+                27
               ]
             ]
           }
@@ -76,7 +76,7 @@
           "format": "Markdown",
           "lastModified": {
             "type": "Timestamp",
-            "value": 1729480330882,
+            "value": 1729486045431,
             "timeUnit": "Millisecond"
           }
         }
@@ -85,7 +85,7 @@
         {
           "type": "ProvenanceCount",
           "provenanceCategory": "Hw",
-          "characterCount": 26,
+          "characterCount": 27,
           "characterPercent": 100
         }
       ]
