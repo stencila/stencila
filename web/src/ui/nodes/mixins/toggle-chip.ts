@@ -4,7 +4,7 @@ import { apply } from '@twind/core'
 import { PropertyValueMap, html } from 'lit'
 import { state, property } from 'lit/decorators'
 
-import { isTestMode } from '../../../utilities/isTestMode'
+import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
 import { nodeUi } from '../icons-and-colours'
 
@@ -125,8 +125,8 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
 
     override connectedCallback(): void {
       super.connectedCallback()
-      const isTest = isTestMode(window)
-      if (isTest) {
+      const testMode = getModeParam(window)
+      if (testMode && testMode === 'test-expand-all') {
         this.toggle = true
       }
     }
