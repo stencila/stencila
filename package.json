@@ -13,9 +13,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.16.4",
-    "@argos-ci/playwright": "^3.7.1",
     "@cloudflare/workers-types": "4.20241004.0",
-    "@playwright/test": "^1.48.0",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.13",
     "@types/node": "^22.7.5",

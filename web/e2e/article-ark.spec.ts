@@ -1,7 +1,7 @@
+import { argosScreenshot } from '@argos-ci/playwright'
 import { test, expect } from '@playwright/test'
-import { argosScreenshot } from "@argos-ci/playwright"
 
-const url = '/examples/tests/article-ark/article-ark'
+const url = 'article-ark/article-ark'
 
 test('has title', async ({ page }) => {
   await page.goto(url)
