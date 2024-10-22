@@ -14,10 +14,9 @@ use codec::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        InstructionType, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
-        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
-        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
-        ThematicBreak,
+        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock,
+        QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
+        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 
