@@ -3,12 +3,12 @@
 // For format details see https://containers.dev/implementors/json_reference/.
 {
   "build": { "dockerfile": "Dockerfile" },
-  "workspaceMount": "source=${localWorkspaceFolder}/.devcontainer/demo/workspace,target=/workspace,type=bind,consistency=cached",
-  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder}/.devcontainer/demo/workspace,target=/demo,type=bind,consistency=cached",
+  "workspaceFolder": "/demo",
   "secrets": {
     "STENCILA_API_TOKEN": {
       "description": "Add your Stencila Cloud API token",
-      "documentationUrl": "https://stencila.cloud"
+      "documentationUrl": "https://stencila.cloud/access-tokens"
     }
   },
   "customizations": {
@@ -27,7 +27,7 @@
       }
     },
     "codespaces": {
-      "openFiles": [".devcontainer/demo/workspace/README.md"]
+      "openFiles": ["welcome.smd"]
     }
   }
 }
