@@ -17,7 +17,6 @@
       "settings": {
         // See here for VSCode settings and their defaults
         // https://code.visualstudio.com/docs/getstarted/settings#_default-settings
-        "workbench.colorTheme": "Stencila Light",
         "[smd]": {
           "editor.wordWrap": "on"
         },
