@@ -1,19 +1,28 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/rust
+// A Devcontainer for demoing the Stencila VSCode extension
+//
+// For format details see https://containers.dev/implementors/json_reference/.
 {
-
-	"build": { "dockerfile": "Dockerfile" },
-	"customizations": {
-		"vscode": {
-			"extensions": [
-			"stencila.stencila"
-			]
-		},
-		"secrets": {
-		"STENCILA_API_TOKEN": {
-			"description": "Add your stencila API token from stencila.cloud",
-			"documentationUrl": "https:\\stencila.cloud"
-			}
-		}
-	}
+  "build": { "dockerfile": "Dockerfile" },
+  "customizations": {
+    "vscode": {
+      "extensions": ["stencila.stencila"],
+      "settings": {
+        // See here for VSCode settings and their defaults
+        // https://code.visualstudio.com/docs/getstarted/settings#_default-settings
+        "workbench.colorTheme": "Stencila Light",
+        "[smd]": {
+          "editor.wordWrap": "on"
+        },
+		"[myst]": {
+          "editor.wordWrap": "on"
+        }
+      }
+    },
+    "secrets": {
+      "STENCILA_API_TOKEN": {
+        "description": "Add your Stencila Cloud API token",
+        "documentationUrl": "https://stencila.cloud"
+      }
+    }
+  }
 }
