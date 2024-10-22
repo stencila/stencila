@@ -2,7 +2,6 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
-use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
@@ -66,7 +65,10 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         let range = match self.poshmap.node_id_to_range16(&node_id) {
             Some(range) => range16_to_range(range),
             None => {
-                tracing::warn!("No range for {node_id}");
+                // A range may not exist for nodes that are not encoded into the
+                // text document (e.g. the non-active suggestions of an instruction).
+                // In these cases we return the default range (first char of document)
+                // and use that as a way of knowing whether to show code lenses of not
                 Range::default()
             }
         };
@@ -92,6 +94,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             name,
             detail,
             execution,
+            index_of: None,
             is_active: None,
             provenance,
             children: Vec::new(),
@@ -214,6 +217,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
+        // TODO: remove this and put on instruction
         let execution = if block.execution_duration.is_some() {
             Some(TextNodeExecution {
                 // Although suggestions do not have a status we need to add
@@ -235,7 +239,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             block.node_id(),
             None,
             None,
-            execution,
+            None,
             provenance,
         );
         self.visit(&block.content);
@@ -383,6 +387,7 @@ impl Inspect for Article {
             // we do not want these displayed on the first line in code lenses etc
             execution: None,
             provenance: None,
+            index_of: None,
             is_active: None,
             children: Vec::new(),
         });
@@ -481,6 +486,41 @@ impl Inspect for CodeExpression {
         let provenance = self.provenance.clone();
 
         inspector.enter_node(self.node_type(), node_id, None, None, execution, provenance);
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
+impl Inspect for InstructionBlock {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
+            ..Default::default()
+        });
+
+        let node = inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            None,
+            None,
+            execution,
+            None,
+        );
+
+        if let Some(suggestions) = &self.suggestions {
+            if !suggestions.is_empty() {
+                // Note that 0 = the original, 1 = the first suggestion, and so on...
+                let index = self.active_suggestion.map(|index| index + 1).unwrap_or(0) as usize;
+                let of = suggestions.len();
+                node.index_of = Some((index, of));
+            }
+        }
+
         inspector.visit(self);
         inspector.exit_node();
     }
@@ -786,13 +826,7 @@ macro_rules! executable {
     };
 }
 
-executable!(
-    CallBlock,
-    IfBlock,
-    Parameter,
-    InstructionBlock,
-    InstructionInline
-);
+executable!(CallBlock, IfBlock, Parameter, InstructionInline);
 
 /// Implementation for executable nodes but not recursing into
 /// `content` to avoid lenses for content not rendered to Markdown

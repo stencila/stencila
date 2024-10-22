@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{CodeLens, Command, Url},
+    lsp_types::{CodeLens, Command, Range, Url},
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
@@ -13,7 +13,8 @@ use schema::NodeType;
 
 use crate::{
     commands::{
-        ACCEPT_NODE, ARCHIVE_NODE, CANCEL_NODE, REJECT_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE,
+        ACCEPT_NODE, ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PREV_NODE, REJECT_NODE, REVISE_NODE,
+        RUN_NODE, VERIFY_NODE,
     },
     text_document::TextNode,
 };
@@ -23,6 +24,10 @@ pub(super) const VIEW_NODE: &str = "stencila.view-node";
 
 /// Lens to show the provenance of the node and view it's authors when when clicked.
 pub(super) const PROV_NODE: &str = "stencila.view-node-authors";
+
+/// Lens to show the index of the current item in a collection
+/// (e.g. active suggestion index ins suggestions for and instruction)
+pub(super) const INDEX_OF: &str = "stencila.index-of";
 
 /// Handle a request for code lenses for a document
 ///
@@ -41,21 +46,37 @@ pub(crate) async fn request(
             |TextNode {
                  range,
                  parent_type,
-                 parent_id,
                  node_type,
                  node_id,
+                 index_of,
                  provenance,
                  ..
              }| {
+                // Do not show lenses for nodes that are not encoded into the document
+                // (i.e. those that have a default range)
+                if *range == Range::default() {
+                    return Vec::new();
+                }
+
                 let lens = |command: &str| CodeLens {
                     range: *range,
                     command: None,
                     data: Some(json!([command, uri, node_type, node_id])),
                 };
-                let lens_with_parent = |command: &str| CodeLens {
+                let lens_index_of = |index: &usize, of: &usize| CodeLens {
                     range: *range,
                     command: None,
-                    data: Some(json!([command, uri, node_type, node_id, parent_id])),
+                    data: Some(json!([
+                        INDEX_OF,
+                        uri,
+                        node_type,
+                        node_id,
+                        if *index == 0 {
+                            "Original".to_string()
+                        } else {
+                            format!("{} of {}", index, of)
+                        }
+                    ])),
                 };
 
                 let mut lenses = match node_type {
@@ -73,15 +94,15 @@ pub(crate) async fn request(
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::InstructionBlock => {
-                        vec![lens(RUN_NODE), lens(ARCHIVE_NODE), lens(VIEW_NODE)]
-                    }
-                    NodeType::SuggestionBlock => {
-                        vec![
-                            lens_with_parent(ACCEPT_NODE),
-                            lens(REJECT_NODE),
-                            lens(REVISE_NODE),
-                            lens(VIEW_NODE),
-                        ]
+                        let mut lenses = vec![lens(RUN_NODE), lens(VIEW_NODE), lens(ARCHIVE_NODE)];
+                        if let Some((index, of)) = index_of {
+                            lenses.append(&mut vec![
+                                lens(PREV_NODE),
+                                lens_index_of(index, of),
+                                lens(NEXT_NODE),
+                            ]);
+                        }
+                        lenses
                     }
                     NodeType::InsertBlock | NodeType::ReplaceBlock | NodeType::DeleteBlock => {
                         vec![lens(ACCEPT_NODE), lens(REJECT_NODE), lens(VIEW_NODE)]
@@ -197,7 +218,22 @@ pub(crate) async fn resolve(
         VERIFY_NODE => Command::new("$(pass) Verify".to_string(), command, arguments),
         RUN_NODE => Command::new("$(run) Run".to_string(), command, arguments),
         CANCEL_NODE => Command::new("$(stop-circle) Cancel".to_string(), command, arguments),
-        ARCHIVE_NODE => Command::new("$(archive) Archive".to_string(), command, arguments),
+        ARCHIVE_NODE => Command::new("$(archive) Accept".to_string(), command, arguments),
+        PREV_NODE | NEXT_NODE => {
+            let title = match command.as_str() {
+                PREV_NODE => "$(arrow-left)",
+                NEXT_NODE => "$(arrow-right)",
+                _ => unreachable!(),
+            }
+            .to_string();
+
+            Command::new(title, command, arguments)
+        }
+        INDEX_OF => Command::new(
+            data.next().unwrap_or_default().to_string(),
+            String::new(),
+            None,
+        ),
         ACCEPT_NODE | REJECT_NODE | REVISE_NODE => {
             if let (Some(arguments), Some(parent_id)) = (arguments.as_mut(), data.next()) {
                 arguments.push(json!(parent_id));

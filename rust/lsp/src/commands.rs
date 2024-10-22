@@ -59,6 +59,8 @@ pub(super) const LOCK_CURR: &str = "stencila.lock-curr";
 pub(super) const UNLOCK_CURR: &str = "stencila.unlock-curr";
 
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
+pub(super) const PREV_NODE: &str = "stencila.prev-node";
+pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
 pub(super) const REJECT_NODE: &str = "stencila.reject-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
@@ -83,6 +85,8 @@ pub(super) fn commands() -> Vec<String> {
         LOCK_CURR,
         UNLOCK_CURR,
         ARCHIVE_NODE,
+        PREV_NODE,
+        NEXT_NODE,
         ACCEPT_NODE,
         REJECT_NODE,
         REVISE_NODE,
@@ -257,6 +261,37 @@ pub(super) async fn execute_command(
                     node_id: Some(node_id),
                     ops: vec![(PatchPath::new(), PatchOp::Archive)],
                     authors: Some(vec![author]),
+                    ..Default::default()
+                }),
+                false,
+                true,
+            )
+        }
+        PREV_NODE | NEXT_NODE => {
+            // Second arg (after document URI) is either current position (when invoked
+            // via keybinding) or node type (when invoked via code lens)
+            let instruction_id = match position_arg(args.next()) {
+                Ok(position) => match root.read().await.instruction_at(position) {
+                    Some(id) => id,
+                    None => {
+                        tracing::error!("Unable to scroll through suggestions: no instruction at current position");
+                        return Ok(None);
+                    }
+                },
+                Err(..) => node_id_arg(args.next())?,
+            };
+
+            let (title, op) = match command.as_str() {
+                PREV_NODE => ("Previous suggestion".to_string(), PatchOp::Decrement),
+                NEXT_NODE => ("Next suggestion".to_string(), PatchOp::Increment),
+                _ => unreachable!(),
+            };
+
+            (
+                title,
+                Command::PatchNode(Patch {
+                    node_id: Some(instruction_id),
+                    ops: vec![(PatchPath::from(NodeProperty::ActiveSuggestion), op)],
                     ..Default::default()
                 }),
                 false,
