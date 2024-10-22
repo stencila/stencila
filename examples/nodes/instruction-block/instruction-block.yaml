@@ -94,6 +94,7 @@ content:
     - type: CodeChunk
       code:
         string: some code
+  activeSuggestion: 0
 - type: Paragraph
   content:
   - type: Text
@@ -121,3 +122,4 @@ content:
       - type: Text
         value:
           string: A paragraph.
+  activeSuggestion: 0

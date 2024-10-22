@@ -191,7 +191,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:activeSuggestion": 0
     },
     {
       "@type": "stencila:Paragraph",
@@ -248,7 +249,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:activeSuggestion": 0
     }
   ]
 }

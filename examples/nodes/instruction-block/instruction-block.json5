@@ -159,7 +159,8 @@
             }
           ]
         }
-      ]
+      ],
+      activeSuggestion: 0
     },
     {
       type: "Paragraph",
@@ -208,7 +209,8 @@
             }
           ]
         }
-      ]
+      ],
+      activeSuggestion: 0
     }
   ]
 }

@@ -18,8 +18,16 @@ content:
       string: 'Never has existing content so is self closing or explicitly closing:'
 - type: InstructionBlock
   instructionType: Create
+  content: []
 - type: InstructionBlock
   instructionType: Create
+  message:
+    type: InstructionMessage
+    parts:
+    - type: Text
+      value:
+        string: <
+  content: []
 - type: Heading
   level: 1
   content:
@@ -33,12 +41,18 @@ content:
       string: 'Edit next block:'
 - type: InstructionBlock
   instructionType: Edit
-  content:
-  - type: Paragraph
-    content:
+  message:
+    type: InstructionMessage
+    parts:
     - type: Text
       value:
-        string: 'Paragraph to edit #1'
+        string: '>'
+  content: []
+- type: Paragraph
+  content:
+  - type: Text
+    value:
+      string: 'Paragraph to edit #1'
 - type: Paragraph
   content:
   - type: Text
@@ -70,12 +84,12 @@ content:
     parts:
     - type: Text
       value:
-        string: improve this
-  content:
-  - type: CodeChunk
-    code:
-      string: ''
-    programmingLanguage: python
+        string: improve this >
+  content: []
+- type: CodeChunk
+  code:
+    string: ''
+  programmingLanguage: python
 - type: InstructionBlock
   instructionType: Create
   message:
@@ -83,17 +97,17 @@ content:
     parts:
     - type: Text
       value:
-        string: admonition
+        string: admonition >
+  content: []
+- type: QuoteBlock
   content:
-  - type: QuoteBlock
+  - type: Paragraph
     content:
-    - type: Paragraph
-      content:
-      - type: Text
-        value:
-          string: |-
-            ![warning]
-            This is a warning
+    - type: Text
+      value:
+        string: |-
+          ![warning]
+          This is a warning
 - type: Paragraph
   content:
   - type: Text

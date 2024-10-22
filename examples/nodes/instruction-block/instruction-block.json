@@ -124,6 +124,7 @@
         "type": "InstructionMessage",
         "parts": [{ "type": "Text", "value": "analyze data" }]
       },
+      "activeSuggestion": 0,
       "suggestions": [
         {
           "type": "SuggestionBlock",
@@ -155,6 +156,7 @@
           ]
         }
       ],
+      "activeSuggestion": 0,
       "suggestions": [
         {
           "type": "SuggestionBlock",

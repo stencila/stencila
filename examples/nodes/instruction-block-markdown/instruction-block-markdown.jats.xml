@@ -6,8 +6,14 @@
     <p>Never has existing content so is self closing or explicitly closing:</p>
     <title level="1">Edit instruction</title>
     <p>Edit next block:</p>
+    <p>Paragraph to edit #1</p>
     <p>Edit multiple blocks:</p>
     <title level="1">Content other than paragraphs</title>
+    <code executable="yes" language="python">
+    </code>
+    <disp-quote>
+      <p>![warning]&#10;This is a warning</p>
+    </disp-quote>
     <p>Following para outside of instruction content.</p>
   </body>
 </article>

@@ -41,11 +41,24 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "Create"
+      "stencila:instructionType": "Create",
+      "stencila:content": []
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "Create"
+      "stencila:instructionType": "Create",
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": [
+          {
+            "@type": "Text",
+            "value": {
+              "string": "<"
+            }
+          }
+        ]
+      },
+      "stencila:content": []
     },
     {
       "@type": "stencila:Heading",
@@ -73,17 +86,27 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": [
+          {
+            "@type": "Text",
+            "value": {
+              "string": ">"
+            }
+          }
+        ]
+      },
+      "stencila:content": []
+    },
+    {
+      "@type": "stencila:Paragraph",
       "stencila:content": [
         {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "Paragraph to edit #1"
-              }
-            }
-          ]
+          "@type": "Text",
+          "value": {
+            "string": "Paragraph to edit #1"
+          }
         }
       ]
     },
@@ -147,20 +170,19 @@
           {
             "@type": "Text",
             "value": {
-              "string": "improve this"
+              "string": "improve this >"
             }
           }
         ]
       },
-      "stencila:content": [
-        {
-          "@type": "stencila:CodeChunk",
-          "stencila:code": {
-            "string": ""
-          },
-          "programmingLanguage": "python"
-        }
-      ]
+      "stencila:content": []
+    },
+    {
+      "@type": "stencila:CodeChunk",
+      "stencila:code": {
+        "string": ""
+      },
+      "programmingLanguage": "python"
     },
     {
       "@type": "stencila:InstructionBlock",
@@ -171,25 +193,24 @@
           {
             "@type": "Text",
             "value": {
-              "string": "admonition"
+              "string": "admonition >"
             }
           }
         ]
       },
+      "stencila:content": []
+    },
+    {
+      "@type": "stencila:QuoteBlock",
       "stencila:content": [
         {
-          "@type": "stencila:QuoteBlock",
+          "@type": "stencila:Paragraph",
           "stencila:content": [
             {
-              "@type": "stencila:Paragraph",
-              "stencila:content": [
-                {
-                  "@type": "Text",
-                  "value": {
-                    "string": "![warning]\nThis is a warning"
-                  }
-                }
-              ]
+              "@type": "Text",
+              "value": {
+                "string": "![warning]\nThis is a warning"
+              }
             }
           ]
         }
