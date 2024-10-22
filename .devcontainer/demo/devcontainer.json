@@ -1,0 +1,19 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/rust
+{
+
+	"build": { "dockerfile": "Dockerfile" },
+	"customizations": {
+		"vscode": {
+			"extensions": [
+			"stencila.stencila"
+			]
+		},
+		"secrets": {
+		"STENCILA_API_TOKEN": {
+			"description": "Add your stencila API token from stencila.cloud",
+			"documentationUrl": "https:\\stencila.cloud"
+			}
+		}
+	}
+}
