@@ -13,11 +13,13 @@
         "[smd]": {
           "editor.wordWrap": "on"
         },
-		"[myst]": {
+        "[myst]": {
           "editor.wordWrap": "on"
         }
       }
     },
+    "workspaceMount": "source=${localWorkspaceFolder}/.devcontainer/demo/workspace,target=/workspace,type=bind,consistency=cached",
+    "workspaceFolder": "/workspace",
     "secrets": {
       "STENCILA_API_TOKEN": {
         "description": "Add your Stencila Cloud API token",
