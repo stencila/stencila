@@ -74,7 +74,7 @@ impl InstructionBlock {
             }
 
             match &self.instruction_type {
-                InstructionType::New => {
+                InstructionType::Create => {
                     if accepted.len() == 1 {
                         // Just one block in accepted suggestion, so replace with it
                         context.op_additional(
@@ -301,7 +301,7 @@ impl MarkdownCodec for InstructionBlock {
             }
 
             if let Some(content) = &self.content {
-                if content.is_empty() && !matches!(self.instruction_type, InstructionType::New) {
+                if content.is_empty() && !matches!(self.instruction_type, InstructionType::Create) {
                     context.push_str(" <").newline().newline();
                 } else {
                     if content.len() == 1 {
@@ -319,7 +319,7 @@ impl MarkdownCodec for InstructionBlock {
                         context.push_colons().newline().newline();
                     }
                 }
-            } else if !matches!(self.instruction_type, InstructionType::New) {
+            } else if !matches!(self.instruction_type, InstructionType::Create) {
                 context.push_str(" <").newline().newline();
             } else {
                 context.newline().newline();

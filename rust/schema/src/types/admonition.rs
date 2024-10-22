@@ -34,7 +34,7 @@ pub struct Admonition {
 
     /// The type of admonition.
     #[serde(alias = "admonition-type", alias = "admonition_type")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"AdmonitionType::Info"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"AdmonitionType::arbitrary()"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"AdmonitionType::arbitrary()"#))]
@@ -44,7 +44,7 @@ pub struct Admonition {
 
     /// The title of the admonition.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_inlines_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_inlines_non_recursive(4))"#))]
@@ -55,7 +55,7 @@ pub struct Admonition {
 
     /// Whether the admonition is folded.
     #[serde(alias = "is-folded", alias = "is_folded")]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(bool::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(bool::arbitrary())"#))]

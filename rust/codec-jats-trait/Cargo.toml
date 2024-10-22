@@ -7,4 +7,3 @@ edition = "2021"
 codec-info = { path = "../codec-info" }
 codec-jats-derive = { path = "../codec-jats-derive" }
 common = { path = "../common" }
-quick-xml = { workspace = true }

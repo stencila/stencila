@@ -25,7 +25,7 @@ impl Codec for DomCodec {
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
+        Status::Beta
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

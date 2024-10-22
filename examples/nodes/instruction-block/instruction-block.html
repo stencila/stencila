@@ -2,17 +2,17 @@
   <p>
     <span>An insert instruction with no prompt:</span>
   </p>
-  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"a 4x10 table"}}]}'>
+  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"a 4x10 table"}}]}'>
   </stencila-instruction-block>
   <p>
     <span>An insert instruction with a prompt:</span>
   </p>
-  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"top five highest mountains, with height in metres"}}]}' prompt='table'>
+  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"top five highest mountains, with height in metres"}}]}' prompt='table'>
   </stencila-instruction-block>
   <p>
     <span>An insert instruction with a prompt but a blank instruction</span>
   </p>
-  <stencila-instruction-block instruction-type='New' prompt='code-chunk'>
+  <stencila-instruction-block instruction-type='Create' prompt='code-chunk'>
   </stencila-instruction-block>
   <p>
     <span>An edit instruction (has content) with no prompt:</span>
@@ -33,7 +33,7 @@
   <p>
     <span>An insert instruction with a prompt and a suggestion:</span>
   </p>
-  <stencila-instruction-block instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"analyze data"}}]}' prompt='code-chunk' suggestions='[{"type":"SuggestionBlock","content":[{"type":"CodeChunk","code":{"string":"some code"}}]}]'>
+  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"analyze data"}}]}' prompt='code-chunk' suggestions='[{"type":"SuggestionBlock","content":[{"type":"CodeChunk","code":{"string":"some code"}}]}]'>
   </stencila-instruction-block>
   <p>
     <span>An edit instruction with a suggestion:</span>

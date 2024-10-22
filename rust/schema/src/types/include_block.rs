@@ -40,13 +40,13 @@ pub struct IncludeBlock {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The external source of the content, a file path or URL.
     #[strip(code)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("path/to/source.file")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[a-zA-Z0-9/\-.]{1,30}"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[^\p{C}]{1,100}"#))]
@@ -56,13 +56,13 @@ pub struct IncludeBlock {
     /// Media type of the source content.
     #[serde(alias = "encodingFormat", alias = "media-type", alias = "media_type")]
     #[strip(code)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub media_type: Option<String>,
 
     /// A query to select a subset of content from the source
     #[strip(code)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub select: Option<String>,
 
@@ -156,6 +156,12 @@ pub struct IncludeBlockOptions {
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_status: Option<ExecutionStatus>,
+
+    /// The id of the kernel instance that performed the last execution.
+    #[serde(alias = "execution-instance", alias = "execution_instance")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_instance: Option<String>,
 
     /// The kind (e.g. main kernel vs kernel fork) of the last execution.
     #[serde(alias = "execution-kind", alias = "execution_kind")]

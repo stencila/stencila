@@ -1,7 +1,7 @@
 import { consume } from '@lit/context'
 import { InlineTypeList, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { PropertyValueMap, html } from 'lit'
+import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
 import { getModeParam } from '../../../utilities/getModeParam'
@@ -96,17 +96,15 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
         ? 'inline'
         : 'block'
 
-      const styles = apply([
-        this.docViewContext.nodeChipState === 'hidden' && 'pointer-events-none',
-        !this.toggle &&
-          this.docViewContext.nodeChipState !== 'hidden' &&
-          'group-hover:opacity-100',
-        this.docViewContext.nodeChipState === 'show-all' || this.toggle
-          ? 'opacity-100'
-          : 'opacity-0',
-        'hover:z-50',
-        'absolute',
-      ])
+      const chipStateClasses = this.toggle
+        ? 'opacity-100'
+        : this.docViewContext.nodeChipState === 'hidden'
+          ? 'opacity-0 pointer-events-none'
+          : this.docViewContext.nodeChipState === 'hover-only'
+            ? 'opacity-0 group-hover:opacity-100'
+            : 'opacity-100'
+
+      const styles = apply([chipStateClasses, 'hover:z-50', 'absolute'])
 
       return html`
         <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
@@ -128,26 +126,6 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       const testMode = getModeParam(window)
       if (testMode && testMode === 'test-expand-all') {
         this.toggle = true
-      }
-    }
-
-    protected override update(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
-    ): void {
-      super.update(changedProperties)
-
-      if (changedProperties.has('docViewContext')) {
-        if (this.docViewContext.nodeChipState === 'hidden' && this.toggle) {
-          // collapse open container if `nodeChipState` changes to 'hidden'
-          this.toggleChip()
-        } else if (
-          this.docViewContext.nodeChipState === 'expand-all' &&
-          !this.toggle
-        ) {
-          // expand container `nodeChipState` changes to 'expand-all'
-          this.toggleChip()
-        }
       }
     }
   }

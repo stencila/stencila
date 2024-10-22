@@ -6,7 +6,7 @@ version: "0.1.0"
 name: Echo Document Prompt
 description: A debugging prompt for displaying the current document context.
 
-instruction-type: New
+instruction-type: Create 
 node-types: Block
 ---
 

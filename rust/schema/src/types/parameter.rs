@@ -43,12 +43,12 @@ pub struct Parameter {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The name of the parameter.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("name")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[a-zA-Z_][a-zA-Z0-9]{0,9}"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[^\p{C}]{1,100}"#))]
@@ -142,6 +142,12 @@ pub struct ParameterOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_status: Option<ExecutionStatus>,
 
+    /// The id of the kernel instance that performed the last execution.
+    #[serde(alias = "execution-instance", alias = "execution_instance")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_instance: Option<String>,
+
     /// The kind (e.g. main kernel vs kernel fork) of the last execution.
     #[serde(alias = "execution-kind", alias = "execution_kind")]
     #[strip(execution)]
@@ -171,17 +177,17 @@ pub struct ParameterOptions {
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// A short label for the parameter.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label: Option<String>,
 
     /// The default value of the parameter.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub default: Option<Box<Node>>,
 
     /// The validator that the value is validated against.
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     #[html(content)]

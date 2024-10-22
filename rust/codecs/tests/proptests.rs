@@ -70,7 +70,7 @@ proptest! {
     #[test]
     fn article_markdown(article: Article) {
         let article = Node::Article(article);
-        assert_eq!(roundtrip(Format::Markdown, &article, None, None).unwrap(), article);
+        assert_eq!(roundtrip(Format::Smd, &article, None, None).unwrap(), article);
     }
 }
 

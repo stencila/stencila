@@ -13,7 +13,7 @@
     },
     {
       "type": "InstructionBlock",
-      "instructionType": "New",
+      "instructionType": "Create",
       "message": {
         "type": "InstructionMessage",
         "parts": [{ "type": "Text", "value": "a 4x10 table" }]
@@ -30,7 +30,7 @@
     },
     {
       "type": "InstructionBlock",
-      "instructionType": "New",
+      "instructionType": "Create",
       "prompt": "table",
       "message": {
         "type": "InstructionMessage",
@@ -53,7 +53,7 @@
     },
     {
       "type": "InstructionBlock",
-      "instructionType": "New",
+      "instructionType": "Create",
       "prompt": "code-chunk"
     },
     {
@@ -118,7 +118,7 @@
     },
     {
       "type": "InstructionBlock",
-      "instructionType": "New",
+      "instructionType": "Create",
       "prompt": "code-chunk",
       "message": {
         "type": "InstructionMessage",

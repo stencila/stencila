@@ -37,11 +37,11 @@ pub struct PromptBlock {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// An identifier for the prompt to be rendered
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     pub prompt: String,
 
     /// The executed content of the prompt
@@ -123,6 +123,11 @@ pub struct PromptBlockOptions {
     #[serde(alias = "execution-status", alias = "execution_status")]
     #[strip(execution)]
     pub execution_status: Option<ExecutionStatus>,
+
+    /// The id of the kernel instance that performed the last execution.
+    #[serde(alias = "execution-instance", alias = "execution_instance")]
+    #[strip(execution)]
+    pub execution_instance: Option<String>,
 
     /// The kind (e.g. main kernel vs kernel fork) of the last execution.
     #[serde(alias = "execution-kind", alias = "execution_kind")]

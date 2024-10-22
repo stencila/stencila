@@ -440,6 +440,7 @@ get_info <- function() {
   print(list(
     type = unbox("SoftwareApplication"),
     name = unbox("R"),
+    url = unbox(file.path(R.home("bin"), "R")),
     softwareVersion = unbox(paste(version$major, version$minor, sep = ".")),
     operatingSystem = unbox(paste(version$os, version$arch))
   ))

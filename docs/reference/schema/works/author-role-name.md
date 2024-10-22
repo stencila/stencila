@@ -16,6 +16,7 @@ The `AuthorRoleName` type has these members:
 - `Prompter`
 - `Router`
 - `Generator`
+- `Executor`
 
 ## Bindings
 

@@ -98,6 +98,7 @@ pub(super) struct TextNodeExecution {
     pub ended: Option<Timestamp>,
     pub outputs: Option<usize>,
     pub messages: Option<Vec<ExecutionMessage>>,
+    pub code_range: Option<Range>,
     pub authors: Option<Vec<Author>>,
 }
 
@@ -147,7 +148,28 @@ impl<'a> Iterator for TextNodeIterator<'a> {
 }
 
 impl TextNode {
-    /// Get the node id at a position (if any)
+    /// Get the [`TextNode`] at a position (if any)
+    pub fn text_node_at(&self, position: Position) -> Option<TextNode> {
+        // Search through children (and thus recursively through all
+        // descendants so that the deepest (most narrow range) node is selected)
+        for child in &self.children {
+            if let Some(text_node) = child.text_node_at(position) {
+                return Some(text_node);
+            }
+        }
+
+        // If no descendants in range then check if this is
+        if position >= self.range.start && position < self.range.end {
+            return Some(self.clone());
+        }
+
+        None
+    }
+
+    /// Get the [`NodeId`] at a position (if any)
+    ///
+    /// Similar to [`TextNode::text_node_at`] but more efficient if only
+    /// the [`NodeId`] is required and not the whole [`TextNode`].
     pub fn node_id_at(&self, position: Position) -> Option<NodeId> {
         // Search through children (and thus recursively through all
         // descendants so that the deepest (most narrow range) node is selected)
@@ -365,7 +387,7 @@ impl TextDocument {
             if let Err(error) = doc
                 .update(
                     node.clone(),
-                    Some(Format::Markdown),
+                    Some(format.clone()),
                     Some(vec![author_role.clone()]),
                 )
                 .await

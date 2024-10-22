@@ -58,7 +58,7 @@ struct Summary {
 async fn fixtures() -> Result<()> {
     let mut ops_count = BTreeMap::new();
     let mut ops_total = 0;
-    for path in glob("tests/fixtures/*.md")?.flatten() {
+    for path in glob("tests/fixtures/*.smd")?.flatten() {
         eprintln!("{}", path.display());
 
         let name = path
@@ -67,7 +67,7 @@ async fn fixtures() -> Result<()> {
             .unwrap()
             .to_string();
 
-        // Read in the fixture and split into old and new Markdown
+        // Read in the fixture and split into old and new Stencila Markdown
         let content = read_to_string(path)?;
         let mut parts = content.splitn(2, "===\n").map(String::from);
         let (old, new) = (
@@ -75,9 +75,9 @@ async fn fixtures() -> Result<()> {
             parts.next().unwrap_or_default(),
         );
 
-        // Decode the old and new Markdown into nodes
+        // Decode the old and new Stencila Markdown into nodes
         let options = Some(DecodeOptions {
-            format: Some(Format::Markdown),
+            format: Some(Format::Smd),
             ..Default::default()
         });
         let codec = MarkdownCodec {};
@@ -102,7 +102,7 @@ async fn fixtures() -> Result<()> {
             },
             AuthorRoleName::Writer,
         );
-        let patch = diff(&old, &new, Some(Format::Markdown), Some(vec![bob]))?;
+        let patch = diff(&old, &new, Some(Format::Smd), Some(vec![bob]))?;
         ops_count.insert(name.clone(), patch.ops.len());
         ops_total += patch.ops.len();
 
@@ -609,7 +609,7 @@ fn merge_with_authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abc".into()),
-        Some(Format::Markdown),
+        Some(Format::Smd),
         Some(vec![alice.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -622,7 +622,7 @@ fn merge_with_authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abcd".into()),
-        Some(Format::Markdown),
+        Some(Format::Smd),
         Some(vec![bob.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -647,7 +647,7 @@ fn merge_with_authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("abxcd".into()),
-        Some(Format::Markdown),
+        Some(Format::Smd),
         Some(vec![bob.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -674,7 +674,7 @@ fn merge_with_authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("ad".into()),
-        Some(Format::Markdown),
+        Some(Format::Smd),
         Some(vec![carol.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -700,7 +700,7 @@ fn merge_with_authors() -> Result<()> {
     merge(
         &mut chunk,
         &CodeChunk::new("and".into()),
-        Some(Format::Markdown),
+        Some(Format::Smd),
         Some(vec![carol.clone()]),
     )?;
     strip(&mut chunk, strip_targets.clone());
@@ -889,7 +889,7 @@ fn authorship_on_nodes() -> Result<()> {
 #[test]
 fn archive_patch_new() -> Result<()> {
     // Archive an instruction with no accepted suggestion
-    let inb = InstructionBlock::new(InstructionType::New);
+    let inb = InstructionBlock::new(InstructionType::Create);
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
 
     patch(
@@ -918,7 +918,7 @@ fn archive_patch_new() -> Result<()> {
     let mut suggest = SuggestionBlock::new(vec![block.clone()]);
     suggest.suggestion_status = Some(SuggestionStatus::Accepted);
     let inb = InstructionBlock {
-        instruction_type: InstructionType::New,
+        instruction_type: InstructionType::Create,
         suggestions: Some(vec![suggest]),
         ..Default::default()
     };
@@ -960,7 +960,7 @@ fn archive_patch_new() -> Result<()> {
     let mut suggest = SuggestionBlock::new(blocks.clone());
     suggest.suggestion_status = Some(SuggestionStatus::Accepted);
     let inb = InstructionBlock {
-        instruction_type: InstructionType::New,
+        instruction_type: InstructionType::Create,
         suggestions: Some(vec![suggest]),
         ..Default::default()
     };

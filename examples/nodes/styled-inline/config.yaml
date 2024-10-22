@@ -1,4 +1,4 @@
-md:
+smd:
   decode:
     strip-props:
       # Not supported in Markdown

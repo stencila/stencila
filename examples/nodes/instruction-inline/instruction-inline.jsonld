@@ -16,7 +16,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "stencila:instructionType": "New",
+          "stencila:instructionType": "Create",
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -48,7 +48,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "stencila:instructionType": "New",
+          "stencila:instructionType": "Create",
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -88,7 +88,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "stencila:instructionType": "New",
+          "stencila:instructionType": "Create",
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -110,7 +110,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "stencila:instructionType": "New",
+          "stencila:instructionType": "Create",
           "stencila:prompt": "insert-math-inline"
         },
         {
@@ -162,7 +162,7 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "stencila:instructionType": "New",
+          "stencila:instructionType": "Create",
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [

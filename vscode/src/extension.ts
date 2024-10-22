@@ -8,13 +8,16 @@ import {
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerNotifications } from "./notifications";
-import { registerSecretsCommands } from "./secrets";
+import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
 import { cliPath } from "./clis";
 import { registerWalkthroughCommands } from "./walkthroughs";
 
 let client: LanguageClient | undefined;
+let outputChannel = vscode.window.createOutputChannel(
+  "Stencila Language Server"
+);
 
 /**
  * Activate the extension
@@ -37,33 +40,39 @@ export async function activate(context: vscode.ExtensionContext) {
  * Start the Stencila LSP server
  */
 async function startServer(context: vscode.ExtensionContext) {
+  // Get config options
+  const initializationOptions = vscode.workspace.getConfiguration("stencila");
+
   // Get the path to the CLI
   let command = cliPath(context);
 
   // Determine the arguments to the CLI
   let args: string[];
+  const logLevel = initializationOptions.languageServer?.logLevel;
   switch (context.extensionMode) {
     case vscode.ExtensionMode.Development:
     case vscode.ExtensionMode.Test: {
-      args = ["lsp", "--log-level=debug", "--log-format=pretty"];
+      args = ["lsp", `--log-level=${logLevel ?? "debug"}`];
       break;
     }
     case vscode.ExtensionMode.Production: {
-      args = ["lsp", "--log-level=warn", "--log-format=compact"];
+      args = ["lsp", `--log-level=${logLevel ?? "warn"}`];
       break;
     }
   }
 
-  // Get config options
-  const initializationOptions = vscode.workspace.getConfiguration("stencila");
+  // Collect secrets to pass as env vars to LSP server
+  const secrets = await collectSecrets(context);
 
   // Start the language server client passing secrets as env vars
   const serverOptions: ServerOptions = {
     command,
     args,
+    options: { env: { ...process.env, ...secrets } },
   };
   const clientOptions: LanguageClientOptions = {
     initializationOptions,
+    outputChannel,
     documentSelector: [{ language: "smd" }, { language: "myst" }],
     markdown: {
       isTrusted: true,
@@ -122,6 +131,13 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(
         "Stencila Language Server has been restarted."
       );
+    })
+  );
+
+  // Command to view the server logs
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.lsp-server.logs", async () => {
+      outputChannel.show();
     })
   );
 }

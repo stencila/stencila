@@ -1,4 +1,4 @@
-use schema::{CodeChunk, LabelType, NodeProperty};
+use schema::{CodeChunk, ExecutionKind, LabelType, NodeProperty};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -27,8 +27,18 @@ impl Executable for CodeChunk {
         let lang = self.programming_language.as_deref().unwrap_or_default();
         let info = parsers::parse(&self.code, lang);
 
-        let execution_required =
+        let mut execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
+
+        // Check whether the kernel instance used last time is active in the kernels set (if not forked)
+        if let (Some(ExecutionKind::Main), Some(id)) = (
+            &self.options.execution_kind,
+            &self.options.execution_instance,
+        ) {
+            if !executor.kernels().await.has_instance(id).await {
+                execution_required = ExecutionRequired::KernelRestarted;
+            }
+        }
 
         // These need to be set here because they may be used in `self.execute`
         // before the following patch is applied (below, or if `Executor.compile_prepare_execute`)
@@ -124,7 +134,7 @@ impl Executable for CodeChunk {
         if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
-            let (outputs, messages) = executor
+            let (outputs, messages, instance) = executor
                 .kernels()
                 .await
                 .execute(&self.code, self.programming_language.as_deref())
@@ -133,6 +143,7 @@ impl Executable for CodeChunk {
                     (
                         Vec::new(),
                         vec![error_to_execution_message("While executing code", error)],
+                        String::new(),
                     )
                 });
 
@@ -151,11 +162,25 @@ impl Executable for CodeChunk {
             self.outputs = outputs.clone();
             self.options.execution_messages = messages.clone();
 
+            // Patch outputs using kernel as author if instance has changed
+            if let Some(author) = executor
+                .node_execution_instance_author(&instance, &self.options.execution_instance)
+                .await
+            {
+                executor.patch_with_authors(
+                    &node_id,
+                    vec![author],
+                    [set(NodeProperty::Outputs, outputs)],
+                );
+            } else {
+                executor.patch(&node_id, [set(NodeProperty::Outputs, outputs)]);
+            }
+
             executor.patch(
                 &node_id,
                 [
-                    set(NodeProperty::Outputs, outputs),
                     set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionInstance, instance),
                     set(NodeProperty::ExecutionKind, kind),
                     set(NodeProperty::ExecutionRequired, required),
                     set(NodeProperty::ExecutionMessages, messages),

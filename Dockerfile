@@ -1,5 +1,5 @@
 # Use the official Node.js image to build web clients and components
-FROM node:latest AS web
+FROM node:20 AS web
 
 # Set the working directory to /build and copy files into it
 WORKDIR /build
@@ -13,7 +13,7 @@ RUN cd web && npm run build
 
 
 # Use the official Rust image to build CLI
-FROM rust:latest AS cli
+FROM rust:1.81 AS cli
 
 # Set the working directory to /build and copy files into it
 WORKDIR /build

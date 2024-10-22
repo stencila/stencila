@@ -91,34 +91,34 @@
   },
   // Stencila's custom directives
   "If Block": {
-    "description": "An if block",
+    "description": "If block",
     "prefix": [":::{if}"],
     "body": [":::{if} ${2:expr}", "", "${0:content}", "", ":::", ""],
   },
   "For Block": {
-    "description": "A for block",
+    "description": "For block",
     "prefix": [":::{for}"],
     "body": [":::{for} ${2:expr}", "", "${0:content}", "", ":::", ""],
   },
-  "New Instruction": {
-    "description": "An instruction to generate new content",
-    "prefix": [":::{new}"],
-    "body": [":::{new} ${0:instruction}", ":::", ""],
+  "Create Command": {
+    "description": "Command to create new content",
+    "prefix": [":::{create}"],
+    "body": [":::{create} ${0}", "", ":::", ""],
   },
-  "Edit Instruction": {
-    "description": "An instruction to edit existing content",
+  "Edit Command": {
+    "description": "Command to edit existing content",
     "prefix": [":::{edit}"],
-    "body": [":::{edit} ${0:instruction}", ":::", ""],
+    "body": [":::{edit} ${0}"],
   },
-  "Fix Instruction": {
-    "description": "An instruction to fix code or math",
+  "Fix Command": {
+    "description": "Command to fix code or math",
     "prefix": [":::{fix}"],
-    "body": [":::{fix} ${0:instruction}", ":::", ""],
+    "body": [":::{fix} ${0}"],
   },
-  "Describe Instruction": {
-    "description": "An instruction to describe existing content",
+  "Describe Command": {
+    "description": "Command to describe existing content",
     "prefix": [":::{describe}"],
-    "body": [":::{describe} ${0:instruction}", ":::", ""],
+    "body": [":::{describe} ${0:how}", "", ":::", ""],
   },
   "Styled Block": {
     "description": "A block of styled content",

@@ -1008,9 +1008,9 @@ mod tests {
 
     #[test]
     fn test_instruction_inline() {
-        instruction_inline(&mut Located::new("[[new something]]")).unwrap();
+        instruction_inline(&mut Located::new("[[create something]]")).unwrap();
 
-        let ins = inlines("before [[new something]] after");
+        let ins = inlines("before [[create something]] after");
         assert_eq!(ins.len(), 3);
         assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
         assert!(matches!(ins[1].0, Inline::InstructionInline(..)));

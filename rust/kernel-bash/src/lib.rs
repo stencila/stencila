@@ -1,20 +1,21 @@
-use std::sync::atomic::{AtomicU64, Ordering};
-
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
+    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Bash code locally
 #[derive(Default)]
-pub struct BashKernel {
-    /// A counter of instances of this microkernel
-    instances: AtomicU64,
-}
+pub struct BashKernel;
+
+const NAME: &str = "bash";
 
 impl Kernel for BashKernel {
     fn name(&self) -> String {
-        "bash".to_string()
+        NAME.to_string()
+    }
+
+    fn provider(&self) -> KernelProvider {
+        KernelProvider::Environment
     }
 
     fn availability(&self) -> KernelAvailability {
@@ -44,7 +45,7 @@ impl Kernel for BashKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(self.instances.fetch_add(1, Ordering::SeqCst))
+        self.microkernel_create_instance(NAME)
     }
 }
 

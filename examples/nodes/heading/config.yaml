@@ -12,7 +12,7 @@ jsonld:
   decode:
     skip: true
 
-md:
+smd:
   decode:
     strip-props:
       # As above

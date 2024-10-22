@@ -42,19 +42,19 @@ pub struct Button {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The code.
     #[strip(code)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
     #[serde(alias = "programming-language", alias = "programming_language")]
     #[strip(code)]
-    #[patch(format = "md", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst")]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
 
@@ -148,6 +148,11 @@ pub struct ButtonOptions {
     #[serde(alias = "execution-status", alias = "execution_status")]
     #[strip(execution)]
     pub execution_status: Option<ExecutionStatus>,
+
+    /// The id of the kernel instance that performed the last execution.
+    #[serde(alias = "execution-instance", alias = "execution_instance")]
+    #[strip(execution)]
+    pub execution_instance: Option<String>,
 
     /// The kind (e.g. main kernel vs kernel fork) of the last execution.
     #[serde(alias = "execution-kind", alias = "execution_kind")]

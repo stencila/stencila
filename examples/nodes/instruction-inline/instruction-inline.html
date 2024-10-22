@@ -1,23 +1,23 @@
 <article>
   <p>
     <span>A paragraph with an instruction to insert content</span>
-    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"insert an inline"}}]}'>
+    <stencila-instruction-inline instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"insert an inline"}}]}'>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>A paragraph with an instruction to edit some existing content:</span>
-    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this"}}]}'>
+    <stencila-instruction-inline instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this"}}]}'>
       <span>existing content</span>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>Instructions with a prompt:</span>
-    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"equation for surface area of cube"}}]}' prompt='insert-inline-math'>
+    <stencila-instruction-inline instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"equation for surface area of cube"}}]}' prompt='insert-inline-math'>
     </stencila-instruction-inline>
     <span>with a blank instruction</span>
-    <stencila-instruction-inline instruction-type='New' prompt='insert-math-inline'>
+    <stencila-instruction-inline instruction-type='Create' prompt='insert-math-inline'>
     </stencila-instruction-inline>
     <span>and</span>
     <stencila-instruction-inline instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"please improve this"}}]}' prompt='joe'>
@@ -27,7 +27,7 @@
   </p>
   <p>
     <span>Instructions with a suggestion:</span>
-    <stencila-instruction-inline instruction-type='New' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"area of circle"}}]}' prompt='insert-inline-math' suggestions='[{"type":"SuggestionInline","content":[{"type":"MathInline","code":{"string":"2 /pi r^2"}}]}]'>
+    <stencila-instruction-inline instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"area of circle"}}]}' prompt='insert-inline-math' suggestions='[{"type":"SuggestionInline","content":[{"type":"MathInline","code":{"string":"2 /pi r^2"}}]}]'>
     </stencila-instruction-inline>
     <span>and</span>
     <stencila-instruction-inline instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve"}}]}' suggestions='[{"type":"SuggestionInline","content":[{"type":"Text","value":{"string":"improved content"}}]}]'>

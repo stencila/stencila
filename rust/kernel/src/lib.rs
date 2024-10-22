@@ -2,10 +2,13 @@ use std::path::Path;
 
 use common::{
     async_trait::async_trait,
+    bs58,
+    clap::{self, ValueEnum},
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
     strum::Display,
     tokio::sync::{broadcast, mpsc, watch},
+    uuid::Uuid,
 };
 use format::Format;
 
@@ -30,6 +33,11 @@ pub trait Kernel: Sync + Send {
     ///
     /// This name should be unique amongst all kernels.
     fn name(&self) -> String;
+
+    /// Get the type of the kernel
+    fn r#type(&self) -> KernelType {
+        KernelType::Programming
+    }
 
     /// Get the provider of the kernel
     fn provider(&self) -> KernelProvider {
@@ -85,9 +93,23 @@ pub trait Kernel: Sync + Send {
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
 }
 
+/// The type of a kernel
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum KernelType {
+    // Note that the order here influences how kernels are displayed
+    // in the `stencila kernels list` command. So change with intent.
+    Programming,
+    Diagrams,
+    Templating,
+    Math,
+    Styling,
+}
+
 /// The provider of a kernel
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum KernelProvider {
     Builtin,
+    Environment,
     Plugin(String),
 }
 
@@ -194,11 +216,23 @@ pub type KernelVariableResponder = broadcast::Receiver<KernelVariableResponse>;
 #[allow(unused)]
 #[async_trait]
 pub trait KernelInstance: Sync + Send {
-    /// Get the name of the kernel instance
+    /// Get the id of the kernel instance
     ///
-    /// This name should be unique amongst all kernel instances,
-    /// including those for other `Kernel`s.
-    fn name(&self) -> String;
+    /// This id is used to determine if the `execution_required` property
+    /// needs to set to `KernelRestarted` because, although the node may have
+    /// been executed at some time, it was not executed in the current kernel
+    /// instance.
+    ///
+    /// As such, for most kernel instance this id should be unique across all
+    /// kernel instances across processes and time (e.g. include a timestamp).
+    /// This is not strictly necessary for kernels that do not hold state
+    /// (e.g. AsciiMath) but, for consistency, we maintain this convention for
+    /// those too.
+    ///
+    /// For kernels that are not builtin (e.g. Python, R) it
+    /// is useful to incorporate the version and or path of the executable to
+    /// help the user understand which external binary the kernel is running.
+    fn id(&self) -> &str;
 
     /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus> {
@@ -248,33 +282,33 @@ pub trait KernelInstance: Sync + Send {
     }
 
     /// Get a variable from the kernel instance
-    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+    async fn get(&mut self, id: &str) -> Result<Option<Node>> {
         Ok(None)
     }
 
     /// Set a variable in the kernel instance
-    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+    async fn set(&mut self, id: &str, value: &Node) -> Result<()> {
         Ok(())
     }
 
     /// Remove a variable from the kernel instance
-    async fn remove(&mut self, name: &str) -> Result<()> {
+    async fn remove(&mut self, id: &str) -> Result<()> {
         Ok(())
     }
 
     /// Create a fork of the kernel instance
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        bail!("Kernel `{}` does not support forks", self.name())
+        bail!("Kernel `{}` does not support forks", self.id())
     }
 
     /// Get a watcher of the status of the kernel instance
     fn status_watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
-        bail!("Kernel `{}` does not support watching", self.name())
+        bail!("Kernel `{}` does not support watching", self.id())
     }
 
     /// Get a signaller to interrupt or kill the kernel instance
     fn signal_sender(&self) -> Result<mpsc::Sender<KernelSignal>> {
-        bail!("Kernel `{}` does not support signals", self.name())
+        bail!("Kernel `{}` does not support signals", self.id())
     }
 
     /// Set the channel for requesting variables from other kernels
@@ -284,6 +318,15 @@ pub trait KernelInstance: Sync + Send {
         responder: KernelVariableResponder,
     ) {
     }
+}
+
+/// Generate an id for a kernel instance
+///
+/// Uses the same algorithm as for node ids but with a prefix which
+/// is determined by the `KernelInstance` implementation
+pub fn generate_id(prefix: &str) -> String {
+    let uuid = bs58::encode(&Uuid::new_v4()).into_string();
+    format!("{prefix}_{uuid}")
 }
 
 /// The status of a kernel instance

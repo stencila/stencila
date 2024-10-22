@@ -179,7 +179,7 @@ export class ImageObject extends Entity {
   private renderSvg() {
     /**
      * Reset styles on SVG
-     * 
+     *
      * Sets all properties to their default values as defined by the CSS specification.
      * This effectively strips away any inherited styles or previously applied styles,
      * resetting the SVG to its most basic, unstyled state.

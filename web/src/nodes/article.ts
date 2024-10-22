@@ -86,7 +86,7 @@ export class StencilaArticle extends LitElement {
         <stencila-ui-authors-provenance>
           <div class="flex flex-col gap-y-4">
             <div slot="authors">
-              <label class="block text-sm mb-4">Contributers</label>
+              <label class="block text-sm mb-4">Contributors</label>
               <slot name="authors"></slot>
             </div>
             <div slot="provenance">

@@ -58,6 +58,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -215,6 +216,19 @@
       ],
       "$ref": "ExecutionStatus.schema.json"
     },
+    "executionInstance": {
+      "@id": "stencila:executionInstance",
+      "description": "The id of the kernel instance that performed the last execution.",
+      "$comment": "Used to help identify whether execution is required due to the last execution\nbeing in a difference instance (e.g. after a kernel restart).\n",
+      "aliases": [
+        "execution-instance",
+        "execution_instance"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
+    },
     "executionKind": {
       "@id": "stencila:executionKind",
       "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
@@ -286,6 +300,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -319,6 +334,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -330,6 +346,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -341,6 +358,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -353,6 +371,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -382,6 +401,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -418,6 +438,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },

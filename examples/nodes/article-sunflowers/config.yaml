@@ -11,7 +11,7 @@ jats.xml:
     # TODO: Enable when Cite nodes are supported
     skip: true
 
-md:
+smd:
   decode:
     # TODO: Enable when Cite nodes are supported
     skip: true

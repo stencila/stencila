@@ -277,15 +277,15 @@ pub struct Document {
 impl Document {
     /// Get the path to the sidecar file for a document
     ///
-    /// Returns the first existing path matching the ordered list
-    /// of possible sidecar formats, falling back to a `.json.zip`
-    /// file if no existing file exists.
+    /// Returns the first existing path matching a hard-coded, ordered list
+    /// of possible sidecar formats, falling back to `<path>.json.zip` if no sidecar file exists.
     pub fn sidecar_path(path: &Path) -> PathBuf {
         static SIDECAR_FORMATS: [Format; 2] = [Format::JsonZip, Format::Json];
 
-        // See if any existing paths have one of the formats
-        // Having extensions with two dots requires setting extension on difference
-        // instances of the original path inside the loop with `.json.json`
+        // See if any existing paths have one of the formats.
+        //
+        // NOTE: Having extensions with two dots requires us to set an extension on different
+        // instances of the original path inside the loop. Otherwise you can end up with `.json.json` etc
         for format in &SIDECAR_FORMATS {
             let mut candidate = path.to_path_buf();
             candidate.set_extension(format.extension());
@@ -294,7 +294,7 @@ impl Document {
             }
         }
 
-        // Fallback to using the preferred format
+        // Fallback to using the preferred format (the first in SIDECAR_FORMATS)
         let mut path = path.to_path_buf();
         path.set_extension(SIDECAR_FORMATS[0].extension());
         path
@@ -302,8 +302,8 @@ impl Document {
 
     /// Initialize a new document
     ///
-    /// This initializes the document's "watch", "update", and "command" channels, and
-    /// starts its background tasks.
+    /// Initializes the document's "watch", "update", "patch", and "command" channels, and
+    /// starts the corresponding background tasks.
     #[tracing::instrument]
     pub fn init(home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();

@@ -1,0 +1,7 @@
+::: include includee.smd
+
+::: include child/includee.smd
+
+::: include child/grandchild/includee.smd
+
+::: include ../code-chunk/hello-world-rhai.smd

@@ -41,11 +41,11 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New"
+      "stencila:instructionType": "Create"
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New"
+      "stencila:instructionType": "Create"
     },
     {
       "@type": "stencila:Heading",
@@ -164,7 +164,7 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "stencila:instructionType": "New",
+      "stencila:instructionType": "Create",
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [

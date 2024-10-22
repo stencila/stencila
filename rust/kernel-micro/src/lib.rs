@@ -1,8 +1,8 @@
 use std::{
+    env,
     fs::write,
-    path::Path,
+    path::{Path, PathBuf},
     process::Stdio,
-    sync::atomic::{AtomicU64, Ordering},
 };
 
 use which::which;
@@ -11,12 +11,13 @@ use which::which;
 // the `Microkernel` trait
 pub use kernel::{
     common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
+    KernelInterrupt, KernelKill, KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 use kernel::{
     common::{
         async_trait::async_trait,
+        dirs,
         eyre::{bail, eyre, Context, OptionExt, Result},
         itertools::Itertools,
         serde_json,
@@ -31,6 +32,7 @@ use kernel::{
         },
         tracing, which,
     },
+    generate_id,
     schema::{
         ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareSourceCode,
         Variable,
@@ -129,15 +131,11 @@ pub trait Microkernel: Sync + Send + Kernel {
     }
 
     /// An implementation of `Kernel::create_instance` for microkernels
-    fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
+    fn microkernel_create_instance(&self, kernel_name: &str) -> Result<Box<dyn KernelInstance>> {
         tracing::debug!("Creating microkernel instance");
 
-        // Assign an id for the instance using the index, if necessary, to ensure it is unique
-        let id = if index == 0 {
-            self.name()
-        } else {
-            format!("{}-{index}", self.name())
-        };
+        let id = generate_id(kernel_name);
+        let kernel_name = kernel_name.to_string();
 
         // Get the name of the executable for this microkernel
         let executable_name = self.executable_name();
@@ -169,9 +167,12 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         Ok(Box::new(MicrokernelInstance {
             id,
+            kernel_name,
             executable_name,
             executable_args,
             default_message_level,
+            executable_path: None,
+            working_dir: None,
             command: None,
             child: None,
             pid: 0,
@@ -182,7 +183,6 @@ pub trait Microkernel: Sync + Send + Kernel {
             input: None,
             output: None,
             errors: None,
-            forks: Default::default(),
         }))
     }
 }
@@ -192,14 +192,25 @@ pub struct MicrokernelInstance {
     /// The id of the microkernel instance
     id: String,
 
+    /// The name of the kernel the instance is for
+    ///
+    /// Used to generate ids for forks that are consistent with the parent kernel.
+    kernel_name: String,
+
     /// The name of the executable
     executable_name: String,
 
     /// The arguments of the executable
     executable_args: Vec<String>,
 
+    /// The resolved path to the executable
+    executable_path: Option<PathBuf>,
+
     /// The command used to start the microkernel instance (for main processes only, not forks)
     command: Option<Command>,
+
+    /// The working directory of the microkernel instance
+    working_dir: Option<PathBuf>,
 
     /// The default level for execution messages
     default_message_level: MessageLevel,
@@ -234,9 +245,6 @@ pub struct MicrokernelInstance {
 
     /// The error stream for the process
     errors: Option<MicrokernelErrors>,
-
-    /// A counter of forks of this microkernel instance
-    forks: AtomicU64,
 }
 
 /// An input stream for a microkernel instance
@@ -325,8 +333,8 @@ impl MicrokernelFlag {
 
 #[async_trait]
 impl KernelInstance for MicrokernelInstance {
-    fn name(&self) -> String {
-        self.id.clone()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -402,12 +410,25 @@ impl KernelInstance for MicrokernelInstance {
         })?);
 
         // Create the command
-        let mut command = Command::new(exec_path);
+        let mut command = Command::new(&exec_path);
         command
             .args(exec_args.clone())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
+
+        // If this is the R microkernel and the `R_HOME` env var is not set then
+        // set it to the grandparent of the executable path.
+        // This is intended to fix this issue where, when using the R microkernel
+        // via the VSCode extension, the correct environment does not reach R for some reason
+        // https://github.com/stencila/stencila/issues/2348
+        if self.executable_name == "Rscript" && env::var("R_HOME").is_err() {
+            if let Some(rhome) = exec_path.ancestors().nth(2) {
+                command.env("R_HOME", rhome);
+            }
+        }
+
+        self.executable_path = Some(exec_path);
 
         tracing::debug!(
             "Running `{} {}` in `{}`",
@@ -420,7 +441,7 @@ impl KernelInstance for MicrokernelInstance {
         let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {
             format!(
                 "unable to start microkernel {}: {}",
-                self.name(),
+                self.id(),
                 self.command
                     .as_ref()
                     .map(|command| format!("{:?}", command))
@@ -429,6 +450,7 @@ impl KernelInstance for MicrokernelInstance {
         })?;
 
         self.command = Some(command);
+        self.working_dir = directory.to_path_buf().canonicalize().ok();
 
         let pid = child
             .id()
@@ -472,7 +494,7 @@ impl KernelInstance for MicrokernelInstance {
             .get_status()
             .wrap_err_with(|| eyre!("Unable to check status of starting kernel"))?;
         if matches!(status, KernelStatus::Failed | KernelStatus::Stopped) {
-            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.name())
+            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.id())
         }
 
         self.set_status(KernelStatus::Ready)?;
@@ -500,7 +522,7 @@ impl KernelInstance for MicrokernelInstance {
                 };
 
                 if let Err(error) = kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
-                    tracing::warn!("While killing `{}` kernel: {error}", self.name())
+                    tracing::warn!("While killing `{}` kernel: {error}", self.id())
                 }
             }
         }
@@ -530,10 +552,42 @@ impl KernelInstance for MicrokernelInstance {
         let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, []).await?;
         self.check_for_errors(messages, "getting info")?;
 
-        match nodes.pop() {
-            Some(Node::SoftwareApplication(node)) => Ok(node),
-            node => bail!("Expected a `SoftwareApplication`, got {node:#?}"),
+        let Some(Node::SoftwareApplication(mut app)) = nodes.pop() else {
+            bail!("Expected a `SoftwareApplication`, got another node type")
+        };
+
+        // Use the resolved executable path if no url (executable path) provided
+        let path = match (&app.options.url, self.executable_path.as_ref()) {
+            (Some(url), _) => Some(PathBuf::from(url)),
+            (None, Some(path)) => Some(path.to_path_buf()),
+            _ => None,
+        };
+
+        if let Some(path) = path {
+            let path = path.canonicalize().unwrap_or(path);
+            let home_dir = dirs::home_dir().unwrap_or_default();
+
+            let url = if let Some(relative) = self
+                .working_dir
+                .as_ref()
+                .and_then(|working_dir| path.strip_prefix(working_dir).ok())
+            {
+                // Strip the working directory if this in is the working directory
+                relative.to_string_lossy().to_string()
+            } else if let Ok(relative_to_home) = path.strip_prefix(&home_dir) {
+                // Strip users home dir
+                PathBuf::from("~")
+                    .join(relative_to_home)
+                    .to_string_lossy()
+                    .to_string()
+            } else {
+                path.to_string_lossy().to_string()
+            };
+
+            app.options.url = Some(url);
         }
+
+        Ok(app)
     }
 
     async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
@@ -629,7 +683,7 @@ impl KernelInstance for MicrokernelInstance {
             let Some(Node::Integer(pid)) = outputs.first() else {
                 bail!(
                     "Did not receive pid for fork of microkernel `{}`",
-                    self.name()
+                    self.id()
                 )
             };
             let pid = *pid as u32;
@@ -670,13 +724,8 @@ impl KernelInstance for MicrokernelInstance {
             let output = Some(MicrokernelOutput::Pipe(stdout_reader));
             let errors = Some(MicrokernelErrors::Pipe(stderr_reader));
 
-            // Create fork id
-            let id = format!(
-                "{}-fork-{}",
-                self.id,
-                self.forks.fetch_add(1, Ordering::SeqCst)
-            );
-
+            let id = generate_id(&self.kernel_name);
+            let kernel_name = self.kernel_name.clone();
             let status = KernelStatus::Ready;
             let status_sender = Self::setup_status_channel(status);
 
@@ -684,8 +733,11 @@ impl KernelInstance for MicrokernelInstance {
 
             Ok(Box::new(Self {
                 id,
+                kernel_name,
                 executable_name: Default::default(),
                 executable_args: Default::default(),
+                working_dir: None,
+                executable_path: None,
                 command: None,
                 default_message_level,
                 child: None,
@@ -697,7 +749,6 @@ impl KernelInstance for MicrokernelInstance {
                 input,
                 output,
                 errors,
-                forks: Default::default(),
             }))
         }
 
@@ -831,7 +882,7 @@ impl MicrokernelInstance {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.name()
+                    self.id()
                 );
                 *previous = status;
                 true
@@ -867,7 +918,7 @@ impl MicrokernelInstance {
     /// Send a task to this microkernel instance
     async fn send(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
         let Some(input) = self.input.as_mut() else {
-            bail!("Microkernel `{}` has not been started yet!", self.name());
+            bail!("Microkernel `{}` has not been started yet!", self.id());
         };
 
         match input {
@@ -898,7 +949,7 @@ impl MicrokernelInstance {
         if messages.iter().any(|m| m.level == MessageLevel::Error) {
             bail!(
                 "While {action} in microkernel `{}`: {}",
-                self.name(),
+                self.id(),
                 messages.into_iter().map(|message| message.message).join("")
             )
         } else {

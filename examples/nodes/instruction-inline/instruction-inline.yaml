@@ -6,7 +6,7 @@ content:
     value:
       string: 'A paragraph with an instruction to insert content '
   - type: InstructionInline
-    instructionType: New
+    instructionType: Create
     message:
       type: InstructionMessage
       parts:
@@ -22,7 +22,7 @@ content:
     value:
       string: 'A paragraph with an instruction to edit some existing content: '
   - type: InstructionInline
-    instructionType: New
+    instructionType: Create
     message:
       type: InstructionMessage
       parts:
@@ -42,7 +42,7 @@ content:
     value:
       string: 'Instructions with a prompt: '
   - type: InstructionInline
-    instructionType: New
+    instructionType: Create
     message:
       type: InstructionMessage
       parts:
@@ -54,7 +54,7 @@ content:
     value:
       string: ' with a blank instruction '
   - type: InstructionInline
-    instructionType: New
+    instructionType: Create
     prompt: insert-math-inline
   - type: Text
     value:
@@ -81,7 +81,7 @@ content:
     value:
       string: 'Instructions with a suggestion: '
   - type: InstructionInline
-    instructionType: New
+    instructionType: Create
     message:
       type: InstructionMessage
       parts:

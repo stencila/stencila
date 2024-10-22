@@ -28,7 +28,7 @@ old:
                 - 0
                 - 23
         - type: InstructionInline
-          instructionType: New
+          instructionType: Create
           message:
             type: InstructionMessage
             parts:
@@ -92,7 +92,7 @@ new:
           value:
             string: "The area of a cube is: "
         - type: InstructionInline
-          instructionType: New
+          instructionType: Create
           message:
             type: InstructionMessage
             parts:
@@ -139,7 +139,7 @@ merged:
                 - 0
                 - 23
         - type: InstructionInline
-          instructionType: New
+          instructionType: Create
           message:
             type: InstructionMessage
             parts:

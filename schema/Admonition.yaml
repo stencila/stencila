@@ -24,7 +24,7 @@ properties:
     description: The type of admonition.
     $ref: AdmonitionType
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     jats:
       attr: content-type
     proptest:
@@ -41,7 +41,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: p
     jats:
@@ -64,7 +64,7 @@ properties:
       can be toggled to be visible or hidden.
     type: boolean
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     jats:
       attr: is-folded
     proptest:

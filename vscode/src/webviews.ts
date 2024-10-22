@@ -1,7 +1,9 @@
 import path from "path";
 
 import * as vscode from "vscode";
+
 import { subscribeToContent } from "./extension";
+import { statusBar } from "./status-bar";
 
 /**
  * A map of document view panels used to ensure that only one
@@ -56,7 +58,7 @@ export async function createDocumentViewPanel(
   panel.iconPath = vscode.Uri.joinPath(
     context.extensionUri,
     "icons",
-    "stencila-icon-32x32.svg"
+    "stencila-128.png"
   );
 
   const createDocumentViewHTML = (content: string) => {
@@ -104,6 +106,11 @@ export async function createDocumentViewPanel(
 
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);
+
+  // Listen to the view state changes of the webview panel to update status bar
+  panel.onDidChangeViewState((e) => {
+    statusBar.updateForDocumentView(e.webviewPanel.active);
+  });
 
   // Handle when the webview is disposed
   panel.onDidDispose(() => {

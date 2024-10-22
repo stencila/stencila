@@ -33,7 +33,9 @@ impl Document {
             }
         }
 
-        let mut current: Option<(Command, u64, JoinHandle<()>)> = None;
+        // The details of the command that is currently running
+        let mut current_command_details: Option<(Command, u64, JoinHandle<()>)> = None;
+
         while let Some((command, command_id)) = command_receiver.recv().await {
             tracing::trace!("Document command `{}` received", command.to_string());
 
@@ -41,7 +43,9 @@ impl Document {
 
             // If there is already a command running, decide whether to ignore the new command,
             // interrupt execution, or wait for the current command to finish.
-            if let Some((current_command, current_command_id, current_task)) = &current {
+            if let Some((current_command, current_command_id, current_task)) =
+                &current_command_details
+            {
                 if !current_task.is_finished() {
                     match (&command, current_command) {
                         (CompileDocument | ExecuteDocument(..), ExecuteDocument(..)) => {
@@ -147,7 +151,7 @@ impl Document {
 
                         send_status(&status_sender, command_id, status);
                     });
-                    current = Some((command, command_id, task));
+                    current_command_details = Some((command, command_id, task));
                 }
                 ExecuteDocument(options) => {
                     let status_sender = status_sender.clone();
@@ -163,7 +167,7 @@ impl Document {
 
                         send_status(&status_sender, command_id, status);
                     });
-                    current = Some((command, command_id, task));
+                    current_command_details = Some((command, command_id, task));
                 }
                 ExecuteNodes(CommandNodes { node_ids, .. }) => {
                     let status_sender = status_sender.clone();
@@ -188,7 +192,7 @@ impl Document {
 
                         send_status(&status_sender, command_id, status);
                     });
-                    current = Some((
+                    current_command_details = Some((
                         Command::ExecuteNodes(CommandNodes::default()),
                         command_id,
                         task,
@@ -200,7 +204,8 @@ impl Document {
                     send_status(&status_sender, command_id, CommandStatus::Ignored);
                 }
 
-                // Note: the following commands are not cancellable; the `current` variable is not set
+                // Note: the following commands are not cancellable so
+                // the `current_command_details` variable is not set
                 SaveDocument => {
                     // Save the document to its source and sidecar
                     if let Some(path) = &path {

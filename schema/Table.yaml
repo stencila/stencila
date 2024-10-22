@@ -28,13 +28,13 @@ properties:
     description: A short label for the table.
     type: string
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   labelAutomatically:
     '@id': stencila:labelAutomatically
     description: Whether the label should be automatically updated.
     type: boolean
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
   caption:
     '@id': schema:caption
     description: A caption for the table.
@@ -43,7 +43,7 @@ properties:
       $ref: Block
     walk: true
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: caption
     proptest:
@@ -65,7 +65,7 @@ properties:
       $ref: TableRow
     walk: true
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: table
     proptest:
@@ -89,7 +89,7 @@ properties:
       $ref: Block
     walk: true
     patch:
-      formats: [md, myst]
+      formats: [md, smd, myst]
     dom:
       elem: aside
     proptest:

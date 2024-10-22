@@ -1,20 +1,32 @@
 name: "💡 Feature"
-description: Document a new feature
+description: Suggest a feature
 title: "feat(<context>): <title>"
 labels:
   - "type: feature"
-  - "needs triaging"
 projects:
   - stencila/8
-assignees:
-  - nokome
-  - simonwinter
 body:
-  - type: textarea
-    id: summary
+  - type: markdown
     attributes:
-      label: "Summary"
-      description: Provide an explanation of the feature
-      placeholder: Describe your feature request
+      value: |
+        Thanks for taking the time to share your idea ✨. We're excited to find out more!
+  - type: dropdown
+    id: product
+    attributes:
+      label: Which component?
+      description: Which component of Stencila is this idea for.
+      options:
+        - Stencila CLI
+        - Stencila VSCode extension
+        - Built-in prompts
+        - Prompt libraries
+        - Other
+      default: 0
+  - type: textarea
+    id: your-suggestion
+    attributes:
+      label: What's your idea?
+      description: Tell us all about it. Sketches and screenshots welcome too!
+      placeholder: It would be great if...
     validations:
       required: true

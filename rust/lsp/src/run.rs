@@ -9,15 +9,18 @@ use async_lsp::{
 use tower::ServiceBuilder;
 
 use common::serde_json;
+use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
-    code_lens, commands, completion, content, formatting, lifecycle, symbols, text_document,
-    ServerState, ServerStatus,
+    code_lens, commands, completion, content, formatting, hover, lifecycle, logging, symbols,
+    text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
-pub async fn run() {
+pub async fn run(log_level: LevelFilter, log_filter: &str) {
     let (server, _) = MainLoop::new_server(|client| {
+        logging::setup(log_level, log_filter, client.clone());
+
         let mut router = Router::new(ServerState {
             client: client.clone(),
             documents: HashMap::new(),
@@ -78,6 +81,20 @@ pub async fn run() {
                 }
             })
             .request::<request::CodeLensResolve, _>(|_, code_lens| code_lens::resolve(code_lens));
+
+        router.request::<request::HoverRequest, _>(|state, params| {
+            let uri = &params.text_document_position_params.text_document.uri;
+            let doc_root = state
+                .documents
+                .get(uri)
+                .map(|text_doc| (text_doc.doc.clone(), text_doc.root.clone()));
+            async move {
+                match doc_root {
+                    Some((doc, root)) => hover::request(params, doc, root).await,
+                    None => Ok(None),
+                }
+            }
+        });
 
         router
             .request::<request::ExecuteCommand, _>(|state, params| {

@@ -80,6 +80,7 @@ class AuthorRoleName(StrEnum):
     Prompter = "Prompter"
     Router = "Router"
     Generator = "Generator"
+    Executor = "Executor"
 
 
 class CitationIntent(StrEnum):
@@ -303,7 +304,7 @@ class InstructionType(StrEnum):
     The type of an instruction describing the operation to be performed.
     """
 
-    New = "New"
+    Create = "Create"
     Edit = "Edit"
     Fix = "Fix"
     Describe = "Describe"
@@ -615,6 +616,9 @@ class Executable(Entity):
 
     execution_status: ExecutionStatus | None = None
     """Status of the most recent, including any current, execution."""
+
+    execution_instance: str | None = None
+    """The id of the kernel instance that performed the last execution."""
 
     execution_kind: ExecutionKind | None = None
     """The kind (e.g. main kernel vs kernel fork) of the last execution."""

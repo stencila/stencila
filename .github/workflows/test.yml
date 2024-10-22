@@ -17,7 +17,7 @@ on:
     branches: ["main"]
 
 env:
-  RUST_VERSION: "1.77.0"
+  RUST_VERSION: "1.81.0"
   CARGO_TERM_COLOR: always
   NODE_VERSION: "20"
   PYTHON_VERSION: "3.12"
@@ -84,9 +84,6 @@ jobs:
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
-
-      - name: Install onnxruntime.so
-        run: ./scripts/install-onnxruntime.sh
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

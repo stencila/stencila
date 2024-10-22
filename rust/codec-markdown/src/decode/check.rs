@@ -56,7 +56,7 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                 if line.starts_with("include")
                     || line.starts_with("call")
                     || line.starts_with("prompt")
-                    || line.starts_with("new")
+                    || line.starts_with("create")
                     || line.ends_with('<')
                     || line.ends_with('>')
                 {

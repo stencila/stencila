@@ -7,9 +7,9 @@ use std::{ops::ControlFlow, process};
 use async_lsp::{
     lsp_types::{
         CodeLensOptions, CompletionOptions, DocumentSymbolOptions, ExecuteCommandOptions,
-        InitializeResult, InitializedParams, MessageType, OneOf, ServerCapabilities, ServerInfo,
-        ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind,
-        WorkDoneProgressOptions,
+        HoverProviderCapability, InitializeResult, InitializedParams, MessageType, OneOf,
+        ServerCapabilities, ServerInfo, ShowMessageParams, TextDocumentSyncCapability,
+        TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     Error, LanguageClient, ResponseError,
 };
@@ -55,6 +55,7 @@ pub(super) async fn initialize() -> Result<InitializeResult, ResponseError> {
             code_lens_provider: Some(CodeLensOptions {
                 resolve_provider: Some(true),
             }),
+            hover_provider: Some(HoverProviderCapability::Simple(true)),
             execute_command_provider: Some(ExecuteCommandOptions {
                 commands: commands::commands(),
                 ..Default::default()

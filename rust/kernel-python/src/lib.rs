@@ -1,20 +1,21 @@
-use std::sync::atomic::{AtomicU64, Ordering};
-
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
+    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Python code
 #[derive(Default)]
-pub struct PythonKernel {
-    /// A counter of instances of this microkernel
-    instances: AtomicU64,
-}
+pub struct PythonKernel;
+
+const NAME: &str = "python";
 
 impl Kernel for PythonKernel {
     fn name(&self) -> String {
-        "python".to_string()
+        NAME.to_string()
+    }
+
+    fn provider(&self) -> KernelProvider {
+        KernelProvider::Environment
     }
 
     fn availability(&self) -> KernelAvailability {
@@ -43,7 +44,7 @@ impl Kernel for PythonKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(self.instances.fetch_add(1, Ordering::SeqCst))
+        self.microkernel_create_instance(NAME)
     }
 }
 
@@ -412,7 +413,7 @@ baz()
         };
 
         let sw = kernel_micro::tests::info(instance).await?;
-        assert_eq!(sw.name, "python");
+        assert_eq!(sw.name, "Python");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.software_version.unwrap().starts_with("3."));
         assert!(sw.options.operating_system.is_some());

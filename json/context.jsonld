@@ -275,6 +275,7 @@
     "executionDigest": "stencila:executionDigest",
     "executionDuration": "stencila:executionDuration",
     "executionEnded": "stencila:executionEnded",
+    "executionInstance": "stencila:executionInstance",
     "executionKind": "stencila:executionKind",
     "executionMessages": "stencila:executionMessages",
     "executionMode": "stencila:executionMode",

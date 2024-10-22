@@ -4,7 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-app = { path = "../app" }
 common = { path = "../common" }
 format = { path = "../format" }
 schema = { path = "../schema" }

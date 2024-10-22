@@ -16,11 +16,12 @@ use kernel::{
         serde_json, tokio, tracing,
     },
     format::Format,
+    generate_id,
     schema::{
         ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
+    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequest,
+    KernelVariableRequester, KernelVariableResponder,
 };
 
 const NAME: &str = "jinja";
@@ -32,6 +33,10 @@ pub struct JinjaKernel;
 impl Kernel for JinjaKernel {
     fn name(&self) -> String {
         NAME.to_string()
+    }
+
+    fn r#type(&self) -> KernelType {
+        KernelType::Templating
     }
 
     fn supports_languages(&self) -> Vec<Format> {
@@ -47,14 +52,14 @@ impl Kernel for JinjaKernel {
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(JinjaKernelInstance::new(NAME)))
+        Ok(Box::new(JinjaKernelInstance::new()))
     }
 }
 
 #[derive(Default)]
 pub struct JinjaKernelInstance {
-    /// The name of the kernel instance
-    name: String,
+    /// The unique id of the kernel instance
+    id: String,
 
     /// The Jinja template context
     ///
@@ -64,9 +69,22 @@ pub struct JinjaKernelInstance {
 }
 
 impl JinjaKernelInstance {
-    pub fn new(name: &str) -> Self {
+    /// Create a new instance
+    pub fn new() -> Self {
         Self {
-            name: name.into(),
+            id: generate_id(NAME),
+            context: None,
+        }
+    }
+
+    /// Create a new instance with a specific id
+    ///
+    /// This constructor is needed when we have a Jinja kernel instance
+    /// that is a child of another kernel instance and we need the
+    /// child and parent to have the same is (for variable resolution)
+    pub fn with_id(id: &str) -> Self {
+        Self {
+            id: id.to_string(),
             context: None,
         }
     }
@@ -91,8 +109,8 @@ impl JinjaKernelInstance {
 
 #[async_trait]
 impl KernelInstance for JinjaKernelInstance {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn id(&self) -> &str {
+        &self.id
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -184,20 +202,20 @@ impl KernelInstance for JinjaKernelInstance {
         responder: KernelVariableResponder,
     ) {
         self.context = Some(Arc::new(JinjaKernelContext {
-            instance: self.name(),
+            instance: self.id().to_string(),
             variable_channel: Mutex::new((requester, responder)),
         }));
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self::new(&self.name)))
+        Ok(Box::new(Self::new()))
     }
 }
 
 /// A Jinja template context used to make requests for variable to other kernels
 #[derive(Debug)]
 pub struct JinjaKernelContext {
-    /// The name of the kernel instance
+    /// The id of the kernel instance
     ///
     /// Required to make requests for variables from other contexts
     instance: String,

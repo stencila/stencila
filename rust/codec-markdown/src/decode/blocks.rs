@@ -765,7 +765,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                         (message.trim_end(), None)
                     } else if let Some(message) = message.strip_suffix('>') {
                         (message.trim_end(), Some(1))
-                    } else if instruction_type == InstructionType::New {
+                    } else if instruction_type == InstructionType::Create {
                         (message, None)
                     } else {
                         (message, Some(2))
@@ -1431,7 +1431,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             select: options.get("select").map(|select| select.to_string()),
             ..Default::default()
         }),
-        "new" | "edit" | "fix" | "describe" => Block::InstructionBlock(InstructionBlock {
+        "create" | "edit" | "fix" | "describe" => Block::InstructionBlock(InstructionBlock {
             instruction_type: name.parse().unwrap_or_default(),
             message: args.map(InstructionMessage::from),
             prompt: options.get("prompt").map(|value| value.to_string()),

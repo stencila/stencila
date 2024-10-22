@@ -22,4 +22,3 @@ codecs = { path = "../../rust/codecs" }
 common = { path = "../../rust/common" }
 pyo3 = { version = "0.20.3", features = ["extension-module"] }
 pyo3-asyncio = { version = "0.20.0", features = ["tokio-runtime"] }
-schema = { path = "../../rust/schema" }

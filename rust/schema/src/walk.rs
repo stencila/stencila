@@ -78,7 +78,7 @@ pub trait Visitor: Sized {
     }
 
     /// Visit an `IfBlockClause` node
-    fn visit_if_block_clause(&mut self, inline: &IfBlockClause) -> WalkControl {
+    fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -153,7 +153,7 @@ pub trait VisitorMut: Sized {
     }
 
     /// Visit, and potentially mutate, a `SuggestionInline` node type
-    fn visit_suggestion_inline(&mut self, inline: &mut SuggestionInline) -> WalkControl {
+    fn visit_suggestion_inline(&mut self, clause: &mut SuggestionInline) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -249,7 +249,7 @@ pub trait VisitorAsync: Send + Sync {
     /// Visit, and potentially mutate, an `IfBlockClause` node
     fn visit_if_block_clause(
         &mut self,
-        inline: &mut IfBlockClause,
+        clause: &mut IfBlockClause,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }
@@ -311,7 +311,10 @@ pub trait WalkNode {
 
     /// Walk over, and potentially mutate, a node's children asynchronously and fallibly
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         Ok(())
     }
 }
@@ -338,7 +341,10 @@ where
     }
 
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         self.as_mut().walk_async(visitor).await
     }
 }
@@ -360,7 +366,10 @@ where
     }
 
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         if let Some(value) = self {
             value.walk_async(visitor).await
         } else {
@@ -390,7 +399,10 @@ where
     }
 
     #[async_recursion]
-    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+    async fn walk_async<V>(&mut self, visitor: &mut V) -> Result<()>
+    where
+        V: VisitorAsync,
+    {
         for (index, node) in self.iter_mut().enumerate() {
             visitor.enter_index(index);
             node.walk_async(visitor).await?;

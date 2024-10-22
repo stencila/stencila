@@ -63,6 +63,7 @@
       "patch": {
         "formats": [
           "md",
+          "smd",
           "myst"
         ]
       },
@@ -162,6 +163,11 @@
       "@id": "stencila:Generator",
       "description": "The author is a `SoftwareApplication` that generated content such as prose, code, or images.",
       "const": "Generator"
+    },
+    {
+      "@id": "stencila:Executor",
+      "description": "The author is a `SoftwareApplication` that executed code which created outputs such as text, tables, or images.",
+      "const": "Executor"
     }
   ],
   "default": "Writer"

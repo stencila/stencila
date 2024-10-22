@@ -56,7 +56,7 @@ impl MarkdownCodec for ForBlock {
             .push_str(" in ")
             .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
-        if matches!(context.format, Format::Markdown) {
+        if matches!(context.format, Format::Markdown | Format::Smd) {
             if let Some(lang) = &self.programming_language {
                 if !lang.is_empty() {
                     context

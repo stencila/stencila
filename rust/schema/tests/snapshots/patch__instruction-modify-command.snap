@@ -40,7 +40,7 @@ old:
           characterCount: 36
           characterPercent: 100
     - type: InstructionBlock
-      instructionType: New
+      instructionType: Create
       message:
         type: InstructionMessage
         parts:
@@ -74,7 +74,7 @@ new:
           value:
             string: "An insert instruction with a prompt:"
     - type: InstructionBlock
-      instructionType: New
+      instructionType: Create
       message:
         type: InstructionMessage
         parts:
@@ -130,7 +130,7 @@ merged:
           characterCount: 36
           characterPercent: 100
     - type: InstructionBlock
-      instructionType: New
+      instructionType: Create
       message:
         type: InstructionMessage
         parts:

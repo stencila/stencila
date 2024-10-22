@@ -567,6 +567,9 @@ async fn websocket_for_document(
         Format::Json5,
         Format::JsonLd,
         Format::Markdown,
+        Format::Smd,
+        Format::Qmd,
+        Format::Myst,
         Format::Yaml,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
@@ -913,8 +916,8 @@ mod tests {
         // Will route a path to a file with a matching stem according to rules
         // regarding format precedence and modification times
         for (path, source) in [
-            ("bird", "bird/index.md"),
-            ("bird/kea", "bird/kea.md"),
+            ("bird", "bird/index.smd"),
+            ("bird/kea", "bird/kea.smd"),
             ("bird/jay", "bird/jay/index.json5"),
             ("bird/owl", "bird/owl/README.md"),
         ] {
