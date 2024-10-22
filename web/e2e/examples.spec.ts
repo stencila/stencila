@@ -5,6 +5,12 @@ import { argosScreenshot } from '@argos-ci/playwright'
 import { test } from '@playwright/test'
 import { globSync } from 'glob'
 
+const testExpandAllStyleTag = `
+  :root { 
+    --lastmod-display: none; 
+  }
+`
+
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const examples = path.join(dirname, '..', '..', 'examples', 'web')
 const files = globSync('**/*.smd', { cwd: examples })
@@ -21,6 +27,11 @@ for (const file of files) {
 
     test(testName, async ({ page }) => {
       await page.goto(url)
+      if (mode === 'test-expand-all') {
+        await page.addStyleTag({
+          content: testExpandAllStyleTag,
+        })
+      }
       await argosScreenshot(page, testName)
     })
   }

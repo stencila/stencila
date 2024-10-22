@@ -25,6 +25,9 @@ body {
   --code-font-family: 'IBM Plex Mono', monospace;
   --code-bg-colour: #f2f2f2;
   --code-font-size: 1rem;
+
+  /* component specific vars */
+  --ui-lastmod-display: block;
 }
 
 figure {
