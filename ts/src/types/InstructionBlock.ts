@@ -4,6 +4,7 @@ import { Block } from "./Block.js";
 import { Instruction } from "./Instruction.js";
 import { InstructionType } from "./InstructionType.js";
 import { SuggestionBlock } from "./SuggestionBlock.js";
+import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * An instruction to edit some block content.
@@ -21,6 +22,11 @@ export class InstructionBlock extends Instruction {
    * Suggestions for the instruction
    */
   suggestions?: SuggestionBlock[];
+
+  /**
+   * The index of the suggestion that is currently active
+   */
+  activeSuggestion?: UnsignedInteger;
 
   constructor(instructionType: InstructionType, options?: Partial<InstructionBlock>) {
     super(instructionType);

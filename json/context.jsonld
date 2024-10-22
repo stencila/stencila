@@ -192,6 +192,7 @@
     "VideoObject": "schema:VideoObject",
     "about": "schema:about",
     "abstract": "schema:abstract",
+    "activeSuggestion": "stencila:activeSuggestion",
     "address": "schema:address",
     "addressCountry": "schema:addressCountry",
     "addressLocality": "schema:addressLocality",

@@ -27,12 +27,11 @@ use super::unsigned_integer::UnsignedInteger;
 /// An instruction to edit some block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "InstructionBlock")]
-#[patch(apply_with = "InstructionBlock::apply_patch_op")]
 pub struct InstructionBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -47,7 +46,6 @@ pub struct InstructionBlock {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
@@ -57,13 +55,11 @@ pub struct InstructionBlock {
     pub instruction_type: InstructionType,
 
     /// The instruction message, possibly including images, audio, or other media.
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub message: Option<InstructionMessage>,
 
     /// An identifier for the prompt to be used for the instruction
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
@@ -71,25 +67,21 @@ pub struct InstructionBlock {
     pub prompt: Option<String>,
 
     /// The name, and other options, for the model that the assistant should use to generate suggestions.
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub model: Option<Box<InstructionModel>>,
 
     /// The number of suggestions to generate for the instruction
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub replicates: Option<UnsignedInteger>,
 
     /// A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub recursion: Option<String>,
 
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_blocks_non_recursive(1))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
@@ -101,10 +93,14 @@ pub struct InstructionBlock {
     #[serde(alias = "suggestion")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub suggestions: Option<Vec<SuggestionBlock>>,
+
+    /// The index of the suggestion that is currently active
+    #[serde(alias = "active-suggestion", alias = "active_suggestion")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub active_suggestion: Option<UnsignedInteger>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -120,7 +116,7 @@ pub struct InstructionBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct InstructionBlockOptions {
@@ -224,7 +220,6 @@ pub struct InstructionBlockOptions {
 
     /// The prompt chosen, rendered and provided to the model
     #[serde(alias = "prompt-provided", alias = "prompt_provided")]
-    #[patch()]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub prompt_provided: Option<PromptBlock>,
