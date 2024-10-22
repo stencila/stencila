@@ -3,7 +3,10 @@ import { apply } from '@twind/core'
 import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators'
 
+import { Entity } from '../../nodes/entity'
 import { withTwind } from '../../twind'
+import { UIBlockOnDemand } from '../nodes/cards/block-on-demand'
+import { UIInlineOnDemand } from '../nodes/cards/inline-on-demand'
 
 import { documentContext, DocumentContext, NodeChipState } from './context'
 
@@ -12,6 +15,7 @@ import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 import '@shoelace-style/shoelace/dist/components/divider/divider.js'
 import '@shoelace-style/shoelace/dist/components/menu-label/menu-label.js'
+
 /**
  * A menu allowing the user to control the display of the document
  * and perform actions on it.
@@ -42,12 +46,48 @@ export class DocumentMenu extends LitElement {
   protected open: boolean = false
 
   /**
+   * Find all instances of the stencila node Entities,
+   *
+   * then finds each card element and triggers the public "cardOpen|cardClose" method
+   * based on the action.
+   */
+  private nodeCardToggle(action: 'expand' | 'collapse') {
+    const stencilaNodes = Array.from(document.querySelectorAll('*')).filter(
+      (element) => {
+        return (
+          element.tagName.toLowerCase().startsWith('stencila-') &&
+          element instanceof Entity
+        )
+      }
+    )
+    stencilaNodes.forEach((el) => {
+      const card = el.shadowRoot.querySelector(
+        'stencila-ui-block-on-demand, stencila-ui-inline-on-demand'
+      ) as UIBlockOnDemand | UIInlineOnDemand
+      if (card) {
+        if (action === 'expand') {
+          card.openCard()
+        } else if (action === 'collapse') {
+          card.closeCard()
+        }
+      }
+    })
+  }
+
+  /**
    * Make sure the divider's border-top property is set,
    * this is being overridden by the twind base stylesheet.
+   * +
+   * Reduce the y padding of the sl menu components.
    */
   static override styles = css`
     sl-divider {
       border-top: solid var(--width) var(--color);
+      margin: 0.25rem 0;
+    }
+    sl-menu-item::part(base),
+    sl-menu-label::part(base) {
+      padding: 0.125rem var(--sl-spacing-2x-small);
     }
   `
 
@@ -72,7 +112,7 @@ export class DocumentMenu extends LitElement {
     if (selectedItem) {
       const eventName = selectedItem.getAttribute('data-event')
       if (eventName) {
-        if (eventName === 'update-nodecard-state') {
+        if (eventName === 'update-nodechip-state') {
           const value = selectedItem.getAttribute('value')
           this.eventDispatch(eventName, value)
         } else {
@@ -147,7 +187,7 @@ export class DocumentMenu extends LitElement {
         </sl-menu-label>
         <sl-menu-item
           type="checkbox"
-          data-event="update-nodecard-state"
+          data-event="update-nodechip-state"
           value="hover-only"
           ?checked=${this.nodeChipState === 'hover-only'}
         >
@@ -156,7 +196,7 @@ export class DocumentMenu extends LitElement {
         </sl-menu-item>
         <sl-menu-item
           type="checkbox"
-          data-event="update-nodecard-state"
+          data-event="update-nodechip-state"
           value="show-all"
           ?checked=${this.nodeChipState === 'show-all'}
         >
@@ -165,12 +205,30 @@ export class DocumentMenu extends LitElement {
         </sl-menu-item>
         <sl-menu-item
           type="checkbox"
-          data-event="update-nodecard-state"
+          data-event="update-nodechip-state"
           value="hidden"
           ?checked=${this.nodeChipState === 'hidden'}
         >
           <stencila-ui-icon name="eyeSlash" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">Hide All</span>
+        </sl-menu-item>
+        <sl-divider></sl-divider>
+        <sl-menu-label>
+          <div class="flex items-center gap-2">Node Cards</div>
+        </sl-menu-label>
+        <sl-menu-item @click=${() => this.nodeCardToggle('expand')}>
+          <stencila-ui-icon
+            name="arrowsExpand"
+            slot="prefix"
+          ></stencila-ui-icon>
+          <span class="text-sm">Expand all</span>
+        </sl-menu-item>
+        <sl-menu-item @click=${() => this.nodeCardToggle('collapse')}>
+          <stencila-ui-icon
+            name="arrowsCollapse"
+            slot="prefix"
+          ></stencila-ui-icon>
+          <span class="text-sm">Collapse all</span>
         </sl-menu-item>
       </sl-menu>
     `
