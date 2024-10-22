@@ -77,10 +77,17 @@ export class DocumentMenu extends LitElement {
   /**
    * Make sure the divider's border-top property is set,
    * this is being overridden by the twind base stylesheet.
+   * +
+   * Reduce the y padding of the sl menu components.
    */
   static override styles = css`
     sl-divider {
       border-top: solid var(--width) var(--color);
+      margin: 0.25rem 0;
+    }
+    sl-menu-item::part(base),
+    sl-menu-label::part(base) {
+      padding: 0.125rem var(--sl-spacing-2x-small);
     }
   `
 
