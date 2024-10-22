@@ -16,6 +16,7 @@
     "@cloudflare/workers-types": "4.20241011.0",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.13",
+    "@types/node": "^22.7.5",
     "@types/tmp": "0.2.6",
     "@typescript-eslint/eslint-plugin": "8.8.1",
     "@typescript-eslint/parser": "8.8.1",

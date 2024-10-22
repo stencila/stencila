@@ -130,7 +130,6 @@ export class DocumentMenu extends LitElement {
         <sl-dropdown
           ?open=${this.open}
           @sl-hide=${() => (this.open = false)}
-          class=${styles}
           placement="bottom-end"
         >
           ${this.renderMenuToggle()} ${this.renderMenu()}

@@ -1,1 +1,7 @@
 .docker
+
+# Folders related to e2e tests
+/blob-report/
+/playwright-report/
+/playwright/.cache/
+/test-results/

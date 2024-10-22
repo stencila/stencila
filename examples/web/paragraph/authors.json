@@ -1,0 +1,94 @@
+{
+  "$schema": "https://stencila.org/v2.0.0-beta.9/Article.schema.json",
+  "@context": "https://stencila.org/v2.0.0-beta.9/context.jsonld",
+  "type": "Article",
+  "authors": [
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Stencila"
+          },
+          {
+            "type": "Organization",
+            "name": "Astera"
+          }
+        ],
+        "name": "Nokome Bentley"
+      },
+      "roleName": "Writer",
+      "format": "Markdown",
+      "lastModified": {
+        "type": "Timestamp",
+        "value": 1729486045431,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Hw",
+      "characterCount": 27,
+      "characterPercent": 100
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A paragraph with an author.",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                27
+              ]
+            ]
+          }
+        }
+      ],
+      "authors": [
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "Person",
+            "affiliations": [
+              {
+                "type": "Organization",
+                "name": "Stencila"
+              },
+              {
+                "type": "Organization",
+                "name": "Astera"
+              }
+            ],
+            "name": "Nokome Bentley"
+          },
+          "roleName": "Writer",
+          "format": "Markdown",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1729486045431,
+            "timeUnit": "Millisecond"
+          }
+        }
+      ],
+      "provenance": [
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Hw",
+          "characterCount": 27,
+          "characterPercent": 100
+        }
+      ]
+    }
+  ]
+}

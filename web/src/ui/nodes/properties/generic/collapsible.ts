@@ -5,6 +5,7 @@ import { customElement, property } from 'lit/decorators'
 
 import '../../../buttons/chevron'
 import { withTwind } from '../../../../twind'
+import { getModeParam } from '../../../../utilities/getModeParam'
 import { IconName } from '../../../icons/icon'
 import { nodeUi } from '../../icons-and-colours'
 
@@ -25,6 +26,14 @@ export class UINodeCollapsibleProperty extends LitElement {
 
   @property({ attribute: 'wrapper-css' })
   wrapperCSS: string | undefined = undefined
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+    const mode = getModeParam(window)
+    if (mode && mode === 'test-expand-all') {
+      this.expanded = true
+    }
+  }
 
   override render() {
     const { colour, borderColour } = nodeUi(this.type)

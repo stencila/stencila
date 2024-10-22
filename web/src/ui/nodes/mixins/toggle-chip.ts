@@ -4,6 +4,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
+import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
 import { nodeUi } from '../icons-and-colours'
 
@@ -120,19 +121,13 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       `
     }
 
-    // protected override update(
-    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //   changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
-    // ): void {
-    //   super.update(changedProperties)
-
-    //   if (changedProperties.has('docViewContext')) {
-    //     if (this.docViewContext.nodeChipState === 'hidden' && this.toggle) {
-    //       // collapse open container if `nodeChipState` changes to 'hidden'
-    //       this.toggleChip()
-    //     }
-    //   }
-    // }
+    override connectedCallback(): void {
+      super.connectedCallback()
+      const testMode = getModeParam(window)
+      if (testMode && testMode === 'test-expand-all') {
+        this.toggle = true
+      }
+    }
   }
 
   return ToggleMixin as unknown as Constructor<ChipToggleInterface> & T

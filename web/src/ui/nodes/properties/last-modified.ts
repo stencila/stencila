@@ -1,5 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
@@ -16,6 +16,13 @@ import { UINodeTimestampProperty } from './generic/timestamp'
 export class UINodeLastModified extends UINodeTimestampProperty {
   @property({ attribute: 'role-label' })
   roleLabel: string = 'Last modified'
+
+  static override styles = css`
+    :host {
+      display: var(--ui-lastmod-display);
+      position: relative;
+    }
+  `
 
   override render() {
     if (!this.value) {
