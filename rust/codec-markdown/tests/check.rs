@@ -18,16 +18,13 @@ async fn no_messages() -> Result<()> {
     assert_snapshot!(
         messages(
             r#"
-
-Self closing colon fences:
-
 ::: include something
 
 ::: call something()
 
-::: create instruction <
+::: create instruction <<
 
-::: edit instruction >
+::: edit instruction >>
 
 Block to be edited
 

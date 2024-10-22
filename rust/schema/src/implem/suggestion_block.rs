@@ -60,10 +60,10 @@ impl MarkdownCodec for SuggestionBlock {
             }
 
             if self.content.is_empty() {
-                context.push_str(" <");
+                context.push_str(" <<");
             } else {
                 if self.content.len() == 1 {
-                    context.push_str(" >");
+                    context.push_str(" >>");
                 }
 
                 context

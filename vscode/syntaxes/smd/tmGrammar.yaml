@@ -267,7 +267,7 @@ repository:
           )*
         )?
         (.*?)
-        (<|>)?
+        ((?:<<)|(?:>>))?
         (?:\s*)
       $
     captures:
@@ -278,7 +278,7 @@ repository:
       "5": { name: string.quoted } # model
       "6": { name: variable.parameter.stencila } # options
       "7": { name: comment.stencila.instruction } # instruction message
-      "8": { name: markup.heading.stencila } # < or >
+      "8": { name: markup.heading.stencila } # << or >>
 
   with-block:
     name: meta.stencila.with-block
@@ -364,7 +364,7 @@ repository:
           \s+
         )?
         (.*?)
-        (>)?
+        (>>)?
         (?:\s*)
       $
     captures:

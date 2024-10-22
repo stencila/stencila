@@ -22,22 +22,22 @@
   "New Command": {
     "description": "Command to create new content",
     "prefix": ["::: create"],
-    "body": ["::: create ${0}"]
+    "body": ["::: create ${0} <<"]
   },
   "Edit Command": {
     "description": "Command to edit existing content",
     "prefix": ["::: edit"],
-    "body": ["::: edit ${0} >"]
+    "body": ["::: edit ${0} >>"]
   },
   "Fix Command": {
     "description": "Command to fix code or math",
     "prefix": ["::: fix"],
-    "body": ["::: fix ${0} >"]
+    "body": ["::: fix ${0} >>"]
   },
   "Describe Command": {
     "description": "Command to describe existing content",
     "prefix": ["::: describe"],
-    "body": ["::: describe ${0} <"]
+    "body": ["::: describe ${0} <<"]
   },
   "Prompt Block": {
     "description": "Preview how a prompt would be rendered",
