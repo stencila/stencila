@@ -208,7 +208,7 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: changes
-    if: needs.changes.outputs.web == 'true'
+    # if: needs.changes.outputs.web == 'true'
 
     steps:
       - name: Checkout repo
