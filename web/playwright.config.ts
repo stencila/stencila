@@ -28,6 +28,7 @@ export default defineConfig({
       '@argos-ci/playwright/reporter',
       {
         uploadToArgos: !!process.env.CI,
+        buildName: 'e2e',
       },
     ],
   ],
