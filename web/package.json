@@ -91,7 +91,7 @@
     "morphdom": "2.7.4",
     "pagedjs": "0.4.3",
     "pretty-ms": "9.1.0",
-    "tailwindcss": "3.4.13"
+    "tailwindcss": "3.4.14"
   },
   "devDependencies": {
     "@argos-ci/playwright": "^3.7.1",
