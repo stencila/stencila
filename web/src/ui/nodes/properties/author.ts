@@ -4,10 +4,10 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../../../twind'
-import { iconMaybe } from '../../../icons/icon'
+import { withTwind } from '../../../twind'
+import { iconMaybe } from '../../icons/icon'
 
-import '../last-modified'
+import './last-modified'
 
 /**
  * A component for displaying an `Author` within the `authors` property of nodes
@@ -128,7 +128,7 @@ export class UINodeAuthor extends LitElement {
               >
               <span
                 class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
-                >${this.name}</span
+                >${this.renderName()}</span
               >
               <span
                 class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block ${this.details ? '' : 'hidden'}`}
@@ -147,6 +147,21 @@ export class UINodeAuthor extends LitElement {
         </div>
       </div>
     `
+  }
+
+  private renderName() {
+    const [provider] = this.$id?.trim().split('/') ?? []
+
+    if (provider && provider.length > 0) {
+      switch (provider.toLowerCase()) {
+        case 'openai':
+          return `OpenAI ${this.name}`
+        default:
+          return `${provider.charAt(0).toUpperCase()}${provider.slice(1)} ${this.name}`
+      }
+    } else {
+      return this.name
+    }
   }
 
   private renderSoftwareIcon() {
