@@ -55,6 +55,8 @@ icons=(
     question-circle
     quote
     repeat
+    shield-check
+    shield-fill-check
     skip-end
     skip-start
     slash-circle

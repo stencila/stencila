@@ -106,6 +106,8 @@ import repeat from './repeat.svg'
 import replaceBlock from './replace-block.svg'
 import robot from './robot.svg'
 import sandbox from './sandbox.svg'
+import shieldCheck from './shield-check.svg'
+import shieldFillCheck from './shield-fill-check.svg'
 import skipEnd from './skip-end.svg'
 import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
@@ -214,6 +216,8 @@ const icons = {
   replaceBlock,
   robot,
   sandbox,
+  shieldCheck,
+  shieldFillCheck,
   skipEnd,
   skipStart,
   slashCircle,
