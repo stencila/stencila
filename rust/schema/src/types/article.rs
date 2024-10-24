@@ -182,6 +182,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(archive)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
     pub archive: Option<Vec<Node>>,
 
     /// Non-core optional fields
