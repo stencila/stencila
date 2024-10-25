@@ -217,31 +217,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
-        // TODO: remove this and put on instruction
-        let execution = if block.execution_duration.is_some() {
-            Some(TextNodeExecution {
-                // Although suggestions do not have a status we need to add
-                // on here so that a status notification is generated
-                status: Some(ExecutionStatus::Succeeded),
-                duration: block.execution_duration.clone(),
-                ended: block.execution_ended.clone(),
-                authors: block.authors.clone(),
-                ..Default::default()
-            })
-        } else {
-            None
-        };
-
-        let provenance = block.provenance.clone();
-
-        self.enter_node(
-            block.node_type(),
-            block.node_id(),
-            None,
-            None,
-            None,
-            provenance,
-        );
+        self.enter_node(block.node_type(), block.node_id(), None, None, None, None);
         self.visit(&block.content);
         self.exit_node();
 
@@ -493,7 +469,7 @@ impl Inspect for CodeExpression {
 
 impl Inspect for InstructionBlock {
     fn inspect(&self, inspector: &mut Inspector) {
-        let execution = Some(TextNodeExecution {
+        let mut execution = Some(TextNodeExecution {
             mode: self.execution_mode.clone(),
             status: self.options.execution_status.clone(),
             required: self.options.execution_required.clone(),
@@ -502,6 +478,39 @@ impl Inspect for InstructionBlock {
             messages: self.options.execution_messages.clone(),
             ..Default::default()
         });
+        let mut index_of = None;
+
+        if let Some(suggestions) = &self.suggestions {
+            if !suggestions.is_empty() {
+                // If there is an active suggestion and the instruction is not running, then
+                // show the suggestion's duration, authors etc as the status
+                if !matches!(
+                    self.options.execution_status,
+                    Some(ExecutionStatus::Running)
+                ) {
+                    if let Some(index) = self.active_suggestion {
+                        if let Some(suggestion) = suggestions.get(index as usize) {
+                            if suggestion.execution_duration.is_some() {
+                                execution = Some(TextNodeExecution {
+                                    // Although suggestions do not have a status we need to add
+                                    // on here so that a status notification is generated
+                                    status: Some(ExecutionStatus::Succeeded),
+                                    duration: suggestion.execution_duration.clone(),
+                                    ended: suggestion.execution_ended.clone(),
+                                    authors: suggestion.authors.clone(),
+                                    ..Default::default()
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Note that 0 = the original, 1 = the first suggestion, and so on...
+                let index = self.active_suggestion.map(|index| index + 1).unwrap_or(0) as usize;
+                let of = suggestions.len();
+                index_of = Some((index, of));
+            }
+        }
 
         let node = inspector.enter_node(
             self.node_type(),
@@ -511,15 +520,7 @@ impl Inspect for InstructionBlock {
             execution,
             None,
         );
-
-        if let Some(suggestions) = &self.suggestions {
-            if !suggestions.is_empty() {
-                // Note that 0 = the original, 1 = the first suggestion, and so on...
-                let index = self.active_suggestion.map(|index| index + 1).unwrap_or(0) as usize;
-                let of = suggestions.len();
-                node.index_of = Some((index, of));
-            }
-        }
+        node.index_of = index_of;
 
         inspector.visit(self);
         inspector.exit_node();

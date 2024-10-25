@@ -39,6 +39,9 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
     "cancel-doc",
     "lock-curr",
     "unlock-curr",
+    "prev-node",
+    "next-node",
+    "archive-node",
   ]) {
     context.subscriptions.push(
       vscode.commands.registerCommand(`stencila.invoke.${command}`, () => {
@@ -56,6 +59,53 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
       })
     );
   }
+
+  // Retry the active suggestion without feedback
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.retry-node",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          `stencila.revise-node`,
+          editor.document.uri.toString(),
+          editor.selection.active
+        );
+      }
+    )
+  );
+
+  // Revise the active suggestion of an instruction with feedback
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.revise-node",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        const feedback = await vscode.window.showInputBox({
+          title: "Revise suggestion",
+          placeHolder:
+            "Describe what you want changed, or leave blank to just retry.",
+        });
+
+        vscode.commands.executeCommand(
+          `stencila.revise-node`,
+          editor.document.uri.toString(),
+          editor.selection.active,
+          feedback
+        );
+      }
+    )
+  );
 
   // Export document command which requires user entered file path
   // so must be invoked from here

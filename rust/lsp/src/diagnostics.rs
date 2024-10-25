@@ -177,7 +177,10 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             // Succeeded nodes: construct message including duration and authors
             let mut message = if matches!(
                 node.node_type,
-                NodeType::SuggestionBlock | NodeType::SuggestionInline
+                NodeType::InstructionBlock
+                    | NodeType::InstructionInline
+                    | NodeType::SuggestionBlock
+                    | NodeType::SuggestionInline
             ) {
                 "Generated"
             } else {
