@@ -94,10 +94,8 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             name,
             detail,
             execution,
-            index_of: None,
-            is_active: None,
             provenance,
-            children: Vec::new(),
+            ..Default::default()
         });
 
         self.stack.last_mut().expect("just pushed")
@@ -361,15 +359,19 @@ impl Inspect for Article {
             detail: None,
             // Do not collect execution details or provenance because
             // we do not want these displayed on the first line in code lenses etc
-            execution: None,
-            provenance: None,
-            index_of: None,
-            is_active: None,
-            children: Vec::new(),
+            ..Default::default()
         });
 
         // Visit the article
         inspector.visit(self);
+
+        // Expand the range of the article to the last node
+        if let (Some(last), Some(node)) = (
+            inspector.stack.last().map(|last| last.range),
+            inspector.stack.first_mut(),
+        ) {
+            node.range.end = last.end;
+        }
     }
 }
 
