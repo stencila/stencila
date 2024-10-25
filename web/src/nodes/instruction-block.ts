@@ -41,6 +41,7 @@ export class InstructionBlock extends Instruction {
 
     return html`<stencila-ui-block-on-demand
       type="InstructionBlock"
+      header-title="${this.instructionType} Command"
       node-id=${this.id}
       depth=${this.depth}
       ancestors=${this.ancestors}
@@ -119,14 +120,6 @@ export class InstructionBlock extends Instruction {
 
     return html`
       <div class=${styles}>
-        <span class="flex flex-row items-center">
-          <sl-tooltip content="Command type">
-            <span class="font-mono font-bold text-base"
-              >${this.instructionType.toLowerCase()}</span
-            >
-          </sl-tooltip>
-        </span>
-
         <span class="flex flex-row items-center grow">
           <sl-tooltip content="Specified prompt">
             <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
