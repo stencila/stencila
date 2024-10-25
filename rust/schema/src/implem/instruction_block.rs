@@ -18,6 +18,13 @@ impl PatchNode for InstructionBlock {
         }
     }
 
+    fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
+        PatchContext::flatten_provenance(vec![
+            self.content.provenance(),
+            self.suggestions.provenance(),
+        ])
+    }
+
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
         macro_rules! compare_property {
             ($field:ident) => {
@@ -375,6 +382,21 @@ impl PatchNode for InstructionBlock {
             }
 
             return Ok(());
+        }
+
+        // Intercept patches to feedback (which does not exist on this type) and apply to the
+        // active suggestion
+        if matches!(property, NodeProperty::Feedback) {
+            if let (Some(index), Some(suggestions)) =
+                (self.active_suggestion, &mut self.suggestions)
+            {
+                if let Some(suggestion) = suggestions.get_mut(index as usize) {
+                    path.push_back(PatchSlot::Property(NodeProperty::Feedback));
+                    return suggestion.apply(path, op, context);
+                }
+            } else {
+                bail!("Unable to set feedback on instruction because no active suggestion")
+            }
         }
 
         macro_rules! apply_properties {

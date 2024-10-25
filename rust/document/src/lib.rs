@@ -91,7 +91,7 @@ pub enum Command {
     ExecuteDocument(ExecuteOptions),
 
     /// Execute specific nodes within the document
-    ExecuteNodes(CommandNodes),
+    ExecuteNodes((CommandNodes, ExecuteOptions)),
 
     /// Interrupt the entire document
     InterruptDocument,
@@ -101,6 +101,13 @@ pub enum Command {
 
     /// Patch a node in the document
     PatchNode(Patch),
+
+    /// Patch and the document and then execute nodes within it
+    ///
+    /// This command should be used when it is necessary to patch and then
+    /// immediately execute as it avoid race conditions associated with
+    /// sending separate patch and execute commands.
+    PatchExecuteNodes((Patch, CommandNodes, ExecuteOptions)),
 }
 
 /// The node ids for commands that require them

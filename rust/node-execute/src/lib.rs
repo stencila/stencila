@@ -276,6 +276,14 @@ pub struct ExecuteOptions {
     #[arg(long, alias = "skip-inst")]
     pub skip_instructions: bool,
 
+    /// Retain existing suggestions for instructions
+    ///
+    /// By default, when you execute an instruction, the existing suggestions for the instruction
+    /// are deleted. Use this flag to retain existing suggestions, for example, so that you can
+    /// use a previous one if a revision is worse.
+    #[arg(long)]
+    pub retain_suggestions: bool,
+
     /// Re-execute instructions with suggestions that have not yet been reviewed
     ///
     /// By default, an instruction that has a suggestion that has not yet be reviewed
