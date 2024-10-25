@@ -83,14 +83,18 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             .request::<request::CodeLensResolve, _>(|_, code_lens| code_lens::resolve(code_lens));
 
         router.request::<request::HoverRequest, _>(|state, params| {
-            let uri = &params.text_document_position_params.text_document.uri;
+            let uri = params
+                .text_document_position_params
+                .text_document
+                .uri
+                .clone();
             let doc_root = state
                 .documents
-                .get(uri)
+                .get(&uri)
                 .map(|text_doc| (text_doc.doc.clone(), text_doc.root.clone()));
             async move {
                 match doc_root {
-                    Some((doc, root)) => hover::request(params, doc, root).await,
+                    Some((doc, root)) => hover::request(params, uri, doc, root).await,
                     None => Ok(None),
                 }
             }

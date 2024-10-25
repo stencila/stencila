@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind},
+    lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind, Url},
     ResponseError,
 };
 
@@ -14,13 +14,14 @@ use codecs::Format;
 use common::tokio::sync::RwLock;
 use document::Document;
 use node_find::find;
-use schema::{CodeChunk, CodeExpression, Node};
+use schema::{CodeChunk, CodeExpression, Node, NodeId};
 
 use crate::text_document::TextNode;
 
 /// Handle a request for a hover display over a position of the document
 pub(super) async fn request(
     params: HoverParams,
+    uri: Url,
     doc: Arc<RwLock<Document>>,
     root: Arc<RwLock<TextNode>>,
 ) -> Result<Option<Hover>, ResponseError> {
@@ -46,13 +47,13 @@ pub(super) async fn request(
     // Find the node in the document
     let doc = doc.read().await;
     let root = doc.root_read().await;
-    let Some(node) = find(&*root, text_node.node_id) else {
+    let Some(node) = find(&*root, text_node.node_id.clone()) else {
         return Ok(None);
     };
 
     // Transform its outputs to Markdown
     let Some(markdown) = (match node {
-        Node::CodeChunk(node) => code_chunk(node),
+        Node::CodeChunk(node) => code_chunk(node, &uri, &text_node.node_id),
         Node::CodeExpression(node) => code_expression(node),
         _ => None,
     }) else {
@@ -71,7 +72,7 @@ pub(super) async fn request(
 }
 
 /// Render the outputs of a code chunk as Markdown
-fn code_chunk(node: CodeChunk) -> Option<String> {
+fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
     let outputs = node.outputs?;
 
     if outputs.is_empty() {
@@ -93,13 +94,28 @@ fn code_chunk(node: CodeChunk) -> Option<String> {
                 context.push_str("```\n\n");
             }
             Node::ImageObject(image) => {
-                // Create an image tag with 240px height which the the maximum height
-                // which does not require use of the vertical scroll bar
-                // (the height of the hover is 250px max and there are margins around the figure)
-                context
-                    .push_str(r#"<img src=""#)
-                    .push_str(&image.content_url)
-                    .push_str(r#"" height="240px">"#);
+                // VSCode has a limit of 100,000 characters in hovers (October 2024, VSCode v1.94.2)
+                // so if that is the case ensure that do not get a broken, truncated <img> tag
+                // but indicate that there is an image to view
+                if image.content_url.len() > (100_000 - 30) {
+                    let args = percent_encoding::utf8_percent_encode(
+                        &format!(r#"["{uri}","CodeChunk","{node_id}"]"#),
+                        percent_encoding::NON_ALPHANUMERIC,
+                    )
+                    .to_string();
+                    let message = format!(
+                        r#"Image too large for hover preview. [View](command:stencila.view-node?{args})."#,
+                    );
+                    context.push_str(&message);
+                } else {
+                    // Create an image tag with 240px height which the the maximum height
+                    // which does not require use of the vertical scroll bar
+                    // (the height of the hover is 250px max and there are margins around the figure)
+                    context
+                        .push_str(r#"<img src=""#)
+                        .push_str(&image.content_url)
+                        .push_str(r#"" height="240px">"#);
+                }
             }
             _ => output.to_markdown(&mut context),
         }
