@@ -79,6 +79,11 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub recursion: Option<String>,
 
+    /// The index of the suggestion that is currently active
+    #[serde(alias = "active-suggestion", alias = "active_suggestion")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub active_suggestion: Option<UnsignedInteger>,
+
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
@@ -96,11 +101,6 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub suggestions: Option<Vec<SuggestionBlock>>,
-
-    /// The index of the suggestion that is currently active
-    #[serde(alias = "active-suggestion", alias = "active_suggestion")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub active_suggestion: Option<UnsignedInteger>,
 
     /// Non-core optional fields
     #[serde(flatten)]

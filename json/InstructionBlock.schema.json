@@ -403,6 +403,15 @@
       },
       "$ref": "PromptBlock.schema.json"
     },
+    "activeSuggestion": {
+      "@id": "stencila:activeSuggestion",
+      "description": "The index of the suggestion that is currently active",
+      "aliases": [
+        "active-suggestion",
+        "active_suggestion"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
     "content": {
       "@id": "stencila:content",
       "description": "The content to which the instruction applies.",
@@ -447,15 +456,6 @@
       "items": {
         "$ref": "SuggestionBlock.schema.json"
       }
-    },
-    "activeSuggestion": {
-      "@id": "stencila:activeSuggestion",
-      "description": "The index of the suggestion that is currently active",
-      "aliases": [
-        "active-suggestion",
-        "active_suggestion"
-      ],
-      "$ref": "UnsignedInteger.schema.json"
     }
   }
 }

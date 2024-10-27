@@ -70,3 +70,7 @@ properties:
       formats: []
     dom:
       elem: div
+  activeSuggestion:
+    "@id": stencila:activeSuggestion
+    description: The index of the suggestion that is currently active
+    $ref: UnsignedInteger

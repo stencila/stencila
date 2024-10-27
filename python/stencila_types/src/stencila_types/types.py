@@ -785,6 +785,9 @@ class Instruction(Executable):
     prompt_provided: PromptBlock | None = None
     """The prompt chosen, rendered and provided to the model"""
 
+    active_suggestion: UnsignedInteger | None = None
+    """The index of the suggestion that is currently active"""
+
 
 @dataclass(kw_only=True, repr=False)
 class Mark(Entity):
@@ -1927,9 +1930,6 @@ class InstructionBlock(Instruction):
 
     suggestions: list[SuggestionBlock] | None = None
     """Suggestions for the instruction"""
-
-    active_suggestion: UnsignedInteger | None = None
-    """The index of the suggestion that is currently active"""
 
 
 @dataclass(kw_only=True, repr=False)

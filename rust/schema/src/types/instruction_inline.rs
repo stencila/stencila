@@ -228,6 +228,11 @@ pub struct InstructionInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub prompt_provided: Option<PromptBlock>,
+
+    /// The index of the suggestion that is currently active
+    #[serde(alias = "active-suggestion", alias = "active_suggestion")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub active_suggestion: Option<UnsignedInteger>,
 }
 
 impl InstructionInline {

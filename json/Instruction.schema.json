@@ -392,6 +392,15 @@
         "elem": "div"
       },
       "$ref": "PromptBlock.schema.json"
+    },
+    "activeSuggestion": {
+      "@id": "stencila:activeSuggestion",
+      "description": "The index of the suggestion that is currently active",
+      "aliases": [
+        "active-suggestion",
+        "active_suggestion"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
     }
   }
 }

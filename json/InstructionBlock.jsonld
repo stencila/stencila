@@ -332,6 +332,18 @@
       }
     },
     {
+      "@id": "stencila:activeSuggestion",
+      "@type": "rdfs:Property",
+      "rdfs:label": "activeSuggestion",
+      "rdfs:comment": "The index of the suggestion that is currently active",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
@@ -441,18 +453,6 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:SuggestionBlock"
-      }
-    },
-    {
-      "@id": "stencila:activeSuggestion",
-      "@type": "rdfs:Property",
-      "rdfs:label": "activeSuggestion",
-      "rdfs:comment": "The index of the suggestion that is currently active",
-      "schema:domainIncludes": {
-        "@id": "stencila:InstructionBlock"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
       }
     }
   ]
