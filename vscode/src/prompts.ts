@@ -5,9 +5,16 @@ export function registerPromptsView(
   context: vscode.ExtensionContext,
   client: LanguageClient
 ) {
+  const treeDataProvider = new PromptTreeProvider(client);
+
   const treeView = vscode.window.createTreeView("stencila-prompts", {
-    treeDataProvider: new PromptTreeProvider(client),
+    treeDataProvider,
   });
+
+  vscode.commands.registerCommand("stencila.prompts.refresh", () =>
+    treeDataProvider.refresh()
+  );
+
   context.subscriptions.push(treeView);
 }
 
@@ -43,7 +50,7 @@ class PromptTreeItem extends vscode.TreeItem {
 
     this.id = prompt?.id;
     this.description = prompt?.name;
-    this.tooltip = prompt && `${prompt.id}: ${prompt.name}`;
+    this.tooltip = prompt && `${prompt.id}: ${prompt.description}`;
 
     const icon = (() => {
       switch (prompt?.instructionTypes[0]) {
@@ -115,7 +122,10 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
   }
 
   refresh(): void {
-    this._onDidChangeTreeData.fire();
+    this.client.sendRequest("stencila/listPrompts").then((list: unknown) => {
+      this.list = list as Prompt[];
+      this._onDidChangeTreeData.fire();
+    });
   }
 
   getTreeItem(item: PromptTreeItem): vscode.TreeItem {

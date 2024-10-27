@@ -243,6 +243,13 @@
         "icon": "$(export)"
       },
       {
+        "command": "stencila.prompts.refresh",
+        "category": "Stencila",
+        "title": "Refresh prompts list",
+        "shortTitle": "Refresh prompts",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "stencila.secrets.set",
         "category": "Stencila",
         "title": "Set secret"
@@ -460,6 +467,13 @@
           "command": "stencila.invoke.export-doc",
           "when": "editorLangId == smd || editorLangId == myst",
           "group": "001-Stencila@2"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "stencila.prompts.refresh",
+          "when": "view == stencila-prompts",
+          "group": "navigation"
         }
       ]
     },
