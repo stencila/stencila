@@ -1,8 +1,8 @@
 An insert instruction with a prompt:
 
-::: create @table top five highest mountains, with height in metres <
+::: create @table top five highest mountains, with height in metres <<
 
 ===
 An insert instruction with a prompt:
 
-::: create @table top five highest mountains, with height in feet <
+::: create @table top five highest mountains, with height in feet <<
