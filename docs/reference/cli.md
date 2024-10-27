@@ -345,6 +345,9 @@ Execute a document
 * `--skip-instructions` — Skip executing instructions
 
    By default, instructions with no suggestions, or with suggestions that have been rejected will be executed. Use this flag to skip executing all instructions.
+* `--retain-suggestions` — Retain existing suggestions for instructions
+
+   By default, when you execute an instruction, the existing suggestions for the instruction are deleted. Use this flag to retain existing suggestions, for example, so that you can use a previous one if a revision is worse.
 * `--force-unreviewed` — Re-execute instructions with suggestions that have not yet been reviewed
 
    By default, an instruction that has a suggestion that has not yet be reviewed (i.e. has a suggestion status that is empty) will not be re-executed. Use this flag to force these instructions to be re-executed.
@@ -423,6 +426,9 @@ Equivalent to the `execute` command with the `--render` flag.
 * `--skip-instructions` — Skip executing instructions
 
    By default, instructions with no suggestions, or with suggestions that have been rejected will be executed. Use this flag to skip executing all instructions.
+* `--retain-suggestions` — Retain existing suggestions for instructions
+
+   By default, when you execute an instruction, the existing suggestions for the instruction are deleted. Use this flag to retain existing suggestions, for example, so that you can use a previous one if a revision is worse.
 * `--force-unreviewed` — Re-execute instructions with suggestions that have not yet been reviewed
 
    By default, an instruction that has a suggestion that has not yet be reviewed (i.e. has a suggestion status that is empty) will not be re-executed. Use this flag to force these instructions to be re-executed.
