@@ -24,8 +24,10 @@ import anthropic from './anthropic.svg'
 import archive from './archive.svg'
 import array from './array.svg'
 import arrowClockwise from './arrow-clockwise.svg'
+import arrowLeftSquare from './arrow-left-square.svg'
 import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
+import arrowRightSquare from './arrow-right-square.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
 import at from './at.svg'
@@ -131,8 +133,10 @@ const icons = {
   archive,
   array,
   arrowClockwise,
+  arrowLeftSquare,
   arrowNarrowUp,
   arrowRampRight3,
+  arrowRightSquare,
   arrowsCollapse,
   arrowsExpand,
   at,

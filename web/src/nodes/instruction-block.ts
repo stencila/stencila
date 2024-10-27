@@ -1,6 +1,6 @@
 import { apply } from '@twind/core'
-import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { css, html, PropertyValues } from 'lit'
+import { customElement, query } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
 import { withTwind } from '../twind'
@@ -21,6 +21,142 @@ import '../ui/nodes/properties/execution-messages'
 @customElement('stencila-instruction-block')
 @withTwind()
 export class InstructionBlock extends Instruction {
+  @query('slot[name="content"]')
+  contentSlot!: HTMLSlotElement
+
+  @query('slot[name="suggestions"]')
+  suggestionsSlot!: HTMLSlotElement
+
+  private hasContent: boolean = false
+
+  override updated(changedProperties: PropertyValues) {
+    super.updated(changedProperties)
+
+    if (changedProperties.has('activeSuggestion')) {
+      this.updateActiveSuggestion()
+    }
+  }
+
+  private onContentSlotChange() {
+    const contentSlot = this.contentSlot?.assignedNodes()[0] as
+      | HTMLElement
+      | undefined
+
+    this.hasContent = contentSlot != undefined
+  }
+
+  private onSuggestionsSlotChange() {
+    this.updateActiveSuggestion()
+  }
+
+  /**
+   * Toggle the `active` class on suggestions and apply transform to scroll
+   * the active suggestion into view
+   */
+  private updateActiveSuggestion() {
+    const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
+      | HTMLElement
+      | undefined
+
+    suggestionsSlot
+      ?.querySelectorAll('stencila-suggestion-block')
+      .forEach((suggestion, index) => {
+        suggestion.classList.toggle('active', index === this.activeSuggestion)
+      })
+
+    if (suggestionsSlot) {
+      const transform = `translateX(-${this.activeSuggestion * 100}%)`
+      suggestionsSlot.style.setProperty('transform', transform)
+    }
+  }
+
+  /**
+   * Get the number of suggestions for this instruction
+   */
+  private getSuggestionsCount(): number {
+    const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
+      | HTMLElement
+      | undefined
+
+    return suggestionsSlot
+      ? suggestionsSlot.querySelectorAll('stencila-suggestion-block').length
+      : 0
+  }
+
+  /**
+   * Emit an event to decrement the active suggestion
+   */
+  private decrement(e: Event) {
+    e.stopImmediatePropagation()
+
+    const suggestionsCount = this.getSuggestionsCount()
+
+    if (suggestionsCount === 0) {
+      // Go to original content (if any)
+      this.activeSuggestion = undefined
+    } else if (this.activeSuggestion === undefined) {
+      // Go to last suggestion
+      this.activeSuggestion = suggestionsCount - 1
+    } else if (this.activeSuggestion === 0) {
+      if (this.hasContent) {
+        // Go to original content
+        this.activeSuggestion = undefined
+      } else {
+        // Go to last suggestion
+        this.activeSuggestion = suggestionsCount - 1
+      }
+    } else if (this.activeSuggestion > 0) {
+      // Decrement the active suggestion
+      this.activeSuggestion = this.activeSuggestion - 1
+    }
+
+    this.dispatchEvent(
+      documentCommandEvent({
+        command: 'patch-node',
+        nodeType: 'InstructionBlock',
+        nodeIds: [this.id],
+        nodeProperty: ['activeSuggestion', this.activeSuggestion],
+      })
+    )
+  }
+
+  /**
+   * Emit an event to decrement the active suggestion
+   */
+  private increment(e: Event) {
+    e.stopImmediatePropagation()
+
+    const suggestionsCount = this.getSuggestionsCount()
+
+    if (suggestionsCount === 0) {
+      // Go to original content (if any)
+      this.activeSuggestion = undefined
+    } else if (this.activeSuggestion === undefined) {
+      // Go to first suggestion
+      this.activeSuggestion = 0
+    } else if (this.activeSuggestion >= suggestionsCount - 1) {
+      if (this.hasContent) {
+        // Go to original content
+        this.activeSuggestion = undefined
+      } else if (suggestionsCount > 0) {
+        // Go to first suggestion
+        this.activeSuggestion = 0
+      }
+    } else {
+      // Increment the active suggestion
+      this.activeSuggestion = this.activeSuggestion + 1
+    }
+
+    this.dispatchEvent(
+      documentCommandEvent({
+        command: 'patch-node',
+        nodeType: 'InstructionBlock',
+        nodeIds: [this.id],
+        nodeProperty: ['activeSuggestion', this.activeSuggestion],
+      })
+    )
+  }
+
   /**
    * Emit an event to archive the instruction
    */
@@ -35,6 +171,18 @@ export class InstructionBlock extends Instruction {
       })
     )
   }
+
+  static override styles = css`
+    .suggestions-container {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    ::slotted([slot='suggestions']) {
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+    }
+  `
 
   override render() {
     const { borderColour } = nodeUi('InstructionBlock')
@@ -51,13 +199,6 @@ export class InstructionBlock extends Instruction {
           type="InstructionBlock"
           node-id=${this.id}
         >
-          <sl-tooltip content="Archive this command">
-            <stencila-ui-icon-button
-              name="archive"
-              class="ml-4"
-              @click=${(e: Event) => this.archive(e)}
-            ></stencila-ui-icon-button>
-          </sl-tooltip>
         </stencila-ui-node-execution-commands>
       </span>
 
@@ -87,11 +228,28 @@ export class InstructionBlock extends Instruction {
         <div class="border-t border-[${borderColour}]">
           <slot name="message"></slot>
         </div>
+
+        ${this.renderSuggestionsHeader()}
       </div>
 
       <div slot="content" class="w-full">
-        <slot name="content"></slot>
-        <slot name="suggestions"></slot>
+        <div
+          class="content-container ${this.activeSuggestion !== undefined
+            ? 'hidden'
+            : ''}"
+        >
+          <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
+        </div>
+        <div
+          class="suggestions-container ${this.activeSuggestion === undefined
+            ? 'hidden'
+            : ''}"
+        >
+          <slot
+            name="suggestions"
+            @slotchange=${this.onSuggestionsSlotChange}
+          ></slot>
+        </div>
       </div>
     </stencila-ui-block-on-demand>`
   }
@@ -149,5 +307,51 @@ export class InstructionBlock extends Instruction {
         </span>
       </div>
     `
+  }
+
+  private renderSuggestionsHeader() {
+    const { borderColour } = nodeUi('InstructionBlock')
+    const suggestionsCount = this.getSuggestionsCount()
+
+    return html`<div
+      class="border-t bg-[${borderColour}] px-3 py-2 font-sans flex justify-between"
+    >
+      <span class="flex flex-row items-center gap-2">
+        <stencila-ui-icon name="cardText" class="text-xl"></stencila-ui-icon>
+        <span class="text-sm font-bold">Suggestion</span>
+      </span>
+
+      <span class="flex flex-row items-center">
+        <span class="flex flex-row items-center gap-1">
+          <sl-tooltip content="Previous suggestion">
+            <stencila-ui-icon-button
+              name="arrowLeftSquare"
+              @click=${(e: Event) => this.decrement(e)}
+            ></stencila-ui-icon-button>
+          </sl-tooltip>
+
+          <span class="text-sm"
+            >${this.activeSuggestion >= 0
+              ? `${this.activeSuggestion + 1} of ${suggestionsCount}`
+              : 'Original'}</span
+          >
+
+          <sl-tooltip content="Next suggestion">
+            <stencila-ui-icon-button
+              name="arrowRightSquare"
+              @click=${(e: Event) => this.increment(e)}
+            ></stencila-ui-icon-button>
+          </sl-tooltip>
+        </span>
+
+        <sl-tooltip content="Accept this suggestion">
+          <stencila-ui-icon-button
+            name="checkCircle"
+            class="ml-4"
+            @click=${(e: Event) => this.archive(e)}
+          ></stencila-ui-icon-button>
+        </sl-tooltip>
+      </span>
+    </div>`
   }
 }
