@@ -381,11 +381,7 @@ impl PatchNode for InstructionBlock {
                 };
             } else if let PatchOp::Set(value) = op {
                 self.active_suggestion = match value {
-                    PatchValue::None => None,
-                    PatchValue::Json(ref json) => match json {
-                        serde_json::Value::Null => None,
-                        _ => Some(u64::from_value(value)?),
-                    },
+                    PatchValue::None | PatchValue::Json(serde_json::Value::Null) => None,
                     _ => Some(u64::from_value(value)?),
                 }
                 .map(|value| value.clamp(0, (suggestions_count - 1) as u64));
