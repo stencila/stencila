@@ -2,7 +2,6 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
-use common::tracing;
 use schema::{
     Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
     CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
@@ -66,7 +65,10 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         let range = match self.poshmap.node_id_to_range16(&node_id) {
             Some(range) => range16_to_range(range),
             None => {
-                tracing::warn!("No range for {node_id}");
+                // A range may not exist for nodes that are not encoded into the
+                // text document (e.g. the non-active suggestions of an instruction).
+                // In these cases we return the default range (first char of document)
+                // and use that as a way of knowing whether to show code lenses of not
                 Range::default()
             }
         };
@@ -92,9 +94,8 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             name,
             detail,
             execution,
-            is_active: None,
             provenance,
-            children: Vec::new(),
+            ..Default::default()
         });
 
         self.stack.last_mut().expect("just pushed")
@@ -214,30 +215,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     }
 
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
-        let execution = if block.execution_duration.is_some() {
-            Some(TextNodeExecution {
-                // Although suggestions do not have a status we need to add
-                // on here so that a status notification is generated
-                status: Some(ExecutionStatus::Succeeded),
-                duration: block.execution_duration.clone(),
-                ended: block.execution_ended.clone(),
-                authors: block.authors.clone(),
-                ..Default::default()
-            })
-        } else {
-            None
-        };
-
-        let provenance = block.provenance.clone();
-
-        self.enter_node(
-            block.node_type(),
-            block.node_id(),
-            None,
-            None,
-            execution,
-            provenance,
-        );
+        self.enter_node(block.node_type(), block.node_id(), None, None, None, None);
         self.visit(&block.content);
         self.exit_node();
 
@@ -381,14 +359,19 @@ impl Inspect for Article {
             detail: None,
             // Do not collect execution details or provenance because
             // we do not want these displayed on the first line in code lenses etc
-            execution: None,
-            provenance: None,
-            is_active: None,
-            children: Vec::new(),
+            ..Default::default()
         });
 
         // Visit the article
         inspector.visit(self);
+
+        // Expand the range of the article to the last node
+        if let (Some(last), Some(node)) = (
+            inspector.stack.last().map(|last| last.range),
+            inspector.stack.first_mut(),
+        ) {
+            node.range.end = last.end;
+        }
     }
 }
 
@@ -481,6 +464,66 @@ impl Inspect for CodeExpression {
         let provenance = self.provenance.clone();
 
         inspector.enter_node(self.node_type(), node_id, None, None, execution, provenance);
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
+impl Inspect for InstructionBlock {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let mut execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
+            ..Default::default()
+        });
+        let mut index_of = None;
+
+        if let Some(suggestions) = &self.suggestions {
+            if !suggestions.is_empty() {
+                // If there is an active suggestion and the instruction is not running, then
+                // show the suggestion's duration, authors etc as the status
+                if !matches!(
+                    self.options.execution_status,
+                    Some(ExecutionStatus::Running)
+                ) {
+                    if let Some(index) = self.active_suggestion {
+                        if let Some(suggestion) = suggestions.get(index as usize) {
+                            if suggestion.execution_duration.is_some() {
+                                execution = Some(TextNodeExecution {
+                                    // Although suggestions do not have a status we need to add
+                                    // on here so that a status notification is generated
+                                    status: Some(ExecutionStatus::Succeeded),
+                                    duration: suggestion.execution_duration.clone(),
+                                    ended: suggestion.execution_ended.clone(),
+                                    authors: suggestion.authors.clone(),
+                                    ..Default::default()
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Note that 0 = the original, 1 = the first suggestion, and so on...
+                let index = self.active_suggestion.map(|index| index + 1).unwrap_or(0) as usize;
+                let of = suggestions.len();
+                index_of = Some((index, of));
+            }
+        }
+
+        let node = inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            None,
+            None,
+            execution,
+            None,
+        );
+        node.index_of = index_of;
+
         inspector.visit(self);
         inspector.exit_node();
     }
@@ -786,13 +829,7 @@ macro_rules! executable {
     };
 }
 
-executable!(
-    CallBlock,
-    IfBlock,
-    Parameter,
-    InstructionBlock,
-    InstructionInline
-);
+executable!(CallBlock, IfBlock, Parameter, InstructionInline);
 
 /// Implementation for executable nodes but not recursing into
 /// `content` to avoid lenses for content not rendered to Markdown

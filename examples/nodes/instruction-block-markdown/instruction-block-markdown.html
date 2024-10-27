@@ -10,7 +10,7 @@
   </p>
   <stencila-instruction-block instruction-type='Create'>
   </stencila-instruction-block>
-  <stencila-instruction-block instruction-type='Create'>
+  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"&lt;"}}]}'>
   </stencila-instruction-block>
   <h1>
     <span>Edit instruction</span>
@@ -18,11 +18,11 @@
   <p>
     <span>Edit next block:</span>
   </p>
-  <stencila-instruction-block instruction-type='Edit'>
-    <p>
-      <span>Paragraph to edit #1</span>
-    </p>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"&gt;"}}]}'>
   </stencila-instruction-block>
+  <p>
+    <span>Paragraph to edit #1</span>
+  </p>
   <p>
     <span>Edit multiple blocks:</span>
   </p>
@@ -37,18 +37,18 @@
   <h1>
     <span>Content other than paragraphs</span>
   </h1>
-  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this"}}]}'>
-    <stencila-code-chunk code='{"string":""}' programming-language='python'>
-    </stencila-code-chunk>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"improve this &gt;"}}]}'>
   </stencila-instruction-block>
-  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"admonition"}}]}'>
-    <blockquote>
-      <p>
-        <span>![warning]
+  <stencila-code-chunk code='{"string":""}' programming-language='python'>
+  </stencila-code-chunk>
+  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"admonition &gt;"}}]}'>
+  </stencila-instruction-block>
+  <blockquote>
+    <p>
+      <span>![warning]
 This is a warning</span>
-      </p>
-    </blockquote>
-  </stencila-instruction-block>
+    </p>
+  </blockquote>
   <p>
     <span>Following para outside of instruction content.</span>
   </p>

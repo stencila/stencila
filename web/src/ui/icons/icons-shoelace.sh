@@ -5,6 +5,8 @@ src="../../../../node_modules/@shoelace-style/shoelace/cdn/assets/icons"
 icons=(
     archive
     arrow-clockwise
+    arrow-left-square
+    arrow-right-square
     at
     box
     box-arrow-up-right
@@ -55,6 +57,8 @@ icons=(
     question-circle
     quote
     repeat
+    shield-check
+    shield-fill-check
     skip-end
     skip-start
     slash-circle

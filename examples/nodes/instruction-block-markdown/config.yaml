@@ -4,3 +4,7 @@ smd:
 compact.jats.xml:
   decode:
     skip: true
+
+myst:
+  decode:
+    skip: true

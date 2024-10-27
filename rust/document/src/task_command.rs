@@ -148,7 +148,6 @@ impl Document {
                         } else {
                             CommandStatus::Succeeded
                         };
-
                         send_status(&status_sender, command_id, status);
                     });
                     current_command_details = Some((command, command_id, task));
@@ -164,23 +163,26 @@ impl Document {
                         } else {
                             CommandStatus::Succeeded
                         };
-
                         send_status(&status_sender, command_id, status);
                     });
                     current_command_details = Some((command, command_id, task));
                 }
-                ExecuteNodes(CommandNodes { node_ids, .. }) => {
+                ExecuteNodes((nodes, options)) | PatchExecuteNodes((.., nodes, options)) => {
+                    if let PatchExecuteNodes((patch, ..)) = command {
+                        let root = &mut *root.write().await;
+                        if let Err(error) = schema::patch(root, patch) {
+                            CommandStatus::Failed(format!("While applying patch to root: {error}"));
+                        }
+                    }
+
                     let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
-                        let options = ExecuteOptions::default();
-                        // TODO: set other options based on scope
-
                         let status = if let Err(error) = execute(
                             home,
                             root,
                             kernels,
                             Some(patch_sender),
-                            Some(node_ids),
+                            Some(nodes.node_ids),
                             Some(options),
                         )
                         .await
@@ -189,11 +191,10 @@ impl Document {
                         } else {
                             CommandStatus::Succeeded
                         };
-
                         send_status(&status_sender, command_id, status);
                     });
                     current_command_details = Some((
-                        Command::ExecuteNodes(CommandNodes::default()),
+                        Command::ExecuteNodes((CommandNodes::default(), ExecuteOptions::default())),
                         command_id,
                         task,
                     ));

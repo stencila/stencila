@@ -518,6 +518,12 @@ pub enum PatchOp {
     /// Set the value of a leaf node (e.g. a `String`) or `Option`
     Set(PatchValue),
 
+    /// Decrement a number by one
+    Decrement,
+
+    /// Increment a number by one
+    Increment,
+
     /// Apply `CordOp`s to a `Cord`
     Apply(Vec<CordOp>),
 
@@ -748,7 +754,7 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
 
 // Implementation for simple "atomic" types not in schema
 macro_rules! atom {
-    ($type:ty) => {
+    ($type:ty, $decrement:expr, $increment:expr) => {
         impl PatchNode for $type {
             fn to_value(&self) -> Result<PatchValue> {
                 Ok(PatchValue::Json(serde_json::to_value(self)?))
@@ -797,26 +803,42 @@ macro_rules! atom {
                     return Ok(());
                 }
 
-                let PatchOp::Set(value) = op else {
-                    bail!("Invalid op for `{}`", type_name::<Self>());
-                };
-
                 if !path.is_empty() {
                     bail!("Invalid path `{path:?}` for an atom primitive");
                 }
 
-                *self = Self::from_value(value)?;
+                if matches!(op, PatchOp::Decrement) {
+                    ($decrement)(self);
+                } else if matches!(op, PatchOp::Increment) {
+                    ($increment)(self);
+                } else if let PatchOp::Set(value) = op {
+                    *self = Self::from_value(value)?;
+                } else {
+                    bail!("Invalid op for `{}`", type_name::<Self>());
+                }
 
                 Ok(())
             }
         }
     };
 }
-atom!(bool);
-atom!(i32);
-atom!(i64);
-atom!(u64);
-atom!(f64);
+atom!(bool, |x: &mut bool| *x = false, |x: &mut bool| *x = true);
+atom!(
+    i32,
+    |x: &mut i32| *x = x.saturating_sub(1),
+    |x: &mut i32| *x = x.saturating_add(1)
+);
+atom!(
+    i64,
+    |x: &mut i64| *x = x.saturating_sub(1),
+    |x: &mut i64| *x = x.saturating_add(1)
+);
+atom!(
+    u64,
+    |x: &mut u64| *x = x.saturating_sub(1),
+    |x: &mut u64| *x = x.saturating_add(1)
+);
+atom!(f64, |x: &mut f64| *x -= -1., |x: &mut f64| *x += 1.);
 
 // Implementation for `String` properties (note difference to `Cord`)
 impl PatchNode for String {
@@ -1007,8 +1029,16 @@ where
                 return Ok(());
             }
 
-            if self.is_none() && matches!(op, PatchOp::Append(..) | PatchOp::Push(..)) {
-                // Vector operations can be applied to `None`
+            // Some operations make sense to apply to `None` (they simply start with default value)
+            if self.is_none()
+                && matches!(
+                    op,
+                    PatchOp::Increment
+                        | PatchOp::Decrement
+                        | PatchOp::Append(..)
+                        | PatchOp::Push(..)
+                )
+            {
                 let mut value = T::default();
                 value.apply(path, op, context)?;
                 *self = Some(value);

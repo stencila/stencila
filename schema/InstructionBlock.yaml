@@ -1,20 +1,21 @@
 title: InstructionBlock
-'@id': stencila:InstructionBlock
+"@id": stencila:InstructionBlock
 nick: isb
 extends: Instruction
 category: edits
 description: An instruction to edit some block content.
 patch:
-  applyWith: "InstructionBlock::apply_patch_op"
+  derive: false
 markdown:
   derive: false
 proptest: {}
 core:
   - content
   - suggestions
+  - activeSuggestion
 properties:
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: The content to which the instruction applies.
     type: array
     items:
@@ -36,13 +37,11 @@ properties:
         description: Generate up to four arbitrary, non-recursive, block nodes
         strategy: option::of(vec_blocks_non_recursive(4))
   suggestions:
-    '@id': stencila:suggestions
+    "@id": stencila:suggestions
     description: Suggestions for the instruction
     type: array
     items:
       $ref: SuggestionBlock
     walk: true
-    patch:
-      formats: [md, smd, myst]
     dom:
       elem: div

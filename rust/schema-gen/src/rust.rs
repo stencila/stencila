@@ -642,7 +642,7 @@ pub enum NodeProperty {{
             }
 
             // If patch is not specified, defaults to all formats for `content` property
-            if property.patch.is_some() || name == "content" {
+            if derive_patch && (property.patch.is_some() || name == "content") {
                 let formats = if let Some(patch) = &property.patch {
                     patch
                         .formats

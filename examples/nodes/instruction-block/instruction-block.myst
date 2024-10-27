@@ -40,10 +40,6 @@ An insert instruction with a prompt and a suggestion:
 :::{create} analyze data
 :prompt: code-chunk
 
-:::
-
-:::{suggest}
-
 ````{code-cell}
 some code
 ````
@@ -53,12 +49,6 @@ some code
 An edit instruction with a suggestion:
 
 :::{edit} more succinct
-
-A rather long winded paragraph.
-
-:::
-
-:::{suggest}
 
 A paragraph.
 

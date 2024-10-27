@@ -74,6 +74,12 @@ pub(super) struct TextNode {
     /// notifications for the node
     pub execution: Option<TextNodeExecution>,
 
+    /// The current index in a collection
+    ///
+    /// Currently used only for `InstructionBlock`s to indicate the index of the
+    /// active suggestion and the total number of suggestions.
+    pub index_of: Option<(usize, usize)>,
+
     /// Whether the node is active (currently for `IfBlockClause` nodes only)
     pub is_active: Option<bool>,
 
@@ -113,6 +119,7 @@ impl Default for TextNode {
             name: String::new(),
             detail: None,
             execution: None,
+            index_of: None,
             is_active: None,
             provenance: None,
             children: Vec::new(),
@@ -182,6 +189,33 @@ impl TextNode {
         // If no descendants in range then check if this is
         if position >= self.range.start && position < self.range.end {
             return Some(self.node_id.clone());
+        }
+
+        None
+    }
+
+    /// Get the [`NodeId`] of the [`InstructionBlock`] or [`InstructionInline`]
+    /// at a position if any
+    ///
+    /// Find the ancestor node to the position that is an instruction. Unlike
+    /// `node_id_at`, this will take the shallowest instruction with a range
+    /// spanning the position.
+    pub fn instruction_at(&self, position: Position) -> Option<NodeId> {
+        // Check if this is an instruction and spans the range
+        if matches!(
+            self.node_type,
+            NodeType::InstructionBlock | NodeType::InstructionInline
+        ) && position >= self.range.start
+            && position < self.range.end
+        {
+            return Some(self.node_id.clone());
+        }
+
+        // Search through children
+        for child in &self.children {
+            if let Some(node_id) = child.instruction_at(position) {
+                return Some(node_id);
+            }
         }
 
         None

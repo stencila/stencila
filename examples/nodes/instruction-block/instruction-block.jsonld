@@ -179,6 +179,7 @@
         ]
       },
       "stencila:prompt": "code-chunk",
+      "stencila:activeSuggestion": 0,
       "stencila:suggestions": [
         {
           "@type": "stencila:SuggestionBlock",
@@ -218,6 +219,7 @@
           }
         ]
       },
+      "stencila:activeSuggestion": 0,
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",

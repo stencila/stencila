@@ -95,3 +95,5 @@ properties:
     items:
       $ref: Node
     strip: [archive]
+    dom:
+      skip: true

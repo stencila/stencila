@@ -88,6 +88,7 @@ content:
       value:
         string: analyze data
   prompt: code-chunk
+  activeSuggestion: 0
   suggestions:
   - type: SuggestionBlock
     content:
@@ -107,6 +108,7 @@ content:
     - type: Text
       value:
         string: more succinct
+  activeSuggestion: 0
   content:
   - type: Paragraph
     content:

@@ -77,6 +77,14 @@ pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket
 fn statuses(node: &TextNode) -> Vec<Status> {
     let mut items = Vec::new();
 
+    // Do not show status for nodes without a range e.g. suggestions or original
+    // content of instruction that are not encoded to the text document
+    if node.range == Range::default()
+        && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
+    {
+        return items;
+    }
+
     if let Some(execution) = node.execution.as_ref() {
         if let Some(status) = execution_status(node, execution) {
             items.push(status)
@@ -177,7 +185,10 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             // Succeeded nodes: construct message including duration and authors
             let mut message = if matches!(
                 node.node_type,
-                NodeType::SuggestionBlock | NodeType::SuggestionInline
+                NodeType::InstructionBlock
+                    | NodeType::InstructionInline
+                    | NodeType::SuggestionBlock
+                    | NodeType::SuggestionInline
             ) {
                 "Generated"
             } else {
@@ -278,6 +289,14 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
 /// Create [`Diagnostic`]s for a [`TextNode`]
 fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
     let mut diags = Vec::new();
+
+    // Do not show diagnostics for nodes without a range e.g. suggestions or original
+    // content of instruction that are not encoded to the text document
+    if node.range == Range::default()
+        && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
+    {
+        return diags;
+    }
 
     if let Some(execution) = node.execution.as_ref() {
         diags.append(&mut execution_diagnostic(node, execution));

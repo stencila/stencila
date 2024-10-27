@@ -57,7 +57,7 @@ pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
     };
 
     let mut plugins = if plugins.is_empty() {
-        tracing::info!("Refreshing list of plugins and their manifests");
+        tracing::debug!("Refreshing list of plugins and their manifests");
 
         // Fetch the plugins list from the Stencila repo
         let plugins = Plugin::fetch_registry().await?;

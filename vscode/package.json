@@ -201,6 +201,41 @@
         "icon": "$(unlock)"
       },
       {
+        "command": "stencila.invoke.prev-node",
+        "category": "Stencila",
+        "title": "Go to previous suggestion",
+        "shortTitle": "Previous suggestion",
+        "icon": "$(arrow-left)"
+      },
+      {
+        "command": "stencila.invoke.next-node",
+        "category": "Stencila",
+        "title": "Go to next suggestion",
+        "shortTitle": "Next suggestion",
+        "icon": "$(arrow-right)"
+      },
+      {
+        "command": "stencila.invoke.retry-node",
+        "category": "Stencila",
+        "title": "Retry the command by creating a new suggestion",
+        "shortTitle": "Retry command",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.invoke.revise-node",
+        "category": "Stencila",
+        "title": "Revise the current suggestion",
+        "shortTitle": "Revise suggestion",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.invoke.archive-node",
+        "category": "Stencila",
+        "title": "Accept current suggestion and archive command",
+        "shortTitle": "Accept suggestion",
+        "icon": "$(archive)"
+      },
+      {
         "command": "stencila.invoke.export-doc",
         "category": "Stencila",
         "title": "Export document",
@@ -249,27 +284,60 @@
       {
         "command": "stencila.invoke.run-curr",
         "key": "ctrl+enter",
+        "mac": "cmd+enter",
         "when": "editorTextFocus"
       },
       {
         "command": "stencila.invoke.run-above",
         "key": "ctrl+1 enter",
+        "mac": "cmd+1 enter",
         "when": "editorTextFocus"
       },
       {
         "command": "stencila.invoke.run-below",
         "key": "ctrl+2 enter",
+        "mac": "cmd+2 enter",
         "when": "editorTextFocus"
       },
       {
         "command": "stencila.invoke.run-doc",
         "key": "ctrl+shift+enter",
+        "mac": "cmd+shift+enter",
         "when": "editorTextFocus"
       },
       {
+        "command": "stencila.invoke.next-node",
+        "key": "ctrl+right",
+        "mac": "cmd+right",
+        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
+      },
+      {
+        "command": "stencila.invoke.prev-node",
+        "key": "ctrl+left",
+        "mac": "cmd+left",
+        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
+      },
+      {
+        "command": "stencila.invoke.retry-node",
+        "key": "ctrl+r",
+        "mac": "cmd+r",
+        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
+      },
+      {
+        "command": "stencila.invoke.revise-node",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
+      },
+      {
+        "command": "stencila.invoke.archive-node",
+        "key": "ctrl+/",
+        "mac": "cmd+/",
+        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
+      },
+      {
         "command": "stencila.command-picker",
-        "key": "ctrl+shift+s",
-        "mac": "cmd+shift+s"
+        "key": "f2"
       }
     ],
     "menus": {

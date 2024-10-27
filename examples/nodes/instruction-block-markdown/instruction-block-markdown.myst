@@ -8,7 +8,7 @@ Never has existing content so is self closing or explicitly closing:
 
 :::
 
-:::{create}
+:::{create} <
 
 :::
 
@@ -16,11 +16,11 @@ Never has existing content so is self closing or explicitly closing:
 
 Edit next block:
 
-:::{edit}
-
-Paragraph to edit #1
+:::{edit} >
 
 :::
+
+Paragraph to edit #1
 
 Edit multiple blocks:
 
@@ -34,19 +34,19 @@ Paragraph to edit #5
 
 # Content other than paragraphs
 
-:::{edit} improve this
-
-````{code-cell} python
-
-````
+:::{edit} improve this >
 
 :::
 
-:::{create} admonition
+```{code-cell} python
+
+```
+
+:::{create} admonition >
+
+:::
 
 > ![warning]
 This is a warning
-
-:::
 
 Following para outside of instruction content.

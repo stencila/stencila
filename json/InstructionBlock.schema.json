@@ -10,7 +10,7 @@
   "category": "edits",
   "description": "An instruction to edit some block content.",
   "patch": {
-    "applyWith": "InstructionBlock::apply_patch_op"
+    "derive": false
   },
   "markdown": {
     "derive": false
@@ -29,7 +29,8 @@
     "replicates",
     "recursion",
     "content",
-    "suggestions"
+    "suggestions",
+    "activeSuggestion"
   ],
   "properties": {
     "type": {
@@ -402,6 +403,15 @@
       },
       "$ref": "PromptBlock.schema.json"
     },
+    "activeSuggestion": {
+      "@id": "stencila:activeSuggestion",
+      "description": "The index of the suggestion that is currently active",
+      "aliases": [
+        "active-suggestion",
+        "active_suggestion"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
     "content": {
       "@id": "stencila:content",
       "description": "The content to which the instruction applies.",
@@ -438,13 +448,6 @@
       "aliases": [
         "suggestion"
       ],
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst"
-        ]
-      },
       "walk": true,
       "dom": {
         "elem": "div"

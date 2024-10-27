@@ -94,49 +94,38 @@ impl Executable for InstructionBlock {
             .and_then(|model| model.id_pattern.clone())
             .clone();
 
-        // If any of this instructions suggestions is in `executor.node_ids`, it indicates
-        // that a revision of the suggestion is required (i.e only the one replicate,
-        // and the model that generated the suggestion should be used again).
-        let is_revision =
-            if let (Some(node_ids), Some(suggestions)) = (&executor.node_ids, &self.suggestions) {
-                if let Some(suggestion) = suggestions.iter().find(|suggestion| {
-                    node_ids
-                        .iter()
-                        .any(|node_id| node_id == &suggestion.node_id())
-                }) {
-                    replicates = 1;
-                    model_id_pattern =
-                        suggestion
-                            .authors
-                            .iter()
-                            .flatten()
-                            .find_map(|author| match author {
-                                // Gets the first generator author having an id
-                                Author::AuthorRole(AuthorRole {
-                                    role_name: AuthorRoleName::Generator,
-                                    author:
-                                        AuthorRoleAuthor::SoftwareApplication(SoftwareApplication {
-                                            id: Some(id),
-                                            ..
-                                        }),
-                                    ..
-                                }) => Some(id.clone()),
-                                _ => None,
-                            });
-                    true
-                } else {
-                    false
-                }
-            } else {
-                false
-            };
+        // If this is a revision (i.e. a retry, possibly with feedback already added to suggestions)
+        // as indicated by previous suggestions being retained, then (a) set the number of replicates
+        // to one, (b) use the same model as that which generated the active suggestion, and
+        // (c) put the active suggestion last when sending to the model <<- TODO
+        if executor.options.retain_suggestions {
+            replicates = 1;
 
-        if !is_revision
-            && !matches!(
-                self.options.execution_status,
-                Some(ExecutionStatus::Pending)
-            )
-        {
+            if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions) {
+                if let Some(suggestion) = suggestions.get(index as usize) {
+                    model_id_pattern = suggestion.authors.iter().flatten().find_map(|author| {
+                        match author {
+                            // Gets the first generator author having an id
+                            Author::AuthorRole(AuthorRole {
+                                role_name: AuthorRoleName::Generator,
+                                author:
+                                    AuthorRoleAuthor::SoftwareApplication(SoftwareApplication {
+                                        id: Some(id),
+                                        ..
+                                    }),
+                                ..
+                            }) => Some(id.clone()),
+                            _ => None,
+                        }
+                    });
+                }
+            }
+        };
+
+        if !matches!(
+            self.options.execution_status,
+            Some(ExecutionStatus::Pending)
+        ) {
             tracing::trace!("Skipping InstructionBlock {node_id}");
 
             // Continue to execute executable nodes in `content` and/or `suggestions`
@@ -228,6 +217,11 @@ impl Executable for InstructionBlock {
                     ..author.clone().into_author_role(AuthorRoleName::Instructor)
                 });
             }
+        }
+
+        // Unless specified, clear existing suggestions
+        if !executor.options.retain_suggestions {
+            executor.patch(&node_id, [none(NodeProperty::Suggestions)]);
         }
 
         // Create a future for each replicate

@@ -920,6 +920,7 @@ fn archive_patch_new() -> Result<()> {
     let inb = InstructionBlock {
         instruction_type: InstructionType::Create,
         suggestions: Some(vec![suggest]),
+        active_suggestion: Some(0),
         ..Default::default()
     };
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
@@ -929,8 +930,7 @@ fn archive_patch_new() -> Result<()> {
         Patch {
             node_id: Some(inb.node_id()),
             ops: vec![(PatchPath::default(), PatchOp::Archive)],
-            // The author of the patch should not be applied to
-            // the content in archived node or it's replacement content
+            // The author of the patch is the accepter
             authors: Some(vec![AuthorRole::default()]),
             ..Default::default()
         },
@@ -947,9 +947,13 @@ fn archive_patch_new() -> Result<()> {
         assert_eq!(content, &vec![t("one")]);
         assert_eq!(
             authors,
-            &Some(vec![Author::SoftwareApplication(
-                SoftwareApplication::default(),
-            )])
+            &Some(vec![
+                Author::SoftwareApplication(SoftwareApplication::default(),),
+                Author::AuthorRole(AuthorRole {
+                    role_name: AuthorRoleName::Accepter,
+                    ..Default::default()
+                })
+            ])
         );
     } else {
         bail!("unexpected content");
@@ -962,6 +966,7 @@ fn archive_patch_new() -> Result<()> {
     let inb = InstructionBlock {
         instruction_type: InstructionType::Create,
         suggestions: Some(vec![suggest]),
+        active_suggestion: Some(0),
         ..Default::default()
     };
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);

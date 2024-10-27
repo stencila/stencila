@@ -14,10 +14,9 @@ use codec::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
         IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        InstructionType, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
-        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
-        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
-        ThematicBreak,
+        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock,
+        QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
+        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
     },
 };
 
@@ -761,12 +760,10 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             let (message, capacity) = match message {
                 Some(message) => {
                     let message = message.trim();
-                    let (message, capacity) = if let Some(message) = message.strip_suffix('<') {
+                    let (message, capacity) = if let Some(message) = message.strip_suffix("<<") {
                         (message.trim_end(), None)
-                    } else if let Some(message) = message.strip_suffix('>') {
+                    } else if let Some(message) = message.strip_suffix(">>") {
                         (message.trim_end(), Some(1))
-                    } else if instruction_type == InstructionType::Create {
-                        (message, None)
                     } else {
                         (message, Some(2))
                     };
@@ -861,9 +858,9 @@ fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
             let (feedback, capacity) = match feedback {
                 Some(feedback) => {
                     let feedback = feedback.trim();
-                    let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix('<') {
+                    let (feedback, capacity) = if let Some(feedback) = feedback.strip_suffix("<<") {
                         (feedback.trim_end(), 0)
-                    } else if let Some(feedback) = feedback.strip_suffix('>') {
+                    } else if let Some(feedback) = feedback.strip_suffix(">>") {
                         (feedback.trim_end(), 1)
                     } else {
                         (feedback, 2)

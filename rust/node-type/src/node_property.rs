@@ -8,6 +8,7 @@ use common::{serde::{Serialize, Deserialize}, strum::{EnumString, Display}};
 pub enum NodeProperty {
     About,
     Abstract,
+    ActiveSuggestion,
     Address,
     AddressCountry,
     AddressLocality,

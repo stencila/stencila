@@ -967,6 +967,9 @@
       "strip": [
         "archive"
       ],
+      "dom": {
+        "skip": true
+      },
       "type": "array",
       "items": {
         "$ref": "Node.schema.json"

@@ -16,4 +16,7 @@ export abstract class Instruction extends Executable {
 
   @property({ type: Number })
   replicates?: number
+
+  @property({ attribute: 'active-suggestion', type: Number })
+  activeSuggestion?: number
 }

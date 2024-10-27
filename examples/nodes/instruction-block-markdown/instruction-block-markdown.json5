@@ -31,11 +31,22 @@
     },
     {
       type: "InstructionBlock",
-      instructionType: "Create"
+      instructionType: "Create",
+      content: []
     },
     {
       type: "InstructionBlock",
-      instructionType: "Create"
+      instructionType: "Create",
+      message: {
+        type: "InstructionMessage",
+        parts: [
+          {
+            type: "Text",
+            value: { string: "<" }
+          }
+        ]
+      },
+      content: []
     },
     {
       type: "Heading",
@@ -59,15 +70,23 @@
     {
       type: "InstructionBlock",
       instructionType: "Edit",
+      message: {
+        type: "InstructionMessage",
+        parts: [
+          {
+            type: "Text",
+            value: { string: ">" }
+          }
+        ]
+      },
+      content: []
+    },
+    {
+      type: "Paragraph",
       content: [
         {
-          type: "Paragraph",
-          content: [
-            {
-              type: "Text",
-              value: { string: "Paragraph to edit #1" }
-            }
-          ]
+          type: "Text",
+          value: { string: "Paragraph to edit #1" }
         }
       ]
     },
@@ -122,17 +141,16 @@
         parts: [
           {
             type: "Text",
-            value: { string: "improve this" }
+            value: { string: "improve this >" }
           }
         ]
       },
-      content: [
-        {
-          type: "CodeChunk",
-          code: { string: "" },
-          programmingLanguage: "python"
-        }
-      ]
+      content: []
+    },
+    {
+      type: "CodeChunk",
+      code: { string: "" },
+      programmingLanguage: "python"
     },
     {
       type: "InstructionBlock",
@@ -142,22 +160,21 @@
         parts: [
           {
             type: "Text",
-            value: { string: "admonition" }
+            value: { string: "admonition >" }
           }
         ]
       },
+      content: []
+    },
+    {
+      type: "QuoteBlock",
       content: [
         {
-          type: "QuoteBlock",
+          type: "Paragraph",
           content: [
             {
-              type: "Paragraph",
-              content: [
-                {
-                  type: "Text",
-                  value: { string: "![warning]\nThis is a warning" }
-                }
-              ]
+              type: "Text",
+              value: { string: "![warning]\nThis is a warning" }
             }
           ]
         }

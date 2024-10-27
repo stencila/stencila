@@ -49,6 +49,11 @@ export class Instruction extends Executable {
    */
   promptProvided?: PromptBlock;
 
+  /**
+   * The index of the suggestion that is currently active
+   */
+  activeSuggestion?: UnsignedInteger;
+
   constructor(instructionType: InstructionType, options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";

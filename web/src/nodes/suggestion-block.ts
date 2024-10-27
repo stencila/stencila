@@ -1,5 +1,5 @@
 import { SuggestionStatus } from '@stencila/types'
-import { html, PropertyValues } from 'lit'
+import { css, html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
@@ -49,7 +49,18 @@ export class SuggestionBlock extends Entity {
     super.update(changedProperties)
   }
 
+  static override styles = css`
+    :host {
+      flex: 0 0 100%;
+      width: 100%;
+    }
+  `
+
   override render() {
+    return html`<div class="p-4">
+      <slot name="content"></slot>
+    </div>`
+
     // Suggestion blocks are normally nested in an instruction block but can
     // be free standing
     const instructionId = this.closestGlobally('stencila-instruction-block')?.id

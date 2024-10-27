@@ -10,7 +10,7 @@
   "category": "edits",
   "description": "An instruction to edit some inline content.",
   "patch": {
-    "applyWith": "InstructionInline::apply_patch_op"
+    "applyWith": "InstructionInline::apply_with"
   },
   "markdown": {
     "derive": false
@@ -401,6 +401,15 @@
         "elem": "div"
       },
       "$ref": "PromptBlock.schema.json"
+    },
+    "activeSuggestion": {
+      "@id": "stencila:activeSuggestion",
+      "description": "The index of the suggestion that is currently active",
+      "aliases": [
+        "active-suggestion",
+        "active_suggestion"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
     },
     "content": {
       "@id": "stencila:content",

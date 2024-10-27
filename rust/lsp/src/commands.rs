@@ -34,8 +34,8 @@ use common::{
 use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
 use node_execute::ExecuteOptions;
 use schema::{
-    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
-    PatchPath, PatchValue, SuggestionStatus, Timestamp,
+    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchOp, PatchPath,
+    PatchValue, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -58,9 +58,9 @@ pub(super) const CANCEL_DOC: &str = "stencila.cancel-doc";
 pub(super) const LOCK_CURR: &str = "stencila.lock-curr";
 pub(super) const UNLOCK_CURR: &str = "stencila.unlock-curr";
 
+pub(super) const PREV_NODE: &str = "stencila.prev-node";
+pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
-pub(super) const ACCEPT_NODE: &str = "stencila.accept-node";
-pub(super) const REJECT_NODE: &str = "stencila.reject-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
@@ -82,9 +82,9 @@ pub(super) fn commands() -> Vec<String> {
         CANCEL_DOC,
         LOCK_CURR,
         UNLOCK_CURR,
+        PREV_NODE,
+        NEXT_NODE,
         ARCHIVE_NODE,
-        ACCEPT_NODE,
-        REJECT_NODE,
         REVISE_NODE,
         EXPORT_DOC,
     ]
@@ -164,7 +164,10 @@ pub(super) async fn execute_command(
             let node_id = node_id_arg(args.next())?;
             (
                 "Running node".to_string(),
-                Command::ExecuteNodes(CommandNodes::new(vec![node_id], CommandScope::Only)),
+                Command::ExecuteNodes((
+                    CommandNodes::new(vec![node_id], CommandScope::Only),
+                    ExecuteOptions::default(),
+                )),
                 true,
                 matches!(
                     node_type,
@@ -177,7 +180,10 @@ pub(super) async fn execute_command(
             if let Some(node_id) = root.read().await.node_id_at(position) {
                 (
                     "Running current node".to_string(),
-                    Command::ExecuteNodes(CommandNodes::new(vec![node_id], CommandScope::Only)),
+                    Command::ExecuteNodes((
+                        CommandNodes::new(vec![node_id], CommandScope::Only),
+                        ExecuteOptions::default(),
+                    )),
                     true,
                     true,
                 )
@@ -248,48 +254,46 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        ARCHIVE_NODE => {
-            args.next(); // Skip the currently unused node type arg
-            let node_id = node_id_arg(args.next())?;
+        PREV_NODE | NEXT_NODE | ARCHIVE_NODE => {
+            // Second arg (after document URI) is either current position (when invoked
+            // via keybinding) or node type (when invoked via code lens). So resolve
+            // instruction id on that basis
+            let instruction_id = match position_arg(args.next()) {
+                Ok(position) => match root.read().await.instruction_at(position) {
+                    Some(id) => id,
+                    None => {
+                        tracing::error!("No command at current position");
+                        return Ok(None);
+                    }
+                },
+                Err(..) => node_id_arg(args.next())?,
+            };
+
+            let (title, path, op) = match command.as_str() {
+                PREV_NODE => (
+                    "Previous suggestion".to_string(),
+                    PatchPath::from(NodeProperty::ActiveSuggestion),
+                    PatchOp::Decrement,
+                ),
+                NEXT_NODE => (
+                    "Next suggestion".to_string(),
+                    PatchPath::from(NodeProperty::ActiveSuggestion),
+                    PatchOp::Increment,
+                ),
+                ARCHIVE_NODE => (
+                    "Accepting suggestion and archiving command".to_string(),
+                    PatchPath::new(),
+                    PatchOp::Archive,
+                ),
+                _ => unreachable!(),
+            };
+
             (
-                "Archiving node".to_string(),
-                Command::PatchNode(Patch {
-                    node_id: Some(node_id),
-                    ops: vec![(PatchPath::new(), PatchOp::Archive)],
-                    authors: Some(vec![author]),
-                    ..Default::default()
-                }),
-                false,
-                true,
-            )
-        }
-        ACCEPT_NODE => {
-            args.next(); // Skip the currently unused node type arg
-            let suggestion_id = node_id_arg(args.next())?;
-            let instruction_id = node_id_arg(args.next())?;
-            (
-                "Accepting suggestion".to_string(),
+                title,
                 Command::PatchNode(Patch {
                     node_id: Some(instruction_id),
-                    ops: vec![(PatchPath::new(), PatchOp::Accept(suggestion_id))],
+                    ops: vec![(path, op)],
                     authors: Some(vec![author]),
-                    ..Default::default()
-                }),
-                false,
-                true,
-            )
-        }
-        REJECT_NODE => {
-            args.next(); // Skip the currently unused node type arg
-            let suggestion_id = node_id_arg(args.next())?;
-            (
-                "Rejecting suggestion".to_string(),
-                Command::PatchNode(Patch {
-                    node_id: Some(suggestion_id),
-                    ops: vec![(
-                        PatchPath::from(NodeProperty::SuggestionStatus),
-                        PatchOp::Set(SuggestionStatus::Rejected.to_value().unwrap_or_default()),
-                    )],
                     ..Default::default()
                 }),
                 false,
@@ -297,11 +301,46 @@ pub(super) async fn execute_command(
             )
         }
         REVISE_NODE => {
-            args.next(); // Skip the currently unused node type arg
-            let suggestion_id = node_id_arg(args.next())?;
+            // As above, get instruction id
+            let instruction_id = match position_arg(args.next()) {
+                Ok(position) => match root.read().await.instruction_at(position) {
+                    Some(id) => id,
+                    None => {
+                        tracing::error!("No command at current position");
+                        return Ok(None);
+                    }
+                },
+                Err(..) => node_id_arg(args.next())?,
+            };
+
+            // Next arg is the feedback for the instruction's active suggestion
+            // it may be empty (e.g. just a plain retry without the entering any feedback)
+            let feedback = args
+                .next()
+                .map(PatchValue::Json)
+                .unwrap_or(PatchValue::None);
+
             (
                 "Revising suggestion".to_string(),
-                Command::ExecuteNodes(CommandNodes::new(vec![suggestion_id], CommandScope::Only)),
+                Command::PatchExecuteNodes((
+                    Patch {
+                        node_id: Some(instruction_id.clone()),
+                        ops: vec![(
+                            // Instructions do not have a feedback property but have
+                            // a custom patch implem that will intercept this and apply
+                            // it to the active suggestion
+                            PatchPath::from(NodeProperty::Feedback),
+                            PatchOp::Set(feedback),
+                        )],
+                        authors: Some(vec![author]),
+                        ..Default::default()
+                    },
+                    CommandNodes::new(vec![instruction_id], CommandScope::Only),
+                    ExecuteOptions {
+                        retain_suggestions: true,
+                        ..Default::default()
+                    },
+                )),
                 false,
                 true,
             )
