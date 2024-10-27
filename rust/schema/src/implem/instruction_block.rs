@@ -341,7 +341,7 @@ impl PatchNode for InstructionBlock {
         }
 
         // Intercept operations on `active_suggestion` to implement wrapping (for carousel type behavior) including
-        // decrement to `None` (i.e. `content``) from 0 (if there is `content`)
+        // decrement to `None` (i.e. `content`) from 0 (if there is `content`)
         if matches!(property, NodeProperty::ActiveSuggestion) {
             let suggestions_count = self.suggestions.iter().flatten().count();
             if suggestions_count == 0 {
@@ -382,8 +382,13 @@ impl PatchNode for InstructionBlock {
             } else if let PatchOp::Set(value) = op {
                 self.active_suggestion = match value {
                     PatchValue::None => None,
-                    _ => Some(u64::from_value(value)?.clamp(0, (suggestions_count - 1) as u64)),
-                };
+                    PatchValue::Json(ref json) => match json {
+                        serde_json::Value::Null => None,
+                        _ => Some(u64::from_value(value)?),
+                    },
+                    _ => Some(u64::from_value(value)?),
+                }
+                .map(|value| value.clamp(0, (suggestions_count - 1) as u64));
             }
 
             return Ok(());
