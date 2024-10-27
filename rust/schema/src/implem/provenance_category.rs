@@ -21,6 +21,10 @@ impl ProvenanceCategory {
         )
     }
 
+    pub fn is_machine_edited(&self) -> bool {
+        matches!(self, HwMeHv | HwMe | HwMeMv | MwMeHv | MwMe | MwMeMv)
+    }
+
     pub fn is_verified(&self) -> bool {
         matches!(
             self,

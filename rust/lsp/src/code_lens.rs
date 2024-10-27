@@ -128,7 +128,10 @@ pub(crate) async fn request(
                             )))
                     {
                         let machine_percent = provenance.iter().fold(0u64, |sum, prov| {
-                            if prov.provenance_category.is_machine_written() {
+                            if (prov.provenance_category.is_machine_written()
+                                && !prov.provenance_category.is_human_edited())
+                                || prov.provenance_category.is_machine_edited()
+                            {
                                 sum + prov.character_percent.unwrap_or_default()
                             } else {
                                 sum
