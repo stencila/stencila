@@ -58,12 +58,6 @@ export class InstructionBlock extends Instruction {
       | HTMLElement
       | undefined
 
-    suggestionsSlot
-      ?.querySelectorAll('stencila-suggestion-block')
-      .forEach((suggestion, index) => {
-        suggestion.classList.toggle('active', index === this.activeSuggestion)
-      })
-
     if (suggestionsSlot) {
       const transform = `translateX(-${this.activeSuggestion * 100}%)`
       suggestionsSlot.style.setProperty('transform', transform)

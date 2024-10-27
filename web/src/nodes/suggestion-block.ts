@@ -53,12 +53,6 @@ export class SuggestionBlock extends Entity {
     :host {
       flex: 0 0 100%;
       width: 100%;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-    }
-
-    :host(.active) {
-      opacity: 1;
     }
   `
 
