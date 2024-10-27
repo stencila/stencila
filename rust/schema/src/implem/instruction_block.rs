@@ -379,6 +379,11 @@ impl PatchNode for InstructionBlock {
                     // Wrap from original to last
                     None => Some((suggestions_count - 1) as u64),
                 };
+            } else if let PatchOp::Set(value) = op {
+                self.active_suggestion = match value {
+                    PatchValue::None => None,
+                    _ => Some(u64::from_value(value)?.clamp(0, (suggestions_count - 1) as u64)),
+                };
             }
 
             return Ok(());
