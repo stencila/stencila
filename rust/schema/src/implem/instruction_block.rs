@@ -18,8 +18,16 @@ impl PatchNode for InstructionBlock {
         }
     }
 
+    fn authorship(&mut self, context: &mut PatchContext) -> Result<()> {
+        self.message.authorship(context)?;
+        self.content.authorship(context)?;
+        self.suggestions.authorship(context)?;
+        Ok(())
+    }
+
     fn provenance(&self) -> Option<Vec<ProvenanceCount>> {
         PatchContext::flatten_provenance(vec![
+            self.message.provenance(),
             self.content.provenance(),
             self.suggestions.provenance(),
         ])
