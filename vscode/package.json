@@ -547,6 +547,23 @@
         "path": "./themes/stencila-light-color-theme.json"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stencila-sidebar",
+          "title": "Stencila",
+          "icon": "./icons/stencila.svg"
+        }
+      ]
+    },
+    "views": {
+      "stencila-sidebar": [
+        {
+          "id": "stencila-prompts",
+          "name": "Prompts"
+        }
+      ]
+    },
     "walkthroughs": [
       {
         "title": "Math in Stencila Markdown",
@@ -641,7 +658,7 @@
   "scripts": {
     "fix": "eslint src --ext ts --fix",
     "lint": "eslint src --ext ts",
-    "compile-cli": "cargo build --bin stencila",
+    "compile-cli": "cargo build -p cli",
     "compile-dist": "cd ../web/ && npm run build:vscode",
     "compile-syntaxes": "node syntaxes/smd/compile.js && node syntaxes/myst/compile.js",
     "compile-ts": "tsc -p ./",

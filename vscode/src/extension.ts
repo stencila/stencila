@@ -8,6 +8,7 @@ import {
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerNotifications } from "./notifications";
+import { registerPromptsView } from "./prompts";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
@@ -87,8 +88,9 @@ async function startServer(context: vscode.ExtensionContext) {
   );
   await client.start();
 
-  // Register notifications on the client
+  // Register notifications etc on the client
   registerNotifications(client);
+  registerPromptsView(context, client);
 }
 
 /**

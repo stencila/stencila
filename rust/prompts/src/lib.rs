@@ -18,6 +18,7 @@ use common::{
     itertools::Itertools,
     regex::Regex,
     reqwest::Client,
+    serde::{Deserialize, Serialize},
     tar::Archive,
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
     tracing,
@@ -45,19 +46,23 @@ pub use prompt;
 ///
 /// A wrapper around an [`Prompt`] used to cache derived properties
 /// such as regexes / embeddings
-#[derive(Clone, Deref, DerefMut)]
+#[derive(Clone, Deref, DerefMut, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct PromptInstance {
     #[deref]
     #[deref_mut]
+    #[serde(flatten)]
     inner: Prompt,
 
     /// Home directory of the prompt
     ///
     /// Used mainly to resolve relative paths used for the source of
     /// `IncludeBlocks` used within instructions.
+    #[serde(skip)]
     home: PathBuf,
 
     /// Compiled regexes for the prompt's instruction regexes
+    #[serde(skip)]
     instruction_regexes: Vec<Regex>,
 }
 

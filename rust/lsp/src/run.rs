@@ -12,8 +12,8 @@ use common::serde_json;
 use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
-    code_lens, commands, completion, content, formatting, hover, lifecycle, logging, symbols,
-    text_document, ServerState, ServerStatus,
+    code_lens, commands, completion, content, formatting, hover, lifecycle, logging, prompts_,
+    symbols, text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
@@ -156,6 +156,10 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                     None => Ok(String::new()),
                 }
             }
+        });
+
+        router.request::<prompts_::ListPrompts, _>(|_state, _params| async move {
+            Ok(prompts_::list().await)
         });
 
         router.request::<request::Shutdown, _>(|state, _params| {
