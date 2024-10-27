@@ -33,12 +33,12 @@
   <p>
     <span>An insert instruction with a prompt and a suggestion:</span>
   </p>
-  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"analyze data"}}]}' prompt='code-chunk' suggestions='[{"type":"SuggestionBlock","content":[{"type":"CodeChunk","code":{"string":"some code"}}]}]' active-suggestion='0'>
+  <stencila-instruction-block instruction-type='Create' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"analyze data"}}]}' prompt='code-chunk' active-suggestion='0' suggestions='[{"type":"SuggestionBlock","content":[{"type":"CodeChunk","code":{"string":"some code"}}]}]'>
   </stencila-instruction-block>
   <p>
     <span>An edit instruction with a suggestion:</span>
   </p>
-  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"more succinct"}}]}' suggestions='[{"type":"SuggestionBlock","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"A paragraph."}}]}]}]' active-suggestion='0'>
+  <stencila-instruction-block instruction-type='Edit' message='{"type":"InstructionMessage","parts":[{"type":"Text","value":{"string":"more succinct"}}]}' active-suggestion='0' suggestions='[{"type":"SuggestionBlock","content":[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"A paragraph."}}]}]}]'>
     <p>
       <span>A rather long winded paragraph.</span>
     </p>

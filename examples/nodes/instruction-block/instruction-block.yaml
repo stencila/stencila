@@ -88,13 +88,13 @@ content:
       value:
         string: analyze data
   prompt: code-chunk
+  activeSuggestion: 0
   suggestions:
   - type: SuggestionBlock
     content:
     - type: CodeChunk
       code:
         string: some code
-  activeSuggestion: 0
 - type: Paragraph
   content:
   - type: Text
@@ -108,6 +108,7 @@ content:
     - type: Text
       value:
         string: more succinct
+  activeSuggestion: 0
   content:
   - type: Paragraph
     content:
@@ -122,4 +123,3 @@ content:
       - type: Text
         value:
           string: A paragraph.
-  activeSuggestion: 0

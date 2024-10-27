@@ -149,6 +149,7 @@
         ]
       },
       prompt: "code-chunk",
+      activeSuggestion: 0,
       suggestions: [
         {
           type: "SuggestionBlock",
@@ -159,8 +160,7 @@
             }
           ]
         }
-      ],
-      activeSuggestion: 0
+      ]
     },
     {
       type: "Paragraph",
@@ -183,6 +183,7 @@
           }
         ]
       },
+      activeSuggestion: 0,
       content: [
         {
           type: "Paragraph",
@@ -209,8 +210,7 @@
             }
           ]
         }
-      ],
-      activeSuggestion: 0
+      ]
     }
   ]
 }
