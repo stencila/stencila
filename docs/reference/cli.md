@@ -726,7 +726,7 @@ List the kernels available
 
 * `-t`, `--type <TYPE>` — Only show languages of a particular type
 
-  Possible values: `programming`, `diagrams`, `templating`, `math`, `styling`
+  Possible values: `programming`, `templating`, `diagrams`, `math`, `styling`
 
 
 
