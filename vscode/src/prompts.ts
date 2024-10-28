@@ -11,11 +11,37 @@ export function registerPromptsView(
     treeDataProvider,
   });
 
-  vscode.commands.registerCommand("stencila.prompts.refresh", () =>
-    treeDataProvider.refresh()
+  const refresh = vscode.commands.registerCommand(
+    "stencila.prompts.refresh",
+    () => treeDataProvider.refresh()
   );
 
-  context.subscriptions.push(treeView);
+  const use = vscode.commands.registerCommand(
+    "stencila.prompts.use",
+    (item: PromptTreeItem) => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor) {
+        const selection = editor.selection;
+
+        const selected = !selection.isEmpty
+          ? editor.document.getText(selection)
+          : undefined;
+
+        const format = editor.document.languageId;
+        let snippet;
+        if (format === "myst") {
+          snippet = mystSnippet(item.prompt!, selected);
+        } else {
+          snippet = smdSnippet(item.prompt!, selected);
+        }
+        editor.insertSnippet(new vscode.SnippetString(snippet), selection);
+      } else {
+        vscode.window.showWarningMessage("No active text editor found");
+      }
+    }
+  );
+
+  context.subscriptions.push(treeView, refresh, use);
 }
 
 type InstructionType = "Create" | "Edit" | "Fix" | "Describe";
@@ -28,6 +54,78 @@ interface Prompt {
   instructionTypes: InstructionType[];
 }
 
+/**
+ * Get the shorthand id for a prompt (if possible)
+ */
+function promptId(prompt: Prompt): string {
+  const parts = prompt.id.split("/");
+  return parts[0] === "stencila" ? parts[parts.length - 1] : prompt.id;
+}
+
+/**
+ * Create a Stencila Markdown snippet for a command using a prompt
+ */
+function smdSnippet(prompt: Prompt, selected?: string): string {
+  const type = prompt.instructionTypes[0].toLowerCase();
+  const id = promptId(prompt);
+
+  let snippet = `::: ${type}`;
+
+  if (id !== "block") {
+    snippet += ` @${id}`;
+  }
+
+  snippet += " ${0}";
+
+  if (selected) {
+    snippet += "\n";
+    if (!selected.startsWith("\n")) {
+      snippet += "\n";
+    }
+    snippet += selected;
+    if (!selected.endsWith("\n")) {
+      snippet += "\n";
+    }
+    snippet += "\n:::\n";
+  } else if (type === "create" || type === "describe") {
+    snippet += " <<\n";
+  } else {
+    snippet += " >>\n";
+  }
+
+  return snippet;
+}
+
+/**
+ * Create a MyST snippet for a command using a prompt
+ */
+function mystSnippet(prompt: Prompt, selected?: string): string {
+  const type = prompt.instructionTypes[0].toLowerCase();
+  const id = promptId(prompt);
+
+  let snippet = `:::{${type}} \${0}\n`;
+
+  if (id !== "block") {
+    snippet += `:prompt: ${id}\n`;
+  }
+
+  if (selected) {
+    if (!selected.startsWith("\n")) {
+      snippet += "\n";
+    }
+    snippet += selected;
+    if (!selected.endsWith("\n")) {
+      snippet += "\n";
+    }
+  } else {
+    snippet += "\n";
+  }
+
+  snippet += "\n:::\n";
+
+  return snippet;
+}
+
 class PromptTreeItem extends vscode.TreeItem {
   constructor(
     public readonly library: string | null,
@@ -37,8 +135,7 @@ class PromptTreeItem extends vscode.TreeItem {
     if (library) {
       label = library;
     } else if (prompt) {
-      const parts = prompt.id.split("/");
-      label = parts[parts.length - 1];
+      label = promptId(prompt);
     }
 
     super(
@@ -95,6 +192,9 @@ class PromptTreeItem extends vscode.TreeItem {
     })();
 
     this.iconPath = new vscode.ThemeIcon(icon);
+
+    // Set the context value to allow filtering commands by the item type
+    this.contextValue = library ? "library" : "prompt";
   }
 }
 

@@ -250,6 +250,13 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "stencila.prompts.use",
+        "category": "Stencila",
+        "title": "Use prompt in document",
+        "shortTitle": "Use prompt",
+        "icon": "$(arrow-circle-right)"
+      },
+      {
         "command": "stencila.secrets.set",
         "category": "Stencila",
         "title": "Set secret"
@@ -474,6 +481,13 @@
           "command": "stencila.prompts.refresh",
           "when": "view == stencila-prompts",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "stencila.prompts.use",
+          "when": "view == stencila-prompts && viewItem == prompt",
+          "group": "inline"
         }
       ]
     },
