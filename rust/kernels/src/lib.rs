@@ -31,6 +31,8 @@ use kernel_rhai::RhaiKernel;
 use kernel_style::StyleKernel;
 use kernel_tex::TexKernel;
 
+pub use kernel::{KernelAvailability, KernelProvider, KernelType};
+
 pub mod cli;
 
 /// Get a list of available kernels

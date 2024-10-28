@@ -243,6 +243,48 @@
         "icon": "$(export)"
       },
       {
+        "command": "stencila.kernels.refresh",
+        "category": "Stencila",
+        "title": "Refresh kernels list",
+        "shortTitle": "Refresh kernels",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.kernels.use",
+        "category": "Stencila",
+        "title": "Use kernel in document",
+        "shortTitle": "Use kernel",
+        "icon": "$(arrow-circle-right)"
+      },
+      {
+        "command": "stencila.prompts.refresh",
+        "category": "Stencila",
+        "title": "Refresh prompts list",
+        "shortTitle": "Refresh prompts",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.prompts.use",
+        "category": "Stencila",
+        "title": "Use prompt in document",
+        "shortTitle": "Use prompt",
+        "icon": "$(arrow-circle-right)"
+      },
+      {
+        "command": "stencila.models.refresh",
+        "category": "Stencila",
+        "title": "Refresh models list",
+        "shortTitle": "Refresh models",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.models.use",
+        "category": "Stencila",
+        "title": "Use model for current command",
+        "shortTitle": "Use model",
+        "icon": "$(arrow-circle-right)"
+      },
+      {
         "command": "stencila.secrets.set",
         "category": "Stencila",
         "title": "Set secret"
@@ -461,6 +503,45 @@
           "when": "editorLangId == smd || editorLangId == myst",
           "group": "001-Stencila@2"
         }
+      ],
+      "view/title": [
+        {
+          "command": "stencila.kernels.refresh",
+          "when": "view == stencila-kernels",
+          "group": "navigation"
+        },
+        {
+          "command": "stencila.prompts.refresh",
+          "when": "view == stencila-prompts",
+          "group": "navigation"
+        },
+        {
+          "command": "stencila.models.refresh",
+          "when": "view == stencila-models",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "stencila.kernels.use",
+          "when": "view == stencila-kernels && viewItem == kernel",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.prompts.use",
+          "when": "view == stencila-prompts && viewItem == prompt",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.cloud.signin",
+          "when": "view == stencila-models && viewItem == signin",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.models.use",
+          "when": "view == stencila-models && viewItem == model",
+          "group": "inline"
+        }
       ]
     },
     "languages": [
@@ -547,6 +628,31 @@
         "path": "./themes/stencila-light-color-theme.json"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stencila-sidebar",
+          "title": "Stencila",
+          "icon": "./icons/stencila.svg"
+        }
+      ]
+    },
+    "views": {
+      "stencila-sidebar": [
+        {
+          "id": "stencila-kernels",
+          "name": "Kernels"
+        },
+        {
+          "id": "stencila-prompts",
+          "name": "Prompts"
+        },
+        {
+          "id": "stencila-models",
+          "name": "Models"
+        }
+      ]
+    },
     "walkthroughs": [
       {
         "title": "Math in Stencila Markdown",
@@ -641,7 +747,7 @@
   "scripts": {
     "fix": "eslint src --ext ts --fix",
     "lint": "eslint src --ext ts",
-    "compile-cli": "cargo build --bin stencila",
+    "compile-cli": "cargo build -p cli",
     "compile-dist": "cd ../web/ && npm run build:vscode",
     "compile-syntaxes": "node syntaxes/smd/compile.js && node syntaxes/myst/compile.js",
     "compile-ts": "tsc -p ./",

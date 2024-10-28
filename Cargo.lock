@@ -3316,6 +3316,8 @@ dependencies = [
  "codecs",
  "common",
  "document",
+ "kernels",
+ "models",
  "node-execute",
  "node-find",
  "percent-encoding",

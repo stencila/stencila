@@ -7,17 +7,32 @@ import {
 
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
+import { registerKernelsView } from "./kernels";
 import { registerNotifications } from "./notifications";
+import { registerModelsView } from "./models";
+import { registerPromptsView } from "./prompts";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
-import { cliPath } from "./clis";
+import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 
 let client: LanguageClient | undefined;
+
 let outputChannel = vscode.window.createOutputChannel(
   "Stencila Language Server"
 );
+
+/**
+ * A view that requests data from the LSP server and
+ * which needs to be refreshed when the LSP is restarted
+ * and a new client instance created
+ */
+interface ClientView {
+  refresh(client: LanguageClient): Promise<void> | void;
+}
+
+let views: ClientView[] = [];
 
 /**
  * Activate the extension
@@ -89,6 +104,19 @@ async function startServer(context: vscode.ExtensionContext) {
 
   // Register notifications on the client
   registerNotifications(client);
+
+  // Create views using client, or refresh existing views with new client (if a restart)
+  if (views.length) {
+    for (const view of views) {
+      view.refresh(client);
+    }
+  } else {
+    views = [
+      registerKernelsView(context, client),
+      registerPromptsView(context, client),
+      registerModelsView(context, client),
+    ];
+  }
 }
 
 /**

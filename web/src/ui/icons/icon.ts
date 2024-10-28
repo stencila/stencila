@@ -107,9 +107,9 @@ import r from './r.svg'
 import repeat from './repeat.svg'
 import replaceBlock from './replace-block.svg'
 import robot from './robot.svg'
+import rosetteCheck from './rosette-check.svg'
+import rosetteFillCheck from './rosette-fill-check.svg'
 import sandbox from './sandbox.svg'
-import shieldCheck from './shield-check.svg'
-import shieldFillCheck from './shield-fill-check.svg'
 import skipEnd from './skip-end.svg'
 import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
@@ -219,9 +219,9 @@ const icons = {
   repeat,
   replaceBlock,
   robot,
+  rosetteCheck,
+  rosetteFillCheck,
   sandbox,
-  shieldCheck,
-  shieldFillCheck,
   skipEnd,
   skipStart,
   slashCircle,

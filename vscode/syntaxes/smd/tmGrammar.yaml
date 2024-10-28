@@ -31,7 +31,6 @@ repository:
       - include: "#insert-block"
       - include: "#delete-block"
       - include: "#replace-block"
-      - include: "#with-block"
       - include: "#for-block"
       - include: "#if-block"
       - include: "#else-block"
@@ -246,12 +245,11 @@ repository:
       (?x)
       ^
         (?:
-          (?:(:{3,})\s*(create|edit|fix|describe))|
-          (/)
+          (?:(:{3,})\s*(create|edit|fix|describe))
         )
         \s+
         (?:
-          (@[\w-]+)
+          (@[\w/-]+)
           \s*
         )?
         (?:
@@ -273,19 +271,11 @@ repository:
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # instruction type
-      "3": { name: markup.heading.stencila } # forward slash
-      "4": { name: support.function } # prompt
-      "5": { name: string.quoted } # model
-      "6": { name: variable.parameter.stencila } # options
-      "7": { name: comment.stencila.instruction } # instruction message
-      "8": { name: markup.heading.stencila } # << or >>
-
-  with-block:
-    name: meta.stencila.with-block
-    match: ^(:{3,})\s*(with)\s*$
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # with
+      "3": { name: support.function } # prompt
+      "4": { name: string.quoted } # model
+      "5": { name: variable.parameter.stencila } # options
+      "6": { name: comment.stencila.instruction } # instruction message
+      "7": { name: markup.heading.stencila } # << or >>
 
   instruction-inline:
     name: meta.stencila.instruction-inline
@@ -297,7 +287,7 @@ repository:
         \s+
         (?:
           (@)
-          ([\w-]*)
+          ([\w/-]*)
           \s*
         )?
         (.*?)

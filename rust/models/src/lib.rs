@@ -11,8 +11,10 @@ use model::{
         regex::Regex,
         tracing,
     },
-    Model, ModelOutput, ModelTask, ModelType,
+    Model, ModelOutput, ModelTask,
 };
+
+pub use model::{ModelAvailability, ModelType};
 
 pub mod cli;
 

@@ -176,7 +176,7 @@ pub(crate) async fn request(
                                     node_type,
                                     node_id,
                                     format!(
-                                        "$(hubot) {machine_percent}%  $(check) {verified_percent}%"
+                                        "$(hubot) {machine_percent}%  $(verified) {verified_percent}%"
                                     )
                                 ])),
                             });
@@ -242,7 +242,7 @@ pub(crate) async fn resolve(
             arguments,
         ),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
-        VERIFY_NODE => Command::new("$(shield) Verify".to_string(), command, arguments),
+        VERIFY_NODE => Command::new("$(verified) Verify".to_string(), command, arguments),
         PROV_NODE => Command::new(
             data.next().unwrap_or_default().to_string(),
             command,

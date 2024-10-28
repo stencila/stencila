@@ -100,7 +100,10 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand(
           `stencila.revise-node`,
           editor.document.uri.toString(),
-          editor.selection.active,
+          // If invoked from code lens then `nodeType` and `nodeId` should be defined
+          // and should be passed as arguments. Otherwise, if invoked using keybinding
+          // then those arguments will not be present so pass the selection.
+          ...(nodeId ? [nodeType, nodeId] : [editor.selection.active]),
           feedback
         );
       }

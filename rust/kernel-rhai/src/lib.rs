@@ -36,7 +36,7 @@ use kernel::{
 #[derive(Default)]
 pub struct RhaiKernel;
 
-const NAME: &str = "mermaid";
+const NAME: &str = "rhai";
 
 impl Kernel for RhaiKernel {
     fn name(&self) -> String {
