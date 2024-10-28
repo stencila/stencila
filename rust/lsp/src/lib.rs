@@ -14,6 +14,7 @@ mod hover;
 mod inspect;
 mod lifecycle;
 mod logging;
+mod models_;
 mod prompts_;
 mod run;
 mod symbols;

@@ -257,6 +257,20 @@
         "icon": "$(arrow-circle-right)"
       },
       {
+        "command": "stencila.models.refresh",
+        "category": "Stencila",
+        "title": "Refresh models list",
+        "shortTitle": "Refresh models",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.models.use",
+        "category": "Stencila",
+        "title": "Use model for a command",
+        "shortTitle": "Use model",
+        "icon": "$(arrow-circle-right)"
+      },
+      {
         "command": "stencila.secrets.set",
         "category": "Stencila",
         "title": "Set secret"
@@ -481,12 +495,22 @@
           "command": "stencila.prompts.refresh",
           "when": "view == stencila-prompts",
           "group": "navigation"
+        },
+        {
+          "command": "stencila.models.refresh",
+          "when": "view == stencila-models",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
           "command": "stencila.prompts.use",
           "when": "view == stencila-prompts && viewItem == prompt",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.models.use",
+          "when": "view == stencila-models && viewItem == model",
           "group": "inline"
         }
       ]
@@ -589,6 +613,10 @@
         {
           "id": "stencila-prompts",
           "name": "Prompts"
+        },
+        {
+          "id": "stencila-models",
+          "name": "Models"
         }
       ]
     },

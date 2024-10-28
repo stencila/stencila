@@ -28,7 +28,8 @@ pub use task::{ModelTask, ModelTaskKind};
 ///
 /// This ordering here is important as it is used when
 /// selecting a model to execute a task.
-#[derive(Display, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Display, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub enum ModelType {
     Builtin,
     Local,
@@ -39,7 +40,8 @@ pub enum ModelType {
 }
 
 /// The availability of a model on the current machine
-#[derive(Display, Clone, Copy)]
+#[derive(Display, Clone, Copy, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum ModelAvailability {
     /// Available on this machine

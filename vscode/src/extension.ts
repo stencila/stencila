@@ -14,6 +14,7 @@ import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
 import { cliPath } from "./clis";
 import { registerWalkthroughCommands } from "./walkthroughs";
+import { registerModelsView } from "./models";
 
 let client: LanguageClient | undefined;
 let outputChannel = vscode.window.createOutputChannel(
@@ -91,6 +92,7 @@ async function startServer(context: vscode.ExtensionContext) {
   // Register notifications etc on the client
   registerNotifications(client);
   registerPromptsView(context, client);
+  registerModelsView(context, client);
 }
 
 /**
