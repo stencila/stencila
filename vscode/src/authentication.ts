@@ -266,7 +266,10 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
         } catch {
           message = `HTTP error status: ${response.status}`;
         }
-        throw new Error(message);
+        // Do not throw here so that token is removed and signout completed
+        vscode.window.showWarningMessage(
+          `While deleting access token: ${message}`
+        );
       }
     }
 
