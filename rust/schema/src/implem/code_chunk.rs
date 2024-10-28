@@ -173,11 +173,13 @@ impl MarkdownCodec for CodeChunk {
             .merge_losses(lost_exec_options!(self));
 
         if matches!(context.format, Format::Myst) {
+            let is_mermaid = self.programming_language.as_deref() == Some("mermaid");
+
             context.myst_directive(
                 '`',
-                "code-cell",
+                if is_mermaid { "mermaid" } else { "code-cell" },
                 |context| {
-                    if let Some(lang) = &self.programming_language {
+                    if let (false, Some(lang)) = (is_mermaid, &self.programming_language) {
                         context
                             .push_str(" ")
                             .push_prop_str(NodeProperty::ProgrammingLanguage, lang);

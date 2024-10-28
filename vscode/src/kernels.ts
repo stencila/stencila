@@ -90,6 +90,10 @@ function mystSnippet(kernel: Kernel): string {
     return "$$\n${0}\n$$\n";
   }
 
+  if (kernel.name === "mermaid") {
+    return "```{mermaid}\n${0}\n```\n";
+  }
+
   return "```{code-cell} " + kernel.name + "\n${0}\n```\n";
 }
 
