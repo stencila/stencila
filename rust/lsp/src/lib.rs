@@ -12,6 +12,7 @@ mod diagnostics;
 mod formatting;
 mod hover;
 mod inspect;
+mod kernels_;
 mod lifecycle;
 mod logging;
 mod models_;

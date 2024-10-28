@@ -243,6 +243,20 @@
         "icon": "$(export)"
       },
       {
+        "command": "stencila.kernels.refresh",
+        "category": "Stencila",
+        "title": "Refresh kernels list",
+        "shortTitle": "Refresh kernels",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stencila.kernels.use",
+        "category": "Stencila",
+        "title": "Use kernel in document",
+        "shortTitle": "Use kernel",
+        "icon": "$(arrow-circle-right)"
+      },
+      {
         "command": "stencila.prompts.refresh",
         "category": "Stencila",
         "title": "Refresh prompts list",
@@ -492,6 +506,11 @@
       ],
       "view/title": [
         {
+          "command": "stencila.kernels.refresh",
+          "when": "view == stencila-kernels",
+          "group": "navigation"
+        },
+        {
           "command": "stencila.prompts.refresh",
           "when": "view == stencila-prompts",
           "group": "navigation"
@@ -503,6 +522,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "stencila.kernels.use",
+          "when": "view == stencila-kernels && viewItem == kernel",
+          "group": "inline"
+        },
         {
           "command": "stencila.prompts.use",
           "when": "view == stencila-prompts && viewItem == prompt",
@@ -615,6 +639,10 @@
     },
     "views": {
       "stencila-sidebar": [
+        {
+          "id": "stencila-kernels",
+          "name": "Kernels"
+        },
         {
           "id": "stencila-prompts",
           "name": "Prompts"

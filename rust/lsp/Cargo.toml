@@ -10,6 +10,7 @@ codec-text-trait = { path = "../codec-text-trait" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 document = { path = "../document" }
+kernels = { path = "../kernels" }
 models = { path = "../models" }
 node-execute = { path = "../node-execute" }
 node-find = { path = "../node-find" }

@@ -7,14 +7,15 @@ import {
 
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
+import { registerKernelsView } from "./kernels";
 import { registerNotifications } from "./notifications";
+import { registerModelsView } from "./models";
 import { registerPromptsView } from "./prompts";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
 import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
-import { registerModelsView } from "./models";
 
 let client: LanguageClient | undefined;
 
@@ -111,6 +112,7 @@ async function startServer(context: vscode.ExtensionContext) {
     }
   } else {
     views = [
+      registerKernelsView(context, client),
       registerPromptsView(context, client),
       registerModelsView(context, client),
     ];
