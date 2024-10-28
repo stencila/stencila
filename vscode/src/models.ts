@@ -75,7 +75,16 @@ class ModelTreeItem extends vscode.TreeItem {
     );
 
     this.id = model?.id;
-    this.tooltip = model?.id;
+
+    let tooltip = model?.id;
+    if (model?.availability === "RequiresKey") {
+      tooltip += " (sign-in to Stencila Cloud to use)";
+    } else if (model?.type === "Proxied") {
+      tooltip += " (via Stencila Cloud)";
+    } else if (model?.availability !== "Available") {
+      tooltip += ` (${model?.availability.toLowerCase()})`;
+    }
+    this.tooltip = tooltip;
 
     const icon = (() => {
       if (provider) {
@@ -93,6 +102,11 @@ class ModelTreeItem extends vscode.TreeItem {
       } else {
         switch (model?.availability) {
           case "RequiresKey":
+            return "lock";
+          case "Disabled":
+          case "Installable":
+          case "Unavailable":
+            return "circle-slash";
         }
 
         switch (model?.type) {
@@ -117,7 +131,11 @@ class ModelTreeItem extends vscode.TreeItem {
       : new vscode.ThemeIcon(icon);
 
     // Set the context value to allow filtering commands by the item type
-    this.contextValue = provider ? "provider" : "model";
+    this.contextValue = provider
+      ? "provider"
+      : model?.availability === "RequiresKey"
+        ? "signin"
+        : "model";
   }
 }
 

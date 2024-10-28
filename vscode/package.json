@@ -266,7 +266,7 @@
       {
         "command": "stencila.models.use",
         "category": "Stencila",
-        "title": "Use model for a command",
+        "title": "Use model for current command",
         "shortTitle": "Use model",
         "icon": "$(arrow-circle-right)"
       },
@@ -506,6 +506,11 @@
         {
           "command": "stencila.prompts.use",
           "when": "view == stencila-prompts && viewItem == prompt",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.cloud.signin",
+          "when": "view == stencila-models && viewItem == signin",
           "group": "inline"
         },
         {
