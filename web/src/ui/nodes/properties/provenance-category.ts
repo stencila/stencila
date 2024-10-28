@@ -26,8 +26,8 @@ const Hw = 'person'
 const He = 'person'
 const Mw = 'robot'
 const Me = 'robot'
-const Hv = 'shieldFillCheck'
-const Mv = 'shieldCheck'
+const Hv = 'rosetteFillCheck'
+const Mv = 'rosetteCheck'
 
 type ProvenanceIcon =
   | typeof Hw
