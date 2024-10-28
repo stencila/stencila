@@ -42,6 +42,8 @@ export function registerPromptsView(
   );
 
   context.subscriptions.push(treeView, refresh, use);
+
+  return treeDataProvider
 }
 
 type InstructionType = "Create" | "Edit" | "Fix" | "Describe";
@@ -221,11 +223,14 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
     this.list = [];
   }
 
-  refresh(): void {
-    this.client.sendRequest("stencila/listPrompts").then((list: unknown) => {
-      this.list = list as Prompt[];
-      this._onDidChangeTreeData.fire();
-    });
+  async refresh(client?: LanguageClient): Promise<void> {
+    if (client) {
+      this.client = client;
+    }
+
+    this.list = await this.client.sendRequest("stencila/listPrompts");
+
+    this._onDidChangeTreeData.fire();
   }
 
   getTreeItem(item: PromptTreeItem): vscode.TreeItem {
@@ -234,7 +239,7 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
 
   async getChildren(item?: PromptTreeItem): Promise<PromptTreeItem[]> {
     if (this.list.length === 0) {
-      this.list = await this.client.sendRequest("stencila/listPrompts");
+      await this.refresh()
     }
 
     if (!item) {

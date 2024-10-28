@@ -38,6 +38,8 @@ export function registerModelsView(
   );
 
   context.subscriptions.push(treeView, refresh, use);
+
+  return treeDataProvider;
 }
 
 interface Model {
@@ -174,9 +176,14 @@ class ModelTreeProvider implements vscode.TreeDataProvider<ModelTreeItem> {
     this.providers = [];
   }
 
-  async refresh(): Promise<void> {
+  async refresh(client?: LanguageClient): Promise<void> {
+    if (client) {
+      this.client = client;
+    }
+    
     this.list = await this.client.sendRequest("stencila/listModels");
     this.providers = [...new Set(this.list.map((model) => model.provider))];
+
     this._onDidChangeTreeData.fire();
   }
 
