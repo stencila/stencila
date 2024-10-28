@@ -159,15 +159,15 @@ export const executionMessageUI = (
 
 // ---------------------------------------------------------
 
-// Provenance Highlight Colours ----------------------------
+// Provenance Opacity ----------------------------
 
 const provenanceOpacity = {
   0: '1',
-  1: '0.9',
-  2: '0.8',
-  3: '0.7',
-  4: '0.6',
-  5: '0.5',
+  1: '0.95',
+  2: '0.9',
+  3: '0.85',
+  4: '0.8',
+  5: '0.75',
 }
 
 export type ProvenanceOpacityLevel = keyof typeof provenanceOpacity
