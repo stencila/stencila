@@ -504,6 +504,22 @@ impl MarkdownCodec for InstructionBlock {
                                 prompt,
                             );
                         }
+                        if let Some(model) = &self.model {
+                            if let Some(id_pattern) = &model.id_pattern {
+                                context.myst_directive_option(
+                                    NodeProperty::Model,
+                                    Some("model"),
+                                    id_pattern,
+                                );
+                            }
+                            if let Some(temp) = &model.temperature {
+                                context.myst_directive_option(
+                                    NodeProperty::Temperature,
+                                    Some("temp"),
+                                    &temp.to_string(),
+                                );
+                            }
+                        }
                         if let Some(reps) = &self.replicates {
                             context.myst_directive_option(
                                 NodeProperty::Replicates,

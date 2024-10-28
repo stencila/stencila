@@ -1428,18 +1428,33 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             select: options.get("select").map(|select| select.to_string()),
             ..Default::default()
         }),
-        "create" | "edit" | "fix" | "describe" => Block::InstructionBlock(InstructionBlock {
-            instruction_type: name.parse().unwrap_or_default(),
-            message: args.map(InstructionMessage::from),
-            prompt: options.get("prompt").map(|value| value.to_string()),
-            replicates: options.get("reps").and_then(|value| value.parse().ok()),
-            content: if !value.trim().is_empty() {
-                Some(decode_blocks(&value))
+        "create" | "edit" | "fix" | "describe" => {
+            let id_pattern = options.get("model").map(|value| value.to_string());
+            let temperature = options.get("temp").and_then(|value| value.parse().ok());
+            let model = if id_pattern.is_some() || temperature.is_some() {
+                Some(Box::new(InstructionModel {
+                    id_pattern,
+                    temperature,
+                    ..Default::default()
+                }))
             } else {
                 None
-            },
-            ..Default::default()
-        }),
+            };
+
+            Block::InstructionBlock(InstructionBlock {
+                instruction_type: name.parse().unwrap_or_default(),
+                message: args.map(InstructionMessage::from),
+                prompt: options.get("prompt").map(|value| value.to_string()),
+                replicates: options.get("reps").and_then(|value| value.parse().ok()),
+                model,
+                content: if !value.trim().is_empty() {
+                    Some(decode_blocks(&value))
+                } else {
+                    None
+                },
+                ..Default::default()
+            })
+        }
         "suggest" => Block::SuggestionBlock(SuggestionBlock {
             feedback: args.map(|value| value.to_string()),
             suggestion_status: options
