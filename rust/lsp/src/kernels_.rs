@@ -3,7 +3,7 @@
 use async_lsp::lsp_types::request::Request;
 
 use common::serde::{Deserialize, Serialize};
-use kernels::{KernelAvailability, KernelType, KernelProvider};
+use kernels::{KernelAvailability, KernelProvider, KernelType};
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "common::serde")]

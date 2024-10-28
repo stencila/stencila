@@ -12,7 +12,8 @@ use common::serde_json;
 use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
-    code_lens, commands, completion, content, formatting, hover, kernels_, lifecycle, logging, models_, prompts_, symbols, text_document, ServerState, ServerStatus
+    code_lens, commands, completion, content, formatting, hover, kernels_, lifecycle, logging,
+    models_, prompts_, symbols, text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
