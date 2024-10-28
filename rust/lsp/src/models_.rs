@@ -25,12 +25,16 @@ impl Request for ListModels {
 }
 
 pub async fn list() -> Vec<Model> {
-    models::list().await.into_iter().map(|model| Model {
-        id: model.id(),
-        provider: model.provider(),
-        name: model.name(),
-        version: model.version(),
-        r#type: model.r#type(),
-        availability: model.availability(),
-    }).collect()
+    models::list()
+        .await
+        .into_iter()
+        .map(|model| Model {
+            id: model.id(),
+            provider: model.provider(),
+            name: model.name(),
+            version: model.version(),
+            r#type: model.r#type(),
+            availability: model.availability(),
+        })
+        .collect()
 }
