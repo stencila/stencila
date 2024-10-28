@@ -12,7 +12,7 @@ import { registerPromptsView } from "./prompts";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
 import { closeDocumentViewPanels } from "./webviews";
-import { cliPath } from "./clis";
+import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerModelsView } from "./models";
 
