@@ -1,7 +1,6 @@
-# Add plugin name, and the URL to its `stencila-plugin.toml` file, in alphabeical order of name.
+# Add plugin name, and the URL to its `stencila-plugin.toml` file, in alphabeical order of name. e.g.
+#
+#   myplugin = "https://raw.githubusercontent.com/myorg/myplugin/main/stencila-plugin.toml"
 #
 # The plugin name used here, should be the same as its `stencila-plugin.toml` file.
 # If it is not, the plugin will be ignored.
-
-node-template = "https://raw.githubusercontent.com/stencila/plugin-node-template/main/stencila-plugin.toml"
-python-template = "https://raw.githubusercontent.com/stencila/plugin-python-template/main/stencila-plugin.toml"
