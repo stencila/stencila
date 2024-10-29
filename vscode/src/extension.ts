@@ -213,27 +213,50 @@ export async function subscribeToContent(
   return content;
 }
 
+const domSubscriptions: Record<string, vscode.Disposable> = {};
+
 /**
  * Subscribe to DOM HTML of a document
  */
 export async function subscribeToDom(
   documentUri: vscode.Uri,
   callback: (patch: unknown) => void
-) {
+): Promise<string> {
   if (!client) {
     throw new Error("No Stencila LSP client");
   }
 
-  await client.sendRequest("stencila/subscribeDom", {
+  // Subscribe to document
+  let subscriptionId = (await client.sendRequest("stencila/subscribeDom", {
     uri: documentUri.toString(),
-  });
+  })) as string;
 
-  client.onNotification(
+  // Record notification handler so it can be dispose of later
+  domSubscriptions[subscriptionId] = client.onNotification(
     "stencila/publishDom",
-    (published: { uri: string; patch: unknown }) => {
-      if (published.uri === documentUri.toString()) {
+    (published: { subscriptionId: string; patch: unknown }) => {
+      if (published.subscriptionId === subscriptionId) {
         callback(published.patch);
       }
     }
   );
+
+  return subscriptionId;
+}
+
+/**
+ * Unsubscribe from DOM HTML of a document
+ */
+export async function unsubscribeFromDom(subscriptionId: string) {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  // Dispose of notification handler
+  domSubscriptions[subscriptionId]?.dispose();
+
+  // Unsubscribe from document so that
+  await client.sendRequest("stencila/unsubscribeDom", {
+    subscriptionId,
+  });
 }

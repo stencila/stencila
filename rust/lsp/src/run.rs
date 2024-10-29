@@ -144,23 +144,27 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             }
         });
 
-        router.request::<dom::SubscribeDom, _>(|state, params| {
-            let uri = &params.uri;
-            let doc = state
-                .documents
-                .get(uri)
-                .map(|text_doc| text_doc.doc.clone());
-            let client = state.client.clone();
-            async move {
-                match doc {
-                    Some(doc) => dom::subscribe(doc, params, client).await,
-                    None => Err(ResponseError::new(
-                        ErrorCode::INVALID_PARAMS,
-                        "Unknown document",
-                    )),
+        router
+            .request::<dom::SubscribeDom, _>(|state, params| {
+                let uri = &params.uri;
+                let doc = state
+                    .documents
+                    .get(uri)
+                    .map(|text_doc| text_doc.doc.clone());
+                let client = state.client.clone();
+                async move {
+                    match doc {
+                        Some(doc) => dom::subscribe(doc, client).await,
+                        None => Err(ResponseError::new(
+                            ErrorCode::INVALID_PARAMS,
+                            "Unknown document",
+                        )),
+                    }
                 }
-            }
-        });
+            })
+            .request::<dom::UnsubscribeDom, _>(|_state, params| {
+                dom::unsubscribe(params.subscription_id)
+            });
 
         router.request::<content::SubscribeContent, _>(|state, params| {
             let uri = &params.uri;

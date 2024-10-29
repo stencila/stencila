@@ -2,7 +2,7 @@ import path from "path";
 
 import * as vscode from "vscode";
 
-import { subscribeToDom } from "./extension";
+import { subscribeToDom, unsubscribeFromDom } from "./extension";
 import { statusBar } from "./status-bar";
 
 /**
@@ -100,7 +100,7 @@ export async function createDocumentViewPanel(
   panel.webview.html = createDocumentViewHTML();
 
   // Subscribe to updates of DOM HTML for document
-  await subscribeToDom(documentUri, (patch: unknown) => {
+  let subscriptionId = await subscribeToDom(documentUri, (patch: unknown) => {
     panel.webview.postMessage({
       type: "dom-patch",
       patch,
@@ -117,7 +117,10 @@ export async function createDocumentViewPanel(
 
   // Handle when the webview is disposed
   panel.onDidDispose(() => {
-    // TODO: should unsubscribe to content updates
+    // Unsubscribe from updates to DOM HTML
+    unsubscribeFromDom(subscriptionId);
+
+    // Remove from list of panels
     documentViewPanels.delete(documentUri);
   }, null);
 

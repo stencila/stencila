@@ -1,7 +1,7 @@
 //! Handling of custom requests and notifications related to
 //! the DOM HTML representation of a document
 
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use async_lsp::{
     lsp_types::{notification::Notification, request::Request},
@@ -9,13 +9,16 @@ use async_lsp::{
 };
 
 use common::{
+    once_cell::sync::Lazy,
     reqwest::Url,
     serde::{Deserialize, Serialize},
     tokio::{
         self,
-        sync::{mpsc, RwLock},
+        sync::{mpsc, Mutex, RwLock},
+        task::JoinHandle,
     },
     tracing,
+    uuid::Uuid,
 };
 use document::{Document, DomPatch};
 
@@ -24,7 +27,7 @@ pub struct SubscribeDom;
 impl Request for SubscribeDom {
     const METHOD: &'static str = "stencila/subscribeDom";
     type Params = SubscribeDomParams;
-    type Result = ();
+    type Result = String;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,13 +37,28 @@ pub struct SubscribeDomParams {
     pub uri: Url,
 }
 
+pub struct UnsubscribeDom;
+
+impl Request for UnsubscribeDom {
+    const METHOD: &'static str = "stencila/unsubscribeDom";
+    type Params = UnsubscribeDomParams;
+    type Result = ();
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct UnsubscribeDomParams {
+    // The id of the subscription
+    pub subscription_id: String,
+}
+
 struct PublishDom;
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PublishDomParams {
-    // The URI of the document for which the DOM patch is for
-    pub uri: Url,
+    // The id of the subscription
+    subscription_id: String,
 
     // The DOM patch
     patch: DomPatch,
@@ -51,29 +69,44 @@ impl Notification for PublishDom {
     type Params = PublishDomParams;
 }
 
+static TASKS: Lazy<Mutex<HashMap<String, JoinHandle<()>>>> = Lazy::new(|| Mutex::default());
+
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
-    params: SubscribeDomParams,
     client: ClientSocket,
-) -> Result<(), ResponseError> {
+) -> Result<String, ResponseError> {
     let (sender, mut receiver) = mpsc::channel(256);
 
+    let subscription_id = Uuid::now_v7().to_string();
+
     // Start task to send patches to the client
-    tokio::spawn(async move {
+    let sub_id = subscription_id.clone();
+    let task = tokio::spawn(async move {
         while let Some(patch) = receiver.recv().await {
             if let Err(error) = client.notify::<PublishDom>(PublishDomParams {
-                uri: params.uri.clone(),
+                subscription_id: sub_id.clone(),
                 patch,
             }) {
                 tracing::error!("While publishing DOM patch {error}");
             };
         }
     });
+    TASKS.lock().await.insert(subscription_id.clone(), task);
 
     // Start the DOM syncing task
     doc.read()
         .await
         .sync_dom(Some(sender))
         .await
-        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))
+        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
+
+    Ok(subscription_id)
+}
+
+pub async fn unsubscribe(subscription_id: String) -> Result<(), ResponseError> {
+    if let Some(task) = TASKS.lock().await.remove(&subscription_id) {
+        task.abort();
+    }
+
+    Ok(())
 }
