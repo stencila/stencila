@@ -6,13 +6,14 @@ use async_lsp::{
     panic::CatchUnwindLayer, router::Router, server::LifecycleLayer, tracing::TracingLayer,
     MainLoop,
 };
+use async_lsp::{ErrorCode, ResponseError};
 use tower::ServiceBuilder;
 
 use common::serde_json;
 use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
-    code_lens, commands, completion, content, formatting, hover, kernels_, lifecycle, logging,
+    code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,
     models_, prompts_, symbols, text_document, ServerState, ServerStatus,
 };
 
@@ -139,6 +140,24 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                 match doc_format {
                     Some((doc, format)) => formatting::request(doc, format).await,
                     None => Ok(None),
+                }
+            }
+        });
+
+        router.request::<dom::SubscribeDom, _>(|state, params| {
+            let uri = &params.uri;
+            let doc = state
+                .documents
+                .get(uri)
+                .map(|text_doc| text_doc.doc.clone());
+            let client = state.client.clone();
+            async move {
+                match doc {
+                    Some(doc) => dom::subscribe(doc, params, client).await,
+                    None => Err(ResponseError::new(
+                        ErrorCode::INVALID_PARAMS,
+                        "Unknown document",
+                    )),
                 }
             }
         });

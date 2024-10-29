@@ -9,6 +9,7 @@ mod commands;
 mod completion;
 mod content;
 mod diagnostics;
+mod dom;
 mod formatting;
 mod hover;
 mod inspect;

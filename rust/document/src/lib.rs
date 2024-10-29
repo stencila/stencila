@@ -35,6 +35,8 @@ mod sync_object;
 mod task_command;
 mod task_update;
 
+pub use sync_dom::DomPatch;
+
 #[derive(Default)]
 pub struct Document_;
 
@@ -79,7 +81,7 @@ pub struct LogEntry {
 #[allow(clippy::large_enum_variant)]
 pub enum Command {
     /// Save the document
-    SaveDocument,
+    SaveDocument((SaveDocumentSource, SaveDocumentSidecar)),
 
     /// Export the document
     ExportDocument((PathBuf, EncodeOptions)),
@@ -108,6 +110,25 @@ pub enum Command {
     /// immediately execute as it avoid race conditions associated with
     /// sending separate patch and execute commands.
     PatchExecuteNodes((Patch, CommandNodes, ExecuteOptions)),
+}
+
+/// Whether the document source file should be saved
+#[derive(Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+pub enum SaveDocumentSource {
+    #[default]
+    Yes,
+    No,
+}
+
+/// Whether the document sidecar file should be saved
+#[derive(Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+pub enum SaveDocumentSidecar {
+    Yes,
+    #[default]
+    IfExists,
+    No,
 }
 
 /// The node ids for commands that require them
@@ -652,7 +673,28 @@ impl Document {
     pub async fn save(&self, wait: CommandWait) -> Result<()> {
         tracing::trace!("Saving document");
 
-        self.command(Command::SaveDocument, wait).await
+        self.command(
+            Command::SaveDocument((
+                SaveDocumentSource::default(),
+                SaveDocumentSidecar::default(),
+            )),
+            wait,
+        )
+        .await
+    }
+
+    /// Save the document with non-default options
+    #[tracing::instrument(skip(self))]
+    pub async fn save_with(
+        &self,
+        wait: CommandWait,
+        source: SaveDocumentSource,
+        sidecar: SaveDocumentSidecar,
+    ) -> Result<()> {
+        tracing::trace!("Saving document");
+
+        self.command(Command::SaveDocument((source, sidecar)), wait)
+            .await
     }
 
     /// Compile the document

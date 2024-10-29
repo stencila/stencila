@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use codecs::{to_path, EncodeOptions, LossesResponse};
 use common::{
+    eyre::Report,
     tokio::{self, task::JoinHandle},
     tracing,
 };
@@ -10,6 +11,7 @@ use node_execute::{compile, execute, interrupt, ExecuteOptions};
 use crate::{
     Command, CommandNodes, CommandStatus, Document, DocumentCommandReceiver,
     DocumentCommandStatusSender, DocumentKernels, DocumentPatchSender, DocumentRoot,
+    SaveDocumentSidecar, SaveDocumentSource,
 };
 
 impl Document {
@@ -207,7 +209,7 @@ impl Document {
 
                 // Note: the following commands are not cancellable so
                 // the `current_command_details` variable is not set
-                SaveDocument => {
+                SaveDocument((source, sidecar)) => {
                     // Save the document to its source and sidecar
                     if let Some(path) = &path {
                         let status_sender = status_sender.clone();
@@ -215,19 +217,31 @@ impl Document {
                         tokio::spawn(async move {
                             let root = &*root.read().await;
                             let status = match async {
-                                to_path(
-                                    root,
-                                    &path,
-                                    Some(EncodeOptions {
-                                        // Ignore losses because lossless sidecar file is
-                                        // encoded next.
-                                        losses: LossesResponse::Ignore,
-                                        ..Default::default()
-                                    }),
-                                )
-                                .await?;
+                                if matches!(source, SaveDocumentSource::Yes) {
+                                    to_path(
+                                        root,
+                                        &path,
+                                        Some(EncodeOptions {
+                                            // Ignore losses because lossless sidecar file is
+                                            // encoded next.
+                                            losses: LossesResponse::Ignore,
+                                            ..Default::default()
+                                        }),
+                                    )
+                                    .await?;
+                                }
 
-                                to_path(root, &Document::sidecar_path(&path), None).await
+                                if !matches!(sidecar, SaveDocumentSidecar::No) {
+                                    let path = Document::sidecar_path(&path);
+                                    if matches!(sidecar, SaveDocumentSidecar::Yes)
+                                        || (matches!(sidecar, SaveDocumentSidecar::IfExists)
+                                            && path.exists())
+                                    {
+                                        to_path(root, &path, None).await?;
+                                    }
+                                }
+
+                                Ok::<(), Report>(())
                             }
                             .await
                             {

@@ -212,3 +212,28 @@ export async function subscribeToContent(
 
   return content;
 }
+
+/**
+ * Subscribe to DOM HTML of a document
+ */
+export async function subscribeToDom(
+  documentUri: vscode.Uri,
+  callback: (patch: unknown) => void
+) {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  await client.sendRequest("stencila/subscribeDom", {
+    uri: documentUri.toString(),
+  });
+
+  client.onNotification(
+    "stencila/publishDom",
+    (published: { uri: string; patch: unknown }) => {
+      if (published.uri === documentUri.toString()) {
+        callback(published.patch);
+      }
+    }
+  );
+}

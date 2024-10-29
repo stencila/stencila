@@ -2,7 +2,7 @@ import path from "path";
 
 import * as vscode from "vscode";
 
-import { subscribeToContent } from "./extension";
+import { subscribeToDom } from "./extension";
 import { statusBar } from "./status-bar";
 
 /**
@@ -61,7 +61,7 @@ export async function createDocumentViewPanel(
     "stencila-128.png"
   );
 
-  const createDocumentViewHTML = (content: string) => {
+  const createDocumentViewHTML = () => {
     const themeName = "default";
     const themeCss = panel.webview.asWebviewUri(
       vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
@@ -88,8 +88,7 @@ export async function createDocumentViewPanel(
             <script type="text/javascript" src="${viewJs}"></script>
         </head>
         <body style="background: white;">
-          <stencila-vscode-view theme="default">
-            ${content}
+          <stencila-vscode-view theme="${themeName}">
           </stencila-vscode-view>
           <script>
             const vscode = acquireVsCodeApi()
@@ -98,10 +97,14 @@ export async function createDocumentViewPanel(
     </html>
   `;
   };
+  panel.webview.html = createDocumentViewHTML();
 
   // Subscribe to updates of DOM HTML for document
-  await subscribeToContent(documentUri, "dom.html", (content: string) => {
-    panel.webview.html = createDocumentViewHTML(content);
+  await subscribeToDom(documentUri, (patch: unknown) => {
+    panel.webview.postMessage({
+      type: "dom-patch",
+      patch,
+    });
   });
 
   // Track the webview by adding it to the map

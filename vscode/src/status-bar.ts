@@ -112,6 +112,11 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.view-doc",
         },
         {
+          label: "$(save-all) Save",
+          description: "Save the current document with a sidecar file",
+          command: "stencila.invoke.save-doc",
+        },
+        {
           label: "Settings & Services",
           kind: vscode.QuickPickItemKind.Separator,
         },
@@ -169,12 +174,12 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         {
           label: "$(workspace-trusted) Set Secret",
           description:
-            "Add a secret, such as an API key, to Stencila's key ring",
+            "Add a secret, such as an API key, to Stencila's VSCode secrets",
           command: "stencila.secrets.set",
         },
         {
           label: "$(workspace-untrusted) Delete Secret",
-          description: "Remove a secret from Stencila's key ring",
+          description: "Remove a secret from Stencila's VSCode secrets",
           command: "stencila.secrets.delete",
         },
         {

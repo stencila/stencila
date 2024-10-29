@@ -236,6 +236,13 @@
         "icon": "$(archive)"
       },
       {
+        "command": "stencila.invoke.save-doc",
+        "category": "Stencila",
+        "title": "Save document with sidecar file",
+        "shortTitle": "Save doc",
+        "icon": "$(save-all)"
+      },
+      {
         "command": "stencila.invoke.export-doc",
         "category": "Stencila",
         "title": "Export document",
@@ -442,6 +449,10 @@
         },
         {
           "command": "stencila.invoke.unlock-curr",
+          "when": "editorLangId == smd || editorLangId == myst"
+        },
+        {
+          "command": "stencila.invoke.save-doc",
           "when": "editorLangId == smd || editorLangId == myst"
         },
         {
