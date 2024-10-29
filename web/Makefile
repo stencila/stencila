@@ -21,8 +21,12 @@ lint: install
 test: install
 	npm run test
 
+# Install playwright with chromium
+playwright: install
+	npx playwright install --with-deps chromium
+
 # Run end-to-end tests
-e2e: build
+e2e: playwright build
 	npm run e2e
 
 # Run watch
