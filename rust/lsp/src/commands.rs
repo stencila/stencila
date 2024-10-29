@@ -350,14 +350,12 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        SAVE_DOC => {
-            (
-                "Saving document with sidecar".to_string(),
-                Command::SaveDocument((SaveDocumentSource::Yes, SaveDocumentSidecar::Yes)),
-                false,
-                false,
-            )
-        }
+        SAVE_DOC => (
+            "Saving document with sidecar".to_string(),
+            Command::SaveDocument((SaveDocumentSource::Yes, SaveDocumentSidecar::Yes)),
+            false,
+            false,
+        ),
         EXPORT_DOC => {
             let path = path_buf_arg(args.next())?;
             (
