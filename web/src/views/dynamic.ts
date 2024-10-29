@@ -64,7 +64,7 @@ export class DynamicView extends DocumentView {
 
   /**
    * Override so that clients are instantiated _after_ this
-   * element has a document `[data-root]` element in its `renderRoot`.
+   * element has a document `[root]` element in its `renderRoot`.
    */
   override update(changedProperties: Map<string, string | boolean>): void {
     super.update(changedProperties)
