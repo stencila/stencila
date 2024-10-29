@@ -35,6 +35,8 @@ mod sync_object;
 mod task_command;
 mod task_update;
 
+pub use sync_dom::DomPatch;
+
 #[derive(Default)]
 pub struct Document_;
 
