@@ -10,6 +10,9 @@ keywords: table, code, generated
 instruction-type: Create 
 instruction-patterns:
   - (?i)\bcode table\b
+  - (?i)\bpy(thon)? table\b
+  - (?i)\br table\b
+  - (?i)\bsql table\b
   - (?i)\btabulate\b
 node-type: CodeChunk
 ---

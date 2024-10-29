@@ -11,6 +11,9 @@ instruction-type: Create
 instruction-patterns:
   - (?i)\bcode( (chunk|cell))?\b
   - (?i)\bexec(utable)?\b
+  - (?i)\bpy(thon)?( code)?\b
+  - (?i)\br( code)?\b
+  - (?i)\bsql( code)?\b
 node-type: CodeChunk
 ---
 
