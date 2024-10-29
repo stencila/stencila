@@ -154,7 +154,10 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             async move {
                 match doc {
                     Some(doc) => dom::subscribe(doc, params, client).await,
-                    None => Err(ResponseError::new(ErrorCode::INVALID_PARAMS, "Unknown document")),
+                    None => Err(ResponseError::new(
+                        ErrorCode::INVALID_PARAMS,
+                        "Unknown document",
+                    )),
                 }
             }
         });

@@ -31,7 +31,10 @@ use common::{
     },
     tracing,
 };
-use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
+use document::{
+    Command, CommandNodes, CommandScope, CommandStatus, Document, SaveDocumentSidecar,
+    SaveDocumentSource,
+};
 use node_execute::ExecuteOptions;
 use schema::{
     AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchOp, PatchPath,
@@ -63,6 +66,7 @@ pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
+pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
 /// Get the list of commands that the language server supports
@@ -86,6 +90,7 @@ pub(super) fn commands() -> Vec<String> {
         NEXT_NODE,
         ARCHIVE_NODE,
         REVISE_NODE,
+        SAVE_DOC,
         EXPORT_DOC,
     ]
     .into_iter()
@@ -343,6 +348,14 @@ pub(super) async fn execute_command(
                 )),
                 false,
                 true,
+            )
+        }
+        SAVE_DOC => {
+            (
+                "Saving document with sidecar".to_string(),
+                Command::SaveDocument((SaveDocumentSource::Yes, SaveDocumentSidecar::Yes)),
+                false,
+                false,
             )
         }
         EXPORT_DOC => {
