@@ -13,6 +13,7 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './e2e',
+  outputDir: 'test-results',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -28,7 +29,6 @@ export default defineConfig({
       '@argos-ci/playwright/reporter',
       {
         uploadToArgos: !!process.env.CI,
-        buildName: 'e2e',
       },
     ],
   ],

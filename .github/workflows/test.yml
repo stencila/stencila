@@ -246,4 +246,5 @@ jobs:
       - name: Run playwright
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make -C web e2e
