@@ -17,22 +17,24 @@ import '../ui/document/menu'
 @customElement('stencila-vscode-view')
 export class VsCodeView extends DocumentView {
   /**
-   * client for handling the messages to and from the vscode webview api
+   * Client for handling the messages to and from the vscode webview API
    */
   protected webviewClient: WebViewClient
 
   protected override createRenderRoot(): this {
-    const lightDom = super.createRenderRoot()
-
-    this.webviewClient = new WebViewClient(lightDom)
-
-    return lightDom
-  }
+    const renderRoot = super.createRenderRoot()
+    this.webviewClient = new WebViewClient(renderRoot)
+    return renderRoot
+  }  
 
   protected override render() {
-    return html`
-      <slot></slot>
-      ${this.renderDocumentMenu()}
-    `
+    // The empty root custom element of the correct type needs to be
+    // created here for diffs received by the `DomClient` to be applied properly
+    const root = html`<stencila-article root></stencila-article>`
+
+    // Menu needs to render after root
+    const menu = this.renderDocumentMenu()
+
+    return html`${root}${menu}`
   }
 }

@@ -1,13 +1,22 @@
+import morphdom from 'morphdom'
+
 import { Entity } from '../nodes/entity'
 import { NodeId } from '../types'
 import { ChipToggleInterface } from '../ui/nodes/mixins/toggle-chip'
 import { UIBaseClass } from '../ui/nodes/mixins/ui-base-class'
 import { UINodeAuthors } from '../ui/nodes/properties/authors'
 
+import { FormatPatch } from './format'
+
 /**
  * A message received from VSCode by the web view
  */
-type ReceivedMessage = ViewNodeMessage
+type ReceivedMessage = DomPatchMessage | ViewNodeMessage
+
+interface DomPatchMessage {
+  type: 'dom-patch'
+  patch: FormatPatch
+}
 
 interface ViewNodeMessage {
   type: 'view-node'
@@ -41,14 +50,34 @@ declare const vscode: VSCode
 
 /**
  * A client for sending and receiving messages to/from VSCode within a web view
+ * 
+ * Note: this re-implements functionality in `FormatClient` and `DomClient` but
+ * instead of using a Websocket, receives messages over VSCodes `postMessage`.
  */
 export class WebViewClient {
-  constructor(element: HTMLElement) {
-    this.element = element
+  /**
+   * The local version of the DOM HTML
+   *
+   * Used to check for missed patches and request a reset patch if necessary.
+   */
+  private version: number = 0
+
+  /**
+   * The DOM HTML string that is modified by patches and morphdom'ed onto `element`
+   */
+  private html: string
+
+  /**
+   * The HTML element that the document is rendered on
+   */
+  private renderRoot: HTMLElement
+
+  constructor(renderRoot: HTMLElement) {
+    this.version = 0
+    this.html = ''
+    this.renderRoot = renderRoot
     this.setWindowListener()
   }
-
-  private element: HTMLElement
 
   /**
    * Add event listeners to the window instance
@@ -78,6 +107,8 @@ export class WebViewClient {
     const { type } = data
 
     switch (type) {
+      case 'dom-patch':
+        return this.handleDomPatchMessage(data)
       case 'view-node':
         return this.handleViewNodeMessage(data)
       default:
@@ -86,10 +117,62 @@ export class WebViewClient {
   }
 
   /**
+   * Handle a received `DomPatchMessage` message
+   */
+  private handleDomPatchMessage({ patch }: DomPatchMessage) {
+    const { version, ops } = patch as unknown as FormatPatch
+
+    // Is the patch a reset patch?
+    const isReset = ops.length >= 1 && ops[0].type === 'reset'
+
+    // Check for non-sequential patch and request a reset patch if necessary
+    if (!isReset && version > this.version + 1) {
+      // TODO: consider doing a reset here as is done in `./format.ts`
+      // return
+    }
+
+    // Apply each operation in the patch
+    for (const op of ops) {
+      const { type, from, to, insert } = op
+
+      if (type === 'reset' && insert !== undefined) {
+        this.html = insert
+      } else if (
+        type === 'insert' &&
+        typeof from === 'number' &&
+        insert !== undefined
+      ) {
+        this.html = this.html.slice(0, from) + insert + this.html.slice(from)
+      } else if (
+        type === 'delete' &&
+        typeof from === 'number' &&
+        typeof to === 'number'
+      ) {
+        this.html = this.html.slice(0, from) + this.html.slice(to)
+      } else if (
+        type === 'replace' &&
+        typeof from === 'number' &&
+        typeof to === 'number' &&
+        insert !== undefined
+      ) {
+        this.html = this.html.slice(0, from) + insert + this.html.slice(to)
+      } else {
+        console.error('Operation from server was not handled', op)
+      }
+    }
+
+    // Update version
+    this.version = version
+
+    // Update element using morphdom
+    morphdom(this.renderRoot.firstElementChild, this.html)
+  }
+
+  /**
    * Handle a received `ViewNodeMessage` message
    */
   private handleViewNodeMessage({ nodeId, expandAuthors }: ViewNodeMessage) {
-    const targetEl = this.element.querySelector(`#${nodeId}`) as Entity
+    const targetEl = this.renderRoot.querySelector(`#${nodeId}`) as Entity
     if (targetEl) {
       targetEl.scrollIntoView({
         block: 'start',
