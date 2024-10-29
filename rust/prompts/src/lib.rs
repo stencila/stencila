@@ -323,7 +323,7 @@ pub async fn select(
 ) -> Result<PromptInstance> {
     let prompts = list().await;
 
-    // If there is a prompt then get it
+    // If there is a prompt specified then get it
     if let Some(prompt) = prompt {
         return get(prompt, instruction_type).await;
     }
@@ -348,19 +348,20 @@ pub async fn select(
 
     // Count the number of characters in the instruction message that are matched by
     // each of the patterns in each of the candidates
-    let prompt = prompts
-        .map(|prompt| {
+    let counts = prompts
+        .filter_map(|prompt| {
             let matches = prompt
                 .instruction_regexes
                 .iter()
                 .flat_map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
                 .sum::<usize>();
-            (prompt, matches)
+            // Let through those with any matches or that have no regexes (i.e. defaults)
+            (matches > 0 || prompt.instruction_regexes.is_empty()).then_some((prompt, matches))
         })
-        .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse())
-        .map(|(prompt, ..)| prompt)
-        .next()
-        .take();
+        .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse());
+
+    // Get the prompt with the highest matches (or no regexes)
+    let prompt = counts.map(|(prompt, ..)| prompt).next().take();
 
     prompt.ok_or_eyre("No prompts found for instruction")
 }
