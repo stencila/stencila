@@ -50,7 +50,7 @@ declare const vscode: VSCode
 
 /**
  * A client for sending and receiving messages to/from VSCode within a web view
- * 
+ *
  * Note: this re-implements functionality in `FormatClient` and `DomClient` but
  * instead of using a Websocket, receives messages over VSCodes `postMessage`.
  */

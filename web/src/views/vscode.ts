@@ -25,7 +25,7 @@ export class VsCodeView extends DocumentView {
     const renderRoot = super.createRenderRoot()
     this.webviewClient = new WebViewClient(renderRoot)
     return renderRoot
-  }  
+  }
 
   protected override render() {
     // The empty root custom element of the correct type needs to be
