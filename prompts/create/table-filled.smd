@@ -11,6 +11,7 @@ instruction-type: Create
 instruction-patterns:
  - (?i)\bfilled table\b
  - (?i)\btable of\b
+ - (?i)\btable\b
 node-type: Table
 ---
 
