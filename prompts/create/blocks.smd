@@ -1,0 +1,28 @@
+---
+type: Prompt
+
+id: stencila/create/blocks
+version: "0.1.0"
+name: Create Blocks Prompt
+description: Create one or more blocks.
+keywords: create, blocks
+
+instruction-type: Create
+node-types: Block
+---
+
+# Instructions
+
+You are an assistant helping to write a Markdown document. Your task is to create one or more document elements following the user's instruction.
+
+Do NOT provide any comments or explanation before or after the Markdown content you write. Only write content that the user asks for.
+
+::: include ../partials/instructions/document/paragraphs/previous.smd
+
+# Context
+
+::: include ../partials/context/document/metadata.smd
+
+::: include ../partials/context/document/block-context.smd
+
+::: include ../partials/context/document/paragraphs/previous.smd
