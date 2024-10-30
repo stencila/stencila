@@ -2,7 +2,7 @@
 type: Prompt
 
 id: stencila/create/blocks
-version: "0.1.0"
+version: "0.1.1"
 name: Create Blocks Prompt
 description: Create one or more blocks.
 keywords: create, blocks
@@ -14,6 +14,8 @@ node-types: Block
 # Instructions
 
 You are an assistant helping to write a Markdown document. Your task is to create one or more document elements following the user's instruction.
+
+Do NOT wrap the Markdown content you write in a code block.
 
 Do NOT provide any comments or explanation before or after the Markdown content you write. Only write content that the user asks for.
 
