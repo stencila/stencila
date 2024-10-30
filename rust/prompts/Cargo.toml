@@ -16,3 +16,5 @@ model = { path = "../model" }
 models = { path = "../models" }
 prompt = { path = "../prompt" }
 rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }
+semver = { workspace = true }
+version = { path = "../version" }

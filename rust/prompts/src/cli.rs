@@ -162,13 +162,14 @@ impl Update {
 
 /// Reset builtin prompts
 ///
-/// Reinitializes the builtin prompts directory to those prompts
+/// Re-initializes the builtin prompts directory to those prompts
 /// embedded in this version of Stencila
 #[derive(Debug, Args)]
 struct Reset {}
 
 impl Reset {
     async fn run(self) -> Result<()> {
-        super::reset_builtin().await
+        super::initialize_builtin(true).await?;
+        Ok(())
     }
 }

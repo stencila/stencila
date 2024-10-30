@@ -4,13 +4,13 @@ use std::{
     cmp::Ordering,
     io::Cursor,
     path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use app::{get_app_dir, DirType};
 use codec_markdown_trait::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
-    chrono::Utc,
     derive_more::{Deref, DerefMut},
     eyre::{bail, eyre, OptionExt, Result},
     futures::future::{join_all, try_join_all},
@@ -19,6 +19,7 @@ use common::{
     regex::Regex,
     reqwest::Client,
     serde::{Deserialize, Serialize},
+    serde_json,
     tar::Archive,
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
     tracing,
@@ -41,6 +42,8 @@ pub mod cli;
 
 // Re-export
 pub use prompt;
+use semver::Version;
+use version::stencila_version;
 
 /// An instance of a prompt
 ///
@@ -225,22 +228,63 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
     Ok(prompts)
 }
 
+/// Details recorded about the current builtin prompt library
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+struct BuiltinDetails {
+    version: Version,
+    timestamp: u64,
+    updated: bool,
+}
+
+impl BuiltinDetails {
+    fn current() -> Self {
+        Self {
+            version: stencila_version(),
+            timestamp: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("time went backwards")
+                .as_secs(),
+            updated: false,
+        }
+    }
+}
+
 /// Initialize the builtin prompts directory
 ///
 /// Saves the embedded prompts to disk
 async fn initialize_builtin(force: bool) -> Result<PathBuf> {
     let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
-    if !dir.exists() {
-        create_dir_all(&dir).await?;
-    }
 
-    let initialized_at = dir.join("initialized-at.txt");
-    let updated_at = dir.join("updated-at.txt");
+    // Read in details, if any
+    let details_path = dir.join("details.json");
+    let details: Option<BuiltinDetails> = if details_path.exists() {
+        read_to_string(&details_path)
+            .await
+            .ok()
+            .and_then(|json| serde_json::from_str(&json).ok())
+    } else {
+        None
+    };
+
+    // Determine if outdated
+    let outdated = details
+        .map(|details| details.version < stencila_version())
+        .unwrap_or(true);
 
     // If the built-ins have not yet been initialized or updated then write them into
     // the directory. This needs to be done, rather than loading directly from memory
     // (as we used to do) so that inclusions work correctly.
-    if force || (!initialized_at.exists() && !updated_at.exists()) {
+    if force || outdated {
+        tracing::debug!("Initializing builtin prompts");
+
+        if dir.exists() {
+            remove_dir_all(&dir).await?;
+        }
+        if !dir.exists() {
+            create_dir_all(&dir).await?;
+        }
+
         let futures = Builtin::iter()
             .filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
             .map(|(filename, content)| {
@@ -255,23 +299,15 @@ async fn initialize_builtin(force: bool) -> Result<PathBuf> {
             });
         try_join_all(futures).await?;
 
-        // Write timestamp
-        write(initialized_at, Utc::now().to_rfc3339()).await?;
+        // Write details
+        write(
+            details_path,
+            serde_json::to_string_pretty(&BuiltinDetails::current())?,
+        )
+        .await?;
     }
 
     Ok(dir)
-}
-
-/// Reset the builtin prompts directory
-async fn reset_builtin() -> Result<()> {
-    let dir = get_app_dir(DirType::Prompts, false)?.join("builtin");
-    if dir.exists() {
-        remove_dir_all(&dir).await?;
-    }
-
-    initialize_builtin(true).await?;
-
-    Ok(())
 }
 
 /// Update the builtin prompts directory
@@ -307,9 +343,16 @@ async fn update_builtin() -> Result<()> {
         }
     }
 
-    // Write timestamp
-    let updated_at = dir.join("updated-at.txt");
-    write(updated_at, Utc::now().to_rfc3339()).await?;
+    // Write details
+    let details_path = dir.join("details.json");
+    write(
+        details_path,
+        serde_json::to_string_pretty(&BuiltinDetails {
+            updated: true,
+            ..BuiltinDetails::current()
+        })?,
+    )
+    .await?;
 
     Ok(())
 }
