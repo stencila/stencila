@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install CLI
-        run: curl --proto '=https' --tlsv1.2 -sSf https://stencila.dev/install.sh | sh
+        run: curl -sSf https://stencila.dev/install.sh | sh
 
       - name: Run CLI
         run: stencila --help
