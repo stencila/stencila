@@ -23,3 +23,4 @@ is-terminal = "0.4.12"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 quick-xml = "0.36.0"
+semver = { version = "1.0.23", features = ["serde"] }

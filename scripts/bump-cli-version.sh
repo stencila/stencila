@@ -20,11 +20,8 @@ else
     echo "Bumping CLI to $VERSION"
 fi
 
-# Update the version in the Rust server and CLI crates
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/server/Cargo.toml
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/codec-json/Cargo.toml
-sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/codec-yaml/Cargo.toml
+# Update the version in the Rust version crate
+sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/version/Cargo.toml
 
 # Update the workspace Cargo.lock file so that above version changes
 # are propagated to it 

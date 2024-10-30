@@ -1,6 +1,6 @@
 [package]
 name = "server"
-version = "2.0.0-beta.10"
+version = "0.0.0"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
@@ -13,6 +13,7 @@ format = { path = "../format" }
 mime_guess = { workspace = true }
 tower-cookies = "0.10.0"
 tower-http = { version = "0.6.1", features = ["trace"] }
+version = { path = "../version" }
 web-dist = { path = "../web-dist" }
 
 [dev-dependencies]

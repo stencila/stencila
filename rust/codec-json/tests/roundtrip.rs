@@ -11,8 +11,9 @@ use codec::{
     Codec, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
+use version::STENCILA_VERSION;
 
-use codec_json::{JsonCodec, STENCILA_VERSION};
+use codec_json::JsonCodec;
 
 /// Test serialization and deserialization of a high level creative work type
 ///

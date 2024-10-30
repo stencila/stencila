@@ -963,7 +963,7 @@ checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 
 [[package]]
 name = "cli"
-version = "2.0.0-beta.10"
+version = "0.0.0"
 dependencies = [
  "app",
  "cli-utils",
@@ -988,6 +988,7 @@ dependencies = [
  "server",
  "tracing-error",
  "tracing-subscriber",
+ "version",
  "webbrowser",
 ]
 
@@ -1152,10 +1153,11 @@ dependencies = [
 
 [[package]]
 name = "codec-json"
-version = "2.0.0-beta.10"
+version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "version",
 ]
 
 [[package]]
@@ -1250,9 +1252,10 @@ dependencies = [
 
 [[package]]
 name = "codec-yaml"
-version = "2.0.0-beta.10"
+version = "0.0.0"
 dependencies = [
  "codec",
+ "version",
 ]
 
 [[package]]
@@ -4610,6 +4613,8 @@ dependencies = [
  "models",
  "prompt",
  "rust-embed",
+ "semver",
+ "version",
 ]
 
 [[package]]
@@ -5600,6 +5605,9 @@ name = "semver"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "serde"
@@ -5742,7 +5750,7 @@ dependencies = [
 
 [[package]]
 name = "server"
-version = "2.0.0-beta.10"
+version = "0.0.0"
 dependencies = [
  "axum",
  "codecs",
@@ -5753,6 +5761,7 @@ dependencies = [
  "mime_guess",
  "tower-cookies",
  "tower-http",
+ "version",
  "web-dist",
 ]
 
@@ -6738,6 +6747,13 @@ name = "vcpkg"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
+
+[[package]]
+name = "version"
+version = "2.0.0-beta.10"
+dependencies = [
+ "semver",
+]
 
 [[package]]
 name = "version_check"

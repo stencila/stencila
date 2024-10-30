@@ -27,17 +27,12 @@ use common::{
     tracing,
 };
 use document::SyncDirection;
+pub(crate) use version::STENCILA_VERSION;
 
 use crate::{
     documents::{self, Documents},
     login, statics,
 };
-
-/// The current version of Stencila
-///
-/// Used to improving browser caching of assets by
-/// serving static files using versioned paths.
-pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Server state available from all routes
 #[derive(Default, Clone)]

@@ -9,17 +9,13 @@ use codec::{
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
+use version::STENCILA_VERSION;
 
 pub mod r#trait;
 use r#trait::YamlCodec as _;
 
 #[cfg(test)]
 mod tests;
-
-/// The current version of Stencila
-///
-/// Used to include the version number for the `$schema` and `@content` URLs.
-pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A codec for YAML
 pub struct YamlCodec;

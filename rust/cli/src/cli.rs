@@ -5,6 +5,7 @@ use common::{
     tracing,
 };
 use server::{self, ServeOptions};
+use version::STENCILA_VERSION;
 
 use crate::{
     compile, convert, execute,
@@ -14,7 +15,7 @@ use crate::{
 
 /// CLI subcommands and global options
 #[derive(Debug, Parser)]
-#[command(name = "stencila", author, version, about, long_about, styles = Cli::styles())]
+#[command(name = "stencila", author, version = STENCILA_VERSION, about, long_about, styles = Cli::styles())]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,

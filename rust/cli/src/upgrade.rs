@@ -7,6 +7,8 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+use flate2::read::GzDecoder;
+
 use app::{get_app_dir, DirType};
 use common::{
     clap::{self, Parser},
@@ -25,15 +27,13 @@ use common::{
     tracing,
     zip::ZipArchive,
 };
-use flate2::read::GzDecoder;
-
-const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
+use version::STENCILA_VERSION;
 
 /// Upgrade the Stencila CLI to the latest version
 pub async fn upgrade(force: bool) -> Result<bool> {
     let latest = GithubRelease::latest().await?;
 
-    if !force && latest.version() == *CURRENT_VERSION {
+    if !force && latest.version() == *STENCILA_VERSION {
         return Ok(false);
     }
 
@@ -77,7 +77,7 @@ pub fn check(force: bool) -> JoinHandle<Option<String>> {
             serde_json::from_str(&json)?
         };
 
-        if latest.version() != *CURRENT_VERSION {
+        if latest.version() != *STENCILA_VERSION {
             UPGRADE_AVAILABLE.store(true, Ordering::SeqCst);
             Ok::<_, Report>(Some(latest.version()))
         } else {
@@ -228,7 +228,7 @@ impl Cli {
         if self.check {
             match check(true).await? {
                 Some(version) => {
-                    println!("✨ Upgrade available: {CURRENT_VERSION} → {version}");
+                    println!("🎂 Upgrade available: {STENCILA_VERSION} → {version}");
                 }
                 None => {
                     println!("👍 No upgrade available: current version is the latest");
