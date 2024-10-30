@@ -18,6 +18,9 @@
   "engines": {
     "vscode": "^1.84.0"
   },
+  "extensionDependencies": [
+    "usernamehw.errorlens"
+  ],
   "categories": [
     "Programming Languages",
     "Snippets",
