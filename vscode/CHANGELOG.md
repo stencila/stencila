@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.6 2024-10-30
+
+- Adds `errorlens` as a package dependency.
+
+- Fixes hover preview for Mermaid and other non-standard image code chunk outputs.
+
+- Based on Stencila CLI v2.0.0-beta.11 which includes fixes for re-initializing and updating builtin prompts, improved error handling for Mermaid code chunks.
+
 ## 0.0.5 2024-10-30
 
 - Added Stencila side bar with tree views for kernels, prompts, and models.
