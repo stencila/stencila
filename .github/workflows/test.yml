@@ -31,10 +31,12 @@ jobs:
       main: ${{ steps.changes.outputs.main }}
       ts: ${{ steps.changes.outputs.ts }}
       web: ${{ steps.changes.outputs.web }}
+      renovate: ${{ steps.renovate.outputs.renovate }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
       - name: Detect changes
         uses: dorny/paths-filter@v3
         id: changes
@@ -52,6 +54,15 @@ jobs:
             web:
               - 'web/**'
               - 'package.json'
+
+      - name: Detect Renovate PR
+        id: renovate
+        run: |
+          if [[ ! "${{ github.head_ref }}" == *"renovate"* ]]; then
+            echo "renovate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "renovate=false" >> "$GITHUB_OUTPUT"
+          fi
 
   main:
     runs-on: ubuntu-latest-m
@@ -233,17 +244,21 @@ jobs:
         run: make -C web test
 
       - name: Setup Rust
+        if: needs.changes.outputs.renovate == 'false'
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
 
       - name: Setup Rust cache
+        if: needs.changes.outputs.renovate == 'false'
         uses: Swatinem/rust-cache@v2
 
       - name: build rust cli
+        if: needs.changes.outputs.renovate == 'false'
         run: cargo build --quiet -p cli
 
       - name: Run playwright
+        if: needs.changes.outputs.renovate == 'false'
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
