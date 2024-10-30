@@ -2,7 +2,7 @@
   "name": "stencila",
   "displayName": "Stencila",
   "publisher": "stencila",
-  "description": "Documents with scientific intelligence",
+  "description": "Documents with Scientific Intelligence",
   "version": "0.0.5",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
@@ -22,9 +22,9 @@
     "usernamehw.errorlens"
   ],
   "categories": [
-    "Programming Languages",
-    "Snippets",
+    "AI",
     "Data Science",
+    "Education",
     "Visualization",
     "Notebooks"
   ],
