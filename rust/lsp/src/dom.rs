@@ -69,7 +69,7 @@ impl Notification for PublishDom {
     type Params = PublishDomParams;
 }
 
-static TASKS: Lazy<Mutex<HashMap<String, JoinHandle<()>>>> = Lazy::new(|| Mutex::default());
+static TASKS: Lazy<Mutex<HashMap<String, JoinHandle<()>>>> = Lazy::new(Mutex::default);
 
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
