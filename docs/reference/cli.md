@@ -654,7 +654,7 @@ Update builtin prompts
 
 Reset builtin prompts
 
-Reinitializes the builtin prompts directory to those prompts embedded in this version of Stencila
+Re-initializes the builtin prompts directory to those prompts embedded in this version of Stencila
 
 **Usage:** `stencila prompts reset`
 
