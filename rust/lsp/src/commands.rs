@@ -182,7 +182,7 @@ pub(super) async fn execute_command(
         }
         RUN_CURR => {
             let position = position_arg(args.next())?;
-            if let Some(node_id) = root.read().await.node_id_at(position) {
+            if let Some(node_id) = root.read().await.node_id_closest(position) {
                 (
                     "Running current node".to_string(),
                     Command::ExecuteNodes((
@@ -215,7 +215,7 @@ pub(super) async fn execute_command(
         }
         LOCK_CURR => {
             let position = position_arg(args.next())?;
-            let node_id = if let Some(node_id) = root.read().await.node_id_at(position) {
+            let node_id = if let Some(node_id) = root.read().await.node_id_closest(position) {
                 node_id
             } else {
                 tracing::error!("No node to lock at current position");
@@ -238,7 +238,7 @@ pub(super) async fn execute_command(
         }
         UNLOCK_CURR => {
             let position = position_arg(args.next())?;
-            let node_id = if let Some(node_id) = root.read().await.node_id_at(position) {
+            let node_id = if let Some(node_id) = root.read().await.node_id_closest(position) {
                 node_id
             } else {
                 tracing::error!("No node to unlock at current position");

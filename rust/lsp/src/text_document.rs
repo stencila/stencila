@@ -194,6 +194,34 @@ impl TextNode {
         None
     }
 
+    /// Get the [`NodeId`] closest to the position (if any)
+    ///
+    /// Searches towards the start of the line, and then the start of the previous
+    /// line for a node and returns its id.
+    pub fn node_id_closest(&self, mut position: Position) -> Option<NodeId> {
+        // Search towards start of current line
+        loop {
+            if let Some(node_id) = self.node_id_at(position) {
+                return Some(node_id);
+            }
+
+            if position.character == 0 {
+                break;
+            } else {
+                position.character -= 1;
+            }
+        }
+
+        // Try start of previous line
+        position.line -= 1;
+        position.character = 0;
+        if let Some(node_id) = self.node_id_at(position) {
+            return Some(node_id);
+        }
+
+        None
+    }
+
     /// Get the [`NodeId`] of the [`InstructionBlock`] or [`InstructionInline`]
     /// at a position if any
     ///
