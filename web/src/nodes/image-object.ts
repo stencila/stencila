@@ -83,9 +83,12 @@ export class ImageObject extends Entity {
     }
 
     try {
-      const id = 'stencila-' + Date.now()
+      const id = 'stencila-' + Math.random().toString(36).substring(2)
       this.svg = (await mermaid.render(id, this.content, container)).svg
     } catch (error) {
+      // Hide the container so that the Mermaid bomb message does not appear
+      container.style.display = 'none'
+
       if (codeChunk) {
         // Get the messages slot, adding one if necessary
         let messages = codeChunk.querySelector('div[slot=messages]')
@@ -113,11 +116,11 @@ export class ImageObject extends Entity {
         message.setAttribute('message', str)
 
         const loc = error.hash?.loc
-        const startLine = (loc.first_line ?? 1) - 1
-        const startCol = (loc.first_column ?? 0) + 1
-        const endLine = (loc.last_line ?? 1) - 1
-        const endCol = (loc.last_column ?? 0) + 1
         if (loc) {
+          const startLine = (loc.first_line ?? 1) - 1
+          const startCol = (loc.first_column ?? 0) + 1
+          const endLine = (loc.last_line ?? 1) - 1
+          const endCol = (loc.last_column ?? 0) + 1
           message.setAttribute(
             'code-location',
             `[${startLine},${startCol},${endLine},${endCol}]`
