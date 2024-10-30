@@ -94,17 +94,31 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
                 context.push_str("```\n\n");
             }
             Node::ImageObject(image) => {
+                // Can not preview non-standard image types e.g. Mermaid.
+                let not_image = image
+                    .media_type
+                    .as_ref()
+                    .map(|media_type| !media_type.starts_with("image/"))
+                    .unwrap_or_default()
+                    || !(image.content_url.starts_with("http")
+                        || image.content_url.starts_with("data:image/"));
                 // VSCode has a limit of 100,000 characters in hovers (October 2024, VSCode v1.94.2)
-                // so if that is the case ensure that do not get a broken, truncated <img> tag
-                // but indicate that there is an image to view
-                if image.content_url.len() > (100_000 - 30) {
+                // which can result in truncated <img> tag.
+                let too_big = image.content_url.len() > (100_000 - 30);
+                if not_image || too_big {
+                    // Do not show image but indicate that there is an image to view and provide a link
                     let args = percent_encoding::utf8_percent_encode(
                         &format!(r#"["{uri}","CodeChunk","{node_id}"]"#),
                         percent_encoding::NON_ALPHANUMERIC,
                     )
                     .to_string();
                     let message = format!(
-                        r#"Image too large for hover preview. [View](command:stencila.view-node?{args})."#,
+                        r#"{reason} [View](command:stencila.view-node?{args})."#,
+                        reason = if too_big {
+                            "Image too large to show."
+                        } else {
+                            "Image type only rendered in document preview."
+                        }
                     );
                     context.push_str(&message);
                 } else {
