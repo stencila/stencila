@@ -389,7 +389,8 @@
       },
       {
         "command": "stencila.command-picker",
-        "key": "f2"
+        "key": "ctrl+f1",
+        "mac": "cmd+f1"
       }
     ],
     "menus": {
