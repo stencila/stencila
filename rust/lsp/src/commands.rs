@@ -167,6 +167,11 @@ pub(super) async fn execute_command(
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
+            // Only update if running an instruction
+            let update = matches!(
+                node_type,
+                NodeType::InstructionBlock | NodeType::InstructionInline
+            );
             (
                 "Running node".to_string(),
                 Command::ExecuteNodes((
@@ -174,15 +179,14 @@ pub(super) async fn execute_command(
                     ExecuteOptions::default(),
                 )),
                 true,
-                matches!(
-                    node_type,
-                    NodeType::InstructionBlock | NodeType::InstructionInline
-                ),
+                update,
             )
         }
         RUN_CURR => {
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_closest(position) {
+                // Only update if running an instruction
+                let update = matches!(node_id.nick(), "isb" | "isi");
                 (
                     "Running current node".to_string(),
                     Command::ExecuteNodes((
@@ -190,7 +194,7 @@ pub(super) async fn execute_command(
                         ExecuteOptions::default(),
                     )),
                     true,
-                    true,
+                    update,
                 )
             } else {
                 tracing::error!("No node to run at current position");
@@ -201,7 +205,8 @@ pub(super) async fn execute_command(
             format!("Running {file_name}"),
             Command::ExecuteDocument(ExecuteOptions::default()),
             true,
-            false,
+            // Always update because document may include instructions that were executed
+            true,
         ),
         CANCEL_NODE => {
             args.next(); // Skip the currently unused node type arg
