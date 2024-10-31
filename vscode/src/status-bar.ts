@@ -101,21 +101,31 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           description: "Create a new MyST Markdown file",
           command: "stencila.new-myst",
         },
-        {
-          label: "$(run-all) Run",
-          description: "Run the current document",
-          command: "stencila.invoke.run-doc",
-        },
-        {
-          label: "$(preview) Preview",
-          description: "Preview the current document",
-          command: "stencila.view-doc",
-        },
-        {
-          label: "$(save-all) Save",
-          description: "Save the current document with a sidecar file",
-          command: "stencila.invoke.save-doc",
-        },
+      ];
+
+      // Add commands related to the current document
+      const langId = vscode.window.activeTextEditor?.document.languageId;
+      if (langId && ["md", "smd", "myst"].includes(langId)) {
+        commands.push(
+          {
+            label: "$(run-all) Run",
+            description: "Run the current document",
+            command: "stencila.invoke.run-doc",
+          },
+          {
+            label: "$(preview) Preview",
+            description: "Preview the current document",
+            command: "stencila.view-doc",
+          },
+          {
+            label: "$(save-all) Save",
+            description: "Save the current document with a sidecar file",
+            command: "stencila.invoke.save-doc",
+          }
+        );
+      }
+
+      commands.push(
         {
           label: "Settings & Services",
           kind: vscode.QuickPickItemKind.Separator,
@@ -124,8 +134,8 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           label: "$(gear) Settings",
           description: "Update Stencila settings",
           command: "stencila.settings",
-        },
-      ];
+        }
+      );
 
       // Add sign in/out commands based on whether there is a session of not
       const session = await vscode.authentication.getSession(PROVIDER_ID, [], {
