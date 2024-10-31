@@ -18,7 +18,7 @@ export function registerPromptsView(
 
   const use = vscode.commands.registerCommand(
     "stencila.prompts.use",
-    (item: PromptTreeItem) => {
+    ({ prompt }: { prompt: Prompt }) => {
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const selection = editor.selection;
@@ -30,9 +30,9 @@ export function registerPromptsView(
         const format = editor.document.languageId;
         let snippet;
         if (format === "myst") {
-          snippet = mystSnippet(item.prompt!, selected);
+          snippet = mystSnippet(prompt, selected);
         } else {
-          snippet = smdSnippet(item.prompt!, selected);
+          snippet = smdSnippet(prompt, selected);
         }
         editor.insertSnippet(new vscode.SnippetString(snippet), selection);
       } else {
@@ -41,9 +41,26 @@ export function registerPromptsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, use);
+  const picker = vscode.commands.registerCommand(
+    "stencila.prompts.picker",
+    async () => {
+      const items = await treeDataProvider.getPickerItems();
 
-  return treeDataProvider
+      const item = await vscode.window.showQuickPick(items, {
+        placeHolder: "Search for a prompt",
+      });
+
+      if (item) {
+        vscode.commands.executeCommand("stencila.prompts.use", {
+          prompt: item.prompt,
+        });
+      }
+    }
+  );
+
+  context.subscriptions.push(treeView, refresh, use, picker);
+
+  return treeDataProvider;
 }
 
 type InstructionType = "Create" | "Edit" | "Fix" | "Describe";
@@ -62,6 +79,52 @@ interface Prompt {
 function promptId(prompt: Prompt): string {
   const parts = prompt.id.split("/");
   return parts[0] === "stencila" ? parts[parts.length - 1] : prompt.id;
+}
+
+/**
+ * Get the icon for a prompt
+ */
+function promptIcon(prompt: Prompt): string {
+  const label = promptId(prompt);
+  switch (prompt?.instructionTypes[0]) {
+    case "Create": {
+      switch (label) {
+        case "list-ordered":
+        case "list-unordered":
+          return label;
+        case "list-checked":
+          return "checklist";
+        case "figure-code":
+          return "graph-line";
+        case "paragraph":
+          return "whitespace";
+        default:
+          if (label.endsWith("caption")) {
+            return "list-selection";
+          } else if (label.startsWith("code")) {
+            return "code";
+          } else if (label.startsWith("figure")) {
+            return "symbol-misc";
+          } else if (label.startsWith("math")) {
+            return "symbol-operator";
+          } else if (label.startsWith("quote")) {
+            return "quote";
+          } else if (label.startsWith("table")) {
+            return "symbol-number";
+          } else {
+            return "sparkle";
+          }
+      }
+    }
+    case "Edit":
+      return "pencil";
+    case "Fix":
+      return "wrench";
+    case "Describe":
+      return "comment";
+    default:
+      return "file";
+  }
 }
 
 /**
@@ -128,6 +191,17 @@ function mystSnippet(prompt: Prompt, selected?: string): string {
   return snippet;
 }
 
+class PromptPickerItem implements vscode.QuickPickItem {
+  label: string;
+  description: string;
+
+  constructor(public prompt: Prompt) {
+    // Use full id as label because filtering is done on label only
+    this.label = `$(${promptIcon(prompt)}) ${prompt.id}`;
+    this.description = prompt.description;
+  }
+}
+
 class PromptTreeItem extends vscode.TreeItem {
   constructor(
     public readonly library: string | null,
@@ -151,48 +225,7 @@ class PromptTreeItem extends vscode.TreeItem {
     this.description = prompt?.name;
     this.tooltip = prompt && `${prompt.id}: ${prompt.description}`;
 
-    const icon = (() => {
-      switch (prompt?.instructionTypes[0]) {
-        case "Create": {
-          switch (label) {
-            case "list-ordered":
-            case "list-unordered":
-              return label;
-            case "list-checked":
-              return "checklist";
-            case "figure-code":
-              return "graph-line";
-            case "paragraph":
-              return "whitespace";
-            default:
-              if (label.endsWith("caption")) {
-                return "list-selection";
-              } else if (label.startsWith("code")) {
-                return "code";
-              } else if (label.startsWith("figure")) {
-                return "symbol-misc";
-              } else if (label.startsWith("math")) {
-                return "symbol-operator";
-              } else if (label.startsWith("quote")) {
-                return "quote";
-              } else if (label.startsWith("table")) {
-                return "symbol-number";
-              } else {
-                return "sparkle";
-              }
-          }
-        }
-        case "Edit":
-          return "pencil";
-        case "Fix":
-          return "wrench";
-        case "Describe":
-          return "comment";
-        default:
-          return library ? "folder" : "file";
-      }
-    })();
-
+    const icon = library ? "folder" : promptIcon(prompt!);
     this.iconPath = new vscode.ThemeIcon(icon);
 
     // Set the context value to allow filtering commands by the item type
@@ -239,7 +272,7 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
 
   async getChildren(item?: PromptTreeItem): Promise<PromptTreeItem[]> {
     if (this.list.length === 0) {
-      await this.refresh()
+      await this.refresh();
     }
 
     if (!item) {
@@ -247,5 +280,13 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
     }
 
     return this.list.map((prompt) => new PromptTreeItem(null, prompt));
+  }
+
+  async getPickerItems(): Promise<PromptPickerItem[]> {
+    if (this.list.length === 0) {
+      await this.refresh();
+    }
+
+    return this.list.map((prompt) => new PromptPickerItem(prompt));
   }
 }

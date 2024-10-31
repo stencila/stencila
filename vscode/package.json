@@ -267,6 +267,13 @@
         "icon": "$(arrow-circle-right)"
       },
       {
+        "command": "stencila.prompts.picker",
+        "category": "Stencila",
+        "title": "Prompt pricker",
+        "shortTitle": "Find and use a prompt",
+        "icon": "$(filter)"
+      },
+      {
         "command": "stencila.prompts.refresh",
         "category": "Stencila",
         "title": "Refresh prompts list",
@@ -391,6 +398,12 @@
         "command": "stencila.command-picker",
         "key": "ctrl+f1",
         "mac": "cmd+f1"
+      },
+      {
+        "command": "stencila.prompts.picker",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
       }
     ],
     "menus": {
@@ -523,6 +536,11 @@
         {
           "command": "stencila.kernels.refresh",
           "when": "view == stencila-kernels",
+          "group": "navigation"
+        },
+        {
+          "command": "stencila.prompts.picker",
+          "when": "view == stencila-prompts",
           "group": "navigation"
         },
         {
