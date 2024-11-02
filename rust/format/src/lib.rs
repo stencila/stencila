@@ -265,25 +265,26 @@ impl Format {
 
     /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Self {
+        use Format::*;
+
         if path.is_dir() {
-            return Format::Directory;
+            return Directory;
         }
 
         // Catch "double extensions" here
         let path_string = path.to_string_lossy();
-        if path_string.ends_with(".dom.html") {
-            return Format::Dom;
-        }
-        if path_string.ends_with(".jats.xml") {
-            return Format::Jats;
-        }
-        if path_string.ends_with(".json.zip") {
-            return Format::JsonZip;
-        }
-        if path_string.ends_with(".cbor.zst") {
-            return Format::CborZst;
+        for (end, format) in [
+            (".cbor.zst", CborZst),
+            (".dom.html", Dom),
+            (".jats.xml", Jats),
+            (".json.zip", JsonZip),
+        ] {
+            if path_string.ends_with(end) {
+                return format;
+            }
         }
 
+        // Resolve from extension or filename (if no extension)
         let name = match path.extension() {
             Some(ext) => ext,
             None => match path.file_name() {
@@ -291,7 +292,6 @@ impl Format {
                 None => path.as_os_str(),
             },
         };
-
         Self::from_name(&name.to_string_lossy())
     }
 
