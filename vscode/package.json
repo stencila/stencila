@@ -322,6 +322,20 @@
         "title": "Language Server Logs"
       },
       {
+        "command": "stencila.walkthroughs.expand",
+        "category": "Stencila",
+        "title": "Expand current walkthrough",
+        "shortTitle": "Expand walkthrough",
+        "icon": "$(chevron-down)"
+      },
+      {
+        "command": "stencila.walkthroughs.collapse",
+        "category": "Stencila",
+        "title": "Collapse and restart current walkthrough",
+        "shortTitle": "Collapse and restart walkthrough",
+        "icon": "$(chevron-up)"
+      },
+      {
         "command": "stencila.cloud.signin",
         "category": "Stencila Cloud",
         "title": "Sign in",
@@ -474,6 +488,14 @@
         },
         {
           "command": "stencila.invoke.export-doc",
+          "when": "editorLangId == smd || editorLangId == myst"
+        },
+        {
+          "command": "stencila.walkthroughs.expand",
+          "when": "editorLangId == smd || editorLangId == myst"
+        },
+        {
+          "command": "stencila.walkthroughs.collapse",
           "when": "editorLangId == smd || editorLangId == myst"
         }
       ],

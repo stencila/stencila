@@ -208,4 +208,143 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  // Run the current walkthrough step
+  //
+  // Gets the content and the range of the step, clears existing content from the range
+  // (from the line after the start of the range to the end of the range), and then
+  // simulates typing (at normal typing speeds) the new content into that range
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.walkthrough-step",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        let [content, range] = (await vscode.commands.executeCommand(
+          "stencila.walkthrough-step",
+          docUri,
+          nodeType,
+          nodeId
+        )) as [string, vscode.Range];
+
+        // First, clear the existing content in the range
+        await editor.edit((editBuilder) => {
+          // Get the range from the line after the start to the end
+          const clearRange = new vscode.Range(
+            new vscode.Position(range.start.line + 1, 0),
+            range.end
+          );
+          editBuilder.delete(clearRange);
+        });
+
+        // Function to simulate natural typing delays
+        const getRandomTypingDelay = () => {
+          return 10 + Math.floor(Math.random() * 50);
+        };
+
+        // Function to type character by character
+        const typeContent = async (text: string) => {
+          const lines = text.split("\n");
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            for (let j = 0; j < line.length; j++) {
+              await editor.edit((editBuilder) => {
+                const position = new vscode.Position(
+                  range.start.line + 1 + i,
+                  j
+                );
+                editBuilder.insert(position, line[j]);
+              });
+              // Add random delay between characters
+              await new Promise((resolve) =>
+                setTimeout(resolve, getRandomTypingDelay())
+              );
+            }
+
+            // If not the last line, add newline
+            if (i < lines.length - 1) {
+              await editor.edit((editBuilder) => {
+                const position = new vscode.Position(
+                  range.start.line + 1 + i,
+                  line.length
+                );
+                editBuilder.insert(position, "\n");
+              });
+            }
+          }
+
+          // If the next line is not an ellipsis then add one for continuation
+          // to the next step
+          const nextLine = range.start.line + 1 + lines.length;
+          const hasEllipsis =
+            nextLine < editor.document.lineCount &&
+            editor.document.lineAt(nextLine).text.trim() === "...";
+          if (!hasEllipsis) {
+            await editor.edit((editBuilder) => {
+              const position = new vscode.Position(nextLine, 0);
+              editBuilder.insert(position, "\n...\n");
+            });
+          }
+        };
+
+        // Type the content, includes a starting blank line to separate
+        // from the step's ellipsis
+        try {
+          await typeContent("\n" + content);
+        } catch (error) {
+          vscode.window.showErrorMessage(`Error running step: ${error}`);
+        }
+      }
+    )
+  );
+
+  // Expand the current walkthrough so it can be edited
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.walkthroughs.expand",
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          "stencila.patch-curr",
+          editor.document.uri.toString(),
+          "Walkthrough",
+          editor.selection.active,
+          "isExpanded",
+          true
+        );
+      }
+    )
+  );
+
+  // Collapse the current walkthrough and reset each of the steps to inactive state
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.walkthroughs.collapse",
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          "stencila.patch-curr",
+          editor.document.uri.toString(),
+          "Walkthrough",
+          editor.selection.active,
+          "isExpanded",
+          false
+        );
+      }
+    )
+  );
 }
