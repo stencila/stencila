@@ -14,6 +14,7 @@ use schema::NodeType;
 use crate::{
     commands::{
         ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PREV_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE,
+        WALKTHROUGH_STEP,
     },
     text_document::TextNode,
 };
@@ -48,6 +49,7 @@ pub(crate) async fn request(
                  node_type,
                  node_id,
                  index_of,
+                 is_active,
                  provenance,
                  ..
              }| {
@@ -109,6 +111,13 @@ pub(crate) async fn request(
                     }
                     NodeType::MathBlock | NodeType::RawBlock | NodeType::StyledBlock => {
                         vec![lens(VIEW_NODE)]
+                    }
+                    NodeType::WalkthroughStep => {
+                        if matches!(is_active, Some(true)) {
+                            vec![]
+                        } else {
+                            vec![lens(WALKTHROUGH_STEP)]
+                        }
                     }
                     _ => vec![],
                 };
@@ -238,7 +247,8 @@ pub(crate) async fn resolve(
         ARCHIVE_NODE => Command::new("$(pass) Accept".to_string(), command, arguments),
         REVISE_NODE => Command::new(
             "$(refresh) Revise".to_string(),
-            "stencila.invoke.revise-node".to_string(), // Call invoke to collect any feedback in client
+            // Call corresponding `invoke` command on the client to collect any feedback from user
+            "stencila.invoke.revise-node".to_string(),
             arguments,
         ),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
@@ -248,6 +258,15 @@ pub(crate) async fn resolve(
             command,
             arguments,
         ),
+        WALKTHROUGH_STEP => {
+            Command::new(
+                "$(arrow-right) Continue".to_string(),
+                // Call the corresponding `invoke` command on the client to simulate
+                // typing of the step into the document
+                "stencila.invoke.walkthrough-step".to_string(),
+                arguments,
+            )
+        }
         _ => Command::new(
             command.replace("stencila.", "").to_title_case(),
             command,
