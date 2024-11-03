@@ -1,0 +1,45 @@
+{
+  "@id": "https://stencila.org/Walkthrough",
+  "name": "Walkthrough",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Walkthrough",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Walkthrough",
+      "rdfs:comment": "An interactive walkthrough made up of several, successively revealed steps.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:isExpanded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isExpanded",
+      "rdfs:comment": "Whether the walkthrough is expanded so that each step can be edited",
+      "schema:domainIncludes": {
+        "@id": "stencila:Walkthrough"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:steps",
+      "@type": "rdfs:Property",
+      "rdfs:label": "steps",
+      "rdfs:comment": "The steps making up the walkthrough.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Walkthrough"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:WalkthroughStep"
+      }
+    }
+  ]
+}

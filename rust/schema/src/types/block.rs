@@ -29,6 +29,7 @@ use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
+use super::walkthrough::Walkthrough;
 
 /// Union type in block content node types.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
@@ -130,4 +131,6 @@ pub enum Block {
     Table(Table),
 
     ThematicBreak(ThematicBreak),
+
+    Walkthrough(Walkthrough),
 }

@@ -219,6 +219,9 @@
     },
     {
       "$ref": "ThematicBreak.schema.json"
+    },
+    {
+      "$ref": "Walkthrough.schema.json"
     }
   ],
   "default": "Paragraph"

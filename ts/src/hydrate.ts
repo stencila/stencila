@@ -309,6 +309,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Variable.prototype);
     case "VideoObject":
       return Object.setPrototypeOf(value, types.VideoObject.prototype);
+    case "Walkthrough":
+      return Object.setPrototypeOf(value, types.Walkthrough.prototype);
+    case "WalkthroughStep":
+      return Object.setPrototypeOf(value, types.WalkthroughStep.prototype);
     // TYPE-CASES:STOP
     default:
       return value;

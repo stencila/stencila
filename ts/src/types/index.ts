@@ -190,3 +190,5 @@ export * from "./UnsignedInteger.js";
 export * from "./Validator.js";
 export * from "./Variable.js";
 export * from "./VideoObject.js";
+export * from "./Walkthrough.js";
+export * from "./WalkthroughStep.js";

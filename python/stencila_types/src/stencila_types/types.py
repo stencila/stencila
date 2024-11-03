@@ -2960,6 +2960,36 @@ class VideoObject(MediaObject):
     transcript: str | None = None
     """The transcript of this video recording."""
 
+
+@dataclass(kw_only=True, repr=False)
+class Walkthrough(Entity):
+    """
+    An interactive walkthrough made up of several, successively revealed steps.
+    """
+
+    type: Literal["Walkthrough"] = "Walkthrough"
+
+    is_expanded: bool | None = None
+    """Whether the walkthrough is expanded so that each step can be edited"""
+
+    steps: list[WalkthroughStep]
+    """The steps making up the walkthrough."""
+
+
+@dataclass(kw_only=True, repr=False)
+class WalkthroughStep(Entity):
+    """
+    A step in a walkthrough.
+    """
+
+    type: Literal["WalkthroughStep"] = "WalkthroughStep"
+
+    is_active: bool | None = None
+    """Whether this step is active (i.e. is encoded in source format and can be edited)"""
+
+    content: list[Block]
+    """The content of the step."""
+
 Author = Union[
     Person,
     Organization,
@@ -3010,6 +3040,7 @@ Block = Union[
     SuggestionBlock,
     Table,
     ThematicBreak,
+    Walkthrough,
 ]
 """
 Union type in block content node types.
@@ -3279,6 +3310,8 @@ Node = Union[
     Unknown,
     Variable,
     VideoObject,
+    Walkthrough,
+    WalkthroughStep,
     Object,
 ]
 """
@@ -3506,6 +3539,8 @@ TYPES = [
     Unknown,
     Variable,
     VideoObject,
+    Walkthrough,
+    WalkthroughStep,
 ]
 
 

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/WalkthroughStep.schema.json",
+  "@id": "stencila:WalkthroughStep",
+  "title": "WalkthroughStep",
+  "nick": "wks",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "A step in a walkthrough.",
+  "status": "under-development",
+  "markdown": {
+    "derive": false
+  },
+  "proptest": {},
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id",
+    "isActive"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "isActive": {
+      "@id": "stencila:isActive",
+      "description": "Whether this step is active (i.e. is encoded in source format and can be edited)",
+      "aliases": [
+        "is-active",
+        "is_active"
+      ],
+      "type": "boolean"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the step.",
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    }
+  }
+}

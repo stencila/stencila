@@ -7,6 +7,7 @@ use node_type::{NodeProperty, NodeType};
 use crate::{
     Array, Block, Boolean, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem, Node, Null,
     Number, Object, SuggestionBlock, SuggestionInline, TableCell, TableRow, UnsignedInteger,
+    WalkthroughStep,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -97,6 +98,11 @@ pub trait Visitor: Sized {
         WalkControl::Continue
     }
 
+    /// Visit a `WalkthroughStep` node
+    fn visit_walkthrough_step(&mut self, step: &WalkthroughStep) -> WalkControl {
+        WalkControl::Continue
+    }
+
     /// Enter a struct
     fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
 
@@ -174,6 +180,11 @@ pub trait VisitorMut: Sized {
 
     /// Visit, and potentially mutate, a `TableCell` node
     fn visit_table_cell(&mut self, table_cell: &mut TableCell) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit, and potentially mutate, a `WalkthroughStep` node
+    fn visit_walkthrough_step(&mut self, step: &mut WalkthroughStep) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -274,6 +285,14 @@ pub trait VisitorAsync: Send + Sync {
     fn visit_table_cell(
         &mut self,
         table_cell: &mut TableCell,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, a `WalkthroughStep` node
+    fn visit_walkthrough_step(
+        &mut self,
+        step: &WalkthroughStep,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }

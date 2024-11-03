@@ -1,0 +1,27 @@
+title: WalkthroughStep
+"@id": stencila:WalkthroughStep
+nick: wks
+extends: Entity
+category: flow
+description: A step in a walkthrough.
+status: under-development
+markdown:
+  derive: false
+proptest: {}
+required:
+  - content
+core:
+  - isActive
+properties:
+  isActive:
+    "@id": stencila:isActive
+    description: Whether this step is active (i.e. is encoded in source format and can be edited)
+    type: boolean
+  content:
+    "@id": stencila:content
+    description: The content of the step.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: div

@@ -155,3 +155,5 @@ anyOf:
   - $ref: Table
   
   - $ref: ThematicBreak
+
+  - $ref: Walkthrough

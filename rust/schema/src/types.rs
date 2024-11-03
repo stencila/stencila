@@ -183,6 +183,8 @@ mod unsigned_integer;
 mod validator;
 mod variable;
 mod video_object;
+mod walkthrough;
+mod walkthrough_step;
 
 pub use admonition::*;
 pub use admonition_type::*;
@@ -368,3 +370,5 @@ pub use unsigned_integer::*;
 pub use validator::*;
 pub use variable::*;
 pub use video_object::*;
+pub use walkthrough::*;
+pub use walkthrough_step::*;

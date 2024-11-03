@@ -107,4 +107,16 @@ impl Visitor for Finder {
 
         WalkControl::Continue
     }
+
+    fn visit_walkthrough_step(
+        &mut self,
+        walkthrough_step: &schema::WalkthroughStep,
+    ) -> WalkControl {
+        if walkthrough_step.node_id() == self.node_id {
+            self.node = Some(Node::WalkthroughStep(walkthrough_step.clone()));
+            return WalkControl::Break;
+        }
+
+        WalkControl::Continue
+    }
 }

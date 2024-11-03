@@ -79,6 +79,7 @@ mod text;
 mod time;
 mod timestamp;
 mod validators;
+mod walkthrough;
 
 mod utils;
 

@@ -37,7 +37,8 @@ impl Block {
             StyledBlock,
             SuggestionBlock,
             Table,
-            ThematicBreak
+            ThematicBreak,
+            Walkthrough
         )
     }
 
@@ -77,7 +78,8 @@ impl Block {
             StyledBlock,
             SuggestionBlock,
             Table,
-            ThematicBreak
+            ThematicBreak,
+            Walkthrough
         )
     }
 }
@@ -175,7 +177,8 @@ impl MarkdownCodec for Block {
             StyledBlock,
             SuggestionBlock,
             Table,
-            ThematicBreak
+            ThematicBreak,
+            Walkthrough
         )
     }
 }

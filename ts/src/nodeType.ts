@@ -136,6 +136,8 @@ export type NodeType =
   | "Unknown"
   | "Variable"
   | "VideoObject"
+  | "Walkthrough"
+  | "WalkthroughStep"
   | "Object";
 
 export const NodeTypeList = [
@@ -274,5 +276,7 @@ export const NodeTypeList = [
   "Unknown",
   "Variable",
   "VideoObject",
+  "Walkthrough",
+  "WalkthroughStep",
   "Object",
 ];

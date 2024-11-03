@@ -325,6 +325,9 @@
         },
         {
           "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
         }
       ],
       "schema:rangeIncludes": {
