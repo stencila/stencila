@@ -156,13 +156,12 @@ pub(super) async fn execute_command(
         // Get the range of the step's content so that is can be replaced
         let range = root.read().await.node_range(&node_id);
 
-        // Patch the step so it has no content, but is active so that content can be typed into it
+        // Patch the step to make it active. Previously we also cleared its content but
+        // that seems to be unnecessary, and for some reason, caused merging errors
+        // when the content was typed into the step.
         doc.command_wait(Command::PatchNode(Patch {
             node_id: Some(node_id),
-            ops: vec![
-                (PatchPath::from(NodeProperty::Content), PatchOp::Clear),
-                (PatchPath::from(NodeProperty::IsActive), PatchOp::Increment),
-            ],
+            ops: vec![(PatchPath::from(NodeProperty::IsActive), PatchOp::Increment)],
             format: Some(format),
             authors: Some(vec![author]),
         }))
