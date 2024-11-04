@@ -17,6 +17,7 @@ use codec::{
         LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock,
         QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
         SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        Walkthrough, WalkthroughStep,
     },
 };
 
@@ -50,225 +51,237 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     }
 
     // Used to avoid running `fold_block` if there are no instructions or suggestions
+    let mut has_walkthrough = false;
     let mut should_fold = false;
     for md in mds.into_iter() {
         let mut is_handled = false;
 
-        // Parse "fenced div" paragraphs (starting with `:::`) and handle them specially...
-        'fenced: {
-            if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
-                if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
-                    if !value.starts_with(":::") {
-                        // Not a "fenced div" so ignore rest of this block
-                        break 'fenced;
-                    };
+        // Get children. position and starting text of the paragraph (if the block is one) for checks below
+        let mut para = None;
+        if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
+            if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
+                para = Some((children, position, value));
+            }
+        }
 
-                    // Serialize MDAST nodes to text so that fragments such as
-                    // URLS (for `::: include`), and `$`s for styles with interpolated variables
-                    // which are otherwise consumed into non text nodes are included in parse value
-                    let value = mds_to_string(children);
+        // Handle colon fences (paragraphs starting with `:::`)
+        if let Some((true, children, position)) =
+            para.map(|(children, position, text)| (text.starts_with(":::"), children, position))
+        {
+            // Serialize MDAST nodes to text so that fragments such as
+            // URLS (for `::: include`), and `$`s for styles with interpolated variables
+            // which are otherwise consumed into non text nodes are included in parse value
+            let value = mds_to_string(children);
 
-                    if let Ok(divider) = divider(&mut value.as_str()) {
-                        let children = pop_blocks(&mut blocks, &mut boundaries);
+            if let Ok(divider) = divider(&mut value.as_str()) {
+                let children = pop_blocks(&mut blocks, &mut boundaries);
 
-                        match divider {
-                            Divider::With => {
-                                if let Some(block) = blocks.last_mut() {
-                                    match block {
-                                        Block::ReplaceBlock(ReplaceBlock { content, .. })
-                                        | Block::ModifyBlock(ModifyBlock { content, .. }) => {
-                                            *content = children;
-                                        }
-
-                                        _ => tracing::warn!("Found a `::: with` without a preceding `::: replace` or `::: modify`")
-                                    }
+                match divider {
+                    Divider::With => {
+                        if let Some(block) = blocks.last_mut() {
+                            match block {
+                                Block::ReplaceBlock(ReplaceBlock { content, .. })
+                                | Block::ModifyBlock(ModifyBlock { content, .. }) => {
+                                    *content = children;
                                 }
 
-                                boundaries.push(blocks.len());
+                                _ => tracing::warn!("Found a `::: with` without a preceding `::: replace` or `::: modify`")
                             }
-                            Divider::Else => {
-                                if let Some(block) = blocks.last_mut() {
-                                    match block {
-                                        // Parent is a `ForBlock` so assign children to its `content` and
-                                        // create a placeholder `otherwise` to indicate that when the else finishes
-                                        // the tail of blocks should be popped to the `otherwise` of the current `ForBlock`
-                                        Block::ForBlock(for_block) => {
-                                            for_block.content = children;
-                                            for_block.otherwise = Some(Vec::new());
-                                        }
+                        }
 
-                                        // Parent is an `IfBlock` so assign children to the `content` of
-                                        // the last clause and add a final clause with no code or language
-                                        Block::IfBlock(if_block) => {
-                                            if let Some(last) = if_block.clauses.last_mut() {
-                                                last.content = children;
-                                            } else {
-                                                tracing::error!("Expected there to be at least one if clause already")
-                                            }
-
-                                            let if_block_clause = IfBlockClause::default();
-
-                                            // End the mapping for the previous `IfBlockClause` and start a new one
-                                            if let Some(position) = position {
-                                                context.map_end(position.start.offset.saturating_sub(1));
-                                                context.map_start(
-                                                    position.start.offset,
-                                                    if_block_clause.node_type(),
-                                                    if_block_clause.node_id(),
-                                                );
-                                            }
-
-                                            if_block.clauses.push(if_block_clause);
-                                        }
-
-                                        _ => tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`"),
-                                    }
+                        boundaries.push(blocks.len());
+                    }
+                    Divider::Else => {
+                        if let Some(block) = blocks.last_mut() {
+                            match block {
+                                // Parent is a `ForBlock` so assign children to its `content` and
+                                // create a placeholder `otherwise` to indicate that when the else finishes
+                                // the tail of blocks should be popped to the `otherwise` of the current `ForBlock`
+                                Block::ForBlock(for_block) => {
+                                    for_block.content = children;
+                                    for_block.otherwise = Some(Vec::new());
                                 }
 
-                                boundaries.push(blocks.len());
+                                // Parent is an `IfBlock` so assign children to the `content` of
+                                // the last clause and add a final clause with no code or language
+                                Block::IfBlock(if_block) => {
+                                    if let Some(last) = if_block.clauses.last_mut() {
+                                        last.content = children;
+                                    } else {
+                                        tracing::error!(
+                                            "Expected there to be at least one if clause already"
+                                        )
+                                    }
+
+                                    let if_block_clause = IfBlockClause::default();
+
+                                    // End the mapping for the previous `IfBlockClause` and start a new one
+                                    if let Some(position) = position {
+                                        context.map_end(position.start.offset.saturating_sub(1));
+                                        context.map_start(
+                                            position.start.offset,
+                                            if_block_clause.node_type(),
+                                            if_block_clause.node_id(),
+                                        );
+                                    }
+
+                                    if_block.clauses.push(if_block_clause);
+                                }
+
+                                _ => tracing::warn!(
+                                    "Found an `::: else` without a preceding `::: if` or `::: for`"
+                                ),
                             }
-                            Divider::End => {
-                                // End the mapping for the previous block
+                        }
+
+                        boundaries.push(blocks.len());
+                    }
+                    Divider::End => {
+                        // End the mapping for the previous block
+                        if let Some(position) = position {
+                            context.map_end(position.end.offset);
+                        }
+
+                        // Finalize the last block
+                        if let Some(last_block) = blocks.last_mut() {
+                            finalize(last_block, children, context);
+
+                            // If the last block is a `IfBlock` then also need end the mapping for that
+                            if matches!(last_block, Block::IfBlock(..)) {
                                 if let Some(position) = position {
                                     context.map_end(position.end.offset);
                                 }
-
-                                // Finalize the last block
-                                if let Some(last_block) = blocks.last_mut() {
-                                    finalize(last_block, children, context);
-
-                                    // If the last block is a `IfBlock` then also need end the mapping for that
-                                    if matches!(last_block, Block::IfBlock(..)) {
-                                        if let Some(position) = position {
-                                            context.map_end(position.end.offset);
-                                        }
-                                    }
-                                }
                             }
                         }
-
-                        is_handled = true;
-                    } else if let Ok((is_if, if_clause)) =
-                        if_elif(&mut Located::new(value.as_str()))
-                    {
-                        if is_if {
-                            let ifc_nt = if_clause.node_type();
-                            let ifc_ni = if_clause.node_id();
-
-                            // This is an `::: if` so start a new `IfBlock`
-                            let if_block = IfBlock {
-                                clauses: vec![if_clause],
-                                ..Default::default()
-                            };
-
-                            // Start mapping entries for both the `IfBlock` and `IfBlockClause`
-                            if let Some(position) = position {
-                                context.map_start(
-                                    position.start.offset,
-                                    if_block.node_type(),
-                                    if_block.node_id(),
-                                );
-                                context.map_start(position.start.offset, ifc_nt, ifc_ni);
-                            }
-
-                            blocks.push(Block::IfBlock(if_block));
-                            boundaries.push(blocks.len());
-                        } else {
-                            // This is an `::: elif` so end the mapping for the previous `IfBlockClause`
-                            // and start a new one
-                            if let Some(position) = position {
-                                context.map_end(position.start.offset.saturating_sub(1));
-                                context.map_start(
-                                    position.start.offset,
-                                    if_clause.node_type(),
-                                    if_clause.node_id(),
-                                );
-                            }
-
-                            let mut children = pop_blocks(&mut blocks, &mut boundaries);
-
-                            if let Some(Block::IfBlock(if_block)) = blocks.last_mut() {
-                                // Assign children to the  `content` of the last clause and add a clause
-                                if let Some(last) = if_block.clauses.last_mut() {
-                                    last.content = children;
-                                } else {
-                                    tracing::error!(
-                                        "Expected there to be at least one if clause already"
-                                    )
-                                }
-                                if_block.clauses.push(if_clause);
-
-                                boundaries.push(blocks.len());
-                            } else {
-                                // There was no parent `IfBlock` so issue a warning and do not `continue`
-                                // (so that the paragraph will be added as is). Also add the children
-                                // back to blocks so they are not lost
-                                tracing::warn!("Found an `::: elif` without a preceding `::: if`");
-                                blocks.append(&mut children);
-                            }
-                        }
-
-                        is_handled = true;
-                    } else if let Ok(block) = block(&mut Located::new(value.as_str())) {
-                        // This is the start of a "fenced div" block so push it on to
-                        // blocks and add a boundary marker for its children.
-                        // This clause must come after `::: else` and others above to avoid `section`
-                        // prematurely matching.
-
-                        if !should_fold
-                            & matches!(
-                                block,
-                                Block::InstructionBlock(..) | Block::SuggestionBlock(..)
-                            )
-                        {
-                            should_fold = true;
-                        };
-
-                        // Only add a boundary for blocks that are expected to have a closing fence
-                        let add_boundary =
-                            if let Block::InstructionBlock(InstructionBlock { content, .. }) =
-                                &block
-                            {
-                                match content {
-                                    Some(content) => content.capacity() != 1,
-                                    None => false,
-                                }
-                            } else if let Block::SuggestionBlock(SuggestionBlock {
-                                content, ..
-                            }) = &block
-                            {
-                                content.capacity() != 1
-                            } else {
-                                !matches!(
-                                    block,
-                                    Block::IncludeBlock(..)
-                                        | Block::CallBlock(..)
-                                        | Block::PromptBlock(..)
-                                )
-                            };
-
-                        // Add boundary and map position
-                        if add_boundary {
-                            boundaries.push(blocks.len() + 1);
-                            if let (Some(position), Some(node_id)) = (position, block.node_id()) {
-                                context.map_start(
-                                    position.start.offset,
-                                    block.node_type(),
-                                    node_id,
-                                );
-                            }
-                        } else {
-                            context.map_position(position, block.node_type(), block.node_id());
-                        }
-
-                        blocks.push(block);
-                        is_handled = true;
                     }
                 }
+
+                is_handled = true;
+            } else if let Ok((is_if, if_clause)) = if_elif(&mut Located::new(value.as_str())) {
+                if is_if {
+                    let ifc_nt = if_clause.node_type();
+                    let ifc_ni = if_clause.node_id();
+
+                    // This is an `::: if` so start a new `IfBlock`
+                    let if_block = IfBlock {
+                        clauses: vec![if_clause],
+                        ..Default::default()
+                    };
+
+                    // Start mapping entries for both the `IfBlock` and `IfBlockClause`
+                    if let Some(position) = position {
+                        context.map_start(
+                            position.start.offset,
+                            if_block.node_type(),
+                            if_block.node_id(),
+                        );
+                        context.map_start(position.start.offset, ifc_nt, ifc_ni);
+                    }
+
+                    blocks.push(Block::IfBlock(if_block));
+                    boundaries.push(blocks.len());
+                } else {
+                    // This is an `::: elif` so end the mapping for the previous `IfBlockClause`
+                    // and start a new one
+                    if let Some(position) = position {
+                        context.map_end(position.start.offset.saturating_sub(1));
+                        context.map_start(
+                            position.start.offset,
+                            if_clause.node_type(),
+                            if_clause.node_id(),
+                        );
+                    }
+
+                    let mut children = pop_blocks(&mut blocks, &mut boundaries);
+
+                    if let Some(Block::IfBlock(if_block)) = blocks.last_mut() {
+                        // Assign children to the  `content` of the last clause and add a clause
+                        if let Some(last) = if_block.clauses.last_mut() {
+                            last.content = children;
+                        } else {
+                            tracing::error!("Expected there to be at least one if clause already")
+                        }
+                        if_block.clauses.push(if_clause);
+
+                        boundaries.push(blocks.len());
+                    } else {
+                        // There was no parent `IfBlock` so issue a warning and do not `continue`
+                        // (so that the paragraph will be added as is). Also add the children
+                        // back to blocks so they are not lost
+                        tracing::warn!("Found an `::: elif` without a preceding `::: if`");
+                        blocks.append(&mut children);
+                    }
+                }
+
+                is_handled = true;
+            } else if let Ok(block) = block(&mut Located::new(value.as_str())) {
+                // This is the start of a "fenced div" block so push it on to
+                // blocks and add a boundary marker for its children.
+                // This clause must come after `::: else` and others above to avoid `section`
+                // prematurely matching.
+
+                if !should_fold
+                    & matches!(
+                        block,
+                        Block::InstructionBlock(..) | Block::SuggestionBlock(..)
+                    )
+                {
+                    should_fold = true;
+                };
+
+                // Only add a boundary for blocks that are expected to have a closing fence
+                let add_boundary =
+                    if let Block::InstructionBlock(InstructionBlock { content, .. }) = &block {
+                        match content {
+                            Some(content) => content.capacity() != 1,
+                            None => false,
+                        }
+                    } else if let Block::SuggestionBlock(SuggestionBlock { content, .. }) = &block {
+                        content.capacity() != 1
+                    } else {
+                        !matches!(
+                            block,
+                            Block::IncludeBlock(..) | Block::CallBlock(..) | Block::PromptBlock(..)
+                        )
+                    };
+
+                // Add boundary and map position
+                if add_boundary {
+                    boundaries.push(blocks.len() + 1);
+                    if let (Some(position), Some(node_id)) = (position, block.node_id()) {
+                        context.map_start(position.start.offset, block.node_type(), node_id);
+                    }
+                } else {
+                    context.map_position(position, block.node_type(), block.node_id());
+                }
+
+                blocks.push(block);
+                is_handled = true;
             }
         }
 
         if is_handled {
+            continue;
+        }
+
+        // Handle walkthrough steps
+        if para.map(|(.., text)| text == "...").unwrap_or_default() {
+            let content = pop_blocks(&mut blocks, &mut boundaries);
+
+            if let Some(Block::Walkthrough(walkthrough)) = blocks.last_mut() {
+                walkthrough.steps.push(WalkthroughStep {
+                    content,
+                    ..Default::default()
+                });
+            } else {
+                blocks.push(Block::Walkthrough(Walkthrough {
+                    ..Default::default()
+                }));
+            }
+
+            boundaries.push(blocks.len());
+            has_walkthrough = true;
+
             continue;
         }
 
@@ -461,6 +474,18 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         }
     }
 
+    // Finish walkthrough if necessary. This must be done after folding blocks.
+    if has_walkthrough {
+        let content = pop_blocks(&mut blocks, &mut boundaries);
+
+        if let Some(Block::Walkthrough(walkthrough)) = blocks.last_mut() {
+            walkthrough.steps.push(WalkthroughStep {
+                content,
+                ..Default::default()
+            });
+        }
+    }
+
     blocks
 }
 
@@ -486,7 +511,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
             styled_block,
             // Section parser is permissive of label so needs to
             // come last to avoid prematurely matching others above
-            div_section,
+            section,
         )),
     )
     .parse_next(input)
@@ -947,7 +972,7 @@ fn modify_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Section`] node
-fn div_section(input: &mut Located<&str>) -> PResult<Block> {
+fn section(input: &mut Located<&str>) -> PResult<Block> {
     alphanumeric1
         .map(|section_type: &str| {
             Block::Section(Section {
@@ -1549,15 +1574,17 @@ fn code_to_block(code: mdast::Code) -> Block {
 fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context) -> Block {
     let mut content = mds_to_blocks(mds, context);
 
-    let first_text = content
-        .first_mut()
-        .and_then(|node| {
-            if let Block::Paragraph(Paragraph { content, .. }) = node {
-                content.first_mut()
-            } else {
-                None
-            }
-        })
+    let mut first_para = content.first_mut().and_then(|node| {
+        if let Block::Paragraph(para) = node {
+            Some(para)
+        } else {
+            None
+        }
+    });
+
+    let first_text = first_para
+        .as_mut()
+        .and_then(|para| para.content.first_mut())
         .and_then(|node| {
             if let Inline::Text(text) = node {
                 Some(text)
@@ -1597,7 +1624,13 @@ fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context
             });
 
             if rest.is_empty() {
-                content.remove(0);
+                if let Some(first_para) = first_para {
+                    if first_para.content.len() > 1 {
+                        first_para.content.remove(0);
+                    } else {
+                        content.remove(0);
+                    }
+                }
             } else if let Some(first_text) = first_text {
                 first_text.value = rest.into();
             }

@@ -518,10 +518,16 @@ pub enum PatchOp {
     /// Set the value of a leaf node (e.g. a `String`) or `Option`
     Set(PatchValue),
 
-    /// Decrement a number by one
+    /// Decrement a value
+    ///
+    /// Used to increment numbers by one and switch booleans from
+    /// false to true.
     Decrement,
 
-    /// Increment a number by one
+    /// Increment a value
+    ///
+    /// Used to decrement numbers by one and switch booleans from
+    /// true to false.
     Increment,
 
     /// Apply `CordOp`s to a `Cord`

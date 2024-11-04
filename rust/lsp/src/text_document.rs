@@ -222,14 +222,14 @@ impl TextNode {
         None
     }
 
-    /// Get the [`NodeId`] of the [`InstructionBlock`] or [`InstructionInline`]
+    /// Get the [`NodeId`] of the [`NodeType::InstructionBlock`] or [`NodeType::InstructionInline`]
     /// at a position if any
     ///
     /// Find the ancestor node to the position that is an instruction. Unlike
     /// `node_id_at`, this will take the shallowest instruction with a range
     /// spanning the position.
-    pub fn instruction_at(&self, position: Position) -> Option<NodeId> {
-        // Check if this is an instruction and spans the range
+    pub fn instruction_ancestor(&self, position: Position) -> Option<NodeId> {
+        // Check if this is an instruction and spans the position
         if matches!(
             self.node_type,
             NodeType::InstructionBlock | NodeType::InstructionInline
@@ -241,8 +241,42 @@ impl TextNode {
 
         // Search through children
         for child in &self.children {
-            if let Some(node_id) = child.instruction_at(position) {
+            if let Some(node_id) = child.instruction_ancestor(position) {
                 return Some(node_id);
+            }
+        }
+
+        None
+    }
+
+    /// Get the [`NodeId`] of the [`NodeType::Walkthrough`] at a position if any
+    pub fn node_type_ancestor(&self, node_type: NodeType, position: Position) -> Option<NodeId> {
+        // Check if this is the desired type and spans the position
+        if self.node_type == node_type && position >= self.range.start && position < self.range.end
+        {
+            return Some(self.node_id.clone());
+        }
+
+        // Search through children
+        for child in &self.children {
+            if let Some(node_id) = child.node_type_ancestor(node_type, position) {
+                return Some(node_id);
+            }
+        }
+
+        None
+    }
+
+    /// Get the [`Range`] of a [`NodeId`]
+    #[allow(unused)]
+    pub fn node_range(&self, node_id: &NodeId) -> Option<Range> {
+        if node_id == &self.node_id {
+            return Some(self.range);
+        }
+
+        for child in &self.children {
+            if let Some(range) = child.node_range(node_id) {
+                return Some(range);
             }
         }
 

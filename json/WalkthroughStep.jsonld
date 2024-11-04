@@ -1,0 +1,136 @@
+{
+  "@id": "https://stencila.org/WalkthroughStep",
+  "name": "WalkthroughStep",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:WalkthroughStep",
+      "@type": "rdfs:Class",
+      "rdfs:label": "WalkthroughStep",
+      "rdfs:comment": "A step in a walkthrough.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:isCollapsed",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isCollapsed",
+      "rdfs:comment": "Whether this step is active (i.e. is encoded in source format and can be edited)",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Walkthrough"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content of the step.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    }
+  ]
+}

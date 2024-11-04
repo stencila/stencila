@@ -1,97 +1,97 @@
+import fs from "fs";
+import path from "path";
+
 import * as vscode from "vscode";
 
 export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
-  // The document being used in the current walkthrough
-  let walkthroughDoc: vscode.TextDocument | undefined;
+  const open = vscode.commands.registerCommand(
+    "stencila.walkthroughs.open",
+    async (name, format) => {
+      // Read the walkthrough content
+      const filePath = path.join(
+        context.extensionPath,
+        "walkthroughs",
+        `${name}.${format}`
+      );
+      const content = fs.readFileSync(filePath, "utf8");
 
-  // Handler for when the walkthrough doc s closed
-  let disposable: vscode.Disposable | undefined;
+      // Create an untitled document with the content
+      const doc = await vscode.workspace.openTextDocument({
+        content,
+        language: format,
+      });
 
-  async function createWalkthroughDoc(format: string) {
-    let newDoc = await vscode.workspace.openTextDocument({
-      language: format,
-    });
+      // TODO: This necessary so that document has a walkthrough node
+      // in memory before we send command to collapse it. There should be
+      // a better way to do this. e.g. queuing commands, signal that do is ready etc.
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-    disposable = vscode.workspace.onDidCloseTextDocument((doc) => {
-      if (doc === walkthroughDoc) {
-        walkthroughDoc = undefined;
-        disposable?.dispose();
-      }
-    });
+      // Open the document
+      const editor = await vscode.window.showTextDocument(doc);
 
-    return newDoc;
-  }
-
-  // Command to open an empty file (usually Stencila Markdown) during walkthroughs
-  // Opens an untitled (temporary) file. Previously we created a file on disk which
-  // was problematic because in some places the user did not have permission to
-  // create the file in the assumed location. It also spammed local folders.
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "stencila.walkthrough.open",
-      async (format) => {
-        try {
-          walkthroughDoc = await createWalkthroughDoc(format);
-          await vscode.window.showTextDocument(walkthroughDoc, {
-            viewColumn: vscode.ViewColumn.Beside,
-            preview: false,
-            preserveFocus: true,
-          });
-        } catch (error: any) {
-          vscode.window.showErrorMessage(
-            `Failed to open document: ${error.message}`
-          );
+      // Find the first line that equals '...'
+      let walkthroughStart = new vscode.Position(0, 0);
+      for (let i = 0; i < doc.lineCount; i++) {
+        const lineText = doc.lineAt(i).text.trim();
+        if (lineText === "...") {
+          walkthroughStart = new vscode.Position(i, 0);
+          break;
         }
       }
-    )
+
+      // Collapse the walkthrough
+      await vscode.commands.executeCommand(
+        "stencila.patch-curr",
+        editor.document.uri.toString(),
+        "Walkthrough",
+        walkthroughStart,
+        "isCollapsed",
+        true
+      );
+    }
   );
 
-  // Command to insert text into a file during walkthroughs
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "stencila.walkthrough.type",
-      async (format, source) => {
-        // If there is not yet a walkthrough document, or if it
-        // is of the wrong language, create one
-        if (!walkthroughDoc || walkthroughDoc.languageId !== format) {
-          walkthroughDoc = await createWalkthroughDoc(format);
-        }
-
-        // Get the document editor
-        let editor;
-        try {
-          editor = await vscode.window.showTextDocument(walkthroughDoc, {
-            viewColumn: vscode.ViewColumn.Beside,
-            preview: false,
-            preserveFocus: true,
-          });
-        } catch (error: any) {
-          vscode.window.showErrorMessage(
-            `Failed to open document: ${error.message}`
-          );
-        }
-
-        if (!editor) {
-          vscode.window.showErrorMessage("No active editor");
-          return;
-        }
-
-        // Determine the position at the end of the document
-        const document = editor.document;
-        const lastLine = document.lineCount - 1;
-        const lastLineLength = document.lineAt(lastLine).text.length;
-        const position = new vscode.Position(lastLine, lastLineLength);
-
-        // Insert the source at the end of the document
-        // This could be made to simulate human typing like other extensions
-        // such as https://github.com/marcosgomesneto/typing-simulator do.
-        // However, that (a) complicates this, (b) it would increase the load
-        // on the Stencila Language Server as it updates things on each character
-        // insertion.
-        editor.edit((editBuilder) => {
-          editBuilder.insert(position, source);
-        });
+  // Collapse the current walkthrough and reset each of the steps to inactive state
+  const collapse = vscode.commands.registerCommand(
+    "stencila.walkthroughs.collapse",
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
       }
-    )
+
+      vscode.commands.executeCommand(
+        "stencila.patch-curr",
+        editor.document.uri.toString(),
+        "Walkthrough",
+        editor.selection.active,
+        "isCollapsed",
+        true
+      );
+    }
   );
+
+  // Expand the current walkthrough so it can be edited
+  const expand = vscode.commands.registerCommand(
+    "stencila.walkthroughs.expand",
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      vscode.commands.executeCommand(
+        "stencila.patch-curr",
+        editor.document.uri.toString(),
+        "Walkthrough",
+        editor.selection.active,
+        "isCollapsed",
+        false
+      );
+    }
+  );
+
+  context.subscriptions.push(open, collapse, expand);
 }

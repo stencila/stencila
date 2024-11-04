@@ -148,7 +148,9 @@ impl Node {
             Unknown,
             UnsignedInteger,
             Variable,
-            VideoObject
+            VideoObject,
+            Walkthrough,
+            WalkthroughStep
         )
     }
 
@@ -298,7 +300,9 @@ impl Node {
             Underline,
             Unknown,
             Variable,
-            VideoObject
+            VideoObject,
+            Walkthrough,
+            WalkthroughStep
         )
     }
 }
@@ -490,7 +494,9 @@ impl ReadNode for Node {
             Underline,
             Unknown,
             Variable,
-            VideoObject
+            VideoObject,
+            Walkthrough,
+            WalkthroughStep
         )
     }
 }
@@ -604,7 +610,8 @@ impl From<Block> for Node {
             StyledBlock,
             SuggestionBlock,
             Table,
-            ThematicBreak
+            ThematicBreak,
+            Walkthrough
         )
     }
 }

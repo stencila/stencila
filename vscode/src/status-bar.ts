@@ -193,20 +193,14 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.secrets.delete",
         },
         {
-          label: "Markdown Walkthroughs",
+          label: "Walkthroughs",
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
           label: "$(symbol-operator) Math",
           description: "Creating math equations using TeX, AsciiMath and LLMs",
-          command: "workbench.action.openWalkthrough",
-          args: ["stencila.stencila#math-smd", false],
-        },
-        {
-          label: "$(circuit-board) Diagrams",
-          description: "Creating diagrams with Mermaid and LLMs",
-          command: "workbench.action.openWalkthrough",
-          args: ["stencila.stencila#mermaid-smd", false],
+          command: "stencila.walkthroughs.open",
+          args: ["math", "smd"],
         }
       );
 

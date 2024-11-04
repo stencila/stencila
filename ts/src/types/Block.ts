@@ -29,6 +29,7 @@ import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
 import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
+import { type Walkthrough } from "./Walkthrough.js";
 
 /**
  * Union type in block content node types.
@@ -60,7 +61,8 @@ export type Block =
   StyledBlock |
   SuggestionBlock |
   Table |
-  ThematicBreak;
+  ThematicBreak |
+  Walkthrough;
 
 /**
  * Create a `Block` from an object
@@ -94,6 +96,7 @@ export function block(other: Block): Block {
     case "SuggestionBlock":
     case "Table":
     case "ThematicBreak":
+    case "Walkthrough":
       return hydrate(other) as Block
     default:
       // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript

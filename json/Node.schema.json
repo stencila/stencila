@@ -408,6 +408,12 @@
       "$ref": "VideoObject.schema.json"
     },
     {
+      "$ref": "Walkthrough.schema.json"
+    },
+    {
+      "$ref": "WalkthroughStep.schema.json"
+    },
+    {
       "$ref": "Object.schema.json"
     }
   ],

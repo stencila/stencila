@@ -25,13 +25,21 @@ lint: install
 test: install
 	npm test
 
+# Build walkthroughs and copy into extension folder for packaging
+walkthroughs:
+	make -C ../docs/walkthroughs clean all
+	rm -rf walkthroughs
+	cp -r ../docs/walkthroughs walkthroughs
+PHONY: walkthroughs
+
 # Compile (build in development mode)
-compile: install
+compile: install walkthroughs
 	npm run compile
+	cargo build -p cli
 
 # Build the extension including installing the CLI
-build: install
-	npm run build
+build: install walkthroughs
+	npm run compile
 	bash install-cli.sh
 
 # Install the extension locally

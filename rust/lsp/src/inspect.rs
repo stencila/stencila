@@ -12,7 +12,7 @@ use schema::{
     PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline,
     Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock,
     SuggestionInline, Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time,
-    Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough, WalkthroughStep,
 };
 
 use crate::{
@@ -82,6 +82,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             NodeType::InstructionBlock | NodeType::InstructionInline => "Command".to_string(),
             NodeType::SuggestionBlock | NodeType::SuggestionInline => "Suggestion".to_string(),
             NodeType::PromptBlock => "Prompt Preview".to_string(),
+            NodeType::WalkthroughStep => "Step".to_string(),
             _ => node_type.to_string(),
         });
 
@@ -159,7 +160,8 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             Section,
             StyledBlock,
             Table,
-            ThematicBreak
+            ThematicBreak,
+            Walkthrough
         );
 
         // Break walk because `variant` visited above
@@ -335,6 +337,20 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         self.in_table_cell = true;
         self.visit(&table_cell.content);
         self.in_table_cell = false;
+        self.exit_node();
+
+        // Break walk because `content` already visited above
+        WalkControl::Break
+    }
+
+    fn visit_walkthrough_step(&mut self, step: &WalkthroughStep) -> WalkControl {
+        let node = self.enter_node(step.node_type(), step.node_id(), None, None, None, None);
+        node.is_active = if matches!(step.is_collapsed, Some(true)) {
+            None
+        } else {
+            Some(true)
+        };
+        self.visit(&step.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -672,6 +688,14 @@ impl Inspect for RawBlock {
             execution,
             self.provenance.clone(),
         );
+        inspector.visit(self);
+        inspector.exit_node();
+    }
+}
+
+impl Inspect for Walkthrough {
+    fn inspect(&self, inspector: &mut Inspector) {
+        inspector.enter_node(self.node_type(), self.node_id(), None, None, None, None);
         inspector.visit(self);
         inspector.exit_node();
     }

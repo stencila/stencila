@@ -13,7 +13,8 @@ use schema::NodeType;
 
 use crate::{
     commands::{
-        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PREV_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE,
+        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PATCH_NODE, PREV_NODE, REVISE_NODE, RUN_NODE,
+        VERIFY_NODE,
     },
     text_document::TextNode,
 };
@@ -27,6 +28,9 @@ pub(super) const PROV_NODE: &str = "stencila.view-node-authors";
 /// Lens to show the index of the current item in a collection
 /// (e.g. active suggestion index ins suggestions for and instruction)
 pub(super) const INDEX_OF: &str = "stencila.index-of";
+
+/// Lens to continue a walkthrough
+pub(super) const WALKTHROUGH_CONTINUE: &str = "stencila.walkthroughs.continue";
 
 /// Handle a request for code lenses for a document
 ///
@@ -48,6 +52,7 @@ pub(crate) async fn request(
                  node_type,
                  node_id,
                  index_of,
+                 is_active,
                  provenance,
                  ..
              }| {
@@ -109,6 +114,13 @@ pub(crate) async fn request(
                     }
                     NodeType::MathBlock | NodeType::RawBlock | NodeType::StyledBlock => {
                         vec![lens(VIEW_NODE)]
+                    }
+                    NodeType::WalkthroughStep => {
+                        if matches!(is_active, Some(true)) {
+                            vec![]
+                        } else {
+                            vec![lens(WALKTHROUGH_CONTINUE)]
+                        }
                     }
                     _ => vec![],
                 };
@@ -238,7 +250,8 @@ pub(crate) async fn resolve(
         ARCHIVE_NODE => Command::new("$(pass) Accept".to_string(), command, arguments),
         REVISE_NODE => Command::new(
             "$(refresh) Revise".to_string(),
-            "stencila.invoke.revise-node".to_string(), // Call invoke to collect any feedback in client
+            // Call corresponding `invoke` command on the client to collect any feedback from user
+            "stencila.invoke.revise-node".to_string(),
             arguments,
         ),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
@@ -247,6 +260,17 @@ pub(crate) async fn resolve(
             data.next().unwrap_or_default().to_string(),
             command,
             arguments,
+        ),
+        WALKTHROUGH_CONTINUE => Command::new(
+            "$(arrow-right) Continue".to_string(),
+            PATCH_NODE.to_string(),
+            Some(vec![
+                json!(uri),
+                json!(node_type),
+                json!(node_id),
+                json!("isCollapsed"),
+                json!(false),
+            ]),
         ),
         _ => Command::new(
             command.replace("stencila.", "").to_title_case(),

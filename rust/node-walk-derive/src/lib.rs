@@ -63,15 +63,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let (visit, visit_mut, visit_async) = match struct_name.to_string().as_str() {
-        name @ ("IfBlockClause" | "ListItem" | "TableRow" | "TableCell" | "SuggestionBlock"
-        | "SuggestionInline") => {
+        name @ ("IfBlockClause" | "ListItem" | "SuggestionBlock" | "SuggestionInline"
+        | "TableRow" | "TableCell" | "WalkthroughStep") => {
             let method = match name {
                 "IfBlockClause" => quote!(visit_if_block_clause),
                 "ListItem" => quote!(visit_list_item),
-                "TableRow" => quote!(visit_table_row),
-                "TableCell" => quote!(visit_table_cell),
                 "SuggestionBlock" => quote!(visit_suggestion_block),
                 "SuggestionInline" => quote!(visit_suggestion_inline),
+                "TableRow" => quote!(visit_table_row),
+                "TableCell" => quote!(visit_table_cell),
+                "WalkthroughStep" => quote!(visit_walkthrough_step),
                 _ => unreachable!(),
             };
 

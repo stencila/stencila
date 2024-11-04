@@ -1,0 +1,36 @@
+title: Walkthrough
+"@id": stencila:Walkthrough
+nick: wkt
+extends: Entity
+category: flow
+description: An interactive walkthrough made up of several, successively revealed steps.
+status: under-development
+patch:
+  applyWith: "Walkthrough::apply_with"
+markdown:
+  derive: false
+proptest: {}
+required:
+  - steps
+core:
+  - isCollapsed
+properties:
+  isCollapsed:
+    "@id": stencila:isCollapsed
+    description: Whether the walkthrough is collapsed
+    $comment: |
+      By default, walkthroughs are expanded and all steps that have been activated
+      are able to be edited. By setting this property to `true`, all steps in the walkthrough
+      are collapsed and edits to step content will be applied to the step.
+    type: boolean
+  steps:
+    "@id": stencila:steps
+    description: The steps making up the walkthrough.
+    type: array
+    items:
+      $ref: WalkthroughStep
+    walk: true
+    patch:
+      formats: [all]
+    dom:
+      elem: div

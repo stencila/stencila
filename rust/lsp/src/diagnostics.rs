@@ -91,7 +91,8 @@ fn statuses(node: &TextNode) -> Vec<Status> {
         }
     }
 
-    if matches!(node.node_type, NodeType::IfBlockClause) && matches!(node.is_active, Some(true)) {
+    if matches!(node.is_active, Some(true)) && !matches!(node.node_type, NodeType::WalkthroughStep)
+    {
         items.push(Status {
             range: node.range,
             status: "Active".to_string(),

@@ -27,7 +27,8 @@ export type BlockType =
   | "StyledBlock"
   | "SuggestionBlock"
   | "Table"
-  | "ThematicBreak";
+  | "ThematicBreak"
+  | "Walkthrough";
 
 export const BlockTypeList = [
   "Admonition",
@@ -57,4 +58,5 @@ export const BlockTypeList = [
   "SuggestionBlock",
   "Table",
   "ThematicBreak",
+  "Walkthrough",
 ];

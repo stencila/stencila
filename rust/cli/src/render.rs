@@ -6,7 +6,7 @@ use common::{
     clap::{self, Parser},
     eyre::Result,
 };
-use document::{CommandWait, Document};
+use document::{CommandWait, Document, SaveDocumentSidecar, SaveDocumentSource};
 use format::Format;
 use node_execute::ExecuteOptions;
 
@@ -65,7 +65,12 @@ impl Cli {
         doc.execute(execute_options, CommandWait::Yes).await?;
 
         if !no_save {
-            doc.save(CommandWait::Yes).await?;
+            doc.save_with(
+                CommandWait::Yes,
+                SaveDocumentSource::Yes,
+                SaveDocumentSidecar::Yes,
+            )
+            .await?;
         }
 
         let mut encode_options = encode_options.build(

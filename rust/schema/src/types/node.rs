@@ -138,6 +138,8 @@ use super::unknown::Unknown;
 use super::unsigned_integer::UnsignedInteger;
 use super::variable::Variable;
 use super::video_object::VideoObject;
+use super::walkthrough::Walkthrough;
+use super::walkthrough_step::WalkthroughStep;
 
 /// Union type for all types in this schema, including primitives and entities
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
@@ -413,6 +415,10 @@ pub enum Node {
     Variable(Variable),
 
     VideoObject(VideoObject),
+
+    Walkthrough(Walkthrough),
+
+    WalkthroughStep(WalkthroughStep),
 
     Object(Object),
 }

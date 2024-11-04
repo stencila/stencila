@@ -144,5 +144,7 @@ pub enum NodeType {
     Unknown,
     Variable,
     VideoObject,
+    Walkthrough,
+    WalkthroughStep,
     Object,
 }

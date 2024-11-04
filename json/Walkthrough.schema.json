@@ -1,0 +1,78 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Walkthrough.schema.json",
+  "@id": "stencila:Walkthrough",
+  "title": "Walkthrough",
+  "nick": "wkt",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "An interactive walkthrough made up of several, successively revealed steps.",
+  "status": "under-development",
+  "patch": {
+    "applyWith": "Walkthrough::apply_with"
+  },
+  "markdown": {
+    "derive": false
+  },
+  "proptest": {},
+  "required": [
+    "type",
+    "steps"
+  ],
+  "core": [
+    "id",
+    "isCollapsed"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "isCollapsed": {
+      "@id": "stencila:isCollapsed",
+      "description": "Whether the walkthrough is collapsed",
+      "$comment": "By default, walkthroughs are expanded and all steps that have been activated\nare able to be edited. By setting this property to `true`, all steps in the walkthrough\nare collapsed and edits to step content will be applied to the step.\n",
+      "aliases": [
+        "is-collapsed",
+        "is_collapsed"
+      ],
+      "type": "boolean"
+    },
+    "steps": {
+      "@id": "stencila:steps",
+      "description": "The steps making up the walkthrough.",
+      "aliases": [
+        "step"
+      ],
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "walk": true,
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "WalkthroughStep.schema.json"
+      }
+    }
+  }
+}
