@@ -302,18 +302,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         }
     }
 
-    // Finish walkthrough if necessary
-    if has_walkthrough {
-        let content = pop_blocks(&mut blocks, &mut boundaries);
-
-        if let Some(Block::Walkthrough(walkthrough)) = blocks.last_mut() {
-            walkthrough.steps.push(WalkthroughStep {
-                content,
-                ..Default::default()
-            });
-        }
-    }
-
     // Fold blocks into previous blocks if necessary
     if should_fold {
         fold_blocks(&mut blocks, context);
@@ -483,6 +471,18 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             if step {
                 index += 1;
             }
+        }
+    }
+
+    // Finish walkthrough if necessary. This must be done after folding blocks.
+    if has_walkthrough {
+        let content = pop_blocks(&mut blocks, &mut boundaries);
+
+        if let Some(Block::Walkthrough(walkthrough)) = blocks.last_mut() {
+            walkthrough.steps.push(WalkthroughStep {
+                content,
+                ..Default::default()
+            });
         }
     }
 
