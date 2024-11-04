@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.0.7 2024-11-05
+
+- New approach to walkthroughs based on Stencila documents.
+
+- Adds a prompt filter and use command.
+
+- Uses `Ctrl/Cmd+F1` for the Stencila command menu (instead of `F2`).
+
+- Based on Stencila CLI v2.0.0-beta.12 which includes support for walkthroughs and bug fixes. 
+
 ## 0.0.6 2024-10-30
 
 - Adds `errorlens` as a package dependency.
