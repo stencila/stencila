@@ -231,20 +231,18 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           nodeId
         )) as [string, vscode.Range];
 
-        // First, clear the existing content in the range
+        // Clear any existing content from the line after the start of the step,
+        // to the end of the document. There should not normally be any content
+        // between the start of the step and the end of the document, but if there
+        // is this removes to to ensure a clean state.
         await editor.edit((editBuilder) => {
-          // Get the range from the line after the start to the end
-          const clearRange = new vscode.Range(
-            new vscode.Position(range.start.line + 1, 0),
-            range.end
+          editBuilder.delete(
+            new vscode.Range(
+              new vscode.Position(range.start.line + 1, 0),
+              new vscode.Position(1000, 0)
+            )
           );
-          editBuilder.delete(clearRange);
         });
-
-        // Function to simulate natural typing delays
-        const getRandomTypingDelay = () => {
-          return 10 + Math.floor(Math.random() * 50);
-        };
 
         // Function to type character by character
         const typeContent = async (text: string) => {
@@ -261,7 +259,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
               });
               // Add random delay between characters
               await new Promise((resolve) =>
-                setTimeout(resolve, getRandomTypingDelay())
+                setTimeout(resolve, 10 + Math.floor(Math.random() * 50))
               );
             }
 
@@ -277,18 +275,15 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
             }
           }
 
-          // If the next line is not an ellipsis then add one for continuation
-          // to the next step
-          const nextLine = range.start.line + 1 + lines.length;
-          const hasEllipsis =
-            nextLine < editor.document.lineCount &&
-            editor.document.lineAt(nextLine).text.trim() === "...";
-          if (!hasEllipsis) {
-            await editor.edit((editBuilder) => {
-              const position = new vscode.Position(nextLine, 0);
-              editBuilder.insert(position, "\n...\n");
-            });
-          }
+          // Add an ellipsis after the step so that we get a code lens
+          // for the next step (if any)
+          await editor.edit((editBuilder) => {
+            const position = new vscode.Position(
+              range.start.line + 1 + lines.length,
+              0
+            );
+            editBuilder.insert(position, "\n...\n");
+          });
         };
 
         // Type the content, includes a starting blank line to separate

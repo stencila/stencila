@@ -30,7 +30,8 @@ impl Walkthrough {
                         .and_then(|step| step.is_active)
                         .unwrap_or_default()
             } else {
-                // If the operation is for the steps vector, only apply if the walkthrough is active
+                // If the operation is for the steps vector (e.g. adding or removing a step),
+                // only apply if the walkthrough is expanded
                 self.is_expanded.unwrap_or_default()
             };
             if apply {
@@ -42,9 +43,12 @@ impl Walkthrough {
 
         if matches!(property, NodeProperty::IsExpanded) {
             if let PatchOp::Set(PatchValue::Json(Value::Bool(value))) = op {
-                // Expand or collapse and reset walkthrough
+                // Expand or collapse the walkthrough
                 if *value {
-                    self.is_expanded = Some(true)
+                    self.is_expanded = Some(true);
+                    for step in self.steps.iter_mut() {
+                        step.is_active = Some(true);
+                    }
                 } else {
                     self.is_expanded = None;
                     for step in self.steps.iter_mut() {
