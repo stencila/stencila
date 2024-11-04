@@ -1574,15 +1574,17 @@ fn code_to_block(code: mdast::Code) -> Block {
 fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context) -> Block {
     let mut content = mds_to_blocks(mds, context);
 
-    let first_text = content
-        .first_mut()
-        .and_then(|node| {
-            if let Block::Paragraph(Paragraph { content, .. }) = node {
-                content.first_mut()
-            } else {
-                None
-            }
-        })
+    let mut first_para = content.first_mut().and_then(|node| {
+        if let Block::Paragraph(para) = node {
+            Some(para)
+        } else {
+            None
+        }
+    });
+
+    let first_text = first_para
+        .as_mut()
+        .and_then(|para| para.content.first_mut())
         .and_then(|node| {
             if let Inline::Text(text) = node {
                 Some(text)
@@ -1622,7 +1624,13 @@ fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context
             });
 
             if rest.is_empty() {
-                content.remove(0);
+                if let Some(first_para) = first_para {
+                    if first_para.content.len() > 1 {
+                        first_para.content.remove(0);
+                    } else {
+                        content.remove(0);
+                    }
+                }
             } else if let Some(first_text) = first_text {
                 first_text.value = rest.into();
             }
