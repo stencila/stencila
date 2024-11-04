@@ -20,7 +20,7 @@
   ],
   "core": [
     "id",
-    "isActive"
+    "isCollapsed"
   ],
   "properties": {
     "type": {
@@ -41,12 +41,12 @@
       },
       "type": "string"
     },
-    "isActive": {
-      "@id": "stencila:isActive",
+    "isCollapsed": {
+      "@id": "stencila:isCollapsed",
       "description": "Whether this step is active (i.e. is encoded in source format and can be edited)",
       "aliases": [
-        "is-active",
-        "is_active"
+        "is-collapsed",
+        "is_collapsed"
       ],
       "type": "boolean"
     },

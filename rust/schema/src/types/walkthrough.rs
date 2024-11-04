@@ -26,10 +26,10 @@ pub struct Walkthrough {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Whether the walkthrough is expanded so that each step can be edited
-    #[serde(alias = "is-expanded", alias = "is_expanded")]
+    /// Whether the walkthrough is collapsed
+    #[serde(alias = "is-collapsed", alias = "is_collapsed")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub is_expanded: Option<Boolean>,
+    pub is_collapsed: Option<Boolean>,
 
     /// The steps making up the walkthrough.
     #[serde(alias = "step")]

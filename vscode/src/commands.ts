@@ -225,8 +225,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           editor.document.uri.toString(),
           "Walkthrough",
           editor.selection.active,
-          "isExpanded",
-          true
+          "isCollapsed",
+          false
         );
       }
     )
@@ -248,8 +248,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           editor.document.uri.toString(),
           "Walkthrough",
           editor.selection.active,
-          "isExpanded",
-          false
+          "isCollapsed",
+          true
         );
       }
     )

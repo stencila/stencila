@@ -96,11 +96,7 @@ fn statuses(node: &TextNode) -> Vec<Status> {
         items.push(Status {
             range: node.range,
             status: "Active".to_string(),
-            message: match node.node_type {
-                NodeType::Walkthrough => "Expanded",
-                _ => "Active",
-            }
-            .to_string(),
+            message: "Active".to_string(),
         });
     }
 

@@ -400,14 +400,9 @@
       "@type": "rdfs:Property",
       "rdfs:label": "isActive",
       "rdfs:comment": "Whether this clause is the active clause in the parent `IfBlock` node",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:IfBlockClause"
-        },
-        {
-          "@id": "stencila:WalkthroughStep"
-        }
-      ],
+      "schema:domainIncludes": {
+        "@id": "stencila:IfBlockClause"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Boolean"
       }

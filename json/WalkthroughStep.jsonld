@@ -18,13 +18,13 @@
       }
     },
     {
-      "@id": "stencila:isActive",
+      "@id": "stencila:isCollapsed",
       "@type": "rdfs:Property",
-      "rdfs:label": "isActive",
+      "rdfs:label": "isCollapsed",
       "rdfs:comment": "Whether this step is active (i.e. is encoded in source format and can be edited)",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:IfBlockClause"
+          "@id": "stencila:Walkthrough"
         },
         {
           "@id": "stencila:WalkthroughStep"

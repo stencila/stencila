@@ -261,20 +261,17 @@ pub(crate) async fn resolve(
             command,
             arguments,
         ),
-        WALKTHROUGH_CONTINUE => {
-            Command::new(
-                "$(arrow-right) Continue".to_string(),
-                // Implemented by patching the step's `is_active` property
-                PATCH_NODE.to_string(),
-                Some(vec![
-                    json!(uri),
-                    json!(node_type),
-                    json!(node_id),
-                    json!("isActive"),
-                    json!(true),
-                ]),
-            )
-        }
+        WALKTHROUGH_CONTINUE => Command::new(
+            "$(arrow-right) Continue".to_string(),
+            PATCH_NODE.to_string(),
+            Some(vec![
+                json!(uri),
+                json!(node_type),
+                json!(node_id),
+                json!("isCollapsed"),
+                json!(false),
+            ]),
+        ),
         _ => Command::new(
             command.replace("stencila.", "").to_title_case(),
             command,

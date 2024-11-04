@@ -11,10 +11,10 @@ proptest: {}
 required:
   - content
 core:
-  - isActive
+  - isCollapsed
 properties:
-  isActive:
-    "@id": stencila:isActive
+  isCollapsed:
+    "@id": stencila:isCollapsed
     description: Whether this step is active (i.e. is encoded in source format and can be edited)
     type: boolean
   content:

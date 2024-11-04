@@ -26,9 +26,9 @@ pub struct WalkthroughStep {
     pub id: Option<String>,
 
     /// Whether this step is active (i.e. is encoded in source format and can be edited)
-    #[serde(alias = "is-active", alias = "is_active")]
+    #[serde(alias = "is-collapsed", alias = "is_collapsed")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub is_active: Option<Boolean>,
+    pub is_collapsed: Option<Boolean>,
 
     /// The content of the step.
     #[serde(deserialize_with = "one_or_many")]

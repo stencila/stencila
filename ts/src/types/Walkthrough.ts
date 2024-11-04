@@ -11,9 +11,9 @@ export class Walkthrough extends Entity {
   type: "Walkthrough";
 
   /**
-   * Whether the walkthrough is expanded so that each step can be edited
+   * Whether the walkthrough is collapsed
    */
-  isExpanded?: boolean;
+  isCollapsed?: boolean;
 
   /**
    * The steps making up the walkthrough.

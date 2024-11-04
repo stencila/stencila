@@ -18,13 +18,18 @@
       }
     },
     {
-      "@id": "stencila:isExpanded",
+      "@id": "stencila:isCollapsed",
       "@type": "rdfs:Property",
-      "rdfs:label": "isExpanded",
-      "rdfs:comment": "Whether the walkthrough is expanded so that each step can be edited",
-      "schema:domainIncludes": {
-        "@id": "stencila:Walkthrough"
-      },
+      "rdfs:label": "isCollapsed",
+      "rdfs:comment": "Whether the walkthrough is collapsed",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Walkthrough"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Boolean"
       }

@@ -23,7 +23,7 @@
   ],
   "core": [
     "id",
-    "isExpanded"
+    "isCollapsed"
   ],
   "properties": {
     "type": {
@@ -44,13 +44,13 @@
       },
       "type": "string"
     },
-    "isExpanded": {
-      "@id": "stencila:isExpanded",
-      "description": "Whether the walkthrough is expanded so that each step can be edited",
-      "$comment": "By default, walkthroughs are collapsed and only the steps that have been activated\nare able to be edited. By setting this property to `true`, all steps in the walkthrough\nare encoded to source formats (e.g Markdown), and edits to step content will be\napplied to the step.\n",
+    "isCollapsed": {
+      "@id": "stencila:isCollapsed",
+      "description": "Whether the walkthrough is collapsed",
+      "$comment": "By default, walkthroughs are expanded and all steps that have been activated\nare able to be edited. By setting this property to `true`, all steps in the walkthrough\nare collapsed and edits to step content will be applied to the step.\n",
       "aliases": [
-        "is-expanded",
-        "is_expanded"
+        "is-collapsed",
+        "is_collapsed"
       ],
       "type": "boolean"
     },

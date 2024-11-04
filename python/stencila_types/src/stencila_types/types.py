@@ -2969,8 +2969,8 @@ class Walkthrough(Entity):
 
     type: Literal["Walkthrough"] = "Walkthrough"
 
-    is_expanded: bool | None = None
-    """Whether the walkthrough is expanded so that each step can be edited"""
+    is_collapsed: bool | None = None
+    """Whether the walkthrough is collapsed"""
 
     steps: list[WalkthroughStep]
     """The steps making up the walkthrough."""
@@ -2984,7 +2984,7 @@ class WalkthroughStep(Entity):
 
     type: Literal["WalkthroughStep"] = "WalkthroughStep"
 
-    is_active: bool | None = None
+    is_collapsed: bool | None = None
     """Whether this step is active (i.e. is encoded in source format and can be edited)"""
 
     content: list[Block]

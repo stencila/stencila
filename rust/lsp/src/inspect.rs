@@ -345,7 +345,11 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
 
     fn visit_walkthrough_step(&mut self, step: &WalkthroughStep) -> WalkControl {
         let node = self.enter_node(step.node_type(), step.node_id(), None, None, None, None);
-        node.is_active = step.is_active;
+        node.is_active = if matches!(step.is_collapsed, Some(true)) {
+            None
+        } else {
+            Some(true)
+        };
         self.visit(&step.content);
         self.exit_node();
 
@@ -691,8 +695,7 @@ impl Inspect for RawBlock {
 
 impl Inspect for Walkthrough {
     fn inspect(&self, inspector: &mut Inspector) {
-        let node = inspector.enter_node(self.node_type(), self.node_id(), None, None, None, None);
-        node.is_active = self.is_expanded;
+        inspector.enter_node(self.node_type(), self.node_id(), None, None, None, None);
         inspector.visit(self);
         inspector.exit_node();
     }

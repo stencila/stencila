@@ -8,8 +8,7 @@ impl Walkthrough {
     /// Only allow operations on the `steps` vector if the walkthrough is expanded, and only passes
     /// through operations to individual steps if the step is active.
     ///
-    /// In addition captures operations on [`NodeProperty::IsExpanded`] to deactivate all steps
-    /// when set to false.
+    /// In addition captures operations on [`NodeProperty::IsCollapsed`] to also collapse all steps.
     pub fn apply_with(
         &mut self,
         path: &mut PatchPath,
@@ -22,42 +21,53 @@ impl Walkthrough {
 
         if matches!(property, NodeProperty::Steps) {
             let apply = if let Some(PatchSlot::Index(index)) = path.front() {
-                // If the operation is for a step, then only apply if the walkthrough or the step is active
-                self.is_expanded.unwrap_or_default()
-                    || self
+                // If the operation is for a step, then only apply if the walkthrough or the step is not collapsed
+                !self.is_collapsed.unwrap_or_default()
+                    && !self
                         .steps
                         .get(*index)
-                        .and_then(|step| step.is_active)
+                        .and_then(|step| step.is_collapsed)
                         .unwrap_or_default()
             } else {
                 // If the operation is for the steps vector (e.g. adding or removing a step),
-                // only apply if the walkthrough is expanded
-                self.is_expanded.unwrap_or_default()
+                // only apply if the walkthrough is not collapsed
+                !self.is_collapsed.unwrap_or_default()
             };
             if apply {
                 self.steps.apply(path, op.clone(), context)?;
             }
 
+            // If, after applying the patch to the step, all steps are now expanded
+            // then ensure that the walkthrough is expanded. This allows the user
+            // to edit the walkthrough (e.g add more steps) when it is finished
+            if self
+                .steps
+                .iter()
+                .all(|step| !matches!(step.is_collapsed, Some(true)))
+            {
+                self.is_collapsed = None;
+            }
+
             return Ok(true);
         }
 
-        if matches!(property, NodeProperty::IsExpanded) {
+        if matches!(property, NodeProperty::IsCollapsed) {
             if let PatchOp::Set(PatchValue::Json(Value::Bool(value))) = op {
                 // Expand or collapse the walkthrough
                 if *value {
-                    self.is_expanded = Some(true);
+                    self.is_collapsed = Some(true);
                     for step in self.steps.iter_mut() {
-                        step.is_active = Some(true);
+                        step.is_collapsed = Some(true);
                     }
                 } else {
-                    self.is_expanded = None;
+                    self.is_collapsed = None;
                     for step in self.steps.iter_mut() {
-                        step.is_active = None;
+                        step.is_collapsed = None;
                     }
                 }
             } else {
                 // Other patch ops are not expected but handle them anyway
-                self.is_expanded
+                self.is_collapsed
                     .apply(&mut PatchPath::new(), op.clone(), context)?;
             }
 
@@ -77,9 +87,9 @@ impl MarkdownCodec for Walkthrough {
                 .enter_node(step.node_type(), step.node_id())
                 .push_str("...\n\n");
 
-            // Break the loop if the step is not active. This means that its content
-            // and none of the successive steps will be shown.
-            if !(self.is_expanded.unwrap_or_default() || step.is_active.unwrap_or_default()) {
+            // Break the loop if the step is collapsed. This means that the content
+            // of this step and all the successive steps will be not shown.
+            if step.is_collapsed.unwrap_or_default() {
                 break;
             }
 

@@ -13,16 +13,15 @@ proptest: {}
 required:
   - steps
 core:
-  - isExpanded
+  - isCollapsed
 properties:
-  isExpanded:
-    "@id": stencila:isExpanded
-    description: Whether the walkthrough is expanded so that each step can be edited
+  isCollapsed:
+    "@id": stencila:isCollapsed
+    description: Whether the walkthrough is collapsed
     $comment: |
-      By default, walkthroughs are collapsed and only the steps that have been activated
+      By default, walkthroughs are expanded and all steps that have been activated
       are able to be edited. By setting this property to `true`, all steps in the walkthrough
-      are encoded to source formats (e.g Markdown), and edits to step content will be
-      applied to the step.
+      are collapsed and edits to step content will be applied to the step.
     type: boolean
   steps:
     "@id": stencila:steps

@@ -13,7 +13,7 @@ export class WalkthroughStep extends Entity {
   /**
    * Whether this step is active (i.e. is encoded in source format and can be edited)
    */
-  isActive?: boolean;
+  isCollapsed?: boolean;
 
   /**
    * The content of the step.
