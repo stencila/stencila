@@ -13,8 +13,8 @@ use schema::NodeType;
 
 use crate::{
     commands::{
-        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PREV_NODE, REVISE_NODE, RUN_NODE, VERIFY_NODE,
-        WALKTHROUGH_STEP,
+        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PATCH_NODE, PREV_NODE, REVISE_NODE, RUN_NODE,
+        VERIFY_NODE,
     },
     text_document::TextNode,
 };
@@ -28,6 +28,9 @@ pub(super) const PROV_NODE: &str = "stencila.view-node-authors";
 /// Lens to show the index of the current item in a collection
 /// (e.g. active suggestion index ins suggestions for and instruction)
 pub(super) const INDEX_OF: &str = "stencila.index-of";
+
+/// Lens to continue a walkthrough
+pub(super) const WALKTHROUGH_CONTINUE: &str = "stencila.walkthroughs.continue";
 
 /// Handle a request for code lenses for a document
 ///
@@ -116,7 +119,7 @@ pub(crate) async fn request(
                         if matches!(is_active, Some(true)) {
                             vec![]
                         } else {
-                            vec![lens(WALKTHROUGH_STEP)]
+                            vec![lens(WALKTHROUGH_CONTINUE)]
                         }
                     }
                     _ => vec![],
@@ -258,13 +261,18 @@ pub(crate) async fn resolve(
             command,
             arguments,
         ),
-        WALKTHROUGH_STEP => {
+        WALKTHROUGH_CONTINUE => {
             Command::new(
                 "$(arrow-right) Continue".to_string(),
-                // Call the corresponding `invoke` command on the client to simulate
-                // typing of the step into the document
-                "stencila.invoke.walkthrough-step".to_string(),
-                arguments,
+                // Implemented by patching the step's `is_active` property
+                PATCH_NODE.to_string(),
+                Some(vec![
+                    json!(uri),
+                    json!(node_type),
+                    json!(node_id),
+                    json!("isActive"),
+                    json!(true),
+                ]),
             )
         }
         _ => Command::new(

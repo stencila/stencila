@@ -20,11 +20,11 @@ use async_lsp::{
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use codecs::{EncodeOptions, Format, LossesResponse};
+use codecs::{EncodeOptions, Format};
 use common::{
     eyre::Result,
     once_cell::sync::Lazy,
-    serde_json::{self, json, Value},
+    serde_json::{self, Value},
     tokio::{
         self,
         sync::{mpsc, RwLock},
@@ -36,7 +36,6 @@ use document::{
     SaveDocumentSource,
 };
 use node_execute::ExecuteOptions;
-use node_find::find;
 use schema::{
     AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchOp, PatchPath,
     PatchValue, Timestamp,
@@ -68,8 +67,6 @@ pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
-pub(super) const WALKTHROUGH_STEP: &str = "stencila.walkthrough-step";
-
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
@@ -95,7 +92,6 @@ pub(super) fn commands() -> Vec<String> {
         NEXT_NODE,
         ARCHIVE_NODE,
         REVISE_NODE,
-        WALKTHROUGH_STEP,
         SAVE_DOC,
         EXPORT_DOC,
     ]
@@ -126,50 +122,6 @@ pub(super) async fn execute_command(
         last_modified: Some(Timestamp::now()),
         ..author
     };
-
-    if command == WALKTHROUGH_STEP {
-        args.next(); // Skip the currently unused node type arg
-        let node_id = node_id_arg(args.next())?;
-
-        // Get the node with the id
-        let doc = doc.read().await;
-        let doc_root = doc.root_read().await;
-        let Some(node) = find(&*doc_root, node_id.clone()) else {
-            return Err(ResponseError::new(
-                ErrorCode::INVALID_PARAMS,
-                format!("No node with id {node_id}"),
-            ));
-        };
-
-        // Encode the node's content to the desired format
-        let content = codecs::to_string(
-            &node,
-            Some(EncodeOptions {
-                format: Some(format.clone()),
-                losses: LossesResponse::Ignore,
-                ..Default::default()
-            }),
-        )
-        .await
-        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
-
-        // Get the range of the step's content so that is can be replaced
-        let range = root.read().await.node_range(&node_id);
-
-        // Patch the step to make it active. Previously we also cleared its content but
-        // that seems to be unnecessary, and for some reason, caused merging errors
-        // when the content was typed into the step.
-        doc.command_wait(Command::PatchNode(Patch {
-            node_id: Some(node_id),
-            ops: vec![(PatchPath::from(NodeProperty::IsActive), PatchOp::Increment)],
-            format: Some(format),
-            authors: Some(vec![author]),
-        }))
-        .await
-        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
-
-        return Ok(Some(json!([content, range])));
-    }
 
     let (title, command, cancellable, update_after) = match command.as_str() {
         PATCH_NODE | PATCH_CURR => {
