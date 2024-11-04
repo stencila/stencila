@@ -1,0 +1,14 @@
+/**
+ * Custom stencila theme for document context
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+[root] {
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+
+  > section {
+    @apply min-w-80 w-full mx-auto;
+    max-width: 72ch;
+  }
+}

@@ -1,5 +1,5 @@
 import { NodeType } from '@stencila/types'
-import { CSSResultGroup, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CommandsClient } from '../clients/commands'
@@ -7,7 +7,6 @@ import { DomClient } from '../clients/dom'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import { DocumentView } from './document'
-import { outputCSS } from './styles/global-styles'
 
 import '../nodes'
 import '../shoelace'
@@ -58,9 +57,6 @@ export class DynamicView extends DocumentView {
    */
   // @ts-expect-error "nodes client is set, not read"
   private nodesClient: CommandsClient
-
-  // Add outputCSS to view
-  static override styles?: CSSResultGroup = [outputCSS]
 
   /**
    * Override so that clients are instantiated _after_ this

@@ -2,8 +2,6 @@
  * The default theme for document content
  */
 
-@import './shared.css';
-
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
 body {
@@ -34,6 +32,13 @@ figure {
   @apply mx-0;
 }
 
+/* keep all images within parent elements bound */
+img {
+  object-fit: fill;
+  width: 100%;
+  display: block;
+}
+
 @media print {
 }
 
@@ -43,6 +48,7 @@ figure {
 }
 
 [root] {
+  font-family: 'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
   @apply prose lg:prose-lg;
 
   color: var(--default-text-colour);
@@ -58,6 +64,7 @@ figure {
   h4,
   h5,
   h6 {
+    @apply mb-4 w-full;
     font-weight: 500;
   }
 
@@ -75,6 +82,13 @@ figure {
 
   figure {
     @apply my-4 mx-0;
+  }
+
+  figure,
+  stencila-image-object {
+    img {
+      @apply object-cover max-w-full aspect-auto m-auto block;
+    }
   }
 
   table {
@@ -104,6 +118,11 @@ figure {
       @apply p-0 w-fit pr-3 text-nowrap;
     }
 
+    td[data-type='number'],
+    td[data-type='integer'] {
+      text-align: right;
+    }
+
     p {
       @apply m-0;
     }
@@ -120,6 +139,13 @@ figure {
 
     div:not(.chip) {
       display: contents;
+    }
+  }
+
+  figure,
+  stencila-image-object {
+    img {
+      @apply object-cover max-w-full aspect-auto m-auto block;
     }
   }
 
