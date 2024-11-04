@@ -10,3 +10,6 @@ out
 
 # Ignore generated grammar files
 /syntaxes/**/tmGrammar.json
+
+# Ignore walkthroughs which are simply copied from outside into here
+/walkthroughs

@@ -1,0 +1,109 @@
+---
+title: Math equations and symbols
+description: Creating math equations using TeX, AsciiMath and LLMs in Stencila documents.
+---
+
+This walkthrough illustrates the various ways that you include math equations and symbols in documents, including using TeX, AsciiMath and LLMs.
+
+...
+
+# Using TeX to write math
+
+Stencila supports TeX equations both in display mode (math blocks), and inline, within paragraphs e.g.
+
+The area of a circle with radius $r$ is,
+
+$$
+A = \pi r^2
+$$
+
+:::{tip} Previewing rendered math
+
+Use the `View` action above math blocks to preview them rendered within the document.
+
+:::
+
+...
+
+# Using AsciiMath to write math
+
+Stencila also supports [AsciiMath](https://asciimath.org/), an easy-to-write markup language for math e.g.
+
+The area of a circle with radius `r`{asciimath} is,
+
+```asciimath
+A = pi r^2
+```
+
+...
+
+# Using MathML to write math
+
+If you want full control over the rendered match you can also use [MathML](https://en.wikipedia.org/wiki/MathML) e.g.
+
+The area of a circle with radius `<math><mi>r</mi></math>`{mathml} is,
+
+```mathml
+<math display="block">
+  <mi>A</mi>
+  <mo>=</mo>
+  <mi>&pi;</mi>
+  <msup>
+    <mi>r</mi>
+    <mn>2</mn>
+  </msup>
+</math>
+```
+
+...
+
+# Using LLMs to write math
+
+The builtin `stencila/create/math-block` prompt is specialized to write display math blocks (defaulting to using TeX unless you specify AsciiMath or MathML).
+
+The prompt makes use of the document context, including the preceding paragraph, and the math symbols used previously. This means you don't need to repeat yourself when writing commands.
+
+Let's try this out by writing a paragraph introducing the equation we want, followed by a `create` command specifying the `math-block` prompt.
+
+...
+
+The probability density function for the normal distribution is,
+
+:::{create}
+:prompt: math-block
+
+:::
+
+:::{tip} Run the command
+
+Use the `Run` action to get an available LLM to generate an equation based on the preceding paragraph. Use the `Revise` action, optionally with feedback, if you are not satisfied with the response. You can also edit the generated equation, and once you are happy with it, use the `Accept` action to archive the command and insert the equation into the main body of the document.
+
+:::
+
+...
+
+The `math-block` prompt will be match to command instructions that include words such as 'equation' and 'formula' so, if you prefer, you can avoid specifically assigning it to a task e.g.
+
+:::{create} equation for pearson corr coefficient
+
+:::
+
+...
+
+# Using LLMs to fix math
+
+You can also use LLMs to fix existing math equations. The generic, builtin `stencila/fix/block` prompt will pass any syntax error messages in TeX or AsciiMath equations to help inform LLMs what needs to be fixed e.g.
+
+:::{fix}
+
+$$
+A = \pie r^^2
+$$
+
+:::
+
+:::{tip} Run the command
+
+Use the `Run` action to get an available LLM to suggest a fix to the code. If the fix is correct, and there are no more errors, you can use the `Accept` action to apply the fix and archive the command.
+
+:::
