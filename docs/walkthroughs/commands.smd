@@ -1,0 +1,70 @@
+---
+title: LLM commands
+description: Using LLM commands to create, edit, fix and describe content.
+---
+
+# Introduction
+
+Stencila treats commands to LLMs as primary element in your document (just like a paragraph or an executable code cell). This allows you to interact with LLMs all from within the editor and for Stencila to keep track of the provenance of content. It also allows you to edit LLM code suggestions in-situ an immediately run it and see the results.
+
+This walkthrough provides a guide to writing LLM commands using Stencila Markdown - a flavor of Markdown, similar to GitHub Markdown, but with extensions for LLM commands and other structured content.
+
+...
+
+# Syntax
+
+Stencila Markdown uses "colon fences" for most of its extensions, including for LLM commands. Colon fences are any line starting with three or more colons (i.e. `:::`). The starting fence has a keyword (e.g. `create` or `edit`) following the colons; the closing fence does not.
+
+For example, here is a command to edit two paragraphs:
+
+````markdown raw
+::: edit expand and improve grammar
+
+First paragraph.
+
+Second paragraph.
+
+:::
+````
+
+Always having to write paired colon fences can be tedious so Stencila Markdown provides two shorthand forms: one for commands that do not enclose any content (as is the case for most `create` commands), and one for commands that enclose a single block (as is the case for most `edit` and `fix` commands).
+
+...
+
+## Commands that have no content (yet)
+
+The `create` command is used to generate new content to insert into the document. As such, it starts off empty without any enclosing content. Rather than having to write three new lines for a `create` command e.g.
+
+````markdown raw
+::: create plot of height versus width
+
+:::
+````
+
+Stencila allows you to write a "self closing" command by adding `<<` to the end of the line e.g
+
+````markdown raw
+::: create plot of height versus width <<
+````
+
+...
+
+## Commands that have only a single block of content
+
+The `edit` and `fix` commands often only have one block as a target. Rather than having to put a closing fence after that block e.g.
+
+````markdown raw
+::: edit improve grammar
+
+Paragraph ...
+
+:::
+````
+
+Stencila allows you to write a "next block only" command by adding `>>` to the end of the line e.g
+
+````markdown raw
+::: edit improve grammar >>
+
+Paragraph ...
+````
