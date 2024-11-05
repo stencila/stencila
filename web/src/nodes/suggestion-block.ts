@@ -1,5 +1,6 @@
 import { SuggestionStatus } from '@stencila/types'
-import { css, html, PropertyValues } from 'lit'
+import { apply } from '@twind/core'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
@@ -32,24 +33,12 @@ export class SuggestionBlock extends Entity {
   @property()
   feedback?: string
 
-  @property()
-  visible: boolean = false
-
   /**
-   * Toggle show/hide content
-   *
-   * Defaults to true, and then is toggled off/on by user or
-   * by changes to the suggestion status.
+   * Toggle the visibility of this suggestion so it can
+   * not be seen or interacted with when inactive.
    */
   @state()
-  private showContent?: boolean = true
-
-  protected override update(changedProperties: PropertyValues): void {
-    if (changedProperties.has('suggestionStatus')) {
-      this.showContent = this.suggestionStatus === 'Accepted'
-    }
-    super.update(changedProperties)
-  }
+  public isActive: boolean = false
 
   static override styles = css`
     :host {
@@ -59,65 +48,15 @@ export class SuggestionBlock extends Entity {
   `
 
   override render() {
-    return html`<div
-      class="${this.visible
-        ? 'opacity-1 pointer-events-auto'
-        : 'opacity-0 pointer-events-none'}"
-    >
+    const styles = apply([
+      'transition-opacity duration-300',
+      this.isActive
+        ? 'ease-out-quart opacity-1 pointer-events-auto'
+        : 'ease-in-quart opacity-0 pointer-events-none',
+    ])
+
+    return html`<div class=${styles}>
       <slot name="content"></slot>
     </div>`
-
-    // Suggestion blocks are normally nested in an instruction block but can
-    // be free standing
-    const instructionId = this.closestGlobally('stencila-instruction-block')?.id
-
-    return html`<stencila-ui-block-in-flow
-      type="SuggestionBlock"
-      node-id=${this.id}
-      ?collapsed=${true}
-    >
-      <span slot="header-right">
-        <stencila-ui-suggestion-commands
-          type="SuggestionBlock"
-          node-id=${this.id}
-          instruction-id=${instructionId}
-          suggestion-status=${this.suggestionStatus}
-          feedback=${this.feedback}
-        >
-          <sl-tooltip
-            content=${this.showContent ? 'Hide content' : 'Show content'}
-          >
-            <stencila-ui-icon-button
-              name=${this.showContent ? 'eyeSlash' : 'eye'}
-              @click=${(e: Event) => {
-                // Stop the click behavior of the card header parent element
-                e.stopImmediatePropagation()
-                this.showContent = !this.showContent
-              }}
-            ></stencila-ui-icon-button>
-          </sl-tooltip>
-        </stencila-ui-suggestion-commands>
-      </span>
-
-      <div slot="body">
-        <stencila-ui-node-execution-details
-          type="SuggestionBlock"
-          ended=${this.executionEnded}
-          duration=${this.executionDuration}
-        >
-        </stencila-ui-node-execution-details>
-
-        <stencila-ui-node-authors type="SuggestionBlock" expanded>
-          <stencila-ui-node-provenance slot="provenance">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
-      </div>
-
-      <div slot="content" class="w-full ${this.showContent ? '' : 'hidden'}">
-        <slot name="content"></slot>
-      </div>
-    </stencila-ui-block-in-flow>`
   }
 }

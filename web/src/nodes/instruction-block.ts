@@ -51,8 +51,8 @@ export class InstructionBlock extends Instruction {
   }
 
   /**
-   * Toggle the `active` class on suggestions and apply transform to scroll
-   * the active suggestion into view
+   * Toggle the `isActive` class on suggestions so those that are inactive
+   * are not visible.s
    */
   private updateActiveSuggestion() {
     const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
@@ -66,15 +66,11 @@ export class InstructionBlock extends Instruction {
 
       suggestions.forEach((el, i) => {
         if (i === this.activeSuggestion) {
-          console.log(el)
-          el.visible = true
+          el.isActive = true
         } else {
-          el.visible = false
+          el.isActive = false
         }
       })
-
-      const transform = `translateX(-${this.activeSuggestion * 100}%)`
-      suggestionsSlot.style.setProperty('transform', transform)
     }
   }
 
@@ -187,7 +183,6 @@ export class InstructionBlock extends Instruction {
 
     ::slotted([slot='suggestions']) {
       display: flex;
-      transition: transform 0.3s ease-in-out;
     }
   `
 
@@ -252,10 +247,12 @@ export class InstructionBlock extends Instruction {
             ? 'hidden'
             : ''}"
         >
-          <slot
-            name="suggestions"
-            @slotchange=${this.onSuggestionsSlotChange}
-          ></slot>
+          <div style="transition: transform 0.3s ease-in-out; transform: translateX(-${this.activeSuggestion * 100}%)">
+            <slot
+              name="suggestions"
+              @slotchange=${this.onSuggestionsSlotChange}
+            ></slot>
+          </div>
         </div>
       </div>
     </stencila-ui-block-on-demand>`
