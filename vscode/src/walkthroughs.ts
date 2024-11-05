@@ -54,7 +54,7 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
       // TODO: This necessary so that document has a walkthrough node
       // in memory before we send command to collapse it. There should be
       // a better way to do this. e.g. queuing commands, signal that do is ready etc.
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Open the document
       const editor = await vscode.window.showTextDocument(doc);
