@@ -9,7 +9,6 @@ patch:
   applyWith: "Walkthrough::apply_with"
 markdown:
   derive: false
-proptest: {}
 required:
   - steps
 core:

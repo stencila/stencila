@@ -13,7 +13,6 @@
   "markdown": {
     "derive": false
   },
-  "proptest": {},
   "required": [
     "type",
     "content"

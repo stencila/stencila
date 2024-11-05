@@ -157,3 +157,10 @@ anyOf:
   - $ref: ThematicBreak
 
   - $ref: Walkthrough
+    proptest:
+      min:
+        # Walkthroughs are a special node type and, for Markdown based formats at least,
+        # there can only one and it must be at the end of the document.
+        # So it make little sense to include them in proptests.
+        description: Do not generate `Walkthrough` nodes in block content.
+        skip: true

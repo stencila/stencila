@@ -221,6 +221,12 @@
       "$ref": "ThematicBreak.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Walkthrough` nodes in block content.",
+          "skip": true
+        }
+      },
       "$ref": "Walkthrough.schema.json"
     }
   ],

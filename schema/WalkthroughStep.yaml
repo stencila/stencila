@@ -7,7 +7,6 @@ description: A step in a walkthrough.
 status: under-development
 markdown:
   derive: false
-proptest: {}
 required:
   - content
 core:

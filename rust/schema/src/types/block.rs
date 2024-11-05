@@ -132,5 +132,9 @@ pub enum Block {
 
     ThematicBreak(ThematicBreak),
 
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Walkthrough(Walkthrough),
 }

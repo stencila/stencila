@@ -16,7 +16,6 @@
   "markdown": {
     "derive": false
   },
-  "proptest": {},
   "required": [
     "type",
     "steps"
