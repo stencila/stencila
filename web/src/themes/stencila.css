@@ -1,0 +1,31 @@
+/**
+ * Custom stencila theme for document context
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+:root {
+  /* custom properties */
+  --default-text-colour: #171817;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  font-size: 16px;
+}
+
+[root] {
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  color: var(--default-text-colour);
+
+  > section {
+    @apply min-w-80 w-full mx-auto;
+    max-width: 72ch;
+  }
+}

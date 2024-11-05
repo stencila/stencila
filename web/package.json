@@ -26,11 +26,11 @@
       "source": [
         "src/images/favicon.png",
         "src/themes/default.css",
+        "src/themes/stencila.css",
         "src/views/dynamic.ts",
         "src/views/live.ts",
         "src/views/print.ts",
-        "src/views/static.ts",
-        "src/themes/shared.css"
+        "src/views/static.ts"
       ],
       "distDir": "./dist"
     },

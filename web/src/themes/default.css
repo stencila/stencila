@@ -2,21 +2,9 @@
  * The default theme for document content
  */
 
-@import './shared.css';
-
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
-body {
-  margin: 0;
-  padding: 0;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
 :root {
-  @apply mx-auto;
-  padding: 3rem;
-
   /* custom properties */
   --default-text-colour: #171817;
 
@@ -29,8 +17,15 @@ body {
   --ui-lastmod-display: block;
 }
 
-figure {
-  @apply mx-0;
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 @media print {
@@ -43,7 +38,6 @@ figure {
 
 [root] {
   @apply prose lg:prose-lg;
-
   font-family: 'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
   color: var(--default-text-colour);
 
@@ -58,6 +52,7 @@ figure {
   h4,
   h5,
   h6 {
+    @apply mb-4 w-full;
     font-weight: 500;
   }
 
@@ -104,6 +99,11 @@ figure {
       @apply p-0 w-fit pr-3 text-nowrap;
     }
 
+    td[data-type='number'],
+    td[data-type='integer'] {
+      text-align: right;
+    }
+
     p {
       @apply m-0;
     }
@@ -120,6 +120,13 @@ figure {
 
     div:not(.chip) {
       display: contents;
+    }
+  }
+
+  figure,
+  stencila-image-object {
+    img {
+      @apply object-cover max-w-full aspect-auto m-auto block;
     }
   }
 
