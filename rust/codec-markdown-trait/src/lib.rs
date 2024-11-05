@@ -420,6 +420,23 @@ impl MarkdownEncodeContext {
             MessageLevel::Error => tracing::error!(message),
         }
     }
+
+    /// Return the backticks necessary to enclose some code
+    ///
+    /// Finds the maximum number of starting backticks (ignoring preceding whitespace) per line
+    /// and returns a string with that number plus one (min of three) of backticks. Used
+    /// when encoding backtick enclosed code such as for `CodeBlock` and `CodeChunk` nodes
+    pub fn enclosing_backticks(&self, code: &str) -> String {
+        let mut max_backticks = 0;
+        for line in code.lines() {
+            let trimmed_line = line.trim_start();
+            let backticks = trimmed_line.len() - trimmed_line.trim_start_matches('`').len();
+            max_backticks = max_backticks.max(backticks);
+        }
+
+        let enclosing_backticks = (max_backticks + 1).max(3);
+        "`".repeat(enclosing_backticks)
+    }
 }
 
 macro_rules! to_string {

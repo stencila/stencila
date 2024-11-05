@@ -105,6 +105,8 @@ impl DomCodec for CodeChunk {
 
 impl MarkdownCodec for CodeChunk {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        let backticks = context.enclosing_backticks(&self.code);
+
         if context.render || matches!(context.format, Format::Llmd) {
             // Record any execution messages
             if let Some(messages) = &self.options.execution_messages {
@@ -138,7 +140,7 @@ impl MarkdownCodec for CodeChunk {
             // If encoding to LLMd, encode the code (with lang and `exec` keyword)
             // but not with execution mode etc)
             if matches!(context.format, Format::Llmd) {
-                context.push_str("```");
+                context.push_str(&backticks);
 
                 if let Some(lang) = &self.programming_language {
                     context.push_str(lang).push_str(" ");
@@ -150,7 +152,7 @@ impl MarkdownCodec for CodeChunk {
                     context.newline();
                 }
 
-                context.push_str("```\n\n");
+                context.push_str(&backticks).push_str("\n\n");
             }
 
             // Encode outputs as separate paragraphs (ensuring blank line after each)
@@ -269,7 +271,7 @@ impl MarkdownCodec for CodeChunk {
                     .decrease_depth();
             }
 
-            context.push_str("```");
+            context.push_str(&backticks);
 
             if let Some(lang) = &self.programming_language {
                 context
@@ -300,7 +302,7 @@ impl MarkdownCodec for CodeChunk {
                 context.newline();
             }
 
-            context.push_str("```\n");
+            context.push_str(&backticks).newline();
 
             if wrapped {
                 context.newline().push_colons().newline();

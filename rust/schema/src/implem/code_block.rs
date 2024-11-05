@@ -39,7 +39,8 @@ impl MarkdownCodec for CodeBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        context.push_str("```");
+        let backticks = context.enclosing_backticks(&self.code);
+        context.push_str(&backticks);
 
         if let Some(lang) = &self.programming_language {
             context.push_prop_str(NodeProperty::ProgrammingLanguage, lang);
@@ -53,6 +54,6 @@ impl MarkdownCodec for CodeBlock {
             context.newline();
         }
 
-        context.push_str("```\n").exit_node().newline();
+        context.push_str(&backticks).newline().exit_node().newline();
     }
 }
