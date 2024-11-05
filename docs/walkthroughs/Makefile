@@ -1,16 +1,11 @@
-# Get all .smd files in the current directory
-SMD_FILES := $(wildcard *.smd)
+# Makefile for generating walkthoughs from source walkthroughs in SMD. 
+# Not all walkthroughs can be generated like this because they may have
+# syntax specific prose.
 
-# Generate list of target .myst files
-MYST_FILES := $(SMD_FILES:.smd=.myst)
+all: math.myst mermaid.myst
 
-# Default target to convert all files
-all: $(MYST_FILES)
-
-# Pattern rule for converting single files
-%.myst: %.smd
+%.myst: %.smd DUMMY
 	cargo run -p cli convert $< $@ 
 
-# Clean generated files
-clean:
-	rm -f $(MYST_FILES)
+# A dummy target to force rebuilds
+DUMMY:

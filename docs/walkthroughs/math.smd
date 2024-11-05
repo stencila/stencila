@@ -1,7 +1,9 @@
 ---
-title: Math equations and symbols
+title: Math Equations and Symbols
 description: Creating math equations using TeX, AsciiMath and LLMs.
 ---
+
+# Introduction
 
 This walkthrough illustrates the various ways that you include math equations and symbols in documents, including using TeX, AsciiMath and LLMs.
 

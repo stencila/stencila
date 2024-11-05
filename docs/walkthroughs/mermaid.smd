@@ -1,7 +1,9 @@
 ---
-title: Mermaid diagrams
+title: Mermaid Diagrams
 description: Creating flowcharts, timelines and other diagrams using Mermaid and LLMs.
 ---
+
+# Introduction
 
 Mermaid is a JavaScript library that renders diagrams and flowcharts from Markdown-like text, simplifying the creation of visualization for technical documentation.
 
