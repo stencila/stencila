@@ -1,0 +1,5 @@
+```r exec
+if (current_profile != 'root-profile') {
+    stop(simpleError(paste("Unexpected profile", current_profile)))
+}
+```
