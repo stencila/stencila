@@ -5,6 +5,7 @@
 @import './shared.css';
 
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+@import url('../fonts/stix-two-math/stix-two-math.css');
 
 body {
   margin: 0;
@@ -24,6 +25,8 @@ body {
   --code-font-family: 'IBM Plex Mono', monospace;
   --code-bg-colour: #f2f2f2;
   --code-font-size: 1rem;
+
+  --mathml-font-family: 'STIX Two Math';
 
   /* component specific vars */
   --ui-lastmod-display: block;
@@ -250,6 +253,16 @@ figure {
       font-size: var(--code-font-size);
       background-color: var(--code-bg-colour);
       @apply rounded font-normal;
+    }
+  }
+
+  /* math ml */
+  stencila-math-block,
+  stencila-math-inline {
+    [slot='mathml'] {
+      math {
+        font-family: var(--mathml-font-family);
+      }
     }
   }
 
