@@ -197,10 +197,22 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(symbol-operator) Math",
+          label: "$(symbol-operator) LLM Commands",
+          description: "An introduction to LLM commands in Stencila",
+          command: "stencila.walkthroughs.open",
+          args: ["commands", "smd"],
+        },
+        {
+          label: "$(symbol-operator) Math equations",
           description: "Creating math equations using TeX, AsciiMath and LLMs",
           command: "stencila.walkthroughs.open",
           args: ["math", "smd"],
+        },
+        {
+          label: "$(symbol-operator) Mermaid diagrams",
+          description: "Creating Mermaid diagrams",
+          command: "stencila.walkthroughs.open",
+          args: ["mermaid", "smd"],
         }
       );
 

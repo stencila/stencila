@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.8 2024-11-05
+
+- Added LLM commands and Mermaid walkthroughs
+
+- Fixed suggestion scrolling in previews
+
 ## 0.0.7 2024-11-05
 
 - New approach to walkthroughs based on Stencila documents.
