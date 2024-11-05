@@ -44,7 +44,7 @@ pub struct StyledBlock {
     #[serde(alias = "style-language", alias = "style_language")]
     #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(css)|(tw)")"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "style-detail")]

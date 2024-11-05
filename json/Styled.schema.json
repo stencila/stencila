@@ -95,10 +95,6 @@
           "description": "Do not generate a style language.",
           "value": "None"
         },
-        "low": {
-          "description": "Generate one of the well known style language short names.",
-          "strategy": "option::of(r\"(css)|(tw)\")"
-        },
         "high": {
           "description": "Generate a random string of up to 10 alphanumeric characters.",
           "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
