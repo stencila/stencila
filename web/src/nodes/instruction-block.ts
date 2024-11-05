@@ -98,7 +98,10 @@ export class InstructionBlock extends Instruction {
     if (suggestionsCount === 0) {
       // Go to original content (if any)
       this.activeSuggestion = undefined
-    } else if (this.activeSuggestion === undefined) {
+    } else if (
+      this.activeSuggestion === null ||
+      this.activeSuggestion === undefined
+    ) {
       // Go to last suggestion
       this.activeSuggestion = suggestionsCount - 1
     } else if (this.activeSuggestion === 0) {
@@ -135,7 +138,10 @@ export class InstructionBlock extends Instruction {
     if (suggestionsCount === 0) {
       // Go to original content (if any)
       this.activeSuggestion = undefined
-    } else if (this.activeSuggestion === undefined) {
+    } else if (
+      this.activeSuggestion === null ||
+      this.activeSuggestion === undefined
+    ) {
       // Go to first suggestion
       this.activeSuggestion = 0
     } else if (this.activeSuggestion >= suggestionsCount - 1) {
@@ -236,18 +242,25 @@ export class InstructionBlock extends Instruction {
 
       <div slot="content" class="w-full">
         <div
-          class="content-container ${this.activeSuggestion !== undefined
+          class="content-container ${!(
+            this.activeSuggestion === null ||
+            this.activeSuggestion === undefined
+          )
             ? 'hidden'
             : ''}"
         >
           <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
         </div>
         <div
-          class="suggestions-container ${this.activeSuggestion === undefined
+          class="suggestions-container ${this.activeSuggestion === null ||
+          this.activeSuggestion === undefined
             ? 'hidden'
             : ''}"
         >
-          <div style="transition: transform 0.3s ease-in-out; transform: translateX(-${this.activeSuggestion * 100}%)">
+          <div
+            style="transition: transform 0.3s ease-in-out; transform: translateX(-${this
+              .activeSuggestion * 100}%)"
+          >
             <slot
               name="suggestions"
               @slotchange=${this.onSuggestionsSlotChange}
@@ -335,7 +348,7 @@ export class InstructionBlock extends Instruction {
           </sl-tooltip>
 
           <span class="text-sm"
-            >${this.activeSuggestion >= 0
+            >${typeof this.activeSuggestion === 'number'
               ? `${this.activeSuggestion + 1} of ${suggestionsCount}`
               : 'Original'}</span
           >
