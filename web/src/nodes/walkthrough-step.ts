@@ -1,10 +1,10 @@
 import { apply } from '@twind/core'
-import { html, LitElement } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/cards/inline-on-demand'
+import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `WalkthroughStep` node
@@ -16,13 +16,12 @@ import '../ui/nodes/cards/inline-on-demand'
  */
 @customElement('stencila-walkthrough-step')
 @withTwind()
-export class WalkthroughStep extends LitElement {
+export class WalkthroughStep extends Entity {
   @property({ attribute: 'is-collapsed' })
   isCollapsed?: string
 
   override render() {
     const styles = apply(
-      'overflow-hidden',
       'transition-all duration-1000 ease-in-out',
       this.isCollapsed == 'true'
         ? 'max-h-0 opacity-0'
