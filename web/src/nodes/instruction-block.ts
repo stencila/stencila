@@ -7,6 +7,7 @@ import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Instruction } from './instruction'
+import { SuggestionBlock } from './suggestion-block'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/commands/execution-commands'
@@ -59,6 +60,19 @@ export class InstructionBlock extends Instruction {
       | undefined
 
     if (suggestionsSlot) {
+      const suggestions = Array.from(
+        suggestionsSlot.children
+      ) as SuggestionBlock[]
+
+      suggestions.forEach((el, i) => {
+        if (i === this.activeSuggestion) {
+          console.log(el)
+          el.visible = true
+        } else {
+          el.visible = false
+        }
+      })
+
       const transform = `translateX(-${this.activeSuggestion * 100}%)`
       suggestionsSlot.style.setProperty('transform', transform)
     }
@@ -169,7 +183,6 @@ export class InstructionBlock extends Instruction {
   static override styles = css`
     .suggestions-container {
       position: relative;
-      overflow-x: hidden;
     }
 
     ::slotted([slot='suggestions']) {

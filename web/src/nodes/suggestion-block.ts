@@ -32,6 +32,9 @@ export class SuggestionBlock extends Entity {
   @property()
   feedback?: string
 
+  @property()
+  visible: boolean = false
+
   /**
    * Toggle show/hide content
    *
@@ -45,7 +48,6 @@ export class SuggestionBlock extends Entity {
     if (changedProperties.has('suggestionStatus')) {
       this.showContent = this.suggestionStatus === 'Accepted'
     }
-
     super.update(changedProperties)
   }
 
@@ -57,7 +59,11 @@ export class SuggestionBlock extends Entity {
   `
 
   override render() {
-    return html`<div class="p-4">
+    return html`<div
+      class="${this.visible
+        ? 'opacity-1 pointer-events-auto'
+        : 'opacity-0 pointer-events-none'}"
+    >
       <slot name="content"></slot>
     </div>`
 
