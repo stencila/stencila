@@ -25,12 +25,11 @@ lint: install
 test: install
 	npm test
 
-# Build walkthroughs and copy into extension folder for packaging
+# Copy walkthroughs into extension folder for packaging
 walkthroughs:
-	make -C ../docs/walkthroughs clean all
 	rm -rf walkthroughs
 	cp -r ../docs/walkthroughs walkthroughs
-PHONY: walkthroughs
+.PHONY: walkthroughs
 
 # Compile (build in development mode)
 compile: install walkthroughs

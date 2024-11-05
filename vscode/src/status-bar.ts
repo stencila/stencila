@@ -197,26 +197,29 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(symbol-operator) LLM Commands",
-          description: "An introduction to LLM commands in Stencila",
+          label: "$(hubot) LLM Commands",
+          description:
+            "Using commands to create, edit, fix and describe content using LLMs",
           command: "stencila.walkthroughs.open",
           args: ["commands", "smd"],
         },
         {
-          label: "$(symbol-operator) Math equations",
+          label: "$(symbol-operator) Math Equations and Symbols",
           description: "Creating math equations using TeX, AsciiMath and LLMs",
           command: "stencila.walkthroughs.open",
-          args: ["math", "smd"],
+          args: ["math", "smd", "myst"],
         },
         {
-          label: "$(symbol-operator) Mermaid diagrams",
-          description: "Creating Mermaid diagrams",
+          label: "$(symbol-misc) Mermaid Diagrams",
+          description:
+            "Creating flowcharts, timelines and other diagrams using Mermaid and LLMs",
           command: "stencila.walkthroughs.open",
-          args: ["mermaid", "smd"],
+          args: ["mermaid", "smd", "myst"],
         }
       );
 
       const item = await vscode.window.showQuickPick(commands, {
+        title: "Stencila Commands",
         placeHolder: "Select a Stencila command to run",
       });
 

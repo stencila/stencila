@@ -6,7 +6,37 @@ import * as vscode from "vscode";
 export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
   const open = vscode.commands.registerCommand(
     "stencila.walkthroughs.open",
-    async (name, format) => {
+    async (name, ...formats) => {
+      // If necessary, ask the user to choose a format for the walkthrough
+      let format;
+      if (formats.length === 1) {
+        format = formats[0];
+      } else {
+        formats = formats.map((format) => {
+          const label = (() => {
+            switch (format) {
+              case "smd":
+                return "Stencila Markdown";
+              case "myst":
+                return "MyST Markdown";
+              default:
+                return format.toUpperCase();
+            }
+          })();
+
+          return {
+            label,
+            format,
+          };
+        });
+        format = (
+          await vscode.window.showQuickPick(formats, {
+            placeHolder: "Please select a format for the walkthrough",
+            title: "Walkthrough Format",
+          })
+        ).format;
+      }
+
       // Read the walkthrough content
       const filePath = path.join(
         context.extensionPath,
