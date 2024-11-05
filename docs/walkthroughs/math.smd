@@ -1,6 +1,6 @@
 ---
 title: Math equations and symbols
-description: Creating math equations using TeX, AsciiMath and LLMs in Stencila documents.
+description: Creating math equations using TeX, AsciiMath and LLMs.
 ---
 
 This walkthrough illustrates the various ways that you include math equations and symbols in documents, including using TeX, AsciiMath and LLMs.
@@ -73,7 +73,7 @@ The probability density function for the normal distribution is,
 
 ...
 
-The `math-block` prompt will be match to command instructions that include words such as 'equation' and 'formula' so, if you prefer, you can avoid specifically assigning it to a task e.g.
+The `math-block` prompt will match to command instructions that include words such as 'equation' and 'formula' so, if you prefer, you can avoid specifically assigning it to a task e.g.
 
 ::: create equation for pearson corr coefficient <<
 
