@@ -162,6 +162,30 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a vector of block content of arbitrary length and not containing
+    /// any recursive block types (blocks that contain other blocks) or `CodeChunk`s
+    /// Used for `Figure.content` during `proptest-low` to avoid confounding
+    /// between a figure and a code chunk with a figure or label.
+    pub fn vec_blocks_non_recursive_no_code_chunks(max_size: usize)(
+        length in 1..=max_size
+    )(
+        blocks in vec(
+            prop_oneof![
+                CodeBlock::arbitrary().prop_map(Block::CodeBlock),
+                Heading::arbitrary().prop_map(Block::Heading),
+                MathBlock::arbitrary().prop_map(Block::MathBlock),
+                Paragraph::arbitrary().prop_map(Block::Paragraph),
+                QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
+                ThematicBreak::arbitrary().prop_map(Block::ThematicBreak),
+            ],
+            size_range(length)
+        )
+    ) -> Vec<Block> {
+        blocks
+    }
+}
+
+prop_compose! {
     /// Generate a vector of block content of arbitrary length, only containing
     /// block types expected in lists (and not other lists), and starting with a
     /// paragraph

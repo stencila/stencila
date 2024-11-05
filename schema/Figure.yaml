@@ -34,8 +34,8 @@ properties:
         description: Generate a single arbitrary paragraph.
         strategy: vec_paragraphs(1)
       low:
-        description: Generate up to two arbitrary, non-recursive, block nodes.
-        strategy: vec_blocks_non_recursive(2)
+        description: Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks).
+        strategy: vec_blocks_non_recursive_no_code_chunks(2)
       max:
         description: Generate up to four arbitrary, non-recursive, block nodes.
         strategy: vec_blocks_non_recursive(4)
