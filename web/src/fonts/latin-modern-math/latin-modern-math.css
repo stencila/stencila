@@ -1,0 +1,10 @@
+/* This file is inlined at @import statements in themes and so the url paths
+ * below are relative to the themes directory, not the location of this file */
+
+@font-face {
+  font-family: 'Latin Modern Math';
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url('../fonts/latin-modern-math/latinmodern-math.otf') format('opentype');
+}
