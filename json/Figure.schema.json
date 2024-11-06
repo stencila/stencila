@@ -623,7 +623,7 @@
         },
         "low": {
           "description": "Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks).",
-          "strategy": "vec_blocks_non_recursive_no_code_chunks(2)"
+          "strategy": "vec_blocks_figure_content(2)"
         },
         "max": {
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",

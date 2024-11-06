@@ -61,8 +61,8 @@ pub struct Figure {
     #[walk]
     #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive_no_code_chunks(2)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive_no_code_chunks(2)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     pub content: Vec<Block>,
 

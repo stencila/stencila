@@ -162,21 +162,21 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a vector of block content of arbitrary length and not containing
-    /// any recursive block types (blocks that contain other blocks) or `CodeChunk`s
+    /// Generate a vector of block content of arbitrary length that are
+    /// commonly used as figure content
+    ///
+    ///
     /// Used for `Figure.content` during `proptest-low` to avoid confounding
-    /// between a figure and a code chunk with a figure or label.
-    pub fn vec_blocks_non_recursive_no_code_chunks(max_size: usize)(
+    /// between figure `content` and `caption`
+    pub fn vec_blocks_figure_content(max_size: usize)(
         length in 1..=max_size
     )(
         blocks in vec(
             prop_oneof![
+                Just(Block::Paragraph(Paragraph::new(vec![Inline::ImageObject(ImageObject::new("url".into()))]))),
+                CodeChunk::arbitrary().prop_map(Block::CodeChunk),
                 CodeBlock::arbitrary().prop_map(Block::CodeBlock),
-                Heading::arbitrary().prop_map(Block::Heading),
                 MathBlock::arbitrary().prop_map(Block::MathBlock),
-                Paragraph::arbitrary().prop_map(Block::Paragraph),
-                QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
-                ThematicBreak::arbitrary().prop_map(Block::ThematicBreak),
             ],
             size_range(length)
         )
@@ -199,7 +199,7 @@ prop_compose! {
                 Paragraph::arbitrary().prop_map(Block::Paragraph),
                 QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
             ],
-            size_range(length-1)
+            size_range(length - 1) // Note: this is length - 1 because starting with a para
         )
     ) -> Vec<Block> {
         let mut blocks = vec![first];
