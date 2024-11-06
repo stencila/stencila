@@ -41,10 +41,10 @@ Rather than having to write three new lines for a `create` command e.g.
 :::
 ```
 
-Stencila allows you to write a "self closing" opening fence by adding `<<` to the end of the line e.g.
+Stencila allows you to write a "self closing" opening fence by adding `:::` to the end of the line e.g.
 
 ```markdown
-::: create plot of height versus width <<
+::: create plot of height versus width :::
 ```
 
 ...
@@ -63,10 +63,10 @@ The cat sat on
 :::
 ```
 
-Stencila uses a "next block only" shorthand, by adding `>>` to the end of the opening fence when there is only one block in the target content or active suggestion of a command e.g.
+Stencila uses a "next block only" shorthand, by adding `>>>` to the end of the opening fence when there is only one block in the target content or active suggestion of a command e.g.
 
 ```markdown
-::: edit expand to 20-30 words >>
+::: edit expand to 20-30 words >>>
 
 The cat sat on
 ```
@@ -74,7 +74,7 @@ The cat sat on
 Here is an example of a `create` block, which has already been run and has a single suggestion:
 
 ````markdown
-::: create code to print hello world >>
+::: create code to print hello world >>>
 
 ```python exec
 print("Hello world")
