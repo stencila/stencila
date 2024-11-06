@@ -63,9 +63,9 @@ The `TableCell` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `TableCell` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                             | Strategy            |
-| --------- | ---------- | --------------------------------------- | ------------------- |
-| `content` | Min+       | Generate a single, arbitrary, paragraph | `vec_paragraphs(1)` |
+| Property  | Complexity | Description                             | Strategy                |
+| --------- | ---------- | --------------------------------------- | ----------------------- |
+| `content` | Min+       | Generate a single, arbitrary, paragraph | `table_cell_content(1)` |
 
 ## Source
 

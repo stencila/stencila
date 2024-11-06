@@ -93,17 +93,17 @@ The `Figure` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Figure` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                 | Strategy                                  |
-| --------- | ---------- | ----------------------------------------------------------- | ----------------------------------------- |
-| `content` | Min+       | Generate a single arbitrary paragraph.                      | `vec_paragraphs(1)`                       |
-|           | Low+       | Generate up to two arbitrary, non-recursive, block nodes.   | `vec_blocks_non_recursive(2)`             |
-|           | Max        | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)`             |
-| `label`   | Min+       | No label                                                    | `None`                                    |
-|           | Low+       | Generate a simple label                                     | `option::of(r"[a-zA-Z0-9]+")`             |
-|           | Max        | Generate an arbitrary string                                | `option::of(String::arbitrary())`         |
-| `caption` | Min+       | No caption                                                  | `None`                                    |
-|           | Low+       | Generate up to two arbitrary paragraphs.                    | `option::of(vec_paragraphs(2))`           |
-|           | Max        | Generate up to three arbitrary, non-recursive, block nodes. | `option::of(vec_blocks_non_recursive(3))` |
+| Property  | Complexity | Description                                                                       | Strategy                                  |
+| --------- | ---------- | --------------------------------------------------------------------------------- | ----------------------------------------- |
+| `content` | Min+       | Generate a single arbitrary paragraph.                                            | `vec_paragraphs(1)`                       |
+|           | Low+       | Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks). | `vec_blocks_figure_content(2)`            |
+|           | Max        | Generate up to four arbitrary, non-recursive, block nodes.                        | `vec_blocks_non_recursive(4)`             |
+| `label`   | Min+       | No label                                                                          | `None`                                    |
+|           | Low+       | Generate a simple label                                                           | `option::of(r"[a-zA-Z0-9]+")`             |
+|           | Max        | Generate an arbitrary string                                                      | `option::of(String::arbitrary())`         |
+| `caption` | Min+       | No caption                                                                        | `None`                                    |
+|           | Low+       | Generate up to two arbitrary paragraphs.                                          | `option::of(vec_paragraphs(2))`           |
+|           | Max        | Generate up to three arbitrary, non-recursive, block nodes.                       | `option::of(vec_blocks_non_recursive(3))` |
 
 ## Source
 

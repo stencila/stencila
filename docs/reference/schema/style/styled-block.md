@@ -69,16 +69,15 @@ The `StyledBlock` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `StyledBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property        | Complexity | Description                                                                      | Strategy                                       |
-| --------------- | ---------- | -------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `code`          | Min+       | Generate a simple fixed string of code.                                          | `Cord::from("code")`                           |
-|                 | Low+       | Generate a random string of up to 10 alphanumeric & whitespace characters.       | `r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::from)` |
-|                 | High+      | Generate a random string of up to 100 characters (excluding control characters). | `r"[^\p{C}]{1,100}".prop_map(Cord::from)`      |
-|                 | Max        | Generate an arbitrary string.                                                    | `String::arbitrary().prop_map(Cord::from)`     |
-| `styleLanguage` | Min+       | Do not generate a style language.                                                | `None`                                         |
-|                 | Low+       | Generate one of the well known style language short names.                       | `option::of(r"(css)\|(tw)")`                   |
-|                 | High+      | Generate a random string of up to 10 alphanumeric characters.                    | `option::of(r"[a-zA-Z0-9]{1,10}")`             |
-|                 | Max        | Generate an arbitrary string.                                                    | `option::of(String::arbitrary())`              |
+| Property        | Complexity | Description                                                                          | Strategy                                                             |
+| --------------- | ---------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| `code`          | Min+       | Generate a simple fixed string of code.                                              | `Cord::from("code")`                                                 |
+|                 | Low+       | Generate a random string of up to 10 alphanumeric & whitespace characters (trimmed). | `r"[a-zA-Z0-9 \t]{1,10}".prop_map(\|code\| Cord::from(code.trim()))` |
+|                 | High+      | Generate a random string of up to 100 characters (excluding control characters).     | `r"[^\p{C}]{1,100}".prop_map(Cord::from)`                            |
+|                 | Max        | Generate an arbitrary string.                                                        | `String::arbitrary().prop_map(Cord::from)`                           |
+| `styleLanguage` | Min+       | Do not generate a style language.                                                    | `None`                                                               |
+|                 | High+      | Generate a random string of up to 10 alphanumeric characters.                        | `option::of(r"[a-zA-Z0-9]{1,10}")`                                   |
+|                 | Max        | Generate an arbitrary string.                                                        | `option::of(String::arbitrary())`                                    |
 
 ## Source
 

@@ -35,6 +35,7 @@ The `Block` type has these members:
 - [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)
 - [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
 - [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
+- [`Walkthrough`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)
 
 ## Bindings
 
@@ -78,6 +79,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
 | `SuggestionBlock`  | Min+       | Do not generate `SuggestionBlock` nodes in block content.  | -                 |
+| `Walkthrough`      | Min+       | Do not generate `Walkthrough` nodes in block content.      | -                 |
 
 ## Source
 

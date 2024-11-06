@@ -141,6 +141,8 @@ The `Node` type has these members:
 - [`Unknown`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unknown.md)
 - [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
 - [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
+- [`Walkthrough`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)
+- [`WalkthroughStep`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough-step.md)
 - [`Object`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)
 
 ## Bindings

@@ -74,7 +74,7 @@ During property-based (a.k.a generative) testing, the properties of the `Admonit
 | `isFolded`       | Min+       | Not foldable.                                               | `None`                                     |
 |                  | Low+       | Arbitrarily, un-foldable, folded, or unfolded.              | `option::of(bool::arbitrary())`            |
 | `content`        | Min+       | A single, simple paragraph.                                 | `vec![p([t("Admonition content")])]`       |
-|                  | Low+       | Generate up to two arbitrary, non-recursive, block nodes.   | `vec_blocks_non_recursive(2)`              |
+|                  | Low+       | Generate up to two arbitrary paragraphs.                    | `vec_paragraphs(2)`                        |
 |                  | High+      | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)`              |
 
 ## Source

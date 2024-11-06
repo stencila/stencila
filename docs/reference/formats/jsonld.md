@@ -169,6 +169,8 @@ Support and degree of loss for node types:
 | [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | 🟢 No loss | 🟢 No loss |       |
 | [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🟢 No loss | 🟢 No loss |       |
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | 🟢 No loss | 🟢 No loss |       |
+| [Walkthrough](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)                   | 🟢 No loss | 🟢 No loss |       |
+| [WalkthroughStep](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough_step.md)          | 🟢 No loss | 🟢 No loss |       |
 | **Style**                                                                                                                 |
 | [StyledBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_block.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | 🟢 No loss | 🟢 No loss |       |
