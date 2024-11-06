@@ -197,11 +197,10 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(hubot) LLM Commands",
-          description:
-            "Using commands to create, edit, fix and describe content using LLMs",
+          label: "$(hubot) AI Command Syntax",
+          description: "How to write AI commands",
           command: "stencila.walkthroughs.open",
-          args: ["commands", "smd"],
+          args: ["command-syntax", "smd"],
         },
         {
           label: "$(symbol-operator) Math Equations and Symbols",

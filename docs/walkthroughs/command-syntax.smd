@@ -1,0 +1,88 @@
+---
+title: Stencila Markdown AI Commands Syntax
+description: Syntax for writing AI Commands in Stencila Markdown
+---
+
+# Introduction
+
+Stencila Markdown uses "colon fences" for most of its extensions, including for AI commands. Colon fences are any line starting with three or more colons (i.e. `:::`). Colon fences by default (but as described below, not always) exist as a pair of opening and closing fences.
+
+The opening fence always has a keyword following the colons; the closing fence does not. The keyword for AI commands describes the type of command (e.g. `create`, `edit`).
+
+For example, here is a command to edit two paragraphs:
+
+```markdown
+::: edit expand and improve grammar
+
+First paragraph.
+
+Second paragraph.
+
+:::
+```
+
+...
+
+# Shorthands
+
+Always having to write paired colon fences can be tedious so Stencila Markdown provides two shorthand forms: one for commands that do not enclose any content or have any suggestions yet (e.g. a new `create` command), and one for commands that enclose a single block of content (e.g. most `edit` and `fix` commands) or a single block in the active suggestion.
+
+...
+
+## Commands with no content or suggestions
+
+The `create` command is used to generate new content to insert into the document. As such, it starts off empty, without any enclosing content and no suggestions.
+
+Rather than having to write three new lines for a `create` command e.g.
+
+```markdown
+::: create plot of height versus width
+
+:::
+```
+
+Stencila allows you to write a "self closing" opening fence by adding `<<` to the end of the line e.g.
+
+```markdown
+::: create plot of height versus width <<
+```
+
+...
+
+## Commands with only a single block in their target content or active suggestion
+
+The `edit` and `fix` commands usually only have one block as a target (e.g. a command to edit a paragraph, or fix a code cell). Also, `create` commands are usually for a single block (e.g a command to create a new figure) and so their suggestions only have one block.
+
+Rather than having to put a closing fence after a single block e.g.
+
+```markdown
+::: edit expand to 20-30 words
+
+The cat sat on
+
+:::
+```
+
+Stencila uses a "next block only" shorthand, by adding `>>` to the end of the opening fence when there is only one block in the target content or active suggestion of a command e.g.
+
+```markdown
+::: edit expand to 20-30 words >>
+
+The cat sat on
+```
+
+Here is an example of a `create` block, which has already been run and has a single suggestion:
+
+````markdown
+::: create code to print hello world >>
+
+```python exec
+print("Hello world")
+```
+````
+
+...
+
+## Reformatting and shorthands
+
+The shorthand forms are optional - you can use a pair of colon fences if you prefer. However, when you reformat a document (for example using `Ctrl+Shift+I` is VSCode), or when Stencila reformats it when inserting new content, these shorthand forms will be used where possible. This is done to avoid cluttering the document too much with colon fences.
