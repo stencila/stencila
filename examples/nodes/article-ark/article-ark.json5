@@ -108,7 +108,8 @@
         },
         {
           type: "MathInline",
-          code: { string: "inline math" }
+          code: { string: "inline math" },
+          mathLanguage: "tex"
         },
         {
           type: "Text",
@@ -406,7 +407,8 @@
     },
     {
       type: "MathBlock",
-      code: { string: "This is a math block" }
+      code: { string: "This is a math block" },
+      mathLanguage: "tex"
     },
     {
       type: "QuoteBlock",

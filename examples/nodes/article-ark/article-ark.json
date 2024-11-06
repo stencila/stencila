@@ -58,7 +58,8 @@
         { "type": "Text", "value": ", " },
         {
           "type": "MathInline",
-          "code": "inline math"
+          "code": "inline math",
+          "mathLanguage": "tex"
         },
         { "type": "Text", "value": ", " },
         {
@@ -232,7 +233,8 @@
     },
     {
       "type": "MathBlock",
-      "code": "This is a math block"
+      "code": "This is a math block",
+      "mathLanguage": "tex"
     },
     {
       "type": "QuoteBlock",

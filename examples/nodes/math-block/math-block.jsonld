@@ -20,7 +20,8 @@
       "@type": "stencila:MathBlock",
       "stencila:code": {
         "string": "2 \\pi r^2"
-      }
+      },
+      "stencila:mathLanguage": "tex"
     },
     {
       "@type": "stencila:Paragraph",

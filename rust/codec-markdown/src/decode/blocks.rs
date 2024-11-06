@@ -1287,7 +1287,8 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             Block::MathBlock(MathBlock {
                 code: value.into(),
                 math_language: meta
-                    .and_then(|string| string.split_whitespace().next().map(String::from)),
+                    .and_then(|string| string.split_whitespace().next().map(String::from))
+                    .or_else(|| Some("tex".into())),
                 ..Default::default()
             }),
             position,

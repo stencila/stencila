@@ -70,6 +70,7 @@ content:
   - type: MathInline
     code:
       string: inline math
+    mathLanguage: tex
   - type: Text
     value:
       string: ', '
@@ -245,6 +246,7 @@ content:
 - type: MathBlock
   code:
     string: This is a math block
+  mathLanguage: tex
 - type: QuoteBlock
   content:
   - type: Paragraph

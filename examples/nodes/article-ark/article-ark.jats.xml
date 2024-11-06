@@ -6,7 +6,7 @@
         <alt-text>audio</alt-text>
       </inline-media>,<code executable="yes">code expression</code>,<code>inline code</code>,<italic>emphasis</italic>,<inline-graphic xlink:href="https://example.org/cat.jpg">
         <alt-text>image</alt-text>
-      </inline-graphic>,<ext-link xlink:href="https://example.org">link</ext-link>,<inline-formula code="inline math">
+      </inline-graphic>,<ext-link xlink:href="https://example.org">link</ext-link>,<inline-formula code="inline math" language="tex">
       </inline-formula>,<fn fn-type="custom" custom-type="Footnote">
         <p>A footnote</p>
       </fn>,<parameter name="parameter">
@@ -28,7 +28,7 @@
         <p>This is a list</p>
       </list-item>
     </list>
-    <disp-formula code="This is a math block">
+    <disp-formula code="This is a math block" language="tex">
     </disp-formula>
     <disp-quote>
       <p>This is a quote block</p>

@@ -95,6 +95,7 @@ content:
       - type: MathInline
         code:
           string: 2 /pi r^2
+        mathLanguage: tex
   - type: Text
     value:
       string: ' and '

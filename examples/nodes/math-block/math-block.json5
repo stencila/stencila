@@ -12,7 +12,8 @@
     },
     {
       type: "MathBlock",
-      code: { string: "2 \\pi r^2" }
+      code: { string: "2 \\pi r^2" },
+      mathLanguage: "tex"
     },
     {
       type: "Paragraph",

@@ -227,6 +227,7 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<(Inline, Optio
         mdast::Node::InlineMath(mdast::InlineMath { value, position }) => (
             Inline::MathInline(MathInline {
                 code: value.into(),
+                math_language: Some("tex".into()),
                 ..Default::default()
             }),
             position,
@@ -465,6 +466,7 @@ fn math(input: &mut Located<&str>) -> PResult<Inline> {
     .map(|code: &str| {
         Inline::MathInline(MathInline {
             code: code.into(),
+            math_language: Some("tex".into()),
             ..Default::default()
         })
     })
@@ -983,6 +985,7 @@ mod tests {
             math(&mut Located::new("$\\pi r^2$")).unwrap(),
             Inline::MathInline(MathInline {
                 code: "\\pi r^2".into(),
+                math_language: Some("tex".into()),
                 ..Default::default()
             })
         );
@@ -991,6 +994,7 @@ mod tests {
             math(&mut Located::new("$$\\pi r^2$$")).unwrap(),
             Inline::MathInline(MathInline {
                 code: "\\pi r^2".into(),
+                math_language: Some("tex".into()),
                 ..Default::default()
             })
         );

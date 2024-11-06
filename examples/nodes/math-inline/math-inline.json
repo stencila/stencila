@@ -11,6 +11,7 @@
         },
         {
           "type": "MathInline",
+          "mathLanguage": "asciimath",
           "code": "2 \\pi r^2"
         },
         {
