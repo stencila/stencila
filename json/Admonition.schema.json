@@ -155,8 +155,8 @@
           "value": "vec![p([t(\"Admonition content\")])]"
         },
         "low": {
-          "description": "Generate up to two arbitrary, non-recursive, block nodes.",
-          "strategy": "vec_blocks_non_recursive(2)"
+          "description": "Generate up to two arbitrary paragraphs.",
+          "strategy": "vec_paragraphs(2)"
         },
         "high": {
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",

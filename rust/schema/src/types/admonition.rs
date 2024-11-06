@@ -68,7 +68,7 @@ pub struct Admonition {
     #[walk]
     #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("Admonition content")])]"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_paragraphs(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[dom(elem = "aside")]

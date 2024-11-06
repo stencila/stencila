@@ -97,7 +97,7 @@
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, paragraph",
-          "strategy": "vec_paragraphs(1)"
+          "strategy": "table_cell_content(1)"
         }
       },
       "type": "array",

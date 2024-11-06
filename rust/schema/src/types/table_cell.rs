@@ -36,10 +36,10 @@ pub struct TableCell {
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
-    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_paragraphs(1)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_paragraphs(1)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"table_cell_content(1)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"table_cell_content(1)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"table_cell_content(1)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"table_cell_content(1)"#))]
     pub content: Vec<Block>,
 
     /// Non-core optional fields

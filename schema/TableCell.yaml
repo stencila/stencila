@@ -1,5 +1,5 @@
 title: TableCell
-'@id': stencila:TableCell
+"@id": stencila:TableCell
 nick: tbc
 extends: Entity
 category: works
@@ -15,11 +15,11 @@ core:
   - cellType
 properties:
   cellType:
-    '@id': stencila:cellType
+    "@id": stencila:cellType
     description: The type of cell.
     $ref: TableCellType
   name:
-    '@id': schema:name
+    "@id": schema:name
     description: The name of the cell.
     $comment: |
       Cell's have an implicit name derived from their position in the table
@@ -27,7 +27,7 @@ properties:
       with an explicit name, e.g. `rate`.
     type: string
   columnSpan:
-    '@id': stencila:colspan
+    "@id": stencila:colspan
     description: |
       How many columns the cell extends.
     $comment: Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
@@ -37,7 +37,7 @@ properties:
     minimum: 0
     maximum: 1000
   rowSpan:
-    '@id': stencila:rowspan
+    "@id": stencila:rowspan
     description: How many columns the cell extends.
     $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
     html:
@@ -46,7 +46,7 @@ properties:
     minimum: 0
     maximum: 65534
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: Contents of the table cell.
     type: array
     items:
@@ -54,6 +54,6 @@ properties:
     dom:
       elem: td
     proptest:
-      min: 
+      min:
         description: Generate a single, arbitrary, paragraph
-        strategy: vec_paragraphs(1)
+        strategy: table_cell_content(1)

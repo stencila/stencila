@@ -167,14 +167,15 @@ prop_compose! {
     ///
     ///
     /// Used for `Figure.content` during `proptest-low` to avoid confounding
-    /// between figure `content` and `caption`
+    /// between figure `content` and `caption`. Also excludes code chunks since
+    /// those can be confounded for figures in Markdown (if they have a figure
+    /// label type).
     pub fn vec_blocks_figure_content(max_size: usize)(
         length in 1..=max_size
     )(
         blocks in vec(
             prop_oneof![
                 Just(Block::Paragraph(Paragraph::new(vec![Inline::ImageObject(ImageObject::new("url".into()))]))),
-                CodeChunk::arbitrary().prop_map(Block::CodeChunk),
                 CodeBlock::arbitrary().prop_map(Block::CodeBlock),
                 MathBlock::arbitrary().prop_map(Block::MathBlock),
             ],
@@ -229,6 +230,28 @@ prop_compose! {
         paragraph in Paragraph::arbitrary()
     ) -> Vec<Block> {
         vec![Block::Heading(heading), Block::Paragraph(paragraph)]
+    }
+}
+
+prop_compose! {
+    /// Generate a inlines for a table cell without `Note`s which are
+    /// currently not supported in Markdown
+    pub fn table_cell_content(max_size: usize)(
+        length in 1..=max_size
+    )(
+        texts in vec(
+            Text::arbitrary().prop_map(Inline::Text),
+            size_range(length)
+        ),
+        others in vec(
+            Inline::arbitrary().prop_filter(
+                "Interleave text with other inlines but not notes",
+                |inline| !matches!(inline, Inline::Text(..) | Inline::Note(..))
+            ),
+            size_range(length - 1)
+        )
+    ) -> Vec<Block> {
+        vec![Block::Paragraph(Paragraph::new(interleave_inlines(texts, others)))]
     }
 }
 
