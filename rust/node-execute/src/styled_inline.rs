@@ -16,7 +16,8 @@ impl Executable for StyledInline {
         if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
             tracing::trace!("Skipping compiling StyledInline {node_id}");
 
-            return WalkControl::Break;
+            // Continue to compile child nodes in content
+            return WalkControl::Continue;
         }
 
         tracing::trace!("Compiling StyledInline {node_id}");

@@ -1,7 +1,7 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::BTreeMap, path::PathBuf};
 
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 
@@ -122,7 +122,10 @@ pub struct DomEncodeContext {
     headings: Vec<(i64, NodeId)>,
 
     /// The CSS classes in the document
-    css: HashMap<String, String>,
+    ///
+    /// Uses a b-tree map so that the order of classes in maintained to avoid an
+    /// excessive number of diffs/patches when the DOM HTML is updated.
+    css: BTreeMap<String, String>,
 
     /// The URL of the image to use as the Open Graph image (<<meta property="og:image" ...>)
     ///

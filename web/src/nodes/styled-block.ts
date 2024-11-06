@@ -16,8 +16,6 @@ import { Styled } from './styled'
 @customElement('stencila-styled-block')
 export class StyledBlock extends Styled {
   override render() {
-    this.adoptCss()
-
     return html`<stencila-ui-block-on-demand
       type="StyledBlock"
       .canAnimate=${false}
@@ -43,11 +41,7 @@ export class StyledBlock extends Styled {
         </stencila-ui-node-code>
       </div>
 
-      <div slot="content" class="styled">
-        <div class="${this.classes}">
-          <slot name="content"></slot>
-        </div>
-      </div>
+      <slot name="content" slot="content"></slot>
     </stencila-ui-block-on-demand>`
   }
 }

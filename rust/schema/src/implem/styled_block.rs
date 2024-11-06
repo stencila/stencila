@@ -12,14 +12,7 @@ impl DomCodec for StyledBlock {
             context.push_attr("style-language", style_language);
         }
 
-        if !context.standalone {
-            if let Some(css) = &self.options.css {
-                context.push_attr("css", css);
-            }
-            if let Some(class_list) = &self.options.class_list {
-                context.push_attr("class-list", class_list);
-            }
-        } else if let Some(css) = &self.options.css {
+        if let Some(css) = &self.options.css {
             context.push_css(css);
         };
 

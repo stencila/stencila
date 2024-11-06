@@ -17,8 +17,6 @@ import { Styled } from './styled'
 @customElement('stencila-styled-inline')
 export class StyledInline extends Styled {
   override render() {
-    this.adoptCss()
-
     return html` <stencila-ui-inline-on-demand type="StyledInline">
       <div slot="body">
         <stencila-ui-node-authors type="StyledInline">
@@ -38,11 +36,7 @@ export class StyledInline extends Styled {
         </stencila-ui-node-code>
       </div>
 
-      <span slot="content" class="styled">
-        <span class="${this.classes}">
-          <slot name="content"></slot>
-        </span>
-      </span>
+      <slot name="content" slot="content"></slot>
     </stencila-ui-inline-on-demand>`
   }
 }

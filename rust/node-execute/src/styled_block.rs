@@ -16,7 +16,8 @@ impl Executable for StyledBlock {
         if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
             tracing::trace!("Skipping compiling StyledBlock {node_id}");
 
-            return WalkControl::Break;
+            // Continue to compile child nodes in content
+            return WalkControl::Continue;
         }
 
         tracing::trace!("Compiling StyledBlock {node_id}");
