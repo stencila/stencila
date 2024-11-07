@@ -32,6 +32,7 @@ core:
   - datePublished
   - description
   - references
+  - config
   - headings
   - archive
 properties:
@@ -56,6 +57,15 @@ properties:
       for example, "1-6, 9, 55".
     type: string
     strip: [metadata]
+  config:
+    "@id": stencila:config
+    description: Configuration options for the document.
+    $ref: Config
+    strip: [metadata]
+    patch:
+      formats: [md, smd, myst]
+    dom:
+      elem: div
   headings:
     "@id": stencila:headings
     description: A list of links to headings, including implied section headings, within the document

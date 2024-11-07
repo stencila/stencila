@@ -1,0 +1,20 @@
+title: Config
+"@id": stencila:Config
+nick: cfg
+# It would be preferably not to extend `Entity` so that config does not
+# have `type` and `id` properties (so, for example, they do not appear in YAML
+# autocomplete). Unfortunately, given our special use of the `type` property
+# in derive macros and for disambiguating deserialization of nodes, this is
+# not possible.
+extends: Entity
+category: other
+description: Stencila document configuration options.
+core:
+  - theme
+properties:
+  theme:
+    "@id": stencila:theme
+    description: The styling theme to use for the document
+    type: string
+    patch:
+      formats: [all]

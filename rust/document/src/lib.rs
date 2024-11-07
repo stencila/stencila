@@ -27,6 +27,7 @@ use kernels::Kernels;
 use node_execute::ExecuteOptions;
 use schema::{Article, AuthorRole, Node, NodeId, NodeType, Patch};
 
+mod config;
 mod sync_directory;
 mod sync_dom;
 mod sync_file;

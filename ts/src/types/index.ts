@@ -35,6 +35,7 @@ export * from "./Collection.js";
 export * from "./Comment.js";
 export * from "./CompilationDigest.js";
 export * from "./CompilationMessage.js";
+export * from "./Config.js";
 export * from "./ConstantValidator.js";
 export * from "./ContactPoint.js";
 export * from "./Cord.js";

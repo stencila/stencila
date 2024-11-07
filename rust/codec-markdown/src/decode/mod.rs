@@ -10,7 +10,8 @@ use markdown::{
 use codec::{
     common::{
         eyre::{bail, eyre, Result},
-        serde_json, serde_yaml, tracing,
+        serde_json::{self, json},
+        serde_yaml, tracing,
     },
     format::Format,
     schema::{
@@ -277,23 +278,29 @@ impl Context {
     fn frontmatter(&self) -> Option<Node> {
         let yaml = self.yaml.as_ref()?;
 
-        // Deserialize YAML to a value, and add `type: Article` if necessary
+        // Deserialize YAML to a value, and add `type` properties if necessary
         let mut value = match serde_yaml::from_str(yaml) {
             Ok(serde_json::Value::Object(mut value)) => {
                 if let Some(typ) = value.get("type").and_then(|typ| typ.as_str()) {
                     // Ensure that `content` is present for types that require it, so that
                     // `serde_json::from_value` succeeds
                     if matches!(typ, "Article" | "Prompt") && value.get("content").is_none() {
-                        value.insert("content".to_string(), serde_json::Value::Array(vec![]));
+                        value.insert("content".to_string(), json!([]));
                     }
                 } else {
-                    value.insert(
-                        "type".to_string(),
-                        serde_json::Value::String("Article".to_string()),
-                    );
-                    value.insert("content".to_string(), serde_json::Value::Array(vec![]));
+                    value.insert("type".into(), json!("Article"));
+                    value.insert("content".into(), json!([]));
                 }
-                serde_json::Value::Object(value)
+
+                if let Some(config) = value
+                    .get_mut("config")
+                    .and_then(|config: &mut serde_json::Value| config.as_object_mut())
+                {
+                    // Ensure that `config` has `type: Config`
+                    config.insert("type".into(), json!("Config"));
+                }
+
+                json!(value)
             }
             Ok(_) => {
                 tracing::debug!("YAML frontmatter is not an object, will be ignored");

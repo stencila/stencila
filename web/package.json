@@ -37,6 +37,7 @@
     "vscode": {
       "source": [
         "src/themes/default.css",
+        "src/themes/stencila.css",
         "src/views/vscode.ts"
       ],
       "distDir": "../vscode/out/web"

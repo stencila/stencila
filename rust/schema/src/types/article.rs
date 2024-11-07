@@ -7,6 +7,7 @@ use super::block::Block;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
+use super::config::Config;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
@@ -159,6 +160,13 @@ pub struct Article {
     #[patch(format = "md", format = "smd", format = "myst")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Configuration options for the document.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
+    pub config: Option<Config>,
 
     /// A list of links to headings, including implied section headings, within the document
     #[strip(content)]

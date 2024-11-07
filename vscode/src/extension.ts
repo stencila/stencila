@@ -221,15 +221,18 @@ const domSubscriptions: Record<string, vscode.Disposable> = {};
 export async function subscribeToDom(
   documentUri: vscode.Uri,
   callback: (patch: unknown) => void
-): Promise<string> {
+): Promise<[string, string]> {
   if (!client) {
     throw new Error("No Stencila LSP client");
   }
 
   // Subscribe to document
-  let subscriptionId = (await client.sendRequest("stencila/subscribeDom", {
-    uri: documentUri.toString(),
-  })) as string;
+  const [subscriptionId, theme] = (await client.sendRequest(
+    "stencila/subscribeDom",
+    {
+      uri: documentUri.toString(),
+    }
+  )) as string;
 
   // Record notification handler so it can be dispose of later
   domSubscriptions[subscriptionId] = client.onNotification(
@@ -241,7 +244,7 @@ export async function subscribeToDom(
     }
   );
 
-  return subscriptionId;
+  return [subscriptionId, theme];
 }
 
 /**

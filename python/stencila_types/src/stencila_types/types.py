@@ -1067,6 +1067,9 @@ class Article(CreativeWork, Executable):
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
 
+    config: Config | None = None
+    """Configuration options for the document."""
+
     headings: List | None = None
     """A list of links to headings, including implied section headings, within the document"""
 
@@ -1411,6 +1414,18 @@ class CompilationMessage(Entity):
 
     code_location: CodeLocation | None = None
     """The location that the error occurred."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Config(Entity):
+    """
+    Stencila document configuration options.
+    """
+
+    type: Literal["Config"] = "Config"
+
+    theme: str | None = None
+    """The styling theme to use for the document"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3206,6 +3221,7 @@ Node = Union[
     Comment,
     CompilationDigest,
     CompilationMessage,
+    Config,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -3445,6 +3461,7 @@ TYPES = [
     Comment,
     CompilationDigest,
     CompilationMessage,
+    Config,
     ConstantValidator,
     Datatable,
     DatatableColumn,

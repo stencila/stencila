@@ -289,6 +289,7 @@ pub async fn serve_path(
         .await
         .map_err(InternalError::new)?;
     let doc_id = doc.id();
+    let config = doc.config().await.map_err(InternalError::new)?;
 
     // Get various query parameters
     let mode = query
@@ -314,11 +315,16 @@ pub async fn serve_path(
     let view = query
         .get("view")
         .map_or("dynamic", |value: &String| value.as_ref());
+
     // TODO: restrict the access to the highest based on the user's role
     let access = query.get("access").map_or("write", |value| value.as_ref());
+
     let theme = query
         .get("theme")
-        .map_or("default", |value: &String| value.as_ref());
+        .map(|value: &String| value.as_str())
+        .or(config.theme.as_deref())
+        .unwrap_or("default");
+
     let format = query
         .get("format")
         .map_or("markdown", |value| value.as_ref());
@@ -351,7 +357,6 @@ pub async fn serve_path(
     );
 
     // The stylesheet tag for the theme
-    // TODO: resolve the theme for the document
     let theme_tag = format!(
         r#"<link title="theme:{theme}" rel="stylesheet" type="text/css" href="/~static/{version}/themes/{theme}.css">"#
     );
