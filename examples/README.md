@@ -6,6 +6,8 @@
 
 The [`prompts`](prompts) folder is for testing Stencila's specialized AI prompts.
 
+> ⚠️ The sub-folder uses out-of-date, deprecated syntax and prompt names. We will update these examples soon!
+
 ## `kernels`
 
 The [`kernels`](kernels) folder is for testing Stencila's execution kernels. Each subfolder contains examples related to one or more executable node types. Within those there are files illustrating the execution of those node types within one or more execution kernels. These examples are generally kept small so that they can be easily read as JSON when executed and outputted in the console e.g.

@@ -265,7 +265,7 @@ repository:
           )*
         )?
         (.*?)
-        ((?:<<)|(?:>>))?
+        ((?:[:]{3})|(?:>>>))?
         (?:\s*)
       $
     captures:
@@ -275,7 +275,7 @@ repository:
       "4": { name: string.quoted } # model
       "5": { name: variable.parameter.stencila } # options
       "6": { name: comment.stencila.instruction } # instruction message
-      "7": { name: markup.heading.stencila } # << or >>
+      "7": { name: markup.heading.stencila } # ::: or >>>
 
   instruction-inline:
     name: meta.stencila.instruction-inline

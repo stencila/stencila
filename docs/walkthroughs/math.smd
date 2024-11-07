@@ -68,7 +68,7 @@ Let's try this out by writing a paragraph introducing the equation we want, foll
 
 The probability density function for the normal distribution is,
 
-::: create @math-block  <<
+::: create @math-block :::
 
 > [!tip] Run the command
 > Use the `Run` action to get an available LLM to generate an equation based on the preceding paragraph. Use the `Revise` action, optionally with feedback, if you are not satisfied with the response. You can also edit the generated equation, and once you are happy with it, use the `Accept` action to archive the command and insert the equation into the main body of the document.
@@ -77,7 +77,7 @@ The probability density function for the normal distribution is,
 
 The `math-block` prompt will match to command instructions that include words such as 'equation' and 'formula' so, if you prefer, you can avoid specifically assigning it to a task e.g.
 
-::: create equation for pearson corr coefficient <<
+::: create equation for pearson corr coefficient :::
 
 ...
 
@@ -85,7 +85,7 @@ The `math-block` prompt will match to command instructions that include words su
 
 You can also use LLMs to fix existing math equations. The generic, builtin `stencila/fix/block` prompt will pass any syntax error messages in TeX or AsciiMath equations to help inform LLMs what needs to be fixed e.g.
 
-::: fix  >>
+::: fix  >>>
 
 $$
 A = \pie r^^2

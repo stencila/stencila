@@ -1,30 +1,30 @@
 An insert instruction with no prompt:
 
-::: create a 4x10 table <<
+::: create a 4x10 table :::
 
 An insert instruction with a prompt:
 
-::: create @table top five highest mountains, with height in metres <<
+::: create @table top five highest mountains, with height in metres :::
 
 An insert instruction with a prompt but a blank instruction
 
-::: create @code-chunk  <<
+::: create @code-chunk  :::
 
 An edit instruction (has content) with no prompt:
 
-::: edit improve this paragraph >>
+::: edit improve this paragraph >>>
 
 The paragraph to be improved.
 
 An edit instruction with a prompt:
 
-::: edit @anne please improve this paragraph >>
+::: edit @anne please improve this paragraph >>>
 
 Another paragraph to be improved.
 
 An insert instruction with a prompt and a suggestion:
 
-::: create @code-chunk analyze data >>
+::: create @code-chunk analyze data >>>
 
 ```exec
 some code
@@ -32,6 +32,6 @@ some code
 
 An edit instruction with a suggestion:
 
-::: edit more succinct >>
+::: edit more succinct >>>
 
 A paragraph.

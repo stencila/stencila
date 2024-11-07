@@ -22,9 +22,9 @@ async fn no_messages() -> Result<()> {
 
 ::: call something()
 
-::: create instruction <<
+::: create instruction :::
 
-::: edit instruction >>
+::: edit instruction >>>
 
 Block to be edited
 

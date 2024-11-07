@@ -56,8 +56,8 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                 if line.starts_with("include")
                     || line.starts_with("call")
                     || line.starts_with("prompt")
-                    || line.ends_with("<<")
-                    || line.ends_with(">>")
+                    || line.ends_with(":::")
+                    || line.ends_with(">>>")
                 {
                     (true, false)
                 } else if line.starts_with("elif")

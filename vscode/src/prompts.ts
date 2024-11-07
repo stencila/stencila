@@ -153,9 +153,9 @@ function smdSnippet(prompt: Prompt, selected?: string): string {
     }
     snippet += "\n:::\n";
   } else if (type === "create" || type === "describe") {
-    snippet += " <<\n";
+    snippet += " :::\n";
   } else {
-    snippet += " >>\n";
+    snippet += " >>>\n";
   }
 
   return snippet;

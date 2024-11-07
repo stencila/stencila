@@ -660,7 +660,7 @@ impl MarkdownCodec for InstructionBlock {
             let suggestion = &suggestions[index];
 
             if suggestion.content.len() == 1 {
-                context.push_str(" >>");
+                context.push_str(" >>>");
             }
             context.newline().newline();
 
@@ -681,7 +681,7 @@ impl MarkdownCodec for InstructionBlock {
             }
         } else if let Some(content) = &self.content {
             if content.len() == 1 {
-                context.push_str(" >>");
+                context.push_str(" >>>");
             }
             context.newline().newline();
 
@@ -693,7 +693,7 @@ impl MarkdownCodec for InstructionBlock {
                 context.push_colons().newline().newline();
             }
         } else {
-            context.push_str(" <<").newline().newline();
+            context.push_str(" :::").newline().newline();
         }
 
         context.exit_node();
