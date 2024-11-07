@@ -322,7 +322,7 @@ pub async fn serve_path(
     let theme = query
         .get("theme")
         .map(|value: &String| value.as_str())
-        .or_else(|| config.theme.as_deref())
+        .or(config.theme.as_deref())
         .unwrap_or("default");
 
     let format = query
