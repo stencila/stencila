@@ -29,6 +29,10 @@ export class ForBlock extends CodeExecutable {
   override render() {
     const { colour, borderColour } = nodeUi('ForBlock')
 
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="iterations"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="ForBlock"

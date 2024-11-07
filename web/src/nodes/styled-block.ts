@@ -16,6 +16,10 @@ import { Styled } from './styled'
 @customElement('stencila-styled-block')
 export class StyledBlock extends Styled {
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     return html`<stencila-ui-block-on-demand
       type="StyledBlock"
       .canAnimate=${false}

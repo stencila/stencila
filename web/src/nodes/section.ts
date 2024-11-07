@@ -55,6 +55,10 @@ export class Section extends Entity {
    * Render a normal section
    */
   private renderSection() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Section"

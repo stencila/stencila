@@ -20,6 +20,17 @@ export class Table extends Entity {
    * as well as `authors` inside a node card
    */
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <div>
+          <slot name="caption"></slot>
+          <div class="overflow-x-auto">
+            <slot name="rows"></slot>
+          </div>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Table"

@@ -22,6 +22,10 @@ import { Executable } from './executable'
 @withTwind()
 export class IfBlock extends Executable {
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="clauses"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="IfBlock"

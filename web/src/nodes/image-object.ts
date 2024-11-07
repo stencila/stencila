@@ -138,6 +138,14 @@ export class ImageObject extends Entity {
   }
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return this.error
+        ? this.renderErrors()
+        : this.svg
+          ? this.renderSvg()
+          : this.renderImg()
+    }
+
     return this.ancestors.endsWith('CodeChunk')
       ? this.renderBlockOnDemand()
       : this.renderInlineOnDemand()

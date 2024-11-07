@@ -21,6 +21,10 @@ import { IncludeBlock } from './include-block'
 @withTwind()
 export class CallBlock extends IncludeBlock {
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`${this.renderContent()}`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="CallBlock"
@@ -64,8 +68,6 @@ export class CallBlock extends IncludeBlock {
             <slot name="execution-messages"></slot>
           </stencila-ui-node-execution-messages>
         </div>
-
-        <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `
   }

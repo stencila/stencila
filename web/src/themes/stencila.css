@@ -24,8 +24,51 @@ html {
   font-family: 'Inter', Arial, Helvetica, sans-serif;
   color: var(--default-text-colour);
 
-  > section {
+  /* exclude top lvl sections */
+  section section {
     @apply min-w-80 w-full mx-auto;
     max-width: 72ch;
+  }
+
+  figure,
+  stencila-image-object {
+    img {
+      @apply object-cover max-w-full aspect-auto m-auto block;
+    }
+  }
+}
+
+/* tailwind container */
+.container {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
   }
 }

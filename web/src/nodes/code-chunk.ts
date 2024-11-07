@@ -40,6 +40,24 @@ export class CodeChunk extends CodeExecutable {
   isInvisible: boolean = false
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        ${this.isInvisible
+          ? ''
+          : html`
+              ${this.labelType === 'TableLabel'
+                ? html`<caption class="block">
+                    <slot name="caption"></slot>
+                  </caption>`
+                : ''}
+              <slot name="outputs"></slot>
+              ${this.labelType === 'FigureLabel'
+                ? html`<figcaption><slot name="caption"></slot></figcaption>`
+                : ''}
+            `}
+      `
+    }
+
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code Chunk',
       icon: 'code',

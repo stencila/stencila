@@ -18,6 +18,14 @@ import './datatable-column'
 @withTwind()
 export class Datatable extends Entity {
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <div class="overflow-x-scroll data-table">
+          <slot></slot>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Datatable"

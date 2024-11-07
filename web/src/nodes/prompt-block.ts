@@ -28,6 +28,14 @@ export class PromptBlock extends Executable {
   private showContent?: boolean = true
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <div class="w-full ${this.showContent ? '' : 'hidden'}">
+          <slot name="content"></slot>
+        </div>
+      `
+    }
+
     return html`<stencila-ui-block-in-flow
       type="PromptBlock"
       node-id=${this.id}

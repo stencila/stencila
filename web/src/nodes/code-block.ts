@@ -18,6 +18,23 @@ export class CodeBlock extends CodeStatic {
       icon: 'code',
     }
 
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <div class="my-2">
+          <stencila-ui-node-code
+            type="CodeBlock"
+            code=${this.code}
+            .code-authorship=${this.codeAuthorship}
+            language=${this.programmingLanguage}
+            read-only
+            no-gutters
+            container-classes=${`rounded-sm border border-gray-200`}
+          >
+          </stencila-ui-node-code>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="CodeBlock"

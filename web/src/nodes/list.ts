@@ -20,6 +20,11 @@ export class List extends Entity {
       return html` <slot name="items"></slot> `
     }
 
+    // Add StyledBlock check
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="items" slot="content"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="List"
