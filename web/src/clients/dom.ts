@@ -1,4 +1,4 @@
-import morphdom from 'morphdom'
+import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 
 import { type DocumentId } from '../types'
 
@@ -8,7 +8,7 @@ import { FormatClient } from './format'
  * A read-only client that keeps a DOM element synchronized with the HTML
  * representation of a document on the server
  *
- * This class simply extends `FormatClient` and uses `morphdom`
+ * This class simply extends `FormatClient` and uses morphing
  * to update the DOM element whenever the HTML changes.
  */
 export class DomClient extends FormatClient {
@@ -25,7 +25,7 @@ export class DomClient extends FormatClient {
       if (process.env.NODE_ENV === 'development') {
         console.log(`📝 DomClient morphing element`, elem)
       }
-      morphdom(elem, html)
+      Idiomorph.morph(elem, html)
     })
   }
 }

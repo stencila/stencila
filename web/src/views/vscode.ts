@@ -11,8 +11,6 @@ import '../ui/document/menu'
 
 /**
  * A view for a VSCode WebView preview panel
- *
- * This will use message passing and `morphdom` to update the content.
  */
 @customElement('stencila-vscode-view')
 export class VsCodeView extends DocumentView {

@@ -25,7 +25,7 @@ export abstract class Entity extends LitElement {
    *
    * Not to be confused with the Rust `node_id` which is on every node (apart
    * from primitives) and in DOM HTML is represented as the `id` property (for
-   * fast DOM diffing with Morphdom).
+   * DOM reconciliation and morphing).
    */
   @property({ attribute: '_id' })
   $id?: string
