@@ -1,4 +1,4 @@
-import morphdom from 'morphdom'
+import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 
 import { Entity } from '../nodes/entity'
 import { NodeId } from '../types'
@@ -63,7 +63,7 @@ export class WebViewClient {
   private version: number = 0
 
   /**
-   * The DOM HTML string that is modified by patches and morphdom'ed onto `element`
+   * The DOM HTML string that is modified by patches and morphed onto `element`
    */
   private html: string
 
@@ -164,8 +164,8 @@ export class WebViewClient {
     // Update version
     this.version = version
 
-    // Update element using morphdom
-    morphdom(this.renderRoot.firstElementChild, this.html)
+    // Update element
+    Idiomorph.morph(this.renderRoot.firstElementChild, this.html)
   }
 
   /**
