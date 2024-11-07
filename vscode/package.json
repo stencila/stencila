@@ -688,7 +688,7 @@
         {
           "id": "stencila-sidebar",
           "title": "Stencila",
-          "icon": "./icons/stencila.svg"
+          "icon": "./icons/stencila-sidebar.svg"
         }
       ]
     },

@@ -129,7 +129,18 @@ class ModelTreeItem extends vscode.TreeItem {
     })();
 
     this.iconPath = icon.includes(".")
-      ? vscode.Uri.joinPath(context.extensionUri, "icons", icon)
+      ? {
+          light: vscode.Uri.joinPath(
+            context.extensionUri,
+            "icons",
+            icon.replace(".svg", "-light.svg")
+          ),
+          dark: vscode.Uri.joinPath(
+            context.extensionUri,
+            "icons",
+            icon.replace(".svg", "-dark.svg")
+          ),
+        }
       : new vscode.ThemeIcon(icon);
 
     // Set the context value to allow filtering commands by the item type
@@ -180,7 +191,7 @@ class ModelTreeProvider implements vscode.TreeDataProvider<ModelTreeItem> {
     if (client) {
       this.client = client;
     }
-    
+
     this.list = await this.client.sendRequest("stencila/listModels");
     this.providers = [...new Set(this.list.map((model) => model.provider))];
 
