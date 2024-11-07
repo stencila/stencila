@@ -6,6 +6,7 @@
 @import url('../fonts/stix-two-math/stix-two-math.css');
 
 :root {
+  padding: 3rem;
   /* custom properties */
   --default-text-colour: #171817;
 
@@ -55,8 +56,16 @@ body {
   h4,
   h5,
   h6 {
-    @apply mb-4 w-full;
     font-weight: 500;
+    @apply w-full;
+  }
+
+  h1 {
+    @apply mb-4
+    margin-top: 3.5rem;
+    line-height: 1.1;
+
+    @apply text-3xl lg:text-4xl;
   }
 
   h2,
@@ -64,7 +73,17 @@ body {
   h4,
   h5,
   h6 {
-    @apply mb-1.5;
+    @apply mb-1.5 w-full;
+  }
+
+  h2 {
+    margin-top: 2.5rem;
+    line-height: 1.1;
+    @apply text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    margin-top: 2rem;
   }
 
   p {
