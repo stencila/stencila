@@ -21,6 +21,10 @@ export class Claim extends Entity {
   claimType: string
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Claim"

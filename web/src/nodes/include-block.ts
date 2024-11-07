@@ -66,6 +66,10 @@ export class IncludeBlock extends Executable {
   }
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`${this.renderContent()}`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="IncludeBlock"

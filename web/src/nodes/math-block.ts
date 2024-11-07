@@ -18,6 +18,14 @@ export class MathBlock extends Math {
    * and `mathLanguage`, in addition to the compiled MathML.
    */
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <div class="px-4 py-3">
+          <slot name="mathml"></slot>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="MathBlock"

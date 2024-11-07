@@ -18,6 +18,14 @@ import { Entity } from './entity'
 @withTwind()
 export class Figure extends Entity {
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <figure class="m-0">
+          <slot name="content"></slot>
+        </figure>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Figure"

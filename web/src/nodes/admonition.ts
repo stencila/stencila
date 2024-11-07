@@ -61,6 +61,14 @@ export class Admonition extends Entity {
       'shadow rounded',
     ])
 
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        <div class=${styles}>
+          ${this.renderHeader()} ${this.renderContent()}
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Admonition"

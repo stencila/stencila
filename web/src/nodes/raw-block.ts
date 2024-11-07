@@ -27,6 +27,10 @@ export class RawBlock extends Entity {
       icon: 'fileTypeRaw',
     }
 
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="RawBlock"

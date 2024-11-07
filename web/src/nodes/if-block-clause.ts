@@ -99,6 +99,13 @@ export class IfBlockClause extends CodeExecutable {
         this.isFolded = this.isActive === 'false'
       }
     }
+    if (
+      changedProperties.has(this.isActive) &&
+      !this.ifBlockConsumer.cardOpen
+    ) {
+      // eslint-disable-next-line lit/no-property-change-update
+      this.isFolded = this.isActive === 'false'
+    }
   }
 
   override render() {

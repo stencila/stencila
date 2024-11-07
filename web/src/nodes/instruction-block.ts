@@ -194,6 +194,13 @@ export class InstructionBlock extends Instruction {
 
   override render() {
     const { borderColour } = nodeUi('InstructionBlock')
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`
+        ${this.activeSuggestion === null || this.activeSuggestion === undefined
+          ? html`<slot name="content"></slot>`
+          : html`<slot name="suggestions"></slot>`}
+      `
+    }
 
     return html`<stencila-ui-block-on-demand
       type="InstructionBlock"

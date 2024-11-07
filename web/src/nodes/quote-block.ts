@@ -19,6 +19,10 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class QuoteBlock extends Entity {
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="QuoteBlock"
