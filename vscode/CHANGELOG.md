@@ -1,10 +1,18 @@
 # Change Log
 
+## 0.0.10 2024-11-06
+
+- Fix to sidebar and model icons.
+
+- Improvements to AI Commands walkthrough.
+
+- Based on Stencila CLI v2.0.0-beta.13 which includes support for configurable themes, and fixes to styled blocks.
+
 ## 0.0.9 2024-11-05
 
-- Allow user to select a format for walkthroughs
+- Allow user to select a format for walkthroughs.
 
-- Fixed issue with node chips not appearing withing walkthough steps.
+- Fixed issue with node chips not appearing within walkthrough steps.
 
 - Further fixes suggestion scrolling in previews, including handling scrolling to original.
 
