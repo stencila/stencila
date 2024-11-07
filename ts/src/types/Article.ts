@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
+import { Config } from "./Config.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 import { List } from "./List.js";
@@ -27,6 +28,11 @@ export class Article extends CreativeWork {
    * Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
    */
   pagination?: string;
+
+  /**
+   * Configuration options for the document.
+   */
+  config?: Config;
 
   /**
    * A list of links to headings, including implied section headings, within the document

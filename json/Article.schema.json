@@ -43,6 +43,7 @@
     "datePublished",
     "description",
     "references",
+    "config",
     "headings",
     "archive"
   ],
@@ -916,6 +917,24 @@
         "metadata"
       ],
       "type": "string"
+    },
+    "config": {
+      "@id": "stencila:config",
+      "description": "Configuration options for the document.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst"
+        ]
+      },
+      "dom": {
+        "elem": "div"
+      },
+      "$ref": "Config.schema.json"
     },
     "headings": {
       "@id": "stencila:headings",

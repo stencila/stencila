@@ -40,6 +40,7 @@ pub enum NodeType {
     Comment,
     CompilationDigest,
     CompilationMessage,
+    Config,
     ConstantValidator,
     ContactPoint,
     CreativeWork,

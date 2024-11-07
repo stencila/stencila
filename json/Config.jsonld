@@ -1,0 +1,33 @@
+{
+  "@id": "https://stencila.org/Config",
+  "name": "Config",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Config",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Config",
+      "rdfs:comment": "Stencila document configuration options.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:theme",
+      "@type": "rdfs:Property",
+      "rdfs:label": "theme",
+      "rdfs:comment": "The styling theme to use for the document",
+      "schema:domainIncludes": {
+        "@id": "stencila:Config"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}
