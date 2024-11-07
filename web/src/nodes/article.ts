@@ -97,6 +97,8 @@ export class StencilaArticle extends LitElement {
         </stencila-ui-authors-provenance>
       </aside>
 
+      <slot name="config"></slot>
+
       <stencila-ui-article-headings>
         <slot name="headings"></slot>
       </stencila-ui-article-headings>
