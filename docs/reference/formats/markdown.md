@@ -191,6 +191,7 @@ Support and degree of loss for node types:
 | [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | ⚠️ High loss |            | Encoded using implemented function                    |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | ⚠️ High loss |            |                                                       |
+| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/config.md)                            | ⚠️ High loss |            |                                                       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | ⚠️ High loss |            |                                                       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | ⚠️ High loss |            |                                                       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | ⚠️ High loss |            |                                                       |

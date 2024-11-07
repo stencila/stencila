@@ -164,6 +164,7 @@ Support and degree of loss for node types:
 | [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | 🟢 No loss | 🟢 No loss |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss | 🟢 No loss |       |
+| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/config.md)                            | 🟢 No loss | 🟢 No loss |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss | 🟢 No loss |       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | 🟢 No loss | 🟢 No loss |       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | 🟢 No loss | 🟢 No loss |       |
