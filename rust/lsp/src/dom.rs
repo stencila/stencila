@@ -27,7 +27,7 @@ pub struct SubscribeDom;
 impl Request for SubscribeDom {
     const METHOD: &'static str = "stencila/subscribeDom";
     type Params = SubscribeDomParams;
-    type Result = String;
+    type Result = (String, String);
 }
 
 #[derive(Serialize, Deserialize)]
@@ -74,7 +74,7 @@ static TASKS: Lazy<Mutex<HashMap<String, JoinHandle<()>>>> = Lazy::new(Mutex::de
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
     client: ClientSocket,
-) -> Result<String, ResponseError> {
+) -> Result<(String, String), ResponseError> {
     let (sender, mut receiver) = mpsc::channel(256);
 
     let subscription_id = Uuid::now_v7().to_string();
@@ -93,14 +93,22 @@ pub async fn subscribe(
     });
     TASKS.lock().await.insert(subscription_id.clone(), task);
 
-    // Start the DOM syncing task
-    doc.read()
+    let doc = doc.read().await;
+
+    // Get the document theme
+    let theme = doc
+        .config()
         .await
-        .sync_dom(Some(sender))
+        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?
+        .theme
+        .unwrap_or_else(|| "default".into());
+
+    // Start the DOM syncing task
+    doc.sync_dom(Some(sender))
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 
-    Ok(subscription_id)
+    Ok((subscription_id, theme))
 }
 
 pub async fn unsubscribe(subscription_id: String) -> Result<(), ResponseError> {

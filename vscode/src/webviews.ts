@@ -61,19 +61,28 @@ export async function createDocumentViewPanel(
     "stencila-128.png"
   );
 
-  const createDocumentViewHTML = () => {
-    const themeName = "default";
-    const themeCss = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
-    );
-    const viewCss = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(webDist, "views", "vscode.css")
-    );
-    const viewJs = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(webDist, "views", "vscode.js")
-    );
+  // Subscribe to updates of DOM HTML for document and get theme
+  const [subscriptionId, themeName] = await subscribeToDom(
+    documentUri,
+    (patch: unknown) => {
+      panel.webview.postMessage({
+        type: "dom-patch",
+        patch,
+      });
+    }
+  );
 
-    return `
+  const themeCss = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
+  );
+  const viewCss = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(webDist, "views", "vscode.css")
+  );
+  const viewJs = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(webDist, "views", "vscode.js")
+  );
+
+  panel.webview.html = `
     <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -96,16 +105,6 @@ export async function createDocumentViewPanel(
         </body>
     </html>
   `;
-  };
-  panel.webview.html = createDocumentViewHTML();
-
-  // Subscribe to updates of DOM HTML for document
-  let subscriptionId = await subscribeToDom(documentUri, (patch: unknown) => {
-    panel.webview.postMessage({
-      type: "dom-patch",
-      patch,
-    });
-  });
 
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);

@@ -1,5 +1,3 @@
-import { writeFileSync } from "fs";
-
 import * as vscode from "vscode";
 
 import { createDocumentViewPanel } from "./webviews";
