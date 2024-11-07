@@ -67,7 +67,7 @@ export class IncludeBlock extends Executable {
 
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
-      return html`${this.renderContent()}`
+      return this.renderContent()
     }
 
     return html`

@@ -41,21 +41,7 @@ export class CodeChunk extends CodeExecutable {
 
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
-      return html`
-        ${this.isInvisible
-          ? ''
-          : html`
-              ${this.labelType === 'TableLabel'
-                ? html`<caption class="block">
-                    <slot name="caption"></slot>
-                  </caption>`
-                : ''}
-              <slot name="outputs"></slot>
-              ${this.labelType === 'FigureLabel'
-                ? html`<figcaption><slot name="caption"></slot></figcaption>`
-                : ''}
-            `}
-      `
+      return this.renderContent()
     }
 
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
@@ -127,21 +113,23 @@ export class CodeChunk extends CodeExecutable {
         </stencila-ui-node-code>
       </div>
 
-      <div slot="content">
-        ${this.isInvisible
-          ? ''
-          : html`
-              ${this.labelType === 'TableLabel'
-                ? html`<caption class="block">
-                    <slot name="caption"></slot>
-                  </caption>`
-                : ''}
-              <slot name="outputs"></slot>
-              ${this.labelType === 'FigureLabel'
-                ? html`<figcaption><slot name="caption"></slot></figcaption>`
-                : ''}
-            `}
-      </div>
+      <div slot="content">${this.renderContent()}</div>
     </stencila-ui-block-on-demand>`
+  }
+
+  private renderContent() {
+    return this.isInvisible
+      ? html``
+      : html`
+          ${this.labelType === 'TableLabel'
+            ? html`<caption class="block">
+                <slot name="caption"></slot>
+              </caption>`
+            : ''}
+          <slot name="outputs"></slot>
+          ${this.labelType === 'FigureLabel'
+            ? html`<figcaption><slot name="caption"></slot></figcaption>`
+            : ''}
+        `
   }
 }

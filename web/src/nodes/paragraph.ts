@@ -95,11 +95,10 @@ export class Paragraph extends Entity {
   }
 
   override render() {
-    if (Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType)) {
-      return html`<slot name="content"></slot>`
-    }
-
-    if (this.ancestors.includes('StyledBlock')) {
+    if (
+      Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType) ||
+      this.ancestors.includes('StyledBlock')
+    ) {
       return html`<slot name="content"></slot>`
     }
 

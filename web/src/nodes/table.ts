@@ -21,14 +21,7 @@ export class Table extends Entity {
    */
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
-      return html`
-        <div>
-          <slot name="caption"></slot>
-          <div class="overflow-x-auto">
-            <slot name="rows"></slot>
-          </div>
-        </div>
-      `
+      return this.renderContent()
     }
 
     return html`
@@ -46,13 +39,17 @@ export class Table extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-        <div class="content" slot="content">
-          <slot name="caption"></slot>
-          <div class="overflow-x-auto">
-            <slot name="rows"></slot>
-          </div>
-        </div>
+        <div class="content" slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
+    `
+  }
+
+  private renderContent() {
+    return html`
+      <slot name="caption"></slot>
+      <div class="overflow-x-auto">
+        <slot name="rows"></slot>
+      </div>
     `
   }
 }

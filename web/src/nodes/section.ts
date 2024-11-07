@@ -46,6 +46,10 @@ export class Section extends Entity {
   }
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     return this.sectionType === 'Iteration'
       ? this.renderIteration()
       : this.renderSection()
@@ -55,10 +59,6 @@ export class Section extends Entity {
    * Render a normal section
    */
   private renderSection() {
-    if (this.ancestors.includes('StyledBlock')) {
-      return html`<slot name="content"></slot>`
-    }
-
     return html`
       <stencila-ui-block-on-demand
         type="Section"

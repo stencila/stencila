@@ -60,6 +60,7 @@ export class Heading extends Entity {
     if (this.ancestors.includes('StyledBlock')) {
       return html`<slot name="content"></slot>`
     }
+
     return html`
       <stencila-ui-block-on-demand type="Heading" node-id=${this.id}>
         <div slot="body">

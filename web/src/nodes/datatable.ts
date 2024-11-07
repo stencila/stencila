@@ -19,11 +19,7 @@ import './datatable-column'
 export class Datatable extends Entity {
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
-      return html`
-        <div class="overflow-x-scroll data-table">
-          <slot></slot>
-        </div>
-      `
+      return this.renderContent()
     }
 
     return html`
@@ -32,12 +28,16 @@ export class Datatable extends Entity {
         depth=${this.depth}
         ancestors=${this.ancestors}
       >
-        <div class="content" slot="content">
-          <div class="overflow-x-scroll data-table">
-            <slot></slot>
-          </div>
-        </div>
+        <div class="content" slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
+    `
+  }
+
+  private renderContent() {
+    return html`
+      <div class="overflow-x-scroll data-table">
+        <slot></slot>
+      </div>
     `
   }
 }

@@ -22,13 +22,13 @@ export class RawBlock extends Entity {
   contentAuthorship?: string
 
   override render() {
+    if (this.ancestors.includes('StyledBlock')) {
+      return html`<slot name="content"></slot>`
+    }
+
     const { title, icon } = getTitleIcon(this.format) ?? {
       title: this.format,
       icon: 'fileTypeRaw',
-    }
-
-    if (this.ancestors.includes('StyledBlock')) {
-      return html`<slot name="content"></slot>`
     }
 
     return html`

@@ -19,11 +19,7 @@ export class MathBlock extends Math {
    */
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
-      return html`
-        <div class="px-4 py-3">
-          <slot name="mathml"></slot>
-        </div>
-      `
+      return this.renderContent()
     }
 
     return html`
@@ -50,12 +46,16 @@ export class MathBlock extends Math {
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>
         </div>
-        <div slot="content">
-          <div class="px-4 py-3">
-            <slot name="mathml"></slot>
-          </div>
-        </div>
+        <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
+    `
+  }
+
+  private renderContent() {
+    return html`
+      <div class="px-4 py-3">
+        <slot name="mathml"></slot>
+      </div>
     `
   }
 }

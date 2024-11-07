@@ -15,14 +15,12 @@ import { Entity } from './entity'
 @customElement('stencila-list')
 export class List extends Entity {
   override render() {
-    // Do not render a node card for headings slot
-    if (this.closestGlobally('nav[slot=headings]')) {
-      return html` <slot name="items"></slot> `
-    }
-
-    // Add StyledBlock check
-    if (this.ancestors.includes('StyledBlock')) {
-      return html`<slot name="items" slot="content"></slot>`
+    // Do not render a node card for document headings slot or StyledBlock
+    if (
+      this.closestGlobally('nav[slot=headings]') ||
+      this.ancestors.includes('StyledBlock')
+    ) {
+      return html`<slot name="items"></slot>`
     }
 
     return html`
