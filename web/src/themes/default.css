@@ -61,7 +61,7 @@ body {
   }
 
   h1 {
-    @apply mb-4
+    @apply mb-4;
     margin-top: 3.5rem;
     line-height: 1.1;
 
