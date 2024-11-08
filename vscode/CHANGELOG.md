@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.11 2024-11-08
+
+- Based on Stencila CLI v2.0.0-beta.14 which changes the syntax for "self-closing" and "next-block" commands in Stencila Markdown, has fixes to the default theme, and switches to using `idiomorph` for incremental updates of the preview panel,
+
 ## 0.0.10 2024-11-06
 
 - Fix to sidebar and model icons.
