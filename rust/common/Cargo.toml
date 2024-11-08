@@ -33,7 +33,7 @@ serde_with = "3.11.0"
 serde_yaml = "0.9.34"
 similar = { version = "2.5.0", features = ["serde", "unicode"] }
 smart-default = "0.7.1"
-smol_str = "0.2.1"
+smol_str = "0.3.0"
 strum = { version = "0.26.3", features = ["derive"] }
 syn = "2.0.85"
 tar = "0.4.42"
