@@ -30,6 +30,36 @@ html {
     max-width: 72ch;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply w-full;
+    font-weight: 300;
+  }
+
+  h1 {
+    @apply text-7xl text-center;
+  }
+
+  h2 {
+    @apply text-5xl;
+  }
+
+  h3 {
+    @apply text-3xl;
+  }
+
+  h4 {
+    @apply text-2xl;
+  }
+
+  p {
+    @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
+  }
+
   figure,
   stencila-image-object {
     img {
