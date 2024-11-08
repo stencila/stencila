@@ -31,7 +31,6 @@ jobs:
       main: ${{ steps.changes.outputs.main }}
       ts: ${{ steps.changes.outputs.ts }}
       web: ${{ steps.changes.outputs.web }}
-      renovate: ${{ steps.renovate.outputs.renovate }}
 
     steps:
       - name: Checkout repo
@@ -54,15 +53,6 @@ jobs:
             web:
               - 'web/**'
               - 'package.json'
-
-      - name: Detect Renovate PR
-        id: renovate
-        run: |
-          if [[ ! "${{ github.head_ref }}" == *"renovate"* ]]; then
-            echo "renovate=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "renovate=false" >> "$GITHUB_OUTPUT"
-          fi
 
   main:
     runs-on: ubuntu-latest-m
@@ -219,7 +209,7 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: changes
-    if: needs.changes.outputs.web == 'true'
+    #if: needs.changes.outputs.web == 'true'
 
     steps:
       - name: Checkout repo
@@ -244,21 +234,21 @@ jobs:
         run: make -C web test
 
       - name: Setup Rust
-        if: needs.changes.outputs.renovate == 'false'
+        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
 
       - name: Setup Rust cache
-        if: needs.changes.outputs.renovate == 'false'
+        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
         uses: Swatinem/rust-cache@v2
 
-      - name: build rust cli
-        if: needs.changes.outputs.renovate == 'false'
+      - name: Build Rust CLI to run server for e2e tests
+        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
         run: cargo build --quiet -p cli
 
       - name: Run playwright
-        if: needs.changes.outputs.renovate == 'false'
+        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
