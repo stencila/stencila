@@ -698,7 +698,7 @@ async fn websocket_dom_protocol(ws: WebSocket, doc: Arc<Document>) {
     let (out_sender, out_receiver) = channel(1024);
     send_websocket_messages(out_receiver, ws_sender);
 
-    if let Err(error) = doc.sync_dom(Some(out_sender)).await {
+    if let Err(error) = doc.sync_dom(out_sender).await {
         tracing::error!("While syncing DOM for WebSocket client: {error}")
     }
 }

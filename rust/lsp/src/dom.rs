@@ -104,7 +104,7 @@ pub async fn subscribe(
         .unwrap_or_else(|| "default".into());
 
     // Start the DOM syncing task
-    doc.sync_dom(Some(sender))
+    doc.sync_dom(sender)
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 
