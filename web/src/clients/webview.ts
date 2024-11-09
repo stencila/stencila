@@ -127,8 +127,7 @@ export class WebViewClient {
 
     // Check for non-sequential patch and request a reset patch if necessary
     if (!isReset && version > this.version + 1) {
-      // TODO: consider doing a reset here as is done in `./format.ts`
-      // return
+      vscode.postMessage({ command: 'reset-dom' })
     }
 
     // Apply each operation in the patch

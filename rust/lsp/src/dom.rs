@@ -14,7 +14,10 @@ use common::{
     serde::{Deserialize, Serialize},
     tokio::{
         self,
-        sync::{mpsc, Mutex, RwLock},
+        sync::{
+            mpsc::{self, Sender},
+            Mutex, RwLock,
+        },
         task::JoinHandle,
     },
     tracing,
@@ -35,6 +38,21 @@ impl Request for SubscribeDom {
 pub struct SubscribeDomParams {
     // The URI of the document for which the DOM is desired
     pub uri: Url,
+}
+
+pub struct ResetDom;
+
+impl Request for ResetDom {
+    const METHOD: &'static str = "stencila/resetDom";
+    type Params = ResetDomParams;
+    type Result = ();
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct ResetDomParams {
+    // The id of the subscription
+    pub subscription_id: String,
 }
 
 pub struct UnsubscribeDom;
@@ -69,20 +87,24 @@ impl Notification for PublishDom {
     type Params = PublishDomParams;
 }
 
-static TASKS: Lazy<Mutex<HashMap<String, JoinHandle<()>>>> = Lazy::new(Mutex::default);
+/// A map of subscriptions to document DOMs
+static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<()>)>>> =
+    Lazy::new(Mutex::default);
 
+/// Handle a request to subscribe to DOM HTML updates for a document
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
     client: ClientSocket,
 ) -> Result<(String, String), ResponseError> {
-    let (sender, mut receiver) = mpsc::channel(256);
+    let (in_sender, in_receiver) = mpsc::channel(256);
+    let (out_sender, mut out_receiver) = mpsc::channel(256);
 
     let subscription_id = Uuid::now_v7().to_string();
 
     // Start task to send patches to the client
     let sub_id = subscription_id.clone();
     let task = tokio::spawn(async move {
-        while let Some(patch) = receiver.recv().await {
+        while let Some(patch) = out_receiver.recv().await {
             if let Err(error) = client.notify::<PublishDom>(PublishDomParams {
                 subscription_id: sub_id.clone(),
                 patch,
@@ -91,7 +113,11 @@ pub async fn subscribe(
             };
         }
     });
-    TASKS.lock().await.insert(subscription_id.clone(), task);
+
+    SUBSCRIPTIONS
+        .lock()
+        .await
+        .insert(subscription_id.clone(), (in_sender, task));
 
     let doc = doc.read().await;
 
@@ -104,15 +130,28 @@ pub async fn subscribe(
         .unwrap_or_else(|| "default".into());
 
     // Start the DOM syncing task
-    doc.sync_dom(sender)
+    doc.sync_dom(in_receiver, out_sender)
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 
     Ok((subscription_id, theme))
 }
 
+/// Handle a request to reset the DOM HTML for a document
+pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
+    if let Some((sender, ..)) = SUBSCRIPTIONS.lock().await.get(&subscription_id) {
+        sender
+            .send(DomPatch::reset_request())
+            .await
+            .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
+    }
+
+    Ok(())
+}
+
+/// Handle a request to unsubscribe from DOM HTML updates for a document
 pub async fn unsubscribe(subscription_id: String) -> Result<(), ResponseError> {
-    if let Some(task) = TASKS.lock().await.remove(&subscription_id) {
+    if let Some((.., task)) = SUBSCRIPTIONS.lock().await.remove(&subscription_id) {
         task.abort();
     }
 

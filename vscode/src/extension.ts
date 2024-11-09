@@ -248,6 +248,19 @@ export async function subscribeToDom(
 }
 
 /**
+ * Send a request to reset the DOM for a subscription
+ */
+export async function resetDom(subscriptionId: string) {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  await client.sendRequest("stencila/resetDom", {
+    subscriptionId,
+  });
+}
+
+/**
  * Unsubscribe from DOM HTML of a document
  */
 export async function unsubscribeFromDom(subscriptionId: string) {

@@ -16,7 +16,10 @@ use common::{
     similar::{capture_diff_slices_deadline, Algorithm, DiffTag},
     tokio::{
         self,
-        sync::{mpsc::Sender, Mutex},
+        sync::{
+            mpsc::{Receiver, Sender},
+            Mutex,
+        },
     },
     tracing,
 };
@@ -33,6 +36,20 @@ pub struct DomPatch {
 
     /// The operations in the patch
     ops: Vec<DomOperation>,
+}
+
+impl DomPatch {
+    /// Create a patch that is a request from the client for a reset patch
+    /// to be sent by the server
+    ///
+    /// Used when the client receives a patch from the server that is not
+    /// in sequential order.
+    pub fn reset_request() -> Self {
+        Self {
+            version: 0,
+            ops: Vec::new(),
+        }
+    }
 }
 
 /// An operation on the DOM HTML representation of a document
@@ -133,7 +150,11 @@ impl Document {
     /// it only does diffing if the HTML content is above a a certain length.
     /// Also, it does diffing on UTF16 slices since that is what browsers use.
     #[tracing::instrument(skip_all)]
-    pub async fn sync_dom(&self, patch_sender: Sender<DomPatch>) -> Result<()> {
+    pub async fn sync_dom(
+        &self,
+        mut patch_receiver: Receiver<DomPatch>,
+        patch_sender: Sender<DomPatch>,
+    ) -> Result<()> {
         tracing::trace!("Syncing DOM");
 
         // The minimum length of the content that is diffed. Below this length, the entire
@@ -158,6 +179,35 @@ impl Document {
         // Create the mutex for the current content and initialize the version
         let current = Arc::new(Mutex::new(initial_content.clone()));
         let version = Arc::new(AtomicU32::new(1));
+
+        // Start task to receive incoming patches from the client
+        // Currently only "reset request patches" are handled - those that
+        // have a version number of zero, and trigger a reset patch to be sent back.
+        let current_clone = current.clone();
+        let version_clone = version.clone();
+        let patch_sender_clone = patch_sender.clone();
+        tokio::spawn(async move {
+            while let Some(patch) = patch_receiver.recv().await {
+                tracing::trace!("Received DOM patch");
+
+                let mut current = current_clone.lock().await;
+                let current_content = current.deref_mut();
+
+                // If the patch is not for the current version then send a reset patch
+                // (if there is a patch sender) and ignore the patch
+                let current_version = version_clone.load(Ordering::SeqCst);
+                if patch.version != current_version {
+                    let reset = DomPatch {
+                        version: current_version,
+                        ops: vec![DomOperation::reset_content(&*current_content)],
+                    };
+                    if let Err(error) = patch_sender_clone.send(reset).await {
+                        tracing::error!("While sending content reset patch: {error}");
+                    }
+                    continue;
+                }
+            }
+        });
 
         // Start task to listen for changes to the document's root node,
         // convert them to a patch and send to the client

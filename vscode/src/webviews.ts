@@ -2,7 +2,7 @@ import path from "path";
 
 import * as vscode from "vscode";
 
-import { subscribeToDom, unsubscribeFromDom } from "./extension";
+import { resetDom, subscribeToDom, unsubscribeFromDom } from "./extension";
 import { statusBar } from "./status-bar";
 
 /**
@@ -146,6 +146,12 @@ export async function createDocumentViewPanel(
   panel.webview.onDidReceiveMessage(
     (command: DocumentCommand) => {
       let name = command.command;
+
+      if (name === "reset-dom") {
+        resetDom(subscriptionId);
+        return;
+      }
+
       if (name === "execute-nodes") {
         if (command.scope === "plus-before") {
           name = "run-before";
