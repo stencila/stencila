@@ -32,9 +32,12 @@ interface Status {
  * Register subscriptions to notifications received by the language client
  * from the language server
  */
-export function registerNotifications(client: LanguageClient) {
-  // Handle status notifications
-  client.onNotification(
+export function registerStatusNotifications(
+  context: vscode.ExtensionContext,
+  client: LanguageClient
+) {
+  // Handle document status notifications
+  const handler = client.onNotification(
     "stencila/publishStatus",
     ({ uri, statuses }: { uri: string; statuses: Status[] }) => {
       const editor = vscode.window.visibleTextEditors.find(
@@ -85,4 +88,5 @@ export function registerNotifications(client: LanguageClient) {
       decorationsFor("Active", activeDecoration);
     }
   );
+  context.subscriptions.push(handler);
 }
