@@ -25,7 +25,16 @@ export class DomClient extends FormatClient {
       if (process.env.NODE_ENV === 'development') {
         console.log(`📝 DomClient morphing element`, elem)
       }
-      Idiomorph.morph(elem, html)
+
+      // Update element
+      // Any errors during morphing (i.e is somehow the HTML is invalid)
+      // result in a reset request being sent to the server
+      try {
+        Idiomorph.morph(elem, html)
+      } catch (error) {
+        console.log('While morphing DOM', error)
+        this.sendMessage({ version: 0 })
+      }
     })
   }
 }

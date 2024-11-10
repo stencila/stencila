@@ -122,12 +122,10 @@ export class WebViewClient {
   private handleDomPatchMessage({ patch }: DomPatchMessage) {
     const { version, ops } = patch as unknown as FormatPatch
 
-    // Is the patch a reset patch?
-    const isReset = ops.length >= 1 && ops[0].type === 'reset'
-
     // Check for non-sequential patch and request a reset patch if necessary
+    const isReset = ops.length >= 1 && ops[0].type === 'reset'
     if (!isReset && version > this.version + 1) {
-      vscode.postMessage({ command: 'reset-dom' })
+      this.requestReset()
     }
 
     // Apply each operation in the patch
@@ -164,7 +162,25 @@ export class WebViewClient {
     this.version = version
 
     // Update element
-    Idiomorph.morph(this.renderRoot.firstElementChild, this.html)
+    // Any errors during morphing (i.e is somehow the HTML is invalid)
+    // result in a reset request being sent to the server
+    try {
+      Idiomorph.morph(this.renderRoot.firstElementChild, this.html)
+    } catch (error) {
+      console.log('While morphing DOM', error)
+      this.requestReset()
+    }
+  }
+
+  /**
+   * Send a request for a reset of the DOM HTML
+   *
+   * Used when an out of sequence patch is received, or when there is an error
+   * then morphing HTML into the DOM (i.e. for some reason the currently maintained
+   * state of the HTML is invalid)
+   */
+  private requestReset() {
+    vscode.postMessage({ command: 'reset-dom' })
   }
 
   /**
