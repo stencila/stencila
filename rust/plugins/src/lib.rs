@@ -797,7 +797,9 @@ async fn plugins() -> Vec<Plugin> {
     match list(ListArgs::default()).await {
         Ok(plugins) => plugins,
         Err(error) => {
-            tracing::warn!("While getting list of plugins: {error}");
+            // This error can happen if offline, so just keep at debug level
+            // to avoid too much log noise in user interface
+            tracing::debug!("While getting list of plugins: {error}");
             vec![]
         }
     }
