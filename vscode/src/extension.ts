@@ -8,12 +8,16 @@ import {
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerKernelsView } from "./kernels";
-import { registerNotifications } from "./notifications";
+import { registerStatusNotifications } from "./notifications";
 import { registerModelsView } from "./models";
 import { registerPromptsView } from "./prompts";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
 import { registerStatusBar } from "./status-bar";
-import { closeDocumentViewPanels } from "./webviews";
+import {
+  closeDocumentViewPanels,
+  documentPatchHandlers,
+  registerSubscriptionNotifications,
+} from "./webviews";
 import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 
@@ -102,8 +106,9 @@ async function startServer(context: vscode.ExtensionContext) {
   );
   await client.start();
 
-  // Register notifications on the client
-  registerNotifications(client);
+  // Register handlers for notifications from the client
+  registerStatusNotifications(context, client);
+  registerSubscriptionNotifications(context, client);
 
   // Create views using client, or refresh existing views with new client (if a restart)
   if (views.length) {
@@ -179,41 +184,9 @@ export function deactivate() {
   }
 }
 
-/**
- * Subscribe to content of a document in a specific format
- */
-export async function subscribeToContent(
-  documentUri: vscode.Uri,
-  format: string,
-  callback: (content: string) => void
-): Promise<string> {
-  if (!client) {
-    throw new Error("No Stencila LSP client");
-  }
-
-  const content = (await client.sendRequest("stencila/subscribeContent", {
-    uri: documentUri.toString(),
-    format,
-  })) as string;
-
-  callback(content);
-
-  client.onNotification(
-    "stencila/publishContent",
-    (published: { uri: string; format: string; content: string }) => {
-      if (
-        published.uri === documentUri.toString() &&
-        published.format === format
-      ) {
-        callback(published.content);
-      }
-    }
-  );
-
-  return content;
-}
-
-const domSubscriptions: Record<string, vscode.Disposable> = {};
+// The following functions relate to topics in other modules (e.g documents)
+// but are included here because they all send requests to the the
+// current client (which is managed in this module)
 
 /**
  * Subscribe to DOM HTML of a document
@@ -221,44 +194,50 @@ const domSubscriptions: Record<string, vscode.Disposable> = {};
 export async function subscribeToDom(
   documentUri: vscode.Uri,
   callback: (patch: unknown) => void
-): Promise<[string, string]> {
+): Promise<[string, string, string]> {
   if (!client) {
     throw new Error("No Stencila LSP client");
   }
 
   // Subscribe to document
-  const [subscriptionId, theme] = (await client.sendRequest(
+  const [subscriptionId, theme, html] = (await client.sendRequest(
     "stencila/subscribeDom",
     {
       uri: documentUri.toString(),
     }
   )) as string;
 
-  // Record notification handler so it can be dispose of later
-  domSubscriptions[subscriptionId] = client.onNotification(
-    "stencila/publishDom",
-    (published: { subscriptionId: string; patch: unknown }) => {
-      if (published.subscriptionId === subscriptionId) {
-        callback(published.patch);
-      }
-    }
-  );
+  // Register the handler for patches for this subscription
+  documentPatchHandlers[subscriptionId] = callback;
 
-  return [subscriptionId, theme];
+  return [subscriptionId, theme, html];
 }
 
 /**
- * Unsubscribe from DOM HTML of a document
+ * Send a request to reset the DOM HTML for a subscription
+ */
+export async function resetDom(subscriptionId: string) {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  await client.sendRequest("stencila/resetDom", {
+    subscriptionId,
+  });
+}
+
+/**
+ * Unsubscribe from updates to the DOM HTML of a document
  */
 export async function unsubscribeFromDom(subscriptionId: string) {
   if (!client) {
     throw new Error("No Stencila LSP client");
   }
 
-  // Dispose of notification handler
-  domSubscriptions[subscriptionId]?.dispose();
+  // Dispose of patch handler for the subscription
+  delete documentPatchHandlers[subscriptionId];
 
-  // Unsubscribe from document so that
+  // Unsubscribe from document so that its server task can be stopped
   await client.sendRequest("stencila/unsubscribeDom", {
     subscriptionId,
   });

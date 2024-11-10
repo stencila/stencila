@@ -16,7 +16,10 @@ use common::{
     similar::{capture_diff_slices_deadline, Algorithm, DiffTag},
     tokio::{
         self,
-        sync::{mpsc::Sender, Mutex},
+        sync::{
+            mpsc::{Receiver, Sender},
+            Mutex,
+        },
     },
     tracing,
 };
@@ -33,6 +36,20 @@ pub struct DomPatch {
 
     /// The operations in the patch
     ops: Vec<DomOperation>,
+}
+
+impl DomPatch {
+    /// Create a patch that is a request from the client for a reset patch
+    /// to be sent by the server
+    ///
+    /// Used when the client receives a patch from the server that is not
+    /// in sequential order.
+    pub fn reset_request() -> Self {
+        Self {
+            version: 0,
+            ops: Vec::new(),
+        }
+    }
 }
 
 /// An operation on the DOM HTML representation of a document
@@ -133,7 +150,11 @@ impl Document {
     /// it only does diffing if the HTML content is above a a certain length.
     /// Also, it does diffing on UTF16 slices since that is what browsers use.
     #[tracing::instrument(skip_all)]
-    pub async fn sync_dom(&self, patch_sender: Option<Sender<DomPatch>>) -> Result<()> {
+    pub async fn sync_dom(
+        &self,
+        mut patch_receiver: Receiver<DomPatch>,
+        patch_sender: Sender<DomPatch>,
+    ) -> Result<String> {
         tracing::trace!("Syncing DOM");
 
         // The minimum length of the content that is diffed. Below this length, the entire
@@ -159,98 +180,126 @@ impl Document {
         let current = Arc::new(Mutex::new(initial_content.clone()));
         let version = Arc::new(AtomicU32::new(1));
 
+        // Start task to receive incoming patches from the client
+        // Currently only "reset request patches" are handled - those that
+        // have a version number of zero, and trigger a reset patch to be sent back.
+        let current_clone = current.clone();
+        let version_clone = version.clone();
+        let patch_sender_clone = patch_sender.clone();
+        tokio::spawn(async move {
+            while let Some(patch) = patch_receiver.recv().await {
+                tracing::trace!("Received DOM patch");
+
+                let mut current = current_clone.lock().await;
+                let current_content = current.deref_mut();
+
+                // If the patch is not for the current version then send a reset patch
+                // (if there is a patch sender) and ignore the patch
+                let current_version = version_clone.load(Ordering::SeqCst);
+                if patch.version != current_version {
+                    let reset = DomPatch {
+                        version: current_version,
+                        ops: vec![DomOperation::reset_content(&*current_content)],
+                    };
+                    if let Err(error) = patch_sender_clone.send(reset).await {
+                        tracing::error!("While sending content reset patch: {error}");
+                    }
+                    continue;
+                }
+            }
+        });
+
         // Start task to listen for changes to the document's root node,
         // convert them to a patch and send to the client
-        if let Some(patch_sender) = patch_sender {
-            let mut node_receiver = self.watch_receiver.clone();
-            tokio::spawn(async move {
-                // Send initial patch to set initial content
-                let init = DomPatch {
-                    version: version.load(Ordering::SeqCst),
-                    ops: vec![DomOperation::reset_content(initial_content)],
+        let mut node_receiver = self.watch_receiver.clone();
+        let reset_content = initial_content.clone();
+        tokio::spawn(async move {
+            // Send initial patch to set initial content
+            let init = DomPatch {
+                version: version.load(Ordering::SeqCst),
+                ops: vec![DomOperation::reset_content(reset_content)],
+            };
+            if let Err(error) = patch_sender.send(init).await {
+                tracing::error!("While sending initial string patch: {error}");
+            }
+
+            // TODO: consider debouncing this
+            while node_receiver.changed().await.is_ok() {
+                tracing::trace!("Root node changed, updating string buffer");
+
+                let node = node_receiver.borrow_and_update().clone();
+
+                // Encode the node to a string in the format
+                let new_content = match codecs::to_string(&node, encode_options.clone()).await {
+                    Ok(string) => string,
+                    Err(error) => {
+                        tracing::error!("While encoding node to string: {error}");
+                        continue;
+                    }
                 };
-                if let Err(error) = patch_sender.send(init).await {
-                    tracing::error!("While sending initial string patch: {error}");
-                }
 
-                // TODO: consider debouncing this
-                while node_receiver.changed().await.is_ok() {
-                    tracing::trace!("Root node changed, updating string buffer");
+                let mut current = current.lock().await;
+                let current_content = current.deref_mut();
 
-                    let node = node_receiver.borrow_and_update().clone();
+                let mut ops = Vec::new();
 
-                    // Encode the node to a string in the format
-                    let new_content = match codecs::to_string(&node, encode_options.clone()).await {
-                        Ok(string) => string,
-                        Err(error) => {
-                            tracing::error!("While encoding node to string: {error}");
-                            continue;
-                        }
-                    };
+                if new_content != *current_content {
+                    if new_content.len() < MINIMUM_DIFF_LEN {
+                        ops.push(DomOperation::reset_content(new_content.clone()))
+                    } else {
+                        let current_utf16 = current_content.encode_utf16().collect_vec();
+                        let new_utf16 = new_content.encode_utf16().collect_vec();
 
-                    let mut current = current.lock().await;
-                    let current_content = current.deref_mut();
+                        let diff_ops = capture_diff_slices_deadline(
+                            Algorithm::Myers,
+                            &current_utf16[..],
+                            &new_utf16[..],
+                            Some(Instant::now() + Duration::from_secs(MAXIMUM_DIFF_SECS)),
+                        );
 
-                    let mut ops = Vec::new();
+                        // Convert the diff to a set of operations
+                        let mut from = 0usize;
+                        for op in diff_ops {
+                            match op.tag() {
+                                DiffTag::Insert => ops.push(DomOperation::insert_content(
+                                    from,
+                                    String::from_utf16_lossy(&new_utf16[op.new_range()]),
+                                )),
+                                DiffTag::Delete => ops.push(DomOperation::delete_content(
+                                    from,
+                                    from + op.old_range().len(),
+                                )),
+                                DiffTag::Replace => ops.push(DomOperation::replace_content(
+                                    from,
+                                    from + op.old_range().len(),
+                                    String::from_utf16_lossy(&new_utf16[op.new_range()]),
+                                )),
+                                DiffTag::Equal => {}
+                            };
 
-                    if new_content != *current_content {
-                        if new_content.len() < MINIMUM_DIFF_LEN {
-                            ops.push(DomOperation::reset_content(new_content.clone()))
-                        } else {
-                            let current_utf16 = current_content.encode_utf16().collect_vec();
-                            let new_utf16 = new_content.encode_utf16().collect_vec();
-
-                            let diff_ops = capture_diff_slices_deadline(
-                                Algorithm::Myers,
-                                &current_utf16[..],
-                                &new_utf16[..],
-                                Some(Instant::now() + Duration::from_secs(MAXIMUM_DIFF_SECS)),
-                            );
-
-                            // Convert the diff to a set of operations
-                            let mut from = 0usize;
-                            for op in diff_ops {
-                                match op.tag() {
-                                    DiffTag::Insert => ops.push(DomOperation::insert_content(
-                                        from,
-                                        String::from_utf16_lossy(&new_utf16[op.new_range()]),
-                                    )),
-                                    DiffTag::Delete => ops.push(DomOperation::delete_content(
-                                        from,
-                                        from + op.old_range().len(),
-                                    )),
-                                    DiffTag::Replace => ops.push(DomOperation::replace_content(
-                                        from,
-                                        from + op.old_range().len(),
-                                        String::from_utf16_lossy(&new_utf16[op.new_range()]),
-                                    )),
-                                    DiffTag::Equal => {}
-                                };
-
-                                from += op.new_range().len();
-                            }
-                        }
-
-                        // Increment version
-                        version.fetch_add(1, Ordering::SeqCst);
-
-                        // Update current content
-                        *current_content = new_content;
-                    }
-
-                    if !ops.is_empty() {
-                        // Create and send a patch for the content
-                        let version = version.load(Ordering::SeqCst);
-                        let patch = DomPatch { version, ops };
-                        if patch_sender.send(patch).await.is_err() {
-                            // Most likely receiver has dropped so just finish this task
-                            break;
+                            from += op.new_range().len();
                         }
                     }
-                }
-            });
-        }
 
-        Ok(())
+                    // Increment version
+                    version.fetch_add(1, Ordering::SeqCst);
+
+                    // Update current content
+                    *current_content = new_content;
+                }
+
+                if !ops.is_empty() {
+                    // Create and send a patch for the content
+                    let version = version.load(Ordering::SeqCst);
+                    let patch = DomPatch { version, ops };
+                    if patch_sender.send(patch).await.is_err() {
+                        // Most likely receiver has dropped so just finish this task
+                        break;
+                    }
+                }
+            }
+        });
+
+        Ok(initial_content)
     }
 }

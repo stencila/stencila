@@ -27,7 +27,7 @@ export class StencilaAuthorship extends LitElement {
 
   @consume({ context: documentContext, subscribe: true })
   @state()
-  previewContext: DocumentContext
+  documentContext: DocumentContext
 
   /**
    * Number of authors who have ever edited this content.
@@ -108,8 +108,8 @@ export class StencilaAuthorship extends LitElement {
 
   override render() {
     const showHighlights =
-      this.previewContext.showAllAuthorshipHighlight ||
-      this.entityContext.cardOpen
+      this.documentContext?.showAllAuthorshipHighlight ||
+      this.entityContext?.cardOpen
 
     if (showHighlights) {
       return this.renderHighlights()

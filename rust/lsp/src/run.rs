@@ -162,6 +162,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                     }
                 }
             })
+            .request::<dom::ResetDom, _>(|_state, params| dom::reset(params.subscription_id))
             .request::<dom::UnsubscribeDom, _>(|_state, params| {
                 dom::unsubscribe(params.subscription_id)
             });

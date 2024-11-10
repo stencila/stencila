@@ -330,8 +330,13 @@ pub async fn serve_path(
         .map_or("markdown", |value| value.as_ref());
 
     // Generate the body of the HTML
-    let body = if let "static" | "print" = view {
-        doc.export(
+    // Note that for dynamic views, when WebSocket connection is made, a "reset patch" will be sent with the same
+    // root HTML. This is somewhat redundant, but is necessary, given that we need to have a known version of the
+    // HTML as the basis for patching. We could skip including the HTML here (we used to) but then that is unsafe
+    // if there are Websocket issues (the page would be blank).
+    let root_type = doc.root_type().await;
+    let root_html = doc
+        .export(
             None,
             Some(EncodeOptions {
                 format: Some(Format::Dom),
@@ -339,11 +344,8 @@ pub async fn serve_path(
             }),
         )
         .await
-        .map_err(InternalError::new)?
-    } else {
-        let root_type = doc.root_type().await;
-        format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
-    };
+        .map_err(InternalError::new)?;
+    let body = format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
 
     // The version path segment for static assets (JS & CSS)
     let version = if cfg!(debug_assertions) {
@@ -368,7 +370,7 @@ pub async fn serve_path(
     } else if view == "print" {
         format!(
             r#"<link rel="stylesheet" type="text/csss" href="/~static/{version}/views/print.css">
-                   <script type="module" src="/~static/{version}/views/print.js"></script>"#
+                <script type="module" src="/~static/{version}/views/print.js"></script>"#
         )
     } else {
         format!(
@@ -693,12 +695,15 @@ async fn websocket_directory_protocol(
 async fn websocket_dom_protocol(ws: WebSocket, doc: Arc<Document>) {
     tracing::trace!("WebSocket `dom` protocol connection");
 
-    let (ws_sender, ..) = ws.split();
+    let (ws_sender, ws_receiver) = ws.split();
+
+    let (in_sender, in_receiver) = channel(1024);
+    receive_websocket_messages(ws_receiver, in_sender);
 
     let (out_sender, out_receiver) = channel(1024);
     send_websocket_messages(out_receiver, ws_sender);
 
-    if let Err(error) = doc.sync_dom(Some(out_sender)).await {
+    if let Err(error) = doc.sync_dom(in_receiver, out_sender).await {
         tracing::error!("While syncing DOM for WebSocket client: {error}")
     }
 }

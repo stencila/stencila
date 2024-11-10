@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { LitElement, html } from 'lit'
+import { LitElement } from 'lit'
 import { state } from 'lit/decorators'
 
 import {
@@ -52,10 +52,10 @@ export abstract class DocumentView extends LitElement {
       }
     )
 
-    return this
-  }
+    // Append the document menu
+    const menu = document.createElement('stencila-document-menu')
+    this.appendChild(menu)
 
-  protected renderDocumentMenu() {
-    return html`<stencila-document-menu></stencila-document-menu>`
+    return this
   }
 }

@@ -16,16 +16,32 @@ export class DomClient extends FormatClient {
    * Construct a new `DomClient`
    *
    * @param id The id of the document
-   * @param elem The DOM element that will be updated
+   * @param renderRoot The render root, whose first element child will be updated
    */
-  constructor(id: DocumentId, elem: HTMLElement) {
+  constructor(id: DocumentId, renderRoot: Element) {
     super(id, 'read', 'dom')
 
     this.subscribe((html) => {
       if (process.env.NODE_ENV === 'development') {
-        console.log(`📝 DomClient morphing element`, elem)
+        console.log(`📝 DomClient morphing element`, renderRoot)
       }
-      Idiomorph.morph(elem, html)
+
+      // Get the target element
+      const documentRoot = renderRoot.querySelector('[root]')
+      if (!documentRoot) {
+        console.error('No document root found')
+        return
+      }
+
+      // Update element
+      // Any errors during morphing (i.e is somehow the HTML is invalid)
+      // result in a reset request being sent to the server
+      try {
+        Idiomorph.morph(documentRoot, html)
+      } catch (error) {
+        console.log('While morphing DOM', error)
+        this.sendMessage({ version: 0 })
+      }
     })
   }
 }

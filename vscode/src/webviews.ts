@@ -1,8 +1,9 @@
 import path from "path";
 
 import * as vscode from "vscode";
+import { LanguageClient } from "vscode-languageclient/node";
 
-import { subscribeToDom, unsubscribeFromDom } from "./extension";
+import { resetDom, subscribeToDom, unsubscribeFromDom } from "./extension";
 import { statusBar } from "./status-bar";
 
 /**
@@ -10,6 +11,41 @@ import { statusBar } from "./status-bar";
  * view of a document exists at a time
  */
 const documentViewPanels = new Map<vscode.Uri, vscode.WebviewPanel>();
+
+/**
+ * A map of the "disposables" for each document that can be disposed of when
+ * the view is closed
+ */
+const documentViewHandlers = new Map<vscode.Uri, vscode.Disposable[]>();
+
+/**
+ * A map of patch handler function for each subscription to a
+ * document's DOM HTML
+ */
+export const documentPatchHandlers: Record<string, (patch: unknown) => void> =
+  {};
+
+/**
+ * Register a handler for "stencila/publishDom" notifications that forwards
+ * the patch onto the handler to the appropriate webview
+ */
+export function registerSubscriptionNotifications(
+  context: vscode.ExtensionContext,
+  client: LanguageClient
+) {
+  const handler = client.onNotification(
+    "stencila/publishDom",
+    ({ subscriptionId, patch }: { subscriptionId: string; patch: unknown }) => {
+      const handler = documentPatchHandlers[subscriptionId];
+      if (!handler) {
+        console.error(`No handler for subscription ${subscriptionId}`);
+      } else {
+        handler(patch);
+      }
+    }
+  );
+  context.subscriptions.push(handler);
+}
 
 /**
  * Create a WebView panel that display the document
@@ -26,7 +62,6 @@ export async function createDocumentViewPanel(
   if (documentViewPanels.has(documentUri)) {
     // If there is already a panel open for this document, reveal it
     const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
-
     panel.reveal();
 
     // If `nodeId` param is defined, scroll webview to target node.
@@ -52,6 +87,7 @@ export async function createDocumentViewPanel(
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,
+      retainContextWhenHidden: true,
       localResourceRoots: [webDist],
     }
   );
@@ -62,7 +98,7 @@ export async function createDocumentViewPanel(
   );
 
   // Subscribe to updates of DOM HTML for document and get theme
-  const [subscriptionId, themeName] = await subscribeToDom(
+  const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
     documentUri,
     (patch: unknown) => {
       panel.webview.postMessage({
@@ -98,6 +134,7 @@ export async function createDocumentViewPanel(
         </head>
         <body style="background: white;">
           <stencila-vscode-view theme="${themeName}">
+            ${viewHtml}
           </stencila-vscode-view>
           <script>
             const vscode = acquireVsCodeApi()
@@ -106,31 +143,35 @@ export async function createDocumentViewPanel(
     </html>
   `;
 
-  // Track the webview by adding it to the map
-  documentViewPanels.set(documentUri, panel);
+  const disposables: vscode.Disposable[] = [];
 
   // Listen to the view state changes of the webview panel to update status bar
-  panel.onDidChangeViewState((e) => {
-    statusBar.updateForDocumentView(e.webviewPanel.active);
-  });
+  panel.onDidChangeViewState(
+    (e) => {
+      statusBar.updateForDocumentView(e.webviewPanel.active);
+    },
+    null,
+    disposables
+  );
 
   // Handle when the webview is disposed
-  panel.onDidDispose(() => {
-    // Unsubscribe from updates to DOM HTML
-    unsubscribeFromDom(subscriptionId);
+  panel.onDidDispose(
+    () => {
+      // Unsubscribe from updates to DOM HTML
+      unsubscribeFromDom(subscriptionId);
 
-    // Remove from list of panels
-    documentViewPanels.delete(documentUri);
-  }, null);
+      // Remove from list of panels
+      documentViewPanels.delete(documentUri);
 
-  // If `nodeId` param is defined, scroll webview panel to target node.
-  if (nodeId) {
-    panel.webview.postMessage({
-      type: "view-node",
-      nodeId,
-      expandAuthors,
-    });
-  }
+      // Dispose handlers and remove from lists
+      documentViewHandlers
+        .get(documentUri)
+        ?.forEach((handler) => handler.dispose());
+      documentViewHandlers.delete(documentUri);
+    },
+    null,
+    disposables
+  );
 
   // Handle messages from the webview
   // It is necessary to translate the names of the Stencila document
@@ -146,6 +187,12 @@ export async function createDocumentViewPanel(
   panel.webview.onDidReceiveMessage(
     (command: DocumentCommand) => {
       let name = command.command;
+
+      if (name === "reset-dom") {
+        resetDom(subscriptionId);
+        return;
+      }
+
       if (name === "execute-nodes") {
         if (command.scope === "plus-before") {
           name = "run-before";
@@ -164,9 +211,22 @@ export async function createDocumentViewPanel(
         ...(command.nodeProperty ? command.nodeProperty : [])
       );
     },
-    undefined,
-    context.subscriptions
+    null,
+    disposables
   );
+
+  // Track the webview by adding it to the map
+  documentViewPanels.set(documentUri, panel);
+  documentViewHandlers.set(documentUri, disposables);
+
+  // If `nodeId` param is defined, scroll webview panel to target node.
+  if (nodeId) {
+    panel.webview.postMessage({
+      type: "view-node",
+      nodeId,
+      expandAuthors,
+    });
+  }
 
   return panel;
 }

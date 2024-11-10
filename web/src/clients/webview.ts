@@ -68,14 +68,25 @@ export class WebViewClient {
   private html: string
 
   /**
-   * The HTML element that the document is rendered on
+   * The render root of the view
+   *
+   * This will contain an element for the document root which is morphed by patches.
    */
   private renderRoot: HTMLElement
 
-  constructor(renderRoot: HTMLElement) {
+  /**
+   * A count of the number of failed DOM morphing attempts
+   *
+   * If the second, then the root element will just be
+   * set to the HTML of the reset patch, with no attempt to morph.
+   */
+  private failedMorph: number = 0
+
+  constructor(rootElement: HTMLElement) {
     this.version = 0
     this.html = ''
-    this.renderRoot = renderRoot
+    this.renderRoot = rootElement
+    this.failedMorph = 0
     this.setWindowListener()
   }
 
@@ -122,13 +133,10 @@ export class WebViewClient {
   private handleDomPatchMessage({ patch }: DomPatchMessage) {
     const { version, ops } = patch as unknown as FormatPatch
 
-    // Is the patch a reset patch?
-    const isReset = ops.length >= 1 && ops[0].type === 'reset'
-
     // Check for non-sequential patch and request a reset patch if necessary
+    const isReset = ops.length >= 1 && ops[0].type === 'reset'
     if (!isReset && version > this.version + 1) {
-      // TODO: consider doing a reset here as is done in `./format.ts`
-      // return
+      this.requestReset()
     }
 
     // Apply each operation in the patch
@@ -164,8 +172,45 @@ export class WebViewClient {
     // Update version
     this.version = version
 
+    // Get the target element
+    const documentRoot = this.renderRoot.querySelector('[root]')
+    if (!documentRoot) {
+      console.error('No document root found')
+      return
+    }
+
     // Update element
-    Idiomorph.morph(this.renderRoot.firstElementChild, this.html)
+    if (isReset && this.failedMorph >= 2) {
+      // If this is a reset patch and there was already two attempts
+      // using morphing, then resort to replacing innerHTML of root
+      documentRoot.innerHTML = new DOMParser().parseFromString(
+        this.html,
+        'text/html'
+      ).body.firstElementChild.innerHTML
+      this.failedMorph = 0
+    } else {
+      try {
+        Idiomorph.morph(documentRoot, this.html)
+        this.failedMorph = 0
+      } catch (error) {
+        // Any errors during morphing (i.e if somehow the HTML is invalid)
+        // result in a reset request being sent to the server.
+        console.log('While morphing DOM', error)
+        this.failedMorph += 1
+        this.requestReset()
+      }
+    }
+  }
+
+  /**
+   * Send a request for a reset of the DOM HTML
+   *
+   * Used when an out of sequence patch is received, or when there is an error
+   * then morphing HTML into the DOM (i.e. for some reason the currently maintained
+   * state of the HTML is invalid)
+   */
+  private requestReset() {
+    vscode.postMessage({ command: 'reset-dom' })
   }
 
   /**
