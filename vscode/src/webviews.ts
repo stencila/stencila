@@ -98,7 +98,7 @@ export async function createDocumentViewPanel(
   );
 
   // Subscribe to updates of DOM HTML for document and get theme
-  const [subscriptionId, themeName] = await subscribeToDom(
+  const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
     documentUri,
     (patch: unknown) => {
       panel.webview.postMessage({
@@ -134,6 +134,7 @@ export async function createDocumentViewPanel(
         </head>
         <body style="background: white;">
           <stencila-vscode-view theme="${themeName}">
+            ${viewHtml}
           </stencila-vscode-view>
           <script>
             const vscode = acquireVsCodeApi()

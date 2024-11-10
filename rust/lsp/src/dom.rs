@@ -30,7 +30,7 @@ pub struct SubscribeDom;
 impl Request for SubscribeDom {
     const METHOD: &'static str = "stencila/subscribeDom";
     type Params = SubscribeDomParams;
-    type Result = (String, String);
+    type Result = (String, String, String);
 }
 
 #[derive(Serialize, Deserialize)]
@@ -95,7 +95,7 @@ static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<(
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
     client: ClientSocket,
-) -> Result<(String, String), ResponseError> {
+) -> Result<(String, String, String), ResponseError> {
     let (in_sender, in_receiver) = mpsc::channel(256);
     let (out_sender, mut out_receiver) = mpsc::channel(256);
 
@@ -129,12 +129,13 @@ pub async fn subscribe(
         .theme
         .unwrap_or_else(|| "default".into());
 
-    // Start the DOM syncing task
-    doc.sync_dom(in_receiver, out_sender)
+    // Start the DOM syncing task and the initial HTML content
+    let html = doc
+        .sync_dom(in_receiver, out_sender)
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 
-    Ok((subscription_id, theme))
+    Ok((subscription_id, theme, html))
 }
 
 /// Handle a request to reset the DOM HTML for a document

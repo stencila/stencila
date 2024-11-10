@@ -1,5 +1,4 @@
 import { NodeType } from '@stencila/types'
-import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CommandsClient } from '../clients/commands'
@@ -59,37 +58,19 @@ export class DynamicView extends DocumentView {
   private nodesClient: CommandsClient
 
   /**
-   * Override so that clients are instantiated _after_ this
-   * element has a document `[root]` element in its `renderRoot`.
+   * Override to pass the render root to the clients
    */
-  override update(changedProperties: Map<string, string | boolean>): void {
-    super.update(changedProperties)
+  protected override createRenderRoot(): this {
+    const renderRoot = super.createRenderRoot()
 
-    if (changedProperties.has('doc')) {
-      this.domClient = new DomClient(
-        this.doc,
-        this.renderRoot.firstElementChild as HTMLElement
-      )
+    this.domClient = new DomClient(this.doc, renderRoot as HTMLElement)
 
-      this.nodesClient = new CommandsClient(
-        this.doc,
-        this.access,
-        this.renderRoot as HTMLElement
-      )
-    }
-  }
+    this.nodesClient = new CommandsClient(
+      this.doc,
+      this.access,
+      renderRoot as HTMLElement
+    )
 
-  override render() {
-    // The empty root custom element of the correct type needs to be
-    // created here for diffs received by the `DomClient` to be applied properly
-    const root =
-      this.type === 'Prompt'
-        ? html`<stencila-prompt root></stencila-prompt>`
-        : html`<stencila-article root></stencila-article>`
-
-    // Menu needs to render after root
-    const menu = this.renderDocumentMenu()
-
-    return html`${root}${menu}`
+    return renderRoot
   }
 }

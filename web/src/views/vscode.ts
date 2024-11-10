@@ -1,4 +1,3 @@
-import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { WebViewClient } from '../clients/webview'
@@ -15,24 +14,16 @@ import '../ui/document/menu'
 @customElement('stencila-vscode-view')
 export class VsCodeView extends DocumentView {
   /**
-   * Client for handling the messages to and from the vscode webview API
+   * Client for handling the messages to and from the VSCode webview API
    */
   protected webviewClient: WebViewClient
 
+  /**
+   * Override to pass the render root to the client
+   */
   protected override createRenderRoot(): this {
     const renderRoot = super.createRenderRoot()
     this.webviewClient = new WebViewClient(renderRoot)
     return renderRoot
-  }
-
-  protected override render() {
-    // The empty root custom element of the correct type needs to be
-    // created here for diffs received by the `DomClient` to be applied properly
-    const root = html`<stencila-article root></stencila-article>`
-
-    // Menu needs to render after root
-    const menu = this.renderDocumentMenu()
-
-    return html`${root}${menu}`
   }
 }

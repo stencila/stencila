@@ -154,7 +154,7 @@ impl Document {
         &self,
         mut patch_receiver: Receiver<DomPatch>,
         patch_sender: Sender<DomPatch>,
-    ) -> Result<()> {
+    ) -> Result<String> {
         tracing::trace!("Syncing DOM");
 
         // The minimum length of the content that is diffed. Below this length, the entire
@@ -212,11 +212,12 @@ impl Document {
         // Start task to listen for changes to the document's root node,
         // convert them to a patch and send to the client
         let mut node_receiver = self.watch_receiver.clone();
+        let reset_content = initial_content.clone();
         tokio::spawn(async move {
             // Send initial patch to set initial content
             let init = DomPatch {
                 version: version.load(Ordering::SeqCst),
-                ops: vec![DomOperation::reset_content(initial_content)],
+                ops: vec![DomOperation::reset_content(reset_content)],
             };
             if let Err(error) = patch_sender.send(init).await {
                 tracing::error!("While sending initial string patch: {error}");
@@ -299,6 +300,6 @@ impl Document {
             }
         });
 
-        Ok(())
+        Ok(initial_content)
     }
 }

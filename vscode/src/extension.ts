@@ -194,13 +194,13 @@ export function deactivate() {
 export async function subscribeToDom(
   documentUri: vscode.Uri,
   callback: (patch: unknown) => void
-): Promise<[string, string]> {
+): Promise<[string, string, string]> {
   if (!client) {
     throw new Error("No Stencila LSP client");
   }
 
   // Subscribe to document
-  const [subscriptionId, theme] = (await client.sendRequest(
+  const [subscriptionId, theme, html] = (await client.sendRequest(
     "stencila/subscribeDom",
     {
       uri: documentUri.toString(),
@@ -210,7 +210,7 @@ export async function subscribeToDom(
   // Register the handler for patches for this subscription
   documentPatchHandlers[subscriptionId] = callback;
 
-  return [subscriptionId, theme];
+  return [subscriptionId, theme, html];
 }
 
 /**
