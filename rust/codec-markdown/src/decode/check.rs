@@ -8,21 +8,29 @@ pub fn check(md: &str, _format: &Format) -> Messages {
     // or which use unrecognized directive names
     let mut colon_fences = Vec::new();
     let mut backtick_fences = Vec::new();
+    let mut dollar_fences = Vec::new();
     for (index, line) in md.lines().enumerate() {
-        // Count the number of successive leading colons of backticks
+        // Count the number of successive leading colons, backticks, or dollars
         let mut colons = 0;
         let mut backticks = 0;
+        let mut dollars = 0;
         let mut trailing_chars = false;
         for char in line.chars() {
             if char == ':' {
-                if backticks == 0 {
+                if backticks == 0 && dollars == 0 {
                     colons += 1;
                 } else {
                     break;
                 }
             } else if char == '`' {
-                if colons == 0 {
+                if colons == 0 && dollars == 0 {
                     backticks += 1;
+                } else {
+                    break;
+                }
+            } else if char == '$' {
+                if colons == 0 && backticks == 0 {
+                    dollars += 1;
                 } else {
                     break;
                 }
@@ -48,6 +56,8 @@ pub fn check(md: &str, _format: &Format) -> Messages {
             OpeningBackticks(u32),
             #[strum(to_string = "closing backtick fence")]
             ClosingBackticks(u32),
+            #[strum(to_string = "dollar fence")]
+            Dollars(u32),
         }
         let fence = if colons >= 3 {
             // Is this a self-closing, or separating, colon fence?
@@ -60,10 +70,7 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                     || line.ends_with(">>>")
                 {
                     (true, false)
-                } else if line.starts_with("elif")
-                    || line.starts_with("else")
-                    || line.starts_with("with")
-                {
+                } else if line.starts_with("elif") || line.starts_with("else") {
                     (false, true)
                 } else {
                     (false, false)
@@ -87,6 +94,8 @@ pub fn check(md: &str, _format: &Format) -> Messages {
             } else {
                 Fence::ClosingBackticks(backticks)
             }
+        } else if dollars >= 2 {
+            Fence::Dollars(dollars)
         } else {
             Fence::No
         };
@@ -169,6 +178,23 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                     }
                 }
             }
+            Fence::Dollars(dollars) => {
+                match dollar_fences.last() {
+                    Some(&(opening_line, Fence::Dollars(opening_dollars))) => {
+                        if dollars != opening_dollars {
+                            messages.push(warning(index,
+                                format!(
+                                    "Number of closing dollars differs from opening dollars on line {opening_line} ({dollars} != {opening_dollars})",
+                                    opening_line = opening_line + 1
+                            )));
+                        }
+                        // Pop off the last opening fence
+                        dollar_fences.pop();
+                    }
+                    Some(..) => {}
+                    None => dollar_fences.push((index, Fence::Dollars(dollars))),
+                }
+            }
             Fence::No => {}
         }
     }
@@ -179,6 +205,10 @@ pub fn check(md: &str, _format: &Format) -> Messages {
 
     for (line, fence) in backtick_fences {
         messages.push(error(line, format!("Unpaired {fence}")))
+    }
+
+    for (line, ..) in dollar_fences {
+        messages.push(error(line, "Unpaired opening dollar fence"))
     }
 
     messages

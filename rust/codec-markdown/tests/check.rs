@@ -175,3 +175,19 @@ async fn unbalanced_backticks() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn unbalanced_dollars() -> Result<()> {
+    assert_snapshot!(messages(r#"
+$$
+
+$$$
+
+$$
+"#).await?, @r###"
+    3 Number of closing dollars differs from opening dollars on line 2 (3 != 2)
+    5 Unpaired opening dollar fence
+    "###);
+
+    Ok(())
+}
