@@ -422,6 +422,11 @@ pub struct EncodeOptions {
     /// for the format will be used.
     pub compact: Option<bool>,
 
+    /// The theme to use when encoding
+    ///
+    /// Use this option to specify the theme form HTML and HTML-based formats (e.g. PDF).
+    pub theme: Option<String>,
+
     /// The path of the document being encoded from
     ///
     /// Used by some codecs to resolve any relative paths in the document
@@ -431,7 +436,7 @@ pub struct EncodeOptions {
     /// The path of the file being encoded to
     ///
     /// Used by some codecs to create sidecar files or folders. Note that
-    /// the default implementation of `Codec::to_path` will set this and any
+    /// the default implementation of `Codec::to_path` will set this option and any
     /// overrides should do the same.
     pub to_path: Option<PathBuf>,
 

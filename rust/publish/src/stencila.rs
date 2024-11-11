@@ -21,6 +21,7 @@ struct Manifest {}
 /// Publish a single node to Stencila Cloud
 pub(super) async fn publish_node(
     node: &Node,
+    options: EncodeOptions,
     key: &Option<String>,
     dry_run: bool,
     swb: &SwbCodec,
@@ -41,7 +42,7 @@ pub(super) async fn publish_node(
         &temp_path,
         Some(EncodeOptions {
             base_url: Some(base_url),
-            ..Default::default()
+            ..options
         }),
     )
     .await?;

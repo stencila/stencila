@@ -48,6 +48,10 @@ impl Codec for DomCodec {
             .as_ref()
             .and_then(|options| options.standalone)
             .unwrap_or(false);
+        let theme = options
+            .as_ref()
+            .and_then(|options| options.theme.as_deref())
+            .unwrap_or("default");
         let compact = options
             .as_ref()
             .and_then(|options| options.compact)
@@ -132,7 +136,8 @@ impl Codec for DomCodec {
                 .unwrap_or_default();
 
             let alternates = options
-                .and_then(|options| options.alternates)
+                .as_ref()
+                .and_then(|options| options.alternates.clone())
                 .iter()
                 .flatten()
                 .map(|(typ, path)| {
@@ -156,7 +161,7 @@ impl Codec for DomCodec {
     <link rel="icon" type="image/png" href="/~static/images/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="/~static/themes/default.css" />
+    <link rel="stylesheet" type="text/css" href="/~static/themes/{theme}.css" />
     <link rel="stylesheet" type="text/css" href="/~static/views/dynamic.css" />
     <script type="module" src="/~static/views/dynamic.js"></script>
     {style}
