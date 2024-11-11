@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.12 2024-11-11
+
+- Fixes related to having multiple preview tabs opens at once
+
+- Based on Stencila CLI v2.0.0-beta.15 which includes improvements to incremental updates of previews, adds a check for unbalanced dollar delimited math in Markdown, and fixes publishing of images within raw HTML blocks.
+
 ## 0.0.11 2024-11-08
 
 - Based on Stencila CLI v2.0.0-beta.14 which changes the syntax for "self-closing" and "next-block" commands in Stencila Markdown, has fixes to the default theme, and switches to using `idiomorph` for incremental updates of the preview panel,
