@@ -1,4 +1,5 @@
 use codec_info::lost_options;
+use images::img_srcs_to_paths;
 
 use crate::{prelude::*, RawBlock};
 
@@ -31,12 +32,25 @@ impl DomCodec for RawBlock {
             context.push_css(css);
         }
 
-        // Add a div for the content if HTML or SVG
         let format = Format::from_name(&self.format);
+
+        // Add a div for the content if HTML or SVG
         if matches!(format, Format::Html | Format::Svg) {
+            // If HTML, and encoding a standalone document, transform image URLs to files as done for `ImageObject`s
+            let content = if matches!(format, Format::Html) && context.standalone {
+                img_srcs_to_paths(
+                    &self.content,
+                    context.from_path.as_deref(),
+                    context.to_path.as_deref(),
+                    &context.images_dir(),
+                )
+            } else {
+                self.content.to_string()
+            };
+
             context.push_slot_fn("div", "content", |context| match format {
                 Format::Html | Format::Svg => {
-                    context.push_html(&self.content.string);
+                    context.push_html(&content);
                 }
                 _ => {}
             });

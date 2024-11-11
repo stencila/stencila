@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use codec_info::lost_options;
 use common::tracing;
 
@@ -171,18 +169,11 @@ impl DomCodec for ImageObject {
                 && !(self.content_url.starts_with("http://")
                     || self.content_url.starts_with("https://"))
             {
-                // Encode the data URI to a file
-                let images_path = match context.to_path.as_deref() {
-                    // images directory will be a sibling to the encoded file
-                    Some(to_path) => {
-                        PathBuf::from(to_path.to_string_lossy().to_string() + ".images")
-                    }
-                    // images directory will be in the current directory
-                    None => PathBuf::from("images"),
-                };
+                let images_dir = context.images_dir();
 
                 let image_path = if self.content_url.starts_with("data:") {
-                    match images::data_uri_to_path(&self.content_url, &images_path) {
+                    // Encode the data URI to a file
+                    match images::data_uri_to_path(&self.content_url, &images_dir) {
                         Ok(path) => Some(path),
                         Err(error) => {
                             tracing::warn!("While encoding image data URI to file: {error}");
@@ -193,7 +184,8 @@ impl DomCodec for ImageObject {
                     match images::file_uri_to_path(
                         &self.content_url,
                         context.from_path.as_deref(),
-                        &images_path,
+                        context.to_path.as_deref(),
+                        &images_dir,
                     ) {
                         Ok(path) => Some(path),
                         Err(error) => {
@@ -203,24 +195,10 @@ impl DomCodec for ImageObject {
                     }
                 };
 
+                // Fallback to encoding the original URL
                 let src = match image_path {
-                    Some(image_path) => {
-                        // Make the image path relative to the destination file
-                        match context.to_path.as_deref() {
-                            Some(to_path) => to_path
-                                .parent()
-                                .and_then(|dir| image_path.strip_prefix(dir).ok())
-                                .map(PathBuf::from)
-                                .unwrap_or(image_path),
-                            None => image_path,
-                        }
-                        .to_string_lossy()
-                        .to_string()
-                    }
-                    None => {
-                        // Fallback to encoding the original URL
-                        self.content_url.to_string()
-                    }
+                    Some(image_path) => image_path.to_string_lossy().to_string(),
+                    None => self.content_url.to_string(),
                 };
 
                 context.enter_elem("img").push_attr("src", &src).exit_elem();

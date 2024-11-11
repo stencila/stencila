@@ -387,4 +387,14 @@ impl DomEncodeContext {
     pub fn image(&self) -> &Option<String> {
         &self.image
     }
+
+    /// Get the path of the images directory for the context
+    pub fn images_dir(&self) -> PathBuf {
+        match self.to_path.as_deref() {
+            // images directory will be a sibling to the encoded file
+            Some(to_path) => PathBuf::from(to_path.to_string_lossy().to_string() + ".images"),
+            // images directory will be in the current directory
+            None => PathBuf::from("images"),
+        }
+    }
 }

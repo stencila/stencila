@@ -9,6 +9,8 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use common::{
     eyre::{bail, OptionExt, Result},
     itertools::Itertools,
+    once_cell::sync::Lazy,
+    regex::{Captures, Regex},
     seahash::SeaHasher,
 };
 use image::{ImageFormat, ImageReader};
@@ -122,16 +124,18 @@ pub fn data_uri_to_path(data_uri: &str, dest_dir: &Path) -> Result<PathBuf> {
  *
  * - `file_uri`: an absolute or relative filesystem path, which may be prefixed with `file://`
  * - `src_path`: the path that any relative paths are relative to
- * - `dest_dir`: the destination directory
+ * - `dest_path`: the path that destination paths should be relative to
+ * - `images_dir`: the destination directory
  *
  * # Returns
  *
- * The path of the generated file (including the `dest_dir`).
+ * The path of the generated file (including the `images_dir`).
  */
 pub fn file_uri_to_path(
     file_uri: &str,
     src_path: Option<&Path>,
-    dest_dir: &Path,
+    dest_path: Option<&Path>,
+    images_dir: &Path,
 ) -> Result<PathBuf> {
     // Handle the file URI, stripping the "file://" prefix if present
     let path_str = file_uri.strip_prefix("file://").unwrap_or(file_uri);
@@ -167,15 +171,88 @@ pub fn file_uri_to_path(
     let ext = src_path
         .extension()
         .ok_or_eyre("Invalid source file name")?;
-    let dest_path = dest_dir.join(format!("{:x}.{}", hash, ext.to_string_lossy()));
+    let image_path = images_dir.join(format!("{:x}.{}", hash, ext.to_string_lossy()));
 
     // Ensure the destination directory exists
-    if !dest_dir.exists() {
-        create_dir_all(dest_dir)?;
+    if !images_dir.exists() {
+        create_dir_all(images_dir)?;
     }
 
     // Copy the file to the destination directory
-    copy(&src_path, &dest_path)?;
+    copy(&src_path, &image_path)?;
 
-    Ok(dest_path)
+    // Make the image path relative to the destination file
+    let image_path = match dest_path.as_ref() {
+        Some(to_path) => to_path
+            .parent()
+            .and_then(|dir| image_path.strip_prefix(dir).ok())
+            .map(PathBuf::from)
+            .unwrap_or(image_path),
+        None => image_path,
+    };
+
+    Ok(image_path)
+}
+
+/// Transform all the <img> `src` attributes in a string, which are not HTTP, to paths
+pub fn img_srcs_to_paths(
+    html: &str,
+    src_path: Option<&Path>,
+    dest_path: Option<&Path>,
+    dest_dir: &Path,
+) -> String {
+    img_srcs_transform(html, |src| {
+        if src.starts_with("http://") || src.starts_with("https://") {
+            return src.to_string();
+        }
+
+        match file_uri_to_path(src, src_path, dest_path, dest_dir) {
+            Ok(path) => path.to_string_lossy().to_string(),
+            Err(..) => src.to_string(),
+        }
+    })
+}
+
+/// Replace the `src` attributes of <img> tags using a transformation function
+fn img_srcs_transform(html: &str, transform: impl Fn(&str) -> String) -> String {
+    static REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r#"(<img[^>]*\s)src=["']([^"']+)["']"#).expect("invalid regex"));
+
+    REGEX
+        .replace_all(html, |caps: &Captures| {
+            let prefix = &caps[1]; // Everything before the src attribute
+            let src = &caps[2]; // The src value
+            let new_src = transform(src);
+            format!(r#"{}src="{}""#, prefix, new_src)
+        })
+        .into_owned()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_img_srcs_transform() {
+        let html = r#"
+            <div>
+                <img src="path/to/image.jpg" alt="test">
+                <img class="test" src='another/image.png'>
+                <p>Some text</p>
+                <img>
+                <img src="path/with spaces.jpg">
+            </div>
+        "#;
+        let result = img_srcs_transform(html, |src: &str| format!("/converted/{}", src));
+
+        assert!(result.contains(r#"src="/converted/path/to/image.jpg""#));
+        assert!(result.contains(r#"src="/converted/another/image.png""#));
+        assert!(result.contains(r#"src="/converted/path/with spaces.jpg""#));
+
+        let html = r#"<img class="test" src="path.jpg" alt="test">"#;
+        let result = img_srcs_transform(html, |src: &str| format!("/converted/{}", src));
+
+        assert!(result.contains(r#"class="test""#));
+        assert!(result.contains(r#"alt="test""#));
+    }
 }
