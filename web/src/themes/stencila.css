@@ -21,7 +21,7 @@ html {
 }
 
 [root] {
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: Inter, Arial, Helvetica, sans-serif;
   color: var(--default-text-colour);
 
   /* exclude top lvl sections */
@@ -38,26 +38,35 @@ html {
   h6 {
     @apply w-full;
     font-weight: 300;
+    margin:0; 
   }
 
   h1 {
-    @apply text-7xl text-center;
+    @apply text-7xl text-center;    
+    background: linear-gradient(90deg, #2568EF, #09AD32); /* Adjust colors as needed */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   h2 {
     @apply text-5xl;
+    margin-bottom: 24px;
+
   }
 
   h3 {
     @apply text-3xl;
+    margin-bottom: 24px;
+    margin-top: 24px;
   }
 
   h4 {
-    @apply text-2xl;
+    @apply text-xl;
+    margin-bottom: 12px;
   }
 
   p {
-    @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
+    @apply my-0 pr-0 align-baseline leading-7;
   }
 
   figure,
@@ -66,6 +75,14 @@ html {
       @apply object-cover max-w-full aspect-auto m-auto block;
     }
   }
+}
+
+.gradient-text {
+  font-size: 5rem; /* Adjust the font size as needed */
+  font-weight: 300; /* Adjust font weight to match the light look */
+    background: linear-gradient(90deg, #2568EF, #09AD32); /* Adjust colors as needed */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 /* tailwind container */
