@@ -1,0 +1,161 @@
+# Stencila AI Assistance 
+
+Stencila has the ability to use LLMs to help you build your document. Stencila's prompt system allows you to take advantage of document context, supplying it in annotated ways as part of your prompt in order to enhance the quality of the received output. 
+
+## Prompt system 
+
+Prompts in Stencila are themselves Stencila documents, these documents leverage some of the unique capabilities stencila has to include parts of documents in other documents. Doing so Stencila's prompt system is able to be configured to automatically include parts of the document relevant to the current type of prompt being used. 
+
+For example if the user uses the in-built `@figure-caption` prompt, the text of other figure captions in the document will be included with an instrcution to: 
+
+> Pay attention to the style and length of any figure captions already in the document.
+
+Later in the Context section, just the figure captions elsewhere in the document are inlcuded to supply the LLM with material that can aid it in satisfying the prompting instruction. 
+
+In short, this flexible system for crafting prompts can be as simple or complex as necessary to create unique prompts that aide in specific writing tasks.
+
+## Commands 
+
+There are four main commands in Stencila that can be used in a document.
+
+- `::: create`
+- `::: edit`
+- `::; describe`
+- `::: fix`
+
+### Create
+
+Create is used to create new blocks or content, it can be used to create figures, code blocks, new prose sections etc. 
+
+Using Stencila Markdown, it can be invoked as:
+
+````markdown
+::: create <@prompt-name> Prompt text :::
+````
+Where `@prompt-name` is optional. Without a specified prompt name, regular expressions are used to find an appropriate prompt based on key words such as "figure", "caption", "chart", "diagram", "mindmape" etc. 
+
+### Edit 
+
+Edit is a command that can be wrapped around an existing block or section, asking the LLM to makde some modifications of the enclosed content, this could be code and / or prose. Note that edit is destructive, you will loose the original text in the document (thought original text may be stored in Stencila's provenance system). 
+
+```markdown
+::: edit Clean up style and spelling 
+I ain't got no reesons to wryt gud. 
+:::
+```
+
+Resulting in something like:
+```markdown
+I have no reasons to write well.
+```
+
+### Describe
+
+Describe can be good for describing a block of code in prose. 
+
+````markdown
+
+::: describe >>> 
+
+```python
+def fibonacci(n):
+    a,b = 0,1
+    for _ in range(n): a,b=b,a+b
+    return
+```
+
+````
+
+Output:
+
+> The given Python function `fibonacci(n)` calculates the Fibonacci sequence up to the nth term. It initializes two variables, `a` and `b`, with the values 0 and 1, respectively. The function then iterates `n` times, updating `a` and `b` in each iteration. In each update, the value of `a` is assigned the previous value of `b`, and `b` is assigned the sum of the previous values of `a` and `b`. However, the function currently lacks a return statement which means it does not return the Fibonacci sequence or any result to the caller. Also, the function directly modifies the values of `a` and `b` in place within the loop without capturing the sequence or the final result in a returnable format.
+
+### Fix
+
+Fix can be used to make changes to an existing block, and return it largely as it was orginally with a few changes made to it. 
+
+````markdown
+::: fix change blocks where dough working is happening to 
+blue and cooking to red
+
+```mermaid exec
+flowchart TD
+    A[Create Sourdough Starter] --> B[Feed Starter Regularly]
+    B --> C[Mix Starter with Water and Flour]
+    C --> D[Autolyse]
+    D --> E[Add Salt]
+    E --> F[Knead Dough]
+    F --> G[Bulk Fermentation]
+    G --> H[Shape Dough]
+    H --> I[Final Proof]
+    I --> J[Preheat Oven]
+    J --> K[Bake Bread]
+    K --> L[Cool and Enjoy]
+```
+:::
+````
+
+Which renders as:
+
+```mermaid exec
+flowchart TD
+    A[Create Sourdough Starter] --> B[Feed Starter Regularly]
+    B --> C[Mix Starter with Water and Flour]
+    C --> D[Autolyse]
+    D --> E[Add Salt]
+    E --> F[Knead Dough]
+    F --> G[Bulk Fermentation]
+    G --> H[Shape Dough]
+    H --> I[Final Proof]
+    I --> J[Preheat Oven]
+    J --> K[Bake Bread]
+    K --> L[Cool and Enjoy]
+```
+
+After the prompt is run we'd get
+
+````markdown
+
+```mermaid exec
+flowchart TD
+    A[Create Sourdough Starter] --> B[Feed Starter Regularly]
+    B --> C[Mix Starter with Water and Flour]
+    C --> D[Autolyse]
+    D --> E[Add Salt]
+    E --> F[Knead Dough]
+    F:::blue --> G[Bulk Fermentation]
+    G:::blue --> H[Shape Dough]
+    H:::blue --> I[Final Proof]
+    I --> J[Preheat Oven]
+    J --> K[Bake Bread]
+    K:::red --> L[Cool and Enjoy]
+
+    classDef blue fill:#ADD8E6,stroke:#000,color:#000;
+    classDef red fill:#FF6347,stroke:#000,color:#000;
+```
+````
+
+
+```mermaid exec
+flowchart TD
+    A[Create Sourdough Starter] --> B[Feed Starter Regularly]
+    B --> C[Mix Starter with Water and Flour]
+    C --> D[Autolyse]
+    D --> E[Add Salt]
+    E --> F[Knead Dough]
+    F:::blue --> G[Bulk Fermentation]
+    G:::blue --> H[Shape Dough]
+    H:::blue --> I[Final Proof]
+    I --> J[Preheat Oven]
+    J --> K[Bake Bread]
+    K:::red --> L[Cool and Enjoy]
+
+    classDef blue fill:#ADD8E6,stroke:#000,color:#000;
+    classDef red fill:#FF6347,stroke:#000,color:#000;
+```
+
+## Learn more
+
+To learn more about prompts, it can be useful to browse [the prompts directory on GitHub](https://github.com/stencila/stencila/tree/main/prompts). They are organized by command, with prompts available for each command. Using the power of Stencila prompts are themselves just Stencila documents. You can see how in many prompts partials are used to include various parts of the document that can be used to make the prompt more effective at its task. 
+
+This kind of prompt development is an ongoing activity, and we welcome conversations on [Discord](https://discord.gg/GADr6Jv), our [GitHub Community Discussions](https://github.com/stencila/stencila/discussions) or GitHub Issues that explore interesting prompt ideas. 
