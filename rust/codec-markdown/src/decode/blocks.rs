@@ -464,6 +464,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     for suggestion in suggestions {
                         fold_blocks(&mut suggestion.content, context);
                     }
+                } else if let Block::Walkthrough(Walkthrough { steps, .. }) = block {
+                    for step in steps {
+                        fold_blocks(&mut step.content, context);
+                    }
                 }
             }
 
