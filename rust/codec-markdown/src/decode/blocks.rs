@@ -40,7 +40,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     fn pop_blocks(blocks: &mut Vec<Block>, boundaries: &mut Vec<usize>) -> Vec<Block> {
         if let Some(boundary) = boundaries.pop() {
             if boundary > blocks.len() {
-                tracing::error!("Boundary index above length of blocks");
                 Vec::new()
             } else {
                 blocks.drain(boundary..).collect()
