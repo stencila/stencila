@@ -502,7 +502,8 @@ impl TextDocument {
         // This is the delay before publishing diagnostics. It is additional to the delay in processing
         // updates to source and is here so that the user has a chance to write valid syntax before getting
         // warnings and errors related to incomplete syntax
-        const DEBOUNCE_DELAY_MILLIS: u64 = 1000;
+        // TODO: Make this debounce configurable https://github.com/stencila/stencila/issues/2405
+        const DEBOUNCE_DELAY_MILLIS: u64 = 3000;
         let debounce = time::Duration::from_millis(DEBOUNCE_DELAY_MILLIS);
 
         let mut latest_messages = None;
@@ -540,8 +541,9 @@ impl TextDocument {
                 let severity = Some(match message.level {
                     MessageLevel::Debug | MessageLevel::Trace => DiagnosticSeverity::HINT,
                     MessageLevel::Info => DiagnosticSeverity::INFORMATION,
-                    MessageLevel::Warning => DiagnosticSeverity::WARNING,
-                    MessageLevel::Error => DiagnosticSeverity::ERROR,
+                    // See discussion at https://github.com/stencila/stencila/issues/2405 for
+                    // rationale behind using diagnostic level WARNING for errors
+                    MessageLevel::Warning | MessageLevel::Error => DiagnosticSeverity::WARNING,
                 });
                 let position = Position {
                     line: message.start_line.unwrap_or_default() as u32,
