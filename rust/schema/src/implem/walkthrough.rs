@@ -16,23 +16,23 @@ impl Walkthrough {
         context: &mut PatchContext,
     ) -> Result<bool> {
         let Some(PatchSlot::Property(property)) = path.pop_front() else {
-            bail!("Invalid patch patch for walkthrough, expected a property slot")
+            bail!("Invalid patch path for walkthrough, expected a property slot")
         };
 
         if matches!(property, NodeProperty::Steps) {
             let apply = if let Some(PatchSlot::Index(index)) = path.front() {
-                // If the operation is for a step, then only apply if the walkthrough or the step is not collapsed
-                !self.is_collapsed.unwrap_or_default()
-                    && !self
-                        .steps
-                        .get(*index)
-                        .and_then(|step| step.is_collapsed)
-                        .unwrap_or_default()
+                // If the operation is for a step, then apply if the step IS NOT collapsed
+                !self
+                    .steps
+                    .get(*index)
+                    .and_then(|step| step.is_collapsed)
+                    .unwrap_or_default()
             } else {
                 // If the operation is for the steps vector (e.g. adding or removing a step),
-                // only apply if the walkthrough is not collapsed
+                // only apply if the walkthrough IS NOT collapsed
                 !self.is_collapsed.unwrap_or_default()
             };
+
             if apply {
                 self.steps.apply(path, op.clone(), context)?;
             }
