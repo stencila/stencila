@@ -1,14 +1,15 @@
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
+
+import { Executable } from './executable'
 
 import '../ui/nodes/cards/block-in-flow'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/provenance'
-
-import { Executable } from './executable'
 
 /**
  * Web component representing a Stencila Schema `PromptBlock` node
@@ -18,14 +19,21 @@ import { Executable } from './executable'
 @customElement('stencila-prompt-block')
 @withTwind()
 export class PromptBlock extends Executable {
+  @property()
+  prompt: string
+
   /**
    * Toggle show/hide content
    *
-   * Defaults to true, and then is toggled off/on by user or
-   * by changes to the prompt status.
+   * Defaults to true, and then is toggled off/on by user.
    */
   @state()
   private showContent?: boolean = true
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+    this.showContent = !this.ancestors.endsWith('InstructionBlock')
+  }
 
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
@@ -34,6 +42,32 @@ export class PromptBlock extends Executable {
           <slot name="content"></slot>
         </div>
       `
+    }
+
+    if (this.ancestors.endsWith('InstructionBlock')) {
+      const { borderColour, colour } = nodeUi('InstructionBlock')
+
+      return html`<div
+          class="border-t border-[${borderColour}] bg-[${colour}] px-3 py-2 flex justify-between"
+        >
+          <span class="flex flex-row items-center gap-2">
+            <stencila-ui-icon name="cardText"></stencila-ui-icon>
+            <span class="font-sans text-xs">Prompt</span>
+          </span>
+
+          <span class="flex flex-row items-center">
+            <span class="font-mono text-xs">${this.prompt}</span>
+            <stencila-ui-chevron-button
+              class="ml-4"
+              default-pos=${this.showContent ? 'down' : 'left'}
+              .clickEvent=${() => (this.showContent = !this.showContent)}
+            ></stencila-ui-chevron-button>
+          </span>
+        </div>
+
+        <div class="w-full bg-white/70 p-3 ${this.showContent ? '' : 'hidden'}">
+          <slot name="content"></slot>
+        </div>`
     }
 
     return html`<stencila-ui-block-in-flow
