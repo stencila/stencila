@@ -220,6 +220,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
       const item = await vscode.window.showQuickPick(commands, {
         title: "Stencila Commands",
         placeHolder: "Select a Stencila command to run",
+        matchOnDescription: true,
       });
 
       if (item?.command) {
