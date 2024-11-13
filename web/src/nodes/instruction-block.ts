@@ -245,6 +245,8 @@ export class InstructionBlock extends Instruction {
           <slot name="message"></slot>
         </div>
 
+        <slot name="prompt-provided"></slot>
+
         ${this.renderSuggestionsHeader()}
       </div>
 
