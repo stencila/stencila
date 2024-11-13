@@ -65,7 +65,10 @@ export class PromptBlock extends Executable {
           </span>
         </div>
 
-        <div class="w-full bg-white/70 p-3 ${this.showContent ? '' : 'hidden'}">
+        <div
+          class="w-full bg-white/70 p-3 ${this.showContent ? '' : 'hidden'}"
+          style="color: var(--default-text-colour);"
+        >
           <slot name="content"></slot>
         </div>`
     }
