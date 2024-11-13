@@ -208,12 +208,12 @@ impl TextNode {
             if position.character == 0 {
                 break;
             } else {
-                position.character -= 1;
+                position.character = position.character.saturating_sub(1);
             }
         }
 
         // Try start of previous line
-        position.line -= 1;
+        position.line = position.line.saturating_sub(1);
         position.character = 0;
         if let Some(node_id) = self.node_id_at(position) {
             return Some(node_id);
