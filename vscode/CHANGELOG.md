@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.13 2024-11-12
+
+- Reduces the diagnostic level of Markdown pre-decoding checks and increases the debounce delay.
+
+- Filtering of commands and prompts based on description.
+
+- Based on Stencila CLI v2.0.0-beta.16 which includes fixes related to commands within walkthroughs and display of the prompts provided in commands.
+
 ## 0.0.12 2024-11-11
 
 - Fixes related to having multiple preview tabs opens at once

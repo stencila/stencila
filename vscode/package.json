@@ -3,7 +3,7 @@
   "displayName": "Stencila",
   "publisher": "stencila",
   "description": "Documents with Scientific Intelligence",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
   "bugs": {
