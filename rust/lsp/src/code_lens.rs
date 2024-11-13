@@ -32,6 +32,9 @@ pub(super) const INDEX_OF: &str = "stencila.index-of";
 /// Lens to continue a walkthrough
 pub(super) const WALKTHROUGH_CONTINUE: &str = "stencila.walkthroughs.continue";
 
+/// Lens to expand a walkthrough
+pub(super) const WALKTHROUGH_EXPAND: &str = "stencila.walkthroughs.expand";
+
 /// Handle a request for code lenses for a document
 ///
 /// Note that, as recommended for performance reasons, this function returns
@@ -49,6 +52,7 @@ pub(crate) async fn request(
             |TextNode {
                  range,
                  parent_type,
+                 parent_id,
                  node_type,
                  node_id,
                  index_of,
@@ -66,6 +70,11 @@ pub(crate) async fn request(
                     range: *range,
                     command: None,
                     data: Some(json!([command, uri, node_type, node_id])),
+                };
+                let lens_parent = |command: &str| CodeLens {
+                    range: *range,
+                    command: None,
+                    data: Some(json!([command, uri, parent_type, parent_id])),
                 };
                 let lens_index_of = |index: &usize, of: &usize| CodeLens {
                     range: *range,
@@ -119,7 +128,7 @@ pub(crate) async fn request(
                         if matches!(is_active, Some(true)) {
                             vec![]
                         } else {
-                            vec![lens(WALKTHROUGH_CONTINUE)]
+                            vec![lens(WALKTHROUGH_CONTINUE), lens_parent(WALKTHROUGH_EXPAND)]
                         }
                     }
                     _ => vec![],
@@ -262,7 +271,18 @@ pub(crate) async fn resolve(
             arguments,
         ),
         WALKTHROUGH_CONTINUE => Command::new(
-            "$(arrow-right) Continue".to_string(),
+            "$(arrow-right) Next".to_string(),
+            PATCH_NODE.to_string(),
+            Some(vec![
+                json!(uri),
+                json!(node_type),
+                json!(node_id),
+                json!("isCollapsed"),
+                json!(false),
+            ]),
+        ),
+        WALKTHROUGH_EXPAND => Command::new(
+            "$(chevron-down) Expand all".to_string(),
             PATCH_NODE.to_string(),
             Some(vec![
                 json!(uri),
