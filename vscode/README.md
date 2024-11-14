@@ -11,9 +11,11 @@ This extension provides an interface to [Stencila](https://stencila.io), a tool 
 
 Stencila is an open-source toolkit focused on enhancing **documents with scientific intelligence**. It enables users to create interactive, data-rich documents that integrate seamlessly with code, data, and text, supporting reproducible research and collaboration. With Stencila’s VS Code extension, you can build smart documents that leverage AI tools, ensure transparency, and support interoperability across languages and platforms, all within your existing workflow.
 
+![](./demos/command-create-math.gif)
 
-![signing in with stencila](./images/createDemo.gif)
+![](./demos/command-fix-math.gif)
 
+![](./demos/command-create-flowchart.gif)
 
 ## Enabling LLM support
 
@@ -25,7 +27,7 @@ Various back-ends can be used to provide LLM support in Stencila documents.  You
 
 To use Stencila Cloud, click **Sign In** from the Stencila extension menu, and follow the steps in your web browser to create a new account or sign into an existing account.  You will receive a number of free credits to try out Stencila Cloud and after that you can sign up for a subscription plan to continue usage.
 
-![signing in with stencila](./images/signInDemo.gif)
+![](./demos/signin.gif)
 
 ### Option 2: Use your own API keys
 
@@ -43,6 +45,4 @@ Each walkthrough includes examples and explanations, allowing users to explore a
 
 You can find these walkthroughs under the Stencila menu.
 
-![signing in with stencila](./images/walkThroughDemo.gif)
-
-
+![](./demos/walkthroughs.gif)
