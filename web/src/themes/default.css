@@ -12,8 +12,8 @@
 
   /* code */
   --code-font-family: 'IBM Plex Mono', monospace;
-  --code-bg-colour: #f2f2f2;
-  --code-font-size: 1rem;
+  --code-bg-colour: rgba(217, 217, 217, 1);
+  --code-font-size: 0.875rem;
 
   --mathml-font-family: 'STIX Two Math';
 
@@ -276,7 +276,13 @@ body {
       font-family: var(--code-font-family);
       font-size: var(--code-font-size);
       background-color: var(--code-bg-colour);
-      @apply rounded font-normal;
+      @apply rounded-sm font-normal px-0.5;
+
+      /* remove backticks inserted by the tw typography .prose */
+      &::before,
+      &::after {
+        content: '';
+      }
     }
   }
 
