@@ -53,7 +53,7 @@ export class PromptBlock extends Executable {
           header-title="Prompt"
           ?expanded=${this.showContent}
         >
-          <div class="px-2 font-mono text-xs" slot="header-content">
+          <div class="mx-4 font-mono text-xs" slot="header-content">
             ${this.prompt}
           </div>
           <div class="w-full p-3" style="color: var(--default-text-colour);">
