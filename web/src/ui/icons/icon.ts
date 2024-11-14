@@ -53,6 +53,7 @@ import clock from './clock.svg'
 import codeChunk from './code-chunk.svg'
 import codeSlash from './code-slash.svg'
 import code from './code.svg'
+import compass from './compass.svg'
 import currencyDollar from './currency-dollar.svg'
 import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
@@ -162,6 +163,7 @@ const icons = {
   code,
   codeChunk,
   codeSlash,
+  compass,
   cursor,
   currencyDollar,
   dashCircle,
