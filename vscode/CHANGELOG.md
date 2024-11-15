@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.14 2024-11-14
+
+- Fixes to AI commands walkthrough
+
+- Adds demo screen casts to README
+
 ## 0.0.13 2024-11-12
 
 - Reduces the diagnostic level of Markdown pre-decoding checks and increases the debounce delay.
