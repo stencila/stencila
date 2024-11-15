@@ -198,7 +198,6 @@ export class InstructionBlock extends Instruction {
   private revise(e: Event) {
     e.stopImmediatePropagation()
     const feedback = this.reviseRef.value.value
-    console.log(feedback)
     if (feedback && feedback !== '') {
       this.dispatchEvent(
         documentCommandEvent({
@@ -321,7 +320,7 @@ export class InstructionBlock extends Instruction {
    * Render a ribbon style container with properties of the instruction
    */
   private renderProperties() {
-    const { borderColour, colour } = nodeUi('InstructionBlock')
+    const { borderColour, colour, textColour } = nodeUi('InstructionBlock')
 
     const styles = apply(
       'flex flex-row items-center',
@@ -335,7 +334,7 @@ export class InstructionBlock extends Instruction {
     const inputStyles = apply([
       `border border-[${borderColour}] rounded-sm`,
       `outline-[${borderColour}]/50`,
-      'text-sm text-gray-600',
+      `text-sm text-[${textColour}]`,
       'ml-2 p-1',
     ])
 
