@@ -425,7 +425,9 @@ export class InstructionBlock extends Instruction {
 
             <sl-tooltip content="Revise this suggestion">
               <stencila-ui-icon-button
-                name="arrowClockwise"
+                name=${this.openRevisionDrawer
+                  ? 'chevronDown'
+                  : 'arrowClockwise'}
                 class="ml-4"
                 @click=${() =>
                   (this.openRevisionDrawer = !this.openRevisionDrawer)}
