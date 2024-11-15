@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-async-lsp = { version = "0.2.0", features = ["tokio"] }
+async-lsp = { version = "0.2.1", features = ["tokio"] }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 codecs = { path = "../codecs" }
