@@ -12,6 +12,9 @@ export class UITextInput extends LitElement {
   @property({ type: String, attribute: 'card-type' })
   cardType: NodeType
 
+  @property({ type: String })
+  placeholder: string
+
   @property({ type: Boolean })
   readonly: boolean = false
 
@@ -31,14 +34,14 @@ export class UITextInput extends LitElement {
   }
 
   protected override render() {
-    const { borderColour } = nodeUi(this.cardType)
+    const { borderColour, textColour } = nodeUi(this.cardType)
 
     const baseStyles = apply([
       'w-full',
       'p-1',
       `border border-[${borderColour}] rounded-sm`,
       `outline-[${borderColour}]/50`,
-      'text-sm text-gray-600',
+      `text-sm text-[${textColour}] placeholder-[${textColour}]/50`,
     ])
 
     return html`
@@ -46,6 +49,7 @@ export class UITextInput extends LitElement {
         class="${baseStyles} ${this.inputClasses ?? ''}"
         type="text"
         value=${this.value}
+        placeholder=${this.placeholder}
         @change=${this.handleChange}
         ?readonly=${this.readonly}
         ?disabled=${this.disabled}

@@ -436,13 +436,12 @@ export class InstructionBlock extends Instruction {
         </div>
         <div class=${reviseDrawerClasses}>
           <div class="flex items-center px-3 py-2">
-            <sl-tooltip content="Provide feedback" class="grow">
-              <ui-node-text-input
-                class="w-full"
-                card-type="InstructionBlock"
-                ${ref(this.reviseRef)}
-              ></ui-node-text-input>
-            </sl-tooltip>
+            <ui-node-text-input
+              class="w-full grow"
+              card-type="InstructionBlock"
+              placeholder="Enter your revision notes for this suggestion..."
+              ${ref(this.reviseRef)}
+            ></ui-node-text-input>
             <sl-tooltip content="Submit feedback">
               <stencila-ui-icon-button
                 @click=${this.revise}
