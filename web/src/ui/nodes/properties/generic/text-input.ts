@@ -21,6 +21,9 @@ export class UITextInput extends LitElement {
   @property({ type: Boolean })
   disabled: boolean = false
 
+  /**
+   * Allows the input value of the to be accessed from the host object
+   */
   public value: string
 
   /**

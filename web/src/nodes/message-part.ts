@@ -28,7 +28,7 @@ export class MessagePart extends LitElement {
       `rounded-sm border border-[${borderColour}]`,
       `outline-[${textColour}]/50`,
       'px-2 py-1.5',
-      'font-sans text-gray-700 text-sm',
+      `font-sans text-[${textColour}] text-sm`,
     ])
 
     return html`<div class="flex items-start">
