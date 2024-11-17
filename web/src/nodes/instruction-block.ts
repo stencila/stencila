@@ -430,6 +430,11 @@ export class InstructionBlock extends Instruction {
               class="w-full grow"
               card-type="InstructionBlock"
               placeholder="Enter your revision notes for this suggestion..."
+              @keydown=${(e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                  this.revise(e)
+                }
+              }}
               ${ref(this.reviseRef)}
             ></ui-node-text-input>
             <sl-tooltip content="Submit feedback">
