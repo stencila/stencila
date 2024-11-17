@@ -198,21 +198,10 @@ export class InstructionBlock extends Instruction {
   private revise(e: Event) {
     e.stopImmediatePropagation()
     const feedback = this.reviseRef.value.value
-    if (feedback && feedback !== '') {
-      this.dispatchEvent(
-        documentCommandEvent({
-          command: 'patch-node',
-          nodeType: 'InstructionBlock',
-          nodeIds: [this.id],
-          nodeProperty: ['feedback', feedback],
-        })
-      )
-    }
     this.dispatchEvent(
       documentCommandEvent({
         command: 'revise-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
+        args: [this.id, feedback],
       })
     )
   }

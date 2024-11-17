@@ -57,6 +57,7 @@ interface DomResetMessage {
 interface CommandMessage {
   type: "command";
   command: string;
+  args?: string[];
   nodeType?: string;
   nodeIds?: string[];
   nodeProperty?: [string, unknown];
@@ -219,6 +220,17 @@ export async function createDocumentViewPanel(
 
       let command = message.command;
 
+      let args;
+      if (message.args) {
+        args = message.args;
+      } else {
+        args = [
+          message.nodeType,
+          ...(message.nodeIds ? message.nodeIds : []),
+          ...(message.nodeProperty ? message.nodeProperty : []),
+        ];
+      }
+
       if (command === "execute-nodes") {
         if (message.scope === "plus-before") {
           command = "run-before";
@@ -232,9 +244,7 @@ export async function createDocumentViewPanel(
       vscode.commands.executeCommand(
         `stencila.${command}`,
         documentUri.toString(),
-        message.nodeType,
-        ...(message.nodeIds ? message.nodeIds : []),
-        ...(message.nodeProperty ? message.nodeProperty : [])
+        ...args
       );
     },
     null,
