@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { resetDom, subscribeToDom, unsubscribeFromDom } from "./extension";
+import { ScrollSyncer } from "./scroll-syncer";
 import { statusBar } from "./status-bar";
 
 /**
@@ -55,10 +56,12 @@ export function registerSubscriptionNotifications(
  */
 export async function createDocumentViewPanel(
   context: vscode.ExtensionContext,
-  documentUri: vscode.Uri,
+  editor: vscode.TextEditor,
   nodeId?: string,
   expandAuthors?: boolean
 ): Promise<vscode.WebviewPanel> {
+  const documentUri = editor.document.uri;
+
   if (documentViewPanels.has(documentUri)) {
     // If there is already a panel open for this document, reveal it
     const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
@@ -144,6 +147,10 @@ export async function createDocumentViewPanel(
   `;
 
   const disposables: vscode.Disposable[] = [];
+
+  // Create a scroller sync for the view
+  const scrollSync = new ScrollSyncer(editor, panel);
+  disposables.push(scrollSync);
 
   // Listen to the view state changes of the webview panel to update status bar
   panel.onDidChangeViewState(

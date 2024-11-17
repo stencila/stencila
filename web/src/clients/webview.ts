@@ -11,7 +11,7 @@ import { FormatPatch } from './format'
 /**
  * A message received from VSCode by the web view
  */
-type ReceivedMessage = DomPatchMessage | ViewNodeMessage
+type ReceivedMessage = DomPatchMessage | ViewNodeMessage | ScrollSyncMessage
 
 interface DomPatchMessage {
   type: 'dom-patch'
@@ -22,6 +22,13 @@ interface ViewNodeMessage {
   type: 'view-node'
   nodeId: NodeId
   expandAuthors: boolean
+}
+
+interface ScrollSyncMessage {
+  type: 'scroll-sync'
+  startId?: string
+  endId?: string
+  cursorId?: string
 }
 
 /**
@@ -122,6 +129,8 @@ export class WebViewClient {
         return this.handleDomPatchMessage(data)
       case 'view-node':
         return this.handleViewNodeMessage(data)
+      case 'scroll-sync':
+        return this.handleScrollSyncMessage(data)
       default:
         throw new Error(`Unhandled received message type: ${type}`)
     }
@@ -241,6 +250,44 @@ export class WebViewClient {
         if (authors) {
           authors.expand()
         }
+      }
+    }
+  }
+
+  /**
+   * Handle a received `ScrollSyncMessage` message
+   */
+  private handleScrollSyncMessage({ startId, cursorId }: ScrollSyncMessage) {
+    // Prioritize cursor position if it exists
+    if (cursorId) {
+      const cursorElement = document.getElementById(cursorId)
+      if (cursorElement) {
+        // Check if element is already visible
+        const rect = cursorElement.getBoundingClientRect()
+        const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight
+
+        if (!isVisible) {
+          cursorElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          })
+        }
+      }
+      return
+    }
+
+    // If no cursor, try to maintain viewport position using start/end elements
+    if (startId) {
+      const startElement = document.getElementById(startId)
+      if (startElement) {
+        const viewportHeight = window.innerHeight
+        const rect = startElement.getBoundingClientRect()
+
+        // Scroll to position the start element near the top with some padding
+        window.scrollTo({
+          top: rect.top + window.scrollY - viewportHeight * 0.1,
+          behavior: 'smooth',
+        })
       }
     }
   }
