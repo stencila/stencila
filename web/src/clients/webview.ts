@@ -37,7 +37,14 @@ interface ScrollSyncMessage {
  * TODO: This needs to be made consistent with the messages sent
  * by the other clients, in particular the WebSocket client.
  */
-type SentMessage = {
+type SentMessage = DomResetMessage | CommandMessage | ScrollSyncMessage
+
+interface DomResetMessage {
+  type: 'dom-reset'
+}
+
+interface CommandMessage {
+  type: 'command'
   command: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [k: string]: any
@@ -89,12 +96,37 @@ export class WebViewClient {
    */
   private failedMorph: number = 0
 
+  /**
+   * The id of the top node in the viewport
+   *
+   * Used for syncing scrolling back to the VSCode editor
+   */
+  private startId?: NodeId
+
+  /**
+   * The id of the bottom node in the viewport
+   *
+   * Used for syncing scrolling back to the VSCode editor
+   */
+  private endId?: NodeId
+
+  /**
+   * Intersection observer used to update `startId` and `endId`
+   */
+  private intersectionObserver: IntersectionObserver
+
+  /**
+   * Mutation observer to add and remove elements from the intersection observer
+   */
+  private mutationObserver: MutationObserver
+
   constructor(rootElement: HTMLElement) {
     this.version = 0
     this.html = ''
     this.renderRoot = rootElement
     this.failedMorph = 0
     this.setWindowListener()
+    this.setupObservers()
   }
 
   /**
@@ -112,6 +144,82 @@ export class WebViewClient {
     window.addEventListener('stencila-document-command', (event: CustomEvent) =>
       vscode.postMessage(event.detail)
     )
+  }
+
+  /**
+   * Setup intersection and mutation observers
+   */
+  private setupObservers() {
+    // Create intersection observer for scroll sync
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      // Get all elements that are currently intersecting
+      const intersecting = entries
+        .filter((entry) => entry.isIntersecting)
+        .map((entry) => ({
+          id: entry.target.id,
+          topDistance: entry.boundingClientRect.top,
+          bottomDistance: entry.boundingClientRect.bottom,
+        }))
+
+      // Get the ids of the elements closest to the top and bottom
+      const startId = intersecting.sort(
+        (a, b) => Math.abs(a.topDistance) - Math.abs(b.topDistance)
+      )[0]?.id
+      const endId = intersecting.sort(
+        (a, b) => Math.abs(a.bottomDistance) - Math.abs(b.bottomDistance)
+      )[0]?.id
+
+      // Only send update if the top or bottom ids have changed
+      let update = false
+      if (startId && startId !== this.startId) {
+        this.startId = startId
+        update = true
+      }
+      if (endId && endId !== this.endId) {
+        this.endId = endId
+        update = true
+      }
+      if (update) {
+        vscode.postMessage({
+          type: 'scroll-sync',
+          startId: this.startId,
+          endId: this.endId,
+        })
+      }
+    })
+
+    // Create mutation observer to watch for new elements
+    this.mutationObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList') {
+          // Handle added nodes
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const elem = node as Element
+              // Observe the new element if it has an ID
+              if (elem.id) {
+                this.intersectionObserver.observe(elem)
+              }
+              // Also check children of the new node for elements with IDs
+              elem.querySelectorAll('[id]').forEach((child) => {
+                this.intersectionObserver.observe(child)
+              })
+            }
+          })
+        }
+      }
+    })
+
+    // Start observing the render root for changes
+    this.mutationObserver.observe(this.renderRoot, {
+      childList: true,
+      subtree: true,
+    })
+
+    // Observe all existing elements that have ids
+    this.renderRoot.querySelectorAll('[id]').forEach((element) => {
+      this.intersectionObserver.observe(element)
+    })
   }
 
   /**
@@ -219,7 +327,7 @@ export class WebViewClient {
    * state of the HTML is invalid)
    */
   private requestReset() {
-    vscode.postMessage({ command: 'reset-dom' })
+    vscode.postMessage({ type: 'dom-reset' })
   }
 
   /**

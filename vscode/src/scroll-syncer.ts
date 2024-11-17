@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { nodeIdsForLines } from "./extension";
+import { linesForNodeIds, nodeIdsForLines } from "./extension";
 
 /**
  * An editor/preview scroll syncer
@@ -12,6 +12,7 @@ export class ScrollSyncer {
   private disposables: vscode.Disposable[] = [];
   private panel: vscode.WebviewPanel;
   private isUpdating = false;
+  private ignoreEditorScroll = false;
 
   constructor(editor: vscode.TextEditor, panel: vscode.WebviewPanel) {
     this.editor = editor;
@@ -47,10 +48,86 @@ export class ScrollSyncer {
         }
       })
     );
+
+    // Handle a scroll sync message from the webview
+    this.disposables.push(
+      this.panel.webview.onDidReceiveMessage(async (message) => {
+        if (message.type === "scroll-sync") {
+          await this.receiveUpdate(message);
+        }
+      })
+    );
   }
 
+  /**
+   * Receive updates from the webview with the ids of the nodes that
+   * are at the start and end of the webview's viewport so that the scroll
+   * position of the editor can be updated
+   */
+  private async receiveUpdate({
+    startId,
+    endId,
+  }: {
+    startId: string;
+    endId: string;
+  }) {
+    if (
+      !this.editor ||
+      // Do not update scroll position if this is the active editor
+      // or if it is updating
+      this.editor === vscode.window.activeTextEditor ||
+      this.isUpdating
+    ) {
+      return;
+    }
+
+    try {
+      this.isUpdating = true;
+
+      // Request line number from language server
+      const lines = await linesForNodeIds(this.editor.document.uri, [
+        startId,
+        endId,
+      ]);
+      const startLine = lines[0];
+      const endLine = lines[1];
+
+      if (
+        startLine &&
+        endLine &&
+        // Check again in case this became the active editor after call to language server
+        this.editor !== vscode.window.activeTextEditor
+      ) {
+        // Temporarily disable our scroll handler to prevent feedback loop
+        this.ignoreEditorScroll = true;
+
+        // Scroll editor to the line
+        const range = new vscode.Range(
+          new vscode.Position(startLine, 0),
+          new vscode.Position(endLine, 0)
+        );
+
+        // Reveal the range
+        this.editor.revealRange(range, vscode.TextEditorRevealType.Default);
+
+        // Re-enable scroll handler after a short delay
+        setTimeout(() => {
+          this.ignoreEditorScroll = false;
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Failed to sync editor scroll:", error);
+    } finally {
+      this.isUpdating = false;
+    }
+  }
+
+  /**
+   * Schedule sending an update of the editor scroll position to
+   * the webview so its scroll position can be updated
+   */
   private scheduleUpdate(selectionChanged: boolean = false) {
-    if (this.isUpdating) {
+    if (this.isUpdating || this.ignoreEditorScroll) {
       return;
     }
     this.isUpdating = true;

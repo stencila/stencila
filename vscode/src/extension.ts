@@ -244,11 +244,11 @@ export async function unsubscribeFromDom(subscriptionId: string) {
 }
 
 /**
- * Unsubscribe from updates to the DOM HTML of a document
+ * Get the node ids corresponding to line umbers of a document
  */
 export async function nodeIdsForLines(
   uri: vscode.Uri,
-  lines: (number | null)[]
+  lines: number[]
 ): Promise<string[]> {
   if (!client) {
     throw new Error("No Stencila LSP client");
@@ -257,5 +257,22 @@ export async function nodeIdsForLines(
   return await client.sendRequest("stencila/nodeIdsForLines", {
     uri: uri.toString(),
     lines,
+  });
+}
+
+/**
+ * Get the line number of node ids in a document
+ */
+export async function linesForNodeIds(
+  uri: vscode.Uri,
+  ids: string[]
+): Promise<number[]> {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  return await client.sendRequest("stencila/linesForNodeIds", {
+    uri: uri.toString(),
+    ids,
   });
 }

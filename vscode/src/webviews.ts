@@ -48,6 +48,28 @@ export function registerSubscriptionNotifications(
   context.subscriptions.push(handler);
 }
 
+type ReceivedMessage = DomResetMessage | CommandMessage | ScrollSyncMessage;
+
+interface DomResetMessage {
+  type: "dom-reset";
+}
+
+interface CommandMessage {
+  type: "command";
+  command: string;
+  nodeType?: string;
+  nodeIds?: string[];
+  nodeProperty?: [string, unknown];
+  scope?: string;
+}
+
+interface ScrollSyncMessage {
+  type: "scroll-sync";
+  startId?: string;
+  endId?: string;
+  cursorId?: string;
+}
+
 /**
  * Create a WebView panel that display the document
  *
@@ -183,39 +205,36 @@ export async function createDocumentViewPanel(
   // Handle messages from the webview
   // It is necessary to translate the names of the Stencila document
   // command to the command and argument convention that the LSP uses
-  // TODO: import that from the `web` package
-  interface DocumentCommand {
-    command: string;
-    nodeType?: string;
-    nodeIds?: string[];
-    nodeProperty?: [string, unknown];
-    scope?: string;
-  }
   panel.webview.onDidReceiveMessage(
-    (command: DocumentCommand) => {
-      let name = command.command;
-
-      if (name === "reset-dom") {
+    (message: ReceivedMessage) => {
+      if (message.type === "dom-reset") {
         resetDom(subscriptionId);
         return;
       }
 
-      if (name === "execute-nodes") {
-        if (command.scope === "plus-before") {
-          name = "run-before";
-        } else if (command.scope === "plus-after") {
-          name = "run-after";
+      if (message.type !== "command") {
+        // Skip messages handled elsewhere
+        return;
+      }
+
+      let command = message.command;
+
+      if (command === "execute-nodes") {
+        if (message.scope === "plus-before") {
+          command = "run-before";
+        } else if (message.scope === "plus-after") {
+          command = "run-after";
         } else {
-          name = "run-node";
+          command = "run-node";
         }
       }
 
       vscode.commands.executeCommand(
-        `stencila.${name}`,
+        `stencila.${command}`,
         documentUri.toString(),
-        command.nodeType,
-        ...(command.nodeIds ? command.nodeIds : []),
-        ...(command.nodeProperty ? command.nodeProperty : [])
+        message.nodeType,
+        ...(message.nodeIds ? message.nodeIds : []),
+        ...(message.nodeProperty ? message.nodeProperty : [])
       );
     },
     null,
