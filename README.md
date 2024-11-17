@@ -4,7 +4,7 @@
 <br>
 
 <p align="center">
-	<strong>Programmable, reproducible, interactive documents</strong>
+	<strong>Documents with Scientific Intelligence</strong>
 </p>
 
 <p align="center">
