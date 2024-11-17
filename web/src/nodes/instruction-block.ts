@@ -197,11 +197,18 @@ export class InstructionBlock extends Instruction {
    */
   private revise(e: Event) {
     e.stopImmediatePropagation()
+    
+    const args = ['InstructionBlock', this.id]
+    
     const feedback = this.reviseRef.value.value
+    if (feedback) {
+      args.push(feedback)
+    }
+
     this.dispatchEvent(
       documentCommandEvent({
         command: 'revise-node',
-        args: [this.id, feedback],
+        args,
       })
     )
   }
@@ -429,7 +436,7 @@ export class InstructionBlock extends Instruction {
             <ui-node-text-input
               class="w-full grow"
               card-type="InstructionBlock"
-              placeholder="Enter your revision notes for this suggestion..."
+              placeholder="Describe what you want changed, or leave empty to just retry"
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key === 'Enter') {
                   this.revise(e)
