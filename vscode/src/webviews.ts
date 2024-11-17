@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { resetDom, subscribeToDom, unsubscribeFromDom } from "./extension";
+import { ScrollSyncer } from "./scroll-syncer";
 import { statusBar } from "./status-bar";
 
 /**
@@ -47,6 +48,29 @@ export function registerSubscriptionNotifications(
   context.subscriptions.push(handler);
 }
 
+type ReceivedMessage = DomResetMessage | CommandMessage | ScrollSyncMessage;
+
+interface DomResetMessage {
+  type: "dom-reset";
+}
+
+interface CommandMessage {
+  type: "command";
+  command: string;
+  args?: string[];
+  nodeType?: string;
+  nodeIds?: string[];
+  nodeProperty?: [string, unknown];
+  scope?: string;
+}
+
+interface ScrollSyncMessage {
+  type: "scroll-sync";
+  startId?: string;
+  endId?: string;
+  cursorId?: string;
+}
+
 /**
  * Create a WebView panel that display the document
  *
@@ -55,10 +79,12 @@ export function registerSubscriptionNotifications(
  */
 export async function createDocumentViewPanel(
   context: vscode.ExtensionContext,
-  documentUri: vscode.Uri,
+  editor: vscode.TextEditor,
   nodeId?: string,
   expandAuthors?: boolean
 ): Promise<vscode.WebviewPanel> {
+  const documentUri = editor.document.uri;
+
   if (documentViewPanels.has(documentUri)) {
     // If there is already a panel open for this document, reveal it
     const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
@@ -145,6 +171,10 @@ export async function createDocumentViewPanel(
 
   const disposables: vscode.Disposable[] = [];
 
+  // Create a scroller sync for the view
+  const scrollSync = new ScrollSyncer(editor, panel);
+  disposables.push(scrollSync);
+
   // Listen to the view state changes of the webview panel to update status bar
   panel.onDidChangeViewState(
     (e) => {
@@ -176,39 +206,45 @@ export async function createDocumentViewPanel(
   // Handle messages from the webview
   // It is necessary to translate the names of the Stencila document
   // command to the command and argument convention that the LSP uses
-  // TODO: import that from the `web` package
-  interface DocumentCommand {
-    command: string;
-    nodeType?: string;
-    nodeIds?: string[];
-    nodeProperty?: [string, unknown];
-    scope?: string;
-  }
   panel.webview.onDidReceiveMessage(
-    (command: DocumentCommand) => {
-      let name = command.command;
-
-      if (name === "reset-dom") {
+    (message: ReceivedMessage) => {
+      if (message.type === "dom-reset") {
         resetDom(subscriptionId);
         return;
       }
 
-      if (name === "execute-nodes") {
-        if (command.scope === "plus-before") {
-          name = "run-before";
-        } else if (command.scope === "plus-after") {
-          name = "run-after";
+      if (message.type !== "command") {
+        // Skip messages handled elsewhere
+        return;
+      }
+
+      let command = message.command;
+
+      let args;
+      if (message.args) {
+        args = message.args;
+      } else {
+        args = [
+          message.nodeType,
+          ...(message.nodeIds ? message.nodeIds : []),
+          ...(message.nodeProperty ? message.nodeProperty : []),
+        ];
+      }
+
+      if (command === "execute-nodes") {
+        if (message.scope === "plus-before") {
+          command = "run-before";
+        } else if (message.scope === "plus-after") {
+          command = "run-after";
         } else {
-          name = "run-node";
+          command = "run-node";
         }
       }
 
       vscode.commands.executeCommand(
-        `stencila.${name}`,
+        `stencila.${command}`,
         documentUri.toString(),
-        command.nodeType,
-        ...(command.nodeIds ? command.nodeIds : []),
-        ...(command.nodeProperty ? command.nodeProperty : [])
+        ...args
       );
     },
     null,

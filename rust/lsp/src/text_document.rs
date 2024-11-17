@@ -268,7 +268,6 @@ impl TextNode {
     }
 
     /// Get the [`Range`] of a [`NodeId`]
-    #[allow(unused)]
     pub fn node_range(&self, node_id: &NodeId) -> Option<Range> {
         if node_id == &self.node_id {
             return Some(self.range);

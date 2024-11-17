@@ -14,7 +14,7 @@ use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
     code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,
-    models_, prompts_, symbols, text_document, ServerState, ServerStatus,
+    models_, node_ids, prompts_, symbols, text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
@@ -165,6 +165,38 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             .request::<dom::ResetDom, _>(|_state, params| dom::reset(params.subscription_id))
             .request::<dom::UnsubscribeDom, _>(|_state, params| {
                 dom::unsubscribe(params.subscription_id)
+            });
+
+        router
+            .request::<node_ids::NodeIdsForLines, _>(|state, params| {
+                let root = state
+                    .documents
+                    .get(&params.uri)
+                    .map(|text_doc| text_doc.root.clone());
+                async move {
+                    match root {
+                        Some(root) => node_ids::node_ids_for_lines(root, params.lines).await,
+                        None => Err(ResponseError::new(
+                            ErrorCode::INVALID_PARAMS,
+                            "Unknown document",
+                        )),
+                    }
+                }
+            })
+            .request::<node_ids::LinesForNodeIds, _>(|state, params| {
+                let root = state
+                    .documents
+                    .get(&params.uri)
+                    .map(|text_doc| text_doc.root.clone());
+                async move {
+                    match root {
+                        Some(root) => node_ids::lines_for_node_ids(root, params.ids).await,
+                        None => Err(ResponseError::new(
+                            ErrorCode::INVALID_PARAMS,
+                            "Unknown document",
+                        )),
+                    }
+                }
             });
 
         router.request::<content::SubscribeContent, _>(|state, params| {
