@@ -17,7 +17,7 @@ panic = "abort"
 
 [workspace.dependencies]
 base64 = "0.22.0"
-cached = { version = "0.53.0", features = ["async"] }
+cached = { version = "0.54.0", features = ["async"] }
 flate2 = "1.0.31"
 is-terminal = "0.4.12"
 mime = "0.3.17"
