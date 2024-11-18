@@ -352,6 +352,13 @@
         "command": "stencila.settings",
         "category": "Stencila",
         "title": "Settings"
+      },
+      {
+        "command": "stencila.shell",
+        "category": "Stencila",
+        "title": "Open a shell with the Stencila CLI available",
+        "shortTitle": "Stencila Shell",
+        "icon": "$(terminal)"
       }
     ],
     "keybindings": [
@@ -498,6 +505,9 @@
         {
           "command": "stencila.walkthroughs.collapse",
           "when": "editorLangId == smd || editorLangId == myst"
+        },
+        {
+          "command": "stencila.shell"
         }
       ],
       "editor/title/run": [

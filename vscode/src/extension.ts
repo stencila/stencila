@@ -20,6 +20,7 @@ import {
 } from "./webviews";
 import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
+import { registerStencilaShell } from "./shell";
 
 let client: LanguageClient | undefined;
 
@@ -50,6 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerDocumentCommands(context);
   registerStatusBar(context);
   registerWalkthroughCommands(context);
+  registerStencilaShell(context);
   registerOtherCommands(context);
 
   await startServer(context);
