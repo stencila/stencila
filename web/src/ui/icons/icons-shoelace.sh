@@ -6,6 +6,7 @@ icons=(
     archive
     arrow-clockwise
     arrow-left-square
+    arrow-right
     arrow-right-square
     at
     box
