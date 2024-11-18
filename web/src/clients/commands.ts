@@ -28,7 +28,7 @@ export interface DocumentCommand {
 
   /**
    * The arguments of the command
-   * 
+   *
    * If present, takes precedence over the other properties below.
    */
   args?: string[]

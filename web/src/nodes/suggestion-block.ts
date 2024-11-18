@@ -36,7 +36,7 @@ export class SuggestionBlock extends Entity {
   /**
    * Toggle the visibility of this suggestion so it can
    * not be seen or interacted with when inactive.
-   * 
+   *
    * Needs to default to `true` so that the first suggestion is shown.
    */
   @state()
