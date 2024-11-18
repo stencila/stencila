@@ -197,9 +197,9 @@ export class InstructionBlock extends Instruction {
    */
   private revise(e: Event) {
     e.stopImmediatePropagation()
-    
+
     const args = ['InstructionBlock', this.id]
-    
+
     const feedback = this.reviseRef.value.value
     if (feedback) {
       args.push(feedback)
@@ -371,6 +371,9 @@ export class InstructionBlock extends Instruction {
     const { colour, borderColour } = nodeUi('InstructionBlock')
     const suggestionsCount = this.getSuggestionsCount()
 
+    const scrollable =
+      (this.hasContent && suggestionsCount > 0) || suggestionsCount > 1
+
     const reviseDrawerClasses = apply([
       `bg-[${colour}]`,
       'transition-all duration-500 ease-in-out',
@@ -394,6 +397,7 @@ export class InstructionBlock extends Instruction {
                 <stencila-ui-icon-button
                   name="arrowLeftSquare"
                   @click=${(e: Event) => this.decrement(e)}
+                  .disabled=${!scrollable}
                 ></stencila-ui-icon-button>
               </sl-tooltip>
 
@@ -407,6 +411,7 @@ export class InstructionBlock extends Instruction {
                 <stencila-ui-icon-button
                   name="arrowRightSquare"
                   @click=${(e: Event) => this.increment(e)}
+                  .disabled=${!scrollable}
                 ></stencila-ui-icon-button>
               </sl-tooltip>
             </span>
@@ -436,7 +441,7 @@ export class InstructionBlock extends Instruction {
             <ui-node-text-input
               class="w-full grow"
               card-type="InstructionBlock"
-              placeholder="Describe what you want changed, or leave empty to just retry"
+              placeholder="Describe what you want changed, or leave empty to simply retry"
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key === 'Enter') {
                   this.revise(e)
