@@ -2,10 +2,11 @@ import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
+// import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Executable } from './executable'
 
+import '../ui/nodes/properties/generic/collapsible-details'
 import '../ui/nodes/cards/block-in-flow'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
@@ -45,29 +46,21 @@ export class PromptBlock extends Executable {
     }
 
     if (this.ancestors.endsWith('InstructionBlock')) {
-      const { borderColour, colour } = nodeUi('InstructionBlock')
-
-      return html`<div
-          class="border-t border-[${borderColour}] bg-[${colour}] px-3 py-2 flex justify-between"
+      return html`
+        <stencila-ui-node-collapsible-details
+          type=${'InstructionBlock'}
+          icon-name="compass"
+          header-title="Prompt"
+          ?expanded=${this.showContent}
         >
-          <span class="flex flex-row items-center gap-2">
-            <stencila-ui-icon name="cardText"></stencila-ui-icon>
-            <span class="font-sans text-xs">Prompt</span>
-          </span>
-
-          <span class="flex flex-row items-center">
-            <span class="font-mono text-xs">${this.prompt}</span>
-            <stencila-ui-chevron-button
-              class="ml-4"
-              default-pos=${this.showContent ? 'down' : 'left'}
-              .clickEvent=${() => (this.showContent = !this.showContent)}
-            ></stencila-ui-chevron-button>
-          </span>
-        </div>
-
-        <div class="w-full bg-white/70 p-3 ${this.showContent ? '' : 'hidden'}">
-          <slot name="content"></slot>
-        </div>`
+          <div class="mx-4 font-mono text-xs" slot="header-content">
+            ${this.prompt}
+          </div>
+          <div class="w-full p-3" style="color: var(--default-text-colour);">
+            <slot name="content"></slot>
+          </div>
+        </stencila-ui-node-collapsible-details>
+      `
     }
 
     return html`<stencila-ui-block-in-flow

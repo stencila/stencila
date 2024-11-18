@@ -92,7 +92,7 @@ export class WalkthroughStep extends Entity {
       'transition-all duration-1000 ease-in-out',
       this.isCollapsed == 'true'
         ? 'max-h-0 opacity-0'
-        : 'max-h-screen opacity-100'
+        : 'max-h-[5000px] opacity-100'
     )
 
     return html`<div class=${actionsStyle}>
