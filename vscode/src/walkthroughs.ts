@@ -78,6 +78,10 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
         "isCollapsed",
         true
       );
+
+      // Open the preview for the document
+      // For rationale for doing this, see https://github.com/stencila/stencila/issues/2423
+      await vscode.commands.executeCommand("stencila.view-doc");
     }
   );
 
