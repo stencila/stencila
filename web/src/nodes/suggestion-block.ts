@@ -36,9 +36,11 @@ export class SuggestionBlock extends Entity {
   /**
    * Toggle the visibility of this suggestion so it can
    * not be seen or interacted with when inactive.
+   * 
+   * Needs to default to `true` so that the first suggestion is shown.
    */
   @state()
-  public isActive: boolean = false
+  public isActive: boolean = true
 
   static override styles = css`
     :host {

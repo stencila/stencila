@@ -62,7 +62,7 @@ export class InstructionBlock extends Instruction {
 
   /**
    * Toggle the `isActive` class on suggestions so those that are inactive
-   * are not visible.s
+   * are not visible.
    */
   private updateActiveSuggestion() {
     const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
@@ -373,6 +373,9 @@ export class InstructionBlock extends Instruction {
     const { colour, borderColour } = nodeUi('InstructionBlock')
     const suggestionsCount = this.getSuggestionsCount()
 
+    const scrollable =
+      (this.hasContent && suggestionsCount > 0) || suggestionsCount > 1
+
     const reviseDrawerClasses = apply([
       `bg-[${colour}]`,
       'transition-all duration-500 ease-in-out',
@@ -396,6 +399,7 @@ export class InstructionBlock extends Instruction {
                 <stencila-ui-icon-button
                   name="arrowLeftSquare"
                   @click=${(e: Event) => this.decrement(e)}
+                  .disabled=${!scrollable}
                 ></stencila-ui-icon-button>
               </sl-tooltip>
 
@@ -409,6 +413,7 @@ export class InstructionBlock extends Instruction {
                 <stencila-ui-icon-button
                   name="arrowRightSquare"
                   @click=${(e: Event) => this.increment(e)}
+                  .disabled=${!scrollable}
                 ></stencila-ui-icon-button>
               </sl-tooltip>
             </span>
