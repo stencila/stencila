@@ -109,11 +109,11 @@ jobs:
 
       - name: Publish Extension to VSCode Marketplace
         if: github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
-        run: npx vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath ../dist/stencila-*.vsix
+        run: npx vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --baseImagesUrl https://github.com/stencila/stencila/raw/HEAD/vscode/ --packagePath ../dist/stencila-*.vsix
         working-directory: vscode
 
       - name: Publish Extension to OpenVSX Registry
         if: github.ref == 'refs/heads/main' && github.repository == 'stencila/stencila'
-        run: npx ovsx publish --pat ${{ secrets.OPENVSX_TOKEN }} --packagePath ../dist/stencila-*.vsix
+        run: npx ovsx publish --pat ${{ secrets.OPENVSX_TOKEN }} --baseImagesUrl https://github.com/stencila/stencila/raw/HEAD/vscode/ --packagePath ../dist/stencila-*.vsix
         working-directory: vscode
         timeout-minutes: 10
