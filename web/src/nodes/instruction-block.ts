@@ -62,7 +62,7 @@ export class InstructionBlock extends Instruction {
 
   /**
    * Toggle the `isActive` class on suggestions so those that are inactive
-   * are not visible.s
+   * are not visible.
    */
   private updateActiveSuggestion() {
     const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
