@@ -27,6 +27,13 @@ export interface DocumentCommand {
     | 'archive-node'
 
   /**
+   * The arguments of the command
+   *
+   * If present, takes precedence over the other properties below.
+   */
+  args?: string[]
+
+  /**
    * The type of the node that the command is being executed on.
    *
    * This is not of the Rust `Command` enum but is required for

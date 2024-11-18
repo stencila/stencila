@@ -1,6 +1,7 @@
 import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
-import { customElement, query } from 'lit/decorators.js'
+import { customElement, query, state } from 'lit/decorators.js'
+import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { documentCommandEvent } from '../clients/commands'
 import { withTwind } from '../twind'
@@ -9,6 +10,7 @@ import { nodeUi } from '../ui/nodes/icons-and-colours'
 import { Instruction } from './instruction'
 import { SuggestionBlock } from './suggestion-block'
 
+import '../ui/nodes/properties/generic/text-input'
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/execution-details'
@@ -30,6 +32,14 @@ export class InstructionBlock extends Instruction {
 
   private hasContent: boolean = false
 
+  private feedbackRef: Ref<HTMLInputElement> = createRef()
+
+  /**
+   * Toggles the input for revising create instructions
+   */
+  @state()
+  private openRevisionDrawer: boolean = false
+
   override updated(changedProperties: PropertyValues) {
     super.updated(changedProperties)
 
@@ -43,7 +53,7 @@ export class InstructionBlock extends Instruction {
       | HTMLElement
       | undefined
 
-    this.hasContent = contentSlot != undefined
+    this.hasContent = contentSlot !== undefined
   }
 
   private onSuggestionsSlotChange() {
@@ -52,7 +62,7 @@ export class InstructionBlock extends Instruction {
 
   /**
    * Toggle the `isActive` class on suggestions so those that are inactive
-   * are not visible.s
+   * are not visible.
    */
   private updateActiveSuggestion() {
     const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
@@ -67,6 +77,7 @@ export class InstructionBlock extends Instruction {
       suggestions.forEach((el, i) => {
         if (i === this.activeSuggestion) {
           el.isActive = true
+          this.feedbackRef.value.value = el.feedback
         } else {
           el.isActive = false
         }
@@ -182,6 +193,28 @@ export class InstructionBlock extends Instruction {
     )
   }
 
+  /**
+   * Emit an event to revise the current suggestion
+   */
+  private revise(e: Event) {
+    e.stopImmediatePropagation()
+
+    const args = ['InstructionBlock', this.id]
+
+    const feedback = this.feedbackRef.value.value
+
+    if (feedback) {
+      args.push(feedback)
+    }
+
+    this.dispatchEvent(
+      documentCommandEvent({
+        command: 'revise-node',
+        args,
+      })
+    )
+  }
+
   static override styles = css`
     .suggestions-container {
       position: relative;
@@ -285,7 +318,7 @@ export class InstructionBlock extends Instruction {
    * Render a ribbon style container with properties of the instruction
    */
   private renderProperties() {
-    const { borderColour, colour } = nodeUi('InstructionBlock')
+    const { borderColour, colour, textColour } = nodeUi('InstructionBlock')
 
     const styles = apply(
       'flex flex-row items-center',
@@ -299,8 +332,8 @@ export class InstructionBlock extends Instruction {
     const inputStyles = apply([
       `border border-[${borderColour}] rounded-sm`,
       `outline-[${borderColour}]/50`,
-      'text-sm text-gray-600',
-      'ml-1 p-1',
+      `text-sm text-[${textColour}]`,
+      'ml-2 p-1',
     ])
 
     return html`
@@ -308,13 +341,13 @@ export class InstructionBlock extends Instruction {
         <span class="flex flex-row items-center grow">
           <sl-tooltip content="Specified prompt">
             <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
-            <input
-              class="${inputStyles} w-[70%]"
-              type="text"
+            <ui-node-text-input
+              class="ml-2 w-full"
+              card-type="InstructionBlock"
               value=${this.prompt}
               readonly
               disabled
-            />
+            ></ui-node-text-input>
           </sl-tooltip>
         </span>
 
@@ -337,48 +370,93 @@ export class InstructionBlock extends Instruction {
   }
 
   private renderSuggestionsHeader() {
-    const { borderColour } = nodeUi('InstructionBlock')
+    const { colour, borderColour } = nodeUi('InstructionBlock')
     const suggestionsCount = this.getSuggestionsCount()
 
-    return html`<div
-      class="border-t bg-[${borderColour}] px-3 py-2 font-sans flex justify-between"
-    >
-      <span class="flex flex-row items-center gap-2">
-        <stencila-ui-icon name="cardText" class="text-xl"></stencila-ui-icon>
-        <span class="text-sm font-bold">Suggestion</span>
-      </span>
+    const scrollable =
+      (this.hasContent && suggestionsCount > 0) || suggestionsCount > 1
 
-      <span class="flex flex-row items-center">
-        <span class="flex flex-row items-center gap-1">
-          <sl-tooltip content="Previous suggestion">
-            <stencila-ui-icon-button
-              name="arrowLeftSquare"
-              @click=${(e: Event) => this.decrement(e)}
-            ></stencila-ui-icon-button>
-          </sl-tooltip>
+    const reviseDrawerClasses = apply([
+      `bg-[${colour}]`,
+      'transition-all duration-500 ease-in-out',
+      this.openRevisionDrawer ? 'opacity-1 max-h-[100px]' : 'opacity-0 max-h-0',
+    ])
 
-          <span class="text-sm"
-            >${typeof this.activeSuggestion === 'number'
-              ? `${this.activeSuggestion + 1} of ${suggestionsCount}`
-              : 'Original'}</span
-          >
+    return html`
+      <div class="font-sans">
+        <div class="bg-[${borderColour}] px-3 py-2 flex justify-between">
+          <span class="flex flex-row items-center gap-2">
+            <stencila-ui-icon
+              name="cardText"
+              class="text-xl"
+            ></stencila-ui-icon>
+            <span class="text-sm font-bold">Suggestion</span>
+          </span>
 
-          <sl-tooltip content="Next suggestion">
-            <stencila-ui-icon-button
-              name="arrowRightSquare"
-              @click=${(e: Event) => this.increment(e)}
-            ></stencila-ui-icon-button>
-          </sl-tooltip>
-        </span>
+          <span class="flex flex-row items-center">
+            <span class="flex flex-row items-center gap-1">
+              <sl-tooltip content="Previous suggestion">
+                <stencila-ui-icon-button
+                  name="arrowLeftSquare"
+                  @click=${(e: Event) => this.decrement(e)}
+                  .disabled=${!scrollable}
+                ></stencila-ui-icon-button>
+              </sl-tooltip>
 
-        <sl-tooltip content="Accept this suggestion">
-          <stencila-ui-icon-button
-            name="checkCircle"
-            class="ml-4"
-            @click=${(e: Event) => this.archive(e)}
-          ></stencila-ui-icon-button>
-        </sl-tooltip>
-      </span>
-    </div>`
+              <span class="text-sm"
+                >${typeof this.activeSuggestion === 'number'
+                  ? `${this.activeSuggestion + 1} of ${suggestionsCount}`
+                  : 'Original'}</span
+              >
+
+              <sl-tooltip content="Next suggestion">
+                <stencila-ui-icon-button
+                  name="arrowRightSquare"
+                  @click=${(e: Event) => this.increment(e)}
+                  .disabled=${!scrollable}
+                ></stencila-ui-icon-button>
+              </sl-tooltip>
+            </span>
+
+            <sl-tooltip content="Accept this suggestion">
+              <stencila-ui-icon-button
+                name="checkCircle"
+                class="ml-4"
+                @click=${(e: Event) => this.archive(e)}
+              ></stencila-ui-icon-button>
+            </sl-tooltip>
+
+            <sl-tooltip content="Revise this suggestion">
+              <stencila-ui-icon-button
+                name=${this.openRevisionDrawer
+                  ? 'chevronDown'
+                  : 'arrowClockwise'}
+                class="ml-4"
+                @click=${() =>
+                  (this.openRevisionDrawer = !this.openRevisionDrawer)}
+              ></stencila-ui-icon-button>
+            </sl-tooltip>
+          </span>
+        </div>
+        <div class=${reviseDrawerClasses}>
+          <div class="flex items-center px-3 py-2">
+            <ui-node-text-input
+              class="w-full grow"
+              card-type="InstructionBlock"
+              placeholder="Describe what you want changed, or leave empty to just retry"
+              .enterKeyEvent=${this.revise.bind(this)}
+              ${ref(this.feedbackRef)}
+            ></ui-node-text-input>
+            <sl-tooltip content="Submit feedback">
+              <stencila-ui-icon-button
+                @click=${this.revise}
+                name="arrowClockwise"
+                class="ml-2"
+              ></stencila-ui-icon-button>
+            </sl-tooltip>
+          </div>
+        </div>
+      </div>
+    `
   }
 }

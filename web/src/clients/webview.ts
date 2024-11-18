@@ -142,7 +142,7 @@ export class WebViewClient {
 
     //  Listener for document commands from the view to send to the VSCode webview panel
     window.addEventListener('stencila-document-command', (event: CustomEvent) =>
-      vscode.postMessage(event.detail)
+      vscode.postMessage({ type: 'command', ...event.detail })
     )
   }
 

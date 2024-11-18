@@ -10,6 +10,8 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 
 import '../../buttons/icon'
 
+// TODO: Is this still being used? can it be deleted
+
 @customElement('stencila-ui-suggestion-commands')
 @withTwind()
 export class UINodeSuggestionCommands extends UIBaseClass {
