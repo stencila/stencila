@@ -1,7 +1,7 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, LitElement } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../../twind'
 import { nodeUi } from '../../icons-and-colours'
@@ -22,8 +22,16 @@ export class UITextInput extends LitElement {
   disabled: boolean = false
 
   /**
+   * Event to be fired when the enter key is pressed
+   * - no event happens if this is not defined
+   */
+  @property({ type: Function })
+  enterKeyEvent?: (e: Event) => void
+
+  /**
    * Allows the input value of the to be accessed from the host object
    */
+  @state()
   public value: string
 
   /**
@@ -51,9 +59,16 @@ export class UITextInput extends LitElement {
       <input
         class="${baseStyles} ${this.inputClasses ?? ''}"
         type="text"
-        value=${this.value}
+        .value=${this.value ?? ''}
+        @keydown=${this.enterKeyEvent
+          ? (e: KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                this.enterKeyEvent(e)
+              }
+            }
+          : undefined}
         placeholder=${this.placeholder}
-        @change=${this.handleChange}
+        @input=${this.handleChange}
         ?readonly=${this.readonly}
         ?disabled=${this.disabled}
       />

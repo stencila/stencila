@@ -32,7 +32,7 @@ export class InstructionBlock extends Instruction {
 
   private hasContent: boolean = false
 
-  private reviseRef: Ref<HTMLInputElement> = createRef()
+  private feedbackRef: Ref<HTMLInputElement> = createRef()
 
   /**
    * Toggles the input for revising create instructions
@@ -53,7 +53,7 @@ export class InstructionBlock extends Instruction {
       | HTMLElement
       | undefined
 
-    this.hasContent = contentSlot != undefined
+    this.hasContent = contentSlot !== undefined
   }
 
   private onSuggestionsSlotChange() {
@@ -77,6 +77,7 @@ export class InstructionBlock extends Instruction {
       suggestions.forEach((el, i) => {
         if (i === this.activeSuggestion) {
           el.isActive = true
+          this.feedbackRef.value.value = el.feedback
         } else {
           el.isActive = false
         }
@@ -197,10 +198,11 @@ export class InstructionBlock extends Instruction {
    */
   private revise(e: Event) {
     e.stopImmediatePropagation()
-    
+
     const args = ['InstructionBlock', this.id]
-    
-    const feedback = this.reviseRef.value.value
+
+    const feedback = this.feedbackRef.value.value
+
     if (feedback) {
       args.push(feedback)
     }
@@ -437,12 +439,8 @@ export class InstructionBlock extends Instruction {
               class="w-full grow"
               card-type="InstructionBlock"
               placeholder="Describe what you want changed, or leave empty to just retry"
-              @keydown=${(e: KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                  this.revise(e)
-                }
-              }}
-              ${ref(this.reviseRef)}
+              .enterKeyEvent=${this.revise.bind(this)}
+              ${ref(this.feedbackRef)}
             ></ui-node-text-input>
             <sl-tooltip content="Submit feedback">
               <stencila-ui-icon-button
