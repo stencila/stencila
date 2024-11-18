@@ -28,6 +28,7 @@ import arrowLeftSquare from './arrow-left-square.svg'
 import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
 import arrowRightSquare from './arrow-right-square.svg'
+import arrowRight from './arrow-right.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
 import at from './at.svg'
@@ -136,6 +137,7 @@ const icons = {
   arrowLeftSquare,
   arrowNarrowUp,
   arrowRampRight3,
+  arrowRight,
   arrowRightSquare,
   arrowsCollapse,
   arrowsExpand,

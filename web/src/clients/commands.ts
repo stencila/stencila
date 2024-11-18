@@ -28,10 +28,10 @@ export interface DocumentCommand {
 
   /**
    * The arguments of the command
-   * 
+   *
    * If present, takes precedence over the other properties below.
    */
-  args?: string[]
+  args?: (string | number | boolean)[]
 
   /**
    * The type of the node that the command is being executed on.
