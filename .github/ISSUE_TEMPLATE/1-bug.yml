@@ -1,5 +1,5 @@
 name: "🐛 Bug"
-description: File a bug report
+description: Report a bug
 title: "bug(<context>): <title>"
 labels:
   - "type: bug"
