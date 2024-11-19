@@ -21,6 +21,7 @@ import {
 import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
+import { registerSetupView } from "./setup";
 
 let client: LanguageClient | undefined;
 
@@ -119,6 +120,7 @@ async function startServer(context: vscode.ExtensionContext) {
     }
   } else {
     views = [
+      registerSetupView(context, client),
       registerKernelsView(context, client),
       registerPromptsView(context, client),
       registerModelsView(context, client),
