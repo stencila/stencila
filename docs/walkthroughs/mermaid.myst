@@ -9,6 +9,12 @@ Mermaid is a JavaScript library that renders diagrams and flowcharts from Markdo
 
 This walkthrough illustrates how you can use Mermaid in your Stencila documents to create various types of diagrams and how to use LLM commands to help you create and edit Mermaid diagrams.
 
+:::{tip}
+
+This walkthrough is interactive: you can perform actions in the document, including adding or modify content. However, you must write any new content before the last set of ellipses `...` in the document. Any content added after this will be ignored.
+
+:::
+
 ...
 
 # Writing Mermaid diagrams

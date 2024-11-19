@@ -7,6 +7,12 @@ description: Creating math equations using TeX, AsciiMath and LLMs.
 
 This walkthrough illustrates the various ways that you include math equations and symbols in documents, including using TeX, AsciiMath and LLMs.
 
+:::{tip}
+
+This walkthrough is interactive: you can perform actions in the document, including adding or modify content. However, you must write any new content before the last set of ellipses `...` in the document. Any content added after this will be ignored.
+
+:::
+
 ...
 
 # Using TeX to write math

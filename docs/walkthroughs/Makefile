@@ -1,4 +1,4 @@
-# Makefile for generating walkthoughs from source walkthroughs in SMD. 
+# Makefile for generating walkthroughs from source walkthroughs in SMD. 
 # Not all walkthroughs can be generated like this because they may have
 # syntax specific prose.
 
