@@ -2,7 +2,7 @@
 type: Prompt
 
 id: stencila/create/math-block
-version: "0.1.0"
+version: "0.1.1"
 name: Create Math Block Prompt
 description: Create a math equation in TeX, AsciiMath or MathML.
 keywords: math, block, display
@@ -45,7 +45,7 @@ If using MathML write a code block and ensure that you use block display i.e
 
 ::: include ../partials/instructions/document/paragraphs/previous.smd
 
-Only provide ONE math block. Do NOT provide any comments or explanation before or after the math block. 
+Only provide ONE set of math surrounded by two dollar characters. Do NOT provide any comments or explanation before or after the math block. Do NOT use square brackets to surround the math.
 
 # Examples
 
