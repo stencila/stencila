@@ -78,21 +78,24 @@ class ModelTreeItem extends vscode.TreeItem {
 
     this.id = model?.id;
 
-    let tooltip = model?.id;
-    if (model?.availability === "RequiresKey") {
-      tooltip += " (sign-in to Stencila Cloud to use)";
-    } else if (model?.type === "Proxied") {
-      tooltip += " (via Stencila Cloud)";
-    } else if (model?.availability !== "Available") {
-      tooltip += ` (${model?.availability.toLowerCase()})`;
+    if (model) {
+      let tooltip = model.id;
+      if (model.availability === "RequiresKey") {
+        tooltip += " (sign-in to Stencila Cloud to use)";
+      } else if (model.type === "Proxied") {
+        tooltip += " (via Stencila Cloud)";
+      } else if (model.availability !== "Available") {
+        tooltip += ` (${model.availability.toLowerCase()})`;
+      }
+      this.tooltip = tooltip;
     }
-    this.tooltip = tooltip;
 
     const icon = (() => {
       if (provider) {
         const name = provider.toLowerCase();
         switch (name) {
           case "anthropic":
+          case "cloudflare":
           case "google":
           case "mistral":
           case "openai":
@@ -102,13 +105,8 @@ class ModelTreeItem extends vscode.TreeItem {
             return "circle-large-outline";
         }
       } else {
-        switch (model?.availability) {
-          case "RequiresKey":
-            return "lock";
-          case "Disabled":
-          case "Installable":
-          case "Unavailable":
-            return "circle-slash";
+        if (model?.availability !== "Available") {
+          return "circle-slash";
         }
 
         switch (model?.type) {

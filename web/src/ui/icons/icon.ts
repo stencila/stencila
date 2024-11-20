@@ -51,6 +51,7 @@ import check from './check.svg'
 import chevronDown from './chevron-down.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
+import cloudflare from './cloudflare.svg'
 import codeChunk from './code-chunk.svg'
 import codeSlash from './code-slash.svg'
 import code from './code.svg'
@@ -162,6 +163,7 @@ const icons = {
   chevronDown,
   circle,
   clock,
+  cloudflare,
   code,
   codeChunk,
   codeSlash,
