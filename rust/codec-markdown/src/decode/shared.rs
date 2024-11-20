@@ -87,7 +87,7 @@ pub(super) fn model<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
     (
         take_while(1.., |c: char| c.is_ascii_alphabetic()),
         take_while(0.., |c: char| {
-            c.is_ascii_alphanumeric() || "_-/".contains(c)
+            c.is_ascii_alphanumeric() || "_-/.".contains(c)
         }),
     )
         .take()
