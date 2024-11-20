@@ -1,0 +1,178 @@
+---
+description: Example with many, if not most, block node types, with little nesting.
+---
+
+# Paragraphs & marks
+
+Qui labore anim qui _exercitation_ tempor enim nisi aute dolor ad. Reprehenderit **occaecat** ad reprehenderit reprehenderit. Laborum et elit aliquip elit magna dolor. Ullamco culpa adipisicing sint ipsum ea fugiat ullamco exercitation. Officia ipsum commodo incididunt ~~ullamco~~ amet consequat aliquip ea labore quis aliquip cupidatat esse.
+
+# Lists
+
+- Apple
+- Pear
+- Kiwi
+
+1. One
+2. Two
+3. Three
+
+# Quotes
+
+Is it <q>be, or not</q>?
+
+> To be, or not to be, that is the question:
+Whether 'tis nobler in the mind to suffer
+The slings and arrows of outrageous fortune,
+Or to take Arms against a Sea of troubles,
+And by opposing end them.
+> 
+> -- William Shakespeare, Hamlet
+
+# Admonitions
+
+A note,
+
+> [!note]
+> Just a quick note
+
+A warning with a title and collapsed,
+
+> [!warning]+ Something bad happened
+> Never mind, everything is OK, don't panic.
+
+# Figures
+
+::: figure
+
+A figure, for figures sake.
+
+![](https://picsum.photos/id/29/600/200)
+
+:::
+
+# Tables
+
+Without a caption,
+
+::: table
+
+| Mountain      | Height (m) | Location       | First Ascent |
+| ------------- | ---------- | -------------- | ------------ |
+| Mount Everest | 8,848      | Nepal/China    | 1953         |
+| K2            | 8,611      | Pakistan/China | 1954         |
+| Kangchenjunga | 8,586      | Nepal/India    | 1955         |
+| Lhotse        | 8,516      | Nepal/China    | 1956         |
+| Makalu        | 8,485      | Nepal/China    | 1955         |
+| Cho Oyu       | 8,188      | Nepal/China    | 1954         |
+| Dhaulagiri I  | 8,167      | Nepal          | 1960         |
+| Manaslu       | 8,163      | Nepal          | 1956         |
+| Nanga Parbat  | 8,126      | Pakistan       | 1953         |
+| Annapurna I   | 8,091      | Nepal          | 1950         |
+
+:::
+
+With a caption,
+
+::: table
+
+The total area of each continent in square kilometers, ordered by descending size.
+
+| Continent     | Area (km²) |
+| ------------- | ---------- |
+| Asia          | 44,579,000 |
+| Africa        | 30,370,000 |
+| North America | 24,709,000 |
+| South America | 17,840,000 |
+| Antarctica    | 14,200,000 |
+| Europe        | 10,180,000 |
+| Australia     | 7,692,000  |
+
+:::
+
+# Math
+
+The area of a circle with radius $r$ is:
+
+$$
+A = \pi r^2
+$$
+
+# Display code
+
+Can be `inline` or block level,
+
+```python
+# FizzBuzz implementation from 1 to 100
+for i in range(1, 10):
+    if i % 3 == 0 and i % 5 == 0:
+        print("FizzBuzz")
+    elif i % 3 == 0:
+        print("Fizz")
+    elif i % 5 == 0:
+        print("Buzz")
+    else:
+        print(i)
+```
+
+# Executable code
+
+Can be inline or `6 * 7`{exec} or block level,
+
+```r exec
+# Create histogram of 100 random normal values, no title and light blue bars
+hist(rnorm(1000), 
+     col = "lightblue",
+     main = "",
+     xlab = "Value",
+     breaks = 30)
+```
+
+# Commands
+
+A command that has not been executed,
+
+::: create plot of random numbers :::
+
+A command that has been executed,
+
+::: create paragraph, 50 words or less, on the heisenburg uncertainty principle >>>
+
+The Heisenberg uncertainty principle states that we cannot simultaneously know both the exact position and momentum of a quantum particle with arbitrary precision. The more accurately we measure one property, the more uncertain our measurement of the other property becomes.
+
+# If Blocks
+
+::: if 1 > 0
+
+Yeah
+
+::: else 
+
+Nah
+
+:::
+
+# For Blocks
+
+::: for i in [1,2,3]
+
+`i`{exec}
+
+:::
+
+# Styled Blocks
+
+::: style text-xl text-center text-red-400
+
+Red, centred, text
+
+:::
+
+# Sections
+
+::: introduction
+
+An introduction section.
+
+:::
+
+
