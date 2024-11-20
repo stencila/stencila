@@ -983,6 +983,7 @@ dependencies = [
  "plugins",
  "prompts",
  "publish",
+ "schema",
  "secrets",
  "self-replace",
  "server",

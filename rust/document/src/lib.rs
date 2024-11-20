@@ -25,7 +25,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use schema::{Article, AuthorRole, Node, NodeId, NodeType, Patch};
+use schema::{Article, AuthorRole, Node, NodeId, NodeType, Null, Patch, Prompt};
 
 mod config;
 mod sync_directory;
@@ -352,14 +352,14 @@ impl Document {
                                 "Unable to read sidecar file {}: {error}",
                                 sidecar.display()
                             );
-                            Node::Article(Article::default())
+                            Node::Null(Null)
                         }
                     }
                 } else {
-                    Node::Article(Article::default())
+                    Node::Null(Null)
                 }
             }
-            None => Node::Article(Article::default()),
+            None => Node::Null(Null),
         };
         let (watch_sender, watch_receiver) = watch::channel(root.clone());
         let root = Arc::new(RwLock::new(root));
@@ -445,7 +445,12 @@ impl Document {
 
     /// Create a new document at a path
     #[tracing::instrument]
-    pub async fn create(path: &Path, force: bool, sidecar_format: Option<Format>) -> Result<Self> {
+    pub async fn create(
+        path: &Path,
+        force: bool,
+        node_type: NodeType,
+        sidecar_format: Option<Format>,
+    ) -> Result<Self> {
         // Check for existing file
         if path.exists() && !force {
             bail!("File already exists; remove the file or use the `--force` option")
@@ -470,7 +475,11 @@ impl Document {
         };
 
         // Create the empty article and write to path
-        let node = Node::Article(Article::default());
+        let node = match node_type {
+            NodeType::Article => Node::Article(Article::default()),
+            NodeType::Prompt => Node::Prompt(Prompt::default()),
+            _ => bail!("Unsupported document type: {node_type}"),
+        };
         codecs::to_path(&node, path, None).await?;
 
         // Create the sidecar file
@@ -551,7 +560,14 @@ impl Document {
         let format = Format::from_path(source);
 
         let root = &mut *self.root.write().await;
-        schema::merge(root, &node, Some(format), None)?;
+        if matches!(root, Node::Null(..)) {
+            // If document is currently empty (e.g. just opened), then just
+            // set the root to the node
+            *root = node;
+        } else {
+            // Otherwise, merge the node into the root
+            schema::merge(root, &node, Some(format), None)?;
+        }
 
         Ok(())
     }

@@ -6,6 +6,7 @@ use common::{
 };
 use document::Document;
 use format::Format;
+use schema::NodeType;
 
 /// Create a new document with sidecar file
 #[derive(Debug, Parser)]
@@ -17,9 +18,21 @@ pub struct Cli {
     #[arg(long, short)]
     force: bool,
 
+    /// The type of document to create
+    #[arg(long, short, default_value = "article")]
+    r#type: RootType,
+
     /// The format of the sidecar file
     #[arg(long, short)]
     sidecar: Option<SidecarFormat>,
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum RootType {
+    #[clap(alias = "article")]
+    Article,
+    #[clap(alias = "prompt")]
+    Prompt,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -31,11 +44,15 @@ pub enum SidecarFormat {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        let node_type = match self.r#type {
+            RootType::Article => NodeType::Article,
+            RootType::Prompt => NodeType::Prompt,
+        };
         let sidecar = self.sidecar.map(|format| match format {
             SidecarFormat::JsonZip => Format::JsonZip,
             SidecarFormat::Json => Format::Json,
         });
-        Document::create(&self.path, self.force, sidecar).await?;
+        Document::create(&self.path, self.force, node_type, sidecar).await?;
 
         Ok(())
     }
