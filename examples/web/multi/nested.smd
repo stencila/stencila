@@ -1,0 +1,97 @@
+---
+description: Example with high levels of nesting, including of nodes of different types.
+---
+
+# Sections
+
+::: section
+
+::::: section
+
+::::::: section
+
+::::::::: section
+
+::::::::::: section
+
+Inception.
+
+:::::::::::
+
+:::::::::
+
+:::::::
+
+:::::
+
+:::
+
+# If Blocks
+
+::: if true
+
+::::: if true
+
+::::::: if true
+
+::::::::: if true
+
+::::::::::: if true
+
+Yes
+
+::::::::::: else 
+
+No
+
+:::::::::::
+
+:::::::::
+
+:::::::
+
+:::::
+
+:::
+
+# For Blocks
+
+::: for x in [1,2]
+
+::::: for y in [1,2]
+
+::::::: for z in [1,2]
+
+`x + y + z`{exec}
+
+:::::::
+
+:::::
+
+:::
+
+# Mixed
+
+::: for x in [1,2,3]
+
+::::: if x == 2
+
+::::::: style p-1 bg-green-100
+
+```js exec
+"Even"
+```
+
+:::::::
+
+::::: else 
+
+::::::: style p-1 bg-blue-{{(x + 1) * 100}}
+
+Odd
+
+:::::::
+
+:::::
+
+:::
