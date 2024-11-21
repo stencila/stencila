@@ -20,7 +20,7 @@ import { UIBaseCard } from './base-card'
 @withTwind()
 export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
   @property({ type: Boolean })
-  removeContentPadding = false
+  removeContentPadding: boolean = false
 
   protected override toggleChipPosition: string = ''
 
@@ -66,7 +66,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     return html`
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
-        ${this.renderChip(this.type)}
+        ${this.renderChip()}
         <div class="content-block ${contentStyles}">
           <slot name="content" class="relative w-full"></slot>
         </div>

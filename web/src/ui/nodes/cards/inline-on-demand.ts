@@ -24,7 +24,8 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
 
   protected override restrictTitleWidth: boolean = true
 
-  protected override toggleChipPosition: string = '-top-1/2 absolute'
+  protected override toggleChipPosition: string =
+    '-top-1/2 left-[calc(100%+10px)] absolute'
 
   private tw: Twind
 
@@ -102,7 +103,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
     >
-      ${this.renderChip(this.type)}
+      ${this.renderChip()}
       <sl-tooltip
         trigger="manual"
         class=${`${toolTipStyles}`}

@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { InlineTypeList, NodeType } from '@stencila/types'
+import { InlineTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
@@ -14,7 +14,7 @@ import '../chip'
 
 export declare class ChipToggleInterface {
   protected documentContext: DocumentContext
-  protected renderChip: (node: NodeType) => void
+  protected renderChip: () => void
   protected toggle: boolean
   protected toggleChipPosition: string
   protected toggleChip: () => void
@@ -91,7 +91,8 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       )
     }
 
-    protected renderChip(node: NodeType) {
+    protected renderChip() {
+      const { borderColour, icon } = nodeUi(this.type)
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
         : 'block'
@@ -104,19 +105,33 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
             ? 'opacity-0 group-hover:opacity-100'
             : 'opacity-100'
 
-      const styles = apply([chipStateClasses, 'hover:z-50', 'absolute'])
+      const styles = apply([
+        chipStateClasses,
+        this.toggleChipPosition,
+        'absolute',
+        'transition-all duration-200 ease-in-out',
+        'hover:cursor-pointer hover:z-50',
+      ])
 
       return html`
-        <div class=${`chip -ml-[40px] ${this.toggleChipPosition}`}>
-          <stencila-ui-node-chip
-            class=${styles}
-            style=${nodeDisplay === 'block' ? 'top: 0px;' : ''}
-            type=${node}
-            node-display=${nodeDisplay}
-            ?card-open=${this.toggle}
-            .clickEvent=${this.toggleChip.bind(this)}
-          >
-          </stencila-ui-node-chip>
+        <div class=${`chip h-full ${nodeDisplay === 'block' && '-ml-[60px]'}`}>
+          <div class="absolute top-0 h-full ${styles}">
+            ${nodeDisplay === 'block'
+              ? html`
+                  <div
+                    @click=${this.toggleChip}
+                    class="relative top-0 left-0 bg-[${borderColour}] w-2 h-full rounded"
+                  ></div>
+                `
+              : ''}
+            <div
+              @click=${this.toggleChip}
+              class="absolute top-0 bg-[${borderColour}] left-0 w-6 h-6 text-sm flex justify-center items-center rounded rounded-bl-none"
+            >
+              <stencila-ui-icon class="text-xs" name=${icon}>
+              </stencila-ui-icon>
+            </div>
+          </div>
         </div>
       `
     }
