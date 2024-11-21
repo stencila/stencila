@@ -1,3 +1,5 @@
+use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
+
 use codec::{
     common::{
         async_trait::async_trait,
@@ -71,13 +73,14 @@ impl Codec for DomCodec {
             dom.insert_str(pos, " root");
         }
 
-        // Get any styles defined in the content (e.g. Tailwind usage, or raw CSS blocks)
-        // If not standalone then this needs to be inserted at the top of the root node
+        // Get any CSS defined in the content (e.g. Tailwind usage, or raw CSS blocks)
+        // This needs to be inserted at the top of the root node
         // (for diffing and Morphdom to work it can not go before)
-        let style = context.style();
-        if !style.is_empty() {
+        let css = context.css();
+        if !css.is_empty() {
+            let css = normalize_css(&css);
             if let Some(pos) = dom.find('>') {
-                dom.insert_str(pos + 1, &style);
+                dom.insert_str(pos + 1, &["<style>", &css, "</style>"].concat());
             }
         }
 
@@ -164,7 +167,6 @@ impl Codec for DomCodec {
     <link rel="stylesheet" type="text/css" href="/~static/themes/{theme}.css" />
     <link rel="stylesheet" type="text/css" href="/~static/views/dynamic.css" />
     <script type="module" src="/~static/views/dynamic.js"></script>
-    {style}
   </head>
   <body>
     <stencila-dynamic-view view="dynamic">
@@ -179,7 +181,7 @@ impl Codec for DomCodec {
 
         let html = match compact {
             true => html,
-            false => indent(&html)?,
+            false => indent_html(&html)?,
         };
 
         Ok((html, EncodeInfo::none()))
@@ -189,7 +191,7 @@ impl Codec for DomCodec {
 /// Indent HTML
 ///
 /// Originally based on https://gist.github.com/lwilli/14fb3178bd9adac3a64edfbc11f42e0d
-fn indent(html: &str) -> Result<String> {
+fn indent_html(html: &str) -> Result<String> {
     use quick_xml::{events::Event, Reader, Writer};
 
     let mut reader = Reader::from_str(html);
@@ -211,4 +213,19 @@ fn indent(html: &str) -> Result<String> {
     Ok(std::str::from_utf8(&writer.into_inner())
         .expect("Failed to convert a slice of bytes to a string slice")
         .to_string())
+}
+
+/// Normalize and minify CSS
+fn normalize_css(css: &str) -> String {
+    StyleSheet::parse(css, ParserOptions::default())
+        .map(|stylesheet| {
+            stylesheet
+                .to_css(PrinterOptions {
+                    minify: true,
+                    ..Default::default()
+                })
+                .map(|result| result.code)
+                .unwrap_or_else(|_| css.to_string())
+        })
+        .unwrap_or_else(|_| css.to_string())
 }

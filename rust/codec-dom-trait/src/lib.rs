@@ -1,13 +1,13 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use std::{collections::BTreeMap, path::PathBuf};
+use std::path::PathBuf;
 
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 
 use common::{
-    inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
-    serde::Serialize, serde_json, smart_default::SmartDefault,
+    inflector::Inflector, itertools::Itertools, serde::Serialize, serde_json,
+    smart_default::SmartDefault,
 };
 use node_id::NodeId;
 use node_type::NodeType;
@@ -121,11 +121,8 @@ pub struct DomEncodeContext {
     /// The levels and ids of the current stack of `Heading` nodes
     headings: Vec<(i64, NodeId)>,
 
-    /// The CSS classes in the document
-    ///
-    /// Uses a b-tree map so that the order of classes in maintained to avoid an
-    /// excessive number of diffs/patches when the DOM HTML is updated.
-    css: BTreeMap<String, String>,
+    /// The CSS content of the document
+    css: String,
 
     /// The URL of the image to use as the Open Graph image (<<meta property="og:image" ...>)
     ///
@@ -294,18 +291,11 @@ impl DomEncodeContext {
         self
     }
 
-    /// Push CSS classes onto the context
+    /// Push CSS onto the context
+    ///
+    ///
     pub fn push_css(&mut self, css: &str) -> &mut Self {
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"\.([\w-]+)\{([^}]+)\}").expect("invalid regex"));
-
-        for captures in REGEX.captures_iter(css) {
-            let class = &captures[1];
-            let rules = &captures[2];
-            if !self.css.contains_key(class) {
-                self.css.insert(class.to_string(), rules.to_string());
-            }
-        }
+        self.css.push_str(css);
 
         self
     }
@@ -355,25 +345,12 @@ impl DomEncodeContext {
         std::mem::take(&mut self.content)
     }
 
-    /// Get a CSS <style> element for the document at completion of encoding
+    /// Get the CSS of the encoding context at completion of encoding
     ///
-    /// This should be placed in the <head> if standalone (to avoid flash of unstyled content),
+    /// This CSS should be placed in the <head> if standalone (to avoid flash of unstyled content),
     /// or at the top of the root node otherwise.
-    pub fn style(&self) -> String {
-        if !self.css.is_empty() {
-            let mut style = "<style>".to_string();
-            for (class, css) in self.css.iter() {
-                style.push('.');
-                style.push_str(class);
-                style.push('{');
-                style.push_str(css);
-                style.push('}');
-            }
-            style += "</style>";
-            style
-        } else {
-            String::new()
-        }
+    pub fn css(&mut self) -> String {
+        std::mem::take(&mut self.css)
     }
 
     /// Set the URL of the image to use in `<meta property="og:image" ...>` tag for the document

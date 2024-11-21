@@ -1,7 +1,6 @@
 use std::hash::{Hash, Hasher};
 
 use kernel_jinja::JinjaKernelInstance;
-use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use railwind::{parse_to_string, CollectionOptions, Source};
 
 use kernel::{
@@ -128,12 +127,6 @@ impl StyleKernelInstance {
             (css, class)
         };
 
-        // Normalize the CSS (including expanding the nesting)
-        let (css, normalize_message) = self.normalize_css(&css);
-        if let Some(normalize_message) = normalize_message {
-            messages.push(normalize_message);
-        }
-
         Ok((css, classes, messages))
     }
 
@@ -170,34 +163,6 @@ impl StyleKernelInstance {
             .collect();
 
         (css, messages)
-    }
-
-    /// Normalize and minify CSS
-    fn normalize_css(&self, css: &str) -> (String, Option<ExecutionMessage>) {
-        match StyleSheet::parse(css, ParserOptions::default()) {
-            Ok(stylesheet) => {
-                match stylesheet.to_css(PrinterOptions {
-                    minify: true,
-                    ..Default::default()
-                }) {
-                    Ok(result) => (result.code, None),
-                    Err(error) => (
-                        css.to_string(),
-                        Some(ExecutionMessage::new(
-                            MessageLevel::Warning,
-                            error.to_string(),
-                        )),
-                    ),
-                }
-            }
-            Err(error) => (
-                css.to_string(),
-                Some(ExecutionMessage::new(
-                    MessageLevel::Warning,
-                    error.to_string(),
-                )),
-            ),
-        }
     }
 }
 

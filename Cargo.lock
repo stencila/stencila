@@ -1065,6 +1065,7 @@ dependencies = [
  "codec",
  "codec-dom-trait",
  "codec-text-trait",
+ "lightningcss",
  "quick-xml 0.37.1",
 ]
 
@@ -3063,7 +3064,6 @@ dependencies = [
  "common-dev",
  "kernel",
  "kernel-jinja",
- "lightningcss",
  "railwind",
 ]
 
