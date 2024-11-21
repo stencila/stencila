@@ -8,9 +8,11 @@ Each subfolder (e.g. `paragraph`) tests the Web Component for the corresponding 
 
 Within each subfolder there are example documents, generally each having only one example node, but with varying states. For example, `paragraph/simple.smd` contains a single paragraph with no properties other than `content` and `paragraph/authors.smd` has a single paragraph with both `content` and `authors`.
 
+In addition, the `multi` folder contains examples that include several node types so that we can test how they work together.
+
 ## Adding examples
 
-Please keep examples small and focussed on a specific variation of a node type. 
+Generally, please keep examples small and focussed on a specific variation of a node type. 
 
 If appropriate, include a YAML header in with a `description` of the example (we use the header for this so it can be changed without changing the screenshot of the example). 
 
@@ -28,6 +30,14 @@ cargo run -p cli new paragraph/simple.smd --sidecar json
 
 # Using an installed version of the CLI
 stencila new paragraph/simple.smd --sidecar json
+```
+
+## Previewing examples
+
+Preview each example in VSCode, or using the built-in server using,
+
+```sh
+cargo run -p cli preview multi/flat.smd
 ```
 
 ## Running tests

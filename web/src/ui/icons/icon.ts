@@ -28,6 +28,7 @@ import arrowLeftSquare from './arrow-left-square.svg'
 import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
 import arrowRightSquare from './arrow-right-square.svg'
+import arrowRight from './arrow-right.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
 import at from './at.svg'
@@ -50,9 +51,11 @@ import check from './check.svg'
 import chevronDown from './chevron-down.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
+import cloudflare from './cloudflare.svg'
 import codeChunk from './code-chunk.svg'
 import codeSlash from './code-slash.svg'
 import code from './code.svg'
+import compass from './compass.svg'
 import currencyDollar from './currency-dollar.svg'
 import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
@@ -136,6 +139,7 @@ const icons = {
   arrowLeftSquare,
   arrowNarrowUp,
   arrowRampRight3,
+  arrowRight,
   arrowRightSquare,
   arrowsCollapse,
   arrowsExpand,
@@ -159,9 +163,11 @@ const icons = {
   chevronDown,
   circle,
   clock,
+  cloudflare,
   code,
   codeChunk,
   codeSlash,
+  compass,
   cursor,
   currencyDollar,
   dashCircle,

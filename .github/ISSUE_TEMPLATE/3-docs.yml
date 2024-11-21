@@ -1,0 +1,32 @@
+name: "📃 Documentation"
+description: Suggest documentation fixes or additions
+title: "docs(<context>): <title>"
+labels:
+  - "type: docs"
+projects:
+  - stencila/8
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest fixes or additions to our documentation 🙏.
+  - type: dropdown
+    id: product
+    attributes:
+      label: Which component?
+      description: Which component of Stencila does this issues apply to.
+      options:
+        - Stencila CLI
+        - Stencila VSCode extension
+        - Built-in prompts
+        - Prompt libraries
+        - Other
+      default: 0
+  - type: textarea
+    id: your-suggestion
+    attributes:
+      label: What do you think needs to be improved?
+      description: Tell us what is unclear, inaccurate or missing.
+      placeholder: Docs for x need y
+    validations:
+      required: true

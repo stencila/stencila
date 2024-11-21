@@ -21,23 +21,24 @@ export class UINodeSimpleProperty extends LitElement {
   override render() {
     const content = html`<slot></slot>`
 
-    return html`<div
-      class="flex flex-row w-full h-full items-center gap-x-2 shrink-0 not-italic"
+    return html`<sl-tooltip
+      content=${this.tooltipContent}
+      placement="top-start"
+      .disabled=${(this.tooltipContent?.length ?? 0) === 0}
     >
-      <div class="flex items-center justify-center">
-        <stencila-ui-icon
-          name=${this.iconName}
-          class="text-base"
-        ></stencila-ui-icon>
+      <div
+        class="flex flex-row w-full h-full items-center gap-x-2 shrink-0 not-italic"
+      >
+        <div class="flex items-center justify-center">
+          <stencila-ui-icon
+            name=${this.iconName}
+            class="text-base"
+          ></stencila-ui-icon>
+        </div>
+        <div class="grow">
+          <span>${content}</span>
+        </div>
       </div>
-      <div class="grow">
-        <sl-tooltip
-          content=${this.tooltipContent}
-          placement="top-start"
-          .disabled=${(this.tooltipContent?.length ?? 0) === 0}
-          ><span>${content}</span></sl-tooltip
-        >
-      </div>
-    </div>`
+    </sl-tooltip>`
   }
 }

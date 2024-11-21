@@ -1,5 +1,29 @@
 # Change Log
 
+## 0.0.15 2024-11-17
+
+- Adds bidirectional scroll syncing between source editor and preview panel.
+
+- Open preview panel when opening walkthroughs.
+
+- Adds actions to walkthrough previews for expanding the next, and all, walkthrough steps.
+
+- Based on Stencila CLI v2.0.0-beta.17 which includes a fix for which kernel is used for executable nodes when no language is specified.
+
+## 0.0.14 2024-11-14
+
+- Fixes to AI commands walkthrough
+
+- Adds demo screen casts to README
+
+## 0.0.13 2024-11-12
+
+- Reduces the diagnostic level of Markdown pre-decoding checks and increases the debounce delay.
+
+- Filtering of commands and prompts based on description.
+
+- Based on Stencila CLI v2.0.0-beta.16 which includes fixes related to commands within walkthroughs and display of the prompts provided in commands.
+
 ## 0.0.12 2024-11-11
 
 - Fixes related to having multiple preview tabs opens at once

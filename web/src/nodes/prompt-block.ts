@@ -1,14 +1,16 @@
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+// import { nodeUi } from '../ui/nodes/icons-and-colours'
 
+import { Executable } from './executable'
+
+import '../ui/nodes/properties/generic/collapsible-details'
 import '../ui/nodes/cards/block-in-flow'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 import '../ui/nodes/properties/provenance'
-
-import { Executable } from './executable'
 
 /**
  * Web component representing a Stencila Schema `PromptBlock` node
@@ -18,14 +20,21 @@ import { Executable } from './executable'
 @customElement('stencila-prompt-block')
 @withTwind()
 export class PromptBlock extends Executable {
+  @property()
+  prompt: string
+
   /**
    * Toggle show/hide content
    *
-   * Defaults to true, and then is toggled off/on by user or
-   * by changes to the prompt status.
+   * Defaults to true, and then is toggled off/on by user.
    */
   @state()
   private showContent?: boolean = true
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+    this.showContent = !this.ancestors.endsWith('InstructionBlock')
+  }
 
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
@@ -33,6 +42,24 @@ export class PromptBlock extends Executable {
         <div class="w-full ${this.showContent ? '' : 'hidden'}">
           <slot name="content"></slot>
         </div>
+      `
+    }
+
+    if (this.ancestors.endsWith('InstructionBlock')) {
+      return html`
+        <stencila-ui-node-collapsible-details
+          type=${'InstructionBlock'}
+          icon-name="compass"
+          header-title="Prompt"
+          ?expanded=${this.showContent}
+        >
+          <div class="mx-4 font-mono text-xs" slot="header-content">
+            ${this.prompt}
+          </div>
+          <div class="w-full p-3" style="color: var(--default-text-colour);">
+            <slot name="content"></slot>
+          </div>
+        </stencila-ui-node-collapsible-details>
       `
     }
 

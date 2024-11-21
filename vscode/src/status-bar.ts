@@ -178,6 +178,12 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           command: "stencila.lsp-server.logs",
         },
         {
+          label: "$(terminal) Shell",
+          description:
+            "Open a shell with the Stencila CLI available",
+          command: "stencila.shell",
+        },
+        {
           label: "Secrets",
           kind: vscode.QuickPickItemKind.Separator,
         },
@@ -220,6 +226,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
       const item = await vscode.window.showQuickPick(commands, {
         title: "Stencila Commands",
         placeHolder: "Select a Stencila command to run",
+        matchOnDescription: true,
       });
 
       if (item?.command) {

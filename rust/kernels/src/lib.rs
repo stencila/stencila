@@ -305,32 +305,37 @@ impl Kernels {
     ///
     /// The `language` argument can be the name of a programming language, or
     /// the id of an existing kernel instance.
-    ///
-    /// If no language specified, and there is at least one kernel instance, returns the
-    /// first instance.
     async fn get_instance_for(
         &mut self,
-        language: Option<&str>,
+        language: &str,
     ) -> Result<Option<Arc<Mutex<Box<dyn KernelInstance>>>>> {
-        let format = language.map(Format::from_name);
+        let format = Format::from_name(language);
 
         for entry in self.instances.read().await.iter() {
-            let Some(language) = language else {
-                return Ok(Some(entry.instance.clone()));
-            };
-
             if entry.id == language {
                 return Ok(Some(entry.instance.clone()));
             }
 
-            if let Some(format) = &format {
-                if entry.kernel.supports_language(format) {
-                    return Ok(Some(entry.instance.clone()));
-                }
+            if entry.kernel.supports_language(&format) {
+                return Ok(Some(entry.instance.clone()));
             }
         }
 
         Ok(None)
+    }
+
+    /// Get the first kernel instance of [`KernelType::Programming`]
+    ///
+    /// If there is not yet a kernel instance for an executable, programming language
+    /// then falls back to creating an instance of the default kernel.
+    async fn get_instance_programming(&mut self) -> Result<Arc<Mutex<Box<dyn KernelInstance>>>> {
+        for entry in self.instances.read().await.iter() {
+            if matches!(entry.kernel.r#type(), KernelType::Programming) {
+                return Ok(entry.instance.clone());
+            }
+        }
+
+        self.create_instance(None).await
     }
 
     /// Get a reference to each of the kernel instances
@@ -349,9 +354,12 @@ impl Kernels {
         code: &str,
         language: Option<&str>,
     ) -> Result<(Vec<Node>, Vec<ExecutionMessage>, String)> {
-        let instance = match self.get_instance_for(language).await? {
-            Some(instance) => instance,
-            None => self.create_instance(language).await?,
+        let instance = match language {
+            Some(language) => match self.get_instance_for(language).await? {
+                Some(instance) => instance,
+                None => self.create_instance(Some(language)).await?,
+            },
+            None => self.get_instance_programming().await?,
         };
 
         let mut instance = instance.lock().await;
@@ -367,9 +375,12 @@ impl Kernels {
         code: &str,
         language: Option<&str>,
     ) -> Result<(Node, Vec<ExecutionMessage>, String)> {
-        let instance = match self.get_instance_for(language).await? {
-            Some(instance) => instance,
-            None => self.create_instance(language).await?,
+        let instance = match language {
+            Some(language) => match self.get_instance_for(language).await? {
+                Some(instance) => instance,
+                None => self.create_instance(Some(language)).await?,
+            },
+            None => self.get_instance_programming().await?,
         };
 
         let mut instance = instance.lock().await;
@@ -395,10 +406,7 @@ impl Kernels {
 
     /// Set a variable in the first kernel instance
     pub async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
-        let instance = match self.get_instance_for(None).await? {
-            Some(instance) => instance,
-            None => self.create_instance(None).await?,
-        };
+        let instance = self.get_instance_programming().await?;
 
         let mut instance = instance.lock().await;
         instance.set(name, value).await
@@ -406,10 +414,7 @@ impl Kernels {
 
     /// Remove a variable from the kernels
     pub async fn remove(&mut self, name: &str) -> Result<()> {
-        // TODO: remove from all kernels that the variable has been mirrored to
-        let Some(instance) = self.get_instance_for(None).await? else {
-            bail!("No kernel instances to remove variable from")
-        };
+        let instance = self.get_instance_programming().await?;
 
         let mut instance = instance.lock().await;
         instance.remove(name).await

@@ -208,12 +208,12 @@ impl TextNode {
             if position.character == 0 {
                 break;
             } else {
-                position.character -= 1;
+                position.character = position.character.saturating_sub(1);
             }
         }
 
         // Try start of previous line
-        position.line -= 1;
+        position.line = position.line.saturating_sub(1);
         position.character = 0;
         if let Some(node_id) = self.node_id_at(position) {
             return Some(node_id);
@@ -268,7 +268,6 @@ impl TextNode {
     }
 
     /// Get the [`Range`] of a [`NodeId`]
-    #[allow(unused)]
     pub fn node_range(&self, node_id: &NodeId) -> Option<Range> {
         if node_id == &self.node_id {
             return Some(self.range);
@@ -502,7 +501,8 @@ impl TextDocument {
         // This is the delay before publishing diagnostics. It is additional to the delay in processing
         // updates to source and is here so that the user has a chance to write valid syntax before getting
         // warnings and errors related to incomplete syntax
-        const DEBOUNCE_DELAY_MILLIS: u64 = 1000;
+        // TODO: Make this debounce configurable https://github.com/stencila/stencila/issues/2405
+        const DEBOUNCE_DELAY_MILLIS: u64 = 3000;
         let debounce = time::Duration::from_millis(DEBOUNCE_DELAY_MILLIS);
 
         let mut latest_messages = None;
@@ -540,8 +540,9 @@ impl TextDocument {
                 let severity = Some(match message.level {
                     MessageLevel::Debug | MessageLevel::Trace => DiagnosticSeverity::HINT,
                     MessageLevel::Info => DiagnosticSeverity::INFORMATION,
-                    MessageLevel::Warning => DiagnosticSeverity::WARNING,
-                    MessageLevel::Error => DiagnosticSeverity::ERROR,
+                    // See discussion at https://github.com/stencila/stencila/issues/2405 for
+                    // rationale behind using diagnostic level WARNING for errors
+                    MessageLevel::Warning | MessageLevel::Error => DiagnosticSeverity::WARNING,
                 });
                 let position = Position {
                     line: message.start_line.unwrap_or_default() as u32,

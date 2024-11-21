@@ -17,10 +17,10 @@ panic = "abort"
 
 [workspace.dependencies]
 base64 = "0.22.0"
-cached = { version = "0.53.0", features = ["async"] }
-flate2 = "1.0.31"
+cached = { version = "0.54.0", features = ["async"] }
+flate2 = "1.0.35"
 is-terminal = "0.4.12"
 mime = "0.3.17"
 mime_guess = "2.0.5"
-quick-xml = "0.36.0"
+quick-xml = "0.37.0"
 semver = { version = "1.0.23", features = ["serde"] }

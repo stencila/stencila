@@ -48,6 +48,7 @@ export function registerPromptsView(
 
       const item = await vscode.window.showQuickPick(items, {
         placeHolder: "Search for a prompt",
+        matchOnDescription: true,
       });
 
       if (item) {

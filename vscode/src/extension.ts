@@ -20,6 +20,8 @@ import {
 } from "./webviews";
 import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
+import { registerStencilaShell } from "./shell";
+import { registerSetupView } from "./setup";
 
 let client: LanguageClient | undefined;
 
@@ -50,6 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerDocumentCommands(context);
   registerStatusBar(context);
   registerWalkthroughCommands(context);
+  registerStencilaShell(context);
   registerOtherCommands(context);
 
   await startServer(context);
@@ -117,6 +120,7 @@ async function startServer(context: vscode.ExtensionContext) {
     }
   } else {
     views = [
+      registerSetupView(context, client),
       registerKernelsView(context, client),
       registerPromptsView(context, client),
       registerModelsView(context, client),
@@ -240,5 +244,39 @@ export async function unsubscribeFromDom(subscriptionId: string) {
   // Unsubscribe from document so that its server task can be stopped
   await client.sendRequest("stencila/unsubscribeDom", {
     subscriptionId,
+  });
+}
+
+/**
+ * Get the node ids corresponding to line umbers of a document
+ */
+export async function nodeIdsForLines(
+  uri: vscode.Uri,
+  lines: number[]
+): Promise<string[]> {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  return await client.sendRequest("stencila/nodeIdsForLines", {
+    uri: uri.toString(),
+    lines,
+  });
+}
+
+/**
+ * Get the line number of node ids in a document
+ */
+export async function linesForNodeIds(
+  uri: vscode.Uri,
+  ids: string[]
+): Promise<number[]> {
+  if (!client) {
+    throw new Error("No Stencila LSP client");
+  }
+
+  return await client.sendRequest("stencila/linesForNodeIds", {
+    uri: uri.toString(),
+    ids,
   });
 }

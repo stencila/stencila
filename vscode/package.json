@@ -3,16 +3,17 @@
   "displayName": "Stencila",
   "publisher": "stencila",
   "description": "Documents with Scientific Intelligence",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
+  "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",
   "bugs": {
     "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stencila/stencila.git"
+    "url": "https://github.com/stencila/stencila",
+    "directory": "vscode"
   },
   "icon": "icons/stencila-128.png",
   "engines": {
@@ -253,6 +254,13 @@
         "icon": "$(export)"
       },
       {
+        "command": "stencila.setup.refresh",
+        "category": "Stencila",
+        "title": "Refresh setup checklist",
+        "shortTitle": "Refresh setup list",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "stencila.kernels.refresh",
         "category": "Stencila",
         "title": "Refresh kernels list",
@@ -304,12 +312,14 @@
       {
         "command": "stencila.secrets.set",
         "category": "Stencila",
-        "title": "Set secret"
+        "title": "Set secret",
+        "icon": "$(workspace-trusted)"
       },
       {
         "command": "stencila.secrets.delete",
         "category": "Stencila",
-        "title": "Delete secret"
+        "title": "Delete secret",
+        "icon": "$(workspace-untrusted)"
       },
       {
         "command": "stencila.lsp-server.restart",
@@ -350,7 +360,15 @@
       {
         "command": "stencila.settings",
         "category": "Stencila",
-        "title": "Settings"
+        "title": "Settings",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "stencila.shell",
+        "category": "Stencila",
+        "title": "Open a shell with the Stencila CLI available",
+        "shortTitle": "Stencila Shell",
+        "icon": "$(terminal)"
       }
     ],
     "keybindings": [
@@ -497,6 +515,9 @@
         {
           "command": "stencila.walkthroughs.collapse",
           "when": "editorLangId == smd || editorLangId == myst"
+        },
+        {
+          "command": "stencila.shell"
         }
       ],
       "editor/title/run": [
@@ -556,8 +577,8 @@
       ],
       "view/title": [
         {
-          "command": "stencila.kernels.refresh",
-          "when": "view == stencila-kernels",
+          "command": "stencila.setup.refresh",
+          "when": "view == stencila-setup",
           "group": "navigation"
         },
         {
@@ -574,9 +595,39 @@
           "command": "stencila.models.refresh",
           "when": "view == stencila-models",
           "group": "navigation"
+        },
+        {
+          "command": "stencila.kernels.refresh",
+          "when": "view == stencila-kernels",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
+        {
+          "command": "stencila.cloud.signin",
+          "when": "view == stencila-setup && viewItem == stencila-cloud-signed-out",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.cloud.signout",
+          "when": "view == stencila-setup && viewItem == stencila-cloud-signed-in",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.secrets.set",
+          "when": "view == stencila-setup && viewItem == ai-api-key-none",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.secrets.delete",
+          "when": "view == stencila-setup && viewItem == ai-api-key-some",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.settings",
+          "when": "view == stencila-setup && viewItem == user-details",
+          "group": "inline"
+        },
         {
           "command": "stencila.kernels.use",
           "when": "view == stencila-kernels && viewItem == kernel",
@@ -695,8 +746,8 @@
     "views": {
       "stencila-sidebar": [
         {
-          "id": "stencila-kernels",
-          "name": "Kernels"
+          "id": "stencila-setup",
+          "name": "Setup"
         },
         {
           "id": "stencila-prompts",
@@ -704,10 +755,22 @@
         },
         {
           "id": "stencila-models",
-          "name": "Models"
+          "name": "Models",
+          "collapsed": true
+        },
+        {
+          "id": "stencila-kernels",
+          "name": "Kernels",
+          "collapsed": true
         }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "stencila-setup",
+        "contents": "Welcome to the Stencila VSCode extension.\n\nThe easiest way to get started with AI commands is to sign in to Stencila Cloud and use our smart model router.\n[Sign In to Stencila Cloud](command:stencila.cloud.signin)\nIf you already have an API key for one of the supported AI model providers you can use it instead\n[Add an API Key](command:stencila.secrets.set)\nYou can change your user details (used for content attribution), and other settings, at any time.\n[Open Stencila Settings](command:stencila.settings)\n\nYou can remove this view using the '...' menu at top right of the Stencila panel."
+      }
+    ]
   },
   "scripts": {
     "fix": "eslint src --ext ts --fix",
@@ -728,8 +791,8 @@
     "@types/mocha": "10.0.9",
     "@types/node": "20.x",
     "@types/vscode": "1.84.0",
-    "@typescript-eslint/eslint-plugin": "8.13.0",
-    "@typescript-eslint/parser": "8.13.0",
+    "@typescript-eslint/eslint-plugin": "8.14.0",
+    "@typescript-eslint/parser": "8.14.0",
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.4.1",
     "@vscode/vsce": "3.2.1",

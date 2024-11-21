@@ -169,7 +169,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor.document.uri);
+        await createDocumentViewPanel(context, editor);
       }
     )
   );
@@ -183,7 +183,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor.document.uri, nodeId);
+        await createDocumentViewPanel(context, editor, nodeId);
       }
     )
   );
@@ -197,12 +197,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(
-          context,
-          editor.document.uri,
-          nodeId,
-          true
-        );
+        await createDocumentViewPanel(context, editor, nodeId, true);
       }
     )
   );

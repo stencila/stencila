@@ -1,0 +1,41 @@
+name: "🐛 Bug"
+description: Report a bug
+title: "bug(<context>): <title>"
+labels:
+  - "type: bug"
+projects:
+  - stencila/8
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report 🙏. Please help us fix it faster by providing a few details.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what did you expected to happen.
+      placeholder: Tell us what you saw and why it wasn't what you expected.
+    validations:
+      required: true
+  - type: dropdown
+    id: product
+    attributes:
+      label: Which product?
+      description: Where were you when you encountered the issue.
+      options:
+        - Stencila CLI
+        - Stencila VSCode extension
+        - Other
+      default: 0
+  - type: input
+    id: version
+    attributes:
+      label: Which version?
+      description: Which version of the product were you using.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell

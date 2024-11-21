@@ -17,6 +17,7 @@ mod kernels_;
 mod lifecycle;
 mod logging;
 mod models_;
+mod node_ids;
 mod prompts_;
 mod run;
 mod symbols;
