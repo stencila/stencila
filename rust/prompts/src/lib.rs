@@ -57,6 +57,11 @@ pub struct PromptInstance {
     #[serde(flatten)]
     inner: Prompt,
 
+    /// Path of the prompt
+    ///
+    /// Used to be able to open the prompt in editors.
+    path: PathBuf,
+
     /// Home directory of the prompt
     ///
     /// Used mainly to resolve relative paths used for the source of
@@ -70,7 +75,14 @@ pub struct PromptInstance {
 }
 
 impl PromptInstance {
-    fn new(inner: Prompt, home: PathBuf) -> Result<Self> {
+    fn new(inner: Prompt, path: PathBuf) -> Result<Self> {
+        let path = path.canonicalize()?;
+
+        let home = path
+            .parent()
+            .ok_or_eyre("prompt not in a dir")?
+            .to_path_buf();
+
         let instruction_regexes = inner
             .instruction_patterns
             .iter()
@@ -78,10 +90,9 @@ impl PromptInstance {
             .map(|pattern| Regex::new(pattern))
             .try_collect()?;
 
-        let home = home.canonicalize()?;
-
         Ok(Self {
             inner,
+            path,
             home,
             instruction_regexes,
         })
@@ -211,11 +222,7 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
         .await?;
 
         if let Node::Prompt(prompt) = node {
-            let home = path
-                .parent()
-                .ok_or_eyre("prompt not in a dir")?
-                .to_path_buf();
-            prompts.push(PromptInstance::new(prompt, home)?)
+            prompts.push(PromptInstance::new(prompt, path)?)
         } else {
             bail!(
                 "Expected `{}` to be an `Prompt`, got a `{}`",
