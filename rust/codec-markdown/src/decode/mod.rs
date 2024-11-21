@@ -51,15 +51,17 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
         }
     }
 
-    let mdast = if matches!(format, Format::Myst) {
-        let md = myst_to_md(content);
-        to_mdast(&md, &parse_options())
+    // Do any necessary pre-processing of Markdown
+    let md = if matches!(format, Format::Myst) {
+        myst_to_md(content)
     } else {
-        to_mdast(content, &parse_options())
-    }
-    .map_err(|error| eyre!(error))?;
+        preprocess_md(&content)
+    };
 
-    // Decode Markdown to blocks
+    // Parse Markdown to MDAST nodes
+    let mdast = to_mdast(&md, &parse_options()).map_err(|error| eyre!(error))?;
+
+    // Transform MDAST to blocks
     let mut context = Context::default();
     let Some(Node::Article(Article { content, .. })) = md_to_node(mdast, &mut context) else {
         bail!("No node decoded from Markdown")
@@ -114,10 +116,32 @@ fn decode_inlines(md: &str) -> Vec<Inline> {
     }
 }
 
+/// Preprocess Markdown
+///
+/// See issue #2438 for why this is necessary.
+fn preprocess_md(input: &str) -> String {
+    let mut output = String::new();
+
+    let mut empty_line_needed = false;
+    for line in input.lines() {
+        if empty_line_needed && !line.is_empty() {
+            output.push('\n');
+        }
+
+        output.push_str(line);
+        output.push('\n');
+
+        empty_line_needed = line.starts_with(":::")
+            && (line.trim_end().ends_with(":::") || line.trim_end().ends_with(">>>"));
+    }
+
+    output
+}
+
 /// Convert MyST colon-fenced directives to backtick-fenced directives
 ///
 /// This conversion allows for more straightforward decoding in subsequent
-/// decoding steps because all MyST directives become code blocks.s
+/// decoding steps because all MyST directives become code blocks.
 fn myst_to_md(myst: &str) -> String {
     fn colons_to_backticks(line: &str) -> String {
         let chars = line.chars();
