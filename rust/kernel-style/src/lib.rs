@@ -225,7 +225,7 @@ mod tests {
         assert_eq!(
             outputs,
             vec![
-                Node::String(".sXVJTsg4eGEt{color:red}".to_string()),
+                Node::String(".sXVJTsg4eGEt{color: red;}".to_string()),
                 Node::String("sXVJTsg4eGEt".to_string())
             ]
         );
@@ -242,7 +242,7 @@ mod tests {
         assert_eq!(
             outputs,
             vec![
-                Node::String(".bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity))}".to_string()), 
+                Node::String(".bg-red-100 {\n    --tw-bg-opacity: 1;\n    background-color: rgb(254 226 226 / var(--tw-bg-opacity));\n}\n".to_string()), 
                 Node::String("bg-red-100".to_string())
             ]
         );
@@ -264,7 +264,7 @@ mod tests {
         assert_eq!(
             outputs,
             vec![
-                Node::String(".text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity))}".to_string()),
+                Node::String(".text-blue-800 {\n    --tw-text-opacity: 1;\n    color: rgb(30 64 175 / var(--tw-text-opacity));\n}\n".to_string()),
                 Node::String("foo text-blue-800".to_string())
             ]
         );
