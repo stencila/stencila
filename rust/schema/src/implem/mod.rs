@@ -58,6 +58,7 @@ mod parameter;
 mod person;
 mod person_or_organization;
 mod primitive;
+mod prompt;
 mod prompt_block;
 mod property_value_or_string;
 mod provenance_category;

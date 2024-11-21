@@ -9,6 +9,9 @@
   ],
   "category": "works",
   "description": "A prompt for creating or editing document content.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "type",
