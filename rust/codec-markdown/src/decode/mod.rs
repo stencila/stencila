@@ -55,7 +55,7 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
     let md = if matches!(format, Format::Myst) {
         myst_to_md(content)
     } else {
-        preprocess_md(&content)
+        preprocess_md(content)
     };
 
     // Parse Markdown to MDAST nodes
