@@ -5,9 +5,25 @@ description: Syntax for writing AI Commands in Stencila Markdown
 
 # Introduction
 
-Stencila Markdown uses "colon fences" for most of its extensions, including for AI commands. Colon fences are any line starting with three or more colons (i.e. `:::`). Colon fences by default (but as described below, not always) exist as a pair of opening and closing fences.
+## Learning Objectives: 
 
-The opening fence always has a keyword following the colons; the closing fence does not. The keyword for AI commands describes the type of command (e.g. `create`, `edit`).
+- Getting familiar with Stencila Markdown
+- Understanding how colon fences (`:::`) are used and directed at other blocks
+- Being aware that there are four main dynamic colon fence commands (`create`,`edit`,`fix`,`describe`)
+
+Stencila Markdown uses "colon fences" for most of its extensions, including for AI commands. 
+
+> [!tip]
+> Colon fences are any line starting with three or more colons (i.e. `:::`). 
+
+> [!tip]
+> Colon fences by default (but as described below, not always) exist as a pair of opening and closing fences.
+
+> [!tip] 
+> The opening fence always has a keyword following the colons; the closing fence does not. 
+
+> [!tip]
+> The keyword for AI commands describes the type of command (e.g. `create`, `edit`, `describe`,`fix`).
 
 For example, here is a command to edit two paragraphs:
 
@@ -25,7 +41,12 @@ Second paragraph.
 
 # Shorthands
 
-Always having to write paired colon fences can be tedious so Stencila Markdown provides two shorthand forms: one for commands that do not enclose any content or have any suggestions yet (e.g. a new `create` command), and one for commands that enclose a single block of content (e.g. most `edit` and `fix` commands) or a single block in the active suggestion.
+Always having to write paired colon fences can be tedious so Stencila Markdown provides two shorthand forms: 
+
+-  for commands that do not enclose any content or have any suggestions yet (e.g. a new `create` command), and 
+- for commands that enclose a single block of content (e.g. most `edit` and `fix` commands) or a single block in the active suggestion.
+
+Lets look at each case individually
 
 ...
 
@@ -46,6 +67,9 @@ Stencila allows you to write a "self closing" opening fence by adding `:::` to t
 ```markdown
 ::: create plot of height versus width :::
 ```
+
+> [!info]
+> The create command is often used without enclosing any other block, as it is ued to create content.
 
 ...
 
@@ -81,8 +105,24 @@ print("Hello world")
 ```
 ````
 
+> [!info]
+> `edit`, `fix`, and `describe` commands are often positioned before particular block (or blocks) they want to send to the LLM for `edit`, `fix`, or `describe` actions. To point to the next block, stencila used 'next-block' syntax `>>>`.
+
 ...
 
 ## Reformatting and shorthands
 
-The shorthand forms are optional - you can use a pair of colon fences if you prefer. However, when you reformat a document (for example using `Ctrl+Shift+I` is VSCode), or when Stencila reformats it when inserting new content, these shorthand forms will be used where possible. This is done to avoid cluttering the document too much with colon fences.
+The shorthand forms are optional - you can use a pair of colon fences if you prefer. However, when you reformat a document (for example using `Ctrl/⌘+Shift+I` is VSCode), or when Stencila reformats it when inserting new content, these shorthand forms will be used where possible. This is done to avoid cluttering the document too much with colon fences.
+
+> [!info]
+> The form of colon fence you choose might be reformatted by the Stencila parser to avoid cluttering the document with extra fences. So you should be familiar with the `>>>` shorthand syntax even if you do not write it yourself. 
+
+...
+
+### Recap 
+> [!info]
+> - You've now seen that Stencila Markdown uses a few extra commands, largely with `:::` colon fences to add dynamic functionality to documents. 
+> - This functionality works in conjunction with the Stencila VSCode extension to make a rich environment for AI / LLM assisted document creation
+> - Each of the four colon fence commands can be directed at particular content (or not)
+> - The Stencila parser might reformat your document and remove closing `:::` fences and replace them with shorthand `>>>`
+> - You've learned that there are four main AI colon fence commands (`create`,`edit`,`fix`,`describe`)

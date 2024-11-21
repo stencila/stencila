@@ -1,0 +1,123 @@
+# Stencila AI Assistance
+
+Stencila has the ability to use LLMs to help you build your document. Stencila's prompt system allows you to take advantage of document context. Parts of the document are able to be included in your propmt itself to enhance the quality of the received output.
+
+In this Walthrough, we'll be learning about the four main AI fence commands:
+
+- `create` 
+- `edit` 
+- `fix` 
+- `describe`
+
+...
+
+## Prompt system
+
+Prompts in Stencila are themselves Stencila documents, these documents leverage some of the unique capabilities stencila has to include parts of documents in other documents. Doing so Stencila's prompt system is able to be configured to automatically include parts of the document relevant to the current type of prompt being used.
+
+For example if the user uses the in-built `@figure-caption` prompt, the text of other figure captions in the document will be included with an instrcution to:
+
+> Pay attention to the style and length of any figure captions already in the document.
+
+_above text extracted from the prompt, which you can [view in the source on GitHUb](https://github.com/stencila/stencila/blob/main/prompts/create/figure-caption.smd)_
+
+Later in the Context section, just the figure captions elsewhere in the document are inlcuded to supply the LLM with material that can aid it in satisfying the prompting instruction.
+
+> [!tip] Commands are associated with prompts.
+> Each type of command (`create`,`fix`,`edit`,`describe`) has a default prompt which it will run
+if no other details are provided. Command parameters look for particular
+words in the user specified prompt text to determine which prompt to use.  Prompts can also be specified directly with a specified `@prompt-name` just after the command in a fence block.
+
+In short, this flexible system for crafting prompts can be as simple or complex as necessary to create unique prompts that aide in specific writing tasks.
+
+## Commands
+
+Again, there are four main commands in Stencila that can be used in a document.
+
+- `create` - used to create a block, or blocks with returned text, code from an LLM
+- `edit` - used to direct the LLM to make modifications / edits to a block, these can be prose edits, and/or code edits
+- `fix` - fix, a command to run when you want to make a targetted change, like addressing an error message, or changing the color of an item on a plot.
+- `describe` - used to describe another block, such as describing a Python block in prose
+
+Lets go through them one-by-one
+
+### Create
+
+Create is used to create new blocks or content, it can be used to create figures, code blocks, new prose sections etc.
+
+Using Stencila Markdown, it can be invoked as:
+
+Try running this prompt in the source view:
+
+::: create @figure-code python code plotting 100 random points :::
+
+Where `@prompt-name` is optional. Without a specified prompt name, regular expressions are used to find an appropriate prompt based on key words such as "figure", "caption", "chart", "diagram", "mindmape" etc.
+
+Try writing your own `create` prompt:
+
+...
+
+### Edit
+
+Edit is a command that can be wrapped around an existing block or section, asking the LLM to makde some modifications of the enclosed content, this could be code and / or prose. Note that edit is destructive, you will loose the original text in the document (thought original text may be stored in Stencila's provenance system).
+
+Try running this prompt:
+
+
+::: edit Clean up style and spelling >>>
+I ain't got no reesons to wryt gud.
+
+...
+
+### Describe
+
+Describe can be good for describing a block of code in prose.
+
+Running this prompt will describe the python code below. 
+
+Try it yourself!:
+
+::: describe next :::
+
+```python
+def fibonacci(n):
+    a,b = 0,1
+    for _ in range(n): a,b=b,a+b
+    return
+```
+
+Try writing your own `describe` prompt:
+
+
+> [!info]
+> Describe can be pointed at the `previous` or `next` block using the corresponding keyword in the prompt itself. Sometimes you may want describe to be destructive of the original content and replace it with the description. If you wrap a block in a `::: describe  <block contents> :::` you'll get the destructive behaviour (ie, the block wrapped will be replaced by the LLM output). You may want this at times.
+
+...
+
+### Fix
+
+Fix can be used to make changes to an existing block, and return it largely as it was orginally with a few changes made to it.
+
+Try this: 
+
+::: fix change plot dot color to red :::
+
+```r exec
+set.seed(123)
+x <- rnorm(100)
+y <- rnorm(100)
+
+plot(x, y, 
+     col = "blue", 
+     pch = 16,
+     xlab = "X",
+     ylab = "Y")
+```
+
+...
+
+## Learn more
+
+To learn more about prompts, it can be useful to browse [the prompts directory on GitHub](https://github.com/stencila/stencila/tree/main/prompts). They are organized by command, with prompts available for each command. Using the power of Stencila prompts are themselves just Stencila documents. You can see how in many prompts partials are used to include various parts of the document that can be used to make the prompt more effective at its task.
+
+This kind of prompt development is an ongoing activity, and we welcome conversations on [Discord](https://discord.gg/GADr6Jv), our [GitHub Community Discussions](https://github.com/stencila/stencila/discussions) or GitHub Issues that explore interesting prompt ideas.
