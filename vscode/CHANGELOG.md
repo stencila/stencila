@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.0.16 2024-11-21
+
+- Adds a "Setup View" for guiding users through setting up a Stencila CLoud account, adding API keys, and setting user details.
+
+- Adds a "Stencila Shell" terminal to allow you to use the Stencila CLI that ships with the VSCode extension.
+
+- Adds support for Cloudflare generative AI models.
+
+- Based on Stencila CLI v2.0.0-beta.18 which includes a fix for `@media` rules in CSS, and enables opening and saving of prompts.
+
 ## 0.0.15 2024-11-17
 
 - Adds bidirectional scroll syncing between source editor and preview panel.
