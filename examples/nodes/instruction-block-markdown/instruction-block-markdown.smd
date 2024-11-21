@@ -1,22 +1,38 @@
-Example using Markdown as canonical format to test alternative ways to write instruction blocks.
+Example using Markdown as canonical format to test alternative ways to write instruction blocks (commands)
 
-# New instruction
+# Self closing shorthand
 
-Never has existing content so is self closing or explicitly closing:
+::: create message :::
 
-::: create
+::: create message :::
+Another paragraph with no empty line between
 
-::: create <
+# Next block only shorthand
 
-# Edit instruction
+::: edit message >>>
 
-Edit next block:
+Paragraph to edit
 
-::: edit >
+::: edit message >>>
+Paragraph to edit with no empty line between
 
-Paragraph to edit #1
+Other types of content,
 
-Edit multiple blocks:
+::: edit improve this >>>
+
+```python exec
+
+```
+
+::: create admonition >>>
+
+> [!warning]
+> This is a warning
+
+Following para outside of instruction content.
+
+
+# Multiple blocks
 
 ::: edit
 
@@ -25,18 +41,3 @@ Paragraph to edit #4
 Paragraph to edit #5
 
 :::
-
-# Content other than paragraphs
-
-::: edit improve this >
-
-```python exec
-
-```
-
-::: create admonition >
-
-> ![warning]
-> This is a warning
-
-Following para outside of instruction content.
