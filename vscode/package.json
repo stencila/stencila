@@ -289,6 +289,13 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "stencila.prompts.open",
+        "category": "Stencila",
+        "title": "Open prompt in editor",
+        "shortTitle": "Open prompt",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "stencila.prompts.use",
         "category": "Stencila",
         "title": "Use prompt in document",
@@ -631,6 +638,11 @@
         {
           "command": "stencila.kernels.use",
           "when": "view == stencila-kernels && viewItem == kernel",
+          "group": "inline"
+        },
+        {
+          "command": "stencila.prompts.open",
+          "when": "view == stencila-prompts && viewItem == prompt",
           "group": "inline"
         },
         {

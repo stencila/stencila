@@ -16,9 +16,22 @@ export function registerPromptsView(
     () => treeDataProvider.refresh()
   );
 
+  const open = vscode.commands.registerCommand(
+    "stencila.prompts.open",
+    async ({ prompt }: { prompt: PromptInstance }) => {
+      try {
+        const fileUri = vscode.Uri.file(prompt.path);
+        const document = await vscode.workspace.openTextDocument(fileUri);
+        await vscode.window.showTextDocument(document);
+      } catch (error) {
+        vscode.window.showErrorMessage(`Failed to open prompt file: ${error}`);
+      }
+    }
+  );
+
   const use = vscode.commands.registerCommand(
     "stencila.prompts.use",
-    ({ prompt }: { prompt: Prompt }) => {
+    ({ prompt }: { prompt: PromptInstance }) => {
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const selection = editor.selection;
@@ -59,14 +72,21 @@ export function registerPromptsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, use, picker);
+  context.subscriptions.push(treeView, refresh, open, use, picker);
 
   return treeDataProvider;
 }
 
 type InstructionType = "Create" | "Edit" | "Fix" | "Describe";
 
-interface Prompt {
+/**
+ * A prompt with some other properties added when loaded into memory (e.g. path)
+ *
+ * See Rust crate `prompts` for the corresponding `struct PromptInstance`
+ */
+interface PromptInstance {
+  path: string;
+
   id: string;
   name: string;
   version: string;
@@ -77,7 +97,7 @@ interface Prompt {
 /**
  * Get the shorthand id for a prompt (if possible)
  */
-function promptId(prompt: Prompt): string {
+function promptId(prompt: PromptInstance): string {
   const parts = prompt.id.split("/");
   return parts[0] === "stencila" ? parts[parts.length - 1] : prompt.id;
 }
@@ -85,7 +105,7 @@ function promptId(prompt: Prompt): string {
 /**
  * Get the icon for a prompt
  */
-function promptIcon(prompt: Prompt): string {
+function promptIcon(prompt: PromptInstance): string {
   const label = promptId(prompt);
   switch (prompt?.instructionTypes[0]) {
     case "Create": {
@@ -131,7 +151,7 @@ function promptIcon(prompt: Prompt): string {
 /**
  * Create a Stencila Markdown snippet for a command using a prompt
  */
-function smdSnippet(prompt: Prompt, selected?: string): string {
+function smdSnippet(prompt: PromptInstance, selected?: string): string {
   const type = prompt.instructionTypes[0].toLowerCase();
   const id = promptId(prompt);
 
@@ -165,7 +185,7 @@ function smdSnippet(prompt: Prompt, selected?: string): string {
 /**
  * Create a MyST snippet for a command using a prompt
  */
-function mystSnippet(prompt: Prompt, selected?: string): string {
+function mystSnippet(prompt: PromptInstance, selected?: string): string {
   const type = prompt.instructionTypes[0].toLowerCase();
   const id = promptId(prompt);
 
@@ -196,7 +216,7 @@ class PromptPickerItem implements vscode.QuickPickItem {
   label: string;
   description: string;
 
-  constructor(public prompt: Prompt) {
+  constructor(public prompt: PromptInstance) {
     // Use full id as label because filtering is done on label only
     this.label = `$(${promptIcon(prompt)}) ${prompt.id}`;
     this.description = prompt.description;
@@ -206,7 +226,7 @@ class PromptPickerItem implements vscode.QuickPickItem {
 class PromptTreeItem extends vscode.TreeItem {
   constructor(
     public readonly library: string | null,
-    public readonly prompt?: Prompt
+    public readonly prompt?: PromptInstance
   ) {
     let label = "";
     if (library) {
@@ -243,7 +263,7 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
   /**
    * The list of prompts obtained from the LSP
    */
-  list: Prompt[];
+  list: PromptInstance[];
 
   private _onDidChangeTreeData: vscode.EventEmitter<
     PromptTreeItem | undefined | null | void
