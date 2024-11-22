@@ -26,8 +26,10 @@ html {
 
   /* exclude top lvl sections */
   section section {
-    @apply min-w-80 w-full mx-auto;
+    @apply px-12 sm:w-4/5 md:mx-auto;
     max-width: 72ch;
+    width: 80%;
+    justify-content: center;
   }
 
   h1,
