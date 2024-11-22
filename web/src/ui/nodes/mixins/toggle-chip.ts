@@ -16,6 +16,7 @@ export declare class ChipToggleInterface {
   protected documentContext: DocumentContext
   protected renderChip: () => void
   protected toggle: boolean
+  protected noVisibleContent: boolean
   protected toggleChipPosition: string
   protected toggleChip: () => void
   protected dispatchToggleEvent: () => void
@@ -29,6 +30,8 @@ export type NodeColours = Pick<
   ReturnType<typeof nodeUi>,
   'borderColour' | 'colour' | 'textColour'
 >
+
+const NESTED_OFFSET = 5
 
 /**
  * A Mixin that provides a "chip" to allow for a card to have its visibility
@@ -56,6 +59,12 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
      */
     @property({ type: String })
     ancestors: string
+
+    /**
+     * Boolean switch property, to handle nodes with empty content/output
+     */
+    @state()
+    protected noVisibleContent: boolean = false
 
     /**
      * Used to allow clients to override css classes (tailwind) to change the
@@ -92,10 +101,18 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
     }
 
     protected renderChip() {
-      const { borderColour, icon } = nodeUi(this.type)
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
         : 'block'
+
+      let offset = 60
+      if (nodeDisplay === 'block' && this.depth > 1) {
+        offset -= NESTED_OFFSET * (this.depth - 1)
+      } else if (this.noVisibleContent) {
+        offset += NESTED_OFFSET
+      }
+
+      const { borderColour, icon } = nodeUi(this.type)
 
       const chipStateClasses = this.toggle
         ? 'opacity-100'
@@ -107,26 +124,33 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
 
       const styles = apply([
         chipStateClasses,
-        this.toggleChipPosition,
-        'absolute',
+        'absolute top-0',
+        'h-full',
         'transition-all duration-200 ease-in-out',
         'hover:cursor-pointer hover:z-50',
+        `-left-[${offset}px]`,
+        this.toggleChipPosition,
+      ])
+
+      const baseMarkerStyles = apply([
+        'border-l border-black/20 rounded',
+        `bg-[${borderColour}]`,
       ])
 
       return html`
-        <div class=${`chip h-full ${nodeDisplay === 'block' && '-ml-[60px]'}`}>
-          <div class="absolute top-0 h-full ${styles}">
+        <div class=${`chip h-full ${nodeDisplay === 'block' && ''}`}>
+          <div class=${styles}>
             ${nodeDisplay === 'block'
               ? html`
                   <div
                     @click=${this.toggleChip}
-                    class="relative top-0 left-0 bg-[${borderColour}] w-2 h-full rounded"
+                    class="relative top-0 left-0 w-2 h-full ${baseMarkerStyles}"
                   ></div>
                 `
               : ''}
             <div
               @click=${this.toggleChip}
-              class="absolute top-0 bg-[${borderColour}] left-0 w-6 h-6 text-sm flex justify-center items-center rounded rounded-bl-none"
+              class="flex justify-center items-center absolute top-0 left-0 w-6 h-6 text-sm ${baseMarkerStyles} rounded-bl-none"
             >
               <stencila-ui-icon class="text-xs" name=${icon}>
               </stencila-ui-icon>

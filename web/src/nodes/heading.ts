@@ -62,7 +62,11 @@ export class Heading extends Entity {
     }
 
     return html`
-      <stencila-ui-block-on-demand type="Heading" node-id=${this.id}>
+      <stencila-ui-block-on-demand
+        type="Heading"
+        node-id=${this.id}
+        depth=${this.depth}
+      >
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
             <stencila-ui-node-provenance slot="provenance">
