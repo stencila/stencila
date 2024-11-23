@@ -111,6 +111,13 @@ export function registerNodeInfoNotifications(
   context: vscode.ExtensionContext,
   client: LanguageClient
 ) {
+  const { enabled, animateRunning, markerWidth } =
+    vscode.workspace.getConfiguration("stencila.gutter");
+
+  if (!enabled) {
+    return;
+  }
+
   // Handle document status notifications
   const handler = client.onNotification(
     "stencila/publishNodeInfo",
@@ -139,7 +146,7 @@ export function registerNodeInfoNotifications(
             decoration += "_end";
           }
 
-          if (node.executionStatus === "Running") {
+          if (animateRunning && node.executionStatus === "Running") {
             decoration += "_running";
           }
 
@@ -158,7 +165,11 @@ export function registerNodeInfoNotifications(
 
       // Collect the lines for each decoration
       for (const [line, decoration] of Object.entries(lines)) {
-        const decorationType = gutterDecorationType(context, decoration);
+        const decorationType = gutterDecorationType(
+          context,
+          decoration,
+          markerWidth
+        );
         if (gutterDecorationTypes.has(decorationType)) {
           gutterDecorationTypes.get(decorationType)?.push(parseInt(line));
         } else {

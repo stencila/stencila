@@ -21,10 +21,12 @@ const gutterDecorations: Record<string, vscode.TextEditorDecorationType> = {};
  */
 export function gutterDecorationType(
   context: vscode.ExtensionContext,
-  nodes: string[]
+  nodes: string[],
+  markerWidth: number
 ): vscode.TextEditorDecorationType {
-  // Unique key for this set of node types/states
-  const key = nodes.join(".");
+  // Unique key for this set of node types/states. Must include marker width
+  // since that define uniqueness.
+  const key = `${nodes.join(".")}.w${markerWidth}`;
 
   // Check in-memory cache
   const existing = gutterDecorations[key];
@@ -39,7 +41,7 @@ export function gutterDecorationType(
   // Create the SVG icon and save to cache if it does not yet exist
   if (!existsSync(iconPath)) {
     // Create SVG
-    // Uses default opacity of 0.5 which works well in both light and dark themes
+    // Uses a default opacity aimed to work well in both light and dark themes
     // for more node colors. For running nodes pulses opacity up to 1 and down to 0.2;
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
   <style>
@@ -59,9 +61,9 @@ export function gutterDecorationType(
 
     // Add vertical bars for each node type with start and/or end "tabs"
     // and animation if running
-    const width = 4;
-    const height = 4;
-    const gap = 4;
+    const width = markerWidth;
+    const height = markerWidth;
+    const gap = markerWidth;
     let x = 0;
     for (const node of nodes) {
       let type = node;

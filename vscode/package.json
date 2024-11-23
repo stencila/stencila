@@ -99,8 +99,31 @@
             }
           }
         },
-        "stencila.languageServer.logLevel": {
+        "stencila.gutter.enabled": {
           "order": 4,
+          "description": "Enable gutter with markers for document node type and status.",
+          "type": "boolean",
+          "default": true
+
+        },
+        "stencila.gutter.markerWidth": {
+          "order": 5,
+          "description": "Width of document node type gutter markers.",
+          "type": "number",
+          "minimum": 1,
+          "maximum": 6,
+          "default": 4
+
+        },
+        "stencila.gutter.animateRunning": {
+          "order": 6,
+          "description": "Animate gutter marker for running document nodes.",
+          "type": "boolean",
+          "default": true
+
+        },
+        "stencila.languageServer.logLevel": {
+          "order": 7,
           "description": "The logging level of the Stencila Language Server (server restart required)",
           "enum": [
             "trace",
