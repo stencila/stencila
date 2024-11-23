@@ -49,13 +49,13 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         router.request::<request::DocumentSymbolRequest, _>(|state, params| {
             let uri = params.text_document.uri;
-            let root = state
+            let sync_root = state
                 .documents
                 .get(&uri)
-                .map(|text_doc| text_doc.root.clone());
+                .map(|text_doc| (text_doc.is_synced(), text_doc.root.clone()));
             async move {
-                match root {
-                    Some(root) => symbols::request(root).await,
+                match sync_root {
+                    Some((sync, root)) => symbols::request(sync, root).await,
                     None => Ok(None),
                 }
             }
