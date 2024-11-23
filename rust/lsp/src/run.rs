@@ -1,16 +1,19 @@
 use std::collections::HashMap;
 
-use async_lsp::lsp_types::{notification, request};
 use async_lsp::{
-    client_monitor::ClientProcessMonitorLayer, concurrency::ConcurrencyLayer,
-    panic::CatchUnwindLayer, router::Router, server::LifecycleLayer, tracing::TracingLayer,
-    MainLoop,
+    client_monitor::ClientProcessMonitorLayer,
+    concurrency::ConcurrencyLayer,
+    lsp_types::{notification, request},
+    panic::CatchUnwindLayer,
+    router::Router,
+    server::LifecycleLayer,
+    tracing::TracingLayer,
+    ErrorCode, MainLoop, ResponseError,
 };
-use async_lsp::{ErrorCode, ResponseError};
 use tower::ServiceBuilder;
+use tracing_subscriber::filter::LevelFilter;
 
 use common::serde_json;
-use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
     code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,

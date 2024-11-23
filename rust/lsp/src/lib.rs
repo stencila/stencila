@@ -18,6 +18,7 @@ mod lifecycle;
 mod logging;
 mod models_;
 mod node_ids;
+mod node_info;
 mod prompts_;
 mod run;
 mod symbols;

@@ -33,7 +33,7 @@ use schema::{
     Visitor,
 };
 
-use crate::{diagnostics, inspect::Inspector, ServerState};
+use crate::{diagnostics, inspect::Inspector, node_info, ServerState};
 
 /// A Stencila `Node` within a `TextDocument`
 ///
@@ -50,6 +50,9 @@ pub(super) struct TextNode {
     /// The id of the parent of the node
     #[allow(unused)]
     pub parent_id: NodeId,
+
+    /// Weather the node is a block
+    pub is_block: bool,
 
     /// The type of the node
     pub node_type: NodeType,
@@ -114,6 +117,7 @@ impl Default for TextNode {
             range: Range::default(),
             parent_type: NodeType::Null,
             parent_id: NodeId::null(),
+            is_block: false,
             node_type: NodeType::Null,
             node_id: NodeId::null(),
             name: String::new(),
@@ -608,6 +612,7 @@ impl TextDocument {
             if let Some(text_node) = inspector.root() {
                 //eprintln!("ROOT: {text_node:#?}");
                 diagnostics::publish(&uri, &text_node, &mut client);
+                node_info::publish(&uri, &text_node, &mut client);
                 *root.write().await = text_node;
             }
 

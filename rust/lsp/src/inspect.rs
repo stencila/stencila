@@ -86,10 +86,40 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             _ => node_type.to_string(),
         });
 
+        use NodeType::*;
+        let is_block = matches!(
+            node_type,
+            Admonition
+                | CallBlock
+                | Claim
+                | CodeBlock
+                | CodeChunk
+                | DeleteBlock
+                | Figure
+                | ForBlock
+                | Form
+                | Heading
+                | IfBlock
+                | IncludeBlock
+                | InsertBlock
+                | InstructionBlock
+                | List
+                | MathBlock
+                | ModifyBlock
+                | Paragraph
+                | QuoteBlock
+                | ReplaceBlock
+                | Section
+                | StyledBlock
+                | Table
+                | ThematicBreak
+        );
+
         self.stack.push(TextNode {
             range,
             parent_type,
             parent_id,
+            is_block,
             node_type,
             node_id,
             name,
@@ -369,6 +399,7 @@ impl Inspect for Article {
             range: Range::default(),
             parent_type: NodeType::Null,
             parent_id: NodeId::null(),
+            is_block: false,
             node_type: self.node_type(),
             node_id: self.node_id(),
             name: "Article".to_string(),
