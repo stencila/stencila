@@ -139,10 +139,10 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
   // Command to open stencila settings
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.settings", () => {
-      vscode.commands.executeCommand(
-        "workbench.action.openSettings",
-        "stencila"
-      );
+      vscode.commands.executeCommand("workbench.action.openSettings", {
+        focus: true,
+        query: "@ext:stencila.stencila",
+      });
     })
   );
 
