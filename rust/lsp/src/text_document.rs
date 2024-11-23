@@ -649,7 +649,6 @@ pub(super) fn did_open(
             ))))
         }
     };
-
     state.documents.insert(uri, text_doc);
 
     ControlFlow::Continue(())
@@ -669,7 +668,7 @@ pub(super) fn did_change(
             tracing::error!("While sending updated source: {error}");
         }
     } else {
-        tracing::warn!("Unknown document `${uri}`")
+        tracing::warn!("Unknown document `{uri}`")
     }
 
     ControlFlow::Continue(())
