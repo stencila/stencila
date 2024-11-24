@@ -8,6 +8,7 @@ use common::{
     quote::quote,
     syn::{parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path},
 };
+use format::Format;
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(patch))]
@@ -140,21 +141,31 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let mut condition = quote! {
                 context.format.is_none() || context.format.as_ref().map(|format| format.is_lossless()).unwrap_or_default()
             };
-            if field_attr.formats.contains(&"md".to_string()) {
-                condition.extend(quote! {
-                    || matches!(context.format, Some(Format::Markdown))
-                })
+
+            let formats = field_attr.formats.iter().fold(TokenStream::new(), |mut tokens, format| {
+                let format = Format::from_name(format);
+                if let Some(format) = match format {
+                    Format::Markdown => Some(quote!(Format::Markdown)),
+                    Format::Smd => Some(quote!(Format::Smd)),
+                    Format::Myst => Some(quote!(Format::Myst)),
+                    Format::Qmd => Some(quote!(Format::Qmd)),
+                    _ => None
+                } {
+                    if !tokens.is_empty() {
+                        tokens.extend(quote! {|});
+                    }
+                    tokens.extend(format);
+                };
+                
+                tokens
+            });
+
+            if !formats.is_empty() {
+                condition.extend(quote!{
+                    || matches!(context.format, Some(#formats))
+                });
             }
-            if field_attr.formats.contains(&"smd".to_string()) {
-                condition.extend(quote! {
-                    || matches!(context.format, Some(Format::Smd))
-                })
-            }
-            if field_attr.formats.contains(&"myst".to_string()) {
-                condition.extend(quote! {
-                    || matches!(context.format, Some(Format::Myst))
-                })
-            }
+
             condition
         };
 
