@@ -61,7 +61,11 @@ fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
     // Do not send info for nodes without a range (i.e. that are not encoded to the text document)
     // or for inlines (or their children)
     if (node.range == Range::default()
-        || (!node.is_block && !matches!(node.node_type, NodeType::IfBlockClause)))
+        || (!node.is_block
+            && !matches!(
+                node.node_type,
+                NodeType::IfBlockClause | NodeType::Walkthrough | NodeType::WalkthroughStep
+            )))
         && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
     {
         return;
@@ -71,7 +75,12 @@ fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
     // container types which are effectively "look-through" for the user
     if !matches!(
         node.node_type,
-        NodeType::Article | NodeType::Prompt | NodeType::IfBlockClause | NodeType::SuggestionBlock
+        NodeType::Article
+            | NodeType::Prompt
+            | NodeType::IfBlockClause
+            | NodeType::SuggestionBlock
+            | NodeType::Walkthrough
+            | NodeType::WalkthroughStep
     ) {
         items.push(NodeInfo {
             range: node.range,
