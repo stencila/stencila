@@ -53,7 +53,7 @@ pub struct Prompt {
 
     /// A description of the item.
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub description: String,
 
     /// The name of the item.
@@ -67,7 +67,7 @@ pub struct Prompt {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The types of instructions that the prompt supports
@@ -230,14 +230,14 @@ pub struct PromptOptions {
     /// Genre of the creative work, broadcast channel or group.
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub genre: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -280,7 +280,7 @@ pub struct PromptOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 

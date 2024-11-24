@@ -72,7 +72,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -316,7 +317,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "jats": {
@@ -356,7 +358,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "jats": {
@@ -428,7 +431,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "proptest": {
@@ -450,7 +454,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "proptest": {
@@ -480,7 +485,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "boolean"
@@ -492,7 +498,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "walk": true,
@@ -545,7 +552,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "boolean"

@@ -64,7 +64,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "proptest": {
@@ -102,7 +103,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "proptest": {
@@ -218,7 +220,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "boolean"

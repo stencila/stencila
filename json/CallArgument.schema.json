@@ -59,7 +59,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -301,7 +302,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "jats": {
@@ -335,7 +337,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "string"
@@ -347,7 +350,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "Node.schema.json"
@@ -359,7 +363,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "Node.schema.json"
@@ -372,7 +377,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "dom": {
@@ -402,7 +408,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "proptest": {
@@ -439,7 +446,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "string"

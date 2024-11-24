@@ -51,7 +51,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "number"
@@ -68,7 +69,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "number"
@@ -81,7 +83,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "number"
@@ -98,7 +101,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "number"
@@ -115,7 +119,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "number",

@@ -55,7 +55,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "array",
@@ -71,7 +72,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "Timestamp.schema.json"
@@ -84,7 +86,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "Timestamp.schema.json"

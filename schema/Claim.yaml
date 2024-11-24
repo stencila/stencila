@@ -25,7 +25,7 @@ properties:
     description: The type of the claim.
     $ref: ClaimType
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       attr: content-type
   label:
@@ -33,7 +33,7 @@ properties:
     description: A short label for the claim.
     type: string
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       elem: label
   content:

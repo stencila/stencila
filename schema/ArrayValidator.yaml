@@ -19,36 +19,36 @@ properties:
     description: Whether items can have the value `Node::Null`
     type: boolean
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   itemsValidator:
     '@id': stencila:itemsValidator
     description: Another validator node specifying the constraints on all items in the array.
     $ref: Validator
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   contains:
     '@id': stencila:contains
     description: An array node is valid if at least one of its items is valid against the `contains` schema.
     $ref: Validator
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   minItems:
     '@id': stencila:minItems
     description: An array node is valid if its size is greater than, or equal to, this value.
     type: integer
     minimum: 0
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   maxItems:
     '@id': stencila:maxItems
     description: An array node is valid if its size is less than, or equal to, this value.
     type: integer
     minimum: 0
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   uniqueItems:
     '@id': stencila:uniqueItems
     description: A flag to indicate that each value in the array should be unique.
     type: boolean
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]

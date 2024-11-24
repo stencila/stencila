@@ -34,7 +34,7 @@ pub struct MathBlock {
 
     /// The code of the equation in the `mathLanguage`.
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("math")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
@@ -44,7 +44,7 @@ pub struct MathBlock {
     /// The language used for the equation e.g tex, mathml, asciimath.
     #[serde(alias = "math-language", alias = "math_language")]
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"Some(String::from("tex"))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
@@ -70,7 +70,7 @@ pub struct MathBlock {
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_automatically: Option<Boolean>,
 
