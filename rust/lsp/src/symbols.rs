@@ -6,17 +6,27 @@ use std::sync::Arc;
 
 use async_lsp::{
     lsp_types::{DocumentSymbol, DocumentSymbolResponse, SymbolKind},
-    ResponseError,
+    ErrorCode, ResponseError,
 };
-use common::tokio::sync::RwLock;
+use common::tokio::sync::{watch::Receiver, RwLock};
 use schema::NodeType;
 
-use crate::text_document::TextNode;
+use crate::text_document::{SyncState, TextNode};
 
 /// Handle a request for document symbols
 pub(crate) async fn request(
+    mut sync_state_receiver: Receiver<SyncState>,
     root: Arc<RwLock<TextNode>>,
 ) -> Result<Option<DocumentSymbolResponse>, ResponseError> {
+    // Wait for the document to be synced
+    sync_state_receiver
+        .wait_for(|sync_state| matches!(sync_state, SyncState::Updated))
+        .await
+        .map_err(|_| {
+            ResponseError::new(ErrorCode::INTERNAL_ERROR, "Unable to wait for is_synced")
+        })?;
+
+    // Generate symbols
     let symbols = symbol(&*root.read().await)
         .and_then(|symbol| symbol.children)
         .unwrap_or_default();

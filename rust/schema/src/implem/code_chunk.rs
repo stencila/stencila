@@ -234,6 +234,56 @@ impl MarkdownCodec for CodeChunk {
                     });
                 },
             );
+        } else if matches!(context.format, Format::Qmd) {
+            let lang = self.programming_language.clone().unwrap_or_default();
+
+            context
+                .push_str("```{")
+                .push_prop_str(NodeProperty::ProgrammingLanguage, &lang)
+                .push_str("}\n");
+
+            let comment = if lang.ends_with("js") { "//| " } else { "#| " };
+            let mut has_comments = false;
+
+            if !self.label_automatically.unwrap_or(true) {
+                if let Some(label) = &self.label {
+                    context
+                        .push_str(comment)
+                        .push_str("label: ")
+                        .push_prop_str(NodeProperty::Label, label)
+                        .push_str("\n");
+                    has_comments = true;
+                }
+            }
+
+            if let Some(caption) = &self.caption {
+                context
+                    .push_str(comment)
+                    .push_str(match &self.label_type {
+                        Some(LabelType::TableLabel) => "tbl",
+                        _ => "fig",
+                    })
+                    .push_str("-cap: \"")
+                    .push_prop_str(
+                        NodeProperty::Caption,
+                        &to_markdown(caption).replace('\n', " "),
+                    )
+                    .push_str("\"\n");
+                has_comments = true;
+            }
+
+            if has_comments {
+                context.newline();
+            }
+
+            context
+                .push_prop_fn(NodeProperty::Code, |context| {
+                    self.code.to_markdown(context);
+                    if !self.code.ends_with('\n') {
+                        context.newline();
+                    }
+                })
+                .push_str("```\n\n");
         } else {
             let wrapped =
                 if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {

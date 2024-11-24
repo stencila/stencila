@@ -1,0 +1,19 @@
+start     end        offsets   node_type+property                   authorship
+     0     40        (0, 40)   Text.value
+     0     40         (0, 0)   Text
+     0     40         (0, 0)   Paragraph.content
+     0     41         (0, 1)   Paragraph
+    42     46        (42, 5)   ThematicBreak
+    47     86        (5, 40)   Text.value
+    47     86         (0, 0)   Text
+    47     86         (0, 0)   Paragraph.content
+    47     87         (0, 1)   Paragraph
+    88     92        (41, 5)   ThematicBreak
+    93    147        (5, 55)   Text.value
+    93    147         (0, 0)   Text
+    93    147         (0, 0)   Paragraph.content
+    93    148         (0, 1)   Paragraph
+   149    153        (56, 5)   ThematicBreak
+   154    158         (5, 5)   ThematicBreak
+     0    159      (-154, 1)   Article.content
+     0    159         (0, 0)   Article

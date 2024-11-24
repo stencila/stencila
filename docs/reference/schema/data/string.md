@@ -15,6 +15,7 @@ The `String` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                | 🟢 No loss  | 🟢 No loss | 🚧 Under development |       |
 | [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)        | 🟢 No loss  | 🟢 No loss | 🔶 Beta              |       |
 | [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    | 🟢 No loss  | 🟢 No loss | 🔶 Beta              |       |
+| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      | 🟢 No loss  | 🟢 No loss | 🔶 Beta              |       |
 | [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       | 🟢 No loss  | 🟢 No loss | 🔶 Beta              |       |
 | [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        | 🟢 No loss  | 🟢 No loss | 🔶 Beta              |       |
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | 🟢 No loss  |           | 🔶 Beta              |       |

@@ -1,0 +1,4 @@
+start     end        offsets   node_type+property                   authorship
+    16     68       (16, 68)   QuoteInline
+     0     69       (-16, 1)   Paragraph
+     0     70         (0, 1)   Article

@@ -22,7 +22,7 @@ properties:
     $ref: Cord
     strip: [code]
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     proptest:
       min:
         description: Generate a simple fixed string of math.
@@ -46,7 +46,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     proptest:
       min:
         description: No language.

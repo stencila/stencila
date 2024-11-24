@@ -141,6 +141,7 @@ expression: specs
     "supports_from_formats": {
       "markdown": "LowLoss",
       "smd": "LowLoss",
+      "qmd": "LowLoss",
       "myst": "LowLoss"
     },
     "supports_from_bytes": false,
@@ -149,6 +150,7 @@ expression: specs
     "supports_to_formats": {
       "markdown": "LowLoss",
       "smd": "LowLoss",
+      "qmd": "LowLoss",
       "myst": "LowLoss",
       "llmd": "LowLoss"
     },

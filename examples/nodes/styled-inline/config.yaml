@@ -9,3 +9,9 @@ myst:
     strip-props:
       # As for Markdown
       - StyledInline.style_language
+
+qmd:
+  decode:
+    strip-props:
+      # As for Markdown
+      - StyledInline.style_language

@@ -19,6 +19,8 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
                 return "Stencila Markdown";
               case "myst":
                 return "MyST Markdown";
+              case "qmd":
+                return "Quarto Markdown";
               default:
                 return format.toUpperCase();
             }

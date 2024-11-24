@@ -44,7 +44,7 @@ properties:
     html:
       attr: src
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     proptest:
       min:
         description: Generate a fixed URL.

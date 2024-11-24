@@ -22,11 +22,11 @@ pub struct DateTimeValidator {
     pub id: Option<String>,
 
     /// The inclusive lower limit for a date-time.
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub minimum: Option<DateTime>,
 
     /// The inclusive upper limit for a date-time.
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub maximum: Option<DateTime>,
 
     /// A unique identifier for a node within a document

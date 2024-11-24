@@ -5,3 +5,10 @@ myst:
       # but always results in `true` (never false). So we need to strip it
       # for this test. 
       - Admonition.is_folded
+
+qmd:
+  decode:
+    strip-props:
+      # QMD currently only supports five "call out" types so round trip
+      # conversion is not always faithful so we need to strip type for this test.
+      - Admonition.admonition_type

@@ -43,6 +43,44 @@ impl MarkdownCodec for Admonition {
                     },
                 )
                 .newline();
+        } else if matches!(context.format, Format::Qmd) {
+            let name = match &self.admonition_type {
+                AdmonitionType::Success => "note".to_string(),
+                AdmonitionType::Danger | AdmonitionType::Error | AdmonitionType::Failure => {
+                    "important".to_string()
+                }
+                other => other.to_string().to_lowercase(),
+            };
+
+            context
+                .push_str(":::{.callout-")
+                .push_prop_str(NodeProperty::AdmonitionType, &name);
+
+            if let Some(is_folded) = self.is_folded {
+                context
+                    .push_str(" collapse=\"")
+                    .push_prop_str(NodeProperty::IsFolded, &is_folded.to_string())
+                    .push_str("\"");
+            }
+
+            context.push_str("}\n");
+
+            if let Some(title) = &self.title {
+                context
+                    .push_str("## ")
+                    .push_prop_fn(NodeProperty::Title, |context| title.to_markdown(context))
+                    .push_str("\n\n");
+            }
+
+            context.push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            });
+
+            if context.content.ends_with("\n") {
+                context.content.pop();
+            }
+
+            context.push_str(":::\n\n");
         } else {
             context
                 .push_str("> [!")

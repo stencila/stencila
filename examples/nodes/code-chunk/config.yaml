@@ -3,3 +3,11 @@ compact.jats.xml:
     strip-types:
       # TODO: Implement decoding of <code> into `CodeChunk`
       - CodeChunk
+
+qmd:
+  decode:
+    strip-props:
+      - CodeChunk.execution_mode
+      # Round-tripped code may not be the same as original because label
+      # and caption are put into code
+      - CodeChunk.code

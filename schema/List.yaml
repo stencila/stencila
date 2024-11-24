@@ -34,7 +34,7 @@ properties:
       $ref: ListItem
     walk: true
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       content: true
     proptest:
@@ -55,7 +55,7 @@ properties:
     description: The ordering of the list.
     $ref: ListOrder
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       attr: list-type
     proptest:

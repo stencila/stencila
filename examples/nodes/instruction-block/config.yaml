@@ -2,10 +2,14 @@ compact.jats.xml:
   decode:
     skip: true
 
+smd:
+  decode:
+    skip: true
+
 myst:
   decode:
     skip: true
 
-smd:
+qmd:
   decode:
     skip: true

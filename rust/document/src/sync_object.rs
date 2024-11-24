@@ -181,7 +181,10 @@ mod tests {
 
     use common::{eyre::bail, tokio::sync::mpsc::channel};
     use common_dev::pretty_assertions::assert_eq;
-    use schema::shortcuts::{art, p, t};
+    use schema::{
+        shortcuts::{art, p, t},
+        Article,
+    };
 
     use super::*;
 
@@ -190,6 +193,11 @@ mod tests {
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
         let document = Document::new()?;
+        {
+            let mut root = document.root.write().await;
+            *root = Node::Article(Article::default());
+        }
+
         let (.., in_receiver) = channel(1);
         let (out_sender, mut out_receiver) = channel(4);
         document.sync_object(in_receiver, out_sender).await?;

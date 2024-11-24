@@ -2,69 +2,132 @@
   <section slot=content>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Example using Markdown as canonical format to test alternative ways to write instruction blocks.</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Example using Markdown as canonical format to test alternative ways to write instruction blocks (commands)</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-heading id=xxx depth=1 ancestors=Article level=1>
       <h1 slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Heading>New instruction</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Self closing shorthand</stencila-text>
       </h1>
     </stencila-heading>
-    <stencila-paragraph id=xxx depth=1 ancestors=Article>
-      <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Never has existing content so is self closing or explicitly closing:</stencila-text>
-      </p>
-    </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Create>
-      <div slot=content>
+      <div slot=message>
+        <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <div slot=parts>
+            <stencila-message-part type=text value=message>
+            </stencila-message-part>
+          </div>
+        </stencila-instruction-message>
       </div>
     </stencila-instruction-block>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Create>
       <div slot=message>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
-            <stencila-message-part type=text value='&lt;'>
+            <stencila-message-part type=text value=message>
+            </stencila-message-part>
+          </div>
+        </stencila-instruction-message>
+      </div>
+    </stencila-instruction-block>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
+      <p slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Another paragraph with no empty line between</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-heading-end heading=xxx>
+    </stencila-heading-end>
+    <stencila-heading id=xxx depth=1 ancestors=Article level=1>
+      <h1 slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Next block only shorthand</stencila-text>
+      </h1>
+    </stencila-heading>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
+      <div slot=message>
+        <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <div slot=parts>
+            <stencila-message-part type=text value=message>
             </stencila-message-part>
           </div>
         </stencila-instruction-message>
       </div>
       <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>Paragraph to edit</stencila-text>
+          </p>
+        </stencila-paragraph>
       </div>
     </stencila-instruction-block>
-    <stencila-heading-end heading=xxx>
-    </stencila-heading-end>
-    <stencila-heading id=xxx depth=1 ancestors=Article level=1>
-      <h1 slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Edit instruction</stencila-text>
-      </h1>
-    </stencila-heading>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
+      <div slot=message>
+        <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <div slot=parts>
+            <stencila-message-part type=text value=message>
+            </stencila-message-part>
+          </div>
+        </stencila-instruction-message>
+      </div>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.InstructionBlock.Paragraph>Paragraph to edit with no empty line between</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-instruction-block>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Edit next block:</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Other types of content,</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
       <div slot=message>
         <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
           <div slot=parts>
-            <stencila-message-part type=text value='&gt;'>
+            <stencila-message-part type=text value='improve this'>
             </stencila-message-part>
           </div>
         </stencila-instruction-message>
       </div>
       <div slot=content>
+        <stencila-code-chunk id=xxx depth=2 ancestors=Article.InstructionBlock code='' programming-language=python>
+        </stencila-code-chunk>
+      </div>
+    </stencila-instruction-block>
+    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Create>
+      <div slot=message>
+        <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
+          <div slot=parts>
+            <stencila-message-part type=text value=admonition>
+            </stencila-message-part>
+          </div>
+        </stencila-instruction-message>
+      </div>
+      <div slot=content>
+        <stencila-admonition id=xxx depth=2 ancestors=Article.InstructionBlock admonition-type=Warning>
+          <aside slot=content>
+            <stencila-paragraph id=xxx depth=3 ancestors=Article.InstructionBlock.Admonition>
+              <p slot=content>
+                <stencila-text id=xxx depth=4 ancestors=Article.InstructionBlock.Admonition.Paragraph>This is a warning</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </aside>
+        </stencila-admonition>
       </div>
     </stencila-instruction-block>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Paragraph to edit #1</stencila-text>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Following para outside of instruction content.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-paragraph id=xxx depth=1 ancestors=Article>
-      <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Edit multiple blocks:</stencila-text>
-      </p>
-    </stencila-paragraph>
+    <stencila-heading-end heading=xxx>
+    </stencila-heading-end>
+    <stencila-heading id=xxx depth=1 ancestors=Article level=1>
+      <h1 slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Multiple blocks</stencila-text>
+      </h1>
+    </stencila-heading>
     <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
       <div slot=content>
         <stencila-paragraph id=xxx depth=2 ancestors=Article.InstructionBlock>
@@ -79,53 +142,5 @@
         </stencila-paragraph>
       </div>
     </stencila-instruction-block>
-    <stencila-heading-end heading=xxx>
-    </stencila-heading-end>
-    <stencila-heading id=xxx depth=1 ancestors=Article level=1>
-      <h1 slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Heading>Content other than paragraphs</stencila-text>
-      </h1>
-    </stencila-heading>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Edit>
-      <div slot=message>
-        <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
-          <div slot=parts>
-            <stencila-message-part type=text value='improve this &gt;'>
-            </stencila-message-part>
-          </div>
-        </stencila-instruction-message>
-      </div>
-      <div slot=content>
-      </div>
-    </stencila-instruction-block>
-    <stencila-code-chunk id=xxx depth=1 ancestors=Article code='' programming-language=python>
-    </stencila-code-chunk>
-    <stencila-instruction-block id=xxx depth=1 ancestors=Article instruction-type=Create>
-      <div slot=message>
-        <stencila-instruction-message id=xxx depth=2 ancestors=Article.InstructionBlock>
-          <div slot=parts>
-            <stencila-message-part type=text value='admonition &gt;'>
-            </stencila-message-part>
-          </div>
-        </stencila-instruction-message>
-      </div>
-      <div slot=content>
-      </div>
-    </stencila-instruction-block>
-    <stencila-quote-block id=xxx depth=1 ancestors=Article>
-      <blockquote slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.QuoteBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.QuoteBlock.Paragraph>![warning]
-This is a warning</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </blockquote>
-    </stencila-quote-block>
-    <stencila-paragraph id=xxx depth=1 ancestors=Article>
-      <p slot=content>
-        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Following para outside of instruction content.</stencila-text>
-      </p>
-    </stencila-paragraph>
   </section>
 </stencila-article>

@@ -20,7 +20,7 @@ properties:
     $ref: Cord
     strip: [code]
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       content: true
     proptest:
@@ -45,7 +45,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       attr: language
     proptest:

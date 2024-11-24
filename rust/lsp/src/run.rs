@@ -1,16 +1,19 @@
 use std::collections::HashMap;
 
-use async_lsp::lsp_types::{notification, request};
 use async_lsp::{
-    client_monitor::ClientProcessMonitorLayer, concurrency::ConcurrencyLayer,
-    panic::CatchUnwindLayer, router::Router, server::LifecycleLayer, tracing::TracingLayer,
-    MainLoop,
+    client_monitor::ClientProcessMonitorLayer,
+    concurrency::ConcurrencyLayer,
+    lsp_types::{notification, request},
+    panic::CatchUnwindLayer,
+    router::Router,
+    server::LifecycleLayer,
+    tracing::TracingLayer,
+    ErrorCode, MainLoop, ResponseError,
 };
-use async_lsp::{ErrorCode, ResponseError};
 use tower::ServiceBuilder;
+use tracing_subscriber::filter::LevelFilter;
 
 use common::serde_json;
-use tracing_subscriber::filter::LevelFilter;
 
 use crate::{
     code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,
@@ -46,13 +49,13 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         router.request::<request::DocumentSymbolRequest, _>(|state, params| {
             let uri = params.text_document.uri;
-            let root = state
+            let sync_root = state
                 .documents
                 .get(&uri)
-                .map(|text_doc| text_doc.root.clone());
+                .map(|text_doc| (text_doc.sync_state(), text_doc.root.clone()));
             async move {
-                match root {
-                    Some(root) => symbols::request(root).await,
+                match sync_root {
+                    Some((sync, root)) => symbols::request(sync, root).await,
                     None => Ok(None),
                 }
             }

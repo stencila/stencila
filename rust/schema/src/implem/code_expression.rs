@@ -37,6 +37,21 @@ impl MarkdownCodec for CodeExpression {
                     context
                         .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
                 });
+        } else if matches!(context.format, Format::Qmd) {
+            context.push_str("`");
+
+            if let Some(lang) = &self.programming_language {
+                context
+                    .push_str("{")
+                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
+                    .push_str("} ");
+            } else {
+                context.push_str("{}");
+            }
+
+            context
+                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context))
+                .push_str("`");
         } else {
             context
                 .push_str("`")

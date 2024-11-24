@@ -9,6 +9,9 @@
   ],
   "category": "works",
   "description": "A prompt for creating or editing document content.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "type",
@@ -75,7 +78,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "type": "string"
@@ -419,7 +423,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "serde": {
@@ -443,7 +448,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "serde": {
@@ -575,7 +581,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "dom": {
@@ -616,7 +623,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "ExecutionMode.schema.json"

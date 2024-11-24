@@ -1,0 +1,50 @@
+With no language:
+
+```{}
+No language
+```
+
+
+With language:
+
+```{python}
+# Some python code
+a = 3
+```
+
+
+With language and execution mode:
+
+```{js}
+// Javascript
+```
+
+
+With label:
+
+```{}
+#| label: 1A
+
+# Chunk 1A
+```
+
+
+Code figure with caption:
+
+```{r}
+#| label: 1
+#| fig-cap: "Y against X."
+
+plot(y~x)
+```
+
+
+Code table with caption:
+
+```{r}
+#| label: 1
+#| tbl-cap: "Some cars."
+
+head(mtcars)
+```
+

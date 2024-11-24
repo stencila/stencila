@@ -25,7 +25,7 @@ properties:
     $comment: |
       A number is valid if it is greater than, or exactly equal to, `minimum`.
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   exclusiveMinimum:
     '@id': stencila:exclusiveMinimum
     type: number
@@ -33,7 +33,7 @@ properties:
     $comment: |
       A number is valid only if it has a value greater than (not equal to) `exclusiveMinimum`.
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   maximum:
     '@id': stencila:maximum
     type: number
@@ -41,7 +41,7 @@ properties:
     $comment: |
       A number is valid if it is less than, or exactly equal to, `maximum`.
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   exclusiveMaximum:
     '@id': stencila:exclusiveMaximum
     type: number
@@ -49,7 +49,7 @@ properties:
     $comment: |
       A number is valid only if it has a value less than (not equal to) `exclusiveMaximum`.
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   multipleOf:
     '@id': stencila:multipleOf
     type: number
@@ -58,4 +58,4 @@ properties:
     $comment: |
       A number is valid only if division by this value results in an integer.
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]

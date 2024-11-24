@@ -23,6 +23,7 @@ compact.jats.xml:
       - MathBlock
       - StyledBlock
       - Table
+
 smd:
   encode:
     strip-types:
@@ -34,3 +35,11 @@ myst:
     strip-types:
       # As for Markdown
       - Figure
+
+qmd:
+  encode:
+    strip-types:
+      # As for Markdown
+      - Figure
+  decode:
+    skip: true

@@ -15,3 +15,10 @@ myst:
     strip-props:
       # As for Markdown
       - StyledBlock.style_language
+
+qmd:
+  decode:
+    strip-props:
+      # As for Markdown
+      - StyledBlock.style_language
+

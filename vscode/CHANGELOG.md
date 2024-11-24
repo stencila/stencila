@@ -1,5 +1,23 @@
 # Change Log
 
+## 0.0.17 2024-11-24
+
+- Adds gutter markers for document nodes and settings for enabling/disabling and appearance.
+
+- Adds initial support for Quarto Markdown.
+
+- Based on Stencila CLI v2.0.0-beta.19 which adds initial support for Quarto Markdown, and language server support for gutter markers and fixes for document synchronization state.
+
+## 0.0.16 2024-11-21
+
+- Adds a "Setup View" for guiding users through setting up a Stencila CLoud account, adding API keys, and setting user details.
+
+- Adds a "Stencila Shell" terminal to allow you to use the Stencila CLI that ships with the VSCode extension.
+
+- Adds support for Cloudflare generative AI models.
+
+- Based on Stencila CLI v2.0.0-beta.18 which includes a fix for `@media` rules in CSS, and enables opening and saving of prompts.
+
 ## 0.0.15 2024-11-17
 
 - Adds bidirectional scroll syncing between source editor and preview panel.

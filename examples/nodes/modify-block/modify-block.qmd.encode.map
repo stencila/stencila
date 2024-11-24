@@ -1,0 +1,13 @@
+start     end        offsets   node_type+property                   authorship
+     0     55        (0, 55)   Text.value
+     0     55         (0, 0)   Text
+     0     55         (0, 0)   Paragraph.content
+     0     56         (0, 1)   Paragraph
+    73     79       (73, 23)   CodeChunk.programmingLanguage
+    81     93        (8, 14)   CodeChunk.code
+    69     97       (-12, 4)   CodeChunk
+    69     99         (0, 2)   ModifyBlock.content
+   109    109       (40, 10)   ModifyBlock.operations
+    57    113       (-52, 4)   ModifyBlock
+     0    114       (-57, 1)   Article.content
+     0    114         (0, 0)   Article

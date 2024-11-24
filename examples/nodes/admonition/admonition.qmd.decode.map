@@ -1,0 +1,19 @@
+start     end        offsets   node_type+property                   authorship
+    22     28       (22, 28)   Paragraph
+     2     33       (-20, 5)   Admonition
+    58     73       (56, 40)   Heading
+    75     84       (17, 11)   Paragraph
+    35     89       (-40, 5)   Admonition
+   128    150       (93, 61)   Paragraph
+    91    155       (-37, 5)   Admonition
+   198    220      (107, 65)   Heading
+   222    230       (24, 10)   Paragraph
+   157    235       (-65, 5)   Admonition
+   256    277       (99, 42)   Heading
+   319    359       (63, 82)   Paragraph
+   299    364       (-20, 5)   Admonition
+   391    432       (92, 68)   Paragraph
+   366    437       (-25, 5)   Admonition
+   279    442       (-87, 5)   Admonition
+   237    447       (-42, 5)   Admonition
+     0    448      (-237, 1)   Article

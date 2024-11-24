@@ -126,6 +126,12 @@ Create a new document with sidecar file
 ###### **Options:**
 
 * `-f`, `--force` — Overwrite the document, and any sidecar file, if they already exist
+* `-t`, `--type <TYPE>` — The type of document to create
+
+  Default value: `article`
+
+  Possible values: `article`, `prompt`
+
 * `-s`, `--sidecar <SIDECAR>` — The format of the sidecar file
 
   Possible values: `json.zip`, `json`
