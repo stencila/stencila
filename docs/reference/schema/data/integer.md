@@ -15,6 +15,7 @@ The `Integer` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                | 🔷 Low loss |            | 🚧 Under development |       |
 | [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)        | 🔷 Low loss | 🔷 Low loss | 🔶 Beta              |       |
 | [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    | 🔷 Low loss | 🔷 Low loss | 🔶 Beta              |       |
+| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      | 🔷 Low loss | 🔷 Low loss | 🔶 Beta              |       |
 | [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       | 🔷 Low loss | 🔷 Low loss | 🔶 Beta              |       |
 | [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        | 🔷 Low loss | 🔷 Low loss | 🔶 Beta              |       |
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | 🔷 Low loss |            | 🔶 Beta              |       |
