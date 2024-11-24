@@ -52,7 +52,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             let sync_root = state
                 .documents
                 .get(&uri)
-                .map(|text_doc| (text_doc.is_synced(), text_doc.root.clone()));
+                .map(|text_doc| (text_doc.sync_state(), text_doc.root.clone()));
             async move {
                 match sync_root {
                     Some((sync, root)) => symbols::request(sync, root).await,

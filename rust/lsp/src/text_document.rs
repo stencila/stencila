@@ -441,8 +441,8 @@ impl TextDocument {
         })
     }
 
-    /// Get a
-    pub(super) fn is_synced(&self) -> watch::Receiver<SyncState> {
+    /// Get a receiver for the [`SyncState`] of the document
+    pub(super) fn sync_state(&self) -> watch::Receiver<SyncState> {
         self.sync_state_receiver.clone()
     }
 
@@ -456,6 +456,7 @@ impl TextDocument {
     ///   is a tradeoff here between granularity and latency
     ///
     /// - to avoid excessive compute decoding the document on each keypress
+    #[allow(clippy::too_many_arguments)]
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<(String, UpdateDelay)>,
         sync_state_sender: watch::Sender<SyncState>,

@@ -81,6 +81,6 @@ fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
     }
 
     for child in &node.children {
-        node_infos(&child, items);
+        node_infos(child, items);
     }
 }
