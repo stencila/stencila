@@ -7,7 +7,7 @@ import { createDocumentViewPanel } from "./webviews";
  */
 export function registerDocumentCommands(context: vscode.ExtensionContext) {
   // Create document commands
-  for (const format of ["smd", "myst"]) {
+  for (const format of ["smd", "myst", "qmd"]) {
     context.subscriptions.push(
       vscode.commands.registerCommand(`stencila.new-${format}`, async () => {
         vscode.workspace.openTextDocument({ language: format }).then(

@@ -98,7 +98,11 @@ async function startServer(context: vscode.ExtensionContext) {
   const clientOptions: LanguageClientOptions = {
     initializationOptions,
     outputChannel,
-    documentSelector: [{ language: "smd" }, { language: "myst" }],
+    documentSelector: [
+      { language: "smd" },
+      { language: "myst" },
+      { language: "qmd" },
+    ],
     markdown: {
       isTrusted: true,
       supportHtml: true,

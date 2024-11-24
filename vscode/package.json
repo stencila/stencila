@@ -104,7 +104,6 @@
           "description": "Enable gutter with markers for document node type and status.",
           "type": "boolean",
           "default": true
-
         },
         "stencila.gutter.markerWidth": {
           "order": 5,
@@ -113,14 +112,12 @@
           "minimum": 1,
           "maximum": 6,
           "default": 4
-
         },
         "stencila.gutter.animateRunning": {
           "order": 6,
           "description": "Animate gutter marker for running document nodes.",
           "type": "boolean",
           "default": true
-
         },
         "stencila.languageServer.logLevel": {
           "order": 7,
@@ -147,8 +144,15 @@
       {
         "command": "stencila.new-myst",
         "category": "Create",
-        "title": "New MyST Document",
+        "title": "New MyST Markdown Document",
         "shortTitle": "MyST",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "stencila.new-qmd",
+        "category": "Create",
+        "title": "New Quarto Markdown Document",
+        "shortTitle": "Quarto Markdown",
         "icon": "$(new-file)"
       },
       {
@@ -477,6 +481,10 @@
         {
           "command": "stencila.new-myst",
           "group": "Document"
+        },
+        {
+          "command": "stencila.new-qmd",
+          "group": "Document"
         }
       ],
       "commandPalette": [
@@ -485,6 +493,9 @@
         },
         {
           "command": "stencila.new-myst"
+        },
+        {
+          "command": "stencila.new-qmd"
         },
         {
           "command": "stencila.view-doc",
@@ -703,7 +714,7 @@
       {
         "id": "myst",
         "aliases": [
-          "MyST"
+          "MyST Markdown"
         ],
         "extensions": [
           ".myst"
@@ -712,6 +723,22 @@
         "icon": {
           "light": "./icons/myst-128.png",
           "dark": "./icons/myst-128.png"
+        }
+      },
+      {
+        "id": "qmd",
+        "aliases": [
+          "Quarto Markdown",
+          "quarto"
+        ],
+        "extensions": [
+          ".qmd",
+          ".rmd"
+        ],
+        "configuration": "./syntaxes/qmd/configuration.json",
+        "icon": {
+          "light": "./icons/quarto-128.png",
+          "dark": "./icons/quarto-128.png"
         }
       }
     ],
@@ -749,6 +776,63 @@
           "meta.embedded.language.xml": "xml",
           "meta.embedded.block.frontmatter": "yaml"
         }
+      },
+      {
+        "language": "qmd",
+        "scopeName": "text.html.quarto",
+        "path": "./syntaxes/qmd/qmd.tmLanguage",
+        "embeddedLanguages": {
+          "meta.embedded.block.c": "c",
+          "meta.embedded.block.clojure": "clojure",
+          "meta.embedded.block.coffee": "coffee",
+          "meta.embedded.block.cpp": "cpp",
+          "meta.embedded.block.csharp": "csharp",
+          "meta.embedded.block.css": "css",
+          "meta.embedded.block.diff": "diff",
+          "meta.embedded.block.dockerfile": "dockerfile",
+          "meta.embedded.block.dosbatch": "dosbatch",
+          "meta.embedded.block.dot": "dot",
+          "meta.embedded.block.frontmatter": "yaml",
+          "meta.embedded.block.fsharp": "fsharp",
+          "meta.embedded.block.go": "go",
+          "meta.embedded.block.groovy": "groovy",
+          "meta.embedded.block.html": "html",
+          "meta.embedded.block.ini": "ini",
+          "meta.embedded.block.java": "java",
+          "meta.embedded.block.javascript": "javascript",
+          "meta.embedded.block.json": "json",
+          "meta.embedded.block.julia": "julia",
+          "meta.embedded.block.less": "less",
+          "meta.embedded.block.lua": "lua",
+          "meta.embedded.block.makefile": "makefile",
+          "meta.embedded.block.mermaid": "mermaid",
+          "meta.embedded.block.objc": "objc",
+          "meta.embedded.block.perl": "perl",
+          "meta.embedded.block.perl6": "perl6",
+          "meta.embedded.block.php": "php",
+          "meta.embedded.block.powershell": "powershell",
+          "meta.embedded.block.prql": "prql",
+          "meta.embedded.block.pug": "jade",
+          "meta.embedded.block.python": "python",
+          "meta.embedded.block.r": "r",
+          "meta.embedded.block.ruby": "ruby",
+          "meta.embedded.block.rust": "rust",
+          "meta.embedded.block.scala": "scala",
+          "meta.embedded.block.scss": "scss",
+          "meta.embedded.block.shellscript": "shellscript",
+          "meta.embedded.block.sql": "sql",
+          "meta.embedded.block.stan": "stan",
+          "meta.embedded.block.typescript": "typescript",
+          "meta.embedded.block.typescriptreact": "typescriptreact",
+          "meta.embedded.block.typst": "typst",
+          "meta.embedded.block.vs_net": "vs_net",
+          "meta.embedded.block.xml": "xml",
+          "meta.embedded.block.xsl": "xsl",
+          "meta.embedded.block.yaml": "yaml",
+          "meta.embedded.math.quarto": "latex",
+          "source.css": "css",
+          "source.js": "javascript"
+        }
       }
     ],
     "snippets": [
@@ -759,6 +843,10 @@
       {
         "language": "myst",
         "path": "./syntaxes/myst/snippets.jsonc"
+      },
+      {
+        "language": "qmd",
+        "path": "./syntaxes/qmd/snippets.json"
       }
     ],
     "themes": [
@@ -810,10 +898,13 @@
   "scripts": {
     "fix": "eslint src --ext ts --fix",
     "lint": "eslint src --ext ts",
-    "compile-web": "cd ../web/ && npm run build:vscode",
-    "compile-syntaxes": "node syntaxes/smd/compile.js && node syntaxes/myst/compile.js",
-    "compile-ts": "tsc -p ./",
-    "compile": "npm run compile-web && npm run compile-syntaxes && npm run compile-ts",
+    "compile:web": "cd ../web/ && npm run build:vscode",
+    "fetch:qmd": "node syntaxes/qmd/fetch.js",
+    "compile:smd": "node syntaxes/smd/compile.js",
+    "compile:myst": "node syntaxes/myst/compile.js",
+    "compile:syntaxes": "npm run compile:smd && npm run compile:myst",
+    "compile:ts": "tsc -p ./",
+    "compile": "npm run compile:web && npm run compile:syntaxes && npm run compile:ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
