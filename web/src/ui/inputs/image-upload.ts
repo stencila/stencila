@@ -66,8 +66,6 @@ export class UIImageUpload extends LitElement {
   override render() {
     const styles = apply(['h-full', 'p-3', 'font-sans'])
 
-    console.log(this.files)
-
     return html`
       <div class="drop-container ${styles}">
         <div class="flex items-center">
