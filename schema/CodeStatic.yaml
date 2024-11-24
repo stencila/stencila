@@ -20,7 +20,7 @@ properties:
     description: The code.
     $ref: Cord
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       content: true
     html:
@@ -46,7 +46,7 @@ properties:
     description: The programming language of the code.
     type: string
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     jats:
       attr: language
     proptest:

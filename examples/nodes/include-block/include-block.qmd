@@ -1,0 +1,11 @@
+An include of a sibling example:
+
+::: include ../heading/heading.md
+
+An include of a remote document:
+
+::: include http://example.org/document.md
+
+With options:
+
+::: include ../paragraph/paragraph.md { always format=text/markdown select=#para-1}

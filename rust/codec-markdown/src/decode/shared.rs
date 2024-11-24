@@ -121,14 +121,17 @@ pub(super) fn take_until_unbalanced<'s>(
 /// Curly braced options are used to specify options on various
 /// node types. Separated by whitespace with optional commas
 pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> PResult<Vec<(&'s str, Option<Node>)>> {
-    delimited(
-        ('{', multispace0),
-        separated(
-            0..,
-            attr,
-            alt(((multispace0, ',', multispace0).take(), multispace1)),
-        ),
-        (multispace0, '}'),
+    delimited(('{', multispace0), attrs_list, (multispace0, '}')).parse_next(input)
+}
+
+/// Parse a list of `attrs`
+pub(super) fn attrs_list<'s>(
+    input: &mut Located<&'s str>,
+) -> PResult<Vec<(&'s str, Option<Node>)>> {
+    separated(
+        0..,
+        attr,
+        alt(((multispace0, ',', multispace0).take(), multispace1)),
     )
     .parse_next(input)
 }

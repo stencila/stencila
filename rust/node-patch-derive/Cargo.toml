@@ -9,3 +9,4 @@ proc-macro = true
 [dependencies]
 common = { path = "../common" }
 darling = "0.20.10"
+format = { path = "../format" }

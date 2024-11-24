@@ -280,6 +280,13 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
+            String::from("qmd"),
+            FormatConfig {
+                format: Format::Qmd,
+                ..Default::default()
+            },
+        ),
+        (
             String::from("txt"),
             FormatConfig {
                 format: Format::Text,

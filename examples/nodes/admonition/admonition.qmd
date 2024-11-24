@@ -1,0 +1,33 @@
+:::{.callout-note}
+A note
+:::
+
+:::{.callout-warning}
+## With a title
+
+A warning
+:::
+
+:::{.callout-note collapse="false"}
+Foldable, but unfolded
+:::
+
+:::{.callout-important collapse="true"}
+## Folded with a title
+
+Foldable
+:::
+
+:::{.callout-tip}
+## Nested admonitions
+
+:::{.callout-info}
+:::{.callout-note}
+This is the first inner-inner admonition
+:::
+
+:::{.callout-important}
+This is the second inner-inner admonition
+:::
+:::
+:::

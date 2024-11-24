@@ -1,15 +1,17 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
+    stream::AsChar,
     token::{take_till, take_until, take_while},
     IResult, Located, PResult, Parser,
 };
 
 use codec::{
     common::{indexmap::IndexMap, tracing},
+    format::Format,
     schema::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
         CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
@@ -23,10 +25,10 @@ use codec::{
 
 use super::{
     decode_blocks, decode_inlines,
-    inlines::{mds_to_inlines, mds_to_string},
+    inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, execution_mode, instruction_options, instruction_type, model, name, node_to_string,
-        primitive_node, prompt, string_to_instruction_message,
+        attrs, attrs_list, execution_mode, instruction_options, instruction_type, model, name,
+        node_to_string, primitive_node, prompt, string_to_instruction_message,
     },
     Context,
 };
@@ -497,6 +499,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (take_while(3.., ':'), space0),
         alt((
+            admonition_qmd,
             call_block,
             include_block,
             prompt_block,
@@ -517,6 +520,48 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
             section,
         )),
     )
+    .parse_next(input)
+}
+
+/// Parse a [`Admonition`] node
+fn admonition_qmd(input: &mut Located<&str>) -> PResult<Block> {
+    delimited(
+        "{.callout-",
+        (
+            take_while(0.., AsChar::is_alpha),
+            opt(preceded(multispace1, attrs_list)),
+        ),
+        "}",
+    )
+    .map(|(admonition_type, options)| {
+        let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
+
+        let is_folded = options
+            .swap_remove("collapse")
+            .and_then(|value| match value {
+                Some(Node::Boolean(value)) => Some(value),
+                Some(Node::String(value)) => match value.as_str() {
+                    "true" | "yes" => Some(true),
+                    "false" | "no" => Some(false),
+                    _ => None,
+                },
+                _ => None,
+            });
+
+        let title = options.swap_remove("title").and_then(|value| match value {
+            Some(Node::String(value)) => {
+                Some(inlines(&value).into_iter().map(|(node, ..)| node).collect())
+            }
+            _ => None,
+        });
+
+        Block::Admonition(Admonition {
+            admonition_type: AdmonitionType::from_str(admonition_type).unwrap_or_default(),
+            is_folded,
+            title,
+            ..Default::default()
+        })
+    })
     .parse_next(input)
 }
 
@@ -1050,6 +1095,21 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
         // Parent div is a node type where we just have to assign children
         // to content.
         *content = children;
+    } else if let Block::Admonition(admonition) = parent {
+        if matches!(context.format, Format::Qmd) {
+            for block in children {
+                if let Block::Heading(Heading {
+                    content: inlines, ..
+                }) = block
+                {
+                    admonition.title = Some(inlines);
+                } else {
+                    admonition.content.push(block);
+                }
+            }
+        } else {
+            admonition.content = children;
+        }
     } else if let Block::CodeChunk(chunk) = parent {
         // Parent div code chunk with label and caption etc
         for child in children {
@@ -1232,7 +1292,12 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
 
         mdast::Node::Code(code) => {
             let position = code.position.clone();
-            let block = myst_to_block(&code).unwrap_or_else(|| code_to_block(code));
+            let block = match context.format {
+                Format::Myst => {
+                    myst_to_block(&code).unwrap_or_else(|| code_to_block(code, context))
+                }
+                _ => code_to_block(code, context),
+            };
 
             (block, position)
         }
@@ -1367,7 +1432,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
         return Some(Block::Claim(Claim {
             claim_type: claim_type.parse().unwrap_or_default(),
             label: options.get("label").map(|label| label.to_string()),
-            content: decode_blocks(&value),
+            content: decode_blocks(&value, Format::Myst),
             ..Default::default()
         }));
     }
@@ -1385,8 +1450,8 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                     "seealso" => AdmonitionType::Note,
                     type_ => type_.parse().unwrap_or_default(),
                 },
-                content: decode_blocks(&value),
-                title: args.map(decode_inlines),
+                content: decode_blocks(&value, Format::Myst),
+                title: args.map(|arg| decode_inlines(arg, Format::Myst)),
                 is_folded: options.get("class").map(|&class| class == "dropdown"),
                 ..Default::default()
             })
@@ -1413,7 +1478,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 label_automatically: options.contains_key("label").then_some(false),
                 caption: options
                     .get("caption")
-                    .map(|&caption| decode_blocks(caption)),
+                    .map(|&caption| decode_blocks(caption, Format::Myst)),
                 ..Default::default()
             })
         }
@@ -1424,7 +1489,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 .as_ref()
                 .map(|url| vec![p([img(url)])])
                 .unwrap_or_default();
-            let caption = decode_blocks(&value);
+            let caption = decode_blocks(&value, Format::Myst);
 
             Block::Figure(Figure {
                 label: options.get("label").map(|label| label.to_string()),
@@ -1435,7 +1500,8 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             })
         }
         "table" => {
-            let rows = if let Some(Block::Table(Table { rows, .. })) = decode_blocks(&value).first()
+            let rows = if let Some(Block::Table(Table { rows, .. })) =
+                decode_blocks(&value, Format::Myst).first()
             {
                 rows.clone()
             } else {
@@ -1445,7 +1511,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             Block::Table(Table {
                 label: options.get("label").map(|label| label.to_string()),
                 label_automatically: options.contains_key("label").then_some(false),
-                caption: args.map(decode_blocks),
+                caption: args.map(|arg| decode_blocks(arg, Format::Myst)),
                 rows,
                 ..Default::default()
             })
@@ -1477,7 +1543,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 replicates: options.get("reps").and_then(|value| value.parse().ok()),
                 model,
                 content: if !value.trim().is_empty() {
-                    Some(decode_blocks(&value))
+                    Some(decode_blocks(&value, Format::Myst))
                 } else {
                     None
                 },
@@ -1489,12 +1555,12 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             suggestion_status: options
                 .get("status")
                 .and_then(|value| SuggestionStatus::from_keyword(value).ok()),
-            content: decode_blocks(&value),
+            content: decode_blocks(&value, Format::Myst),
             ..Default::default()
         }),
         "style" => Block::StyledBlock(StyledBlock {
             code: args.unwrap_or_default().into(),
-            content: decode_blocks(&value),
+            content: decode_blocks(&value, Format::Myst),
             ..Default::default()
         }),
         _ => {
@@ -1515,16 +1581,28 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
 }
 
 /// Transform a [`mdast::Code`] node to a Stencila [`Block`]
-fn code_to_block(code: mdast::Code) -> Block {
+fn code_to_block(code: mdast::Code, context: &Context) -> Block {
     let mdast::Code {
         lang, meta, value, ..
     } = code;
 
     let meta = meta.unwrap_or_default();
-    let is_exec = meta.starts_with("exec") || lang.as_deref() == Some("exec");
+    let is_exec = meta.starts_with("exec")
+        || lang.as_deref() == Some("exec")
+        || lang
+            .as_ref()
+            .map(|lang| lang.starts_with("{") && lang.ends_with("}"))
+            .unwrap_or_default();
     let is_raw = meta.starts_with("raw") || lang.as_deref() == Some("raw");
 
     if is_exec {
+        let lang = lang.and_then(|lang| {
+            let lang = lang
+                .trim_start_matches("{")
+                .trim_end_matches("}")
+                .to_string();
+            (!lang.is_empty()).then_some(lang)
+        });
         let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
 
         let (is_invisible, execution_mode) = if meta.contains("invisible") {
@@ -1536,6 +1614,38 @@ fn code_to_block(code: mdast::Code) -> Block {
             (None, execution_mode(&mut meta).ok())
         };
 
+        let mut label_automatically = None;
+        let mut label_type = None;
+        let mut label = None;
+        let mut caption = None;
+        if matches!(context.format, Format::Qmd) {
+            for line in value.lines() {
+                if let Some(rest) = line
+                    .strip_prefix("#| ")
+                    .or_else(|| line.strip_prefix("//| "))
+                {
+                    if let Some(value) = rest.strip_prefix("label:") {
+                        label_automatically = Some(false);
+                        label = Some(value.trim().to_string());
+                    } else if let Some(value) = rest.strip_prefix("fig-cap:") {
+                        label_type = Some(LabelType::FigureLabel);
+                        caption = Some(decode_blocks(
+                            value.trim().trim_start_matches('"').trim_end_matches('"'),
+                            Format::Markdown,
+                        ));
+                    } else if let Some(value) = rest.strip_prefix("tbl-cap:") {
+                        label_type = Some(LabelType::TableLabel);
+                        caption = Some(decode_blocks(
+                            value.trim().trim_start_matches('"').trim_end_matches('"'),
+                            Format::Markdown,
+                        ));
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
         Block::CodeChunk(CodeChunk {
             code: value.into(),
             programming_language: if lang.as_deref() == Some("exec") {
@@ -1545,6 +1655,10 @@ fn code_to_block(code: mdast::Code) -> Block {
             },
             execution_mode,
             is_invisible,
+            label_automatically,
+            label_type,
+            label,
+            caption,
             ..Default::default()
         })
     } else if is_raw {

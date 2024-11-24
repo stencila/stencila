@@ -309,6 +309,7 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
         0..,
         alt((
             myst_role,
+            qmd_inline_code,
             code_attrs,
             double_braces,
             math,
@@ -326,8 +327,7 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             suggestion_inline,
             // Nested in another alt to avoid going over max size of tuple
             alt((insert_inline, delete_inline, replace_inline)),
-            edit_with,
-            edit_end,
+            alt((edit_with, edit_end)),
             string,
             character,
         ))
@@ -361,6 +361,22 @@ fn myst_role(input: &mut Located<&str>) -> PResult<Inline> {
                 // Fallback to just text
                 Inline::Text(Text::from(&["{", name, "}`", value, "}"].concat()))
             }
+        })
+        .parse_next(input)
+}
+
+// Parse a QMD inline expression
+fn qmd_inline_code(input: &mut Located<&str>) -> PResult<Inline> {
+    (
+        delimited("`{", take_until(0.., '}'), '}'),
+        delimited(multispace0, take_until(0.., '`'), '`'),
+    )
+        .map(|(lang, value): (&str, &str)| {
+            Inline::CodeExpression(CodeExpression {
+                programming_language: (!lang.is_empty()).then_some(lang.to_string()),
+                code: value.into(),
+                ..Default::default()
+            })
         })
         .parse_next(input)
 }

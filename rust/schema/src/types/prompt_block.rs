@@ -37,11 +37,11 @@ pub struct PromptBlock {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// An identifier for the prompt to be rendered
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub prompt: String,
 
     /// The executed content of the prompt

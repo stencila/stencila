@@ -1,0 +1,20 @@
+start     end        offsets   node_type+property                   authorship
+     0     37        (0, 37)   Paragraph
+    39     66       (39, 29)   InstructionBlock
+    68    104       (29, 38)   Paragraph
+   106    177       (38, 73)   InstructionBlock
+   179    238       (73, 61)   Paragraph
+   240    267       (61, 29)   InstructionBlock
+   269    318       (29, 51)   Paragraph
+   357    386       (37, 31)   Paragraph
+   320    386       (-37, 0)   InstructionBlock
+   388    422       (31, 36)   Paragraph
+   474    507       (50, 35)   Paragraph
+   424    507       (-50, 0)   InstructionBlock
+   509    562       (35, 55)   Paragraph
+   605    626       (41, 23)   CodeChunk
+   564    626       (-41, 0)   InstructionBlock
+   628    666       (23, 40)   Paragraph
+   696    708       (28, 14)   Paragraph
+   668    708       (-28, 0)   InstructionBlock
+     0    709      (-668, 1)   Article

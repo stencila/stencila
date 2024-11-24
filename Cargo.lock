@@ -3754,6 +3754,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "darling",
+ "format",
 ]
 
 [[package]]

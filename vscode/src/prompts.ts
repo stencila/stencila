@@ -44,6 +44,8 @@ export function registerPromptsView(
         let snippet;
         if (format === "myst") {
           snippet = mystSnippet(prompt, selected);
+        } else if (format === "qmd") {
+          snippet = qmdSnippet(prompt, selected);
         } else {
           snippet = smdSnippet(prompt, selected);
         }
@@ -208,6 +210,42 @@ function mystSnippet(prompt: PromptInstance, selected?: string): string {
   }
 
   snippet += "\n:::\n";
+
+  return snippet;
+}
+
+/**
+ * Create a QMD snippet for a command using a prompt
+ */
+function qmdSnippet(prompt: PromptInstance, selected?: string): string {
+  // TODO: This needs to be updated to the syntax for QMD
+
+  const type = prompt.instructionTypes[0].toLowerCase();
+  const id = promptId(prompt);
+
+  let snippet = `::: ${type}`;
+
+  if (id !== "block") {
+    snippet += ` @${id}`;
+  }
+
+  snippet += " ${0}";
+
+  if (selected) {
+    snippet += "\n";
+    if (!selected.startsWith("\n")) {
+      snippet += "\n";
+    }
+    snippet += selected;
+    if (!selected.endsWith("\n")) {
+      snippet += "\n";
+    }
+    snippet += "\n:::\n";
+  } else if (type === "create" || type === "describe") {
+    snippet += " :::\n";
+  } else {
+    snippet += " >>>\n";
+  }
 
   return snippet;
 }

@@ -22,11 +22,11 @@ pub struct TimeValidator {
     pub id: Option<String>,
 
     /// The inclusive lower limit for a time.
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub minimum: Option<Time>,
 
     /// The inclusive upper limit for a time.
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub maximum: Option<Time>,
 
     /// A unique identifier for a node within a document

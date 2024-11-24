@@ -53,9 +53,10 @@ class ExtensionStatusBar {
     const lang = document.languageId;
     const path = document.uri.fsPath;
     return (
-      ["smd", "myst"].includes(lang) ||
+      ["smd", "myst", "qmd"].includes(lang) ||
       path.endsWith(".smd") ||
-      path.endsWith(".myst")
+      path.endsWith(".myst") ||
+      path.endsWith(".qmd")
     );
   }
 
@@ -92,14 +93,31 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(new-file) New Stencila Markdown",
+          label: "New Stencila Markdown",
           description: "Create a new Stencila Markdown file",
           command: "stencila.new-smd",
+          iconPath: vscode.Uri.joinPath(
+            context.extensionUri,
+            "icons/stencila-128.png"
+          ),
         },
         {
-          label: "$(new-file) New MyST",
+          label: "New MyST Markdown",
           description: "Create a new MyST Markdown file",
           command: "stencila.new-myst",
+          iconPath: vscode.Uri.joinPath(
+            context.extensionUri,
+            "icons/myst-128.png"
+          ),
+        },
+        {
+          label: "New Quarto Markdown",
+          description: "Create a new Quarto Markdown file",
+          command: "stencila.new-qmd",
+          iconPath: vscode.Uri.joinPath(
+            context.extensionUri,
+            "icons/quarto-128.png"
+          ),
         },
       ];
 
@@ -179,8 +197,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         },
         {
           label: "$(terminal) Shell",
-          description:
-            "Open a shell with the Stencila CLI available",
+          description: "Open a shell with the Stencila CLI available",
           command: "stencila.shell",
         },
         {
@@ -212,14 +229,14 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           label: "$(symbol-operator) Math Equations and Symbols",
           description: "Creating math equations using TeX, AsciiMath and LLMs",
           command: "stencila.walkthroughs.open",
-          args: ["math", "smd", "myst"],
+          args: ["math", "smd", "myst", "qmd"],
         },
         {
           label: "$(symbol-misc) Mermaid Diagrams",
           description:
             "Creating flowcharts, timelines and other diagrams using Mermaid and LLMs",
           command: "stencila.walkthroughs.open",
-          args: ["mermaid", "smd", "myst"],
+          args: ["mermaid", "smd", "myst", "qmd"],
         }
       );
 
