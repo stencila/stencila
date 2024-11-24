@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="icons/stencila.png" alt="Stencila" width=300>
+  <img src="https://raw.githubusercontent.com/stencila/stencila/refs/heads/main/vscode/icons/stencila.png" alt="Stencila" width=300>
 </div>
 
 <p align="center">
@@ -29,11 +29,11 @@ Stencila is an open-source toolkit for enhancing **documents with scientific int
 
 With Stencila’s VS Code extension, you can build smart documents that leverage AI tools, ensure transparency, and support interoperability across languages and platforms, all within your existing workflow.
 
-![](demos/command-create-math.gif)
+![](./demos/command-create-math.gif)
 
-![](demos/command-fix-math.gif)
+![](./demos/command-fix-math.gif)
 
-![](demos/command-create-flowchart.gif)
+![](./demos/command-create-flowchart.gif)
 
 ## Enabling AI commands
 
@@ -45,7 +45,7 @@ Various back-ends can be used to enable AI assistance in Stencila documents. You
 
 To use Stencila Cloud, click **Sign In** from the Stencila extension menu, and follow the steps in your web browser to create a new account or sign into an existing account. You will receive a number of free credits to try out Stencila Cloud and after that you can sign up for a subscription plan to continue usage.
 
-![](demos/signin.gif)
+![](./demos/signin.gif)
 
 ### Option 2: Use your own API keys
 
@@ -63,4 +63,4 @@ Each walkthrough includes examples and explanations, allowing users to explore a
 
 You can find these walkthroughs under the Stencila command menu.
 
-![](demos/walkthroughs.gif)
+![](./demos/walkthroughs.gif)
