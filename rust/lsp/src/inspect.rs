@@ -111,6 +111,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
                 | ReplaceBlock
                 | Section
                 | StyledBlock
+                | SuggestionBlock
                 | Table
                 | ThematicBreak
         );

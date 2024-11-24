@@ -60,14 +60,19 @@ pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket
 fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
     // Do not send info for nodes without a range (i.e. that are not encoded to the text document)
     // or for inlines (or their children)
-    if (node.range == Range::default() || !node.is_block)
+    if (node.range == Range::default()
+        || (!node.is_block && !matches!(node.node_type, NodeType::IfBlockClause)))
         && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
     {
         return;
     }
 
-    // Do not publish node info for top level Article or Prompt
-    if !matches!(node.node_type, NodeType::Article | NodeType::Prompt) {
+    // Do not publish node info for top level Article or Prompt and some other
+    // container types which are effectively "look-through" for the user
+    if !matches!(
+        node.node_type,
+        NodeType::Article | NodeType::Prompt | NodeType::IfBlockClause | NodeType::SuggestionBlock
+    ) {
         items.push(NodeInfo {
             range: node.range,
             node_type: node.node_type.to_string(),
