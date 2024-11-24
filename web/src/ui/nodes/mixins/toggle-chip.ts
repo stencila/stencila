@@ -31,7 +31,7 @@ export type NodeColours = Pick<
   'borderColour' | 'colour' | 'textColour'
 >
 
-const NESTED_OFFSET = 5
+const HORIZ_INSET_PIXELS = 5
 
 /**
  * A Mixin that provides a "chip" to allow for a card to have its visibility
@@ -107,9 +107,9 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
 
       let offset = 60
       if (nodeDisplay === 'block' && this.depth > 1) {
-        offset -= NESTED_OFFSET * (this.depth - 1)
+        offset -= HORIZ_INSET_PIXELS * (this.depth - 1)
       } else if (this.noVisibleContent) {
-        offset += NESTED_OFFSET
+        offset += HORIZ_INSET_PIXELS
       }
 
       const { borderColour, icon } = nodeUi(this.type)
@@ -133,7 +133,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
       ])
 
       const baseMarkerStyles = apply([
-        'border-l border-black/20 rounded',
+        'border-l border-black/10 rounded',
         `bg-[${borderColour}]`,
       ])
 

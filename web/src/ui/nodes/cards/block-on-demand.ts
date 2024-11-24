@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { apply } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property, query } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../animation/collapsible'
@@ -19,24 +19,10 @@ import { UIBaseCard } from './base-card'
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
 export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
-  @query('slot[name="content"]')
-  contentSlot!: HTMLSlotElement
-
   @property({ type: Boolean })
   removeContentPadding: boolean = false
 
   protected override toggleChipPosition: string = ''
-
-  private handleContentChange() {
-    const elmts = this.contentSlot.assignedElements({ flatten: true })
-
-    if (elmts.length > 0) {
-      const contentHeight = elmts[0].getBoundingClientRect().height
-      if (!contentHeight) {
-        this.noVisibleContent = true
-      }
-    }
-  }
 
   override render() {
     const cardStyles = apply([
@@ -86,11 +72,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
         ${this.renderChip()}
         <div class="content-block ${contentStyles}">
-          <slot
-            name="content"
-            class="relative w-full"
-            @slotchange=${this.handleContentChange}
-          ></slot>
+          <slot name="content" class="relative w-full"></slot>
         </div>
       </div>
     `
