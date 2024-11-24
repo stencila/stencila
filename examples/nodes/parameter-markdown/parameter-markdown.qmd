@@ -1,0 +1,19 @@
+Examples of the parameter type can be inferred from options when using Markdown.
+
+No options and no type, so no validator: &[par1].
+
+Options only found on string parameters: &[par1]{str minlen=3}, &[par2]{str maxlen=5}, &[par3]{str pattern="[a-z]{3,5}"}.
+
+Option `vals` is only on "enum" parameters: &[par1].
+
+Options specified as bool: &[par1]{bool def=true}.
+
+Options specified as integer: &[par1]{int def=1}, &[par2]{int min=2}, &[par3]{int max=3}.
+
+Options specified as number: &[par1]{num def=1.1}, &[par2]{num emin=2.2}, &[par3]{num emax=3.3}, &[par4]{num mult=0.1}.
+
+Options specified as date: &[par1]{date min="2022-02-22"}.
+
+Options specified as time: &[par1]{time max="01:02:03"}.
+
+Options specified as datetime: &[par1]{datetime min="2022-02-22T01:02:03"}.

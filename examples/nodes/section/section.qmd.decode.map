@@ -1,0 +1,23 @@
+start     end        offsets   node_type+property                   authorship
+    15     29       (15, 29)   Heading
+    31     73       (16, 44)   Paragraph
+     2     78       (-29, 5)   Section
+    93    110       (91, 32)   Heading
+   127    143       (34, 33)   Heading
+   162    191       (35, 48)   Heading
+   193    230       (31, 39)   Paragraph
+   145    239       (-48, 9)   Section
+   258    288      (113, 49)   Heading
+   290    328       (32, 40)   Paragraph
+   241    337       (-49, 9)   Section
+   112    344      (-129, 7)   Section
+    80    349       (-32, 5)   Section
+   363    381      (283, 32)   Paragraph
+   351    386       (-12, 5)   Section
+   406    430       (55, 44)   Paragraph
+   388    435       (-18, 5)   Section
+   453    475       (65, 40)   Paragraph
+   437    480       (-16, 5)   Section
+   494    512       (57, 32)   Paragraph
+   482    517       (-12, 5)   Section
+     0    518      (-482, 1)   Article

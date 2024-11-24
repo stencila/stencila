@@ -8,3 +8,8 @@ myst:
   decode:
     # As for Markdown
     skip: true
+
+qmd:
+  decode:
+    # As for Markdown
+    skip: true

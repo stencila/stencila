@@ -1,0 +1,20 @@
+start     end        offsets   node_type+property                   authorship
+     0     17        (0, 17)   Paragraph
+   103    111      (103, 94)   CodeExpression
+    44    111       (-59, 0)   Paragraph
+    19    116       (-25, 5)   ForBlock
+   118    155       (99, 39)   Paragraph
+   191    215       (73, 60)   Paragraph
+   157    220       (-34, 5)   ForBlock
+   222    238       (65, 18)   Paragraph
+   361    370     (139, 132)   CodeExpression
+   309    370       (-52, 0)   Paragraph
+   283    377       (-26, 7)   ForBlock
+   240    382       (-43, 5)   ForBlock
+   384    403      (144, 21)   Paragraph
+   425    452       (41, 49)   Paragraph
+   464    482       (39, 30)   Paragraph
+   405    487       (-59, 5)   ForBlock
+   489    532       (84, 45)   Paragraph
+   534    567       (45, 35)   ForBlock
+     0    568      (-534, 1)   Article

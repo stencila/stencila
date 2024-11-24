@@ -1,0 +1,11 @@
+With a number output `{python} 6 * 7`.
+
+With a string output `{python} 'a string'`.
+
+With an array output `{python} [1, 2, 3]`.
+
+With an object output `{python} dict(a=1,b=dict())`.
+
+With no language specified and no output `{}a + b`.
+
+With execution mode specified and no output `{javascript} c * d`.

@@ -1,0 +1,24 @@
+start     end        offsets   node_type+property                   authorship
+    20     39       (20, 39)   Parameter
+    56     84       (36, 45)   Parameter
+   111    140       (55, 56)   Parameter
+     0    140      (-111, 0)   Paragraph
+   163    180      (163, 40)   Parameter
+   197    222       (34, 42)   Parameter
+   249    274       (52, 52)   Parameter
+   307    356       (58, 82)   Parameter
+   142    356      (-165, 0)   Paragraph
+   377    452      (235, 96)   Parameter
+   358    452       (-19, 0)   Paragraph
+   473    538      (115, 86)   Parameter
+   565    606       (92, 68)   Parameter
+   454    606      (-111, 0)   Paragraph
+   625    693      (171, 87)   Parameter
+   608    693       (-17, 0)   Paragraph
+   712    765      (104, 72)   Parameter
+   695    765       (-17, 0)   Paragraph
+   789    884      (94, 119)   Parameter
+   767    884       (-22, 0)   Paragraph
+   904    961      (137, 77)   Parameter
+   886    961       (-18, 0)   Paragraph
+     0    962      (-886, 1)   Article

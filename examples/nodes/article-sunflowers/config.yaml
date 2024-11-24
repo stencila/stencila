@@ -20,3 +20,8 @@ myst:
   decode:
     # TODO: As for Markdown
     skip: true
+
+qmd:
+  decode:
+    # TODO: As for Markdown
+    skip: true
