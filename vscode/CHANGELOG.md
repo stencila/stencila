@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.17 2024-11-24
+
+- Adds gutter markers for document nodes and settings for enabling/disabling and appearance.
+
+- Adds initial support for Quarto Markdown.
+
+- Based on Stencila CLI v2.0.0-beta.19 which adds initial support for Quarto Markdown, and language server support for gutter markers and fixes for document synchronization state.
+
 ## 0.0.16 2024-11-21
 
 - Adds a "Setup View" for guiding users through setting up a Stencila CLoud account, adding API keys, and setting user details.
