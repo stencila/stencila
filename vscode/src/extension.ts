@@ -8,7 +8,10 @@ import {
 import { registerAuthenticationProvider } from "./authentication";
 import { registerDocumentCommands } from "./commands";
 import { registerKernelsView } from "./kernels";
-import { registerStatusNotifications } from "./notifications";
+import {
+  registerStatusNotifications,
+  registerNodeInfoNotifications,
+} from "./notifications";
 import { registerModelsView } from "./models";
 import { registerPromptsView } from "./prompts";
 import { collectSecrets, registerSecretsCommands } from "./secrets";
@@ -112,6 +115,7 @@ async function startServer(context: vscode.ExtensionContext) {
   // Register handlers for notifications from the client
   registerStatusNotifications(context, client);
   registerSubscriptionNotifications(context, client);
+  registerNodeInfoNotifications(context, client);
 
   // Create views using client, or refresh existing views with new client (if a restart)
   if (views.length) {
@@ -135,10 +139,10 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
   // Command to open stencila settings
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.settings", () => {
-      vscode.commands.executeCommand(
-        "workbench.action.openSettings",
-        "stencila"
-      );
+      vscode.commands.executeCommand("workbench.action.openSettings", {
+        focus: true,
+        query: "@ext:stencila.stencila",
+      });
     })
   );
 
