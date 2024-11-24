@@ -156,7 +156,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     }
                     tokens.extend(format);
                 };
-                
+
                 tokens
             });
 
