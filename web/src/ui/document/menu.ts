@@ -8,7 +8,7 @@ import { withTwind } from '../../twind'
 import { UIBlockOnDemand } from '../nodes/cards/block-on-demand'
 import { UIInlineOnDemand } from '../nodes/cards/inline-on-demand'
 
-import { documentContext, DocumentContext, NodeChipState } from './context'
+import { documentContext, DocumentContext, NodeMarkerState } from './context'
 
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
@@ -33,8 +33,8 @@ export class DocumentMenu extends LitElement {
   }
 
   @state()
-  protected get nodeChipState(): NodeChipState {
-    return this.context?.nodeChipState ?? 'hidden'
+  protected get nodeMarkerState(): NodeMarkerState {
+    return this.context?.nodeMarkerState ?? 'hidden'
   }
 
   @state()
@@ -112,7 +112,7 @@ export class DocumentMenu extends LitElement {
     if (selectedItem) {
       const eventName = selectedItem.getAttribute('data-event')
       if (eventName) {
-        if (eventName === 'update-nodechip-state') {
+        if (eventName === 'update-nodemarker-state') {
           const value = selectedItem.getAttribute('value')
           this.eventDispatch(eventName, value)
         } else {
@@ -182,31 +182,31 @@ export class DocumentMenu extends LitElement {
         </sl-menu-item>
         <sl-divider></sl-divider>
         <sl-menu-label>
-          <div class="flex items-center gap-2">Node Chips</div>
+          <div class="flex items-center gap-2">Node Markers</div>
         </sl-menu-label>
         <sl-menu-item
           type="checkbox"
-          data-event="update-nodechip-state"
+          data-event="update-nodemarker-state"
           value="hover-only"
-          ?checked=${this.nodeChipState === 'hover-only'}
+          ?checked=${this.nodeMarkerState === 'hover-only'}
         >
           <stencila-ui-icon name="cursor" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">Show on hover</span>
         </sl-menu-item>
         <sl-menu-item
           type="checkbox"
-          data-event="update-nodechip-state"
+          data-event="update-nodemarker-state"
           value="show-all"
-          ?checked=${this.nodeChipState === 'show-all'}
+          ?checked=${this.nodeMarkerState === 'show-all'}
         >
           <stencila-ui-icon name="eye" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">Show all</span>
         </sl-menu-item>
         <sl-menu-item
           type="checkbox"
-          data-event="update-nodechip-state"
+          data-event="update-nodemarker-state"
           value="hidden"
-          ?checked=${this.nodeChipState === 'hidden'}
+          ?checked=${this.nodeMarkerState === 'hidden'}
         >
           <stencila-ui-icon name="eyeSlash" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">Hide All</span>

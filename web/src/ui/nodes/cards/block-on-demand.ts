@@ -4,11 +4,11 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
-import '../../animation/collapsible'
-import '../chip'
-import { ToggleChipMixin } from '../mixins/toggle-chip'
+import { ToggleMarkerMixin } from '../mixins/toggle-marker'
 
 import { UIBaseCard } from './base-card'
+
+import '../../animation/collapsible'
 
 /**
  * UI block-on-demand
@@ -18,11 +18,11 @@ import { UIBaseCard } from './base-card'
  */
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
-export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
+export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   @property({ type: Boolean })
   removeContentPadding: boolean = false
 
-  protected override toggleChipPosition: string = ''
+  protected override toggleMarkerPosition: string = ''
 
   override render() {
     const cardStyles = apply([
@@ -70,7 +70,7 @@ export class UIBlockOnDemand extends ToggleChipMixin(UIBaseCard) {
 
     return html`
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
-        ${this.renderChip()}
+        ${this.renderMarker()}
         <div class="content-block ${contentStyles}">
           <slot name="content" class="relative w-full"></slot>
         </div>

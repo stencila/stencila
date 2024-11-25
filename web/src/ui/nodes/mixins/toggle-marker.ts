@@ -9,15 +9,13 @@ import { DocumentContext, documentContext } from '../../document/context'
 import { UIBaseCard } from '../cards/base-card'
 import { nodeUi } from '../icons-and-colours'
 
-import '../chip'
-
-export declare class ChipToggleInterface {
+export declare class MarkerToggleInterface {
   protected documentContext: DocumentContext
-  protected renderChip: () => void
+  protected renderMarker: () => void
   protected toggle: boolean
   protected noVisibleContent: boolean
-  protected toggleChipPosition: string
-  protected toggleChip: () => void
+  protected toggleMarkerPosition: string
+  protected toggleMarker: () => void
   protected dispatchToggleEvent: () => void
   public openCard: () => void
   public closeCard: () => void
@@ -33,10 +31,10 @@ export type NodeColours = Pick<
 const HORIZ_INSET_PIXELS = 5
 
 /**
- * A Mixin that provides a "chip" to allow for a card to have its visibility
+ * A Mixin that provides a "marker" with a vertical bar, to allow for a card to have its visibility
  * toggled on and off.
  */
-export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
+export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
   superClass: T
 ) => {
   abstract class ToggleMixin extends superClass {
@@ -67,9 +65,9 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
 
     /**
      * Used to allow clients to override css classes (tailwind) to change the
-     * positioning of the chip.
+     * positioning of the marker.
      */
-    protected toggleChipPosition: string = ''
+    protected toggleMarkerPosition: string = ''
 
     // ----------------------
     // public methods for allow opening / closing the card externally.
@@ -84,7 +82,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
     }
     // ---------------------
 
-    protected toggleChip() {
+    protected toggleMarker() {
       this.toggle = !this.toggle
       this.dispatchToggleEvent()
     }
@@ -99,7 +97,7 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
       )
     }
 
-    protected renderChip() {
+    protected renderMarker() {
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
         : 'block'
@@ -113,22 +111,22 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
 
       const { borderColour, icon } = nodeUi(this.type)
 
-      const chipStateClasses = this.toggle
+      const markerStateClasses = this.toggle
         ? 'opacity-100'
-        : this.docViewContext.nodeChipState === 'hidden'
+        : this.docViewContext.nodeMarkerState === 'hidden'
           ? 'opacity-0 pointer-events-none'
-          : this.docViewContext.nodeChipState === 'hover-only'
+          : this.docViewContext.nodeMarkerState === 'hover-only'
             ? 'opacity-0 group-hover:opacity-100'
             : 'opacity-100'
 
       const styles = apply([
-        chipStateClasses,
+        markerStateClasses,
         'absolute top-0',
         'h-full',
         'transition-all duration-200 ease-in-out',
         'hover:cursor-pointer hover:z-50',
         `-left-[${offset}px]`,
-        this.toggleChipPosition,
+        this.toggleMarkerPosition,
       ])
 
       const baseMarkerStyles = apply([
@@ -142,13 +140,13 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
             ${nodeDisplay === 'block'
               ? html`
                   <div
-                    @click=${this.toggleChip}
+                    @click=${this.toggleMarker}
                     class="relative top-0 left-0 w-2 h-full ${baseMarkerStyles}"
                   ></div>
                 `
               : ''}
             <div
-              @click=${this.toggleChip}
+              @click=${this.toggleMarker}
               class="flex justify-center items-center absolute top-0 left-0 w-6 h-6 text-sm ${baseMarkerStyles} rounded-bl-none"
             >
               <stencila-ui-icon class="text-xs" name=${icon}>
@@ -180,5 +178,5 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
     }
   }
 
-  return ToggleMixin as unknown as Constructor<ChipToggleInterface> & T
+  return ToggleMixin as unknown as Constructor<MarkerToggleInterface> & T
 }

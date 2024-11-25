@@ -5,8 +5,7 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 import '../../animation/collapsible'
-import '../chip'
-import { ToggleChipMixin } from '../mixins/toggle-chip'
+import { ToggleMarkerMixin } from '../mixins/toggle-marker'
 
 import { UIBaseCard } from './base-card'
 
@@ -18,13 +17,13 @@ import { UIBaseCard } from './base-card'
  */
 @customElement('stencila-ui-inline-on-demand')
 @withTwind()
-export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
+export class UIInlineOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   @state()
   isToolTipOpen: boolean = false
 
   protected override restrictTitleWidth: boolean = true
 
-  protected override toggleChipPosition: string =
+  protected override toggleMarkerPosition: string =
     '-top-1/2 left-[calc(100%+10px)] absolute'
 
   private tw: Twind
@@ -103,7 +102,7 @@ export class UIInlineOnDemand extends ToggleChipMixin(UIBaseCard) {
       class=${containerStyles}
       style="--sl-tooltip-arrow-size: 0;"
     >
-      ${this.renderChip()}
+      ${this.renderMarker()}
       <sl-tooltip
         trigger="manual"
         class=${`${toolTipStyles}`}
