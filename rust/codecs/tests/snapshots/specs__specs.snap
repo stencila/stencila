@@ -46,6 +46,21 @@ expression: specs
     "supports_to_string": false,
     "supports_to_path": false
   },
+  "docx": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "docx": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "docx": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": false,
+    "supports_to_path": true
+  },
   "dom": {
     "status": "beta",
     "supports_from_formats": {},
@@ -136,6 +151,21 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "latex": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "latex": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "pandoc": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "markdown": {
     "status": "beta",
     "supports_from_formats": {
@@ -156,6 +186,34 @@ expression: specs
     },
     "supports_to_bytes": false,
     "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "pandoc": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "pandoc": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "pandoc": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "pdf": {
+    "status": "under-development",
+    "supports_from_formats": {},
+    "supports_from_bytes": false,
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "pdf": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": false,
     "supports_to_path": true
   },
   "swb": {

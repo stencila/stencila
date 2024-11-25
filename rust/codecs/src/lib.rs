@@ -22,6 +22,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
     let codecs = vec![
         Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
         Box::new(codec_debug::DebugCodec),
+        Box::new(codec_docx::DocxCodec),
         Box::new(codec_dom::DomCodec),
         Box::new(codec_directory::DirectoryCodec),
         Box::new(codec_html::HtmlCodec),
@@ -29,7 +30,10 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_json::JsonCodec),
         Box::new(codec_json5::Json5Codec),
         Box::new(codec_jsonld::JsonLdCodec),
+        Box::new(codec_latex::LatexCodec),
         Box::new(codec_markdown::MarkdownCodec),
+        Box::new(codec_pandoc::PandocCodec),
+        Box::new(codec_pdf::PdfCodec),
         Box::<codec_swb::SwbCodec>::default(),
         Box::new(codec_text::TextCodec),
         Box::new(codec_yaml::YamlCodec),
