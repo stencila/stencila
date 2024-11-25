@@ -45,7 +45,7 @@ export class UIBaseCard extends UIBaseClass {
    * property. If set to false, the header can no longer be collapsed.
    */
   @property({ type: Boolean, attribute: 'can-collapse' })
-  canCollapse?: boolean = true
+  canCollapse?: boolean = false
 
   /**
    * Indicates whether we need to have border separating header items and the
@@ -111,9 +111,8 @@ export class UIBaseCard extends UIBaseClass {
       'rounded-t-sm',
       `bg-[${borderColour}]`,
       'font-medium',
-      'cursor-pointer',
       'transition duration-100 ease-in',
-      `hover:bg-[${borderColour}]/90`,
+      this.canCollapse && `cursor-pointer hover:bg-[${borderColour}]/90`,
       ...additionalStyles,
     ])
 
@@ -145,6 +144,7 @@ export class UIBaseCard extends UIBaseClass {
             <slot name="header-right"></slot>
           </div>
           ${this.canCollapse ? this.renderCollapse() : null}
+          ${this.renderClose()}
         </div>
       </div>
     </div>`
@@ -155,6 +155,10 @@ export class UIBaseCard extends UIBaseClass {
   }
 
   protected renderContent() {
+    return html``
+  }
+
+  protected renderClose() {
     return html``
   }
 

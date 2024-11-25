@@ -6,9 +6,8 @@ import { state, property } from 'lit/decorators'
 
 import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
+import { UIBaseCard } from '../cards/base-card'
 import { nodeUi } from '../icons-and-colours'
-
-import { UIBaseClass } from './ui-base-class'
 
 import '../chip'
 
@@ -37,7 +36,7 @@ const HORIZ_INSET_PIXELS = 5
  * A Mixin that provides a "chip" to allow for a card to have its visibility
  * toggled on and off.
  */
-export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
+export const ToggleChipMixin = <T extends Constructor<UIBaseCard>>(
   superClass: T
 ) => {
   abstract class ToggleMixin extends superClass {
@@ -156,6 +155,18 @@ export const ToggleChipMixin = <T extends Constructor<UIBaseClass>>(
               </stencila-ui-icon>
             </div>
           </div>
+        </div>
+      `
+    }
+
+    protected override renderClose() {
+      const classes = apply(['flex items-center', 'ml-3'])
+      return html`
+        <div class=${classes}>
+          <stencila-ui-icon-button
+            name="x"
+            @click=${() => (this.toggle = false)}
+          ></stencila-ui-icon-button>
         </div>
       `
     }

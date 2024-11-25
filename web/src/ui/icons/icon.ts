@@ -129,6 +129,7 @@ import thermometer from './thermometer.svg'
 import toggleOff from './toggle-off.svg'
 import volumeUp from './volume-up.svg'
 import xCircle from './x-circle.svg'
+import x from './x.svg'
 
 const icons = {
   admonition,
@@ -244,6 +245,7 @@ const icons = {
   toggleOff,
   volumeUp,
   xCircle,
+  x,
 }
 
 export type IconName = keyof typeof icons
