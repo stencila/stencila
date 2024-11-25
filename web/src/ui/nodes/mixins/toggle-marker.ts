@@ -60,7 +60,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
     /**
      * Boolean switch property, to handle nodes with empty content/output
      */
-    @state()
+    @property({ type: Boolean })
     protected noVisibleContent: boolean = false
 
     /**
@@ -135,7 +135,9 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       ])
 
       return html`
-        <div class=${`chip h-full ${nodeDisplay === 'block' && ''}`}>
+        <div
+          class=${`chip absolute top-0 h-full ${nodeDisplay === 'block' && ''}`}
+        >
           <div class=${styles}>
             ${nodeDisplay === 'block'
               ? html`
@@ -157,6 +159,10 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       `
     }
 
+    /**
+     * Overrides the base card empty `renderClose` method,
+     * this allows closing the node card from the header.
+     */
     protected override renderClose() {
       const classes = apply(['flex items-center', 'ml-3'])
       return html`
