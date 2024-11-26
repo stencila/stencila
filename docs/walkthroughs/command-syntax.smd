@@ -1,6 +1,6 @@
 ---
-title: Stencila Markdown AI Commands Syntax
-description: Syntax for writing AI Commands in Stencila Markdown
+title: Stencila Markdown Fence Block Syntax Overview
+description: Syntax for writing Fence Block AI Commands 
 ---
 
 # Overview 
@@ -40,7 +40,7 @@ Colon fences are any line starting with three or more colons (i.e. `:::`). Colon
 
 
 - Getting familiar with Stencila Markdown
-- Understanding how colon fences (`:::`) are used and directed at other blocks
+- Understanding how colon fences (`:::`) are used, and their shorthand variation (`>>>`)
 - Being aware that there are four main dynamic colon fence commands (`create`,`edit`,`fix`,`describe`)
 
 Stencila Markdown uses "colon fences" for most of its extensions, including for AI commands. 
