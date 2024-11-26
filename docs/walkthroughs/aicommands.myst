@@ -1,3 +1,8 @@
+---
+title: Markdown AI Commands In Depth
+description: Writing AI Commands in Markdown
+---
+
 # Stencila AI Assistance
 
 Stencila has the ability to use LLMs to help you build your document. Stencila's prompt system allows you to take advantage of document context. Parts of the document are able to be included in your propmt itself to enhance the quality of the received output.
@@ -27,11 +32,14 @@ Later in the Context section, just the figure captions elsewhere in the document
 
 Each type of command (`create`,`fix`,`edit`,`describe`) has a default prompt which it will run
 if no other details are provided. Command parameters look for particular
-words in the user specified prompt text to determine which prompt to use.  Prompts can also be specified directly with a specified `@prompt-name` just after the command in a fence block.
+words in the user specified prompt text to determine which prompt to use.  Prompts can also be specified directly
+with a specified `@prompt-name` just after the command in a fence block.
 
 :::
 
 In short, this flexible system for crafting prompts can be as simple or complex as necessary to create unique prompts that aide in specific writing tasks.
+
+...
 
 ## Commands
 
@@ -43,6 +51,8 @@ Again, there are four main commands in Stencila that can be used in a document.
 - `describe` - used to describe another block, such as describing a Python block in prose
 
 Lets go through them one-by-one
+
+...
 
 ### Create
 
@@ -59,7 +69,9 @@ Try running this prompt in the source view:
 
 Where `@prompt-name` is optional. Without a specified prompt name, regular expressions are used to find an appropriate prompt based on key words such as "figure", "caption", "chart", "diagram", "mindmape" etc.
 
-Try writing your own `create` prompt:
+Try writing your own `create` command:
+
+...
 
 ### Edit
 
@@ -67,10 +79,13 @@ Edit is a command that can be wrapped around an existing block or section, askin
 
 Try running this prompt:
 
-:::{edit} Clean up style and spelling >>>
-I ain't got no reesons to wryt gud.
+:::{edit} Clean up style and spelling
 
 :::
+
+I ain't got no reesons to wryt gud.
+
+Try writing your own `edit` command here:
 
 ...
 
@@ -85,13 +100,6 @@ Try it yourself!:
 :::{describe} next
 
 :::
-
-```python
-def fibonacci(n):
-    a,b = 0,1
-    for _ in range(n): a,b=b,a+b
-    return
-```
 
 Try writing your own `describe` prompt:
 
