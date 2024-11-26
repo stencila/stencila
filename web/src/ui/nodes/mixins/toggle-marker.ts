@@ -29,6 +29,7 @@ export type NodeColours = Pick<
 >
 
 const HORIZ_INSET_PIXELS = 5
+const BASE_OFFSET = 60
 
 /**
  * A Mixin that provides a "marker" with a vertical bar, to allow for a card to have its visibility
@@ -101,12 +102,13 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
         : 'block'
-
-      let offset = 60
-      if (nodeDisplay === 'block' && this.depth > 1) {
-        offset -= HORIZ_INSET_PIXELS * (this.depth - 1)
-      } else if (this.noVisibleContent) {
-        offset += HORIZ_INSET_PIXELS
+      let offset = BASE_OFFSET
+      if (nodeDisplay === 'block') {
+        if (this.noVisibleContent) {
+          offset += HORIZ_INSET_PIXELS
+        } else if (this.depth > 1 && !this.noVisibleContent) {
+          offset -= HORIZ_INSET_PIXELS * (this.depth - 1)
+        }
       }
 
       const { borderColour, icon } = nodeUi(this.type)

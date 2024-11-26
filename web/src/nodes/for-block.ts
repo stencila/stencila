@@ -33,7 +33,7 @@ export class ForBlock extends CodeExecutable {
   hasIterations: boolean = true
 
   private handleIterationChange() {
-    this.hasIterations = this.iterationSlot.assignedElements().length > 0
+    this.hasIterations = !!this.iterationSlot.assignedElements()[0]
   }
 
   override render() {
