@@ -177,7 +177,7 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
             .file_name()
             .and_then(|name| name.to_str())
             .and_then(|name| name.rsplit_once('.'))
-            .and_then(|name| Some(name.0))
+            .map(|name| name.0)
             .unwrap_or("document");
         // let filename = [filename, ".json"].concat();
 
