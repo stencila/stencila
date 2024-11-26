@@ -176,9 +176,10 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
         let filename = path
             .file_name()
             .and_then(|name| name.to_str())
-            .and_then(|name| name.split('.').next())
+            .and_then(|name| name.rsplit_once('.'))
+            .and_then(|name| Some(name.0))
             .unwrap_or("document");
-        let filename = [filename, ".json"].concat();
+        // let filename = [filename, ".json"].concat();
 
         let options = FileOptions::default().unix_permissions(0o755);
         zip.start_file(filename, options)?;
