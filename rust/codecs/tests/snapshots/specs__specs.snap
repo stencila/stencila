@@ -160,7 +160,7 @@ expression: specs
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
-      "pandoc": "LowLoss"
+      "latex": "LowLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,

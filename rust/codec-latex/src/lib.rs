@@ -31,7 +31,7 @@ impl Codec for LatexCodec {
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Pandoc => CodecSupport::LowLoss,
+            Format::Latex => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
