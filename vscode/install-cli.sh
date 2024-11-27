@@ -3,7 +3,7 @@
 # A script to download the CLI binary for the platform
 # and put it in the `cli` subdir.
 
-VERSION="v2.0.0-beta.19"
+VERSION="v2.0.0-beta.20"
 
 # Detect the operating system
 OS=$(uname -s)

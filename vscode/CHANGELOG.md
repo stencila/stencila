@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.18 2024-11-27
+
+- Remove more advanced syntax from snippets to de-clutter autocomplete dropdown for Stencila Markdown and MyST.
+
+- Improved syntax highlighting for MyST Markdown based on https://github.com/jupyter-book/vscode-mystmd.
+
+- Based on Stencila CLI v2.0.0-beta.20 which adds initial support for Pandoc based codecs.
+
 ## 0.0.17 2024-11-24
 
 - Adds gutter markers for document nodes and settings for enabling/disabling and appearance.
