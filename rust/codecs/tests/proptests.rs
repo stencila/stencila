@@ -11,9 +11,9 @@
 #![allow(unused_imports)]
 
 use codec::{
-    common::{eyre::Result, futures::executor::block_on},
+    common::{eyre::Result, futures::executor::block_on, once_cell::sync::Lazy, tokio::runtime},
     format::Format,
-    schema::{Article, Node},
+    schema::{Article, AudioObject, Node},
     DecodeOptions, EncodeOptions,
 };
 use common_dev::{
@@ -66,9 +66,9 @@ proptest! {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(500))]
 
-    /// Roundtrip test for Markdown
+    /// Roundtrip test for Stencila Markdown
     #[test]
-    fn article_markdown(article: Article) {
+    fn article_smd(article: Article) {
         let mut article = Node::Article(article);
 
         article.strip(&StripTargets {
@@ -94,6 +94,37 @@ proptest! {
 
         assert_eq!(roundtrip(Format::Smd, &article, None, None).unwrap(), article);
     }
+
+    /// Roundtrip test for Pandoc
+    #[test]
+    fn article_pandoc(article: Article) {
+        let mut article = Node::Article(article);
+
+        article.strip(&StripTargets {
+            types: vec![
+                // TODO: these node types are not yet fully implemented
+                // so strip them from round-trip conversions
+                "Admonition".into(),
+                "CallBlock".into(),
+                "Claim".into(),
+                "CodeChunk".into(),
+                "ForBlock".into(),
+                "IfBlock".into(),
+                "IncludeBlock".into(),
+                "InstructionBlock".into(),
+                "Section".into(),
+            ],
+            properties: vec![
+                // Language is not currently supported for inline code
+                "CodeInline.programming_language".into(),
+                // Table notes not currently supported
+                "Table.notes".into()
+            ],
+            ..Default::default()
+        });
+
+        assert_eq!(roundtrip(Format::Pandoc, &article, None, None).unwrap(), article);
+    }
 }
 
 // Level `high` for highly structured formats that can perform roundtrip conversion
@@ -111,19 +142,19 @@ proptest! {
         article.strip(&StripTargets {
             types: vec![
                 // TODO Remove these as implemented
-                String::from("CallBlock"),
-                String::from("Claim"),
-                String::from("CodeBlock"),
-                String::from("CodeChunk"),
-                String::from("Figure"),
-                String::from("ForBlock"),
-                String::from("IfBlock"),
-                String::from("IncludeBlock"),
-                String::from("List"),
-                String::from("MathBlock"),
-                String::from("RawBlock"),
-                String::from("StyledBlock"),
-                String::from("Table")
+                "CallBlock".into(),
+                "Claim".into(),
+                "CodeBlock".into(),
+                "CodeChunk".into(),
+                "Figure".into(),
+                "ForBlock".into(),
+                "IfBlock".into(),
+                "IncludeBlock".into(),
+                "List".into(),
+                "MathBlock".into(),
+                "RawBlock".into(),
+                "StyledBlock".into(),
+                "Table".into()
             ],
             ..Default::default()
         });

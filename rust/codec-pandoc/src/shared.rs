@@ -15,10 +15,22 @@ pub(super) struct PandocDecodeContext {
 
 /// Create an empty Pandoc `Attr` tuple
 pub(super) fn attrs_empty() -> pandoc::Attr {
+    pandoc::Attr::default()
+}
+
+/// Create an empty Pandoc `Attr` tuple
+pub(super) fn attrs_classes(classes: Vec<String>) -> pandoc::Attr {
     pandoc::Attr {
-        identifier: String::new(),
-        classes: Vec::new(),
-        attributes: Vec::new(),
+        classes,
+        ..Default::default()
+    }
+}
+
+/// Create an empty Pandoc `Attr` tuple
+pub(super) fn attrs_attributes(attributes: Vec<(String, String)>) -> pandoc::Attr {
+    pandoc::Attr {
+        attributes,
+        ..Default::default()
     }
 }
 
