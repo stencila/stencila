@@ -106,7 +106,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         {
             quote! { .clear() }
         } else {
-            TokenStream::new()
+            quote! { = Default::default() }
         };
 
         if !strip.is_empty() {

@@ -1,0 +1,9 @@
+start     end        offsets   node_type+property                   authorship
+     7     41        (7, 41)   Link
+     0     42        (-7, 1)   Paragraph
+    98    117       (98, 75)   Link
+    44    118       (-54, 1)   Paragraph
+   153    168      (109, 50)   Strong
+   152    200       (-1, 32)   Link
+   120    201       (-32, 1)   Paragraph
+     0    202      (-120, 1)   Article

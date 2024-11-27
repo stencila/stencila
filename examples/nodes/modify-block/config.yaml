@@ -17,3 +17,10 @@ myst:
       # As for Markdown
       - ModifyBlock.content
       - ModifyBlock.operations
+
+qmd:
+  decode:
+    strip-props:
+      # As above
+      - ModifyBlock.content
+      - ModifyBlock.operations

@@ -41,13 +41,13 @@ pub struct CallBlock {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The external source of the content, a file path or URL.
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("path/to/source.file")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[a-zA-Z0-9/\-.]{1,30}"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[^\p{C}]{1,100}"#))]
@@ -57,13 +57,13 @@ pub struct CallBlock {
     /// Media type of the source content.
     #[serde(alias = "encodingFormat", alias = "media-type", alias = "media_type")]
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub media_type: Option<String>,
 
     /// A query to select a subset of content from the source
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub select: Option<String>,
 
@@ -80,7 +80,7 @@ pub struct CallBlock {
     #[serde(alias = "argument")]
     #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Vec::new()"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(CallArgument::arbitrary(), size_range(0..=3))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(CallArgument::arbitrary(), size_range(0..=10))"#))]

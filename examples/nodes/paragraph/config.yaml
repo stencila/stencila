@@ -23,3 +23,9 @@ myst:
     strip-props:
       # As above
       - authors
+
+qmd:
+  decode:
+    strip-props:
+      # As above
+      - authors

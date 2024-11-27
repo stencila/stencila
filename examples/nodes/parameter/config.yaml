@@ -17,3 +17,9 @@ myst:
     # As for Markdown
     strip-props:
       - Parameter.value
+
+qmd:
+  decode:
+    # As for Markdown
+    strip-props:
+      - Parameter.value

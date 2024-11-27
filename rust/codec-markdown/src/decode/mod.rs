@@ -51,16 +51,18 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
         }
     }
 
-    let mdast = if matches!(format, Format::Myst) {
-        let md = myst_to_md(content);
-        to_mdast(&md, &parse_options())
-    } else {
-        to_mdast(content, &parse_options())
-    }
-    .map_err(|error| eyre!(error))?;
+    // Do any necessary pre-processing of Markdown
+    let md = match format {
+        Format::Myst => myst_to_md(content),
+        Format::Qmd => qmd_to_md(content),
+        _ => preprocess_md(content),
+    };
 
-    // Decode Markdown to blocks
-    let mut context = Context::default();
+    // Parse Markdown to MDAST nodes
+    let mdast = to_mdast(&md, &parse_options()).map_err(|error| eyre!(error))?;
+
+    // Transform MDAST to blocks
+    let mut context = Context::new(format);
     let Some(Node::Article(Article { content, .. })) = md_to_node(mdast, &mut context) else {
         bail!("No node decoded from Markdown")
     };
@@ -89,8 +91,8 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
 }
 
 /// Decode a string to blocks
-fn decode_blocks(md: &str) -> Vec<Block> {
-    let mut context = Context::default();
+fn decode_blocks(md: &str, format: Format) -> Vec<Block> {
+    let mut context = Context::new(format);
     match to_mdast(md, &parse_options()) {
         Ok(mdast::Node::Root(Root { children, .. })) => mds_to_blocks(children, &mut context),
         _ => vec![],
@@ -98,8 +100,8 @@ fn decode_blocks(md: &str) -> Vec<Block> {
 }
 
 /// Decode a string to inlines
-fn decode_inlines(md: &str) -> Vec<Inline> {
-    let mut context = Context::default();
+fn decode_inlines(md: &str, format: Format) -> Vec<Inline> {
+    let mut context = Context::new(format);
     match to_mdast(md, &parse_options()) {
         Ok(mdast::Node::Root(Root { children, .. })) => {
             if let Some(mdast::Node::Paragraph(mdast::Paragraph { children, .. })) =
@@ -114,10 +116,32 @@ fn decode_inlines(md: &str) -> Vec<Inline> {
     }
 }
 
+/// Preprocess Markdown
+///
+/// See issue #2438 for why this is necessary.
+fn preprocess_md(input: &str) -> String {
+    let mut output = String::new();
+
+    let mut empty_line_needed = false;
+    for line in input.lines() {
+        if empty_line_needed && !line.is_empty() {
+            output.push('\n');
+        }
+
+        output.push_str(line);
+        output.push('\n');
+
+        empty_line_needed = line.starts_with(":::")
+            && (line.trim_end().ends_with(":::") || line.trim_end().ends_with(">>>"));
+    }
+
+    output
+}
+
 /// Convert MyST colon-fenced directives to backtick-fenced directives
 ///
 /// This conversion allows for more straightforward decoding in subsequent
-/// decoding steps because all MyST directives become code blocks.s
+/// decoding steps because all MyST directives become code blocks.
 fn myst_to_md(myst: &str) -> String {
     fn colons_to_backticks(line: &str) -> String {
         let chars = line.chars();
@@ -165,6 +189,40 @@ fn myst_to_md(myst: &str) -> String {
     md
 }
 
+/// Convert QMD to Markdown parsable by the main parser
+///
+/// Ensures all lines starting with `:::` are surrounded by a blank line.
+fn qmd_to_md(input: &str) -> String {
+    let mut output = String::new();
+
+    let mut empty_line_needed = false;
+    for line in input.lines() {
+        if empty_line_needed && !line.is_empty() {
+            output.push('\n');
+        }
+
+        let colons = line.starts_with(":::");
+
+        if colons {
+            if !output.ends_with("\n\n") {
+                if output.ends_with('\n') {
+                    output.push('\n');
+                } else {
+                    output.push_str("\n\n");
+                }
+            }
+            empty_line_needed = true;
+        } else {
+            empty_line_needed = false;
+        }
+
+        output.push_str(line);
+        output.push('\n');
+    }
+
+    output
+}
+
 /// Markdown parsing options
 fn parse_options() -> ParseOptions {
     let mut options = ParseOptions::gfm();
@@ -193,6 +251,9 @@ fn parse_options() -> ParseOptions {
 
 #[derive(Default)]
 struct Context {
+    /// The format being decoded
+    format: Format,
+
     /// YAML frontmatter
     yaml: Option<String>,
 
@@ -210,6 +271,13 @@ struct Context {
 }
 
 impl Context {
+    fn new(format: Format) -> Self {
+        Self {
+            format,
+            ..Default::default()
+        }
+    }
+
     /// Store footnote content so that it can be assigned to the footnote itself later
     fn footnote(&mut self, id: String, blocks: Vec<Block>) {
         self.footnotes.insert(id, blocks);
@@ -321,11 +389,11 @@ impl Context {
             let title = object
                 .remove("title")
                 .and_then(|value| value.as_str().map(String::from))
-                .map(|title| decode_inlines(&title));
+                .map(|title| decode_inlines(&title, Format::Markdown));
             let abs = object
                 .remove("abstract")
                 .and_then(|value| value.as_str().map(String::from))
-                .map(|abs| decode_blocks(&abs));
+                .map(|abs| decode_blocks(&abs, Format::Markdown));
             (title, abs)
         } else {
             (None, None)

@@ -55,6 +55,7 @@
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
     "build:vscode": "cross-env STENCILA_VIEW=vscode NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
+    "export:vscode": "tsx scripts/export-to-vscode.ts",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
@@ -102,6 +103,7 @@
     "@playwright/test": "1.48.2",
     "glob": "11.0.0",
     "parcel": "2.12.0",
-    "postcss-import": "16.1.0"
+    "postcss-import": "16.1.0",
+    "tsx": "4.19.2"
   }
 }

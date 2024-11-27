@@ -71,7 +71,7 @@ Support and degree of loss for node types:
 | [ImageObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image_object.md)                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                    |
 | [MediaObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media_object.md)                 | 🔷 Low loss   | 🔷 Low loss |                                                       |
 | [Periodical](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)                    | ⚠️ High loss |            |                                                       |
-| [Prompt](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)                            | ⚠️ High loss |            |                                                       |
+| [Prompt](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)                            | ⚠️ High loss |            | Encoded using implemented function                    |
 | [PublicationIssue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_issue.md)       | ⚠️ High loss |            |                                                       |
 | [PublicationVolume](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_volume.md)     | ⚠️ High loss |            |                                                       |
 | [Review](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)                            | ⚠️ High loss |            |                                                       |

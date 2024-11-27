@@ -27,6 +27,9 @@ export function registerKernelsView(
         let snippet;
         if (format === "myst") {
           snippet = mystSnippet(item.kernel!);
+        }
+        if (format === "qmd") {
+          snippet = qmdSnippet(item.kernel!);
         } else {
           snippet = smdSnippet(item.kernel!);
         }
@@ -95,6 +98,17 @@ function mystSnippet(kernel: Kernel): string {
   }
 
   return "```{code-cell} " + kernel.name + "\n${0}\n```\n";
+}
+
+/**
+ * Create a QMD snippet to use the kernel
+ */
+function qmdSnippet(kernel: Kernel): string {
+  if (kernel.name === "tex") {
+    return "$$\n${0}\n$$\n";
+  }
+
+  return "```{" + kernel.name + "}\n${0}\n```\n";
 }
 
 class KernelTreeItem extends vscode.TreeItem {

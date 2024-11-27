@@ -33,7 +33,7 @@ use schema::{
     Visitor,
 };
 
-use crate::{diagnostics, inspect::Inspector, ServerState};
+use crate::{diagnostics, inspect::Inspector, node_info, ServerState};
 
 /// A Stencila `Node` within a `TextDocument`
 ///
@@ -50,6 +50,9 @@ pub(super) struct TextNode {
     /// The id of the parent of the node
     #[allow(unused)]
     pub parent_id: NodeId,
+
+    /// Weather the node is a block
+    pub is_block: bool,
 
     /// The type of the node
     pub node_type: NodeType,
@@ -114,6 +117,7 @@ impl Default for TextNode {
             range: Range::default(),
             parent_type: NodeType::Null,
             parent_id: NodeId::null(),
+            is_block: false,
             node_type: NodeType::Null,
             node_id: NodeId::null(),
             name: String::new(),
@@ -309,11 +313,33 @@ pub(super) struct TextDocument {
     /// This is also updated in the `update_task`.
     pub doc: Arc<RwLock<Document>>,
 
+    /// A watch receiver that async tasks can clone and wait on until the document
+    /// is in-sync with the source.
+    sync_state_receiver: watch::Receiver<SyncState>,
+
     /// A sender to the `update_task`
     ///
     /// Sends new source to the `update_task`. This is an `UnboundedSender`
     /// so that updates can be sent from sync functions
-    update_sender: mpsc::UnboundedSender<String>,
+    update_sender: mpsc::UnboundedSender<(String, UpdateDelay)>,
+}
+
+/// Whether to delay updates to the document after changes to source
+#[derive(Clone, Copy)]
+enum UpdateDelay {
+    Yes,
+    No,
+}
+
+/// The synchronization state between the source and the text document
+#[derive(Clone, Copy)]
+pub(super) enum SyncState {
+    /// There has been a change in source which has not been handled yet
+    Stale,
+    /// The document node tree is currently updating
+    Updating,
+    /// The document node tree has been updated based on most recent source
+    Updated,
 }
 
 impl TextDocument {
@@ -355,9 +381,11 @@ impl TextDocument {
         let root = Arc::new(RwLock::new(TextNode::default()));
         let doc = Arc::new(RwLock::new(doc));
 
+        let (sync_state_sender, sync_state_receiver) = watch::channel(SyncState::Stale);
         let (update_sender, update_receiver) = mpsc::unbounded_channel();
 
         {
+            let sync_state_sender = sync_state_sender.clone();
             let uri = uri.clone();
             let format = format.clone();
             let source = source.clone();
@@ -365,20 +393,40 @@ impl TextDocument {
             let author = author.clone();
             let client = client.clone();
             tokio::spawn(async {
-                Self::update_task(update_receiver, uri, format, source, doc, author, client).await;
+                Self::update_task(
+                    update_receiver,
+                    sync_state_sender,
+                    uri,
+                    format,
+                    source,
+                    doc,
+                    author,
+                    client,
+                )
+                .await;
             });
         }
 
         {
+            let sync_state_sender = sync_state_sender.clone();
             let format = format.clone();
             let source = source.clone();
             let root = root.clone();
             tokio::spawn(async move {
-                Self::watch_task(watch_receiver, uri, format, source, root, client).await;
+                Self::watch_task(
+                    watch_receiver,
+                    sync_state_sender,
+                    uri,
+                    format,
+                    source,
+                    root,
+                    client,
+                )
+                .await;
             });
         }
 
-        if let Err(error) = update_sender.send(source_string) {
+        if let Err(error) = update_sender.send((source_string, UpdateDelay::No)) {
             tracing::error!("While sending initial source: {error}");
         }
 
@@ -388,8 +436,14 @@ impl TextDocument {
             source,
             root,
             doc,
+            sync_state_receiver,
             update_sender,
         })
+    }
+
+    /// Get a receiver for the [`SyncState`] of the document
+    pub(super) fn sync_state(&self) -> watch::Receiver<SyncState> {
+        self.sync_state_receiver.clone()
     }
 
     /// An async background task which updates the source and
@@ -402,8 +456,10 @@ impl TextDocument {
     ///   is a tradeoff here between granularity and latency
     ///
     /// - to avoid excessive compute decoding the document on each keypress
+    #[allow(clippy::too_many_arguments)]
     async fn update_task(
-        mut receiver: mpsc::UnboundedReceiver<String>,
+        mut receiver: mpsc::UnboundedReceiver<(String, UpdateDelay)>,
+        sync_state_sender: watch::Sender<SyncState>,
         uri: Url,
         format: Format,
         source: Arc<RwLock<String>>,
@@ -428,10 +484,22 @@ impl TextDocument {
                     // Received nothing: sender has dropped so stop
                     break;
                 }
-                Ok(Some(source)) => {
-                    // Received new source: update the latest source
-                    latest_source = Some(source);
-                    continue;
+                Ok(Some((source, delay))) => {
+                    // Received new source
+
+                    // Notify watchers that document is out of sync
+                    if let Err(error) = sync_state_sender.send(SyncState::Stale) {
+                        tracing::error!("Unable to send synced update: {error}")
+                    }
+
+                    // Update the latest source or continue
+                    if matches!(delay, UpdateDelay::Yes) {
+                        latest_source = Some(source);
+                        continue;
+                    } else {
+                        latest_source = None;
+                        source
+                    }
                 }
                 Err(..) => {
                     // Timeout: if no new source since last timeout then continue
@@ -488,6 +556,11 @@ impl TextDocument {
                 .await
             {
                 tracing::error!("While updating node: {error}");
+            }
+
+            // Notify watchers that document is updating
+            if let Err(error) = sync_state_sender.send(SyncState::Updating) {
+                tracing::error!("Unable to send synced update: {error}")
             }
         }
     }
@@ -571,6 +644,7 @@ impl TextDocument {
     /// An async background task that watches the document
     async fn watch_task(
         mut receiver: watch::Receiver<Node>,
+        sync_state_sender: watch::Sender<SyncState>,
         uri: Url,
         format: Format,
         source: Arc<RwLock<String>>,
@@ -608,6 +682,7 @@ impl TextDocument {
             if let Some(text_node) = inspector.root() {
                 //eprintln!("ROOT: {text_node:#?}");
                 diagnostics::publish(&uri, &text_node, &mut client);
+                node_info::publish(&uri, &text_node, &mut client);
                 *root.write().await = text_node;
             }
 
@@ -615,6 +690,11 @@ impl TextDocument {
             // like provenance statistics code lenses which should be updated on each
             // update to the document
             client.code_lens_refresh(()).await.ok();
+
+            // Notify watchers that document is updating
+            if let Err(error) = sync_state_sender.send(SyncState::Updated) {
+                tracing::error!("Unable to send synced update: {error}")
+            }
         }
     }
 }
@@ -644,7 +724,6 @@ pub(super) fn did_open(
             ))))
         }
     };
-
     state.documents.insert(uri, text_doc);
 
     ControlFlow::Continue(())
@@ -653,18 +732,18 @@ pub(super) fn did_open(
 /// Handle a notification from the client that a text document was changes
 pub(super) fn did_change(
     state: &mut ServerState,
-    params: DidChangeTextDocumentParams,
+    mut params: DidChangeTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
     if let Some(text_doc) = state.documents.get_mut(&uri) {
         // TODO: This assumes a whole document change (with TextDocumentSyncKind::FULL in initialize):
         // needs more defensiveness and potentially implement incremental sync
-        let source = params.content_changes[0].text.clone();
-        if let Err(error) = text_doc.update_sender.send(source) {
+        let source = params.content_changes.swap_remove(0).text;
+        if let Err(error) = text_doc.update_sender.send((source, UpdateDelay::Yes)) {
             tracing::error!("While sending updated source: {error}");
         }
     } else {
-        tracing::warn!("Unknown document `${uri}`")
+        tracing::warn!("Unknown document `{uri}`")
     }
 
     ControlFlow::Continue(())

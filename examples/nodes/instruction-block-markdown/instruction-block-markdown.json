@@ -7,7 +7,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Example using Markdown as canonical format to test alternative ways to write instruction blocks."
+            "string": "Example using Markdown as canonical format to test alternative ways to write instruction blocks (commands)"
           }
         }
       ]
@@ -19,26 +19,10 @@
         {
           "type": "Text",
           "value": {
-            "string": "New instruction"
+            "string": "Self closing shorthand"
           }
         }
       ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Never has existing content so is self closing or explicitly closing:"
-          }
-        }
-      ]
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "Create",
-      "content": []
     },
     {
       "type": "InstructionBlock",
@@ -49,12 +33,37 @@
           {
             "type": "Text",
             "value": {
-              "string": "<"
+              "string": "message"
             }
           }
         ]
-      },
-      "content": []
+      }
+    },
+    {
+      "type": "InstructionBlock",
+      "instructionType": "Create",
+      "message": {
+        "type": "InstructionMessage",
+        "parts": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "message"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Another paragraph with no empty line between"
+          }
+        }
+      ]
     },
     {
       "type": "Heading",
@@ -63,18 +72,7 @@
         {
           "type": "Text",
           "value": {
-            "string": "Edit instruction"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Edit next block:"
+            "string": "Next block only shorthand"
           }
         }
       ]
@@ -88,21 +86,50 @@
           {
             "type": "Text",
             "value": {
-              "string": ">"
+              "string": "message"
             }
           }
         ]
       },
-      "content": []
-    },
-    {
-      "type": "Paragraph",
       "content": [
         {
-          "type": "Text",
-          "value": {
-            "string": "Paragraph to edit #1"
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Paragraph to edit"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "InstructionBlock",
+      "instructionType": "Edit",
+      "message": {
+        "type": "InstructionMessage",
+        "parts": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "message"
+            }
           }
+        ]
+      },
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Paragraph to edit with no empty line between"
+              }
+            }
+          ]
         }
       ]
     },
@@ -112,7 +139,88 @@
         {
           "type": "Text",
           "value": {
-            "string": "Edit multiple blocks:"
+            "string": "Other types of content,"
+          }
+        }
+      ]
+    },
+    {
+      "type": "InstructionBlock",
+      "instructionType": "Edit",
+      "message": {
+        "type": "InstructionMessage",
+        "parts": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "improve this"
+            }
+          }
+        ]
+      },
+      "content": [
+        {
+          "type": "CodeChunk",
+          "code": {
+            "string": ""
+          },
+          "programmingLanguage": "python"
+        }
+      ]
+    },
+    {
+      "type": "InstructionBlock",
+      "instructionType": "Create",
+      "message": {
+        "type": "InstructionMessage",
+        "parts": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "admonition"
+            }
+          }
+        ]
+      },
+      "content": [
+        {
+          "type": "Admonition",
+          "admonitionType": "Warning",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "This is a warning"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Following para outside of instruction content."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Multiple blocks"
           }
         }
       ]
@@ -142,84 +250,6 @@
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "type": "Heading",
-      "level": 1,
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Content other than paragraphs"
-          }
-        }
-      ]
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "Edit",
-      "message": {
-        "type": "InstructionMessage",
-        "parts": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "improve this >"
-            }
-          }
-        ]
-      },
-      "content": []
-    },
-    {
-      "type": "CodeChunk",
-      "code": {
-        "string": ""
-      },
-      "programmingLanguage": "python"
-    },
-    {
-      "type": "InstructionBlock",
-      "instructionType": "Create",
-      "message": {
-        "type": "InstructionMessage",
-        "parts": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "admonition >"
-            }
-          }
-        ]
-      },
-      "content": []
-    },
-    {
-      "type": "QuoteBlock",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "Text",
-              "value": {
-                "string": "![warning]\nThis is a warning"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Following para outside of instruction content."
-          }
         }
       ]
     }

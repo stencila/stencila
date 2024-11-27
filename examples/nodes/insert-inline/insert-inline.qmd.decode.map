@@ -1,0 +1,9 @@
+start     end        offsets   node_type+property                   authorship
+     5     25        (5, 25)   InsertInline
+     0     30        (-5, 5)   Paragraph
+    65     88       (65, 58)   Strong
+    93    108       (28, 20)   Superscript
+   113    122       (20, 14)   CodeExpression
+    56    124       (-57, 2)   InsertInline
+    32    125       (-24, 1)   Paragraph
+     0    126       (-32, 1)   Article

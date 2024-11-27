@@ -1,0 +1,10 @@
+start     end        offsets   node_type+property                   authorship
+     9     41        (9, 41)   ImageObject
+    58     95       (49, 54)   ImageObject
+   122    169       (64, 74)   ImageObject
+     0    169      (-122, 0)   Paragraph
+   182    214      (182, 45)   AudioObject
+   171    214       (-11, 0)   Paragraph
+   224    256       (53, 42)   VideoObject
+   216    256        (-8, 0)   Paragraph
+     0    257      (-216, 1)   Article

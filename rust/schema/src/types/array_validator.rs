@@ -25,31 +25,31 @@ pub struct ArrayValidator {
 
     /// Whether items can have the value `Node::Null`
     #[serde(alias = "items-nullable", alias = "items_nullable")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub items_nullable: Option<Boolean>,
 
     /// Another validator node specifying the constraints on all items in the array.
     #[serde(alias = "items-validator", alias = "items_validator")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub items_validator: Option<Box<Validator>>,
 
     /// An array node is valid if at least one of its items is valid against the `contains` schema.
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub contains: Option<Box<Validator>>,
 
     /// An array node is valid if its size is greater than, or equal to, this value.
     #[serde(alias = "min-items", alias = "min_items")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub min_items: Option<Integer>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
     #[serde(alias = "max-items", alias = "max_items")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub max_items: Option<Integer>,
 
     /// A flag to indicate that each value in the array should be unique.
     #[serde(alias = "unique-items", alias = "unique_items")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     pub unique_items: Option<Boolean>,
 
     /// A unique identifier for a node within a document

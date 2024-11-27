@@ -1,0 +1,6 @@
+start     end        offsets   node_type+property                   authorship
+    14     40       (14, 40)   Paragraph
+     2     45       (-12, 5)   DeleteBlock
+    87    127       (85, 82)   Paragraph
+    47    132       (-40, 5)   DeleteBlock
+     0    133       (-47, 1)   Article

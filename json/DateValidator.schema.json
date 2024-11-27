@@ -47,7 +47,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "Date.schema.json"
@@ -60,7 +61,8 @@
         "formats": [
           "md",
           "smd",
-          "myst"
+          "myst",
+          "qmd"
         ]
       },
       "$ref": "Date.schema.json"

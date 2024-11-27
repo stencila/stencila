@@ -2,18 +2,10 @@
 # Not all walkthroughs can be generated like this because they may have
 # syntax specific prose.
 
-# Track just smd's we can walk over to myst (some have to be hand converted)
-SOURCES = math.smd mermaid.smd aicommands.smd
+SOURCES = math mermaid
+TARGETS = $(foreach src,$(SOURCES),$(src).myst $(src).qmd)
 
-OUTMYST = $(SOURCES:.smd=.myst)
+all: $(TARGETS)
 
-all: $(OUTMYST)
-
-clean: 
-	rm $(OUTMYST)
-
-%.myst: %.smd DUMMY
-	cargo run -p cli convert $< $@ 
-
-# A dummy target to force rebuilds
-DUMMY:
+%.myst %.qmd: %.smd
+	cargo run -p cli convert $< $@

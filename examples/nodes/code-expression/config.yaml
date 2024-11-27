@@ -3,15 +3,24 @@ compact.jats.xml:
     strip-types:
       # TODO: Fix issues with encoding and decoding `CodeExpression`
       - CodeExpression
+
 smd:
   encode:
     strip-props:
       # Output properties are not supported in Markdown
       - CodeExpression.output
+
 myst:
   encode:
     strip-props:
       # The following properties are not supported in MyST
       - CodeExpression.programming_language
+      - CodeExpression.execution_mode
+      - CodeExpression.output
+
+qmd:
+  encode:
+    strip-props:
+      # The following properties are not supported in QMD
       - CodeExpression.execution_mode
       - CodeExpression.output

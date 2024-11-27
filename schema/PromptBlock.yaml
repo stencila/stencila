@@ -21,7 +21,7 @@ properties:
     description: An identifier for the prompt to be rendered
     type: string
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
   content:
     '@id': stencila:content
     description: The executed content of the prompt

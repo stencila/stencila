@@ -487,7 +487,10 @@ mod tests {
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use format::Format;
     use node_strip::StripScope;
-    use schema::shortcuts::{art, p, t};
+    use schema::{
+        shortcuts::{art, p, t},
+        Article, Node,
+    };
 
     use super::*;
 
@@ -501,6 +504,11 @@ mod tests {
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
         let document = Document::new()?;
+        {
+            let mut root = document.root.write().await;
+            *root = Node::Article(Article::default());
+        }
+
         let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
             .sync_format(
@@ -577,6 +585,11 @@ mod tests {
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
         let document = Document::new()?;
+        {
+            let mut root = document.root.write().await;
+            *root = Node::Article(Article::default());
+        }
+
         let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document
             .sync_format(

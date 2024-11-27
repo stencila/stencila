@@ -1,0 +1,99 @@
+---
+title: Mermaid Diagrams
+description: Creating flowcharts, timelines and other diagrams using Mermaid and LLMs.
+---
+
+# Introduction
+
+Mermaid is a JavaScript library that renders diagrams and flowcharts from Markdown-like text, simplifying the creation of visualization for technical documentation.
+
+This walkthrough illustrates how you can use Mermaid in your Stencila documents to create various types of diagrams and how to use LLM commands to help you create and edit Mermaid diagrams.
+
+:::{.callout-tip}
+This walkthrough is interactive: you can perform actions in the document, including adding or modify content. However, you must write any new content before the last set of ellipses `...` in the document. Any content added after this will be ignored.
+:::
+
+...
+
+# Writing Mermaid diagrams
+
+See the excellent [Mermaid documentation](https://mermaid.js.org/intro/) for details on how to create diagrams of a variety of types. One of the most common types of Mermaid diagrams is a `flowchart` (also known as a `graph`) e.g.
+
+```{mermaid}
+flowchart TB
+    A[Research topic] --> B[Generate hypothesis]
+    B --> C[Conduct experiments]
+    C --> D[Analyze results]
+    D --> E[Report findings]
+```
+
+
+:::{.callout-tip}
+## Previewing rendered diagrams
+
+Use the `View` action above Mermaid blocks to preview them rendered within the document. Mermaid blocks are rendered on the fly, so you can change labels and other aspects of the block and immediately see the changes. Note that, because Mermaid diagrams are rendered in the browser, any syntax errors are shown in the preview card for the diagram, not in VSCode or other editor.
+:::
+
+...
+
+# Using LLMs to create diagrams
+
+Stencila has several built-in prompts specialized for creating certain types of Mermaid diagrams.
+
+For example, the `stencila/create/figure-flowchart` prompt is specialized to create flowcharts. Like most of the Stencila prompts, it makes use of the document context, including metadata and the preceding paragraph. This means you don't need to repeat yourself when writing commands.
+
+I addition to writing the Mermaid code for you, as with other `stencila/create/figure-*` prompts, this prompt wraps the code in a figure and adds a caption that is based on the document context.
+
+To illustrate this, let's write a paragraph, followed by a `create` command that uses the `figure-flowchart` prompt.
+
+...
+
+Cell culture involves isolating cells from an organism, providing them with necessary nutrients, and maintaining controlled environmental conditions to support cell growth, proliferation, and viability in vitro.
+
+::: create @figure-flowchart  :::
+
+:::{.callout-tip}
+## Run the command
+
+Use the `Run` action to get an available LLM to generate a flowchart based on the preceding paragraph. Use the `Revise` action, optionally with feedback, if you are not satisfied with the response. You can also edit the generated Mermaid and caption, and once you are happy with it, use the `Accept` action to archive the command and insert the diagram into the main body of the document.
+:::
+
+...
+
+The `figure-flowchart` prompt will match to command instructions that include the work 'flowchart' so, if you prefer, you can avoid specifically assigning it to a task e.g.
+
+::: create flowchart of a typical data analysis pipeline :::
+
+:::{.callout-tip}
+## Run the command
+
+There are several other builtin prompts for specific types of Mermaid diagrams (e.g. `figure-timeline` and `figure-sequence`), or use the general `figure-mermaid` prompt.
+:::
+
+# Using LLMs to edit diagrams
+
+In addition to helping create Mermaid diagrams, LLMs can be useful for editing and refining them.
+
+For example, lets say that you have written a diagram illustrating photosynthesis but want to change the color of some blocks:
+
+::: edit make photosynthesis light green and glucose light red >>>
+
+```{mermaid}
+graph TD
+    A[Light Energy] --> B[Photosynthesis]
+    B --> C[Light Reactions]
+    C --> D[ATP]
+    C --> E[NADPH]
+    B --> F[Carbon Fixation]
+    F --> G[Calvin Cycle]
+    G --> H[Glucose]
+    D --> G
+    E --> G
+```
+
+
+:::{.callout-tip}
+## Run the command
+
+Use the `Run` action to get an available LLM to edit the Mermaid code. If the edit is correct you can use the `Accept` action to apply the fix and archive the command.
+:::

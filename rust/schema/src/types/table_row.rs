@@ -30,7 +30,7 @@ pub struct TableRow {
     #[serde(alias = "cell")]
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(1..=1))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(2..=2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(4..=4))"#))]
@@ -39,7 +39,7 @@ pub struct TableRow {
 
     /// The type of row.
     #[serde(alias = "row-type", alias = "row_type")]
-    #[patch(format = "md", format = "smd", format = "myst")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub row_type: Option<TableRowType>,
 

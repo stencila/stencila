@@ -9,3 +9,5 @@ node_modules
 
 # Path specific patterns ignored
 /target
+/codecov
+/codecov.*

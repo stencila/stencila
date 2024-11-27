@@ -1,0 +1,13 @@
+start     end        offsets   node_type+property                   authorship
+     8     20        (8, 20)   Emphasis
+    34     57       (26, 37)   Strong
+    71     88       (37, 31)   Underline
+     0     89       (-71, 1)   Paragraph
+    99    112       (99, 23)   Subscript
+   126    141       (27, 29)   Superscript
+   155    169       (29, 28)   Strikeout
+    91    170       (-64, 1)   Paragraph
+   216    237      (125, 67)   Emphasis
+   243    264       (27, 27)   Strong
+   172    265       (-71, 1)   Paragraph
+     0    266      (-172, 1)   Article

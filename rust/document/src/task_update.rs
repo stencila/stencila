@@ -2,6 +2,7 @@ use common::{
     tokio::{self},
     tracing,
 };
+use schema::{Node, PatchNode, PatchOp};
 
 use crate::{
     Command, Document, DocumentCommandSender, DocumentPatchReceiver, DocumentRoot,
@@ -35,17 +36,32 @@ impl Document {
                     tracing::trace!("Document root node update received");
 
                     let root = &mut *root.write().await;
-                    if let Err(error) = schema::merge(root, &update.node, update.format, update.authors) {
+                    if matches!(root, Node::Null(..)) {
+                        // If the root is null, then just set it to the node, rather than merging
+                        *root = update.node;
+                    } else if let Err(error) = schema::merge(root, &update.node, update.format, update.authors) {
                         tracing::error!("While merging update into root: {error}");
                     }
 
                     true
                 },
-                Some(patch) = patch_receiver.recv() => {
+                Some(mut patch) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
 
                     let root = &mut *root.write().await;
-                    if let Err(error) = schema::patch(root, patch) {
+                    if matches!(root, Node::Null(..)) && patch.node_id.is_none() && matches!(patch.ops.first().map(|(path, op)| (path.is_empty(), op)), Some((true,PatchOp::Set(..)))){
+                        // If the root is null and the patch want to set it then do so
+                        if let Some((..,PatchOp::Set(value))) = patch.ops.pop() {
+                            match Node::from_value(value) {
+                                Ok(node) => {
+                                    *root = node
+                                },
+                                Err(error) => {
+                                    tracing::error!("While converting value: {error}")
+                                }
+                            }
+                        }
+                    } else if let Err(error) = schema::patch(root, patch) {
                         tracing::error!("While applying patch to root: {error}");
                     }
 

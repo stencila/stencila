@@ -21,7 +21,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     proptest:
       min:
         description: Generate a fixed variable name.
@@ -47,7 +47,7 @@ properties:
     strip: [code]
     walk: true
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     dom:
       elem: div
     proptest:
@@ -69,7 +69,7 @@ properties:
     strip: [code]
     walk: true
     patch:
-      formats: [md, smd, myst]
+      formats: [md, smd, myst, qmd]
     dom:
       elem: div
     proptest:
