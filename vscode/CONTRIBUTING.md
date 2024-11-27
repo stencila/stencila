@@ -1,4 +1,4 @@
-# Testing
+# Developing and testing
 
 To test the extension in VSCode, you will need `cargo` and `node` installed. Ensure JavaScript dependencies are installed using,
 
@@ -32,27 +32,8 @@ make fix test
 > repository as that causes issues with packaging (trust me, I tried :/)
 
 
-# Writing walkthroughs
+# Contributing to `README.md`
 
-This extension has walkthroughs. The VSCode [contribution point](https://code.visualstudio.com/api/references/contribution-points#contributes.walkthroughs) for walkthroughs is an object in `package.json`. This is fine for simple walkthroughs but for more complex ones, including demos where you would like to include command links to perform actions it becomes tedious, error prone, and brittle.
+The `README.md` in this directory is the "font page" for the extension visible in the VSCode Marketplace and Open VSX Registry. 
 
-Instead this extension has a [walkthroughs/compile.js](walkthroughs/compile.js) script which compiles the `contributes.walkthroughs` JSON object from YAML and Markdown files in sub-folders of [walkthroughs](walkthroughs).
-
-The [walkthroughs/compile.js](walkthroughs/compile.js) script is run as part of `npm run compile`. You can also compile walkthroughs separately (you may want to use `watchexec` or similar to automatically run this when files in `walkthroughs` change):
-
-```sh
-npm run compile-walkthroughs
-```
-
-Each walkthrough is a subfolder of [walkthroughs](walkthroughs) and has a `main.yaml` with the `title` and `description`:
-
-```yaml
-title: The title of the demo
-description: A description of the demo
-```
-
-Each step in the walkthrough is written as a Markdown file with a specific format:
-
-- A YAML header with the `title` of the step
-
-- The `description` of the step which supports a limited subset of Markdown including **emphasis**, **bold**, and `code` (note specific syntax). Links on their own line (including special command links) are rendered as a button. Also don't forget emoji 🦄!
+Links to images, can not be relative, they must use `https://` URLs. Ordinarily, relative image links would work but does not for this extension because it is within a subdirectory of the repository. We have tried numerous things to deal with this including adding the `repository.directory` property in `package.json` and using the `--baseContentUrl` and `--baseImageUrl` options to `vsce publish`. Nothing worked other than just using absolute URLs.
