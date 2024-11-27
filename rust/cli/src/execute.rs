@@ -85,7 +85,7 @@ impl Cli {
                 Format::Json,
                 strip_options,
                 LossesResponse::Debug,
-                passthrough_args.clone()
+                passthrough_args.clone(),
             );
 
             let content = doc

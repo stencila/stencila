@@ -88,6 +88,7 @@ pub struct EncodeOptions {
 
 impl EncodeOptions {
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn build(
         &self,
         input: Option<&Path>,

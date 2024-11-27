@@ -189,7 +189,7 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
     let caption = table
         .caption
         .as_ref()
-        .map(|caption| blocks_to_pandoc(&caption, context))
+        .map(|caption| blocks_to_pandoc(caption, context))
         .unwrap_or_default();
 
     let mut head = vec![];

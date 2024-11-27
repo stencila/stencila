@@ -12,7 +12,7 @@ use crate::{
 };
 
 pub(super) fn inlines_to_pandoc(
-    inlines: &Vec<Inline>,
+    inlines: &[Inline],
     context: &mut PandocEncodeContext,
 ) -> Vec<pandoc::Inline> {
     inlines
@@ -180,14 +180,11 @@ fn media_object_to_pandoc(
         attrs_empty(),
         caption
             .as_ref()
-            .map(|caption| inlines_to_pandoc(&caption, context))
+            .map(|caption| inlines_to_pandoc(caption, context))
             .unwrap_or_default(),
         pandoc::Target {
             url: url.to_string(),
-            title: title
-                .as_ref()
-                .map(|inlines| to_text(inlines))
-                .unwrap_or_default(),
+            title: title.as_ref().map(to_text).unwrap_or_default(),
         },
     )
 }
