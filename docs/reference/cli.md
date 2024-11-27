@@ -143,7 +143,7 @@ Create a new document with sidecar file
 
 Convert a document to another format
 
-**Usage:** `stencila convert [OPTIONS] [INPUT] [OUTPUT]`
+**Usage:** `stencila convert [OPTIONS] [INPUT] [OUTPUT] [PASSTHROUGH_ARGS]...`
 
 ###### **Arguments:**
 
@@ -153,6 +153,7 @@ Convert a document to another format
 * `<OUTPUT>` — The path of the output file
 
    If not supplied the output content is written to `stdout`.
+* `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for conversion (e.g. Pandoc)
 
 ###### **Options:**
 
@@ -271,7 +272,7 @@ The direction of synchronization can be specified by appending the to the file p
 
 Compile a document
 
-**Usage:** `stencila compile [OPTIONS] <INPUT> [OUTPUT]`
+**Usage:** `stencila compile [OPTIONS] <INPUT> [OUTPUT] [PASSTHROUGH_ARGS]...`
 
 ###### **Arguments:**
 
@@ -281,6 +282,7 @@ Compile a document
 * `<OUTPUT>` — The path of the file to write the executed document to
 
    If not supplied the output content is written to `stdout`.
+* `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
 ###### **Options:**
 
@@ -328,7 +330,7 @@ Compile a document
 
 Execute a document
 
-**Usage:** `stencila execute [OPTIONS] <INPUT> [OUTPUT]`
+**Usage:** `stencila execute [OPTIONS] <INPUT> [OUTPUT] [PASSTHROUGH_ARGS]...`
 
 ###### **Arguments:**
 
@@ -338,6 +340,7 @@ Execute a document
 * `<OUTPUT>` — The path of the file to write the executed document to
 
    If not supplied the output content is written to `stdout`.
+* `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
 ###### **Options:**
 
@@ -409,7 +412,7 @@ Render a document
 
 Equivalent to the `execute` command with the `--render` flag.
 
-**Usage:** `stencila render [OPTIONS] <INPUT> [OUTPUT]`
+**Usage:** `stencila render [OPTIONS] <INPUT> [OUTPUT] [PASSTHROUGH_ARGS]...`
 
 ###### **Arguments:**
 
@@ -419,6 +422,7 @@ Equivalent to the `execute` command with the `--render` flag.
 * `<OUTPUT>` — The path of the file to write the rendered document to
 
    If not supplied the output content is written to `stdout`.
+* `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
 ###### **Options:**
 

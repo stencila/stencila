@@ -60,7 +60,7 @@
           "value": "Cord::from(\"code\")"
         },
         "low": {
-          "description": "Generate a random string of up to 10 alphanumeric & whitespace characters (trimmed).",
+          "description": "Generate a random string of up to 10 alphanumeric & space characters (trimmed).",
           "strategy": "r\"[a-zA-Z0-9 ]{1,10}\".prop_map(|code| Cord::from(code.trim()))"
         },
         "high": {
