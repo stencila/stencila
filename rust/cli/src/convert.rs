@@ -57,6 +57,10 @@ pub struct Cli {
 
     #[command(flatten)]
     strip_options: StripOptions,
+
+    /// Arguments to pass through to any CLI tool delegated to for conversion (e.g. Pandoc)
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    passthrough_args: Vec<String>,
 }
 
 impl Cli {
@@ -71,9 +75,15 @@ impl Cli {
             decode_options,
             encode_options,
             strip_options,
+            passthrough_args,
         } = self;
 
-        let decode_options = decode_options.build(from, strip_options.clone(), input_losses);
+        let decode_options = decode_options.build(
+            from,
+            strip_options.clone(),
+            input_losses,
+            passthrough_args.clone(),
+        );
         let encode_options = encode_options.build(
             input.as_deref(),
             output.as_deref(),
@@ -81,6 +91,7 @@ impl Cli {
             Format::Json,
             strip_options,
             output_losses,
+            passthrough_args.clone(),
         );
 
         let content = codecs::convert(

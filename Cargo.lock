@@ -1059,6 +1059,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-docx"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-pandoc",
+]
+
+[[package]]
 name = "codec-dom"
 version = "0.0.0"
 dependencies = [
@@ -1187,6 +1195,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-latex"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-pandoc",
+]
+
+[[package]]
 name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
@@ -1215,6 +1231,23 @@ dependencies = [
  "codec-markdown-derive",
  "common",
  "format",
+]
+
+[[package]]
+name = "codec-pandoc"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-text-trait",
+ "pandoc_types",
+]
+
+[[package]]
+name = "codec-pdf"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-pandoc",
 ]
 
 [[package]]
@@ -1269,13 +1302,17 @@ dependencies = [
  "codec-cbor",
  "codec-debug",
  "codec-directory",
+ "codec-docx",
  "codec-dom",
  "codec-html",
  "codec-jats",
  "codec-json",
  "codec-json5",
  "codec-jsonld",
+ "codec-latex",
  "codec-markdown",
+ "codec-pandoc",
+ "codec-pdf",
  "codec-swb",
  "codec-text",
  "codec-yaml",
@@ -4277,6 +4314,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1b04fb49957986fdce4d6ee7a65027d55d4b6d2265e5848bbb507b58ccfdb6f"
 
 [[package]]
+name = "pandoc_types"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16172f24b8ad7f0ded9947f3d33f0344bc4d4e7c4937a2a0c405447403211434"
+dependencies = [
+ "serde",
+ "serde_tuple",
+]
+
+[[package]]
 name = "parcel_selectors"
 version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5835,6 +5882,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87607cb1398ed59d48732e575a4c28a7a8ebf2454b964fe3f224f2afc07909e1"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "serde_tuple"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4f025b91216f15a2a32aa39669329a475733590a015835d1783549a56d09427"
+dependencies = [
+ "serde",
+ "serde_tuple_macros",
+]
+
+[[package]]
+name = "serde_tuple_macros"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4076151d1a2b688e25aaf236997933c66e18b870d0369f8b248b8ab2be630d7e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
