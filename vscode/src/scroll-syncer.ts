@@ -22,41 +22,48 @@ export class ScrollSyncer {
   }
 
   private registerEventHandlers() {
-    // Only track relevant editors
-    this.disposables.push(
-      vscode.window.onDidChangeActiveTextEditor((editor) => {
-        if (editor === this.editor) {
-          this.scheduleUpdate();
-        }
-      })
-    );
+    const { previewFollowsEditor, editorFollowsPreview } =
+      vscode.workspace.getConfiguration("stencila.linkedScrolling");
 
-    // Track scroll changes
-    this.disposables.push(
-      vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
-        if (event.textEditor === this.editor) {
-          this.scheduleUpdate();
-        }
-      })
-    );
+    if (previewFollowsEditor) {
+      // Only track relevant editors
+      this.disposables.push(
+        vscode.window.onDidChangeActiveTextEditor((editor) => {
+          if (editor === this.editor) {
+            this.scheduleUpdate();
+          }
+        })
+      );
 
-    // Track cursor position changes
-    this.disposables.push(
-      vscode.window.onDidChangeTextEditorSelection((event) => {
-        if (event.textEditor === this.editor) {
-          this.scheduleUpdate(true);
-        }
-      })
-    );
+      // Track scroll changes
+      this.disposables.push(
+        vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
+          if (event.textEditor === this.editor) {
+            this.scheduleUpdate();
+          }
+        })
+      );
 
-    // Handle a scroll sync message from the webview
-    this.disposables.push(
-      this.panel.webview.onDidReceiveMessage(async (message) => {
-        if (message.type === "scroll-sync") {
-          await this.receiveUpdate(message);
-        }
-      })
-    );
+      // Track cursor position changes
+      this.disposables.push(
+        vscode.window.onDidChangeTextEditorSelection((event) => {
+          if (event.textEditor === this.editor) {
+            this.scheduleUpdate(true);
+          }
+        })
+      );
+    }
+
+    if (editorFollowsPreview) {
+      // Handle a scroll sync message from the preview's webview
+      this.disposables.push(
+        this.panel.webview.onDidReceiveMessage(async (message) => {
+          if (message.type === "scroll-sync") {
+            await this.receiveUpdate(message);
+          }
+        })
+      );
+    }
   }
 
   /**

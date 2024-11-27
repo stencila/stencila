@@ -119,8 +119,20 @@
           "type": "boolean",
           "default": true
         },
-        "stencila.languageServer.logLevel": {
+        "stencila.linkedScrolling.previewFollowsEditor": {
           "order": 7,
+          "description": "Synchronize the scroll position of the preview to the scroll position of the editor.",
+          "type": "boolean",
+          "default": true
+        },
+        "stencila.linkedScrolling.editorFollowsPreview": {
+          "order": 8,
+          "description": "Synchronize the scroll position of the editor to the scroll position of the preview.",
+          "type": "boolean",
+          "default": true
+        },
+        "stencila.languageServer.logLevel": {
+          "order": 9,
           "description": "The logging level of the Stencila Language Server (server restart required)",
           "enum": [
             "trace",
