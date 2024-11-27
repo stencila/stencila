@@ -205,8 +205,6 @@ function mystSnippet(prompt: PromptInstance, selected?: string): string {
     if (!selected.endsWith("\n")) {
       snippet += "\n";
     }
-  } else {
-    snippet += "\n";
   }
 
   snippet += "\n:::\n";
