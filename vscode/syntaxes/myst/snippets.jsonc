@@ -90,16 +90,6 @@
     "body": [":::{include} ${0:source}", ":::", ""],
   },
   // Stencila's custom directives
-  "If Block": {
-    "description": "If block",
-    "prefix": [":::{if}"],
-    "body": [":::{if} ${2:expr}", "", "${0:content}", "", ":::", ""],
-  },
-  "For Block": {
-    "description": "For block",
-    "prefix": [":::{for}"],
-    "body": [":::{for} ${2:expr}", "", "${0:content}", "", ":::", ""],
-  },
   "Create Command": {
     "description": "Command to create new content",
     "prefix": [":::{create}"],
@@ -118,11 +108,6 @@
   "Describe Command": {
     "description": "Command to describe existing content",
     "prefix": [":::{describe}"],
-    "body": [":::{describe} ${0:how}", "", ":::", ""],
-  },
-  "Styled Block": {
-    "description": "A block of styled content",
-    "prefix": [":::{style}"],
-    "body": [":::{style} ${2:style}", "", "${0:content}", "", ":::", ""],
+    "body": [":::{describe} ${0:what}", "", ":::", ""],
   },
 }
