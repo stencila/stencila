@@ -407,69 +407,69 @@
     ],
     "keybindings": [
       {
-        "command": "stencila.invoke.run-curr",
-        "key": "ctrl+enter",
-        "mac": "cmd+enter",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "stencila.invoke.run-above",
-        "key": "ctrl+1 enter",
-        "mac": "cmd+1 enter",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "stencila.invoke.run-below",
-        "key": "ctrl+2 enter",
-        "mac": "cmd+2 enter",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "stencila.invoke.run-doc",
-        "key": "ctrl+shift+enter",
-        "mac": "cmd+shift+enter",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "stencila.invoke.next-node",
-        "key": "ctrl+right",
-        "mac": "cmd+right",
-        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
-      },
-      {
-        "command": "stencila.invoke.prev-node",
-        "key": "ctrl+left",
-        "mac": "cmd+left",
-        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
-      },
-      {
-        "command": "stencila.invoke.retry-node",
-        "key": "ctrl+r",
-        "mac": "cmd+r",
-        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
-      },
-      {
-        "command": "stencila.invoke.revise-node",
-        "key": "ctrl+shift+r",
-        "mac": "cmd+shift+r",
-        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
-      },
-      {
-        "command": "stencila.invoke.archive-node",
-        "key": "ctrl+/",
-        "mac": "cmd+/",
-        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
-      },
-      {
         "command": "stencila.command-picker",
         "key": "ctrl+f1",
         "mac": "cmd+f1"
       },
       {
+        "command": "stencila.invoke.run-curr",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.run-above",
+        "key": "ctrl+1 enter",
+        "mac": "cmd+1 enter",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.run-below",
+        "key": "ctrl+2 enter",
+        "mac": "cmd+2 enter",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.run-doc",
+        "key": "ctrl+shift+enter",
+        "mac": "cmd+shift+enter",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.next-node",
+        "key": "ctrl+right",
+        "mac": "cmd+right",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.prev-node",
+        "key": "ctrl+left",
+        "mac": "cmd+left",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.retry-node",
+        "key": "ctrl+r",
+        "mac": "cmd+r",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.revise-node",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.archive-node",
+        "key": "ctrl+/",
+        "mac": "cmd+/",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
         "command": "stencila.prompts.picker",
         "key": "ctrl+alt+p",
         "mac": "cmd+alt+p",
-        "when": "editorTextFocus && (editorLangId == 'md' || editorLangId == 'smd' || editorLangId == 'myst')"
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       }
     ],
     "menus": {
@@ -489,6 +489,9 @@
       ],
       "commandPalette": [
         {
+          "command": "stencila.shell"
+        },
+        {
           "command": "stencila.new-smd"
         },
         {
@@ -499,120 +502,117 @@
         },
         {
           "command": "stencila.view-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-curr",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-above",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-below",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-code",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-instruct",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.cancel-curr",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.cancel-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.lock-curr",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.unlock-curr",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.save-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.export-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.walkthroughs.expand",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.walkthroughs.collapse",
-          "when": "editorLangId == smd || editorLangId == myst"
-        },
-        {
-          "command": "stencila.shell"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         }
       ],
       "editor/title/run": [
         {
           "command": "stencila.view-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-code",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
           "command": "stencila.invoke.run-instruct",
-          "when": "editorLangId == smd || editorLangId == myst"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         }
       ],
       "editor/context": [
         {
           "command": "stencila.invoke.run-curr",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@1"
         },
         {
           "command": "stencila.invoke.run-above",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@2"
         },
         {
           "command": "stencila.invoke.run-below",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
         },
         {
           "command": "stencila.invoke.lock-curr",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@4"
         },
         {
           "command": "stencila.invoke.unlock-curr",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@5"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "001-Stencila@1"
         },
         {
           "command": "stencila.invoke.export-doc",
-          "when": "editorLangId == smd || editorLangId == myst",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "001-Stencila@2"
         }
       ],
