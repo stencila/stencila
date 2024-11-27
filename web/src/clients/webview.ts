@@ -2,7 +2,7 @@ import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 
 import { Entity } from '../nodes/entity'
 import { NodeId } from '../types'
-import { ChipToggleInterface } from '../ui/nodes/mixins/toggle-chip'
+import { MarkerToggleInterface } from '../ui/nodes/mixins/toggle-marker'
 import { UIBaseClass } from '../ui/nodes/mixins/ui-base-class'
 import { UINodeAuthors } from '../ui/nodes/properties/authors'
 
@@ -344,7 +344,7 @@ export class WebViewClient {
 
       const card = targetEl.shadowRoot.querySelector(
         'stencila-ui-block-on-demand, stencila-ui-inline-on-demand'
-      ) as UIBaseClass & ChipToggleInterface
+      ) as UIBaseClass & MarkerToggleInterface
       if (card) {
         card.openCard()
       }

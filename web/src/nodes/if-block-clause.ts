@@ -110,7 +110,7 @@ export class IfBlockClause extends CodeExecutable {
 
   override render() {
     return html`
-      ${this.ifBlockConsumer.cardOpen ? this.renderHeader() : ''}
+      ${this.ifBlockConsumer?.cardOpen ? this.renderHeader() : ''}
       <stencila-ui-collapsible-animation
         class=${!this.isFolded ? 'opened' : ''}
       >
@@ -194,7 +194,7 @@ export class IfBlockClause extends CodeExecutable {
 
   protected renderContent() {
     const styles = apply([
-      this.ifBlockConsumer.cardOpen ? 'px-2 pb-4' : '',
+      this.ifBlockConsumer?.cardOpen ? 'px-2 pb-4' : '',
       this.hasContent ? '' : 'pt-4',
     ])
 

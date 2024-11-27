@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, query, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -21,6 +21,16 @@ import { Executable } from './executable'
 @customElement('stencila-if-block')
 @withTwind()
 export class IfBlock extends Executable {
+  @query('slot[name="clauses"]')
+  clausesSlot!: HTMLSlotElement
+
+  @state()
+  hasClauses: boolean = true
+
+  protected handleClauseChange() {
+    this.hasClauses = this.clausesSlot.assignedElements().length > 0
+  }
+
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
       return html`<slot name="clauses"></slot>`
@@ -33,6 +43,7 @@ export class IfBlock extends Executable {
         ancestors=${this.ancestors}
         node-id=${this.id}
         ?removeContentPadding=${true}
+        ?noVisibleContent=${!this.hasClauses}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
@@ -70,7 +81,7 @@ export class IfBlock extends Executable {
         </div>
 
         <div slot="content">
-          <slot name="clauses"></slot>
+          <slot name="clauses" @slotchange=${this.handleClauseChange}></slot>
         </div>
       </stencila-ui-block-on-demand>
     `

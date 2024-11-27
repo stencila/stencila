@@ -4,7 +4,7 @@ import { state } from 'lit/decorators'
 
 import {
   DocumentContext,
-  NodeChipState,
+  NodeMarkerState,
   documentContext,
 } from '../ui/document/context'
 
@@ -16,7 +16,7 @@ export abstract class DocumentView extends LitElement {
   @state()
   protected context: DocumentContext = {
     showAllAuthorshipHighlight: false,
-    nodeChipState: 'hover-only',
+    nodeMarkerState: 'hover-only',
     showAuthorProvenance: false,
   }
 
@@ -43,11 +43,11 @@ export abstract class DocumentView extends LitElement {
     })
 
     this.addEventListener(
-      'update-nodechip-state',
-      (e: Event & { detail: NodeChipState }) => {
+      'update-nodemarker-state',
+      (e: Event & { detail: NodeMarkerState }) => {
         this.context = {
           ...this.context,
-          nodeChipState: e.detail,
+          nodeMarkerState: e.detail,
         }
       }
     )

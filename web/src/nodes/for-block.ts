@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
@@ -23,8 +23,18 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-for-block')
 @withTwind()
 export class ForBlock extends CodeExecutable {
+  @query('slot[name="iterations"]')
+  iterationSlot: HTMLSlotElement
+
   @property()
   variable: string
+
+  @state()
+  hasIterations: boolean = true
+
+  private handleIterationChange() {
+    this.hasIterations = !!this.iterationSlot.assignedElements()[0]
+  }
 
   override render() {
     const { colour, borderColour } = nodeUi('ForBlock')
@@ -40,6 +50,7 @@ export class ForBlock extends CodeExecutable {
         depth=${this.depth}
         ancestors=${this.ancestors}
         ?removeContentPadding=${true}
+        ?noVisibleContent=${!this.hasIterations}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
@@ -114,7 +125,10 @@ export class ForBlock extends CodeExecutable {
         </div>
 
         <div slot="content">
-          <slot name="iterations"></slot>
+          <slot
+            name="iterations"
+            @slotchange=${this.handleIterationChange}
+          ></slot>
         </div>
       </stencila-ui-block-on-demand>
     `

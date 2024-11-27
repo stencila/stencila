@@ -30,7 +30,10 @@ export class InstructionBlock extends Instruction {
   @query('slot[name="suggestions"]')
   suggestionsSlot!: HTMLSlotElement
 
+  @state()
   private hasContent: boolean = false
+  @state()
+  private hasSuggestions: boolean = false
 
   private feedbackRef: Ref<HTMLInputElement> = createRef()
 
@@ -70,6 +73,7 @@ export class InstructionBlock extends Instruction {
       | undefined
 
     if (suggestionsSlot) {
+      this.hasSuggestions = true
       const suggestions = Array.from(
         suggestionsSlot.children
       ) as SuggestionBlock[]
@@ -82,6 +86,8 @@ export class InstructionBlock extends Instruction {
           el.isActive = false
         }
       })
+    } else {
+      this.hasSuggestions = false
     }
   }
 
@@ -242,6 +248,7 @@ export class InstructionBlock extends Instruction {
       node-id=${this.id}
       depth=${this.depth}
       ancestors=${this.ancestors}
+      ?noVisibleContent=${this.hasContent && !this.hasSuggestions}
     >
       <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands

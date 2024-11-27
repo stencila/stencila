@@ -1,6 +1,6 @@
 import { LabelType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
@@ -24,6 +24,9 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-code-chunk')
 @withTwind()
 export class CodeChunk extends CodeExecutable {
+  @query('slot[name="outputs"]')
+  outputsSlot!: HTMLSlotElement
+
   @property({ attribute: 'label-type' })
   labelType?: LabelType
 
@@ -38,6 +41,13 @@ export class CodeChunk extends CodeExecutable {
     converter: (attr) => attr == 'true',
   })
   isInvisible: boolean = false
+
+  @state()
+  hasOutputs: boolean = false
+
+  protected handleOutputsChange() {
+    this.hasOutputs = !!this.outputsSlot.assignedElements()[0]
+  }
 
   override render() {
     if (this.ancestors.includes('StyledBlock')) {
@@ -56,6 +66,7 @@ export class CodeChunk extends CodeExecutable {
       node-id=${this.id}
       header-icon=${icon}
       header-title=${title}
+      ?noVisibleContent=${!this.hasOutputs}
     >
       <span slot="header-right">
         <stencila-ui-node-execution-commands

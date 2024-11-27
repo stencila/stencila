@@ -3,22 +3,26 @@ import { createContext } from '@lit/context'
 import { NodeId } from '../../types'
 
 /**
- * Alternative states for the display of node chips
+ * Alternative states for the display of node markers
  *
  *  TODO: When in 'expand-all' state
  *    - edit block functionality to stop the cards from being collapsible
  *    - collapse all the cards again when state changes from 'expand-all' to another
  */
-export type NodeChipState = 'hidden' | 'hover-only' | 'show-all' | 'expand-all'
+export type NodeMarkerState =
+  | 'hidden'
+  | 'hover-only'
+  | 'show-all'
+  | 'expand-all'
 
 /**
  * Context controlling the display of various components within the document
  */
 export type DocumentContext = {
   /**
-   * The current node chips display state
+   * The current node markers display state
    */
-  nodeChipState: NodeChipState
+  nodeMarkerState: NodeMarkerState
 
   /**
    * Toggles the visibility of the provenance highlighting
