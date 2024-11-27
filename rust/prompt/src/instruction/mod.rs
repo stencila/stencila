@@ -47,7 +47,7 @@ impl Instruction {
         };
 
         static TARGET: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"((next)|(prev(ious)?))?\s*((code)|(fig(ure)?)|(tab(le)?))?\s*(\d+)?")
+            Regex::new(r"((below|next)|(above|prev(ious)?))?\s*((code)|(fig(ure)?)|(tab(le)?))?\s*(\d+)?")
                 .expect("invalid regex")
         });
         let Some(captures) = TARGET.captures(message) else {
@@ -60,8 +60,8 @@ impl Instruction {
             Next,
         }
         let target_pos = captures.get(1).and_then(|value| match value.as_str() {
-            "prev" | "previous" => Some(TargetPos::Previous),
-            "next" => Some(TargetPos::Next),
+            "above" | "prev" | "previous" => Some(TargetPos::Previous),
+            "below" | "next" => Some(TargetPos::Next),
             _ => None,
         });
 
