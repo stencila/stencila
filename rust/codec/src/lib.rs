@@ -373,6 +373,9 @@ pub struct DecodeOptions {
     /// The response to take when there are losses in the decoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
+
+    /// Arguments to passthrough to CLI tools delegated to for decoding (e.g. Pandoc)
+    pub passthrough_args: Vec<String>,
 }
 
 /// Encoding options
@@ -460,4 +463,7 @@ pub struct EncodeOptions {
     /// The response to take when there are losses in the encoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
+
+    /// Arguments to passthrough to CLI tools delegated to for encoding (e.g. Pandoc)
+    pub passthrough_args: Vec<String>,
 }

@@ -54,9 +54,17 @@ impl Codec for PdfCodec {
     async fn from_path(
         &self,
         path: &Path,
-        _options: Option<DecodeOptions>,
+        options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &[]).await?;
+        let pandoc = pandoc_from_format(
+            "",
+            Some(path),
+            PANDOC_FORMAT,
+            options
+                .map(|options| options.passthrough_args)
+                .unwrap_or_default(),
+        )
+        .await?;
         root_from_pandoc(pandoc)
     }
 
@@ -64,10 +72,18 @@ impl Codec for PdfCodec {
         &self,
         node: &Node,
         path: &Path,
-        _options: Option<EncodeOptions>,
+        options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
         let (pandoc, info) = root_to_pandoc(node)?;
-        pandoc_to_format(&pandoc, Some(path), PANDOC_FORMAT, &[]).await?;
+        pandoc_to_format(
+            &pandoc,
+            Some(path),
+            PANDOC_FORMAT,
+            options
+                .map(|options| options.passthrough_args)
+                .unwrap_or_default(),
+        )
+        .await?;
         Ok(info)
     }
 }

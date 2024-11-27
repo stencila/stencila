@@ -47,19 +47,35 @@ impl Codec for LatexCodec {
     async fn from_str(
         &self,
         input: &str,
-        _options: Option<DecodeOptions>,
+        options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let pandoc = pandoc_from_format(input, None, PANDOC_FORMAT, &[]).await?;
+        let pandoc = pandoc_from_format(
+            input,
+            None,
+            PANDOC_FORMAT,
+            options
+                .map(|options| options.passthrough_args)
+                .unwrap_or_default(),
+        )
+        .await?;
         root_from_pandoc(pandoc)
     }
 
     async fn to_string(
         &self,
         node: &Node,
-        _options: Option<EncodeOptions>,
+        options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
         let (pandoc, info) = root_to_pandoc(node)?;
-        let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, &[]).await?;
+        let output = pandoc_to_format(
+            &pandoc,
+            None,
+            PANDOC_FORMAT,
+            options
+                .map(|options| options.passthrough_args)
+                .unwrap_or_default(),
+        )
+        .await?;
         Ok((output, info))
     }
 }

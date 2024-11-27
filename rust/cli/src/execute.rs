@@ -45,6 +45,10 @@ pub struct Cli {
     /// Do not save the document after compiling it
     #[arg(long)]
     no_save: bool,
+
+    /// Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    passthrough_args: Vec<String>,
 }
 
 impl Cli {
@@ -57,6 +61,7 @@ impl Cli {
             encode_options,
             strip_options,
             no_save,
+            passthrough_args,
         } = self;
 
         let doc = Document::open(&input).await?;
@@ -80,6 +85,7 @@ impl Cli {
                 Format::Json,
                 strip_options,
                 LossesResponse::Debug,
+                passthrough_args.clone()
             );
 
             let content = doc

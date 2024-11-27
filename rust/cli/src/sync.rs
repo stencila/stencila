@@ -60,6 +60,7 @@ impl Cli {
                 format_or_codec.clone(),
                 self.strip_options.clone(),
                 self.losses.clone(),
+                Vec::new(),
             ));
             let encode_options = Some(self.encode_options.build(
                 Some(main.as_ref()),
@@ -68,6 +69,7 @@ impl Cli {
                 Format::Json,
                 self.strip_options.clone(),
                 self.losses.clone(),
+                Vec::new(),
             ));
 
             doc.sync_file(&path, direction, decode_options, encode_options)

@@ -36,6 +36,7 @@ impl DecodeOptions {
         format_or_codec: Option<String>,
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
+        passthrough_args: Vec<String>,
     ) -> codecs::DecodeOptions {
         let codec = format_or_codec
             .as_ref()
@@ -49,6 +50,7 @@ impl DecodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            passthrough_args,
             ..Default::default()
         }
     }
@@ -94,6 +96,7 @@ impl EncodeOptions {
         default_format: Format,
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
+        passthrough_args: Vec<String>,
     ) -> codecs::EncodeOptions {
         let codec = format_or_codec
             .as_ref()
@@ -131,6 +134,7 @@ impl EncodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            passthrough_args,
             ..Default::default()
         }
     }

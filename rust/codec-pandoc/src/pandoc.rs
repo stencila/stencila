@@ -28,7 +28,7 @@ pub async fn pandoc_from_format(
     input: &str,
     path: Option<&Path>,
     format: &str,
-    args: &[&str],
+    args: Vec<String>,
 ) -> Result<Pandoc> {
     let json = if format == "pandoc" {
         input.to_string()
@@ -72,7 +72,7 @@ pub async fn pandoc_to_format(
     pandoc: &Pandoc,
     path: Option<&Path>,
     format: &str,
-    args: &[String],
+    args: Vec<String>,
 ) -> Result<String> {
     let json = serde_json::to_string(&pandoc)?;
 
