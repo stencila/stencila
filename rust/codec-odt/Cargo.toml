@@ -1,0 +1,8 @@
+[package]
+name = "codec-odt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-pandoc = { path = "../codec-pandoc" }
