@@ -365,7 +365,8 @@ export class WebViewClient {
   /**
    * Handle a received `ScrollSyncMessage` message
    */
-  private handleScrollSyncMessage({ startId, cursorId }: ScrollSyncMessage) {
+  private handleScrollSyncMessage(data: ScrollSyncMessage) {
+    const { startId, cursorId } = data
     // Prioritize cursor position if it exists
     if (cursorId) {
       const cursorElement = document.getElementById(cursorId)
@@ -387,13 +388,16 @@ export class WebViewClient {
     // If no cursor, try to maintain viewport position using start/end elements
     if (startId) {
       const startElement = document.getElementById(startId)
-      if (startElement) {
+
+      if (startElement && startElement.depth === 1) {
         const viewportHeight = window.innerHeight
         const rect = startElement.getBoundingClientRect()
 
+        const top = rect.top + window.scrollY - viewportHeight * 0.1
+
         // Scroll to position the start element near the top with some padding
         window.scrollTo({
-          top: rect.top + window.scrollY - viewportHeight * 0.1,
+          top,
           behavior: 'smooth',
         })
       }
