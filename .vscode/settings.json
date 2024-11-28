@@ -95,6 +95,7 @@
         "ollama",
         "openai",
         "pandoc",
+        "plotly",
         "poshmap",
         "proptest",
         "proptests",

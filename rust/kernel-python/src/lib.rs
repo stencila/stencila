@@ -69,9 +69,9 @@ mod tests {
         },
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
-            DatatableColumn, DatatableColumnHint, DatatableHint, Hint, IntegerValidator,
-            MessageLevel, Node, Null, NumberValidator, Object, ObjectHint, Primitive, StringHint,
-            StringValidator, Validator, Variable,
+            DatatableColumn, DatatableColumnHint, DatatableHint, Hint, ImageObject,
+            IntegerValidator, MessageLevel, Node, Null, NumberValidator, Object, ObjectHint,
+            Primitive, StringHint, StringValidator, Validator, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -998,6 +998,56 @@ plt.show()",
             assert!(image.content_url.starts_with("data:image/png;base64"));
         } else {
             bail!("Expected an image, got: {outputs:?}")
+        }
+
+        Ok(())
+    }
+
+    /// `PythonKernel` specific test for getting a `plotly` plot as output
+    #[test_log::test(tokio::test)]
+    async fn plotly() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (.., messages) = instance.execute("import plotly.express as px").await?;
+        if messages
+            .first()
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            println!("Skipping test because `plotly` not available");
+            return Ok(());
+        }
+
+        let (outputs, messages) = instance
+            .execute("fig = px.scatter(px.data.iris(), x='sepal_width', y='sepal_length')")
+            .await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs, []);
+
+        let (outputs, messages) = instance.execute("fig.show()").await?;
+        assert_eq!(messages, []);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "application/vnd.plotly.v1+json");
+        } else {
+            bail!("Expected an image with a media_type, got: {outputs:?}")
+        }
+
+        let (outputs, messages) = instance.execute("fig").await?;
+        assert_eq!(messages, []);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "application/vnd.plotly.v1+json");
+        } else {
+            bail!("Expected an image with a media_type, got: {outputs:?}")
         }
 
         Ok(())

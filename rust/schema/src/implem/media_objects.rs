@@ -155,7 +155,9 @@ impl DomCodec for ImageObject {
             // For media types that require rendering in the browser, add `content_url` as an
             // attribute that is easily accessible by the <stencila-image-object> custom element
             // and do not add an <img> tag.
-            if media_type == "text/vnd.mermaid" {
+            const BROWSER_RENDERED: &[&str] =
+                &["text/vnd.mermaid", "application/vnd.plotly.v1+json"];
+            if BROWSER_RENDERED.contains(&media_type.as_str()) {
                 context.push_attr("content", &self.content_url);
                 img = false;
             }

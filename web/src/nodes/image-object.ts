@@ -53,8 +53,12 @@ export class ImageObject extends Entity {
     super.update(properties)
 
     if (properties.has('content') || properties.has('mediaType')) {
-      if (this.content && this.mediaType == 'text/vnd.mermaid') {
-        await this.compileMermaid()
+      if (this.content) {
+        if (this.mediaType == 'text/vnd.mermaid') {
+          await this.compileMermaid()
+        } else if (this.mediaType == 'application/vnd.plotly.v1+json') {
+          await this.compilePlotly()
+        }
       }
     }
   }
@@ -135,6 +139,12 @@ export class ImageObject extends Entity {
     }
 
     container.remove()
+  }
+
+  private async compilePlotly() {
+    // TODO: dynamically import plotly and render
+    const plotlyData = JSON.parse(this.content)
+    console.log('PLOTLY', plotlyData)
   }
 
   override render() {

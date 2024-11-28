@@ -378,7 +378,7 @@ try:
                     "type": "DatatableColumn",
                     "name": str(column_name),
                     "values": values,
-                    # ndarray and columns are noth the same, but we just need the dtype.
+                    # ndarray and columns are not the same, but we just need the dtype.
                     "validator": ndarray_to_validator(column),  # type: ignore
                 }
             )
@@ -461,6 +461,80 @@ try:
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
+# Custom serialization for Plotly
+try:
+    import plotly.io as pio
+    from plotly.io.base_renderers import PlotlyRenderer
+
+    class ImageObjectRenderer(PlotlyRenderer):
+        """
+        A custom renderer to output a Plotly figure as an `ImageObject`.
+
+        This is needed for when a user writes `fig.show()`. That method
+        returns `None` and plotly renderers are responsible for "rendering"
+        them to stdout.
+        """
+
+        def to_mimebundle(self, fig_dict: dict) -> list:
+            bundle = super().to_mimebundle(fig_dict)
+
+            mime_type = next(iter(bundle))
+            content = bundle[mime_type]
+
+            image = {
+                "type": "ImageObject",
+                "mediaType": mime_type,
+                "contentUrl": json.dumps(content),
+            }
+            sys.stdout.write(json.dumps(image) + END + "\n")
+
+            # Do not return the mime bundle here otherwise Plotly
+            # will print to stdout as a dict repr
+            return []
+
+    pio.renderers["image_object_renderer"] = ImageObjectRenderer()
+    pio.renderers.default = "image_object_renderer"
+
+except ImportError:
+    pass
+
+
+class MimeBundleJSONEncoder(json.JSONEncoder):
+    """
+    JSON encoder used on mime bundles to handle objects that may
+    be embedded in the bundle but which are not natively JSON serializable
+    """
+
+    def default(self, obj: Any) -> Any:
+        if NUMPY_AVAILABLE:
+            if isinstance(obj, (np.integer, np.int_)):
+                return int(obj)
+            if isinstance(obj, (np.floating, np.float_)):
+                return float(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+
+        if PANDAS_AVAILABLE:
+            if isinstance(obj, pd.Timestamp):
+                return obj.isoformat()
+            if isinstance(obj, pd.Timedelta):
+                return obj.total_seconds()
+            if isinstance(obj, pd.DataFrame):
+                return obj.to_dict(orient="records")
+            if isinstance(obj, pd.Series):
+                return obj.to_dict()
+
+        if isinstance(obj, complex):
+            return [obj.real, obj.imag]
+
+        if hasattr(obj, "__dict__"):
+            return obj.__dict__
+
+        if hasattr(obj, "__str__"):
+            return str(obj)
+
+        return super().default(obj)
+
 
 # Serialize a Python object as JSON
 def to_json(obj: Any) -> str:
@@ -478,6 +552,9 @@ def to_json(obj: Any) -> str:
 
     if MATPLOTLIB_AVAILABLE and is_matplotlib(obj):
         return json.dumps(matplotlib_to_image_object())
+
+    if hasattr(obj, "_repr_mimebundle_"):
+        return json.dumps(obj._repr_mimebundle_(), cls=MimeBundleJSONEncoder)
 
     try:
         return json.dumps(obj)
