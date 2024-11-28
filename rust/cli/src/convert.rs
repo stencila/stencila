@@ -26,6 +26,8 @@ pub struct Cli {
     ///
     /// Defaults to inferring the format from the file name extension
     /// of the `input`.
+    ///
+    /// To view all supported file formats uses the codecs command.
     #[arg(long, short)]
     from: Option<String>,
 
