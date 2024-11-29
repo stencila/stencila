@@ -3,6 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import moment from 'moment'
 
 import { withTwind } from '../../../../twind'
+import { getModeParam } from '../../../../utilities/getModeParam'
 
 /**
  * UI Node Timestamp Property
@@ -33,6 +34,14 @@ export class UINodeTimestampProperty extends LitElement {
    * Set the `relativeTime` property and request the element update
    */
   private updateRelativeTime = () => {
+    const windowMode = getModeParam(window)
+
+    // if in test mode, set an arbitrary value for consistency across the screenshots
+    if (windowMode && windowMode === 'test-expand-all') {
+      this.relativeTime = 'some time ago'
+      return
+    }
+
     this.relativeTime =
       this.value === undefined || this.value === 0
         ? '-'
