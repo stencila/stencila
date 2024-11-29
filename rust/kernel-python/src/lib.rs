@@ -105,11 +105,24 @@ mod tests {
                     vec![Node::Integer(2)],
                     vec![],
                 ),
+                // Multiple outputs, and outputs can span lines
+                (
+                    "
+1
+
+sum([
+  1,
+  2
+])
+",
+                    vec![Node::Integer(1), Node::Integer(3)],
+                    vec![],
+                ),
                 // Prints and an expression: multiple, separate outputs
                 (
                     "
-print(1);
-print(2, 3);
+print(1)
+print(2, 3)
 2 + 2",
                     vec![
                         Node::Integer(1),
@@ -352,20 +365,20 @@ warnings.warn('This is a warning message', UserWarning)
         assert_eq!(outputs, vec![]);
 
         // Runtime error on last line
-        let (.., messages) = kernel.execute("# Comment\n1 / 0").await?;
+        let (.., messages) = kernel.execute("# Comment\n\n1 / 0").await?;
         let msg = &messages[0];
         assert_eq!(msg.error_type.as_deref(), Some("ZeroDivisionError"));
         assert_eq!(msg.message, "division by zero");
         assert_eq!(
             msg.stack_trace.as_deref(),
-            Some("Code chunk #3, line 1, in <module>\n")
+            Some("Code chunk #3, line 3, in <module>\n")
         );
         assert_eq!(
             msg.code_location,
             Some(CodeLocation {
-                start_line: Some(1),
+                start_line: Some(2),
                 start_column: Some(0),
-                end_line: Some(1),
+                end_line: Some(2),
                 end_column: Some(5),
                 ..Default::default()
             })
