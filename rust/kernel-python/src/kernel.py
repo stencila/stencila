@@ -87,6 +87,7 @@ class Datatable(TypedDict):
 class ImageObject(TypedDict):
     type: Literal["ImageObject"]
     contentUrl: str
+    mediaType: str
 
 
 class SoftwareApplication(TypedDict):
@@ -456,6 +457,7 @@ try:
         return {
             "type": "ImageObject",
             "contentUrl": url,
+            "mediaType": "image/png"
         }
 
 except ImportError:
@@ -481,7 +483,7 @@ try:
         them to stdout.
         """
 
-        def to_mimebundle(self, fig_dict: dict) -> list:
+        def to_mimebundle(self, fig_dict: Any) -> dict[str, Any]:
             bundle = super().to_mimebundle(fig_dict)
 
             mime_type = next(iter(bundle))
@@ -496,7 +498,7 @@ try:
 
             # Do not return the mime bundle here otherwise Plotly
             # will print to stdout as a dict repr
-            return []
+            return {}
 
     pio.renderers["image_object_renderer"] = ImageObjectRenderer()
     pio.renderers.default = "image_object_renderer"
@@ -526,38 +528,38 @@ class MimeBundleJSONEncoder(json.JSONEncoder):
     be embedded in the bundle but which are not natively JSON serializable
     """
 
-    def default(self, obj: Any) -> Any:
+    def default(self, o: Any) -> Any:
         if NUMPY_AVAILABLE:
-            if isinstance(obj, (np.integer, np.int_)):
-                return int(obj)
-            if isinstance(obj, (np.floating, np.float_)):
-                return float(obj)
-            if isinstance(obj, np.ndarray):
-                return obj.tolist()
+            if isinstance(o, (np.integer, np.int_)): # type: ignore
+                return int(o)
+            if isinstance(o, (np.floating, np.float_)): # type: ignore
+                return float(o)
+            if isinstance(o, np.ndarray):
+                return o.tolist()
 
         if PANDAS_AVAILABLE:
-            if isinstance(obj, pd.Timestamp):
-                return obj.isoformat()
-            if isinstance(obj, pd.Timedelta):
-                return obj.total_seconds()
-            if isinstance(obj, pd.DataFrame):
-                return obj.to_dict(orient="records")
-            if isinstance(obj, pd.Series):
-                return obj.to_dict()
+            if isinstance(o, pd.Timestamp):
+                return o.isoformat()
+            if isinstance(o, pd.Timedelta):
+                return o.total_seconds()
+            if isinstance(o, pd.DataFrame):
+                return o.to_dict(orient="records")
+            if isinstance(o, pd.Series):
+                return o.to_dict()
 
-        if isinstance(obj, complex):
-            return [obj.real, obj.imag]
+        if isinstance(o, complex):
+            return [o.real, o.imag]
 
-        if hasattr(obj, "__dict__"):
-            return obj.__dict__
+        if hasattr(o, "__dict__"):
+            return o.__dict__
 
-        if hasattr(obj, "__str__"):
-            return str(obj)
+        if hasattr(o, "__str__"):
+            return str(o)
 
-        return super().default(obj)
+        return super().default(o)
 
 
-def mimebundle_to_image_object(bundle: dict) -> ImageObject:
+def mimebundle_to_image_object(bundle: Any) -> ImageObject:
     """Convert a MIME bundle to an `ImageObject`"""
     mime_type = next(iter(bundle))
     return {

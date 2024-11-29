@@ -149,7 +149,6 @@ export class ImageObject extends Entity {
     console.log('PLOTLY', spec)
   }
 
-
   private async compileVegaLite() {
     // TODO: dynamically import vega and render
     const spec = JSON.parse(this.content)
