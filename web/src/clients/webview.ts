@@ -365,8 +365,7 @@ export class WebViewClient {
   /**
    * Handle a received `ScrollSyncMessage` message
    */
-  private handleScrollSyncMessage(data: ScrollSyncMessage) {
-    const { startId, cursorId } = data
+  private handleScrollSyncMessage({ startId, cursorId }: ScrollSyncMessage) {
     // Prioritize cursor position if it exists
     if (cursorId) {
       const cursorElement = document.getElementById(cursorId)
@@ -389,7 +388,12 @@ export class WebViewClient {
     if (startId) {
       const startElement = document.getElementById(startId)
 
-      if (startElement && startElement.depth === 1) {
+      /*
+        To avoid jumpy screens, only track an element
+        if it is the top level of the document.
+      */
+      // @ts-expect-error `depth` property will not expected on `Element`
+      if (startElement && startElement?.depth === 1) {
         const viewportHeight = window.innerHeight
         const rect = startElement.getBoundingClientRect()
 
