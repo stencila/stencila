@@ -98,6 +98,14 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       )
     }
 
+    override connectedCallback(): void {
+      super.connectedCallback()
+      const testMode = getModeParam(window)
+      if (testMode && testMode === 'test-expand-all') {
+        this.toggle = true
+      }
+    }
+
     protected renderMarker() {
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
@@ -127,7 +135,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
         'h-full',
         'transition-all duration-200 ease-in-out',
         'hover:cursor-pointer hover:z-50',
-        `-left-[${offset}px]`,
+        `-left-[${offset - 10}px] sm:-left-[${offset}px]`,
         this.toggleMarkerPosition,
       ])
 
@@ -175,14 +183,6 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
           ></stencila-ui-icon-button>
         </div>
       `
-    }
-
-    override connectedCallback(): void {
-      super.connectedCallback()
-      const testMode = getModeParam(window)
-      if (testMode && testMode === 'test-expand-all') {
-        this.toggle = true
-      }
     }
   }
 
