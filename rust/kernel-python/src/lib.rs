@@ -1081,12 +1081,12 @@ df = pd.DataFrame({
     'y': np.random.uniform(0, 1, 100)
 })
 
-chart = alt.Chart(df).mark_point().encode(
+# Charts can span multiple lines
+alt.Chart(df).mark_point().encode(
     x=alt.X('x', scale=alt.Scale(domain=[0, 1])),
     y=alt.Y('y', scale=alt.Scale(domain=[0, 1]))
 ).properties(width=400, height=300)
-
-chart",
+",
             )
             .await?;
         assert_eq!(messages, []);
@@ -1102,7 +1102,14 @@ chart",
 
         let (outputs, messages) = instance
             .execute(
-                "alt.Chart(df).mark_point().encode(x=alt.X('x', scale=alt.Scale(domain=[0, 1])), y=alt.Y('y', scale=alt.Scale(domain=[0, 1])))",
+                "
+# Assigned and 'returned'
+chart = alt.Chart(df).mark_point().encode(
+  x=alt.X('x'),
+  y=alt.Y('y')
+)
+chart
+",
             )
             .await?;
         assert_eq!(messages, []);
