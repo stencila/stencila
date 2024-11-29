@@ -6,7 +6,7 @@
 @import url('../fonts/stix-two-math/stix-two-math.css');
 
 :root {
-  padding: 4rem;
+  padding: 3rem 4rem;
   /* custom properties */
   --default-text-colour: #171817;
 
