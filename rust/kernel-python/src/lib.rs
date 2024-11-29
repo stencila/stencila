@@ -1053,6 +1053,72 @@ plt.show()",
         Ok(())
     }
 
+    /// `PythonKernel` specific test for getting an Altair plot as output
+    #[test_log::test(tokio::test)]
+    async fn altair() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (.., messages) = instance.execute("import altair as alt").await?;
+        if messages
+            .first()
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            println!("Skipping test because `altair` not available");
+            return Ok(());
+        }
+
+        let (outputs, messages) = instance
+            .execute(
+                "
+import numpy as np
+import pandas as pd
+
+df = pd.DataFrame({
+    'x': np.random.uniform(0, 1, 100),
+    'y': np.random.uniform(0, 1, 100)
+})
+
+chart = alt.Chart(df).mark_point().encode(
+    x=alt.X('x', scale=alt.Scale(domain=[0, 1])),
+    y=alt.Y('y', scale=alt.Scale(domain=[0, 1]))
+).properties(width=400, height=300)
+
+chart",
+            )
+            .await?;
+        assert_eq!(messages, []);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "application/vnd.vegalite.v5+json");
+        } else {
+            bail!("Expected an image with a media_type, got: {outputs:?}")
+        }
+
+        let (outputs, messages) = instance
+            .execute(
+                "alt.Chart(df).mark_point().encode(x=alt.X('x', scale=alt.Scale(domain=[0, 1])), y=alt.Y('y', scale=alt.Scale(domain=[0, 1])))",
+            )
+            .await?;
+        assert_eq!(messages, []);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "application/vnd.vegalite.v5+json");
+        } else {
+            bail!("Expected an image with a media_type, got: {outputs:?}")
+        }
+
+        Ok(())
+    }
+
     /// Standard kernel test for forking
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {

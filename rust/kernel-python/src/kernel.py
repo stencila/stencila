@@ -466,6 +466,12 @@ try:
     import plotly.io as pio
     from plotly.io.base_renderers import PlotlyRenderer
 
+    PLOTLY_AVAILABLE = True
+
+    def is_plotly(value: Any) -> bool:
+        """Is the value a Plotly MIME bundle"""
+        return isinstance(value, dict) and "application/vnd.plotly.v1+json" in value
+
     class ImageObjectRenderer(PlotlyRenderer):
         """
         A custom renderer to output a Plotly figure as an `ImageObject`.
@@ -496,7 +502,22 @@ try:
     pio.renderers.default = "image_object_renderer"
 
 except ImportError:
-    pass
+    PLOTLY_AVAILABLE = False
+
+# Use MIME bundle for Altair plot serialization
+try:
+    import altair as alt
+
+    ALTAIR_AVAILABLE = True
+
+    alt.renderers.enable("mimetype")
+
+    def is_altair(value: Any) -> bool:
+        """Is the value a Vega-Altair MIME bundle"""
+        return isinstance(value, dict) and "application/vnd.vegalite.v5+json" in value
+
+except ImportError:
+    ALTAIR_AVAILABLE = False
 
 
 class MimeBundleJSONEncoder(json.JSONEncoder):
@@ -536,6 +557,16 @@ class MimeBundleJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
+def mimebundle_to_image_object(bundle: dict) -> ImageObject:
+    """Convert a MIME bundle to an `ImageObject`"""
+    mime_type = next(iter(bundle))
+    return {
+        "type": "ImageObject",
+        "mediaType": mime_type,
+        "contentUrl": json.dumps(bundle[mime_type], cls=MimeBundleJSONEncoder),
+    }
+
+
 # Serialize a Python object as JSON
 def to_json(obj: Any) -> str:
     if isinstance(obj, (bool, int, float, str)):
@@ -554,7 +585,17 @@ def to_json(obj: Any) -> str:
         return json.dumps(matplotlib_to_image_object())
 
     if hasattr(obj, "_repr_mimebundle_"):
-        return json.dumps(obj._repr_mimebundle_(), cls=MimeBundleJSONEncoder)
+        bundle = obj._repr_mimebundle_()
+
+        # Altair returns a tuple of bundles, the second item empty, so
+        # if a tuple or list, just take the first item
+        if isinstance(bundle, (tuple, list)) and len(bundle):
+            bundle = bundle[0]
+
+        if is_plotly(bundle) or is_altair(bundle):
+            return json.dumps(mimebundle_to_image_object(bundle))
+
+        return json.dumps(bundle, cls=MimeBundleJSONEncoder)
 
     try:
         return json.dumps(obj)
@@ -905,7 +946,7 @@ def main() -> None:
                 "message": str(e),
                 "errorType": type(e).__name__,
                 "stackTrace": stack_trace,
-                "codeLocation": code_location, # type: ignore
+                "codeLocation": code_location,  # type: ignore
             }
             sys.stderr.write(to_json(em) + "\n")
 

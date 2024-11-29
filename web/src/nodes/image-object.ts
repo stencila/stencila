@@ -58,6 +58,8 @@ export class ImageObject extends Entity {
           await this.compileMermaid()
         } else if (this.mediaType == 'application/vnd.plotly.v1+json') {
           await this.compilePlotly()
+        } else if (this.mediaType == 'application/vnd.vegalite.v5+json') {
+          await this.compileVegaLite()
         }
       }
     }
@@ -143,8 +145,15 @@ export class ImageObject extends Entity {
 
   private async compilePlotly() {
     // TODO: dynamically import plotly and render
-    const plotlyData = JSON.parse(this.content)
-    console.log('PLOTLY', plotlyData)
+    const spec = JSON.parse(this.content)
+    console.log('PLOTLY', spec)
+  }
+
+
+  private async compileVegaLite() {
+    // TODO: dynamically import vega and render
+    const spec = JSON.parse(this.content)
+    console.log('VEGA-LITE', spec)
   }
 
   override render() {
