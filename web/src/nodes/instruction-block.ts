@@ -308,6 +308,7 @@ export class InstructionBlock extends Instruction {
             : ''}"
         >
           <div
+            class="pointer-events-none"
             style="transition: transform 0.3s ease-in-out; transform: translateX(-${this
               .activeSuggestion * 100}%)"
           >
