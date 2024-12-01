@@ -47,8 +47,10 @@ impl Instruction {
         };
 
         static TARGET: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"((below|next)|(above|prev(ious)?))?\s*((code)|(fig(ure)?)|(tab(le)?))?\s*(\d+)?")
-                .expect("invalid regex")
+            Regex::new(
+                r"((below|next)|(above|prev(ious)?))?\s*((code)|(fig(ure)?)|(tab(le)?))?\s*(\d+)?",
+            )
+            .expect("invalid regex")
         });
         let Some(captures) = TARGET.captures(message) else {
             // Unable to determine target from message, so just return the next block
