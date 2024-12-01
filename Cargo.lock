@@ -1234,6 +1234,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-odt"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-pandoc",
+]
+
+[[package]]
 name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
@@ -1311,6 +1319,7 @@ dependencies = [
  "codec-jsonld",
  "codec-latex",
  "codec-markdown",
+ "codec-odt",
  "codec-pandoc",
  "codec-pdf",
  "codec-swb",
