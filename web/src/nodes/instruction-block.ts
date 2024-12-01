@@ -302,8 +302,8 @@ export class InstructionBlock extends Instruction {
           <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
         </div>
         <div
-          class="suggestions-container ${this.activeSuggestion === null ||
-          this.activeSuggestion === undefined
+          class="suggestions-container overflow-x-hidden ${this
+            .activeSuggestion === null || this.activeSuggestion === undefined
             ? 'hidden'
             : ''}"
         >
