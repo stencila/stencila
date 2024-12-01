@@ -26,8 +26,7 @@ pub struct Cli {
     ///
     /// Defaults to inferring the format from the file name extension
     /// of the `input`.
-    ///
-    /// To view all supported file formats uses the codecs command.
+    /// See `stencila codecs list` for available formats.
     #[arg(long, short)]
     from: Option<String>,
 
@@ -35,6 +34,7 @@ pub struct Cli {
     ///
     /// Defaults to inferring the format from the file name extension
     /// of the `output`. If no `output` is supplied, defaults to JSON.
+    /// See `stencila codecs list` for available formats.
     #[arg(long, short)]
     to: Option<String>,
 
