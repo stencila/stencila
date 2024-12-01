@@ -26,6 +26,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_dom::DomCodec),
         Box::new(codec_directory::DirectoryCodec),
         Box::new(codec_html::HtmlCodec),
+        Box::new(codec_ipynb::IpynbCodec),
         Box::new(codec_jats::JatsCodec),
         Box::new(codec_json::JsonCodec),
         Box::new(codec_json5::Json5Codec),
