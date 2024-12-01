@@ -1,6 +1,7 @@
 ---
 source: rust/codecs/tests/specs.rs
 expression: specs
+snapshot_kind: text
 ---
 {
   "cbor": {
@@ -186,6 +187,21 @@ expression: specs
     },
     "supports_to_bytes": false,
     "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "odt": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "odt": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "odt": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": false,
     "supports_to_path": true
   },
   "pandoc": {
