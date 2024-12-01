@@ -170,7 +170,7 @@ snapshot_kind: text
   "markdown": {
     "status": "beta",
     "supports_from_formats": {
-      "markdown": "LowLoss",
+      "md": "LowLoss",
       "smd": "LowLoss",
       "qmd": "LowLoss",
       "myst": "LowLoss"
@@ -179,7 +179,7 @@ snapshot_kind: text
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
-      "markdown": "LowLoss",
+      "md": "LowLoss",
       "smd": "LowLoss",
       "qmd": "LowLoss",
       "myst": "LowLoss",

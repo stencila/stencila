@@ -415,7 +415,7 @@ impl Display for Format {
             JsonLd => "jsonld",
             Latex => "latex",
             Llmd => "llmd",
-            Markdown => "markdown",
+            Markdown => "md",
             Mermaid => "mermaid",
             Mkv => "mkv",
             Mp3 => "mp3",
