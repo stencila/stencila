@@ -2,6 +2,7 @@ use cli_utils::table::{self, Attribute, Cell};
 use codec::common::{
     clap::{self, Args, Parser, Subcommand},
     eyre::Result,
+    itertools::Itertools,
 };
 
 /// Manage format conversion codecs
@@ -38,12 +39,24 @@ struct List;
 impl List {
     async fn run(self) -> Result<()> {
         let mut table = table::new();
-        table.set_header(["Name", "Status"]);
+        table.set_header(["Name", "From", "To"]);
 
         for codec in super::list() {
+            let from = codec
+                .supports_from_formats()
+                .keys()
+                .map(|format| format.to_string())
+                .join(", ");
+            let to = codec
+                .supports_to_formats()
+                .keys()
+                .map(|format| format.to_string())
+                .join(", ");
+
             table.add_row([
                 Cell::new(codec.name()).add_attribute(Attribute::Bold),
-                Cell::new(codec.status()),
+                Cell::new(from),
+                Cell::new(to),
             ]);
         }
 

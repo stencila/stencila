@@ -515,27 +515,35 @@ CONTEXT: dict[str, Any] = {"print": print}
 
 # Execute lines of code
 def execute(lines: list[str], file: str) -> None:
-    # If the last line is compilable as an `eval`-able
-    # expression, then return it as a value. Otherwise
-    # just execute all the lines
-    rest, last = lines[:-1], lines[-1]
-    if last.strip():
+    buffer = ""
+    for index, line in enumerate(lines):
+        buffer += line + "\n"
+
+        # Try to compile the current buffer to see if it's complete
+        # and just continue to accumulate to buffer if not
         try:
-            last = compile(last, file + ":last", "eval")
-        except:  # noqa: E722
-            compiled = compile("\n".join(lines), file, "exec")
-            exec(compiled, CONTEXT)
-        else:
-            if rest:
-                joined = "\n".join(rest)
-                compiled = compile(joined, file, "exec")
-                exec(compiled, CONTEXT)
-            value = eval(last, CONTEXT)
+            compile(buffer, file, "exec")
+        except Exception:
+            continue
+
+        # Code is complete, execute it
+        try:
+            # First, try to compile and evaluate as an expression
+            compiled = compile(buffer, file, "eval")
+            value = eval(compiled, CONTEXT)
             if value is not None:
-                sys.stdout.write(to_json(value))
-    else:
-        compiled = compile("\n".join(lines), file, "exec")
-        exec(compiled, CONTEXT)
+                sys.stdout.write(to_json(value) + END + "\n")
+        except SyntaxError:
+            # Not an expression, execute as statements
+            compiled = compile(buffer, file, "exec")
+            exec(compiled, CONTEXT)
+
+        # Reset buffer
+        buffer = "\n" * (index + 1)
+
+    # If any buffer remaining then compile to raise the syntax error
+    compiled = compile(buffer, file, "exec")
+    exec(compiled, CONTEXT)
 
 
 # Evaluate an expression
@@ -778,11 +786,6 @@ def main() -> None:
                     continue
 
                 file = frame.filename
-                add_lines = 0
-                if file == code_label + ":last":
-                    file = code_label
-                    add_lines = len(lines) - 2
-
                 location = code_label if file == code_label else f'File "{file}"'
 
                 stack_trace += f"{location}, line {frame.lineno}, in {frame.name}\n"
@@ -790,13 +793,11 @@ def main() -> None:
                     code_location = {
                         "type": "CodeLocation",
                         "startLine": (
-                            frame.lineno - 1 + add_lines
-                            if frame.lineno is not None
-                            else None
+                            frame.lineno - 1 if frame.lineno is not None else None
                         ),
                         # Some line and column numbers only available in Python >=3.11
                         "endLine": (
-                            frame.end_lineno - 1 + add_lines # type: ignore
+                            frame.end_lineno - 1  # type: ignore
                             if getattr(frame, "end_lineno", None) is not None
                             else None
                         ),

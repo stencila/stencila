@@ -28,8 +28,12 @@ export type NodeColours = Pick<
   'borderColour' | 'colour' | 'textColour'
 >
 
+// Nested
 const HORIZ_INSET_PIXELS = 5
+// The base offset in pixels for the node marker
 const BASE_OFFSET = 60
+// The number in pixels to remove from the offset for smaller screens
+const SMALL_DEVICE_OFFSET_MODIFIER = 10
 
 /**
  * A Mixin that provides a "marker" with a vertical bar, to allow for a card to have its visibility
@@ -98,6 +102,14 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       )
     }
 
+    override connectedCallback(): void {
+      super.connectedCallback()
+      const testMode = getModeParam(window)
+      if (testMode && testMode === 'test-expand-all') {
+        this.toggle = true
+      }
+    }
+
     protected renderMarker() {
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
@@ -127,7 +139,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
         'h-full',
         'transition-all duration-200 ease-in-out',
         'hover:cursor-pointer hover:z-50',
-        `-left-[${offset}px]`,
+        `-left-[${offset - SMALL_DEVICE_OFFSET_MODIFIER}px] sm:-left-[${offset}px]`,
         this.toggleMarkerPosition,
       ])
 
@@ -175,14 +187,6 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
           ></stencila-ui-icon-button>
         </div>
       `
-    }
-
-    override connectedCallback(): void {
-      super.connectedCallback()
-      const testMode = getModeParam(window)
-      if (testMode && testMode === 'test-expand-all') {
-        this.toggle = true
-      }
     }
   }
 
