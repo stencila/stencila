@@ -159,10 +159,10 @@ Convert a document to another format
 
 * `-f`, `--from <FROM>` — The format to encode from (or codec to use)
 
-   Defaults to inferring the format from the file name extension of the `input`.
+   Defaults to inferring the format from the file name extension of the `input`. See `stencila codecs list` for available formats.
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
-   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON.
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
 * `-i`, `--input-losses <INPUT_LOSSES>` — What to do if there are losses when decoding from the input
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -288,7 +288,7 @@ Compile a document
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
-   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON.
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-r`, `--render` — For executable nodes, only encode outputs, not source properties
@@ -346,7 +346,7 @@ Execute a document
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
-   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON.
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -428,7 +428,7 @@ Equivalent to the `execute` command with the `--render` flag.
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
-   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to Markdown.
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to Markdown. See `stencila codecs list` for available formats.
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
