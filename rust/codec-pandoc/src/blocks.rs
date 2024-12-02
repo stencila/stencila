@@ -186,6 +186,12 @@ fn list_from_pandoc(
 }
 
 fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let attrs = if let Some(label) = &table.label {
+        attrs_attributes(vec![("label".into(), label.into())])
+    } else {
+        attrs_empty()
+    };
+
     let caption = table
         .caption
         .as_ref()
@@ -229,7 +235,7 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
         .collect();
 
     pandoc::Block::Table(pandoc::Table {
-        attr: attrs_empty(),
+        attr: attrs,
         caption: pandoc::Caption {
             short: None,
             long: caption,
@@ -253,6 +259,9 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
 }
 
 fn table_from_pandoc(table: pandoc::Table, context: &mut PandocDecodeContext) -> Block {
+    let label = get_attr(&table.attr, "label");
+    let label_automatically = label.is_some().then_some(false);
+
     let caption = blocks_from_pandoc(table.caption.long, context);
     let caption = match caption.is_empty() {
         true => None,
@@ -295,6 +304,8 @@ fn table_from_pandoc(table: pandoc::Table, context: &mut PandocDecodeContext) ->
 
     Block::Table(Table {
         rows,
+        label,
+        label_automatically,
         caption,
         ..Default::default()
     })
