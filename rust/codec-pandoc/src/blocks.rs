@@ -55,6 +55,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
 
         // Other
         Block::Admonition(block) => admonition_to_pandoc(block, context),
+        Block::Claim(block) => claim_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
         Block::StyledBlock(block) => styled_block_to_pandoc(block, context),
@@ -62,7 +63,6 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         // Block types currently ignored create an empty div and record loss
         // TODO: implement these
         Block::CallBlock(..)
-        | Block::Claim(..)
         | Block::DeleteBlock(..)
         | Block::ForBlock(..)
         | Block::Form(..)
@@ -485,6 +485,23 @@ fn math_block_from_pandoc(
     None
 }
 
+fn claim_to_pandoc(claim: &Claim, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let class = ["claim-", &claim.claim_type.to_string().to_lowercase()].concat();
+
+    let mut attributes = Vec::new();
+    if let Some(label) = &claim.label {
+        attributes.push(("label".into(), label.clone()));
+    }
+
+    let attrs = pandoc::Attr {
+        classes: vec![class],
+        attributes,
+        ..attrs_empty()
+    };
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(&claim.content, context))
+}
+
 fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -> pandoc::Block {
     let class = [
         "callout-",
@@ -582,6 +599,26 @@ fn styled_block_from_pandoc(
                 admonition_type,
                 title,
                 is_folded,
+                content,
+                ..Default::default()
+            });
+        }
+    };
+
+    if let Some(claim_type) = attrs
+        .classes
+        .iter()
+        .find_map(|class| class.strip_prefix("claim-"))
+    {
+        if let Ok(claim_type) = ClaimType::from_str(claim_type) {
+            let label = attrs
+                .attributes
+                .into_iter()
+                .find_map(|(name, value)| (name == "label").then_some(value));
+
+            return Block::Claim(Claim {
+                claim_type,
+                label,
                 content,
                 ..Default::default()
             });

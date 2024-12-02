@@ -1,1 +1,1 @@
-{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Div","c":[["",[],[]],[]]},{"t":"Div","c":[["",[],[]],[]]}]}
+{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Div","c":[["",["claim-theorem"],[]],[{"t":"Para","c":[{"t":"Str","c":"A theorem"}]}]]},{"t":"Div","c":[["",["claim-proposition"],[["label","Proposition 1"]]],[{"t":"Para","c":[{"t":"Str","c":"A proposition with a label"}]}]]}]}

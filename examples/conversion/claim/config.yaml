@@ -4,7 +4,3 @@ compact.jats.xml:
       # TODO: implement decoding of <statement> into `Claim`
       - Claim
 
-pandoc:
-  decode:
-    # TODO: remove when implemented
-    skip: true
