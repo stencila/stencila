@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 ROOT_PATH = Path(__file__).parent.parent.parent.parent
-NODES_PATH = ROOT_PATH / "examples" / "nodes"
+NODES_PATH = ROOT_PATH / "examples" / "conversion"
 
 
 @dataclass(repr=False)
