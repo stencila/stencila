@@ -106,22 +106,23 @@ proptest! {
                 // so strip them from round-trip conversions
                 "CallBlock".into(),
                 "CodeChunk".into(),
-                "ForBlock".into(),
                 "IfBlock".into(),
                 "IncludeBlock".into(),
                 "InstructionBlock".into(),
             ],
             properties: vec![
-                // Language is not currently supported for inline code
-                "CodeInline.programming_language".into(),
                 // Admonition title is currently encoded as plain, unstructured text
                 // only, so strip it.
                 "Admonition.title".into(),
-                // Table notes not currently supported
-                "Table.notes".into(),
+                // Language is not currently supported for inline code
+                "CodeInline.programming_language".into(),
+                // The `otherwise` property of `ForBlock`s is not yet supported
+                "ForBlock.otherwise".into(),
                 // Arbitrary figures do not necessarily have `label_automatically == false`
                 // when a label is present so need to strip label
-                "Figure.label".into()
+                "Figure.label".into(),
+                // Table notes not currently supported
+                "Table.notes".into(),
             ],
             ..Default::default()
         });

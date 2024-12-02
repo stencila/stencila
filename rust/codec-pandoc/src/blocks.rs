@@ -56,6 +56,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         // Other
         Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
+        Block::ForBlock(block) => for_block_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
         Block::StyledBlock(block) => styled_block_to_pandoc(block, context),
@@ -64,7 +65,6 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         // TODO: implement these
         Block::CallBlock(..)
         | Block::DeleteBlock(..)
-        | Block::ForBlock(..)
         | Block::Form(..)
         | Block::IfBlock(..)
         | Block::IncludeBlock(..)
@@ -537,6 +537,24 @@ fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -
     pandoc::Block::Div(attrs, blocks_to_pandoc(&admon.content, context))
 }
 
+fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let mut attributes = vec![
+        ("variable".into(), block.variable.clone()),
+        ("code".into(), block.code.to_string()),
+    ];
+    if let Some(lang) = &block.programming_language {
+        attributes.push(("lang".into(), lang.clone()));
+    }
+
+    let attrs = pandoc::Attr {
+        classes: vec!["for".into()],
+        attributes,
+        ..attrs_empty()
+    };
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(&block.content, context))
+}
+
 fn quote_block_to_pandoc(block: &QuoteBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     if block.cite.is_some() {
         context.losses.add("QuoteBlock.cite");
@@ -634,6 +652,34 @@ fn styled_block_from_pandoc(
                 ..Default::default()
             });
         }
+    };
+
+    if attrs.classes.iter().any(|class| class == "for") {
+        let variable = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "variable").then_some(value.clone()))
+            .unwrap_or_default();
+
+        let code = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "code").then_some(value.clone()))
+            .unwrap_or_default()
+            .into();
+
+        let programming_language = attrs
+            .attributes
+            .into_iter()
+            .find_map(|(name, value)| (name == "lang").then_some(value));
+
+        return Block::ForBlock(ForBlock {
+            variable,
+            code,
+            programming_language,
+            content,
+            ..Default::default()
+        });
     };
 
     if let Some(section_type) = attrs
