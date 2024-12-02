@@ -4,8 +4,3 @@ compact.jats.xml:
       # TODO
       - Figure
 
-pandoc:
-  encode:
-    # TODO: Remove when implemented
-    strip-types:
-      - Section
