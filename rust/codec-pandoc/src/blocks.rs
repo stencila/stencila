@@ -373,12 +373,14 @@ fn figure_from_pandoc(
     let content = blocks_from_pandoc(content, context);
 
     let label = get_attr(&attrs, "label");
+    let label_automatically = label.is_some().then_some(false);
 
     let caption = (!caption.long.is_empty()).then(|| blocks_from_pandoc(caption.long, context));
 
     Block::Figure(Figure {
         content,
         label,
+        label_automatically,
         caption,
         ..Default::default()
     })
