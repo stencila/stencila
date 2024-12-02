@@ -149,7 +149,18 @@ fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecod
 }
 
 fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pandoc::Block {
-    pandoc::Block::Div(attrs_empty(), blocks_to_pandoc(&section.content, context))
+    let section_type = match &section.section_type {
+        Some(section_type) => section_type.to_string().to_lowercase(),
+        None => "".to_string(),
+    };
+    let class = ["section-", &section_type].concat();
+
+    let attrs = pandoc::Attr {
+        classes: vec![class],
+        // attributes,
+        ..attrs_empty()
+    };
+    pandoc::Block::Div(attrs, blocks_to_pandoc(&section.content, context))
 }
 
 fn list_to_pandoc(list: &List, context: &mut PandocEncodeContext) -> pandoc::Block {
@@ -624,6 +635,20 @@ fn styled_block_from_pandoc(
             });
         }
     };
+
+    if let Some(section_type) = attrs
+        .classes
+        .iter()
+        .find_map(|class| class.strip_prefix("section-"))
+    {
+        let section_type = SectionType::from_str(section_type).ok();
+        return Block::Section(Section {
+            section_type,
+            content,
+
+            ..Default::default()
+        });
+    }
 
     Block::StyledBlock(StyledBlock::new(attrs.classes.join(" ").into(), content))
 }

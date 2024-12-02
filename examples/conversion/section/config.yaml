@@ -1,4 +1,0 @@
-pandoc:
-  decode:
-    # TODO: remove when implemented
-    skip: true
