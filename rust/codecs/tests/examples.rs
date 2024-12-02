@@ -58,7 +58,7 @@ struct DecodeConfig {
 
 /// Default config
 static CONFIG: Lazy<Config> = Lazy::new(|| {
-    let mut internal = BTreeMap::from([
+    BTreeMap::from([
         (
             "cbor".into(),
             FormatConfig {
@@ -311,9 +311,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                 ..Default::default()
             },
         ),
-    ]);
-
-    internal
+    ])
 });
 
 /// Test the encoding/decoding of examples to/from various formats
