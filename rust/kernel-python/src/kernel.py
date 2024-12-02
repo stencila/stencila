@@ -643,7 +643,7 @@ def execute(lines: list[str], file: str) -> None:
         # and just continue to accumulate to buffer if not
         try:
             compile(buffer, file, "exec")
-        except:
+        except Exception:
             continue
 
         # Code is complete, execute it
