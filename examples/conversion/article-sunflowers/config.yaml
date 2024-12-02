@@ -25,3 +25,8 @@ qmd:
   decode:
     # TODO: As for Markdown
     skip: true
+
+pandoc:
+  decode:
+    # TODO: remove when implemented
+    skip: true

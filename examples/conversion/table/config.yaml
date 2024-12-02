@@ -9,3 +9,9 @@ myst:
     strip-props:
       # MyST does not currently support table notes
       - Table.notes
+
+pandoc:
+  decode:
+    strip-props:
+      # TODO: Check if Pandoc support table notes
+      - Table.notes

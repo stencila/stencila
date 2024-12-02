@@ -24,3 +24,8 @@ qmd:
       # As above
       - ModifyBlock.content
       - ModifyBlock.operations
+
+pandoc:
+  decode:
+    # TODO: remove when implemented
+    skip: true

@@ -22,3 +22,8 @@ qmd:
       # As for Markdown
       - StyledBlock.style_language
 
+pandoc:
+  decode:
+    strip-props:
+      # As for Markdown
+      - StyledBlock.style_language

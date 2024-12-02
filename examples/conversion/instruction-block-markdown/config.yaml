@@ -8,3 +8,7 @@ compact.jats.xml:
 myst:
   decode:
     skip: true
+
+pandoc:
+  decode:
+    skip: true

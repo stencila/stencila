@@ -19,3 +19,8 @@ qmd:
   decode:
     # As for Markdown
     skip: true
+
+pandoc:
+  decode:
+    # As for Markdown
+    skip: true

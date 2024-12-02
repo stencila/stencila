@@ -1,0 +1,1 @@
+{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Para","c":[{"t":"Str","c":"A simple if block"}]},{"t":"Para","c":[{"t":"Str","c":"An if block with programming language specified"}]},{"t":"Para","c":[{"t":"Str","c":"With an else clause"}]},{"t":"Para","c":[{"t":"Str","c":"With multiple clauses"}]},{"t":"Para","c":[{"t":"Str","c":"Nested if blocks"}]}]}

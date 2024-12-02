@@ -3,3 +3,9 @@ compact.jats.xml:
     strip-types:
       # TODO
       - Figure
+
+pandoc:
+  encode:
+    # TODO: Remove when implemented
+    strip-types:
+      - Section

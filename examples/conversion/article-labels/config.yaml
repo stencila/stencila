@@ -16,4 +16,10 @@ myst:
 
 qmd:
   decode:
+    # TODO: remove when implemented
+    skip: true
+
+pandoc:
+  decode:
+    # TODO: remove when implemented
     skip: true

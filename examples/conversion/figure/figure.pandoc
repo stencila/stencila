@@ -1,0 +1,1 @@
+{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Figure","c":[["",[],[]],[null,[]],[{"t":"Para","c":[{"t":"Image","c":[["",[],[]],[],["https://example.org/cat.jpg",""]]}]}]]},{"t":"Figure","c":[["",[],[["label","2"]]],[null,[{"t":"Para","c":[{"t":"Str","c":"A dog."}]}]],[{"t":"Para","c":[{"t":"Image","c":[["",[],[]],[],["https://example.org/dog.jpg",""]]}]}]]}]}

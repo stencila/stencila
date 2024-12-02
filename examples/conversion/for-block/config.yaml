@@ -9,3 +9,9 @@ myst:
     strip-props:
       # MyST does not support lang currently
       - ForBlock.programming_language
+
+pandoc:
+  encode:
+    # TODO: Remove when implemented
+    strip-types:
+      - ForBlock

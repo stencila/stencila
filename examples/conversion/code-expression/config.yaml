@@ -24,3 +24,8 @@ qmd:
       # The following properties are not supported in QMD
       - CodeExpression.execution_mode
       - CodeExpression.output
+
+pandoc:
+  decode:
+    # TODO: remove when implemented
+    skip: true

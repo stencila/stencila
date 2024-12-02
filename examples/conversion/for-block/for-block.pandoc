@@ -1,0 +1,1 @@
+{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Para","c":[{"t":"Str","c":"A simple for loop"}]},{"t":"Para","c":[{"t":"Str","c":"With a programming language specified"}]},{"t":"Para","c":[{"t":"Str","c":"Nested for loops"}]},{"t":"Para","c":[{"t":"Str","c":"With an else clause"}]},{"t":"Para","c":[{"t":"Str","c":"With no content in 'content' or 'otherwise'"}]}]}

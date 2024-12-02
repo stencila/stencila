@@ -15,3 +15,9 @@ qmd:
     strip-props:
       # As for Markdown
       - StyledInline.style_language
+
+pandoc:
+  decode:
+    strip-props:
+      # As for Markdown
+      - StyledInline.style_language

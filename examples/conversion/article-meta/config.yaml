@@ -5,3 +5,8 @@ compact.jats.xml:
   decode:
     # TODO: Enable authors and other metadata encoding/decoding
     strip-scopes: [authors, metadata]
+
+pandoc:
+  decode:
+    # TODO: Enable authors and other metadata encoding/decoding
+    strip-scopes: [authors, metadata]

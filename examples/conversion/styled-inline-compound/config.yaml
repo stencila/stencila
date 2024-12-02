@@ -13,3 +13,9 @@ qmd:
   decode:
     # As for Markdown
     skip: true
+
+pandoc:
+  decode:
+    strip-props:
+      # Pandoc does not support alternative style languages
+      - StyledInline.style_language
