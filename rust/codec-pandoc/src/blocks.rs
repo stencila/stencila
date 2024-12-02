@@ -1,8 +1,9 @@
-use std::any::type_name_of_val;
+use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
 use codec::schema::*;
+use codec_text_trait::to_text;
 
 use crate::{
     inlines::{inlines_from_pandoc, inlines_to_pandoc},
@@ -53,14 +54,14 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::MathBlock(block) => math_block_to_pandoc(block, context),
 
         // Other
+        Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
         Block::StyledBlock(block) => styled_block_to_pandoc(block, context),
 
         // Block types currently ignored create an empty div and record loss
         // TODO: implement these
-        Block::Admonition(..)
-        | Block::CallBlock(..)
+        Block::CallBlock(..)
         | Block::Claim(..)
         | Block::DeleteBlock(..)
         | Block::ForBlock(..)
@@ -484,6 +485,30 @@ fn math_block_from_pandoc(
     None
 }
 
+fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let class = [
+        "callout-",
+        &admon.admonition_type.to_string().to_lowercase(),
+    ]
+    .concat();
+
+    let mut attributes = Vec::new();
+    if let Some(title) = &admon.title {
+        attributes.push(("title".into(), to_text(title)));
+    }
+    if let Some(is_folded) = &admon.is_folded {
+        attributes.push(("collapse".into(), is_folded.to_string()));
+    }
+
+    let attrs = pandoc::Attr {
+        classes: vec![class],
+        attributes,
+        ..attrs_empty()
+    };
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(&admon.content, context))
+}
+
 fn quote_block_to_pandoc(block: &QuoteBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     if block.cite.is_some() {
         context.losses.add("QuoteBlock.cite");
@@ -529,8 +554,39 @@ fn styled_block_from_pandoc(
     blocks: Vec<pandoc::Block>,
     context: &mut PandocDecodeContext,
 ) -> Block {
-    Block::StyledBlock(StyledBlock::new(
-        attrs.classes.join(" ").into(),
-        blocks_from_pandoc(blocks, context),
-    ))
+    let content = blocks_from_pandoc(blocks, context);
+
+    if let Some(admon_type) = attrs
+        .classes
+        .iter()
+        .find_map(|class| class.strip_prefix("callout-"))
+    {
+        if let Ok(admonition_type) = AdmonitionType::from_str(admon_type) {
+            let title = attrs
+                .attributes
+                .iter()
+                .find_map(|(name, value)| (name == "title").then_some(value))
+                .map(|title| vec![Inline::Text(Text::from(title))]);
+
+            let is_folded = attrs
+                .attributes
+                .iter()
+                .find_map(|(name, value)| (name == "collapse").then_some(value))
+                .and_then(|is_folded| match is_folded.to_lowercase().as_str() {
+                    "true" | "yes" => Some(true),
+                    "false" | "no" => Some(false),
+                    _ => None,
+                });
+
+            return Block::Admonition(Admonition {
+                admonition_type,
+                title,
+                is_folded,
+                content,
+                ..Default::default()
+            });
+        }
+    };
+
+    Block::StyledBlock(StyledBlock::new(attrs.classes.join(" ").into(), content))
 }

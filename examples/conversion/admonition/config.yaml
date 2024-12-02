@@ -12,8 +12,3 @@ qmd:
       # QMD currently only supports five "call out" types so round trip
       # conversion is not always faithful so we need to strip type for this test.
       - Admonition.admonition_type
-
-pandoc:
-  decode:
-    # TODO: remove this when admonitions are supported by this codec
-    skip: true
