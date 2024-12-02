@@ -204,28 +204,5 @@ start     end        offsets   node_type+property                   authorship
    553    561         (0, 1)   ListItem.content
    553    560        (0, -1)   ListItem
    496    560       (-57, 0)   List
-   561    615       (65, 55)   Text.value
-   561    615         (0, 0)   Text
-   561    615         (0, 0)   Paragraph.content
-   561    616         (0, 1)   Paragraph
-   619    635       (58, 19)   Text.value
-   619    635         (0, 0)   Text
-   619    635         (0, 0)   Paragraph.content
-   619    636         (0, 1)   Paragraph
-   619    637         (0, 1)   ListItem.content
-   619    636        (0, -1)   ListItem
-   638    648       (19, 12)   Text.value
-   638    648         (0, 0)   Text
-   638    648         (0, 0)   Paragraph.content
-   638    649         (0, 1)   Paragraph
-   638    650         (0, 1)   ListItem.content
-   638    649        (0, -1)   ListItem
-   651    669       (13, 20)   Text.value
-   651    669         (0, 0)   Text
-   651    669         (0, 0)   Paragraph.content
-   651    670         (0, 1)   Paragraph
-   651    671         (0, 1)   ListItem.content
-   651    670        (0, -1)   ListItem
-   617    670       (-34, 0)   List
-     0    671      (-617, 1)   Article.content
-     0    671         (0, 0)   Article
+     0    561      (-496, 1)   Article.content
+     0    561         (0, 0)   Article

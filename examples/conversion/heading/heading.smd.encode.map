@@ -29,10 +29,5 @@ start     end        offsets   node_type+property                   authorship
     72     79         (0, 0)   Text
     72     79         (0, 0)   Heading.content
     65     80        (-7, 1)   Heading
-    81     82        (16, 2)   Heading.level
-    83     95        (2, 13)   Text.value
-    83     95         (0, 0)   Text
-    83     95         (0, 0)   Heading.content
-    81     96        (-2, 1)   Heading
-     0     97       (-81, 1)   Article.content
-     0     97         (0, 0)   Article
+     0     81       (-65, 1)   Article.content
+     0     81         (0, 0)   Article

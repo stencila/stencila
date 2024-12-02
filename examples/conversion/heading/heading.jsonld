@@ -76,40 +76,6 @@
           }
         }
       ]
-    },
-    {
-      "@type": "stencila:Heading",
-      "stencila:level": 1,
-      "stencila:content": [
-        {
-          "@type": "Text",
-          "value": {
-            "string": "With authors"
-          }
-        }
-      ],
-      "author": [
-        {
-          "@type": "Person",
-          "givenName": [
-            "Alice"
-          ]
-        },
-        {
-          "@type": "Person",
-          "givenName": [
-            "Zoe"
-          ]
-        },
-        {
-          "@type": "stencila:AuthorRole",
-          "author": {
-            "@type": "SoftwareApplication",
-            "name": "GPT"
-          },
-          "roleName": "Generator"
-        }
-      ]
     }
   ]
 }

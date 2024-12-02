@@ -1,6 +1,4 @@
 start     end        offsets   node_type+property                   authorship
      0     44        (0, 44)   Paragraph
-    46     82       (46, 38)   Paragraph
-    84    188      (38, 106)   Paragraph
-   190    303     (106, 115)   Paragraph
-     0    304      (-190, 1)   Article
+    46     60       (46, 16)   Paragraph
+     0     61       (-46, 1)   Article

@@ -60,34 +60,6 @@
           value: { string: "Level 6" }
         }
       ]
-    },
-    {
-      type: "Heading",
-      level: 1,
-      content: [
-        {
-          type: "Text",
-          value: { string: "With authors" }
-        }
-      ],
-      authors: [
-        {
-          type: "Person",
-          givenNames: [ "Alice" ]
-        },
-        {
-          type: "Person",
-          givenNames: [ "Zoe" ]
-        },
-        {
-          type: "AuthorRole",
-          author: {
-            type: "SoftwareApplication",
-            name: "GPT"
-          },
-          roleName: "Generator"
-        }
-      ]
     }
   ]
 }

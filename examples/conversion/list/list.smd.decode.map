@@ -69,14 +69,6 @@ start     end        offsets   node_type+property                   authorship
    542    549       (11, 11)   Paragraph
    529    550       (-13, 1)   ListItem
    553    559        (24, 9)   Paragraph
-   551    560        (-2, 1)   ListItem
-   496    560       (-55, 0)   List
-   561    615       (65, 55)   Paragraph
-   619    635       (58, 20)   Paragraph
-   617    635        (-2, 0)   ListItem
-   638    648       (21, 13)   Paragraph
-   636    648        (-2, 0)   ListItem
-   651    669       (15, 21)   Paragraph
-   649    669        (-2, 0)   ListItem
-   617    669       (-32, 0)   List
-     0    670      (-617, 1)   Article
+   551    559        (-2, 0)   ListItem
+   496    559       (-55, 0)   List
+     0    560      (-496, 1)   Article

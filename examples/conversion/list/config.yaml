@@ -3,32 +3,9 @@ compact.jats.xml:
     strip-types:
       # TODO: implement decoding `List`
       - List
-    strip-props:
-      # Decoding of authors not supported, but in fixture
-      - authors
 
-# TODO: Fix issues decoding AuthorRole with JSON-LD (?)
-compact.jsonld:
-  decode:
-    skip: true
-jsonld:
-  decode:
-    skip: true
-
-smd:
+pandoc:
   decode:
     strip-props:
-      # As above
-      - authors
-
-myst:
-  decode:
-    strip-props:
-      # As above
-      - authors
-
-qmd:
-  decode:
-    strip-props:
-      # As above
-      - authors
+      # Checked list items not currently supported in Pandoc
+      - ListItem.is_checked
