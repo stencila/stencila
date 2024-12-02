@@ -309,7 +309,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 
 /// Test the encoding/decoding of examples to/from various formats
 ///
-/// For each `examples/*.json` file, load it as a `Node`, and then for
+/// For each `examples/conversion/**/*.json` file, load it as a `Node`, and then for
 /// each format:
 ///
 /// 1. Encode to the format and compare any existing file
@@ -326,7 +326,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 #[tokio::test]
 async fn examples() -> Result<()> {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/nodes")
+        .join("../../examples/conversion")
         .canonicalize()?
         .to_string_lossy()
         .to_string()

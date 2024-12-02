@@ -201,7 +201,7 @@ npm start
 In a separate console run the Stencila CLI's `serve` command in debug mode using `cargo` from the directory that you want to be the home for the server paths e.g.
 
 ```console
-cd ../examples/nodes
+cd ../examples/web
 cargo run --bin stencila -- serve
 ```
 

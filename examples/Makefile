@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-all: codecs kernels
+all: conversion kernels
 
 # Execute a particular prompt example and save as JSON
 prompts/%.json: prompts/%.md
@@ -12,8 +12,9 @@ prompts: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard prompts/**/*.
 
 # Run the codecs `examples` test with `UPDATE_EXAMPLES` env var to
 # overwrite existing generated files
-codecs:
+conversion:
 	UPDATE_EXAMPLES=true cargo test -p codecs --test examples
+.PHONY: conversion
 
 # Execute a particular kernel example and save as JSON
 kernels/%.json: kernels/%.md
