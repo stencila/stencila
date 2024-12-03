@@ -106,7 +106,6 @@ proptest! {
                 // so strip them from round-trip conversions
                 "CallBlock".into(),
                 "CodeChunk".into(),
-                "IfBlock".into(),
                 "IncludeBlock".into(),
                 "InstructionBlock".into(),
             ],
