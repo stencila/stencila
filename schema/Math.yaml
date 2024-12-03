@@ -49,9 +49,6 @@ properties:
       formats: [md, smd, myst, qmd]
     proptest:
       min:
-        description: No language.
-        value: None
-      low:
         description: Fixed as TeX (for testing with Markdown which uses dollars to delimit TeX by default)
         value: Some(String::from("tex"))
       high:

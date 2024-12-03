@@ -45,7 +45,7 @@ pub struct MathBlock {
     #[serde(alias = "math-language", alias = "math_language")]
     #[strip(code)]
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Some(String::from("tex"))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"Some(String::from("tex"))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
