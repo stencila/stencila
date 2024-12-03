@@ -95,6 +95,48 @@ proptest! {
         assert_eq!(roundtrip(Format::Smd, &article, None, None).unwrap(), article);
     }
 
+    /// Roundtrip test for IPYNB
+    #[test]
+    fn article_ipynb(article: Article) {
+        let mut article = Node::Article(article);
+
+        article.strip(&StripTargets {
+            types: vec![
+                // TODO: Determine why these can not be round tripped
+                "Admonition".into(),
+                "QuoteBlock".into(),
+                "CodeBlock".into(),
+
+                // TODO: Encoding to MyST is invalid
+                // See https://github.com/stencila/stencila/issues/2467
+                "CallBlock".into()
+            ],
+            properties: vec![
+                // TODO: Encode these properties into Jupyter code cells
+                "CodeChunk.label".into(),
+                "CodeChunk.label_type".into(),
+                "CodeChunk.caption".into(),
+                "CodeChunk.programming_language".into(),
+
+                // TODO: Determine which of these can be round tripped
+                // and for those that can not document why
+                "Figure.label".into(),
+                "Table.caption".into(),
+                "Table.notes".into(),
+
+                // MyST only supports an image as a figure
+                "Figure.content".into(),
+
+                // Language is currently not supported for these node types in MyST
+                "ForBlock.programming_language".into(),
+                "IfBlockClause.programming_language".into(),
+            ],
+            ..Default::default()
+        });
+
+        assert_eq!(roundtrip(Format::Ipynb, &article, None, None).unwrap(), article);
+    }
+
     /// Roundtrip test for Pandoc
     #[test]
     fn article_pandoc(article: Article) {

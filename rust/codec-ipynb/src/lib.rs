@@ -89,6 +89,7 @@ impl Codec for IpynbCodec {
     }
 }
 
+/// Convert a Jupyter [`Notebook`] to a Stencila [`Node`]
 fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
     let notebook = match notebook {
         Notebook::V4(nb) => nb,
@@ -136,6 +137,7 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
     Ok((node, Losses::none()))
 }
 
+/// Convert a Stencila [`Node`] to a Jupyter [`Notebook`]
 fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
     let Node::Article(Article { content, .. }) = node else {
         bail!("Unable to encode a `{node}` as a notebook")
@@ -155,8 +157,8 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
                 };
                 if !md.is_empty() {
                     cells.push(Cell::Markdown {
-                        id: cell_id_from_node_id(node_id.unwrap_or_else(|| NodeId::null()))?,
-                        source: string_to_multiline_vec(&md),
+                        id: node_id_to_cell_id(node_id.unwrap_or_else(|| NodeId::null()))?,
+                        source: vec![md.clone()],
                         metadata: cell_metadata_default(),
                         attachments: None,
                     });
@@ -166,7 +168,21 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
                 cells.push(cell);
             }
             block => {
-                md += &codec_markdown::to_markdown(block);
+                let block_md = codec_markdown::encode(
+                    // Treat as an article so that footnotes are encoded
+                    &Node::Article(Article::new(vec![block.clone()])),
+                    Some(EncodeOptions {
+                        format: Some(Format::Myst),
+                        ..Default::default()
+                    }),
+                )?
+                .0;
+
+                if !md.is_empty() {
+                    md.push('\n');
+                }
+                md += &block_md;
+
                 node_id = block.node_id()
             }
         }
@@ -174,14 +190,15 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
 
     if !md.is_empty() {
         cells.push(Cell::Markdown {
-            id: cell_id_from_node_id(node_id.unwrap_or_else(|| NodeId::null()))?,
-            source: string_to_multiline_vec(&md),
+            id: node_id_to_cell_id(node_id.unwrap_or_else(|| NodeId::null()))?,
+            source: vec![md],
             metadata: cell_metadata_default(),
             attachments: None,
         });
     }
 
-    let mut metadata = Metadata {
+    let metadata = Metadata {
+        // TODO: Carry over authors and other article metadata
         kernelspec: None,
         language_info: None,
         authors: None,
@@ -198,10 +215,12 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
     Ok((notebook, Losses::none()))
 }
 
+/// Convert a Jupyter Markdown cell to Stencila [`Block`]s
 fn blocks_from_markdown_cell(
     source: Vec<String>,
-    metadata: CellMetadata,
-    attachments: Option<Value>,
+    // TODO: Use these?
+    _metadata: CellMetadata,
+    _attachments: Option<Value>,
 ) -> Result<Vec<Block>> {
     let md = source.join("\n");
 
@@ -219,10 +238,13 @@ fn blocks_from_markdown_cell(
     Ok(content)
 }
 
+/// Convert a Jupyter code cell to a Stencila [`CodeChunk`]
 fn code_chunk_from_code_cell(
     source: Vec<String>,
-    outputs: Vec<Output>,
-    metadata: CellMetadata,
+    // TODO: Convert outputs to Stencila nodes
+    _outputs: Vec<Output>,
+    // TODO: Use metadata?
+    _metadata: CellMetadata,
     execution_count: Option<i32>,
 ) -> Block {
     Block::CodeChunk(CodeChunk {
@@ -235,21 +257,20 @@ fn code_chunk_from_code_cell(
     })
 }
 
+/// Convert a Stencila [`CodeChunk`] to a Jupyter code cell
 fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
     Ok(Cell::Code {
-        id: cell_id_from_node_id(code_chunk.node_id())?,
-        metadata: cell_metadata_default(), // TODO
+        id: node_id_to_cell_id(code_chunk.node_id())?,
+        // TODO: Add other code chunk attributes
+        metadata: cell_metadata_default(),
         execution_count: code_chunk.options.execution_count.map(|count| count as i32),
-        source: code_chunk
-            .code
-            .to_string()
-            .split('\n')
-            .map(String::from)
-            .collect(),
-        outputs: Vec::new(), // TODO
+        source: vec![code_chunk.code.to_string()],
+        // TODO: convert to Jupyter mime bundle
+        outputs: Vec::new(),
     })
 }
 
+/// Convert a Jupyter raw block to a Stencila [`RawBlock`]
 fn raw_block_from_raw_cell(source: Vec<String>, metadata: CellMetadata) -> Block {
     Block::RawBlock(RawBlock {
         content: source.join("\n").into(),
@@ -258,15 +279,11 @@ fn raw_block_from_raw_cell(source: Vec<String>, metadata: CellMetadata) -> Block
     })
 }
 
+/// Convert a Stencila [`RawBlock`] to a Jupyter raw block
 fn raw_block_to_raw_cell(raw_block: &RawBlock) -> Result<Cell> {
     Ok(Cell::Raw {
-        id: cell_id_from_node_id(raw_block.node_id())?,
-        source: raw_block
-            .content
-            .to_string()
-            .split('\n')
-            .map(String::from)
-            .collect(),
+        id: node_id_to_cell_id(raw_block.node_id())?,
+        source: vec![raw_block.content.to_string()],
         metadata: CellMetadata {
             format: Some(raw_block.format.clone()),
             ..cell_metadata_default()
@@ -274,14 +291,12 @@ fn raw_block_to_raw_cell(raw_block: &RawBlock) -> Result<Cell> {
     })
 }
 
-fn string_to_multiline_vec(string: &str) -> Vec<String> {
-    string.split('\n').map(String::from).collect()
-}
-
-fn cell_id_from_node_id(node_id: NodeId) -> Result<CellId> {
+/// Convert a Stencila [`NodeId`] to a Jupyter [`CellId`]
+fn node_id_to_cell_id(node_id: NodeId) -> Result<CellId> {
     CellId::new(&node_id.to_string()).map_err(|error| eyre!(error))
 }
 
+/// Create a default Jupyter [`CellMetadata`]
 fn cell_metadata_default() -> CellMetadata {
     CellMetadata {
         id: None,
