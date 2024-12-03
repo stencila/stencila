@@ -1428,6 +1428,10 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
 
     // Transform into a Stencila block based on the name
 
+    // Create a new context, with the same format (MyST) so that the decode map
+    // does not have position restarting of zero when `value` is re-parsed in `decode_blocks`
+    let context = &mut Context::new(context.format.clone());
+
     if let Some(claim_type) = name.strip_prefix("prf:") {
         return Some(Block::Claim(Claim {
             claim_type: claim_type.parse().unwrap_or_default(),
