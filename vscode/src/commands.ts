@@ -143,15 +143,56 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
         return;
       }
 
-      const filePath = await vscode.window.showInputBox({
-        prompt: "File path to export to",
-        placeHolder: "e.g. report.json",
+      const formats = {
+        docx: "Microsoft Word",
+        odt: "Open Document Text",
+        pdf: "PDF",
+        _1: null,
+        latex: "LaTeX",
+        myst: "MyST Markdown",
+        qmd: "Quarto Markdown",
+        smd: "Stencila Markdown",
+        _2: null,
+        json: "Stencila Schema JSON",
+        jsonld: "Schema.org JSON Linked Data",
+        yaml: "Stencila Schema YAML",
+      };
+      const items = Object.entries(formats).map(([format, desc]) =>
+        desc
+          ? {
+              label: format,
+              description: desc,
+            }
+          : {
+              label: "",
+              kind: vscode.QuickPickItemKind.Separator,
+            }
+      );
+
+      const format = await vscode.window.showQuickPick(items, {
+        title: "Export Format",
+        placeHolder: "Select a format to export the document to",
+        matchOnDescription: true,
       });
+
+      const filename = editor.document.fileName;
+      const saveUri = await vscode.window.showSaveDialog({
+        title: "Export Document",
+        saveLabel: "Export",
+        defaultUri: vscode.Uri.file(
+          `${filename.substring(0, filename.lastIndexOf("."))}.${format?.label}`
+        ),
+      });
+
+      if (!saveUri) {
+        vscode.window.showInformationMessage("Document export cancelled.");
+        return;
+      }
 
       vscode.commands.executeCommand(
         `stencila.export-doc`,
         editor.document.uri.toString(),
-        filePath
+        saveUri.fsPath
       );
     })
   );

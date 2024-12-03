@@ -149,28 +149,28 @@
       {
         "command": "stencila.new-smd",
         "category": "Create",
-        "title": "New Stencila Markdown Document",
+        "title": "New Stencila Markdown document",
         "shortTitle": "Stencila Markdown",
         "icon": "$(new-file)"
       },
       {
         "command": "stencila.new-myst",
         "category": "Create",
-        "title": "New MyST Markdown Document",
+        "title": "New MyST Markdown document",
         "shortTitle": "MyST",
         "icon": "$(new-file)"
       },
       {
         "command": "stencila.new-qmd",
         "category": "Create",
-        "title": "New Quarto Markdown Document",
+        "title": "New Quarto Markdown document",
         "shortTitle": "Quarto Markdown",
         "icon": "$(new-file)"
       },
       {
         "command": "stencila.view-doc",
         "category": "Stencila",
-        "title": "Preview Document",
+        "title": "Preview document",
         "shortTitle": "Preview doc",
         "icon": "$(preview)"
       },
@@ -205,21 +205,21 @@
       {
         "command": "stencila.invoke.run-code",
         "category": "Stencila",
-        "title": "Run code nodes in document",
+        "title": "Run all code in document",
         "shortTitle": "Run code",
         "icon": "$(zap)"
       },
       {
         "command": "stencila.invoke.run-instruct",
         "category": "Stencila",
-        "title": "Run instruction nodes in document",
+        "title": "Run all commands in document",
         "shortTitle": "Run instructions",
         "icon": "$(sparkle)"
       },
       {
         "command": "stencila.invoke.cancel-curr",
         "category": "Stencila",
-        "title": "Cancel node",
+        "title": "Cancel running this node",
         "icon": "$(stop)"
       },
       {
@@ -267,7 +267,7 @@
       {
         "command": "stencila.invoke.revise-node",
         "category": "Stencila",
-        "title": "Revise the current suggestion",
+        "title": "Revise the current suggestion based on feedback",
         "shortTitle": "Revise suggestion",
         "icon": "$(refresh)"
       },
@@ -424,6 +424,18 @@
         "mac": "cmd+f1"
       },
       {
+        "command": "stencila.view-doc",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.export-doc",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
         "command": "stencila.invoke.run-curr",
         "key": "ctrl+enter",
         "mac": "cmd+enter",
@@ -448,15 +460,21 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
-        "command": "stencila.invoke.next-node",
-        "key": "ctrl+right",
-        "mac": "cmd+right",
+        "command": "stencila.invoke.prev-node",
+        "key": "ctrl+alt+[",
+        "mac": "cmd+alt+[",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
-        "command": "stencila.invoke.prev-node",
-        "key": "ctrl+left",
-        "mac": "cmd+left",
+        "command": "stencila.invoke.next-node",
+        "key": "ctrl+alt+]",
+        "mac": "cmd+alt+]",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.archive-node",
+        "key": "ctrl+alt+\\",
+        "mac": "cmd+alt+\\",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
@@ -469,12 +487,6 @@
         "command": "stencila.invoke.revise-node",
         "key": "ctrl+shift+r",
         "mac": "cmd+shift+r",
-        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
-      },
-      {
-        "command": "stencila.invoke.archive-node",
-        "key": "ctrl+/",
-        "mac": "cmd+/",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
@@ -576,19 +588,18 @@
       "editor/title/run": [
         {
           "command": "stencila.view-doc",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@1"
         },
         {
           "command": "stencila.invoke.run-doc",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@2"
         },
         {
-          "command": "stencila.invoke.run-code",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
-        },
-        {
-          "command": "stencila.invoke.run-instruct",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
+          "command": "stencila.invoke.export-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@3"
         }
       ],
       "editor/context": [
@@ -598,34 +609,14 @@
           "group": "000-Stencila@1"
         },
         {
-          "command": "stencila.invoke.run-above",
+          "command": "stencila.invoke.lock-curr",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@2"
         },
         {
-          "command": "stencila.invoke.run-below",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
-          "group": "000-Stencila@3"
-        },
-        {
-          "command": "stencila.invoke.lock-curr",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
-          "group": "000-Stencila@4"
-        },
-        {
           "command": "stencila.invoke.unlock-curr",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
-          "group": "000-Stencila@5"
-        },
-        {
-          "command": "stencila.invoke.run-doc",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
-          "group": "001-Stencila@1"
-        },
-        {
-          "command": "stencila.invoke.export-doc",
-          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
-          "group": "001-Stencila@2"
+          "group": "000-Stencila@3"
         }
       ],
       "view/title": [
