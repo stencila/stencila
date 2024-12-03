@@ -57,6 +57,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
         Block::IfBlock(block) => if_block_to_pandoc(block, context),
+        Block::IncludeBlock(block) => include_block_to_pandoc(block, context),
         Block::ForBlock(block) => for_block_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
@@ -67,7 +68,6 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::CallBlock(..)
         | Block::DeleteBlock(..)
         | Block::Form(..)
-        | Block::IncludeBlock(..)
         | Block::InsertBlock(..)
         | Block::InstructionBlock(..)
         | Block::ModifyBlock(..)
@@ -566,6 +566,37 @@ fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pan
     pandoc::Block::Div(attrs, clauses)
 }
 
+fn include_block_to_pandoc(
+    block: &IncludeBlock,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Block {
+    let mut attributes = vec![("source".into(), block.source.clone())];
+    if let Some(media) = &block.media_type {
+        attributes.push(("media".into(), media.to_string().clone()));
+    }
+    if let Some(select) = &block.select {
+        attributes.push(("select".into(), select.to_string().clone()))
+    }
+    if let Some(mode) = &block.execution_mode {
+        let mode = match mode {
+            ExecutionMode::Necessary => "necessary",
+            ExecutionMode::Always => "always",
+            ExecutionMode::Auto => "auto",
+            ExecutionMode::Locked => "locked",
+        };
+        attributes.push(("mode".into(), mode.into()))
+    }
+
+    let attrs = pandoc::Attr {
+        classes: vec!["include".into()],
+        attributes,
+        ..attrs_empty()
+    };
+    let content = &block.content.clone().unwrap_or_default();
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+}
+
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     let mut attributes = vec![
         ("variable".into(), block.variable.clone()),
@@ -724,6 +755,52 @@ fn styled_block_from_pandoc(
             ..Default::default()
         });
     };
+
+    if attrs.classes.iter().any(|class| class == "include") {
+        let select = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "select").then_some(value.clone()))
+            .unwrap_or_default();
+        let source = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "source").then_some(value.clone()))
+            .unwrap_or_default();
+        let execution_mode = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "mode").then_some(value.clone()))
+            .unwrap_or_default();
+        let media_type = attrs
+            .attributes
+            .into_iter()
+            .find_map(|(name, value)| (name == "media").then_some(value));
+        let execution_mode = match execution_mode.to_lowercase().as_str() {
+            "always" => Some(ExecutionMode::Always),
+            "auto" => Some(ExecutionMode::Auto),
+            "locked" => Some(ExecutionMode::Locked),
+            "necessary" => Some(ExecutionMode::Necessary),
+            _ => None,
+        };
+        let select = match select.as_str() {
+            "" => None,
+            _ => Some(select),
+        };
+        let content = match content[..] {
+            [] => None,
+            _ => Some(content),
+        };
+
+        return Block::IncludeBlock(IncludeBlock {
+            execution_mode,
+            source,
+            media_type,
+            select,
+            content,
+            ..Default::default()
+        });
+    }
 
     if attrs.classes.iter().any(|class| class == "for") {
         let variable = attrs

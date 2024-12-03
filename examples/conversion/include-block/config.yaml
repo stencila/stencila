@@ -4,8 +4,3 @@ compact.jats.xml:
       # TODO: Implement encoding and decoding `IncludeBlock`
       - IncludeBlock
 
-pandoc:
-  encode:
-    # TODO: Remove when implemented
-    strip-types:
-      - IncludeBlock
