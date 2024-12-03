@@ -460,15 +460,21 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
-        "command": "stencila.invoke.next-node",
-        "key": "ctrl+shift+.",
-        "mac": "cmd+shift+.",
+        "command": "stencila.invoke.prev-node",
+        "key": "ctrl+alt+[",
+        "mac": "cmd+alt+[",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
-        "command": "stencila.invoke.prev-node",
-        "key": "ctrl+shift+,",
-        "mac": "cmd+shift+,",
+        "command": "stencila.invoke.next-node",
+        "key": "ctrl+alt+]",
+        "mac": "cmd+alt+]",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.invoke.archive-node",
+        "key": "ctrl+alt+\\",
+        "mac": "cmd+alt+\\",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
@@ -481,12 +487,6 @@
         "command": "stencila.invoke.revise-node",
         "key": "ctrl+shift+r",
         "mac": "cmd+shift+r",
-        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
-      },
-      {
-        "command": "stencila.invoke.archive-node",
-        "key": "ctrl+shift+/",
-        "mac": "cmd+shift+/",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
