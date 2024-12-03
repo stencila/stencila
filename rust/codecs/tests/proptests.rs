@@ -106,7 +106,6 @@ proptest! {
                 // so strip them from round-trip conversions
                 "CallBlock".into(),
                 "CodeChunk".into(),
-                "IncludeBlock".into(),
                 "InstructionBlock".into(),
             ],
             properties: vec![
