@@ -157,7 +157,7 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
                 };
                 if !md.is_empty() {
                     cells.push(Cell::Markdown {
-                        id: node_id_to_cell_id(node_id.unwrap_or_else(|| NodeId::null()))?,
+                        id: node_id_to_cell_id(node_id.unwrap_or_else(NodeId::null))?,
                         source: vec![md.clone()],
                         metadata: cell_metadata_default(),
                         attachments: None,
@@ -190,7 +190,7 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
 
     if !md.is_empty() {
         cells.push(Cell::Markdown {
-            id: node_id_to_cell_id(node_id.unwrap_or_else(|| NodeId::null()))?,
+            id: node_id_to_cell_id(node_id.unwrap_or_else(NodeId::null))?,
             source: vec![md],
             metadata: cell_metadata_default(),
             attachments: None,
