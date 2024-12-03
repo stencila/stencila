@@ -1294,7 +1294,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             let position = code.position.clone();
             let block = match context.format {
                 Format::Myst => {
-                    myst_to_block(&code).unwrap_or_else(|| code_to_block(code, context))
+                    myst_to_block(&code, context).unwrap_or_else(|| code_to_block(code, context))
                 }
                 _ => code_to_block(code, context),
             };
@@ -1395,7 +1395,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
 ///
 /// Note that `if`, `elif`, `else`, and `for` directives are are handled elsewhere
 /// because they do not always have closing semicolons (e.g. if followed by a elif)
-fn myst_to_block(code: &mdast::Code) -> Option<Block> {
+fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
     // If no `lang` after backticks then not a MyST directive
     let lang = code.lang.as_deref()?;
 
@@ -1432,7 +1432,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
         return Some(Block::Claim(Claim {
             claim_type: claim_type.parse().unwrap_or_default(),
             label: options.get("label").map(|label| label.to_string()),
-            content: decode_blocks(&value, Format::Myst),
+            content: decode_blocks(&value, context),
             ..Default::default()
         }));
     }
@@ -1450,8 +1450,8 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                     "seealso" => AdmonitionType::Note,
                     type_ => type_.parse().unwrap_or_default(),
                 },
-                content: decode_blocks(&value, Format::Myst),
-                title: args.map(|arg| decode_inlines(arg, Format::Myst)),
+                content: decode_blocks(&value, context),
+                title: args.map(|arg| decode_inlines(arg, context)),
                 is_folded: options.get("class").map(|&class| class == "dropdown"),
                 ..Default::default()
             })
@@ -1478,7 +1478,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 label_automatically: options.contains_key("label").then_some(false),
                 caption: options
                     .get("caption")
-                    .map(|&caption| decode_blocks(caption, Format::Myst)),
+                    .map(|&caption| decode_blocks(caption, context)),
                 ..Default::default()
             })
         }
@@ -1489,7 +1489,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 .as_ref()
                 .map(|url| vec![p([img(url)])])
                 .unwrap_or_default();
-            let caption = decode_blocks(&value, Format::Myst);
+            let caption = decode_blocks(&value, context);
 
             Block::Figure(Figure {
                 label: options.get("label").map(|label| label.to_string()),
@@ -1501,7 +1501,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
         }
         "table" => {
             let rows = if let Some(Block::Table(Table { rows, .. })) =
-                decode_blocks(&value, Format::Myst).first()
+                decode_blocks(&value, context).first()
             {
                 rows.clone()
             } else {
@@ -1511,7 +1511,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             Block::Table(Table {
                 label: options.get("label").map(|label| label.to_string()),
                 label_automatically: options.contains_key("label").then_some(false),
-                caption: args.map(|arg| decode_blocks(arg, Format::Myst)),
+                caption: args.map(|arg| decode_blocks(arg, context)),
                 rows,
                 ..Default::default()
             })
@@ -1543,7 +1543,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
                 replicates: options.get("reps").and_then(|value| value.parse().ok()),
                 model,
                 content: if !value.trim().is_empty() {
-                    Some(decode_blocks(&value, Format::Myst))
+                    Some(decode_blocks(&value, context))
                 } else {
                     None
                 },
@@ -1555,12 +1555,12 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
             suggestion_status: options
                 .get("status")
                 .and_then(|value| SuggestionStatus::from_keyword(value).ok()),
-            content: decode_blocks(&value, Format::Myst),
+            content: decode_blocks(&value, context),
             ..Default::default()
         }),
         "style" => Block::StyledBlock(StyledBlock {
             code: args.unwrap_or_default().into(),
-            content: decode_blocks(&value, Format::Myst),
+            content: decode_blocks(&value, context),
             ..Default::default()
         }),
         _ => {
@@ -1581,7 +1581,7 @@ fn myst_to_block(code: &mdast::Code) -> Option<Block> {
 }
 
 /// Transform a [`mdast::Code`] node to a Stencila [`Block`]
-fn code_to_block(code: mdast::Code, context: &Context) -> Block {
+fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
     let mdast::Code {
         lang, meta, value, ..
     } = code;
@@ -1631,13 +1631,13 @@ fn code_to_block(code: mdast::Code, context: &Context) -> Block {
                         label_type = Some(LabelType::FigureLabel);
                         caption = Some(decode_blocks(
                             value.trim().trim_start_matches('"').trim_end_matches('"'),
-                            Format::Markdown,
+                            context,
                         ));
                     } else if let Some(value) = rest.strip_prefix("tbl-cap:") {
                         label_type = Some(LabelType::TableLabel);
                         caption = Some(decode_blocks(
                             value.trim().trim_start_matches('"').trim_end_matches('"'),
-                            Format::Markdown,
+                            context,
                         ));
                     }
                 } else {

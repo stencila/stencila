@@ -10,6 +10,8 @@ use markdown::{
 use codec::{
     common::{
         eyre::{bail, eyre, Result},
+        once_cell::sync::Lazy,
+        regex::Regex,
         serde_json::{self, json},
         serde_yaml, tracing,
     },
@@ -91,23 +93,37 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 }
 
 /// Decode a Markdown string to blocks
-fn decode_blocks(md: &str, format: Format) -> Vec<Block> {
-    let mut context = Context::new(format);
-    match to_mdast(md, &parse_options()) {
-        Ok(mdast::Node::Root(Root { children, .. })) => mds_to_blocks(children, &mut context),
+///
+/// Because this is parsing a standalone fragment of Markdown, and the `to_mdast` function,
+/// will ignore any footnote references that do not have a corresponding footnote content,
+/// it is necessary to add fake footnote content to the Markdown before parsing.
+fn decode_blocks(md: &str, context: &mut Context) -> Vec<Block> {
+    static FOOTNOTE_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\[\^\w+\]").expect("invalid regex"));
+
+    let captures = FOOTNOTE_REGEX.captures_iter(md);
+
+    let mut md = md.to_string();
+    for capture in captures {
+        md.push_str("\n\n");
+        md.push_str(&capture[0]);
+        md.push_str(":\n\n");
+    }
+
+    match to_mdast(&md, &parse_options()) {
+        Ok(mdast::Node::Root(Root { children, .. })) => mds_to_blocks(children, context),
         _ => vec![],
     }
 }
 
 /// Decode a string to inlines
-fn decode_inlines(md: &str, format: Format) -> Vec<Inline> {
-    let mut context = Context::new(format);
+fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
     match to_mdast(md, &parse_options()) {
         Ok(mdast::Node::Root(Root { children, .. })) => {
             if let Some(mdast::Node::Paragraph(mdast::Paragraph { children, .. })) =
                 children.first()
             {
-                mds_to_inlines(children.clone(), &mut context)
+                mds_to_inlines(children.clone(), context)
             } else {
                 vec![]
             }
@@ -343,7 +359,7 @@ impl Context {
     }
 
     /// Parse any YAML frontmatter
-    fn frontmatter(&self) -> Option<Node> {
+    fn frontmatter(&mut self) -> Option<Node> {
         let yaml = self.yaml.as_ref()?;
 
         // Deserialize YAML to a value, and add `type` properties if necessary
@@ -389,11 +405,11 @@ impl Context {
             let title = object
                 .remove("title")
                 .and_then(|value| value.as_str().map(String::from))
-                .map(|title| decode_inlines(&title, Format::Markdown));
+                .map(|title| decode_inlines(&title, self));
             let abs = object
                 .remove("abstract")
                 .and_then(|value| value.as_str().map(String::from))
-                .map(|abs| decode_blocks(&abs, Format::Markdown));
+                .map(|abs| decode_blocks(&abs, self));
             (title, abs)
         } else {
             (None, None)
