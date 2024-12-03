@@ -10,8 +10,3 @@ myst:
       # MyST does not support lang currently
       - IfBlockClause.programming_language
 
-pandoc:
-  encode:
-    # TODO: Remove when implemented
-    strip-types:
-      - IfBlock

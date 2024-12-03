@@ -56,6 +56,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         // Other
         Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
+        Block::IfBlock(block) => if_block_to_pandoc(block, context),
         Block::ForBlock(block) => for_block_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
@@ -66,7 +67,6 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::CallBlock(..)
         | Block::DeleteBlock(..)
         | Block::Form(..)
-        | Block::IfBlock(..)
         | Block::IncludeBlock(..)
         | Block::InsertBlock(..)
         | Block::InstructionBlock(..)
@@ -537,6 +537,35 @@ fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -
     pandoc::Block::Div(attrs, blocks_to_pandoc(&admon.content, context))
 }
 
+fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let clauses_block = &block.clauses;
+    let mut clauses = Vec::new();
+
+    for clause in clauses_block.iter() {
+        let mut attributes = vec![("code".into(), clause.code.to_string())];
+        if let Some(lang) = &clause.programming_language {
+            attributes.push(("lang".into(), lang.clone()));
+        }
+
+        let attrs = pandoc::Attr {
+            classes: vec!["if-clause".into()],
+            attributes,
+            ..attrs_empty()
+        };
+
+        clauses.push(pandoc::Block::Div(
+            attrs,
+            blocks_to_pandoc(&clause.content, context),
+        ))
+    }
+    let attrs = pandoc::Attr {
+        classes: vec!["if".into()],
+        ..attrs_empty()
+    };
+
+    pandoc::Block::Div(attrs, clauses)
+}
+
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     let mut attributes = vec![
         ("variable".into(), block.variable.clone()),
@@ -652,6 +681,48 @@ fn styled_block_from_pandoc(
                 ..Default::default()
             });
         }
+    };
+
+    if attrs.classes.iter().any(|class| class == "if-clause") {
+        let code = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "code").then_some(value.clone()))
+            .unwrap_or_default()
+            .into();
+
+        let programming_language = attrs
+            .attributes
+            .into_iter()
+            .find_map(|(name, value)| (name == "lang").then_some(value));
+        return Block::IfBlock(IfBlock {
+            clauses: vec![IfBlockClause {
+                code,
+                programming_language,
+                content,
+                ..Default::default()
+            }],
+            ..Default::default()
+        });
+    }
+
+    if attrs.classes.iter().any(|class| class == "if") {
+        let mut clauses = Vec::new();
+        for block in content {
+            // will never not be StyledBlock unless other error
+            let clause = match block {
+                Block::IfBlock(IfBlock { clauses, .. }) => clauses[0].clone(),
+                _ => IfBlockClause {
+                    ..Default::default()
+                },
+            };
+            clauses.push(clause);
+        }
+
+        return Block::IfBlock(IfBlock {
+            clauses,
+            ..Default::default()
+        });
     };
 
     if attrs.classes.iter().any(|class| class == "for") {
