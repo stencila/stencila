@@ -104,7 +104,6 @@ proptest! {
             types: vec![
                 // TODO: these node types are not yet fully implemented
                 // so strip them from round-trip conversions
-                "CallBlock".into(),
                 "CodeChunk".into(),
                 "InstructionBlock".into(),
             ],
