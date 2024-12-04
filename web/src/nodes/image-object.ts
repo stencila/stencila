@@ -61,6 +61,20 @@ export class ImageObject extends Entity {
     }
   }
 
+  private addCodeChunkErrorMessage(
+    element: HTMLElement,
+    message: string,
+    codeLocation?: number[]
+  ) {
+    element.setAttribute('level', 'Error')
+    element.setAttribute('error-type', 'ParseError')
+
+    element.setAttribute('message', message)
+    if (codeLocation) {
+      element.setAttribute('code-location', `[${codeLocation.join(',')}]`)
+    }
+  }
+
   override async update(properties: PropertyValues) {
     super.update(properties)
 
@@ -111,8 +125,6 @@ export class ImageObject extends Entity {
         const message = document.createElement(
           'stencila-execution-message'
         ) as ExecutionMessage
-        message.setAttribute('level', 'Error')
-        message.setAttribute('error-type', 'ParseError')
 
         const expected = error.hash?.expected
         let str: string
@@ -122,20 +134,17 @@ export class ImageObject extends Entity {
           str = error.message ?? error.toString()
           str = str.slice(str.lastIndexOf('-^\n')).trim()
         }
-        message.setAttribute('message', str)
 
         const loc = error.hash?.loc
+        let codeLocation
         if (loc) {
           const startLine = (loc.first_line ?? 1) - 1
           const startCol = (loc.first_column ?? 0) + 1
           const endLine = (loc.last_line ?? 1) - 1
           const endCol = (loc.last_column ?? 0) + 1
-          message.setAttribute(
-            'code-location',
-            `[${startLine},${startCol},${endLine},${endCol}]`
-          )
+          codeLocation = [startLine, startCol, endLine, endCol]
         }
-
+        this.addCodeChunkErrorMessage(message, str, codeLocation)
         messages.appendChild(message)
       } else {
         // Otherwise, render a <pre> element with error
@@ -150,12 +159,11 @@ export class ImageObject extends Entity {
     const Plotly = await import('plotly.js-dist-min')
     const spec = JSON.parse(this.content)
 
-    // create container for initial plotly render
+    // create hidden container for initial plotly render
     const container = document.createElement('div')
     container.hidden = true
     document.body.appendChild(container)
 
-    // clear codeChunk messages
     let codeChunk
     if (this.ancestors.endsWith('CodeChunk')) {
       codeChunk = this.closestGlobally('stencila-code-chunk')
@@ -163,7 +171,7 @@ export class ImageObject extends Entity {
     }
 
     try {
-      await Plotly.newPlot(container, spec.data, spec.layout)
+      await Plotly.newPlot(container, spec.data, spec.layout, spec.config)
 
       // creates encoded svg string, width and hieght are required
       const svgString = await Plotly.toImage(container, {
@@ -203,13 +211,12 @@ export class ImageObject extends Entity {
         const message = document.createElement(
           'stencila-execution-message'
         ) as ExecutionMessage
-        message.setAttribute('level', 'Error')
-        message.setAttribute('error-type', 'ParseError')
+
         let str
         str = error.message ?? error.toString()
         str = str.slice(str.lastIndexOf('-^\n')).trim()
 
-        message.setAttribute('message', str)
+        this.addCodeChunkErrorMessage(message, str)
 
         messages.appendChild(message)
       }
@@ -217,10 +224,49 @@ export class ImageObject extends Entity {
   }
 
   private async compileVegaLite() {
-    // TODO: dynamically import vega and render
-
+    const { default: vegaEmbed } = await import('vega-embed')
     const spec = JSON.parse(this.content)
-    console.log('VEGA-LITE', spec)
+
+    // clear `CodeChunk` messages
+    let codeChunk: HTMLElement
+
+    if (this.ancestors.endsWith('CodeChunk')) {
+      codeChunk = this.closestGlobally('stencila-code-chunk')
+      this.clearCodeChunkMessages(codeChunk)
+    }
+    // attach to shadow dom container element
+    const container = this.shadowRoot.querySelector(
+      'div#stencila-vega-container'
+    ) as HTMLElement
+
+    // embed the figure as svg
+    vegaEmbed(container, spec, {
+      renderer: 'svg',
+      actions: false,
+      mode: 'vega-lite',
+    }).catch((error) => {
+      if (codeChunk) {
+        let messages = codeChunk.querySelector('div[slot=messages]')
+        if (!messages) {
+          messages = document.createElement('div')
+          messages.setAttribute('slot', 'execution-messages')
+          codeChunk.appendChild(messages)
+        }
+
+        // TODO check error structure for vega-lite/embed and get code location if possible
+        const message = document.createElement(
+          'stencila-execution-message'
+        ) as ExecutionMessage
+
+        let str
+        str = error.message ?? error.toString()
+        str = str.slice(str.lastIndexOf('-^\n')).trim()
+
+        this.addCodeChunkErrorMessage(message, str)
+
+        messages.appendChild(message)
+      }
+    })
   }
 
   override render() {
@@ -259,9 +305,10 @@ export class ImageObject extends Entity {
       return this.renderErrors()
     }
 
-    // if (this.mediaType === 'application/vnd.plotly.v1+json') {
-    //   return this.renderPlotly()
-    // }
+    // render vega plot
+    if (this.mediaType === 'application/vnd.vegalite.v5+json') {
+      return this.renderVega()
+    }
 
     return this.svg ? this.renderSvg() : this.renderImg()
   }
@@ -308,10 +355,10 @@ export class ImageObject extends Entity {
     `
   }
 
-  private renderPlotly() {
+  private renderVega() {
     return html`
       <div slot="content">
-        <div class="plotly-container"></div>
+        <div id="stencila-vega-container"></div>
       </div>
     `
   }

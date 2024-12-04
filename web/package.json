@@ -94,7 +94,9 @@
     "pagedjs": "0.4.3",
     "plotly.js-dist-min": "^2.35.2",
     "pretty-ms": "9.2.0",
-    "tailwindcss": "3.4.15"
+    "tailwindcss": "3.4.15",
+    "vega-embed": "^6.29.0",
+    "vega-lite": "^5.22.0"
   },
   "devDependencies": {
     "@argos-ci/playwright": "3.9.2",
