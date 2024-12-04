@@ -3,6 +3,8 @@ import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
+import 'plotly.js-dist-min/'
+
 import { withTwind } from '../twind'
 
 import '../ui/nodes/cards/block-on-demand'
@@ -49,6 +51,16 @@ export class ImageObject extends Entity {
   @state()
   private error?: string
 
+  private clearCodeChunkMessages(codeChunk: HTMLElement) {
+    // Clear any existing messages
+    const messages = codeChunk.querySelector('div[slot=messages]')
+    if (messages) {
+      while (messages.firstChild) {
+        messages.removeChild(messages.firstChild)
+      }
+    }
+  }
+
   override async update(properties: PropertyValues) {
     super.update(properties)
 
@@ -76,16 +88,7 @@ export class ImageObject extends Entity {
     let codeChunk
     if (this.ancestors.endsWith('CodeChunk')) {
       codeChunk = this.closestGlobally('stencila-code-chunk')
-
-      if (codeChunk) {
-        // Clear any existing messages
-        const messages = codeChunk.querySelector('div[slot=messages]')
-        if (messages) {
-          while (messages.firstChild) {
-            messages.removeChild(messages.firstChild)
-          }
-        }
-      }
+      this.clearCodeChunkMessages(codeChunk)
     }
 
     try {
@@ -144,13 +147,78 @@ export class ImageObject extends Entity {
   }
 
   private async compilePlotly() {
-    // TODO: dynamically import plotly and render
+    const Plotly = await import('plotly.js-dist-min')
     const spec = JSON.parse(this.content)
-    console.log('PLOTLY', spec)
+
+    // create container for initial plotly render
+    const container = document.createElement('div')
+    container.hidden = true
+    document.body.appendChild(container)
+
+    // clear codeChunk messages
+    let codeChunk
+    if (this.ancestors.endsWith('CodeChunk')) {
+      codeChunk = this.closestGlobally('stencila-code-chunk')
+      this.clearCodeChunkMessages(codeChunk)
+    }
+
+    try {
+      await Plotly.newPlot(container, spec.data, spec.layout)
+
+      // creates encoded svg string, width and hieght are required
+      const svgString = await Plotly.toImage(container, {
+        format: 'svg',
+        width: 600,
+        height: 600,
+      })
+
+      // decode the svg string, removing the leading data URI string
+      const decodedSvgString = decodeURIComponent(svgString.split(',')[1])
+
+      const parser = new DOMParser()
+      const svgDocument = parser.parseFromString(
+        decodedSvgString,
+        'image/svg+xml'
+      )
+
+      const svgEl = svgDocument.documentElement
+
+      // remove preset dimensions for responsive rendering
+      svgEl.removeAttribute('width')
+      svgEl.removeAttribute('height')
+
+      this.svg = svgEl.outerHTML
+      container.remove()
+    } catch (error) {
+      if (codeChunk) {
+        let messages = codeChunk.querySelector('div[slot=messages]')
+        if (!messages) {
+          messages = document.createElement('div')
+          messages.setAttribute('slot', 'execution-messages')
+          codeChunk.appendChild(messages)
+        }
+
+        // TODO check error structure for plotly.js and add more fields if needed
+        // Add the message
+        const message = document.createElement(
+          'stencila-execution-message'
+        ) as ExecutionMessage
+        message.setAttribute('level', 'Error')
+        message.setAttribute('error-type', 'ParseError')
+        let str
+        str = error.message ?? error.toString()
+        str = str.slice(str.lastIndexOf('-^\n')).trim()
+
+        message.setAttribute('message', str)
+
+        messages.appendChild(message)
+      }
+    }
   }
 
   private async compileVegaLite() {
     // TODO: dynamically import vega and render
+
     const spec = JSON.parse(this.content)
     console.log('VEGA-LITE', spec)
   }
@@ -187,11 +255,15 @@ export class ImageObject extends Entity {
   }
 
   private renderContent() {
-    return this.error
-      ? this.renderErrors()
-      : this.svg
-        ? this.renderSvg()
-        : this.renderImg()
+    if (this.error) {
+      return this.renderErrors()
+    }
+
+    // if (this.mediaType === 'application/vnd.plotly.v1+json') {
+    //   return this.renderPlotly()
+    // }
+
+    return this.svg ? this.renderSvg() : this.renderImg()
   }
 
   private renderErrors() {
@@ -229,8 +301,18 @@ export class ImageObject extends Entity {
         width: 100%;
       }
     `
-    return html`<div slot="content" class=${imgStyles}>
-      <slot></slot>
-    </div>`
+    return html`
+      <div slot="content" class=${imgStyles}>
+        <slot></slot>
+      </div>
+    `
+  }
+
+  private renderPlotly() {
+    return html`
+      <div slot="content">
+        <div class="plotly-container"></div>
+      </div>
+    `
   }
 }
