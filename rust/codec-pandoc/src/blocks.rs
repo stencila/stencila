@@ -56,6 +56,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         // Other
         Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
+        Block::CallBlock(block) => call_block_to_pandoc(block, context),
         Block::IfBlock(block) => if_block_to_pandoc(block, context),
         Block::IncludeBlock(block) => include_block_to_pandoc(block, context),
         Block::ForBlock(block) => for_block_to_pandoc(block, context),
@@ -65,8 +66,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
 
         // Block types currently ignored create an empty div and record loss
         // TODO: implement these
-        Block::CallBlock(..)
-        | Block::DeleteBlock(..)
+        Block::DeleteBlock(..)
         | Block::Form(..)
         | Block::InsertBlock(..)
         | Block::InstructionBlock(..)
@@ -513,6 +513,38 @@ fn claim_to_pandoc(claim: &Claim, context: &mut PandocEncodeContext) -> pandoc::
     pandoc::Block::Div(attrs, blocks_to_pandoc(&claim.content, context))
 }
 
+fn call_block_to_pandoc(block: &CallBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let mut attributes = vec![("source".into(), block.source.clone())];
+    let classes = vec!["call".into()];
+    if let Some(media) = &block.media_type {
+        attributes.push(("media".into(), media.to_string().clone()));
+    }
+    if let Some(select) = &block.select {
+        attributes.push(("select".into(), select.to_string().clone()))
+    }
+    if let Some(mode) = &block.execution_mode {
+        let mode = mode.to_string();
+        attributes.push(("mode".into(), mode))
+    }
+    let arguments = &block.arguments;
+    for argument in arguments {
+        let name = &argument.name;
+        let name = name.to_string();
+        let code = &argument.code;
+        let code = code.to_string();
+        attributes.push((["arg-", &name].concat(), code));
+    }
+
+    let attrs = pandoc::Attr {
+        classes,
+        attributes,
+        ..attrs_empty()
+    };
+    let content = &block.content.clone().unwrap_or_default();
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+}
+
 fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -> pandoc::Block {
     let class = [
         "callout-",
@@ -733,6 +765,42 @@ fn styled_block_from_pandoc(
                 content,
                 ..Default::default()
             }],
+            ..Default::default()
+        });
+    }
+
+    if attrs.classes.iter().any(|class| class == "call") {
+        let mut source = String::new();
+        let mut arguments = Vec::new();
+        let mut select = None;
+        let mut media_type = None;
+        let mut execution_mode = None;
+        for (name, value) in attrs.attributes {
+            if name == "source" {
+                source = value;
+            } else if name == "select" {
+                select = Some(value);
+            } else if name == "media" {
+                media_type = Some(value);
+            } else if name == "mode" {
+                execution_mode = ExecutionMode::from_str(&value).ok();
+            } else if let Some(name) = name.strip_prefix("arg-") {
+                arguments.push(CallArgument {
+                    name: name.to_string(),
+                    code: value.into(),
+                    ..Default::default()
+                })
+            }
+        }
+        let content = (!content.is_empty()).then_some(content);
+
+        return Block::CallBlock(CallBlock {
+            execution_mode,
+            source,
+            media_type,
+            select,
+            content,
+            arguments,
             ..Default::default()
         });
     }

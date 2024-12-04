@@ -6,5 +6,7 @@ compact.jats.xml:
 
 pandoc:
   decode:
-    # TODO: remove when implemented
-    skip: true
+    strip-props:
+      # not currently supported
+      - CallArgument.value
+
