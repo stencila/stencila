@@ -42,6 +42,8 @@ pub enum Format {
     Latex,
     Pdf,
     Text,
+    // Notebook formats
+    Ipynb,
     // Word processor formats
     Docx,
     Odt,
@@ -122,6 +124,7 @@ impl Format {
             Flac => "FLAC",
             Gif => "GIF",
             Html => "HTML",
+            Ipynb => "IPYNB",
             Jats => "JATS",
             JavaScript => "JavaScript",
             Jinja => "Jinja",
@@ -233,6 +236,7 @@ impl Format {
             "flac" => Flac,
             "gif" => Gif,
             "html" => Html,
+            "ipynb" => Ipynb,
             "jats" | "jats.xml" => Jats,
             "javascript" | "js" => JavaScript,
             "jinja" => Jinja,
@@ -405,6 +409,7 @@ impl Display for Format {
             Flac => "flac",
             Gif => "gif",
             Html => "html",
+            Ipynb => "ipynb",
             Jats => "jats",
             JavaScript => "js",
             Jinja => "jinja",

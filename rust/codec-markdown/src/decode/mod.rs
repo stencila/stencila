@@ -28,7 +28,7 @@ mod inlines;
 mod shared;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
-pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     let format = options
         .as_ref()
         .and_then(|options| options.format.clone())
@@ -90,7 +90,7 @@ pub(super) fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(N
     Ok((node, info))
 }
 
-/// Decode a string to blocks
+/// Decode a Markdown string to blocks
 fn decode_blocks(md: &str, format: Format) -> Vec<Block> {
     let mut context = Context::new(format);
     match to_mdast(md, &parse_options()) {

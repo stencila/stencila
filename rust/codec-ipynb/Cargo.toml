@@ -1,0 +1,9 @@
+[package]
+name = "codec-ipynb"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-markdown = { path = "../codec-markdown" }
+nbformat = "0.8.0"

@@ -173,12 +173,7 @@ impl Info {
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let info = instance.lock().await.info().await?;
-        println!(
-            "Name: {}\nVersion: {}\nOperating system: {}\n",
-            info.name,
-            info.options.software_version.as_deref().unwrap_or("?"),
-            info.options.operating_system.as_deref().unwrap_or("?"),
-        );
+        Code::new(Format::Yaml, &serde_yaml::to_string(&info)?).to_stdout();
 
         Ok(())
     }

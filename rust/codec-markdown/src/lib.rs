@@ -8,7 +8,10 @@ use codec::{
 
 use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
 
+pub use codec_markdown_trait::to_markdown;
+
 mod decode;
+pub use decode::decode;
 
 /// A codec for Markdown
 pub struct MarkdownCodec;
@@ -96,7 +99,7 @@ impl Codec for MarkdownCodec {
         str: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        decode::decode(str, options)
+        decode(str, options)
     }
 
     async fn to_string(
