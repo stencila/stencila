@@ -19,5 +19,3 @@ pandoc:
     strip-props:
       #TODO remov when implemented
       - suggestions 
-      #TODO remove when implemented
-      - message

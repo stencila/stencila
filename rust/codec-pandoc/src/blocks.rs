@@ -2,7 +2,6 @@ use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
-use codec::schema::*;
 use codec_text_trait::to_text;
 
 use crate::{
@@ -632,6 +631,13 @@ fn instruction_block_to_pandoc(
         "type".into(),
         block.instruction_type.to_string().to_lowercase(),
     )];
+    if let Some(message) = &block.message {
+        if let Some(MessagePart::Text(Text { value, .. })) = message.parts.first() {
+            attributes.push(("message".into(), value.to_string()));
+        } else {
+            context.losses.add("InstructionBlock.message.parts")
+        }
+    }
     if let Some(mode) = &block.execution_mode {
         attributes.push(("mode".into(), mode.to_string()));
     }
@@ -890,6 +896,12 @@ fn styled_block_from_pandoc(
         let execution_mode = attrs.attributes.iter().find_map(|(name, value)| {
             (name == "mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
         });
+        let message = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "message").then_some(InstructionMessage {
+                parts: vec![MessagePart::Text(value.into())],
+                ..Default::default()
+            })
+        });
         let instruction_type = attrs
             .attributes
             .iter()
@@ -911,6 +923,7 @@ fn styled_block_from_pandoc(
             prompt,
             instruction_type,
             active_suggestion,
+            message,
             content,
             ..Default::default()
         });
