@@ -686,7 +686,7 @@ fn include_block_to_pandoc(
     }
     if let Some(mode) = &block.execution_mode {
         let mode = mode.to_string().to_lowercase();
-        attributes.push(("mode".into(), mode.into()))
+        attributes.push(("mode".into(), mode))
     }
 
     let attrs = pandoc::Attr {

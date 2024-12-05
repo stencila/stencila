@@ -8,7 +8,7 @@ pub(super) struct PandocEncodeContext {
 
     /// Encode paragraphs as Pandoc `Plain` blocks in places
     /// like figure and table captions.
-    pub paragraph_to_plain: bool
+    pub paragraph_to_plain: bool,
 }
 
 /// The context for decoding from Pandoc AST
