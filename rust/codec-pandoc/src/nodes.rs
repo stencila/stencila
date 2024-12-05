@@ -68,6 +68,16 @@ fn article_to_pandoc(
     if let Some(date) = &article.date_published {
         meta.insert("date".into(), string_to_meta_value(&date.value.to_string()));
     }
+    if let Some(keywords) = &article.keywords {
+        let mut keywords_meta = Vec::new();
+        for keyword in keywords {
+            keywords_meta.push(string_to_meta_value(keyword));
+        }
+        meta.insert(
+            "keywords".into(),
+            pandoc::MetaValue::MetaList(keywords_meta),
+        );
+    }
 
     let blocks = blocks_to_pandoc(&article.content, context);
 
@@ -77,12 +87,22 @@ fn article_to_pandoc(
 fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext) -> Article {
     let mut title = None;
     let mut date_published = None;
+    let mut keywords = None;
 
     for (key, value) in pandoc.meta {
         if key == "title" {
             title = Some(inlines_from_meta_inlines(value, context));
         } else if key == "date" {
             date_published = string_from_meta_value(value).parse().ok();
+        } else if key == "keywords" {
+            if let Some(pandoc::MetaValue::MetaList(meta_keywords)) = Some(value) {
+                keywords = Some(
+                    meta_keywords
+                        .iter()
+                        .map(|keyword| string_from_meta_value(keyword.clone()))
+                        .collect(),
+                );
+            }
         }
     }
 
@@ -92,6 +112,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
         title,
         date_published,
         content,
+        keywords,
         ..Default::default()
     }
 }
