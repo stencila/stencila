@@ -59,6 +59,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::CallBlock(block) => call_block_to_pandoc(block, context),
         Block::IfBlock(block) => if_block_to_pandoc(block, context),
         Block::IncludeBlock(block) => include_block_to_pandoc(block, context),
+        Block::InstructionBlock(block) => instruction_block_to_pandoc(block, context),
         Block::ForBlock(block) => for_block_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
@@ -69,7 +70,6 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::DeleteBlock(..)
         | Block::Form(..)
         | Block::InsertBlock(..)
-        | Block::InstructionBlock(..)
         | Block::ModifyBlock(..)
         | Block::PromptBlock(..)
         | Block::ReplaceBlock(..)
@@ -629,6 +629,33 @@ fn include_block_to_pandoc(
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
 }
 
+fn instruction_block_to_pandoc(
+    block: &InstructionBlock,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Block {
+    let mut attributes = vec![(
+        "type".into(),
+        block.instruction_type.to_string().to_lowercase(),
+    )];
+    if let Some(mode) = &block.execution_mode {
+        attributes.push(("mode".into(), mode.to_string()));
+    }
+    if let Some(prompt) = &block.prompt {
+        attributes.push(("prompt".into(), prompt.to_string()));
+    }
+    if let Some(active_suggestion) = &block.active_suggestion {
+        attributes.push(("active_suggestion".into(), active_suggestion.to_string()));
+    }
+    let attrs = pandoc::Attr {
+        classes: vec!["instruction".into()],
+        attributes,
+        ..attrs_empty()
+    };
+    let content = &block.content.clone().unwrap_or_default();
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+}
+
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     let mut attributes = vec![
         ("variable".into(), block.variable.clone()),
@@ -865,6 +892,36 @@ fn styled_block_from_pandoc(
             source,
             media_type,
             select,
+            content,
+            ..Default::default()
+        });
+    }
+
+    if attrs.classes.iter().any(|class| class == "instruction") {
+        let execution_mode = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
+        });
+        let instruction_type = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| {
+                (name == "type").then_some(InstructionType::from_str(value).unwrap_or_default())
+            })
+            .unwrap_or_default();
+        let prompt = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "prompt").then_some(value.clone()));
+        let active_suggestion = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "active_suggestion").then_some(value.clone().parse().unwrap_or_default())
+        });
+        let content = (!content.is_empty()).then_some(content);
+
+        return Block::InstructionBlock(InstructionBlock {
+            execution_mode,
+            prompt,
+            instruction_type,
+            active_suggestion,
             content,
             ..Default::default()
         });

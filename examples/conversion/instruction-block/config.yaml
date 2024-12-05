@@ -16,4 +16,8 @@ qmd:
 
 pandoc:
   decode:
-    skip: true
+    strip-props:
+      #TODO remov when implemented
+      - suggestions 
+      #TODO remove when implemented
+      - message
