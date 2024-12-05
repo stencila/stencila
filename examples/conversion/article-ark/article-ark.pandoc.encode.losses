@@ -1,9 +1,5 @@
-CallBlock: 1
 DeleteBlock: 1
 DeleteInline: 1
-ForBlock: 1
-IfBlock: 1
-IncludeBlock: 1
 InsertBlock: 1
 InsertInline: 1
 ReplaceBlock: 1
