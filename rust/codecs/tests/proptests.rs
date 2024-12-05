@@ -105,7 +105,6 @@ proptest! {
                 // TODO: these node types are not yet fully implemented
                 // so strip them from round-trip conversions
                 "CodeChunk".into(),
-                "InstructionBlock".into(),
             ],
             properties: vec![
                 // Admonition title is currently encoded as plain, unstructured text
