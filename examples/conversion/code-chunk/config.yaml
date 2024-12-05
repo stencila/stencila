@@ -11,8 +11,3 @@ qmd:
       # Round-tripped code may not be the same as original because label
       # and caption are put into code
       - CodeChunk.code
-
-pandoc:
-  decode:
-    # TODO: remove when implemented
-    skip: true

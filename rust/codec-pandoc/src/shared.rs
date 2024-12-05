@@ -5,6 +5,10 @@ use pandoc_types::definition as pandoc;
 #[derive(Default)]
 pub(super) struct PandocEncodeContext {
     pub losses: Losses,
+
+    /// Encode paragraphs as Pandoc `Plain` blocks in places
+    /// like figure and table captions.
+    pub paragraph_to_plain: bool
 }
 
 /// The context for decoding from Pandoc AST

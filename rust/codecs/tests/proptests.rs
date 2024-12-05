@@ -101,21 +101,20 @@ proptest! {
         let mut article = Node::Article(article);
 
         article.strip(&StripTargets {
-            types: vec![
-                // TODO: these node types are not yet fully implemented
-                // so strip them from round-trip conversions
-                "CodeChunk".into(),
-            ],
             properties: vec![
-                // Admonition title is currently encoded as plain, unstructured text
-                // only, so strip it.
+                // These properties are currently encoded as plain, unstructured text
+                // only, so we need to strip it for round trips to be same.
                 "Admonition.title".into(),
-                // Language is not currently supported for inline code
+                "CodeChunk.caption".into(),
+                // The `programming_language` property of `CodeExpression`s is not
+                // currently supported
                 "CodeInline.programming_language".into(),
                 // The `otherwise` property of `ForBlock`s is not yet supported
                 "ForBlock.otherwise".into(),
-                // Arbitrary figures do not necessarily have `label_automatically == false`
-                // when a label is present so need to strip label
+                // Arbitrarily generated code chunks and figures do not necessarily have
+                // `label_automatically == false` when `label` is `Some` so we need
+                // to strip labels for round trips to be same
+                "CodeChunk.label".into(),
                 "Figure.label".into(),
                 // Table notes not currently supported
                 "Table.notes".into(),

@@ -141,7 +141,29 @@ fn heading_from_pandoc(
 }
 
 fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> pandoc::Block {
-    pandoc::Block::Para(inlines_to_pandoc(&para.content, context))
+    let inlines = inlines_to_pandoc(&para.content, context);
+
+    // Do the equivalent of Pandoc's `implicit_figures` default extension https://pandoc.org/MANUAL.html#extension-implicit_figures
+    if let (true, Some(pandoc::Inline::Image(_, caption, _))) =
+        (inlines.len() == 1, inlines.first())
+    {
+        if !caption.is_empty() {
+            return pandoc::Block::Figure(
+                attrs_empty(),
+                pandoc::Caption {
+                    short: None,
+                    long: vec![pandoc::Block::Plain(caption.clone())],
+                },
+                vec![pandoc::Block::Plain(inlines)],
+            );
+        }
+    }
+
+    if context.paragraph_to_plain {
+        pandoc::Block::Plain(inlines)
+    } else {
+        pandoc::Block::Para(inlines)
+    }
 }
 
 fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecodeContext) -> Block {
@@ -371,11 +393,17 @@ fn figure_to_pandoc(figure: &Figure, context: &mut PandocEncodeContext) -> pando
         attrs_empty()
     };
 
+    context.paragraph_to_plain = true;
+
     let caption = figure
         .caption
         .as_ref()
         .map(|blocks| blocks_to_pandoc(blocks, context))
         .unwrap_or_default();
+
+    let blocks = blocks_to_pandoc(&figure.content, context);
+
+    context.paragraph_to_plain = false;
 
     pandoc::Block::Figure(
         attrs,
@@ -383,7 +411,7 @@ fn figure_to_pandoc(figure: &Figure, context: &mut PandocEncodeContext) -> pando
             short: None,
             long: caption,
         },
-        blocks_to_pandoc(&figure.content, context),
+        blocks,
     )
 }
 
@@ -431,7 +459,39 @@ fn code_block_from_pandoc(
     code: String,
     _context: &mut PandocDecodeContext,
 ) -> Block {
-    let programming_language = get_attr(&attrs, "classes");
+    let mut programming_language = attrs.classes.first().cloned();
+
+    if attrs.classes.iter().any(|class| class == "exec") {
+        if programming_language.as_deref() == Some("exec") {
+            programming_language = None;
+        }
+
+        let execution_mode = attrs
+            .classes
+            .iter()
+            .find_map(|class| ExecutionMode::from_str(class).ok());
+
+        let label_type =
+            get_attr(&attrs, "label-type").and_then(|value| LabelType::from_str(&value).ok());
+        let label = get_attr(&attrs, "label");
+        let label_automatically = label.is_some().then_some(false);
+        let caption = get_attr(&attrs, "caption").map(|caption| {
+            vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                caption.into(),
+            )]))]
+        });
+
+        return Block::CodeChunk(CodeChunk {
+            programming_language,
+            execution_mode,
+            label_type,
+            label,
+            label_automatically,
+            caption,
+            code: code.into(),
+            ..Default::default()
+        });
+    }
 
     Block::CodeBlock(CodeBlock {
         programming_language,
@@ -444,21 +504,36 @@ fn code_chunk_to_pandoc(
     code_chunk: &CodeChunk,
     _context: &mut PandocEncodeContext,
 ) -> pandoc::Block {
-    if let Some(_outputs) = &code_chunk.outputs {
-        // TODO
-        pandoc::Block::Div(attrs_empty(), Vec::new())
-    } else {
-        let classes = code_chunk
-            .programming_language
-            .as_ref()
-            .map_or(Vec::new(), |lang| vec![lang.to_string()]);
+    // TODO: Handle outputs
 
-        let attrs = pandoc::Attr {
-            classes,
-            ..Default::default()
-        };
-        pandoc::Block::CodeBlock(attrs, code_chunk.code.to_string())
+    // If no outputs, then encode as a code block
+
+    let mut classes = code_chunk
+        .programming_language
+        .as_ref()
+        .map_or(Vec::new(), |lang| vec![lang.to_string()]);
+    classes.push("exec".into());
+    if let Some(mode) = &code_chunk.execution_mode {
+        classes.push(mode.to_string().to_lowercase())
     }
+
+    let mut attributes = Vec::new();
+    if let Some(label_type) = &code_chunk.label_type {
+        attributes.push(("label-type".into(), label_type.to_string()));
+    }
+    if let Some(label) = &code_chunk.label {
+        attributes.push(("label".into(), label.into()));
+    }
+    if let Some(caption) = &code_chunk.caption {
+        attributes.push(("caption".into(), to_text(caption)));
+    }
+
+    let attrs = pandoc::Attr {
+        classes,
+        attributes,
+        ..Default::default()
+    };
+    pandoc::Block::CodeBlock(attrs, code_chunk.code.to_string())
 }
 
 fn math_block_to_pandoc(
