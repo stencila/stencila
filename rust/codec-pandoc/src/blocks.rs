@@ -610,12 +610,7 @@ fn include_block_to_pandoc(
         attributes.push(("select".into(), select.to_string().clone()))
     }
     if let Some(mode) = &block.execution_mode {
-        let mode = match mode {
-            ExecutionMode::Necessary => "necessary",
-            ExecutionMode::Always => "always",
-            ExecutionMode::Auto => "auto",
-            ExecutionMode::Locked => "locked",
-        };
+        let mode = mode.to_string().to_lowercase();
         attributes.push(("mode".into(), mode.into()))
     }
 
@@ -871,13 +866,7 @@ fn styled_block_from_pandoc(
             .attributes
             .into_iter()
             .find_map(|(name, value)| (name == "media").then_some(value));
-        let execution_mode = match execution_mode.to_lowercase().as_str() {
-            "always" => Some(ExecutionMode::Always),
-            "auto" => Some(ExecutionMode::Auto),
-            "locked" => Some(ExecutionMode::Locked),
-            "necessary" => Some(ExecutionMode::Necessary),
-            _ => None,
-        };
+        let execution_mode = ExecutionMode::from_str(&execution_mode).ok();
         let select = match select.as_str() {
             "" => None,
             _ => Some(select),
