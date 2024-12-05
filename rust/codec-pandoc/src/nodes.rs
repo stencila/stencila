@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use pandoc_types::definition::Pandoc;
+use pandoc_types::definition::{self as pandoc};
 
 use codec::{
     common::eyre::{bail, Result},
@@ -10,10 +10,14 @@ use codec::{
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
+    meta::{
+        inlines_from_meta_inlines, inlines_to_meta_inlines, string_from_meta_value,
+        string_to_meta_value,
+    },
     shared::{PandocDecodeContext, PandocEncodeContext},
 };
 
-pub fn root_to_pandoc(root: &Node) -> Result<(Pandoc, EncodeInfo)> {
+pub fn root_to_pandoc(root: &Node) -> Result<(pandoc::Pandoc, EncodeInfo)> {
     let mut context = PandocEncodeContext::default();
     let pandoc = node_to_pandoc(root, &mut context)?;
 
@@ -26,7 +30,7 @@ pub fn root_to_pandoc(root: &Node) -> Result<(Pandoc, EncodeInfo)> {
     ))
 }
 
-pub fn root_from_pandoc(pandoc: Pandoc) -> Result<(Node, DecodeInfo)> {
+pub fn root_from_pandoc(pandoc: pandoc::Pandoc) -> Result<(Node, DecodeInfo)> {
     let mut context = PandocDecodeContext::default();
     let node = node_from_pandoc(pandoc, &mut context)?;
 
@@ -39,31 +43,54 @@ pub fn root_from_pandoc(pandoc: Pandoc) -> Result<(Node, DecodeInfo)> {
     ))
 }
 
-fn node_to_pandoc(node: &Node, context: &mut PandocEncodeContext) -> Result<Pandoc> {
+fn node_to_pandoc(node: &Node, context: &mut PandocEncodeContext) -> Result<pandoc::Pandoc> {
     match node {
-        Node::Article(article) => Ok(article_to_pandoc(article, context)),
+        Node::Article(article) => Ok(article_to_pandoc(article, context)?),
         _ => bail!("Unsupported node type: {}", node.node_type()),
     }
 }
 
-fn node_from_pandoc(pandoc: Pandoc, context: &mut PandocDecodeContext) -> Result<Node> {
+fn node_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext) -> Result<Node> {
     let article = article_from_pandoc(pandoc, context);
     Ok(Node::Article(article))
 }
 
-fn article_to_pandoc(article: &Article, context: &mut PandocEncodeContext) -> Pandoc {
-    // TODO: construct Pandoc metadata from article
-    let meta = HashMap::new();
+fn article_to_pandoc(
+    article: &Article,
+    context: &mut PandocEncodeContext,
+) -> Result<pandoc::Pandoc> {
+    let mut meta = HashMap::new();
+
+    if let Some(title) = &article.title {
+        meta.insert("title".into(), inlines_to_meta_inlines(title, context));
+    }
+
+    if let Some(date) = &article.date_published {
+        meta.insert("date".into(), string_to_meta_value(&date.value.to_string()));
+    }
+
     let blocks = blocks_to_pandoc(&article.content, context);
 
-    Pandoc { meta, blocks }
+    Ok(pandoc::Pandoc { meta, blocks })
 }
 
-fn article_from_pandoc(pandoc: Pandoc, context: &mut PandocDecodeContext) -> Article {
-    // TODO: extract article properties from article metadata
+fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext) -> Article {
+    let mut title = None;
+    let mut date_published = None;
+
+    for (key, value) in pandoc.meta {
+        if key == "title" {
+            title = Some(inlines_from_meta_inlines(value, context));
+        } else if key == "date" {
+            date_published = string_from_meta_value(value).parse().ok();
+        }
+    }
+
     let content = blocks_from_pandoc(pandoc.blocks, context);
 
     Article {
+        title,
+        date_published,
         content,
         ..Default::default()
     }

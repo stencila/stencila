@@ -2,6 +2,7 @@ use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
+use codec::schema::*;
 use codec_text_trait::to_text;
 
 use crate::{

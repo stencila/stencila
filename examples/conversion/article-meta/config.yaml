@@ -8,5 +8,9 @@ compact.jats.xml:
 
 pandoc:
   decode:
-    # TODO: Enable authors and other metadata encoding/decoding
-    strip-scopes: [authors, metadata]
+    strip-props:
+      # TODO: Implement (some) of these
+      - Article.authors
+      - Article.date_created
+      - Article.date_accepted
+      - ArticleOptions.funders
