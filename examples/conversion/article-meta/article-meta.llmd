@@ -28,6 +28,9 @@ dateAccepted:
 datePublished:
   type: Date
   value: 2022-02-22
+keywords:
+- keyword
+- test
 title: Adding metadata to articles in Stencila
 ---
 

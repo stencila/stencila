@@ -1,6 +1,10 @@
 ---
 title: Adding metadata to articles in Stencila
 
+keywords:
+  - keyword
+  - test
+
 authors:
   - Dr Anne Anderson
   - type: Organization

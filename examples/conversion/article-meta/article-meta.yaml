@@ -20,6 +20,9 @@ dateAccepted:
 datePublished:
   type: Date
   value: 2022-02-22
+keywords:
+- keyword
+- test
 title:
 - type: Text
   value:
