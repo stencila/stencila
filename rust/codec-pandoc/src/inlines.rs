@@ -155,15 +155,15 @@ fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext)
 }
 
 fn audio_to_pandoc(audio: &AudioObject, context: &mut PandocEncodeContext) -> pandoc::Inline {
-    media_object_to_pandoc(&audio.content_url, &audio.title, &None, context)
+    media_object_to_pandoc(&audio.content_url, &audio.title, &audio.caption, context)
 }
 
 fn image_to_pandoc(image: &ImageObject, context: &mut PandocEncodeContext) -> pandoc::Inline {
-    media_object_to_pandoc(&image.content_url, &image.title, &None, context)
+    media_object_to_pandoc(&image.content_url, &image.title, &image.caption, context)
 }
 
 fn video_to_pandoc(video: &VideoObject, context: &mut PandocEncodeContext) -> pandoc::Inline {
-    media_object_to_pandoc(&video.content_url, &video.title, &None, context)
+    media_object_to_pandoc(&video.content_url, &video.title, &video.caption, context)
 }
 
 fn media_to_pandoc(media: &MediaObject, context: &mut PandocEncodeContext) -> pandoc::Inline {
