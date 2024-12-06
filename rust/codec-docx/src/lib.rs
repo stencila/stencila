@@ -62,7 +62,7 @@ impl Codec for DocxCodec {
         let pandoc = pandoc_from_format(
             "",
             Some(path),
-            &[PANDOC_FORMAT, "+styles"].concat(),
+            PANDOC_FORMAT,
             options
                 .map(|options| options.passthrough_args)
                 .unwrap_or_default(),
