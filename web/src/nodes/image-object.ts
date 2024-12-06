@@ -155,14 +155,17 @@ export class ImageObject extends Entity {
     container.remove()
   }
 
+  /**
+   * Recieve a plotly spec from and render in preview with plotly.js
+   */
   private async compilePlotly() {
     const Plotly = await import('plotly.js-dist-min')
     const spec = JSON.parse(this.content)
 
     // create hidden container for initial plotly render
-    const container = document.createElement('div')
-    container.hidden = true
-    document.body.appendChild(container)
+    const container = this.shadowRoot.getElementById(
+      'stencila-plotly-container'
+    )
 
     let codeChunk
     if (this.ancestors.endsWith('CodeChunk')) {
@@ -173,30 +176,48 @@ export class ImageObject extends Entity {
     try {
       await Plotly.newPlot(container, spec.data, spec.layout, spec.config)
 
-      // creates encoded svg string, width and hieght are required
-      const svgString = await Plotly.toImage(container, {
-        format: 'svg',
-        width: 600,
-        height: 600,
+      const styleTags = Array.from(
+        document.head.getElementsByTagName('style')
+      ).filter((tag) => {
+        return tag.id.startsWith('plotly.js')
       })
 
-      // decode the svg string, removing the leading data URI string
-      const decodedSvgString = decodeURIComponent(svgString.split(',')[1])
+      let style = ''
+      styleTags.forEach((tag) => {
+        const sheet = tag.sheet
+        Array.from(sheet.cssRules).forEach((rule) => {
+          style += rule.cssText + '\n'
+        })
+      })
+      style += '.plotly .modebar-btn { display: inline-block; }'
 
-      const parser = new DOMParser()
-      const svgDocument = parser.parseFromString(
-        decodedSvgString,
-        'image/svg+xml'
-      )
+      const shadowStyle = this.shadowRoot.getElementById('plotly-css')
+      shadowStyle.innerText = style
 
-      const svgEl = svgDocument.documentElement
+      // creates encoded svg string, width and hieght are required
+      // const svgString = await Plotly.toImage(container, {
+      //   format: 'svg',
+      //   width: 600,
+      //   height: 600,
+      // })
 
-      // remove preset dimensions for responsive rendering
-      svgEl.removeAttribute('width')
-      svgEl.removeAttribute('height')
+      // // decode the svg string, removing the leading data URI string
+      // const decodedSvgString = decodeURIComponent(svgString.split(',')[1])
 
-      this.svg = svgEl.outerHTML
-      container.remove()
+      // const parser = new DOMParser()
+      // const svgDocument = parser.parseFromString(
+      //   decodedSvgString,
+      //   'image/svg+xml'
+      // )
+
+      // const svgEl = svgDocument.documentElement
+
+      // // remove preset dimensions for responsive rendering
+      // svgEl.removeAttribute('width')
+      // svgEl.removeAttribute('height')
+
+      // this.svg = svgEl.outerHTML
+      // container.remove()
     } catch (error) {
       if (codeChunk) {
         let messages = codeChunk.querySelector('div[slot=messages]')
@@ -310,6 +331,10 @@ export class ImageObject extends Entity {
       return this.renderVega()
     }
 
+    if (this.mediaType === 'application/vnd.plotly.v1+json') {
+      return this.renderPlotly()
+    }
+
     return this.svg ? this.renderSvg() : this.renderImg()
   }
 
@@ -359,6 +384,15 @@ export class ImageObject extends Entity {
     return html`
       <div slot="content">
         <div id="stencila-vega-container"></div>
+      </div>
+    `
+  }
+
+  private renderPlotly() {
+    return html`
+      <style id="plotly-css"></style>
+      <div slot="content" class="overflow-x-auto">
+        <div id="stencila-plotly-container" class="w-full"></div>
       </div>
     `
   }
