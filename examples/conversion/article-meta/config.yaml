@@ -14,3 +14,13 @@ pandoc:
       - Article.date_created
       - Article.date_accepted
       - ArticleOptions.funders
+
+myst:
+  decode:
+    #TODO:removed when abstracts are implemented
+    skip: true
+
+qmd:
+  decode:
+    #TODO:removed when abstracts are implemented
+    skip: true
