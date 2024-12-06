@@ -114,7 +114,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
             }
         } else if key == "abstract" {
             r#abstract = Some(vec![Block::Paragraph(Paragraph {
-                content: inlines_from_meta_inlines(value, context).into(),
+                content: inlines_from_meta_inlines(value, context),
                 ..Default::default()
             })]);
         }
