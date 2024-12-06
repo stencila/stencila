@@ -22,6 +22,12 @@ import { ExecutionMessage } from './execution-message'
 @customElement('stencila-image-object')
 @withTwind()
 export class ImageObject extends Entity {
+  static MEDIA_TYPES = {
+    mermaid: 'text/vnd.mermaid',
+    plotly: 'application/vnd.plotly.v1+json',
+    vegaLite: 'application/vnd.vegalite.v5+json',
+  } as const
+
   /**
    * The media (MIME) type of the image
    */
@@ -80,11 +86,11 @@ export class ImageObject extends Entity {
 
     if (properties.has('content') || properties.has('mediaType')) {
       if (this.content) {
-        if (this.mediaType == 'text/vnd.mermaid') {
+        if (this.mediaType == ImageObject.MEDIA_TYPES.mermaid) {
           await this.compileMermaid()
-        } else if (this.mediaType == 'application/vnd.plotly.v1+json') {
+        } else if (this.mediaType == ImageObject.MEDIA_TYPES.plotly) {
           await this.compilePlotly()
-        } else if (this.mediaType == 'application/vnd.vegalite.v5+json') {
+        } else if (this.mediaType == ImageObject.MEDIA_TYPES.vegaLite) {
           await this.compileVegaLite()
         }
       }
@@ -174,8 +180,9 @@ export class ImageObject extends Entity {
     }
 
     try {
-      await Plotly.newPlot(container, spec.data, spec.layout, spec.config)
+      await Plotly.react(container, spec.data, spec.layout, spec.config)
 
+      // find plotly,js dynamically generated style tags
       const styleTags = Array.from(
         document.head.getElementsByTagName('style')
       ).filter((tag) => {
@@ -183,41 +190,19 @@ export class ImageObject extends Entity {
       })
 
       let style = ''
+      // copy rules from each style tag's `sheet` object
       styleTags.forEach((tag) => {
         const sheet = tag.sheet
         Array.from(sheet.cssRules).forEach((rule) => {
           style += rule.cssText + '\n'
         })
       })
+      // patch style rule for correct modebar display
       style += '.plotly .modebar-btn { display: inline-block; }'
 
+      // add rules to shadow dom style tag
       const shadowStyle = this.shadowRoot.getElementById('plotly-css')
       shadowStyle.innerText = style
-
-      // creates encoded svg string, width and hieght are required
-      // const svgString = await Plotly.toImage(container, {
-      //   format: 'svg',
-      //   width: 600,
-      //   height: 600,
-      // })
-
-      // // decode the svg string, removing the leading data URI string
-      // const decodedSvgString = decodeURIComponent(svgString.split(',')[1])
-
-      // const parser = new DOMParser()
-      // const svgDocument = parser.parseFromString(
-      //   decodedSvgString,
-      //   'image/svg+xml'
-      // )
-
-      // const svgEl = svgDocument.documentElement
-
-      // // remove preset dimensions for responsive rendering
-      // svgEl.removeAttribute('width')
-      // svgEl.removeAttribute('height')
-
-      // this.svg = svgEl.outerHTML
-      // container.remove()
     } catch (error) {
       if (codeChunk) {
         let messages = codeChunk.querySelector('div[slot=messages]')
@@ -326,13 +311,14 @@ export class ImageObject extends Entity {
       return this.renderErrors()
     }
 
-    // render vega plot
-    if (this.mediaType === 'application/vnd.vegalite.v5+json') {
-      return this.renderVega()
+    // render plotly figure
+    if (this.mediaType === ImageObject.MEDIA_TYPES.plotly) {
+      return this.renderPlotly()
     }
 
-    if (this.mediaType === 'application/vnd.plotly.v1+json') {
-      return this.renderPlotly()
+    // render vega-lite figure
+    if (this.mediaType === ImageObject.MEDIA_TYPES.vegaLite) {
+      return this.renderVega()
     }
 
     return this.svg ? this.renderSvg() : this.renderImg()
@@ -382,7 +368,7 @@ export class ImageObject extends Entity {
 
   private renderVega() {
     return html`
-      <div slot="content">
+      <div slot="content" class="overflow-x-auto">
         <div id="stencila-vega-container"></div>
       </div>
     `
