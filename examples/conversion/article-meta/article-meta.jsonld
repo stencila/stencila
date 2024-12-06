@@ -4,19 +4,6 @@
     "stencila": "https://stencila.org/"
   },
   "@type": "Article",
-  "abstract": [
-    {
-      "@type": "stencila:Paragraph",
-      "stencila:content": [
-        {
-          "@type": "Text",
-          "value": {
-            "string": "This is my abstract"
-          }
-        }
-      ]
-    }
-  ],
   "author": [
     {
       "@type": "Person",

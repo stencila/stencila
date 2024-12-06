@@ -1,5 +1,5 @@
 start     end        offsets   node_type+property                   authorship
-   723    797     (723, 797)   Link
-   799    879       (76, 82)   QuoteInline
-   615   1012    (-184, 133)   Paragraph
-     0   1013      (-615, 1)   Article
+   624    698     (624, 698)   Link
+   700    780       (76, 82)   QuoteInline
+   516    913    (-184, 133)   Paragraph
+     0    914      (-516, 1)   Article

@@ -1,10 +1,4 @@
 type: Article
-abstract:
-- type: Paragraph
-  content:
-  - type: Text
-    value:
-      string: This is my abstract
 authors:
 - type: Person
   familyNames:

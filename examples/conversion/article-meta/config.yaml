@@ -9,18 +9,9 @@ compact.jats.xml:
 pandoc:
   decode:
     strip-props:
-      # TODO: Implement (some) of these
+      # TODO: Implement authors
       - Article.authors
+      # THe following are currently not supported
       - Article.date_created
       - Article.date_accepted
       - ArticleOptions.funders
-
-myst:
-  decode:
-    #TODO:removed when abstracts are implemented
-    skip: true
-
-qmd:
-  decode:
-    #TODO:removed when abstracts are implemented
-    skip: true
