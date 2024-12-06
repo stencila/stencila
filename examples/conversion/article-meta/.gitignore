@@ -1,0 +1,4 @@
+# Ignore Pandoc JSON file because the Pandoc `meta` property
+# is a `HashMap` and so has non-deterministic key/value ordering
+# and so the file can change between test runs for no other reason.
+*.pandoc
