@@ -88,6 +88,7 @@ impl Notification for PublishDom {
 }
 
 /// A map of subscriptions to document DOMs
+#[allow(clippy::type_complexity)]
 static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<()>)>>> =
     Lazy::new(Mutex::default);
 
