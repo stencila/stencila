@@ -78,6 +78,14 @@ fn article_to_pandoc(
             pandoc::MetaValue::MetaList(keywords_meta),
         );
     }
+    if let Some(r#abstract) = &article.r#abstract {
+        if let Some(Block::Paragraph(paragraph)) = &r#abstract.first() {
+            meta.insert(
+                "abstract".into(),
+                inlines_to_meta_inlines(&paragraph.content, context),
+            );
+        }
+    }
 
     let blocks = blocks_to_pandoc(&article.content, context);
 
@@ -88,6 +96,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
     let mut title = None;
     let mut date_published = None;
     let mut keywords = None;
+    let mut r#abstract = None;
 
     for (key, value) in pandoc.meta {
         if key == "title" {
@@ -103,6 +112,11 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
                         .collect(),
                 );
             }
+        } else if key == "abstract" {
+            r#abstract = Some(vec![Block::Paragraph(Paragraph {
+                content: inlines_from_meta_inlines(value, context).into(),
+                ..Default::default()
+            })]);
         }
     }
 
@@ -113,6 +127,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
         date_published,
         content,
         keywords,
+        r#abstract,
         ..Default::default()
     }
 }
