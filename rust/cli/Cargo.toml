@@ -34,7 +34,7 @@ schema = { path = "../schema" }
 secrets = { path = "../secrets" }
 self-replace = "1.3.7"
 server = { path = "../server" }
-tracing-error = "0.2.0"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
+tracing-error = "0.2.1"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 version = { path = "../version" }
-webbrowser = "1.0.2"
+webbrowser = "1.0.3"
