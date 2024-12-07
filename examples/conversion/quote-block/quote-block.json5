@@ -2,6 +2,19 @@
   type: "Article",
   content: [
     {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "An empty quote block:" }
+        }
+      ]
+    },
+    {
+      type: "QuoteBlock",
+      content: []
+    },
+    {
       type: "QuoteBlock",
       content: [
         {

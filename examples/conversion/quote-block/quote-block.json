@@ -3,6 +3,14 @@
   "type": "Article",
   "content": [
     {
+      "type": "Paragraph",
+      "content": [{ "type": "Text", "value": "An empty quote block:" }]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": []
+    },
+    {
       "type": "QuoteBlock",
       "content": [
         {
