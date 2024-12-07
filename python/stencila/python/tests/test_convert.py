@@ -32,7 +32,7 @@ async def test_from_string():
 
 @pytest.mark.skip(reason="failing due to changes in serialization shape of Cord")
 async def test_from_path():
-    node = await from_path("../../examples/nodes/paragraph/paragraph.json")
+    node = await from_path("../../examples/conversion/paragraph/paragraph.json")
 
     assert isinstance(node, T.Article)
     assert isinstance(node.content[0], T.Paragraph)
@@ -81,14 +81,14 @@ async def test_to_path(tmp_path: Path):
 
 async def test_from_to(tmp_path: Path):
     markdown = await from_to(
-        "../../examples/nodes/paragraph/paragraph.json", to_format="md"
+        "../../examples/conversion/paragraph/paragraph.json", to_format="md"
     )
 
     assert markdown.startswith("This is paragraph one. It has two sentences.")
 
     fpath = tmp_path / "file.html"
     await from_to(
-        "../../examples/nodes/paragraph/paragraph.json",
+        "../../examples/conversion/paragraph/paragraph.json",
         str(fpath),
         to_format="html",
         to_standalone=False,

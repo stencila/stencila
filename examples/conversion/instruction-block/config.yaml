@@ -1,0 +1,21 @@
+compact.jats.xml:
+  decode:
+    skip: true
+
+smd:
+  decode:
+    skip: true
+
+myst:
+  decode:
+    skip: true
+
+qmd:
+  decode:
+    skip: true
+
+pandoc:
+  decode:
+    strip-props:
+      # Not supported
+      - suggestions 

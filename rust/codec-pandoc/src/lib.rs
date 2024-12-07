@@ -8,6 +8,7 @@ use codec::{
 
 mod blocks;
 mod inlines;
+mod meta;
 mod nodes;
 mod pandoc;
 mod shared;

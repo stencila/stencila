@@ -1,0 +1,17 @@
+compact.jats.xml:
+  decode:
+    # TODO: implement encoding and decoding of `Table`
+    strip-types:
+      - Table
+
+myst:
+  decode:
+    strip-props:
+      # MyST does not currently support table notes
+      - Table.notes
+
+pandoc:
+  decode:
+    strip-props:
+      # Pandoc does not support table notes
+      - Table.notes

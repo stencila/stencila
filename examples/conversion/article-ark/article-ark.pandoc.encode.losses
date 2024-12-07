@@ -1,0 +1,6 @@
+DeleteBlock: 1
+DeleteInline: 1
+InsertBlock: 1
+InsertInline: 1
+ReplaceBlock: 1
+ReplaceInline: 1

@@ -18,7 +18,9 @@ test("fromString", async () => {
 });
 
 test("fromPath", async () => {
-  const node = await fromPath("../../examples/nodes/paragraph/paragraph.json");
+  const node = await fromPath(
+    "../../examples/conversion/paragraph/paragraph.json",
+  );
 
   expect(node instanceof Article);
   expect((node as Article).content[0] instanceof Paragraph);
@@ -53,7 +55,7 @@ test("toPath", async () => {
 
 test("fromTo", async () => {
   const md = await fromTo(
-    "../../examples/nodes/paragraph/paragraph.json",
+    "../../examples/conversion/paragraph/paragraph.json",
     undefined,
     undefined,
     {
@@ -63,7 +65,7 @@ test("fromTo", async () => {
   expect(md).toMatchSnapshot();
 
   const html = await fromTo(
-    "../../examples/nodes/paragraph/paragraph.json",
+    "../../examples/conversion/paragraph/paragraph.json",
     undefined,
     undefined,
     {

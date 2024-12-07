@@ -1,5 +1,0 @@
-compact.jats.xml:
-  decode:
-    strip-props:
-      # TODO: Support decoding these properties
-      - ImageObject.title

@@ -1,0 +1,11 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: Support decoding math blocks
+      - MathBlock
+
+pandoc:
+  decode:
+    strip-props:
+      # Pandoc does not support alternative math languages
+      - MathBlock.math_language

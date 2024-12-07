@@ -1,0 +1,11 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: implement decoding `List`
+      - List
+
+pandoc:
+  decode:
+    strip-props:
+      # Checked list items not currently supported in Pandoc
+      - ListItem.is_checked

@@ -1,0 +1,21 @@
+smd:
+  decode:
+    # Markdown does not support decoding spans that contain standard
+    # inline node types such as `Emphasis` and `Link`s.
+    skip: true
+
+myst:
+  decode:
+    # As for Markdown
+    skip: true
+
+qmd:
+  decode:
+    # As for Markdown
+    skip: true
+
+pandoc:
+  decode:
+    strip-props:
+      # Pandoc does not support alternative style languages
+      - StyledInline.style_language

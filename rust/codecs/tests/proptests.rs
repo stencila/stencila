@@ -77,16 +77,16 @@ proptest! {
                 // in round trips and re-enable
                 // See https://github.com/stencila/stencila/issues/1924
                 "QuoteBlock".into(),
-                // TODO: Work out why admonitions are not round-tripped
-                // properly in some instances
-                "Admonition".into()
             ],
             properties: vec![
+                // Admonition title is currently encoded as plain, unstructured text
+                // only, so strip it.
+                "Admonition.title".into(),
                 // `CodeChunk.label` are not supported if there is no
                 // `label_type` (which can be generated as an arbitrary combo)
                 "CodeChunk.label".into(),
-                // TODO workout why figure labels are not round-tripped
-                // properly in some instances
+                // Arbitrary figures do not necessarily have `label_automatically == false`
+                // when a label is present so need to strip label
                 "Figure.label".into()
             ],
             ..Default::default()
@@ -101,24 +101,23 @@ proptest! {
         let mut article = Node::Article(article);
 
         article.strip(&StripTargets {
-            types: vec![
-                // TODO: these node types are not yet fully implemented
-                // so strip them from round-trip conversions
-                "Admonition".into(),
-                "CallBlock".into(),
-                "Claim".into(),
-                "CodeChunk".into(),
-                "ForBlock".into(),
-                "IfBlock".into(),
-                "IncludeBlock".into(),
-                "InstructionBlock".into(),
-                "Section".into(),
-            ],
             properties: vec![
-                // Language is not currently supported for inline code
+                // These properties are currently encoded as plain, unstructured text
+                // only, so we need to strip it for round trips to be same.
+                "Admonition.title".into(),
+                "CodeChunk.caption".into(),
+                // The `programming_language` property of `CodeExpression`s is not
+                // currently supported
                 "CodeInline.programming_language".into(),
+                // The `otherwise` property of `ForBlock`s is not yet supported
+                "ForBlock.otherwise".into(),
+                // Arbitrarily generated code chunks and figures do not necessarily have
+                // `label_automatically == false` when `label` is `Some` so we need
+                // to strip labels for round trips to be same
+                "CodeChunk.label".into(),
+                "Figure.label".into(),
                 // Table notes not currently supported
-                "Table.notes".into()
+                "Table.notes".into(),
             ],
             ..Default::default()
         });

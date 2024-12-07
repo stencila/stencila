@@ -1,0 +1,7 @@
+compact.jats.xml:
+  decode:
+    skip: true
+
+pandoc:
+  decode:
+    skip: true

@@ -1,0 +1,6 @@
+pandoc:
+  decode:
+    # Not supported yet
+    strip-props:
+      - CodeInline.programming_language
+

@@ -1,0 +1,1 @@
+{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Para","c":[{"t":"Str","c":"A code fragment: "},{"t":"Code","c":[["",[],[]],"2 * pi * r^2"]},{"t":"Str","c":"."}]},{"t":"Para","c":[{"t":"Str","c":"With language: "},{"t":"Code","c":[["",[],[]],"6 * 7"]},{"t":"Str","c":"."}]}]}

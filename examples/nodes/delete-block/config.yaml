@@ -1,4 +1,0 @@
-# TODO: Consider encoding `Delete` and `Insert` to JATS 
-compact.jats.xml:
-  decode:
-    skip: true

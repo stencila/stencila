@@ -1,0 +1,10 @@
+compact.jats.xml:
+  decode:
+    strip-props:
+      # TODO: Support decoding these properties
+      - ImageObject.title
+
+pandoc:
+  decode:
+    # TODO: Remove when audio and video encoding/decoding supported
+    skip: true

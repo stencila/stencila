@@ -1,0 +1,17 @@
+smd:
+  canonical: true
+
+compact.jats.xml:
+  decode:
+    # TODO: Enable authors and other metadata encoding/decoding
+    strip-scopes: [authors, metadata]
+
+pandoc:
+  decode:
+    strip-props:
+      # TODO: Implement authors
+      - Article.authors
+      # THe following are currently not supported
+      - Article.date_created
+      - Article.date_accepted
+      - ArticleOptions.funders

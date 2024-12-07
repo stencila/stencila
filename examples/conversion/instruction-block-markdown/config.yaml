@@ -1,0 +1,14 @@
+smd:
+  canonical: true
+
+compact.jats.xml:
+  decode:
+    skip: true
+
+myst:
+  decode:
+    skip: true
+
+pandoc:
+  decode:
+    skip: true

@@ -1,0 +1,5 @@
+pandoc:
+  decode:
+    strip-props:
+      # Pandoc does not support alternative math languages
+      - MathInline.math_language

@@ -1,0 +1,1 @@
+{"pandoc-api-version":[1,23],"meta":{},"blocks":[{"t":"Para","c":[{"t":"Str","c":"An inline quote "},{"t":"Quoted","c":[{"t":"DoubleQuote"},[{"t":"Str","c":"Never memorize something that you can look up"}]]},{"t":"Str","c":"."}]}]}

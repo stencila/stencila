@@ -1,0 +1,6 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: Implement encoding and decoding `IncludeBlock`
+      - IncludeBlock
+

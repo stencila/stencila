@@ -1,4 +1,0 @@
-# TODO: Consider encoding `InsertBlock` to JATS 
-compact.jats.xml:
-  decode:
-    skip: true

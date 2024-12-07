@@ -60,21 +60,21 @@ struct DecodeConfig {
 static CONFIG: Lazy<Config> = Lazy::new(|| {
     BTreeMap::from([
         (
-            String::from("cbor"),
+            "cbor".into(),
             FormatConfig {
                 format: Format::Cbor,
                 ..Default::default()
             },
         ),
         (
-            String::from("cbor.zst"),
+            "cbor.zst".into(),
             FormatConfig {
                 format: Format::CborZst,
                 ..Default::default()
             },
         ),
         (
-            String::from("dom.html"),
+            "dom.html".into(),
             FormatConfig {
                 format: Format::Dom,
                 encode: EncodeConfig {
@@ -92,7 +92,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("html"),
+            "html".into(),
             FormatConfig {
                 format: Format::Html,
                 encode: EncodeConfig {
@@ -111,7 +111,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("compact.html"),
+            "compact.html".into(),
             FormatConfig {
                 format: Format::Html,
                 encode: EncodeConfig {
@@ -130,7 +130,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("standalone.html"),
+            "standalone.html".into(),
             FormatConfig {
                 format: Format::Html,
                 encode: EncodeConfig {
@@ -149,21 +149,21 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("json"),
+            "json".into(),
             FormatConfig {
                 format: Format::Json,
                 ..Default::default()
             },
         ),
         (
-            String::from("json.zip"),
+            "json.zip".into(),
             FormatConfig {
                 format: Format::JsonZip,
                 ..Default::default()
             },
         ),
         (
-            String::from("jats.xml"),
+            "jats.xml".into(),
             FormatConfig {
                 format: Format::Jats,
                 encode: EncodeConfig {
@@ -184,7 +184,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("compact.jats.xml"),
+            "compact.jats.xml".into(),
             FormatConfig {
                 format: Format::Jats,
                 encode: EncodeConfig {
@@ -199,7 +199,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("json5"),
+            "json5".into(),
             FormatConfig {
                 format: Format::Json5,
                 encode: EncodeConfig {
@@ -213,7 +213,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("compact.json5"),
+            "compact.json5".into(),
             FormatConfig {
                 format: Format::Json5,
                 encode: EncodeConfig {
@@ -227,7 +227,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("jsonld"),
+            "jsonld".into(),
             FormatConfig {
                 format: Format::JsonLd,
                 encode: EncodeConfig {
@@ -241,7 +241,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("compact.jsonld"),
+            "compact.jsonld".into(),
             FormatConfig {
                 format: Format::JsonLd,
                 encode: EncodeConfig {
@@ -255,7 +255,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("llmd"),
+            "llmd".into(),
             FormatConfig {
                 format: Format::Llmd,
                 decode: DecodeConfig {
@@ -266,28 +266,28 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("smd"),
+            "smd".into(),
             FormatConfig {
                 format: Format::Smd,
                 ..Default::default()
             },
         ),
         (
-            String::from("myst"),
+            "myst".into(),
             FormatConfig {
                 format: Format::Myst,
                 ..Default::default()
             },
         ),
         (
-            String::from("qmd"),
+            "qmd".into(),
             FormatConfig {
                 format: Format::Qmd,
                 ..Default::default()
             },
         ),
         (
-            String::from("txt"),
+            "txt".into(),
             FormatConfig {
                 format: Format::Text,
                 decode: DecodeConfig {
@@ -298,9 +298,16 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            String::from("yaml"),
+            "yaml".into(),
             FormatConfig {
                 format: Format::Yaml,
+                ..Default::default()
+            },
+        ),
+        (
+            "pandoc".into(),
+            FormatConfig {
+                format: Format::Pandoc,
                 ..Default::default()
             },
         ),
@@ -309,7 +316,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 
 /// Test the encoding/decoding of examples to/from various formats
 ///
-/// For each `examples/*.json` file, load it as a `Node`, and then for
+/// For each `examples/conversion/**/*.json` file, load it as a `Node`, and then for
 /// each format:
 ///
 /// 1. Encode to the format and compare any existing file
@@ -326,7 +333,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 #[tokio::test]
 async fn examples() -> Result<()> {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/nodes")
+        .join("../../examples/conversion")
         .canonicalize()?
         .to_string_lossy()
         .to_string()

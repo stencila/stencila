@@ -1,0 +1,19 @@
+smd:
+  decode:
+    # Skip decoding since encoding is lossy
+    skip: true
+
+myst:
+  decode:
+    # As for Markdown
+    skip: true
+
+qmd:
+  decode:
+    # As for Markdown
+    skip: true
+
+pandoc:
+  encode:
+    # As for Markdown
+    skip: true

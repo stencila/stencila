@@ -15,7 +15,7 @@ use schema::Node;
 #[tokio::test]
 async fn examples() -> Result<()> {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/nodes")
+        .join("../../examples/conversion")
         .canonicalize()?
         .join("**/*.json");
     let pattern = pattern.to_str().unwrap_or_default();

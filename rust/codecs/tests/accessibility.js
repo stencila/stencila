@@ -9,7 +9,7 @@ const glob = require("glob");
 const pa11y = require("pa11y");
 const path = require("path");
 
-const examples = path.join(__dirname, "../../../../examples/nodes");
+const examples = path.join(__dirname, "../../../../examples/conversion");
 const files = glob.globSync("*/*.standalone.html", {
   cwd: examples,
 });

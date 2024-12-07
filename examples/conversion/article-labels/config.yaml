@@ -1,0 +1,25 @@
+smd:
+  canonical: true
+  decode:
+    skip: true
+
+compact.jats.xml:
+  decode:
+    skip: true
+
+myst:
+  decode:
+    strip-props:
+      # Fixture has a table with a multi-paragraph caption,
+      # these are not supported by MyST
+      - Table.caption
+
+qmd:
+  decode:
+    # TODO: remove when implemented
+    skip: true
+
+pandoc:
+  decode:
+    # TODO: remove when implemented
+    skip: true

@@ -1,0 +1,17 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: Implement encoding and decoding `ForBlock`
+      - ForBlock
+
+myst:
+  decode:
+    strip-props:
+      # MyST does not support lang currently
+      - ForBlock.programming_language
+
+pandoc:
+  decode:
+    strip-props:
+      # Not yet supported
+      - ForBlock.otherwise

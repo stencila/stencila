@@ -1,4 +1,0 @@
-# TODO: Consider encoding `InsertInline` to JATS
-compact.jats.xml:
-  decode:
-    skip: true

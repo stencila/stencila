@@ -1,5 +1,0 @@
-compact.jats.xml:
-  decode:
-    strip-types:
-      # TODO: Support decoding math blocks
-      - MathBlock
