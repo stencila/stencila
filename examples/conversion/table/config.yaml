@@ -13,5 +13,5 @@ myst:
 pandoc:
   decode:
     strip-props:
-      # TODO: Check if Pandoc support table notes
+      # Pandoc does not support table notes
       - Table.notes

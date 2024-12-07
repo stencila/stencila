@@ -17,5 +17,5 @@ qmd:
 pandoc:
   decode:
     strip-props:
-      #TODO remov when implemented
+      # Not supported
       - suggestions 

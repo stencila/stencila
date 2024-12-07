@@ -13,5 +13,5 @@ myst:
 pandoc:
   decode:
     strip-props:
-      # Encoding of not yet supported
+      # Not yet supported
       - ForBlock.otherwise

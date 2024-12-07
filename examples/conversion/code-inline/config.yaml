@@ -1,4 +1,6 @@
 pandoc:
   decode:
-    # TODO: remove when implemented
-    skip: true
+    # Not supported yet
+    strip-props:
+      - CodeInline.programming_language
+

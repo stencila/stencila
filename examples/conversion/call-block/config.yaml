@@ -7,6 +7,6 @@ compact.jats.xml:
 pandoc:
   decode:
     strip-props:
-      # not currently supported
+      # Not currently supported
       - CallArgument.value
 
