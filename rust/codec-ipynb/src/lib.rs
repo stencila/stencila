@@ -10,10 +10,10 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
-        serde_json::Value,
+        serde_json::{self, json, Value},
     },
     format::Format,
-    schema::{Article, Block, CodeChunk, CodeChunkOptions, Node, RawBlock},
+    schema::{Article, Block, CodeChunk, CodeChunkOptions, LabelType, Node, RawBlock},
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
     NodeType,
@@ -243,12 +243,46 @@ fn code_chunk_from_code_cell(
     source: Vec<String>,
     // TODO: Convert outputs to Stencila nodes
     _outputs: Vec<Output>,
-    // TODO: Use metadata?
-    _metadata: CellMetadata,
+    metadata: CellMetadata,
     execution_count: Option<i32>,
 ) -> Block {
+    let mut programming_language = None;
+    let mut label_type = None;
+    let mut label = None;
+    let mut caption = None;
+    if let Some(meta) = metadata
+        .additional
+        .get("stencila")
+        .and_then(|value| value.as_object())
+    {
+        programming_language = meta
+            .get("programmingLanguage")
+            .and_then(|value| value.as_str())
+            .map(String::from);
+        label_type = meta
+            .get("labelType")
+            .and_then(|value| value.as_str())
+            .and_then(|value| LabelType::try_from(value).ok());
+        label = meta
+            .get("label")
+            .and_then(|value| value.as_str())
+            .map(String::from);
+        if let Some(md) = meta.get("caption").and_then(|value| value.as_str()) {
+            if let Ok((Node::Article(Article { content, .. }), ..)) =
+                codec_markdown::decode(md, None)
+            {
+                caption = Some(content);
+            }
+        }
+    }
+
     Block::CodeChunk(CodeChunk {
         code: source.join("\n").into(),
+        programming_language,
+        label_type,
+        label_automatically: label.is_some().then_some(false),
+        label,
+        caption,
         options: Box::new(CodeChunkOptions {
             execution_count: execution_count.map(|count| count as i64),
             ..Default::default()
@@ -259,10 +293,42 @@ fn code_chunk_from_code_cell(
 
 /// Convert a Stencila [`CodeChunk`] to a Jupyter code cell
 fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
+    let mut stencila = serde_json::Map::new();
+    if let Some(value) = &code_chunk.programming_language {
+        stencila.insert("programmingLanguage".into(), json!(value));
+    }
+    if let Some(value) = &code_chunk.label_type {
+        stencila.insert("labelType".into(), json!(value));
+    }
+    if let Some(value) = &code_chunk.label {
+        stencila.insert("label".into(), json!(value));
+    }
+    if let Some(blocks) = &code_chunk.caption {
+        let md = codec_markdown::encode(
+            &Node::Article(Article::new(blocks.clone())),
+            Some(EncodeOptions {
+                format: Some(Format::Markdown),
+                ..Default::default()
+            }),
+        )?
+        .0;
+        stencila.insert("caption".into(), json!(md));
+    }
+
+    let additional = if stencila.is_empty() {
+        HashMap::new()
+    } else {
+        HashMap::from([("stencila".into(), Value::Object(stencila))])
+    };
+
+    let metadata = CellMetadata {
+        additional,
+        ..cell_metadata_default()
+    };
+
     Ok(Cell::Code {
         id: node_id_to_cell_id(code_chunk.node_id())?,
-        // TODO: Add other code chunk attributes
-        metadata: cell_metadata_default(),
+        metadata,
         execution_count: code_chunk.options.execution_count.map(|count| count as i32),
         source: vec![code_chunk.code.to_string()],
         // TODO: convert to Jupyter mime bundle

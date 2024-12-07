@@ -112,22 +112,25 @@ proptest! {
                 "CallBlock".into()
             ],
             properties: vec![
-                // TODO: Encode these properties into Jupyter code cells
-                "CodeChunk.label".into(),
-                "CodeChunk.label_type".into(),
+                // Code chunk captions currently only support simple Markdown.
                 "CodeChunk.caption".into(),
-                "CodeChunk.programming_language".into(),
 
                 // TODO: Determine which of these can be round tripped
                 // and for those that can not document why
-                "Figure.label".into(),
                 "Table.caption".into(),
                 "Table.notes".into(),
 
-                // MyST only supports an image as a figure
+                // Arbitrary code chunks and figures do not necessarily have `label_automatically == false`
+                // when a label is present so need to strip label
+                "CodeChunk.label".into(),
+                "CodeChunk.label_type".into(),
+                "Figure.label".into(),
+
+                // MyST only supports an image as a figure so all content
+                // must be stripped since it may include other node types
                 "Figure.content".into(),
 
-                // Language is currently not supported for these node types in MyST
+                // MyST currently does not support these
                 "ForBlock.programming_language".into(),
                 "IfBlockClause.programming_language".into(),
             ],
