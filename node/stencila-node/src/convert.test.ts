@@ -47,10 +47,8 @@ test("toPath", async () => {
 
   const temp = tmp.fileSync({ postfix: ".jats" }).name;
   await toPath(original, temp);
-  // eslint-disable-next-line
   const roundTrip = await fromPath(temp);
-  // TODO: fix issue with construction/serialization of text nodes
-  //expect(roundTrip).toEqual(original);
+  expect(roundTrip).toEqual(original);
 });
 
 test("fromTo", async () => {
