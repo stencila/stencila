@@ -152,10 +152,7 @@ impl DomCodec for ImageObject {
         if let Some(media_type) = &self.media_type {
             context.push_attr("media-type", media_type);
 
-            // For media types that require rendering in the browser, add `content_url` as an
-            // attribute that is easily accessible by the <stencila-image-object> custom element
-            // and do not add an <img> tag.
-            if media_type == "text/vnd.mermaid" {
+            if !media_type.starts_with("image/") {
                 context.push_attr("content", &self.content_url);
                 img = false;
             }

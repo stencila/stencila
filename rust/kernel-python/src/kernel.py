@@ -87,6 +87,7 @@ class Datatable(TypedDict):
 class ImageObject(TypedDict):
     type: Literal["ImageObject"]
     contentUrl: str
+    mediaType: str
 
 
 class SoftwareApplication(TypedDict):
@@ -378,7 +379,7 @@ try:
                     "type": "DatatableColumn",
                     "name": str(column_name),
                     "values": values,
-                    # ndarray and columns are noth the same, but we just need the dtype.
+                    # ndarray and columns are not the same, but we just need the dtype.
                     "validator": ndarray_to_validator(column),  # type: ignore
                 }
             )
@@ -456,10 +457,116 @@ try:
         return {
             "type": "ImageObject",
             "contentUrl": url,
+            "mediaType": "image/png"
         }
 
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
+
+# Custom serialization for Plotly
+try:
+    import plotly.io as pio
+    from plotly.io.base_renderers import PlotlyRenderer
+
+    PLOTLY_AVAILABLE = True
+
+    def is_plotly(value: Any) -> bool:
+        """Is the value a Plotly MIME bundle"""
+        return isinstance(value, dict) and "application/vnd.plotly.v1+json" in value
+
+    class ImageObjectRenderer(PlotlyRenderer):
+        """
+        A custom renderer to output a Plotly figure as an `ImageObject`.
+
+        This is needed for when a user writes `fig.show()`. That method
+        returns `None` and plotly renderers are responsible for "rendering"
+        them to stdout.
+        """
+
+        def to_mimebundle(self, fig_dict: Any) -> dict[str, Any]:
+            bundle = super().to_mimebundle(fig_dict)
+
+            mime_type = next(iter(bundle))
+            content = bundle[mime_type]
+
+            image = {
+                "type": "ImageObject",
+                "mediaType": mime_type,
+                "contentUrl": json.dumps(content),
+            }
+            sys.stdout.write(json.dumps(image) + END + "\n")
+
+            # Do not return the mime bundle here otherwise Plotly
+            # will print to stdout as a dict repr
+            return {}
+
+    pio.renderers["image_object_renderer"] = ImageObjectRenderer()
+    pio.renderers.default = "image_object_renderer"
+
+except ImportError:
+    PLOTLY_AVAILABLE = False
+
+# Use MIME bundle for Altair plot serialization
+try:
+    import altair as alt
+
+    ALTAIR_AVAILABLE = True
+
+    alt.renderers.enable("mimetype")
+
+    def is_altair(value: Any) -> bool:
+        """Is the value a Vega-Altair MIME bundle"""
+        return isinstance(value, dict) and "application/vnd.vegalite.v5+json" in value
+
+except ImportError:
+    ALTAIR_AVAILABLE = False
+
+
+class MimeBundleJSONEncoder(json.JSONEncoder):
+    """
+    JSON encoder used on mime bundles to handle objects that may
+    be embedded in the bundle but which are not natively JSON serializable
+    """
+
+    def default(self, o: Any) -> Any:
+        if NUMPY_AVAILABLE:
+            if isinstance(o, (np.integer, np.int_)): # type: ignore
+                return int(o)
+            if isinstance(o, (np.floating, np.float_)): # type: ignore
+                return float(o)
+            if isinstance(o, np.ndarray):
+                return o.tolist()
+
+        if PANDAS_AVAILABLE:
+            if isinstance(o, pd.Timestamp):
+                return o.isoformat()
+            if isinstance(o, pd.Timedelta):
+                return o.total_seconds()
+            if isinstance(o, pd.DataFrame):
+                return o.to_dict(orient="records")
+            if isinstance(o, pd.Series):
+                return o.to_dict()
+
+        if isinstance(o, complex):
+            return [o.real, o.imag]
+
+        if hasattr(o, "__dict__"):
+            return o.__dict__
+
+        if hasattr(o, "__str__"):
+            return str(o)
+
+        return super().default(o)
+
+
+def mimebundle_to_image_object(bundle: Any) -> ImageObject:
+    """Convert a MIME bundle to an `ImageObject`"""
+    mime_type = next(iter(bundle))
+    return {
+        "type": "ImageObject",
+        "mediaType": mime_type,
+        "contentUrl": json.dumps(bundle[mime_type], cls=MimeBundleJSONEncoder),
+    }
 
 
 # Serialize a Python object as JSON
@@ -478,6 +585,19 @@ def to_json(obj: Any) -> str:
 
     if MATPLOTLIB_AVAILABLE and is_matplotlib(obj):
         return json.dumps(matplotlib_to_image_object())
+
+    if hasattr(obj, "_repr_mimebundle_"):
+        bundle = obj._repr_mimebundle_()
+
+        # Altair returns a tuple of bundles, the second item empty, so
+        # if a tuple or list, just take the first item
+        if isinstance(bundle, (tuple, list)) and len(bundle):
+            bundle = bundle[0]
+
+        if is_plotly(bundle) or is_altair(bundle):
+            return json.dumps(mimebundle_to_image_object(bundle))
+
+        return json.dumps(bundle, cls=MimeBundleJSONEncoder)
 
     try:
         return json.dumps(obj)
@@ -828,7 +948,7 @@ def main() -> None:
                 "message": str(e),
                 "errorType": type(e).__name__,
                 "stackTrace": stack_trace,
-                "codeLocation": code_location, # type: ignore
+                "codeLocation": code_location,  # type: ignore
             }
             sys.stderr.write(to_json(em) + "\n")
 
