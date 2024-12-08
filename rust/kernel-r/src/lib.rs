@@ -64,6 +64,8 @@ impl Microkernel for RKernel {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{
@@ -818,5 +820,39 @@ Sys.sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
+    }
+
+    /// Custom R test that the closest `.Rprofile` file is used.
+    /// See the example workspace's README for more details
+    #[test_log::test(tokio::test)]
+    async fn uses_closest_rprofile() -> Result<()> {
+        skip_on_ci!();
+
+        let Some(mut instance) = create_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        let workspace =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../examples/workspaces/rprofiles");
+
+        instance.start(&workspace).await?;
+        assert_eq!(
+            instance.get("current_profile").await?.unwrap_or_default(),
+            Node::String("root-profile".into())
+        );
+
+        instance.start(&workspace.join("sub1")).await?;
+        assert_eq!(
+            instance.get("current_profile").await?.unwrap_or_default(),
+            Node::String("root-profile".into())
+        );
+
+        instance.start(&workspace.join("sub2")).await?;
+        assert_eq!(
+            instance.get("current_profile").await?.unwrap_or_default(),
+            Node::String("sub2-profile".into())
+        );
+
+        Ok(())
     }
 }

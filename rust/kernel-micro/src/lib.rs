@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     env,
     fs::write,
     path::{Path, PathBuf},
@@ -370,6 +371,9 @@ impl KernelInstance for MicrokernelInstance {
         let mut exec_name = self.executable_name.clone();
         let mut exec_args = self.executable_args.clone();
         let mut exec_path = None;
+        let mut env_vars = HashMap::new();
+
+        let exec_is_r = exec_name == "R" || exec_name == "Rscript";
 
         // Search for an environment in the current, or a parent, directories
         let mut current_dir = directory.to_path_buf();
@@ -383,15 +387,28 @@ impl KernelInstance for MicrokernelInstance {
                 break;
             }
 
-            // Check for .venv directory with exec in it
-            let venv_path = current_dir
-                .join(".venv")
-                .join("bin")
-                .join(exec_name.clone());
+            // Check for a .venv directory with the `exec_name` in it
+            let venv_path = current_dir.join(".venv").join("bin").join(&exec_name);
             if venv_path.exists() {
                 // Set the executable path to the one in the venv
                 exec_path = Some(venv_path);
                 break;
+            }
+
+            // If the executable is R then look for an R profile in the directory
+            // and use it to set `R_PROFILE_USER` (which is run after, and therefore
+            // has priority over `R_PROFILE`).
+            //
+            // See https://github.com/stencila/stencila/issues/2389
+            if exec_is_r {
+                let rprofile_path = current_dir.join(".Rprofile");
+                if rprofile_path.exists() {
+                    env_vars.insert(
+                        "R_PROFILE_USER",
+                        rprofile_path.to_string_lossy().to_string(),
+                    );
+                    break;
+                }
             }
 
             // Move up to the parent directory
@@ -409,24 +426,26 @@ impl KernelInstance for MicrokernelInstance {
             )
         })?);
 
+        // If the executable is R, and the `R_HOME` env var is not set, then
+        // set it to the grandparent of the executable path.
+        //
+        // This is intended to fix this issue where, when using the R microkernel
+        // via the VSCode extension, the correct environment does not reach R for some reason
+        // https://github.com/stencila/stencila/issues/2348
+        if exec_is_r && env::var("R_HOME").is_err() {
+            if let Some(rhome) = exec_path.ancestors().nth(2) {
+                env_vars.insert("R_HOME", rhome.to_string_lossy().to_string());
+            }
+        }
+
         // Create the command
         let mut command = Command::new(&exec_path);
         command
             .args(exec_args.clone())
+            .envs(env_vars)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
-
-        // If this is the R microkernel and the `R_HOME` env var is not set then
-        // set it to the grandparent of the executable path.
-        // This is intended to fix this issue where, when using the R microkernel
-        // via the VSCode extension, the correct environment does not reach R for some reason
-        // https://github.com/stencila/stencila/issues/2348
-        if self.executable_name == "Rscript" && env::var("R_HOME").is_err() {
-            if let Some(rhome) = exec_path.ancestors().nth(2) {
-                command.env("R_HOME", rhome);
-            }
-        }
 
         self.executable_path = Some(exec_path);
 
