@@ -4,13 +4,12 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{notification::Notification, request::Request},
+    lsp_types::{notification::Notification, request::Request, Uri},
     ClientSocket, ErrorCode, ResponseError,
 };
 
 use codecs::{EncodeOptions, Format};
 use common::{
-    reqwest::Url,
     serde::{Deserialize, Serialize},
     tokio,
     tokio::sync::RwLock,
@@ -30,7 +29,7 @@ impl Request for SubscribeContent {
 #[serde(crate = "common::serde")]
 pub struct SubscribeContentParams {
     // The URI of the document for which the content is desired
-    pub uri: Url,
+    pub uri: Uri,
 
     // The format that the content is desired in
     pub format: Format,
@@ -42,7 +41,7 @@ struct PublishContent;
 #[serde(crate = "common::serde")]
 pub struct PublishContentParams {
     // The URI of the document for which the content is for
-    pub uri: Url,
+    pub uri: Uri,
 
     // The format that the content is in
     pub format: Format,

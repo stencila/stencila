@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind, Url},
+    lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind, Uri},
     ResponseError,
 };
 
@@ -21,7 +21,7 @@ use crate::text_document::TextNode;
 /// Handle a request for a hover display over a position of the document
 pub(super) async fn request(
     params: HoverParams,
-    uri: Url,
+    uri: Uri,
     doc: Arc<RwLock<Document>>,
     root: Arc<RwLock<TextNode>>,
 ) -> Result<Option<Hover>, ResponseError> {
@@ -72,7 +72,7 @@ pub(super) async fn request(
 }
 
 /// Render the outputs of a code chunk as Markdown
-fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
+fn code_chunk(node: CodeChunk, uri: &Uri, node_id: &NodeId) -> Option<String> {
     let outputs = node.outputs?;
 
     if outputs.is_empty() {
@@ -108,7 +108,7 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
                 if not_image || too_big {
                     // Do not show image but indicate that there is an image to view and provide a link
                     let args = percent_encoding::utf8_percent_encode(
-                        &format!(r#"["{uri}","CodeChunk","{node_id}"]"#),
+                        &format!(r#"["{}","CodeChunk","{node_id}"]"#, uri.as_str()),
                         percent_encoding::NON_ALPHANUMERIC,
                     )
                     .to_string();

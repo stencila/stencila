@@ -4,13 +4,12 @@
 use std::{collections::HashMap, sync::Arc};
 
 use async_lsp::{
-    lsp_types::{notification::Notification, request::Request},
+    lsp_types::{notification::Notification, request::Request, Uri},
     ClientSocket, ErrorCode, ResponseError,
 };
 
 use common::{
     once_cell::sync::Lazy,
-    reqwest::Url,
     serde::{Deserialize, Serialize},
     tokio::{
         self,
@@ -37,7 +36,7 @@ impl Request for SubscribeDom {
 #[serde(crate = "common::serde")]
 pub struct SubscribeDomParams {
     // The URI of the document for which the DOM is desired
-    pub uri: Url,
+    pub uri: Uri,
 }
 
 pub struct ResetDom;

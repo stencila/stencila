@@ -4,13 +4,12 @@
 use std::{str::FromStr, sync::Arc};
 
 use async_lsp::{
-    lsp_types::{request::Request, Position},
+    lsp_types::{request::Request, Position, Uri},
     ResponseError,
 };
 
 use common::{
     itertools::Itertools,
-    reqwest::Url,
     serde::{Deserialize, Serialize},
     tokio::sync::RwLock,
 };
@@ -30,7 +29,7 @@ impl Request for NodeIdsForLines {
 #[serde(crate = "common::serde")]
 pub struct NodeIdsForLinesParams {
     /// The URI of the document for which the node ids are desired
-    pub uri: Url,
+    pub uri: Uri,
 
     /// The lines for which corresponding node ids are desired
     pub lines: Vec<u32>,
@@ -66,7 +65,7 @@ impl Request for LinesForNodeIds {
 #[serde(crate = "common::serde")]
 pub struct LinesForNodeIdsParams {
     /// The URI of the document for which the line numbers are desired
-    pub uri: Url,
+    pub uri: Uri,
 
     /// The node ids for which the line numbers are desired
     pub ids: Vec<String>,

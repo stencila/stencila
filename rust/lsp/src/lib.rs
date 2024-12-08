@@ -1,6 +1,6 @@
 use std::{collections::HashMap, env};
 
-use async_lsp::{lsp_types::Url, ClientSocket};
+use async_lsp::{lsp_types::Uri, ClientSocket};
 
 use common::{eyre::Result, serde::Deserialize, serde_json, tracing};
 
@@ -40,7 +40,7 @@ pub(crate) struct ServerState {
     options: ServerOptions,
 
     /// The documents opened by the client that are handled by this server
-    documents: HashMap<Url, TextDocument>,
+    documents: HashMap<Uri, TextDocument>,
 
     /// The status of the server
     status: ServerStatus,
