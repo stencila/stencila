@@ -103,6 +103,12 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
         Notebook::Legacy(nb) => upgrade_legacy_notebook(nb).map_err(|error| eyre!(error))?,
     };
 
+    let lang = notebook
+        .metadata
+        .kernelspec
+        .and_then(|spec| spec.language)
+        .or_else(|| notebook.metadata.language_info.map(|info| info.name));
+
     let mut content = Vec::new();
     for cell in notebook.cells {
         match cell {
@@ -128,6 +134,7 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
                 outputs,
                 metadata,
                 execution_count,
+                lang.clone(),
             )),
 
             Cell::Raw {
@@ -279,6 +286,7 @@ fn code_chunk_from_code_cell(
     outputs: Vec<Output>,
     metadata: CellMetadata,
     execution_count: Option<i32>,
+    mut programming_language: Option<String>,
 ) -> Block {
     let mut nodes = Vec::new();
     let mut errors = Vec::new();
@@ -294,10 +302,10 @@ fn code_chunk_from_code_cell(
         }
     }
 
-    let mut programming_language = None;
     let mut label_type = None;
     let mut label = None;
     let mut caption = None;
+
     if let Some(meta) = metadata
         .additional
         .get("stencila")
@@ -322,6 +330,17 @@ fn code_chunk_from_code_cell(
                 caption = Some(content);
             }
         }
+    }
+
+    if let Some(meta) = metadata
+        .additional
+        .get("vscode")
+        .and_then(|value| value.as_object())
+    {
+        programming_language = meta
+            .get("languageId")
+            .and_then(|value| value.as_str())
+            .map(String::from);
     }
 
     Block::CodeChunk(CodeChunk {
