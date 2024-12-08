@@ -10,7 +10,7 @@ impl Person {
         let mut string = String::new();
 
         if let Some(prefix) = &self.options.honorific_prefix {
-            string.push_str(&prefix);
+            string.push_str(prefix);
         }
 
         if let Some(given_names) = &self.given_names {
@@ -31,7 +31,7 @@ impl Person {
             if !string.is_empty() {
                 string.push(' ');
             }
-            string.push_str(&suffix);
+            string.push_str(suffix);
         }
 
         if let Some(emails) = &self.options.emails {

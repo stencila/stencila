@@ -399,7 +399,7 @@ fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
         .outputs
         .iter()
         .flatten()
-        .map(|output| node_to_output(output))
+        .map(node_to_output)
         .collect();
 
     Ok(Cell::Code {
