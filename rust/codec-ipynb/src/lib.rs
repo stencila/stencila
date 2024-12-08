@@ -136,14 +136,16 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
         }
     }
 
-    let authors = notebook.metadata.authors.map(|authors| {
-        authors
+    let authors = notebook.metadata.authors.and_then(|authors| {
+        let authors: Vec<Author> = authors
             .into_iter()
             .flat_map(|author| match Person::from_str(&author.name) {
                 Ok(person) => Some(Author::Person(person)),
                 _ => None,
             })
-            .collect()
+            .collect();
+
+        (!authors.is_empty()).then_some(authors)
     });
 
     let node = Node::Article(Article {
@@ -255,7 +257,7 @@ fn blocks_from_markdown_cell(
     _metadata: CellMetadata,
     _attachments: Option<Value>,
 ) -> Result<Vec<Block>> {
-    let md = source.join("\n");
+    let md = source.join("");
 
     let (Node::Article(Article { content, .. }), ..) = codec_markdown::decode(
         &md,
