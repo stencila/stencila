@@ -1139,6 +1139,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-markdown",
+ "jupyter-protocol",
  "nbformat",
 ]
 
@@ -3146,15 +3147,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "jupyter-serde"
-version = "0.7.0"
+name = "jupyter-protocol"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1b12484d9d1d9b18acd339282b731303402127a6ab8c5bfbed7fc512f1bb08a"
+checksum = "503458f8125fd9047ed0a9d95d7a93adc5eaf8bce48757c6d401e09f71ad3407"
 dependencies = [
  "anyhow",
+ "async-trait",
+ "bytes",
+ "chrono",
+ "futures",
  "serde",
  "serde_json",
- "thiserror 1.0.69",
  "uuid",
 ]
 
@@ -3882,13 +3886,13 @@ dependencies = [
 
 [[package]]
 name = "nbformat"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cf15813741c364bd435e63d8d33e3116bb08415eb3ef773fd02356e1f7f494b"
+checksum = "19835ad46507d80d9671e10a1c7c335655f4f3033aeb066fe025f14e070c2e66"
 dependencies = [
  "anyhow",
  "chrono",
- "jupyter-serde",
+ "jupyter-protocol",
  "serde",
  "serde_json",
  "thiserror 1.0.69",
