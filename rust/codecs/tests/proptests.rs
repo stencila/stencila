@@ -194,11 +194,14 @@ proptest! {
                 "ForBlock".into(),
                 "IfBlock".into(),
                 "IncludeBlock".into(),
-                "List".into(),
                 "MathBlock".into(),
                 "RawBlock".into(),
                 "StyledBlock".into(),
                 "Table".into()
+            ],
+            properties: vec![
+                // Properties that are not yet supported
+                "ListItem.is_checked".into()
             ],
             ..Default::default()
         });

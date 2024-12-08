@@ -1,8 +1,8 @@
 compact.jats.xml:
   decode:
-    strip-types:
-      # TODO: implement decoding `List`
-      - List
+    strip-props:
+      # Checked list items are not currently supported in JATS
+      - ListItem.is_checked
 
 pandoc:
   decode:
