@@ -42,19 +42,19 @@ pub struct Button {
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
 
     /// The code.
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
     #[serde(alias = "programming-language", alias = "programming_language")]
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
 

@@ -67,7 +67,7 @@ pub struct Figure {
     pub content: Vec<Block>,
 
     /// A short label for the figure.
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
@@ -76,14 +76,14 @@ pub struct Figure {
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_automatically: Option<Boolean>,
 
     /// A caption for the figure.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
@@ -117,7 +117,7 @@ pub struct FigureOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub description: Option<String>,
 
@@ -237,7 +237,7 @@ pub struct FigureOptions {
     /// Genre of the creative work, broadcast channel or group.
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub genre: Option<Vec<String>>,
 
@@ -245,7 +245,7 @@ pub struct FigureOptions {
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,
 
@@ -291,7 +291,7 @@ pub struct FigureOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub title: Option<Vec<Inline>>,
 

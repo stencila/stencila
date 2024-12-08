@@ -66,6 +66,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -317,6 +318,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -333,6 +335,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -360,6 +363,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -376,6 +380,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -389,6 +394,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },

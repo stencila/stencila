@@ -73,6 +73,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -318,6 +319,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -359,6 +361,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -432,7 +435,9 @@
           "md",
           "smd",
           "myst",
-          "qmd"
+          "ipynb",
+          "qmd",
+          "ipynb"
         ]
       },
       "proptest": {
@@ -455,7 +460,9 @@
           "md",
           "smd",
           "myst",
-          "qmd"
+          "ipynb",
+          "qmd",
+          "ipynb"
         ]
       },
       "proptest": {
@@ -486,6 +493,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -499,6 +507,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -530,6 +539,11 @@
       "strip": [
         "output"
       ],
+      "patch": {
+        "formats": [
+          "ipynb"
+        ]
+      },
       "serde": {
         "deserializeWith": "none"
       },
@@ -553,6 +567,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },

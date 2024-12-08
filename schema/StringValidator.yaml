@@ -23,7 +23,7 @@ properties:
     $comment: |
       A string is valid if its length is greater than, or exactly equal to, `minLength`.
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
   maxLength:
     '@id': stencila:maxLength
     type: integer
@@ -32,7 +32,7 @@ properties:
     $comment: |
       A string is valid if its length is less than, or exactly equal to, `maxLength`.
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
   pattern:
     '@id': stencila:pattern
     type: string
@@ -40,4 +40,4 @@ properties:
     $comment: |
       A string is valid if it is matched by the regular expression.
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]

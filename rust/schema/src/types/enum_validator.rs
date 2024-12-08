@@ -24,7 +24,7 @@ pub struct EnumValidator {
     /// A node is valid if it is equal to any of these values.
     #[serde(alias = "value")]
     #[serde(default)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub values: Vec<Node>,
 
     /// A unique identifier for a node within a document

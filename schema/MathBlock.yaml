@@ -27,4 +27,4 @@ properties:
     description: Whether the label should be automatically updated.
     type: boolean
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]

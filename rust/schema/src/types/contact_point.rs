@@ -57,7 +57,7 @@ pub struct ContactPointOptions {
 
     /// A description of the item.
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.

@@ -30,7 +30,7 @@ pub struct SuggestionBlock {
     /// The status of the suggestion including whether it is proposed, accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub suggestion_status: Option<SuggestionStatus>,
 
     /// The authors of the suggestion
@@ -59,7 +59,7 @@ pub struct SuggestionBlock {
     pub execution_ended: Option<Timestamp>,
 
     /// Feedback on the suggestion
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub feedback: Option<String>,
 
     /// The content that is suggested to be inserted, modified, replaced, or deleted.

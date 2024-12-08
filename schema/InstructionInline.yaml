@@ -43,6 +43,6 @@ properties:
       $ref: SuggestionInline
     walk: true
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
     dom:
       elem: span
