@@ -5,7 +5,7 @@
 use async_lsp::{
     lsp_types::{
         notification::Notification, Diagnostic, DiagnosticSeverity, Position,
-        PublishDiagnosticsParams, Range, Url,
+        PublishDiagnosticsParams, Range, Uri,
     },
     ClientSocket, LanguageClient,
 };
@@ -40,7 +40,7 @@ struct PublishStatus;
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 struct PublishStatusParams {
-    uri: Url,
+    uri: Uri,
     statuses: Vec<Status>,
 }
 
@@ -50,7 +50,7 @@ impl Notification for PublishStatus {
 }
 
 /// Publish diagnostics
-pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket) {
+pub(super) fn publish(uri: &Uri, text_node: &TextNode, client: &mut ClientSocket) {
     // Publish status notifications. As for diagnostics intentionally publishes an
     // empty set so as to clear existing decorations.
     let statuses = statuses(text_node);

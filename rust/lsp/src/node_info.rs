@@ -3,7 +3,7 @@
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_publishDiagnostics
 
 use async_lsp::{
-    lsp_types::{notification::Notification, Range, Url},
+    lsp_types::{notification::Notification, Range, Uri},
     ClientSocket,
 };
 
@@ -34,7 +34,7 @@ struct PublishNodeInfo;
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 struct PublishNodeInfoParams {
-    uri: Url,
+    uri: Uri,
     nodes: Vec<NodeInfo>,
 }
 
@@ -44,7 +44,7 @@ impl Notification for PublishNodeInfo {
 }
 
 /// Publish node information
-pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket) {
+pub(super) fn publish(uri: &Uri, text_node: &TextNode, client: &mut ClientSocket) {
     let mut nodes = Vec::new();
     node_infos(text_node, &mut nodes);
 

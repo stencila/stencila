@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{CodeLens, Command, Range, Url},
+    lsp_types::{CodeLens, Command, Range, Uri},
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
@@ -41,7 +41,7 @@ pub(super) const WALKTHROUGH_EXPAND: &str = "stencila.walkthroughs.expand";
 /// code lenses without a `command` but with `data` which is used to "resolve"
 /// the command in the `resolve` handler below
 pub(crate) async fn request(
-    uri: Url,
+    uri: Uri,
     root: Arc<RwLock<TextNode>>,
 ) -> Result<Option<Vec<CodeLens>>, ResponseError> {
     let code_lenses = root

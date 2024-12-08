@@ -17,7 +17,8 @@ use common::serde_json;
 
 use crate::{
     code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,
-    models_, node_ids, prompts_, symbols, text_document, ServerState, ServerStatus,
+    models_, node_ids, notebook_document, prompts_, symbols, text_document, ServerState,
+    ServerStatus,
 };
 
 /// Run the language server
@@ -27,7 +28,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         let mut router = Router::new(ServerState {
             client: client.clone(),
-            documents: HashMap::new(),
+            text_documents: HashMap::new(),
+            notebook_documents: HashMap::new(),
             options: Default::default(),
             status: ServerStatus::Running,
         });
@@ -45,12 +47,16 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             .notification::<notification::DidOpenTextDocument>(text_document::did_open)
             .notification::<notification::DidChangeTextDocument>(text_document::did_change)
             .notification::<notification::DidSaveTextDocument>(text_document::did_save)
-            .notification::<notification::DidCloseTextDocument>(text_document::did_close);
+            .notification::<notification::DidCloseTextDocument>(text_document::did_close)
+            .notification::<notification::DidOpenNotebookDocument>(notebook_document::did_open)
+            .notification::<notification::DidChangeNotebookDocument>(notebook_document::did_change)
+            .notification::<notification::DidSaveNotebookDocument>(notebook_document::did_save)
+            .notification::<notification::DidCloseNotebookDocument>(notebook_document::did_close);
 
         router.request::<request::DocumentSymbolRequest, _>(|state, params| {
             let uri = params.text_document.uri;
             let sync_root = state
-                .documents
+                .text_documents
                 .get(&uri)
                 .map(|text_doc| (text_doc.sync_state(), text_doc.root.clone()));
             async move {
@@ -64,7 +70,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
         router.request::<request::Completion, _>(|state, params| {
             let uri = &params.text_document_position.text_document.uri;
             let source = state
-                .documents
+                .text_documents
                 .get(uri)
                 .map(|text_doc| text_doc.source.clone());
             async move { completion::request(params, source).await }
@@ -74,7 +80,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             .request::<request::CodeLensRequest, _>(|state, params| {
                 let uri = params.text_document.uri;
                 let root = state
-                    .documents
+                    .text_documents
                     .get(&uri)
                     .map(|text_doc| text_doc.root.clone());
                 async move {
@@ -93,7 +99,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                 .uri
                 .clone();
             let doc_root = state
-                .documents
+                .text_documents
                 .get(&uri)
                 .map(|text_doc| (text_doc.doc.clone(), text_doc.root.clone()));
             async move {
@@ -111,7 +117,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                     .first()
                     .and_then(|value| serde_json::from_value(value.clone()).ok())
                     .and_then(|uri| {
-                        state.documents.get(&uri).map(|text_doc| {
+                        state.text_documents.get(&uri).map(|text_doc| {
                             (
                                 text_doc.author.clone(),
                                 text_doc.format.clone(),
@@ -136,7 +142,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
         router.request::<request::Formatting, _>(|state, params| {
             let uri = params.text_document.uri;
             let doc_format = state
-                .documents
+                .text_documents
                 .get(&uri)
                 .map(|text_doc| (text_doc.doc.clone(), text_doc.format.clone()));
             async move {
@@ -151,7 +157,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             .request::<dom::SubscribeDom, _>(|state, params| {
                 let uri = &params.uri;
                 let doc = state
-                    .documents
+                    .text_documents
                     .get(uri)
                     .map(|text_doc| text_doc.doc.clone());
                 let client = state.client.clone();
@@ -173,7 +179,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
         router
             .request::<node_ids::NodeIdsForLines, _>(|state, params| {
                 let root = state
-                    .documents
+                    .text_documents
                     .get(&params.uri)
                     .map(|text_doc| text_doc.root.clone());
                 async move {
@@ -188,7 +194,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             })
             .request::<node_ids::LinesForNodeIds, _>(|state, params| {
                 let root = state
-                    .documents
+                    .text_documents
                     .get(&params.uri)
                     .map(|text_doc| text_doc.root.clone());
                 async move {
@@ -205,7 +211,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
         router.request::<content::SubscribeContent, _>(|state, params| {
             let uri = &params.uri;
             let doc = state
-                .documents
+                .text_documents
                 .get(uri)
                 .map(|text_doc| text_doc.doc.clone());
             let client = state.client.clone();
