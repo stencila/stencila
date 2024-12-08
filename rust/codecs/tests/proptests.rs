@@ -188,7 +188,6 @@ proptest! {
                 // TODO Remove these as implemented
                 "CallBlock".into(),
                 "Claim".into(),
-                "CodeBlock".into(),
                 "CodeChunk".into(),
                 "Figure".into(),
                 "ForBlock".into(),
