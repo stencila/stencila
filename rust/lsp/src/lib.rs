@@ -19,15 +19,18 @@ mod logging;
 mod models_;
 mod node_ids;
 mod node_info;
+mod notebook_document;
 mod prompts_;
 mod run;
 mod symbols;
 mod text_document;
 mod utils;
 
-pub use run::run;
+use notebook_document::NotebookDocument;
 use schema::{Organization, Person};
 use text_document::TextDocument;
+
+pub use run::run;
 
 /// The state of the language server
 pub(crate) struct ServerState {
@@ -39,8 +42,11 @@ pub(crate) struct ServerState {
     /// The configuration options defined by the client or using environment variables
     options: ServerOptions,
 
-    /// The documents opened by the client that are handled by this server
-    documents: HashMap<Uri, TextDocument>,
+    /// The text documents opened by the client that are handled by this server
+    text_documents: HashMap<Uri, TextDocument>,
+
+    /// The notebook documents opened by the client that are handled by this server
+    notebook_documents: HashMap<Uri, NotebookDocument>,
 
     /// The status of the server
     status: ServerStatus,

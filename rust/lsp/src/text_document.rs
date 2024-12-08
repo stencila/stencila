@@ -708,6 +708,8 @@ pub(super) fn did_open(
     let format = params.text_document.language_id;
     let source = params.text_document.text;
 
+    tracing::debug!("Opening text document {}", uri.to_string());
+
     let client = state.client.clone();
     let user = state
         .options
@@ -724,7 +726,7 @@ pub(super) fn did_open(
             ))))
         }
     };
-    state.documents.insert(uri, text_doc);
+    state.text_documents.insert(uri, text_doc);
 
     ControlFlow::Continue(())
 }
@@ -735,7 +737,7 @@ pub(super) fn did_change(
     mut params: DidChangeTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
-    if let Some(text_doc) = state.documents.get_mut(&uri) {
+    if let Some(text_doc) = state.text_documents.get_mut(&uri) {
         // TODO: This assumes a whole document change (with TextDocumentSyncKind::FULL in initialize):
         // needs more defensiveness and potentially implement incremental sync
         let source = params.content_changes.swap_remove(0).text;
@@ -754,7 +756,11 @@ pub(super) fn did_save(
     state: &mut ServerState,
     params: DidSaveTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
-    if let Some(text_doc) = state.documents.get(&params.text_document.uri) {
+    let uri = params.text_document.uri;
+
+    tracing::debug!("Saving text document {}", uri.to_string());
+
+    if let Some(text_doc) = state.text_documents.get(&uri) {
         let doc = text_doc.doc.clone();
         let client = state.client.clone();
         save(
@@ -783,7 +789,11 @@ pub(super) fn did_close(
     state: &mut ServerState,
     params: DidCloseTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
-    state.documents.remove(&params.text_document.uri);
+    let uri = params.text_document.uri;
+
+    tracing::debug!("Closing text document {}", uri.to_string());
+
+    state.text_documents.remove(&uri);
 
     ControlFlow::Continue(())
 }
