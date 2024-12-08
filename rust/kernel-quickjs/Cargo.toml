@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
-rquickjs = { version = "0.6.2", features = ["futures", "macro", "parallel"] }
+rquickjs = { version = "0.8.0", features = ["futures", "macro", "parallel"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
