@@ -194,7 +194,6 @@ proptest! {
                 "ForBlock".into(),
                 "IfBlock".into(),
                 "IncludeBlock".into(),
-                "MathBlock".into(),
                 "RawBlock".into(),
                 "StyledBlock".into(),
                 "Table".into()
