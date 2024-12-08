@@ -5,8 +5,8 @@ use codec::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeInline,
         Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline,
-        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        List, ListItem, ListOrder, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
+        Section, StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -45,6 +45,7 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
             "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
             "sec" => decode_sec(&child_path, &child, losses, depth + 1),
             "title" => decode_title(&child_path, &child, losses, depth),
+            "list" => decode_list(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -141,6 +142,54 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
         level,
         decode_inlines(path, node.children(), losses),
     ))
+}
+
+/// Decode a `<list>` to a Stencila [`Block::List`]
+///
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list.html
+fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    record_attrs_lost(path, node, ["list-type"], losses);
+
+    let order = match node.attribute("list-type") {
+        // TODO: Encode using valid JATS `list-type`
+        // See https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/list-type.html
+        // Consider adding JATS variants such as `alpha-lower` to `ListOrder`, or
+        // adding a new enum for characters to use
+        Some("Unordered") | Some("bullet") => ListOrder::Unordered,
+        Some("Descending") => ListOrder::Descending,
+        _ => ListOrder::Ascending,
+    };
+
+    let items = node
+        .children()
+        .filter_map(|child| {
+            let tag = child.tag_name().name();
+            if tag == "list-item" {
+                Some(decode_list_item(
+                    &extend_path(path, tag),
+                    &child,
+                    losses,
+                    depth,
+                ))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    Block::List(List::new(items, order))
+}
+
+/// Decode a `<list-item>` to a Stencila [`ListItem`]
+///
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list-item.html
+fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> ListItem {
+    record_attrs_lost(path, node, [], losses);
+
+    ListItem {
+        content: decode_blocks(path, node.children(), losses, depth),
+        ..Default::default()
+    }
 }
 
 /// Decode inline content nodes
