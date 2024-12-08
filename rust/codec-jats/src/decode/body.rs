@@ -5,8 +5,9 @@ use codec::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeInline,
         Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        List, ListItem, ListOrder, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
-        Section, StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note, NoteType,
+        Parameter, Section, StyledInline, ThematicBreak, Time, Timestamp, VideoObject,
+        VideoObjectOptions,
     },
     Losses,
 };
@@ -46,6 +47,7 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
             "sec" => decode_sec(&child_path, &child, losses, depth + 1),
             "title" => decode_title(&child_path, &child, losses, depth),
             "list" => decode_list(&child_path, &child, losses, depth),
+            "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -142,6 +144,25 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
         level,
         decode_inlines(path, node.children(), losses),
     ))
+}
+
+/// Decode a `<disp-formula>` to a Stencila [`Block::MathBlock`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
+fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
+    record_attrs_lost(path, node, ["disp-formula"], losses);
+    let code = node
+        .attribute("code")
+        .and_then(|code| code.into())
+        .unwrap_or_default();
+    let lang = node
+        .attribute("language")
+        .and_then(|lang| Some(lang.to_string()));
+    Block::MathBlock(MathBlock {
+        code: code.into(),
+        math_language: lang,
+        ..Default::default()
+    })
 }
 
 /// Decode a `<list>` to a Stencila [`Block::List`]
