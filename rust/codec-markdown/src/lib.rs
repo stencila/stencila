@@ -6,9 +6,13 @@ use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
-use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
+pub use codec_markdown_trait::to_markdown;
 
 mod decode;
+pub use decode::decode;
+
+mod encode;
+pub use encode::encode;
 
 /// A codec for Markdown
 pub struct MarkdownCodec;
@@ -96,7 +100,7 @@ impl Codec for MarkdownCodec {
         str: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        decode::decode(str, options)
+        decode(str, options)
     }
 
     async fn to_string(
@@ -104,21 +108,6 @@ impl Codec for MarkdownCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let options = options.unwrap_or_default();
-
-        let mut context = MarkdownEncodeContext::new(options.format, options.render);
-
-        node.to_markdown(&mut context);
-        if context.content.ends_with("\n\n") {
-            context.content.pop();
-        }
-
-        Ok((
-            context.content,
-            EncodeInfo {
-                losses: context.losses,
-                mapping: context.mapping,
-            },
-        ))
+        encode(node, options)
     }
 }

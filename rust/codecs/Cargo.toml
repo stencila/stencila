@@ -18,6 +18,7 @@ codec-directory = { path = "../codec-directory" }
 codec-docx = { path = "../codec-docx" }
 codec-dom = { path = "../codec-dom" }
 codec-html = { path = "../codec-html" }
+codec-ipynb = { path = "../codec-ipynb" }
 codec-jats = { path = "../codec-jats" }
 codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }

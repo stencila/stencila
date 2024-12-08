@@ -4,6 +4,59 @@ use common::{once_cell::sync::Lazy, regex::Regex};
 
 use crate::{prelude::*, Person, PersonOptions};
 
+impl Person {
+    /// Generate a string representation of a `Person`
+    pub fn as_string(&self) -> String {
+        let mut string = String::new();
+
+        if let Some(prefix) = &self.options.honorific_prefix {
+            string.push_str(prefix);
+        }
+
+        if let Some(given_names) = &self.given_names {
+            if !string.is_empty() {
+                string.push(' ');
+            }
+            string.push_str(&given_names.join(" "));
+        }
+
+        if let Some(family_names) = &self.family_names {
+            if !string.is_empty() {
+                string.push(' ');
+            }
+            string.push_str(&family_names.join(" "));
+        }
+
+        if let Some(suffix) = &self.options.honorific_suffix {
+            if !string.is_empty() {
+                string.push(' ');
+            }
+            string.push_str(suffix);
+        }
+
+        if let Some(emails) = &self.options.emails {
+            if !string.is_empty() {
+                string.push(' ');
+            }
+            string.push_str(
+                &emails
+                    .iter()
+                    .map(|email| ["<", email, ">"].concat())
+                    .join(" "),
+            );
+        }
+
+        if let Some(url) = &self.options.url {
+            if !string.is_empty() {
+                string.push(' ');
+            }
+            string.push_str(&["(", url, ")"].concat());
+        }
+
+        string
+    }
+}
+
 impl FromStr for Person {
     type Err = ErrReport;
 

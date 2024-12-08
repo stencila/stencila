@@ -24,31 +24,31 @@ pub struct InstructionModel {
 
     /// A pattern to filter model ids by.
     #[serde(alias = "id-pattern", alias = "id_pattern")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub id_pattern: Option<String>,
 
     /// The relative weighting given to model quality (0-100).
     #[serde(alias = "quality-weight", alias = "quality_weight")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub quality_weight: Option<UnsignedInteger>,
 
     /// The relative weighting given to model speed (0-100).
     #[serde(alias = "speed-weight", alias = "speed_weight")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub speed_weight: Option<UnsignedInteger>,
 
     /// The relative weighting given to model cost (0-100).
     #[serde(alias = "cost-weight", alias = "cost_weight")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub cost_weight: Option<UnsignedInteger>,
 
     /// The minimum score for models to be selected (0-100).
     #[serde(alias = "minimum-score", alias = "minimum_score")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub minimum_score: Option<UnsignedInteger>,
 
     /// The temperature option for model inference (0-100).
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub temperature: Option<UnsignedInteger>,
 
     /// The random seed used for the model (if possible)

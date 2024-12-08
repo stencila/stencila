@@ -6,6 +6,21 @@
   "@type": "Article",
   "stencila:content": [
     {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "An empty quote block:"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:QuoteBlock",
+      "stencila:content": []
+    },
+    {
       "@type": "stencila:QuoteBlock",
       "stencila:content": [
         {

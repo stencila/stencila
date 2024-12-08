@@ -68,6 +68,7 @@
         "inlines",
         "insta",
         "instanceof",
+        "ipynb",
         "isinstance",
         "itertools",
         "jats",

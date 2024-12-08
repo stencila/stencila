@@ -57,6 +57,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },

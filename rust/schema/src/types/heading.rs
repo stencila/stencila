@@ -32,7 +32,7 @@ pub struct Heading {
 
     /// The level of the heading.
     #[default = 0]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"1"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"1..=6i64"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"0..=6i64"#))]

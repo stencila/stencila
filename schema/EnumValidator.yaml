@@ -20,4 +20,4 @@ properties:
       # Avoid default `one_or_many` deserialize which can't be used for this array of primitives
       deserializeWith: none
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]

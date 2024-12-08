@@ -13,7 +13,7 @@ properties:
     $ref: ExecutionMode
     strip: [execution]
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the content, semantics and dependencies of the node.

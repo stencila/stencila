@@ -65,6 +65,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
@@ -104,15 +105,12 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },
       "proptest": {
         "min": {
-          "description": "No language.",
-          "value": "None"
-        },
-        "low": {
           "description": "Fixed as TeX (for testing with Markdown which uses dollars to delimit TeX by default)",
           "value": "Some(String::from(\"tex\"))"
         },
@@ -221,6 +219,7 @@
           "md",
           "smd",
           "myst",
+          "ipynb",
           "qmd"
         ]
       },

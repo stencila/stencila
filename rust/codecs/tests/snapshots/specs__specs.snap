@@ -1,7 +1,6 @@
 ---
 source: rust/codecs/tests/specs.rs
 expression: specs
-snapshot_kind: text
 ---
 {
   "cbor": {
@@ -85,6 +84,21 @@ snapshot_kind: text
     "supports_from_path": true,
     "supports_to_formats": {
       "html": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
+  "ipynb": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "ipynb": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "ipynb": "LowLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,

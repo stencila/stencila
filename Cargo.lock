@@ -1134,6 +1134,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-ipynb"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-markdown",
+ "jupyter-protocol",
+ "nbformat",
+]
+
+[[package]]
 name = "codec-jats"
 version = "0.0.0"
 dependencies = [
@@ -1313,6 +1323,7 @@ dependencies = [
  "codec-docx",
  "codec-dom",
  "codec-html",
+ "codec-ipynb",
  "codec-jats",
  "codec-json",
  "codec-json5",
@@ -3136,6 +3147,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "jupyter-protocol"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "503458f8125fd9047ed0a9d95d7a93adc5eaf8bce48757c6d401e09f71ad3407"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "chrono",
+ "futures",
+ "serde",
+ "serde_json",
+ "uuid",
+]
+
+[[package]]
 name = "kernel"
 version = "0.0.0"
 dependencies = [
@@ -3855,6 +3882,21 @@ dependencies = [
  "security-framework 2.11.1",
  "security-framework-sys",
  "tempfile",
+]
+
+[[package]]
+name = "nbformat"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19835ad46507d80d9671e10a1c7c335655f4f3033aeb066fe025f14e070c2e66"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "jupyter-protocol",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "uuid",
 ]
 
 [[package]]
@@ -5999,6 +6041,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "sha1_smol"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbfa15b3dddfee50a0fff136974b3e1bde555604ba463834a7eb7deb6417705d"
+
+[[package]]
 name = "sha2"
 version = "0.10.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7012,6 +7060,7 @@ checksum = "f8c5f0a0af699448548ad1a2fbf920fb4bee257eae39953ba95cb84891a0446a"
 dependencies = [
  "getrandom",
  "serde",
+ "sha1_smol",
 ]
 
 [[package]]

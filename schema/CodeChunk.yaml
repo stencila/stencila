@@ -30,7 +30,7 @@ properties:
       series of figures, or in the series of tables.
     $ref: LabelType
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd, ipynb]
     proptest:
       min:
         description: No label type
@@ -43,7 +43,7 @@ properties:
     description: A short label for the chunk.
     type: string
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd, ipynb]
     proptest:
       min:
         description: No label
@@ -59,7 +59,7 @@ properties:
     description: Whether the label should be automatically updated.
     type: boolean
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
   caption:
     "@id": schema:caption
     description: A caption for the chunk.
@@ -68,7 +68,7 @@ properties:
       $ref: Block
     walk: true
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
     dom:
       elem: div
     proptest:
@@ -81,10 +81,13 @@ properties:
   outputs:
     "@id": stencila:outputs
     description: Outputs from executing the chunk.
-    strip: [output]
     type: array
     items:
       $ref: Node
+    strip: [output]
+    patch:
+      # Outputs are support by Jupyter Notebooks
+      formats: [ipynb]
     serde:
       # Avoid default `option_one_or_many` deserialize which can't be used for this array of nodes
       deserializeWith: none
@@ -95,7 +98,7 @@ properties:
     description: Whether the outputs of the code chunk should be invisible to the reader.
     type: boolean
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, ipynb, qmd]
   executionPure:
     "@id": stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.

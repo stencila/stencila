@@ -7,11 +7,18 @@ compact.jats.xml:
     strip-scopes: [authors, metadata]
 
 pandoc:
+  encode:
+    strip-props:
+      # Only encode one metadata field (title) to avoid changes in snapshot
+      # caused by different order of metadata fields
+      - Article.authors
+      - Article.keywords
+      - Article.date_published
   decode:
+    strip-scopes:
+      # Strip metadata fields because not encoded above
+      # and/or not supported
+      - metadata
     strip-props:
       # TODO: Implement authors
       - Article.authors
-      # THe following are currently not supported
-      - Article.date_created
-      - Article.date_accepted
-      - ArticleOptions.funders

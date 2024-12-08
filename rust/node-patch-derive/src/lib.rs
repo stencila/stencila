@@ -148,6 +148,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     Format::Markdown => Some(quote!(Format::Markdown)),
                     Format::Smd => Some(quote!(Format::Smd)),
                     Format::Myst => Some(quote!(Format::Myst)),
+                    Format::Ipynb => Some(quote!(Format::Ipynb)),
                     Format::Qmd => Some(quote!(Format::Qmd)),
                     _ => None
                 } {

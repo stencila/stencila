@@ -24,7 +24,7 @@ pub struct TupleValidator {
     /// An array of validators specifying the constraints on each successive item in the array.
     #[serde(alias = "item")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub items: Option<Vec<Validator>>,
 
     /// A unique identifier for a node within a document
