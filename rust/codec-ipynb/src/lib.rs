@@ -1,8 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use nbformat::{
     parse_notebook, serialize_notebook, upgrade_legacy_notebook,
-    v4::{Cell, CellId, CellMetadata, Metadata, Notebook as NotebookV4, Output},
+    v4::{
+        Author as NotebookAuthor, Cell, CellId, CellMetadata, Metadata, Notebook as NotebookV4,
+        Output,
+    },
     Notebook,
 };
 
@@ -13,7 +16,9 @@ use codec::{
         serde_json::{self, json, Value},
     },
     format::Format,
-    schema::{Article, Block, CodeChunk, CodeChunkOptions, LabelType, Node, RawBlock},
+    schema::{
+        Article, Author, Block, CodeChunk, CodeChunkOptions, LabelType, Node, Person, RawBlock,
+    },
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
     NodeType,
@@ -129,8 +134,19 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
         }
     }
 
+    let authors = notebook.metadata.authors.map(|authors| {
+        authors
+            .into_iter()
+            .flat_map(|author| match Person::from_str(&author.name) {
+                Ok(person) => Some(Author::Person(person)),
+                _ => None,
+            })
+            .collect()
+    });
+
     let node = Node::Article(Article {
         content,
+        authors,
         ..Default::default()
     });
 
@@ -139,7 +155,10 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
 
 /// Convert a Stencila [`Node`] to a Jupyter [`Notebook`]
 fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
-    let Node::Article(Article { content, .. }) = node else {
+    let Node::Article(Article {
+        content, authors, ..
+    }) = node
+    else {
         bail!("Unable to encode a `{node}` as a notebook")
     };
 
@@ -197,11 +216,23 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
         });
     }
 
+    let authors = authors
+        .iter()
+        .flatten()
+        .map(|author| match author {
+            Author::Person(person) => Some(NotebookAuthor {
+                name: person.as_string(),
+                additional: HashMap::new(),
+            }),
+            _ => None,
+        })
+        .collect();
+
     let metadata = Metadata {
-        // TODO: Carry over authors and other article metadata
+        // TODO: Encode other article metadata
         kernelspec: None,
         language_info: None,
-        authors: None,
+        authors,
         additional: HashMap::new(),
     };
 
