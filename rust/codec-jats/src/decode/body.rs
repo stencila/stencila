@@ -155,9 +155,7 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
         .attribute("code")
         .and_then(|code| code.into())
         .unwrap_or_default();
-    let lang = node
-        .attribute("language")
-        .and_then(|lang| Some(lang.to_string()));
+    let lang = node.attribute("language").map(|lang| lang.to_string());
     Block::MathBlock(MathBlock {
         code: code.into(),
         math_language: lang,
