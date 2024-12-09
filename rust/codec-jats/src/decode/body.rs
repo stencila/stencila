@@ -65,8 +65,6 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
 
 /// Decode a `<boxed-text>` to a [`Block::Admonition`]
 fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
-
     let typ = node
         .attribute("content-type")
         .and_then(|typ| typ.parse().ok())
@@ -89,13 +87,13 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         }
     }
 
-    let content = decode_blocks(path, children, losses, depth);
+    record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
 
     Block::Admonition(Admonition {
         admonition_type: typ,
         is_folded,
         title,
-        content,
+        content: decode_blocks(path, children, losses, depth),
         ..Default::default()
     })
 }
@@ -123,11 +121,11 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
 /// Decode a `<sec>` to a [`Block::Section`]
 fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["content-type"], losses);
-
     let typ = node
         .attribute("content-type")
         .and_then(|typ| typ.parse().ok());
+
+    record_attrs_lost(path, node, ["content-type"], losses);
 
     Block::Section(Section {
         section_type: typ,
@@ -138,12 +136,12 @@ fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
 
 /// Decode a `<title>` to a [`Block::Heading`]
 fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, [], losses);
-
     let level = node
         .attribute("level")
         .and_then(|level| level.parse::<i64>().ok())
         .unwrap_or(depth as i64);
+
+    record_attrs_lost(path, node, ["level"], losses);
 
     Block::Heading(Heading::new(
         level,
@@ -155,8 +153,6 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html
 fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["statement"], losses);
-
     let claim_type = node
         .attribute("content-type")
         .map(|statement| ClaimType::from_str(statement).unwrap_or_default())
@@ -166,10 +162,12 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
         (child.tag_name() == "label".into()).then_some(child.text().unwrap_or_default().to_string())
     });
 
+    record_attrs_lost(path, node, ["content-type", "label"], losses);
+
     Block::Claim(Claim {
-        content: decode_blocks(path, node.children(), losses, depth),
         claim_type,
         label,
+        content: decode_blocks(path, node.children(), losses, depth),
         ..Default::default()
     })
 }
@@ -178,7 +176,7 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
 fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["figure"], losses);
+    record_attrs_lost(path, node, [], losses);
 
     Block::Figure(Figure {
         content: decode_blocks(path, node.children(), losses, depth),
@@ -190,18 +188,16 @@ fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blo
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
 fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
-    record_attrs_lost(path, node, ["code"], losses);
-
-    let mut programming_language = None;
     let code = node.text().map(Cord::from).unwrap_or_default();
-    if let Some(lang) = node.attribute("language").map(|lang| lang.to_string()) {
-        programming_language = Some(lang);
-    };
+
+    let programming_language = node.attribute("language").map(String::from);
 
     if let Some(execution_mode) = node
         .attribute("executable")
         .map(|mode| ExecutionMode::from_str(mode).ok())
     {
+        record_attrs_lost(path, node, ["language", "executable"], losses);
+
         return Block::CodeChunk(CodeChunk {
             code,
             programming_language,
@@ -209,6 +205,8 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
             ..Default::default()
         });
     }
+
+    record_attrs_lost(path, node, ["language"], losses);
 
     Block::CodeBlock(CodeBlock {
         code,
@@ -221,18 +219,18 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
-    record_attrs_lost(path, node, ["disp-formula"], losses);
-
     let code = node
         .attribute("code")
         .and_then(|code| code.into())
         .unwrap_or_default();
 
-    let lang = node.attribute("language").map(|lang| lang.to_string());
+    let math_language = node.attribute("language").map(|lang| lang.to_string());
+
+    record_attrs_lost(path, node, ["code", "language"], losses);
 
     Block::MathBlock(MathBlock {
         code: code.into(),
-        math_language: lang,
+        math_language,
         ..Default::default()
     })
 }
@@ -241,8 +239,6 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list.html
 fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["list-type"], losses);
-
     let order = match node.attribute("list-type") {
         // TODO: Encode using valid JATS `list-type`
         // See https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/list-type.html
@@ -252,6 +248,8 @@ fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
         Some("Descending") => ListOrder::Descending,
         _ => ListOrder::Ascending,
     };
+
+    record_attrs_lost(path, node, ["list-type"], losses);
 
     let items = node
         .children()
