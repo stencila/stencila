@@ -187,7 +187,6 @@ proptest! {
             types: vec![
                 // TODO Remove these as implemented
                 "CallBlock".into(),
-                "Claim".into(),
                 "CodeChunk".into(),
                 "ForBlock".into(),
                 "IfBlock".into(),
