@@ -162,7 +162,7 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
         (child.tag_name() == "label".into()).then_some(child.text().unwrap_or_default().to_string())
     });
 
-    record_attrs_lost(path, node, ["content-type", "label"], losses);
+    record_attrs_lost(path, node, ["content-type"], losses);
 
     Block::Claim(Claim {
         claim_type,
@@ -434,7 +434,7 @@ fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let programming_language = node.attribute("language").map(String::from);
     let code = node.text().map(Cord::from).unwrap_or_default();
 
-    record_attrs_lost(path, node, ["language"], losses);
+    record_attrs_lost(path, node, ["language", "executable"], losses);
 
     if executable.as_deref() == Some("yes") {
         Inline::CodeExpression(CodeExpression {
