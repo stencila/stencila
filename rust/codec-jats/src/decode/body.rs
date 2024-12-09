@@ -4,10 +4,10 @@ use codec::{
     schema::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeBlock, CodeExpression,
-        CodeInline, Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions,
-        Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note,
-        NoteType, Parameter, Section, StyledInline, ThematicBreak, Time, Timestamp, VideoObject,
-        VideoObjectOptions,
+        CodeInline, Cord, Date, DateTime, Duration, Figure, Heading, ImageObject,
+        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject,
+        MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline, ThematicBreak, Time,
+        Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -49,6 +49,7 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
             "list" => decode_list(&child_path, &child, losses, depth),
             "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
             "code" => decode_code(&child_path, &child, losses, depth),
+            "figure" => decode_figure(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -147,6 +148,17 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
     ))
 }
 
+/// Decode a `<figure>` to a Stencila [`Block::Figure`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
+fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    record_attrs_lost(path, node, ["code"], losses);
+    Block::Figure(Figure {
+        content: decode_blocks(path, node.children(), losses, depth),
+        ..Default::default()
+    })
+}
+
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
@@ -158,7 +170,7 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
         programming_language = Some(lang);
     };
     Block::CodeBlock(CodeBlock {
-        code: code.into(),
+        code,
         programming_language,
         ..Default::default()
     })
