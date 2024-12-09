@@ -1,10 +1,12 @@
 use roxmltree::Node;
 
+use std::str::FromStr;
+
 use codec::{
     schema::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeBlock, CodeExpression,
-        CodeInline, Cord, Date, DateTime, Duration, Figure, Heading, ImageObject,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, Claim, ClaimType, CodeBlock,
+        CodeExpression, CodeInline, Cord, Date, DateTime, Duration, Figure, Heading, ImageObject,
         ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject,
         MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline, ThematicBreak, Time,
         Timestamp, VideoObject, VideoObjectOptions,
@@ -50,6 +52,7 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
             "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
             "code" => decode_code(&child_path, &child, losses, depth),
             "figure" => decode_figure(&child_path, &child, losses, depth),
+            "statement" => decode_statement(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -148,11 +151,31 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
     ))
 }
 
+/// Decode a `<statement>` to a Stencila [`Block::Claim`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html
+fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    record_attrs_lost(path, node, ["statement"], losses);
+    let claim_type = node
+        .attribute("content-type")
+        .map(|statement| ClaimType::from_str(statement).unwrap_or_default())
+        .unwrap_or_default();
+    let label = node.children().find_map(|child| {
+        (child.tag_name() == "label".into()).then_some(child.text().unwrap_or_default().to_string())
+    });
+    Block::Claim(Claim {
+        content: decode_blocks(path, node.children(), losses, depth),
+        claim_type,
+        label,
+        ..Default::default()
+    })
+}
+
 /// Decode a `<figure>` to a Stencila [`Block::Figure`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
 fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["code"], losses);
+    record_attrs_lost(path, node, ["figure"], losses);
     Block::Figure(Figure {
         content: decode_blocks(path, node.children(), losses, depth),
         ..Default::default()
