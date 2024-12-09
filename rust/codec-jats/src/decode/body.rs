@@ -158,16 +158,26 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
         .map(|statement| ClaimType::from_str(statement).unwrap_or_default())
         .unwrap_or_default();
 
-    let label = node.children().find_map(|child| {
-        (child.tag_name() == "label".into()).then_some(child.text().unwrap_or_default().to_string())
-    });
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(String::from);
+
+    let content = decode_blocks(
+        path,
+        node.children()
+            .filter(|child| child.tag_name().name() != "label"),
+        losses,
+        depth,
+    );
 
     record_attrs_lost(path, node, ["content-type"], losses);
 
     Block::Claim(Claim {
         claim_type,
         label,
-        content: decode_blocks(path, node.children(), losses, depth),
+        content,
         ..Default::default()
     })
 }
