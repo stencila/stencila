@@ -6,7 +6,7 @@ pub(super) fn extend_path(path: &str, tag: &str) -> String {
     [path, "/", tag].concat()
 }
 
-/// Record the attributes of a node that are lost when encoding to JATS
+/// Record the attributes of a XML node that are lost when decoding from JATS
 ///
 /// Pass the names of the of the attributes (not namespaced) that _are_
 /// decoded in the `not_lost` parameter.
@@ -23,7 +23,7 @@ where
     }
 }
 
-/// Record that a whole node was lost
+/// Record that a whole XML node was lost when decoding from JATS
 pub(super) fn record_node_lost(path: &str, node: &Node, losses: &mut Losses) {
     if node.is_element() {
         losses.add(extend_path(path, node.tag_name().name()))
