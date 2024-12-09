@@ -187,7 +187,6 @@ proptest! {
             types: vec![
                 // TODO Remove these as implemented
                 "CallBlock".into(),
-                "CodeChunk".into(),
                 "ForBlock".into(),
                 "IfBlock".into(),
                 "IncludeBlock".into(),
@@ -200,7 +199,12 @@ proptest! {
                 "ListItem.is_checked".into(),
                 "Figure.label".into(),
                 "Figure.label_automatically".into(),
-                "Figure.caption".into()
+                "Figure.caption".into(),
+                "CodeChunk.label".into(),
+                "CodeChunk.label_type".into(),
+                "CodeChunk.label_automatically".into(),
+                "CodeChunk.caption".into(),
+                "CodeChunk.execution_mode".into()
             ],
             ..Default::default()
         });
