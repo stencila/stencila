@@ -187,18 +187,24 @@ proptest! {
             types: vec![
                 // TODO Remove these as implemented
                 "CallBlock".into(),
-                "Claim".into(),
-                "CodeBlock".into(),
-                "CodeChunk".into(),
-                "Figure".into(),
                 "ForBlock".into(),
                 "IfBlock".into(),
                 "IncludeBlock".into(),
-                "List".into(),
-                "MathBlock".into(),
                 "RawBlock".into(),
                 "StyledBlock".into(),
                 "Table".into()
+            ],
+            properties: vec![
+                // Properties that are not yet supported
+                "ListItem.is_checked".into(),
+                "Figure.label".into(),
+                "Figure.label_automatically".into(),
+                "Figure.caption".into(),
+                "CodeChunk.label".into(),
+                "CodeChunk.label_type".into(),
+                "CodeChunk.label_automatically".into(),
+                "CodeChunk.caption".into(),
+                "CodeChunk.execution_mode".into()
             ],
             ..Default::default()
         });
