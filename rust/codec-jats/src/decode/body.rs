@@ -6,10 +6,10 @@ use codec::{
     schema::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Claim, ClaimType, CodeBlock,
-        CodeExpression, CodeInline, Cord, Date, DateTime, Duration, Figure, Heading, ImageObject,
-        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject,
-        MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline, ThematicBreak, Time,
-        Timestamp, VideoObject, VideoObjectOptions,
+        CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime, Duration, ExecutionMode,
+        Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link, List, ListItem, ListOrder,
+        MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
+        StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -182,7 +182,7 @@ fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blo
     })
 }
 
-/// Decode a `<code>` to a Stencila [`Block::CodeBlock`]
+/// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
 fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
@@ -192,6 +192,17 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
     if let Some(lang) = node.attribute("language").map(|lang| lang.to_string()) {
         programming_language = Some(lang);
     };
+    if let Some(execution_mode) = node
+        .attribute("executable")
+        .map(|mode| ExecutionMode::from_str(mode).ok())
+    {
+        return Block::CodeChunk(CodeChunk {
+            code,
+            programming_language,
+            execution_mode,
+            ..Default::default()
+        });
+    }
     Block::CodeBlock(CodeBlock {
         code,
         programming_language,
