@@ -1,5 +1,5 @@
 compact.jats.xml:
-  encode:
+  decode:
     strip-props:
       #TODO currently not supported 
       - Figure.label
