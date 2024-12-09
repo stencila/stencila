@@ -176,9 +176,9 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
         let filename = path
             .file_name()
             .and_then(|name| name.to_str())
-            .and_then(|name| name.split('.').next())
+            .and_then(|name| name.rsplit_once('.'))
+            .map(|name| name.0)
             .unwrap_or("document");
-        let filename = [filename, ".json"].concat();
 
         let options = FileOptions::default().unix_permissions(0o755);
         zip.start_file(filename, options)?;
@@ -253,4 +253,43 @@ pub fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<(String,
         }?,
         EncodeInfo::none(),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use codec::{common::tempfile, schema::Article};
+
+    use super::*;
+
+    /// Regression test for https://github.com/stencila/stencila/issues/2443
+    /// tests if to_path can handle file names with `.` in them eg. a.b.c.json.zip
+    #[test]
+    fn multiple_dots_in_filename() -> Result<()> {
+        let temp = tempfile::tempdir()?;
+        let zip_path = temp.path().join("a.b.c.json.zip");
+
+        // Create the json.zip file
+        to_path(
+            &Node::Article(Article::default()),
+            &zip_path,
+            Some(EncodeOptions {
+                format: Some(Format::JsonZip),
+                ..Default::default()
+            }),
+        )?;
+
+        let file = File::open(zip_path)?;
+        let mut archive = ZipArchive::new(file)?;
+
+        //confirms there is one file in the zip file
+        let num_files = archive.len();
+        assert_eq!(num_files, 1, "Zip file should contain exactly one file");
+
+        let file_entry = archive.by_index(0)?;
+
+        let filename = file_entry.name();
+        assert_eq!(filename, "a.b.c.json", "Filename should be 'a.b.c.json'");
+
+        Ok(())
+    }
 }
