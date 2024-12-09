@@ -189,7 +189,6 @@ proptest! {
                 "CallBlock".into(),
                 "Claim".into(),
                 "CodeChunk".into(),
-                "Figure".into(),
                 "ForBlock".into(),
                 "IfBlock".into(),
                 "IncludeBlock".into(),
@@ -199,7 +198,10 @@ proptest! {
             ],
             properties: vec![
                 // Properties that are not yet supported
-                "ListItem.is_checked".into()
+                "ListItem.is_checked".into(),
+                "Figure.label".into(),
+                "Figure.label_automatically".into(),
+                "Figure.caption".into()
             ],
             ..Default::default()
         });
