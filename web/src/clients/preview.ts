@@ -68,7 +68,7 @@ declare const vscode: VSCode
  * Note: this re-implements functionality in `FormatClient` and `DomClient` but
  * instead of using a Websocket, receives messages over VSCodes `postMessage`.
  */
-export class WebViewClient {
+export class PreviewClient {
   /**
    * The local version of the DOM HTML
    *

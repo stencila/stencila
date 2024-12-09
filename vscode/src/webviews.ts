@@ -286,3 +286,66 @@ export function closeDocumentViewPanels() {
 
   documentViewPanels.clear();
 }
+
+export async function createChatAssistentPanel(
+  context: vscode.ExtensionContext,
+  editor: vscode.TextEditor,
+) {
+  const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
+
+  const panel = vscode.window.createWebviewPanel(
+    "chat-assistant-view",
+    "Chat Assistant",
+    vscode.ViewColumn.Beside,
+    {
+      enableScripts: true,
+      retainContextWhenHidden: true,
+      localResourceRoots: [webDist],
+    }
+  );
+  panel.iconPath = vscode.Uri.joinPath(
+    context.extensionUri,
+    "icons",
+    "stencila-128.png"
+  );
+
+  const viewCss = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(webDist, "views", "vscode-chat.css")
+  );
+  const viewJs = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(webDist, "views", "vscode-chat.js")
+  );
+
+  panel.webview.html = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+          <title>Stencila: Document Preview</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+          <link rel="stylesheet" type="text/css" href="${viewCss}">
+          <script type="text/javascript" src="${viewJs}"></script>
+          <style>
+            body, html {
+              height: 100%;
+              margin: 0;
+              padding: 0;
+              font-size: 16px;
+            }
+          </style>
+      </head>
+      <body>
+        <stencila-vscode-chat-assistant-view>
+          <p>I am a slotted element</p>
+          <p>I am another slotted element</p>
+        </stencila-vscode-chat-assistant-view>
+        <script>
+          const vscode = acquireVsCodeApi()
+        </script>
+      </body>
+    </html>
+  `;
+}

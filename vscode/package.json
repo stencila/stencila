@@ -175,6 +175,13 @@
         "icon": "$(preview)"
       },
       {
+        "command": "stencila.open-chat-assistant",
+        "category": "Stencila",
+        "title": "Open chat assistant",
+        "shortTitle": "Chat assistant",
+        "icon": "$(robot)"
+      },
+      {
         "command": "stencila.invoke.run-curr",
         "category": "Stencila",
         "title": "Run this node",
@@ -598,6 +605,11 @@
         },
         {
           "command": "stencila.invoke.export-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@3"
+        },
+        {
+          "command": "stencila.open-chat-assistant",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
         }
