@@ -156,13 +156,16 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html
 fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     record_attrs_lost(path, node, ["statement"], losses);
+
     let claim_type = node
         .attribute("content-type")
         .map(|statement| ClaimType::from_str(statement).unwrap_or_default())
         .unwrap_or_default();
+
     let label = node.children().find_map(|child| {
         (child.tag_name() == "label".into()).then_some(child.text().unwrap_or_default().to_string())
     });
+
     Block::Claim(Claim {
         content: decode_blocks(path, node.children(), losses, depth),
         claim_type,
@@ -176,6 +179,7 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
 fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     record_attrs_lost(path, node, ["figure"], losses);
+
     Block::Figure(Figure {
         content: decode_blocks(path, node.children(), losses, depth),
         ..Default::default()
@@ -187,11 +191,13 @@ fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blo
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
 fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
     record_attrs_lost(path, node, ["code"], losses);
+
     let mut programming_language = None;
     let code = node.text().map(Cord::from).unwrap_or_default();
     if let Some(lang) = node.attribute("language").map(|lang| lang.to_string()) {
         programming_language = Some(lang);
     };
+
     if let Some(execution_mode) = node
         .attribute("executable")
         .map(|mode| ExecutionMode::from_str(mode).ok())
@@ -203,6 +209,7 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
             ..Default::default()
         });
     }
+
     Block::CodeBlock(CodeBlock {
         code,
         programming_language,
@@ -215,11 +222,14 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
     record_attrs_lost(path, node, ["disp-formula"], losses);
+
     let code = node
         .attribute("code")
         .and_then(|code| code.into())
         .unwrap_or_default();
+
     let lang = node.attribute("language").map(|lang| lang.to_string());
+
     Block::MathBlock(MathBlock {
         code: code.into(),
         math_language: lang,
