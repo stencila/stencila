@@ -285,9 +285,14 @@ fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list-item.html
 fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> ListItem {
-    record_attrs_lost(path, node, [], losses);
+    let is_checked = node
+        .attribute("is-checked")
+        .and_then(|value| bool::from_str(value).ok());
+
+    record_attrs_lost(path, node, ["is-checked"], losses);
 
     ListItem {
+        is_checked,
         content: decode_blocks(path, node.children(), losses, depth),
         ..Default::default()
     }

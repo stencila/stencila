@@ -58,24 +58,24 @@
     </list>
     <p>Lists with check boxes</p>
     <list list-type="Ascending">
-      <list-item>
+      <list-item is-checked="false">
         <p>first</p>
       </list-item>
-      <list-item>
+      <list-item is-checked="true">
         <p>second</p>
       </list-item>
-      <list-item>
+      <list-item is-checked="false">
         <p>third</p>
       </list-item>
     </list>
     <list list-type="Unordered">
-      <list-item>
+      <list-item is-checked="true">
         <p>done</p>
       </list-item>
-      <list-item>
+      <list-item is-checked="false">
         <p>todo</p>
       </list-item>
-      <list-item>
+      <list-item is-checked="false">
         <p>still todo</p>
       </list-item>
     </list>

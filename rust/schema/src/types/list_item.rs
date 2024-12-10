@@ -50,10 +50,12 @@ pub struct ListItem {
     #[serde(alias = "is-checked", alias = "is_checked")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "is-checked")]
     pub is_checked: Option<Boolean>,
 
     /// The position of the item in a series or sequence of items.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "position")]
     pub position: Option<Integer>,
 
     /// Non-core optional fields
