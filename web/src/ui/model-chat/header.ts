@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators'
 import { withTwind } from '../../twind'
 import { nodeUi } from '../nodes/icons-and-colours'
 
-@customElement('stencila-ui-assistant-panel-header')
+@customElement('stencila-ui-model-chat-header')
 @withTwind()
 export class UIChatAssistantPanelHeader extends LitElement {
   override render() {

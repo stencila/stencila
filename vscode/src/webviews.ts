@@ -138,10 +138,10 @@ export async function createDocumentViewPanel(
     vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
   );
   const viewCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode.css")
+    vscode.Uri.joinPath(webDist, "views", "vscode-preview.css")
   );
   const viewJs = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode.js")
+    vscode.Uri.joinPath(webDist, "views", "vscode-preview.js")
   );
 
   panel.webview.html = `
@@ -159,9 +159,9 @@ export async function createDocumentViewPanel(
             <script type="text/javascript" src="${viewJs}"></script>
         </head>
         <body style="background: white;">
-          <stencila-vscode-view theme="${themeName}">
+          <stencila-vscode-preview-view theme="${themeName}">
             ${viewHtml}
-          </stencila-vscode-view>
+          </stencila-vscode-preview-view>
           <script>
             const vscode = acquireVsCodeApi()
           </script>
@@ -287,15 +287,15 @@ export function closeDocumentViewPanels() {
   documentViewPanels.clear();
 }
 
-export async function createChatAssistentPanel(
+export async function createModelChatPanel(
   context: vscode.ExtensionContext,
   editor: vscode.TextEditor,
 ) {
   const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
 
   const panel = vscode.window.createWebviewPanel(
-    "chat-assistant-view",
-    "Chat Assistant",
+    "model-chat-view",
+    "Model chat",
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,
@@ -311,10 +311,10 @@ export async function createChatAssistentPanel(
   );
 
   const viewCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode-chat.css")
+    vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.css")
   );
   const viewJs = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode-chat.js")
+    vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.js")
   );
 
   panel.webview.html = `
@@ -339,10 +339,10 @@ export async function createChatAssistentPanel(
           </style>
       </head>
       <body>
-        <stencila-vscode-chat-assistant-view>
+        <stencila-vscode-model-chat-view>
           <p>I am a slotted element</p>
           <p>I am another slotted element</p>
-        </stencila-vscode-chat-assistant-view>
+        </stencila-vscode-model-chat-view>
         <script>
           const vscode = acquireVsCodeApi()
         </script>
@@ -355,7 +355,7 @@ export async function createChatAssistentPanel(
 
   panel.webview.onDidReceiveMessage((message: ReceivedMessage) => {
     console.log('message recieved', message)
-  }, null ,disposables)
+  }, null, disposables)
 
   return panel
 }

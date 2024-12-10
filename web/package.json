@@ -38,8 +38,8 @@
       "source": [
         "src/themes/default.css",
         "src/themes/stencila.css",
-        "src/views/vscode.ts",
-        "src/views/vscode-chat.ts"
+        "src/views/vscode-preview.ts",
+        "src/views/vscode-model-chat.ts"
       ],
       "distDir": "../vscode/out/web"
     }

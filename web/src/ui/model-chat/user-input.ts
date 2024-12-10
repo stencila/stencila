@@ -6,9 +6,9 @@ import { nodeUi } from '../nodes/icons-and-colours'
 
 import '../inputs/filedrop-wrapper'
 
-@customElement('ui-chat-assist-user-inputs')
+@customElement('stencila-ui-model-chat-user-inputs')
 @withTwind()
-export class UIChatAssistentUserInputs extends LitElement {
+export class UIModelChatUserInputs extends LitElement {
   /**
    * Boolean property
    */
@@ -24,12 +24,12 @@ export class UIChatAssistentUserInputs extends LitElement {
   /**
    * Captured value of `textarea` input.
    */
-  public textAreaValue: string
+  @state()
+  public textAreaValue: string = ''
 
   private handleSend() {
-    console.log('event')
     this.dispatchEvent(
-      new CustomEvent('stencila-chat-assistant-command', {
+      new CustomEvent('stencila-model-chat-command', {
         detail: {
           command: 'send-chat-message',
           text: this.textAreaValue,
@@ -64,10 +64,12 @@ export class UIChatAssistentUserInputs extends LitElement {
               @change=${(e: Event) => {
                 this.textAreaValue = (e.target as HTMLTextAreaElement).value
               }}
+              ?disabled=${this.waiting}
+              .value=${this.textAreaValue}
             ></textarea>
             <button
               class="p-4 bg-blue-500 text-white border border-blue-500 rounded cursor-pointer hover:border-white"
-              @click=${this.handleSend()}
+              @click=${this.handleSend}
               ?disabled=${this.waiting}
             >
               Send

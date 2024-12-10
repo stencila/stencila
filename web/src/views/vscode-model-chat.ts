@@ -1,18 +1,18 @@
 import { css, html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { ChatAssistantClient } from '../clients/chat-assistant'
+import { ModelChatClient } from '../clients/model-chat'
 import { withTwind } from '../twind'
 
 import '../nodes'
 import '../shoelace'
-import '../ui/chat-assistant/user-input'
-import '../ui/chat-assistant/header'
+import '../ui/model-chat/user-input'
+import '../ui/model-chat/header'
 
-@customElement('stencila-vscode-chat-assistant-view')
+@customElement('stencila-vscode-model-chat-view')
 @withTwind()
-export class VSCodeAssistantView extends LitElement {
-  protected chatAssistantClient: ChatAssistantClient
+export class VSCodeModelChatView extends LitElement {
+  protected modelChatClient: ModelChatClient
 
   static override styles = css`
     :host {
@@ -22,18 +22,17 @@ export class VSCodeAssistantView extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this.chatAssistantClient = new ChatAssistantClient(this)
+    this.modelChatClient = new ModelChatClient(this)
   }
 
   override render() {
     return html`
       <div class="flex flex-col w-full h-full font-sans">
-        <stencila-ui-assistant-panel-header>
-        </stencila-ui-assistant-panel-header>
+        <stencila-ui-model-chat-header></stencila-ui-model-chat-header>
         <div class="flex-grow bg-white my-4 p-4 overflow-y-auto">
           <slot></slot>
         </div>
-        <ui-chat-assist-user-inputs></ui-chat-assist-user-inputs>
+        <stencila-ui-model-chat-user-inputs></stencila-ui-model-chat-user-inputs>
       </div>
     `
   }

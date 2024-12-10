@@ -175,10 +175,10 @@
         "icon": "$(preview)"
       },
       {
-        "command": "stencila.open-chat-assistant",
+        "command": "stencila.open-model-chat",
         "category": "Stencila",
-        "title": "Open chat assistant",
-        "shortTitle": "Chat assistant",
+        "title": "Open model chat",
+        "shortTitle": "Model chat",
         "icon": "$(robot)"
       },
       {
@@ -609,9 +609,9 @@
           "group": "000-Stencila@3"
         },
         {
-          "command": "stencila.open-chat-assistant",
+          "command": "stencila.open-model-chat",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
-          "group": "000-Stencila@3"
+          "group": "000-Stencila@4"
         }
       ],
       "editor/context": [

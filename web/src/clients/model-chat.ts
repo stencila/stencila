@@ -1,7 +1,7 @@
-type ReceivedMessage = AssistantResponseMessage
+type ReceivedMessage = ModelResponseMessage
 
-interface AssistantResponseMessage {
-  type: 'assistant-repsonse'
+interface ModelResponseMessage {
+  type: 'model-response'
   response: {
     id: string
     text: string
@@ -37,7 +37,7 @@ interface VSCode {
  */
 declare const vscode: VSCode
 
-export class ChatAssistantClient {
+export class ModelChatClient {
   /**
    * The render root of the view
    */
@@ -51,9 +51,11 @@ export class ChatAssistantClient {
   private setWindowListeners() {
     window.addEventListener('message', (event) => this.receiveMessage(event))
     window.addEventListener(
-      'stencila-chat-assistant-command',
-      (event: CustomEvent) =>
+      'stencila-model-chat-command',
+      (event: CustomEvent) => {
+        console.log('posting message', event.detail)
         vscode.postMessage({ type: 'command', ...event.detail })
+      }
     )
   }
 

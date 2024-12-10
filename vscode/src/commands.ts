@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { createChatAssistentPanel, createDocumentViewPanel } from "./webviews";
+import { createModelChatPanel, createDocumentViewPanel } from "./webviews";
 
 /**
  * Register document related commands provided by the extension
@@ -244,14 +244,14 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "stencila.open-chat-assistant",
+      "stencila.open-model-chat",
       async (docUri) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
           return;
         }
-        await createChatAssistentPanel(context, editor);
+        await createModelChatPanel(context, editor);
       }
     )
   )
