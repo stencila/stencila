@@ -1,7 +1,0 @@
-compact.jats.xml:
-  decode:
-    strip-props:
-      #TODO currently not supported 
-      - Figure.label
-      - Figure.label_automatically
-      - Figure.caption
