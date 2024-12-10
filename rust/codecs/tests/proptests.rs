@@ -197,9 +197,6 @@ proptest! {
             properties: vec![
                 // Properties that are not yet supported
                 "ListItem.is_checked".into(),
-                "Figure.label".into(),
-                "Figure.label_automatically".into(),
-                "Figure.caption".into(),
                 "CodeChunk.label".into(),
                 "CodeChunk.label_type".into(),
                 "CodeChunk.label_automatically".into(),
