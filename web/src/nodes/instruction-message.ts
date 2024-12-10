@@ -4,7 +4,6 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 // import type { UIImageUpload } from '../ui/inputs/image-upload'
-import '../ui/inputs/image-upload'
 
 import { Entity } from './entity'
 

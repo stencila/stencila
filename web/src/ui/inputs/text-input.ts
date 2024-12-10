@@ -3,9 +3,14 @@ import { apply } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { withTwind } from '../../../../twind'
-import { nodeUi } from '../../icons-and-colours'
+import { withTwind } from '../../twind'
+import { nodeUi } from '../nodes/icons-and-colours'
 
+/**
+ * Basic stencila text input element, for stencila node cards.
+ *  - to use add a ref object to the element.
+ *  - the input value can be accessed with the public `value` property
+ */
 @customElement('ui-node-text-input')
 @withTwind()
 export class UITextInput extends LitElement {

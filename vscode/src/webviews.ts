@@ -303,6 +303,7 @@ export async function createChatAssistentPanel(
       localResourceRoots: [webDist],
     }
   );
+
   panel.iconPath = vscode.Uri.joinPath(
     context.extensionUri,
     "icons",
@@ -348,4 +349,13 @@ export async function createChatAssistentPanel(
       </body>
     </html>
   `;
+
+
+  const disposables: vscode.Disposable[] = [];
+
+  panel.webview.onDidReceiveMessage((message: ReceivedMessage) => {
+    console.log('message recieved', message)
+  }, null ,disposables)
+
+  return panel
 }

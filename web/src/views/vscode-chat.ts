@@ -1,12 +1,13 @@
 import { css, html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { ChatAssistantClient } from '../clients/chatview'
+import { ChatAssistantClient } from '../clients/chat-assistant'
 import { withTwind } from '../twind'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import '../nodes'
 import '../shoelace'
+import '../ui/chat-assistant/user-input'
+import '../ui/chat-assistant/header'
 
 @customElement('stencila-vscode-chat-assistant-view')
 @withTwind()
@@ -25,21 +26,14 @@ export class VSCodeAssistantView extends LitElement {
   }
 
   override render() {
-    const { colour, borderColour, textColour } = nodeUi('InstructionBlock')
-
     return html`
       <div class="flex flex-col w-full h-full font-sans">
-        <div
-          class="p-4 bg-[${colour}] text-[${textColour}] border-b border-[${borderColour}]"
-        >
-          <h1>I am a happy little chat window</h1>
-        </div>
+        <stencila-ui-assistant-panel-header>
+        </stencila-ui-assistant-panel-header>
         <div class="flex-grow bg-white my-4 p-4 overflow-y-auto">
           <slot></slot>
         </div>
-        <div class="bg-[${colour}] border-t border-[${borderColour}] p-4">
-          <textarea type="text" class="outline-none"></textarea>
-        </div>
+        <ui-chat-assist-user-inputs></ui-chat-assist-user-inputs>
       </div>
     `
   }

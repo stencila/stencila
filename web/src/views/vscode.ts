@@ -1,6 +1,6 @@
 import { customElement } from 'lit/decorators.js'
 
-import { PreviewClient } from '../clients/preview'
+import { PreviewClient } from '../clients/vscode-preview'
 
 import { DocumentView } from './document'
 
