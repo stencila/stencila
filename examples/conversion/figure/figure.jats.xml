@@ -7,7 +7,11 @@
         </inline-graphic>
       </p>
     </figure>
-    <figure>
+    <figure label-automatically="false">
+      <label>2</label>
+      <caption>
+        <p>A dog.</p>
+      </caption>
       <p>
         <inline-graphic xlink:href="https://example.org/dog.jpg">
         </inline-graphic>
@@ -15,6 +19,9 @@
     </figure>
     <sec>
       <figure>
+        <caption>
+          <p>A figure of a mouse inside a section.</p>
+        </caption>
         <p>
           <inline-graphic xlink:href="https://example.org/mouse.jpg">
           </inline-graphic>

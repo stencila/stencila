@@ -56,28 +56,20 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
-    /// The content of the figure.
-    #[serde(deserialize_with = "one_or_many")]
-    #[walk]
-    #[patch(format = "all")]
-    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
-    pub content: Vec<Block>,
-
     /// A short label for the figure.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "label-automatically")]
     pub label_automatically: Option<Boolean>,
 
     /// A caption for the figure.
@@ -88,7 +80,18 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(3))"#))]
+    #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
+
+    /// The content of the figure.
+    #[serde(deserialize_with = "one_or_many")]
+    #[walk]
+    #[patch(format = "all")]
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
+    pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]

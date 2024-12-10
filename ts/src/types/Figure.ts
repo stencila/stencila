@@ -11,11 +11,6 @@ export class Figure extends CreativeWork {
   type: "Figure";
 
   /**
-   * The content of the figure.
-   */
-  content: Block[];
-
-  /**
    * A short label for the figure.
    */
   label?: string;
@@ -29,6 +24,11 @@ export class Figure extends CreativeWork {
    * A caption for the figure.
    */
   caption?: Block[];
+
+  /**
+   * The content of the figure.
+   */
+  content: Block[];
 
   constructor(content: Block[], options?: Partial<Figure>) {
     super();

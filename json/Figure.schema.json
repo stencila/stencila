@@ -618,31 +618,6 @@
         }
       ]
     },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The content of the figure.",
-      "dom": {
-        "elem": "figure"
-      },
-      "proptest": {
-        "min": {
-          "description": "Generate a single arbitrary paragraph.",
-          "strategy": "vec_paragraphs(1)"
-        },
-        "low": {
-          "description": "Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks).",
-          "strategy": "vec_blocks_figure_content(2)"
-        },
-        "max": {
-          "description": "Generate up to four arbitrary, non-recursive, block nodes.",
-          "strategy": "vec_blocks_non_recursive(4)"
-        }
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
-    },
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the figure.",
@@ -654,6 +629,9 @@
           "ipynb",
           "qmd"
         ]
+      },
+      "jats": {
+        "elem": "label"
       },
       "proptest": {
         "min": {
@@ -687,6 +665,9 @@
           "qmd"
         ]
       },
+      "jats": {
+        "attr": "label-automatically"
+      },
       "type": "boolean"
     },
     "caption": {
@@ -705,6 +686,9 @@
       "dom": {
         "elem": "figcaption"
       },
+      "jats": {
+        "elem": "caption"
+      },
       "proptest": {
         "min": {
           "description": "No caption",
@@ -717,6 +701,31 @@
         "max": {
           "description": "Generate up to three arbitrary, non-recursive, block nodes.",
           "strategy": "option::of(vec_blocks_non_recursive(3))"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the figure.",
+      "dom": {
+        "elem": "figure"
+      },
+      "proptest": {
+        "min": {
+          "description": "Generate a single arbitrary paragraph.",
+          "strategy": "vec_paragraphs(1)"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks).",
+          "strategy": "vec_blocks_figure_content(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, block nodes.",
+          "strategy": "vec_blocks_non_recursive(4)"
         }
       },
       "type": "array",

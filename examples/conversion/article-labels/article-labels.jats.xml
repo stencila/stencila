@@ -4,6 +4,9 @@
     <p>An example of an article with automatic numbering (setting the<code>label</code>property) for<code>Table</code>,<code>Figure</code>and<code>CodeChunk</code>nodes.</p>
     <p>A figure, it should be labelled as Figure one.</p>
     <figure>
+      <caption>
+        <p>Some white text on orange an background.</p>
+      </caption>
       <p>
         <inline-graphic xlink:href="https://placehold.co/300x200/orange/white">
         </inline-graphic>
