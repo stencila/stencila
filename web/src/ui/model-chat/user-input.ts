@@ -9,6 +9,10 @@ import '../inputs/filedrop-wrapper'
 @customElement('stencila-ui-model-chat-user-inputs')
 @withTwind()
 export class UIModelChatUserInputs extends LitElement {
+  // TODO get a type safe string literal union for the available models
+  @property({ type: String })
+  currentModel: string = 'model'
+
   /**
    * Boolean property
    */
@@ -66,6 +70,7 @@ export class UIModelChatUserInputs extends LitElement {
               }}
               ?disabled=${this.waiting}
               .value=${this.textAreaValue}
+              placeholder="Message ${this.currentModel}"
             ></textarea>
             <button
               class="p-4 bg-blue-500 text-white border border-blue-500 rounded cursor-pointer hover:border-white"
