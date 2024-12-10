@@ -449,7 +449,7 @@
       "type": "object",
       "properties": {
         "attr": {
-          "description": "The HTML attribute name for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
+          "description": "The name of the JATS attribute to use for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
           "type": "string"
         },
         "attrs": {
