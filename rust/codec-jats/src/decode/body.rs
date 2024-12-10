@@ -186,10 +186,36 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
 fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, [], losses);
+    let mut label_automatically = None;
+    if let Some(automatically) = node
+        .attribute("label-automatically")
+        .map(|string| match string {
+            "true" => Some(true),
+            "false" => Some(false),
+            _ => None,
+        })
+    {
+        label_automatically = automatically;
+    }
+
+    record_attrs_lost(path, node, ["label-automatically"], losses);
+
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(String::from);
+
+    let caption = node
+        .children()
+        .find(|child| child.tag_name().name() == "caption")
+        .map(|node| decode_blocks(path, node.children(), losses, depth));
 
     Block::Figure(Figure {
         content: decode_blocks(path, node.children(), losses, depth),
+        caption,
+        label_automatically,
+        label,
         ..Default::default()
     })
 }
