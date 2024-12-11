@@ -9,6 +9,9 @@ use codec::{
 mod decode;
 mod encode;
 
+pub use decode::decode;
+pub use encode::encode;
+
 #[cfg(test)]
 mod tests;
 
@@ -98,7 +101,7 @@ impl Codec for JatsCodec {
         str: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        decode::decode(str, options)
+        decode(str, options)
     }
 
     async fn to_string(
@@ -106,6 +109,6 @@ impl Codec for JatsCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        encode::encode(node, options)
+        encode(node, options)
     }
 }
