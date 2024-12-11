@@ -2,11 +2,7 @@ compact.jats.xml:
   decode:
     strip-props:
       #TODO removed when property decode and encode are implemented
-      - CodeChunk.label
-      - CodeChunk.label_automatically
-      - CodeChunk.label_type
       - CodeChunk.execution_mode
-      - CodeChunk.caption
 
 qmd:
   decode:
