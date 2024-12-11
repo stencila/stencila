@@ -9,6 +9,57 @@ expression: article
       "type": "Section",
       "content": [
         {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Cells evoke the DNA damage checkpoint (DDC) to inhibit mitosis in the presence of DNA double-strand breaks (DSBs) to allow more time for DNA repair. In budding yeast, a single irreparable DSB is sufficient to activate the DDC and induce cell cycle arrest prior to anaphase for about 12–15 hr, after which cells ‘adapt’ to the damage by extinguishing the DDC and resuming the cell cycle. While activation of the DNA damage-dependent cell cycle arrest is well understood, how it is maintained remains unclear. To address this, we conditionally depleted key DDC proteins after the DDC was fully activated and monitored changes in the maintenance of cell cycle arrest. Degradation of Ddc2"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "ATRIP"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", Rad9, Rad24, or Rad53"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "CHK2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " results in premature resumption of the cell cycle, indicating that these DDC factors are required both to establish and maintain the arrest. Dun1 is required for the establishment, but not the maintenance, of arrest, whereas Chk1 is required for prolonged maintenance but not for initial establishment of the mitotic arrest. When the cells are challenged with two persistent DSBs, they remain permanently arrested. This permanent arrest is initially dependent on the continuous presence of Ddc2, Rad9, and Rad53; however, after 15 hr these proteins become dispensable. Instead, the continued mitotic arrest is sustained by spindle assembly checkpoint (SAC) proteins Mad1, Mad2, and Bub2 but not by Bub2’s binding partner Bfa1. These data suggest that prolonged cell cycle arrest in response to 2 DSBs is achieved by a handoff from the DDC to specific components of the SAC. Furthermore, the establishment and maintenance of DNA damage-induced cell cycle arrest require overlapping but different sets of factors."
+              }
+            }
+          ]
+        }
+      ],
+      "sectionType": "Abstract"
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
           "type": "Heading",
           "level": 1,
           "content": [
@@ -4227,5 +4278,35 @@ expression: article
         }
       ]
     }
-  ]
+  ],
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "publisher-id",
+      "value": "94334"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "doi",
+      "value": "10.7554/eLife.94334"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "doi",
+      "value": "10.7554/eLife.94334.3"
+    }
+  ],
+  "about": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "display-channel",
+      "value": "Research Article"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "heading",
+      "value": "Chromosomes and Gene Expression"
+    }
+  ],
+  "version": "version of record"
 }
