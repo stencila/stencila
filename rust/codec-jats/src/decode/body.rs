@@ -24,14 +24,15 @@ const XLINK: &str = "http://www.w3.org/1999/xlink";
 /// the corresponding `decode_*` function for the element name), or adds them to
 /// losses.
 pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    article.content = decode_blocks(path, node.children(), losses, 0)
+    let mut content = decode_blocks(path, node.children(), losses, 0);
+    article.content.append(&mut content)
 }
 
 /// Decode block content nodes
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
+pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
     path: &str,
     nodes: I,
     losses: &mut Losses,

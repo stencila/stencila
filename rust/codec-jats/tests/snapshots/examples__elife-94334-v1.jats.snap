@@ -3,6 +3,11 @@ source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <front>
+    <abstract>
+      <p>Cells evoke the DNA damage checkpoint (DDC) to inhibit mitosis in the presence of DNA double-strand breaks (DSBs) to allow more time for DNA repair. In budding yeast, a single irreparable DSB is sufficient to activate the DDC and induce cell cycle arrest prior to anaphase for about 12–15 hr, after which cells ‘adapt’ to the damage by extinguishing the DDC and resuming the cell cycle. While activation of the DNA damage-dependent cell cycle arrest is well understood, how it is maintained remains unclear. To address this, we conditionally depleted key DDC proteins after the DDC was fully activated and monitored changes in the maintenance of cell cycle arrest. Degradation of Ddc2<sup>ATRIP</sup>, Rad9, Rad24, or Rad53<sup>CHK2</sup>results in premature resumption of the cell cycle, indicating that these DDC factors are required both to establish and maintain the arrest. Dun1 is required for the establishment, but not the maintenance, of arrest, whereas Chk1 is required for prolonged maintenance but not for initial establishment of the mitotic arrest. When the cells are challenged with two persistent DSBs, they remain permanently arrested. This permanent arrest is initially dependent on the continuous presence of Ddc2, Rad9, and Rad53; however, after 15 hr these proteins become dispensable. Instead, the continued mitotic arrest is sustained by spindle assembly checkpoint (SAC) proteins Mad1, Mad2, and Bub2 but not by Bub2’s binding partner Bfa1. These data suggest that prolonged cell cycle arrest in response to 2 DSBs is achieved by a handoff from the DDC to specific components of the SAC. Furthermore, the establishment and maintenance of DNA damage-induced cell cycle arrest require overlapping but different sets of factors.</p>
+    </abstract>
+  </front>
   <body>
     <sec>
       <title level="1">Introduction</title>
