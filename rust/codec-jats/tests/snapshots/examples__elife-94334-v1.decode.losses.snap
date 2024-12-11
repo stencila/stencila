@@ -17,7 +17,14 @@ expression: info.losses
 //article/body/sec/p/xref/@ref-type: 73
 //article/body/sec/p/xref/@rid: 73
 //article/body/sec/sec/@id: 15
-//article/body/sec/sec/fig-group: 5
+//article/body/sec/sec/fig-group/fig/@id: 14
+//article/body/sec/sec/fig-group/fig/@position: 14
+//article/body/sec/sec/fig-group/fig/@specific-use: 9
+//article/body/sec/sec/fig-group/fig/caption: 14
+//article/body/sec/sec/fig-group/fig/graphic: 14
+//article/body/sec/sec/fig-group/fig/label: 14
+//article/body/sec/sec/fig-group/fig/p/supplementary-material: 60
+//article/body/sec/sec/fig-group/fig/p/supplementary-material/@id: 60
 //article/body/sec/sec/fig/@id: 4
 //article/body/sec/sec/fig/@position: 4
 //article/body/sec/sec/fig/caption: 4
