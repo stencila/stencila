@@ -190,11 +190,7 @@ fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blo
     let mut label_automatically = None;
     if let Some(automatically) = node
         .attribute("label-automatically")
-        .map(|string| match string {
-            "true" => Some(true),
-            "false" => Some(false),
-            _ => None,
-        })
+        .map(|string| string.parse().ok())
     {
         label_automatically = automatically;
     }
