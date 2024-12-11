@@ -31,7 +31,7 @@ use super::thing_type::ThingType;
 #[display(fmt = "Figure")]
 #[patch(authors_on = "self")]
 #[html(elem = "figure")]
-#[jats(elem = "figure")]
+#[jats(elem = "fig")]
 pub struct Figure {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
