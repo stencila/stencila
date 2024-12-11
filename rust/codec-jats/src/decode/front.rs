@@ -16,7 +16,10 @@ use super::{
 /// Decode the `<front>` of an `<article>`
 ///
 /// Recursively descends into the frontmatter, setting or adding to, properties of the
-/// Stencila [`Article`]. An easier approach would be to search for
+/// Stencila [`Article`]. An easier approach would be to use XPath as we did in Encoda
+/// (https://github.com/stencila/encoda/blob/7dd7b143d0edcafa67cab96bf21dc3c077613fcc/src/codecs/jats/index.ts#L377)
+/// However, the approach used here has the advantage of allowing us to enumerate tags
+/// and attributes that are not handled (via `losses`).
 pub(super) fn decode_front(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     for child in node.children() {
         let tag = child.tag_name().name();
