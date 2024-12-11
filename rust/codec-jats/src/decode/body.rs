@@ -44,16 +44,16 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
         let child_path = extend_path(path, tag);
         let block = match tag {
             "boxed-text" => decode_boxed_text(&child_path, &child, losses, depth),
-            "hr" => decode_hr(&child_path, &child, losses),
-            "p" => decode_p(&child_path, &child, losses),
-            "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
-            "sec" => decode_sec(&child_path, &child, losses, depth + 1),
-            "title" => decode_title(&child_path, &child, losses, depth),
-            "list" => decode_list(&child_path, &child, losses, depth),
-            "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
             "code" => decode_code(&child_path, &child, losses, depth),
-            "figure" => decode_figure(&child_path, &child, losses, depth),
+            "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
+            "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
+            "fig" => decode_fig(&child_path, &child, losses, depth),
+            "hr" => decode_hr(&child_path, &child, losses),
+            "list" => decode_list(&child_path, &child, losses, depth),
+            "p" => decode_p(&child_path, &child, losses),
+            "sec" => decode_sec(&child_path, &child, losses, depth + 1),
             "statement" => decode_statement(&child_path, &child, losses, depth),
+            "title" => decode_title(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -183,10 +183,10 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
     })
 }
 
-/// Decode a `<figure>` to a Stencila [`Block::Figure`]
+/// Decode a `<fig>` element to a Stencila [`Block::Figure`]
 ///
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
-fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
+fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     let mut label_automatically = None;
     if let Some(automatically) = node
         .attribute("label-automatically")

@@ -15,7 +15,7 @@
     "elem": "figure"
   },
   "jats": {
-    "elem": "figure"
+    "elem": "fig"
   },
   "markdown": {
     "derive": false
