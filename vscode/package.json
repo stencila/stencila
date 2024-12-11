@@ -175,6 +175,13 @@
         "icon": "$(preview)"
       },
       {
+        "command": "stencila.open-model-chat",
+        "category": "Stencila",
+        "title": "Open model chat",
+        "shortTitle": "Model chat",
+        "icon": "$(robot)"
+      },
+      {
         "command": "stencila.invoke.run-curr",
         "category": "Stencila",
         "title": "Run this node",
@@ -600,6 +607,11 @@
           "command": "stencila.invoke.export-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
+        },
+        {
+          "command": "stencila.open-model-chat",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@4"
         }
       ],
       "editor/context": [
@@ -906,6 +918,11 @@
           "id": "stencila-sidebar",
           "title": "Stencila",
           "icon": "./icons/stencila-sidebar.svg"
+        },
+        {
+          "id": "stencila-model-chat-sidebar",
+          "title": "Model Chat",
+          "icon": "./icons/stencila-sidebar.svg"
         }
       ]
     },
@@ -928,6 +945,14 @@
           "id": "stencila-kernels",
           "name": "Kernels",
           "collapsed": true
+        }
+      ],
+      "stencila-model-chat-sidebar": [
+        {
+          "type": "webview",
+          "id": "stencila-model-chat",
+          "name": "",
+          "visibility": "visible"
         }
       ]
     },

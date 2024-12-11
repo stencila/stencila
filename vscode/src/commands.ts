@@ -242,4 +242,12 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
       }
     )
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.open-model-chat",
+      () => {
+        vscode.commands.executeCommand('workbench.view.extension.stencila-model-chat-sidebar')
+      }
+    )
+  )
 }

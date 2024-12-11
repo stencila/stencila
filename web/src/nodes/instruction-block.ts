@@ -10,7 +10,7 @@ import { nodeUi } from '../ui/nodes/icons-and-colours'
 import { Instruction } from './instruction'
 import { SuggestionBlock } from './suggestion-block'
 
-import '../ui/nodes/properties/generic/text-input'
+import '../ui/inputs/text-input'
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/execution-details'

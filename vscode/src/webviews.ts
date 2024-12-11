@@ -138,10 +138,10 @@ export async function createDocumentViewPanel(
     vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
   );
   const viewCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode.css")
+    vscode.Uri.joinPath(webDist, "views", "vscode-preview.css")
   );
   const viewJs = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode.js")
+    vscode.Uri.joinPath(webDist, "views", "vscode-preview.js")
   );
 
   panel.webview.html = `
@@ -159,9 +159,9 @@ export async function createDocumentViewPanel(
             <script type="text/javascript" src="${viewJs}"></script>
         </head>
         <body style="background: white;">
-          <stencila-vscode-view theme="${themeName}">
+          <stencila-vscode-preview-view theme="${themeName}">
             ${viewHtml}
-          </stencila-vscode-view>
+          </stencila-vscode-preview-view>
           <script>
             const vscode = acquireVsCodeApi()
           </script>
@@ -286,3 +286,104 @@ export function closeDocumentViewPanels() {
 
   documentViewPanels.clear();
 }
+
+/**
+ * Provider for the model chat webview panel
+ */
+export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvider {
+  public static readonly viewType = 'stencila-model-chat';
+
+  private view?: vscode.WebviewView
+  
+  private readonly extensionUri: vscode.Uri;
+
+  get webDist() { 
+    return vscode.Uri.joinPath(this.extensionUri, "out", "web")
+  };
+
+  constructor(extensionUri: vscode.Uri) {
+    this.extensionUri = extensionUri
+  };
+
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    _context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken
+  ) {
+    this.view = webviewView;
+
+    this.view.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this.webDist],
+    };
+
+    this.view.webview.html = this.getHtml(webviewView.webview);
+
+    const disposables: vscode.Disposable[] = [];
+
+    this.view.webview.onDidReceiveMessage((message) => {
+      console.log('message recieved', message)
+    }, null, disposables);
+    
+    
+    this.view.onDidDispose(
+      () => disposables.forEach((disposable) => disposable.dispose())
+    );
+  };
+
+
+  private getHtml(webview: vscode.Webview) {
+    const webDist = this.webDist;
+    const viewCss = webview.asWebviewUri(
+      vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.css")
+    );
+    const viewJs = webview.asWebviewUri(
+      vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.js")
+    );
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+            <title>Stencila: Document Preview</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="${viewCss}">
+            <script type="text/javascript" src="${viewJs}"></script>
+            <style>
+              body, html {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-size: 16px;
+              }
+            </style>
+        </head>
+        <body>
+          <stencila-vscode-model-chat-view>
+            <p>I am a slotted element</p>
+            <p>I am another slotted element</p>
+          </stencila-vscode-model-chat-view>
+          <script>
+            const vscode = acquireVsCodeApi()
+          </script>
+        </body>
+      </html>
+    `  
+  };
+};
+
+/**
+ * Registers an instance of `StencilaModelChatWebviewProvider` to the current `ExtensionContext`
+ */
+export function registerModelChatView(context: vscode.ExtensionContext) {
+  const provider = new StencilaModelChatWebviewProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      StencilaModelChatWebviewProvider.viewType,
+      provider
+    )
+  );
+};
