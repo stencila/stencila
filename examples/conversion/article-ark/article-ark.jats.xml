@@ -18,9 +18,9 @@
     </statement>
     <code>This is a code block</code>
     <code executable="yes">This is a code chunk</code>
-    <figure>
+    <fig>
       <p>This is a figure</p>
-    </figure>
+    </fig>
     <title level="1">This is a heading</title>
     <p>This paragraph is to be inserted</p>
     <list list-type="Unordered">
