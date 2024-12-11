@@ -809,6 +809,342 @@ expression: article
               ]
             },
             {
+              "type": "Figure",
+              "label": "Figure 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Measuring checkpoint arrest in 1-DSB and 2-DSB strains."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Morphological categories of budding yeast cells using brightfield microscopy and DAPI staining were used to determine G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M arrest. Cells that arrest at G2/M shift toward a large bud state. G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells that progress into anaphase. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay with 1-DSB strain on a YEP-Gal plate. G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M arrest was determined based on cell morphology as shown in ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "). Data are shown from three independent experiments, error bars represent standard error of the mean (SEM). ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 1-DSB strain after DNA damage induction in liquid culture. Cells were grouped based on cell morphology and DAPI staining profiles, as explained below the graphs. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Rad53 phosphorylation kinetics in 1-DSB strain by western blotting. Samples collected after the induction of DNA damage during the time-course experiment and blotted with α-Rad53 to monitor DDC signaling. α-Rad53 can both detect unphosphorylated and hyperphosphorylated Rad53 species. TIR1-Myc was detected with α-Myc and serves as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for a 2-DSB strain. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") with a 2-DSB strain. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "G"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") with a 2-DSB strain."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
               "type": "Paragraph",
               "content": [
                 {
@@ -1896,6 +2232,314 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 4.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dun1 is not required for checkpoint maintenance."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay of 50 G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " cells on a YEP-Gal plate with 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "dun1∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M arrest was determined based on cell morphology as shown in "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc for TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DUN1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " after HO induction. Data are shown from three trials with standard error of the mean (SEM). Cultures were split 4 hr after DSB induction; with auxin (1 mM) (+IAA). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Dun1-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1∆ DUN1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". The asterisk marks when the percentage of large-budded cells returned to pre-damage levels."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n            "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
             }
           ]
         },
@@ -3092,6 +3736,161 @@ expression: article
               ]
             },
             {
+              "type": "Figure",
+              "label": "Figure 8.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Adaptation assay of different 2-DSB strains."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay of 1-DSB and 2-DSB strains tracking the morphology of 50 G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " cells on a YEP-Gal plate. The percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells was shown 4 hr and 24 hr after placement of YEP-Gal plates. JKM179 is a 1-DSB strain with an HO-cut site in the "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAT"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " locus on chromosome III 86 kb away from the centromere. DW417 is a 2-DSB strain derived from JKM179 with an additional HO-cut site on chromosome VI 52 kb away from the centromere. YSL53 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at the "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "URA3"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " locus on chromosome V 36 kb away from the centromere ("
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "). GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "LYS2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " on chromosome II 230 kb away from the centromere. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Cartoon representations of strains showing the location of the HO-cut sites relative to their respective centromeres."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
               "type": "Paragraph",
               "content": [
                 {
@@ -3125,6 +3924,53 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 9.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Growth rate of strains were measured in YPD (2% dextrose) in H2A and H2B mutants for up to 10 hr. Cultures were grown in YPD until they reached an OD"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "600"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " of 0.1. The OD of each strain was then measured at 3, 5, 7, and 10 hr."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
             }
           ]
         }
@@ -3178,6 +4024,53 @@ expression: article
               }
             }
           ]
+        },
+        {
+          "type": "Figure",
+          "label": "Figure 10.",
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Activation and maintenance of checkpoint arrest in response to a DSB."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The Mre11-Rad50-Xrs2 (MRX) complex is one of the first complexes recruited to DSBs and initiates the resection of dsDNA to ssDNA. ssDNA is then coated with RPA which recruits Ddc2. Mec1 is the primary kinase responsible for checkpoint arrest in budding yeast and is activated by Ddc2 and Ddc1 from the 9-1-1 clamp. Proteins in green (Ddc2, Rad9, Rad24, and Rad53) were required for the activation and maintenance of checkpoint arrest. While Chk1 was not required for establishment of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest, it contributed to the maintenance of arrest. In contrast, Dun1 was required for checkpoint activation but was dispensable 4 hr after DSB induction. Prolonged arrest >24 hr in a 2-DSB strain was dependent on the SAC proteins Mad2, Mad1, and Bub2 as well as the distance between the second HO-cut site and the centromere."
+                  }
+                }
+              ]
+            }
+          ],
+          "content": []
         },
         {
           "type": "Paragraph",
