@@ -7,8 +7,8 @@ use codec::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Claim, ClaimType, CodeBlock,
         CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime, Duration, ExecutionMode,
-        Figure, Heading, ImageObject, ImageObjectOptions, Inline, LabelType, Link, List, ListItem,
-        ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
+        Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link, List, ListItem, ListOrder,
+        MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
         StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
@@ -187,13 +187,9 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
 fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    let mut label_automatically = None;
-    if let Some(automatically) = node
+    let label_automatically = node
         .attribute("label-automatically")
-        .map(|string| string.parse().ok())
-    {
-        label_automatically = automatically;
-    }
+        .and_then(|string| string.parse().ok());
 
     record_attrs_lost(path, node, ["label-automatically"], losses);
 
@@ -229,22 +225,13 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
         .attribute("executable")
         .map(|mode| ExecutionMode::from_str(mode).ok())
     {
-        let mut label_type = None;
-        let mut label_automatically = None;
-
-        if let Some(l_type) = node
+        let label_type = node
             .attribute("label-type")
-            .map(|label| LabelType::from_str(label).unwrap_or_default())
-        {
-            label_type = Some(l_type);
-        }
+            .and_then(|string| string.parse().ok());
 
-        if let Some(label_auto) = node
+        let label_automatically = node
             .attribute("label-automatically")
-            .map(|auto| auto.parse().ok())
-        {
-            label_automatically = label_auto;
-        }
+            .and_then(|string| string.parse().ok());
 
         record_attrs_lost(
             path,
