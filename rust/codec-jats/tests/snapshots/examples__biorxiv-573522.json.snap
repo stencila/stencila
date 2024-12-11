@@ -986,6 +986,258 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 1:",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Calcium currents underly bursting in NLOT neurons."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " A coronal section showing the NLOT under bright-field illumination. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The responses of a layer 2 neuron to current injections. Inset shows the F/I curve of this neuron. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Box plots showing the distributions of resting membrane properties and spiking threshold of layer 2 neurons. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The effect of the sodium channel blocker TTX (1 µM), and the calcium channel blocker Ni"
+                      }
+                    },
+                    {
+                      "type": "Superscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2+"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (200 μM), on the responses to current injection in an example neuron. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The superimposed responses of the neuron in D. Note that blocking action potentials with TTX reveals the contribution of a voltage gated calcium current. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The effect of Ni2+ on bursting in an example neuron. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "G."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " quantification of the effect of Ni2+ on spiking threshold current, the number of spikes evoked by threshold current, the firing rate within the burst, and burst duration."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 3.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Inputs into the NLOT as revealed with g-deleted rabies monosynaptic tracing."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Experimental scheme. Two retrograde AAVs, one carrying the genes for TVA and mCherry, and one carrying the gene for oPBG were injected unilaterally into the OB of Rbp4-Cre mice and allowed 4 weeks for expression. Then a pseudotyped rabies virus carrying the gene for GFP was injected into the ipsilateral NLOT. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Fluorescently labeled cells in the ipsilateral NLOT. Yellow cells express both mCherry and GFP and are presumed to be starter cells. The occurrence of cells expressing only GFP indicates synaptic connectivity within the NLOT. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C-G."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Rabies-labeled neurons in the ipsilateral OB (C), ipsilateral tenia tecta (D), ipsilateral PC and NDB (E), ipsilateral SI (F), and ipsi- and contra-lateral BLA (G). "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "H."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The fraction of rabies-labeled cells in different regions of the brain. The olfactory category includes the OB, PC, AON, TT, and the OT. The NLOT and BLA categories include both hemispheres. The cholinergic category includes the SI and the NDB."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
             }
           ]
         },
@@ -1020,6 +1272,200 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 2:",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Axonal projections of NLOT neurons."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Experimental schema. NLOT neurons were specifically labeled by a unilateral injection of retrograde AAV carrying the gene for mCherry into the OB. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " A coronal section showing the labeled NLOT. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Sections of the ipsi- and contra-lateral OBs showing NLOT axons densely populating the granule cell layer (GCL) yet also reaching the external plexiform and glomerular layers (EPL and GL). "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The ipsi- and contra-lateral NLOTs labeled by unilateral retrograde AAV injection into the OB. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " NLOT axons within the aPC and the islands of Calleja (IC) in the OT. Note that NLOT axons specifically target the bordering regions of the aPC and OT. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " The ipsi- and contra-lateral NLOTs were labeled by retrograde AAV injection into the OT. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "G."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " NLOT projections in layer-1b of the contralateral, but not in the ipsilateral pPC. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "H."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Retrograde AAV injection into pPC labeled the contralateral but not the ipsilateral NLOT. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "I."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " NLOT axonal projections within the contralateral BLA. No axons were evident in the ipsilateral BLA. "
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "J."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Retrograde AAV injection into the BLA labeled the contralateral, but not the ipsilateral NLOT."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
             },
             {
               "type": "Section",
@@ -1321,6 +1767,217 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Figure",
+                  "label": "Figure 4:",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 3,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "OB inputs are weak and insufficient to elicit NLOT firing."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "A."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " The expression of ChR2-EYFP in OB mitral and tufted cells. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "B."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Fluorescent OB output axons (LOT) within layer 1 of the NLOT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "C."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A biocytin-labeled cell (red), and the LOT within layer 1. Note that the LOT contacts the dendrite at its distal end. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "D."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example LOT-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black lines show the average response across trials. Red line shows EPSC obtained in the presence of CNQX and APV. Blue ticks indicate the timing of light pulses. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "E."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Voltage dependence of an example LOT-evoked EPSC. Red cross indicates reversal potential. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Box plots showing the distribution of EPSC amplitudes (at -70 mV holding potential) and reversal potentials of LOT inputs. n=25 cells and 8 cells for the amplitude and reversal, respectively. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " LOT-evoked action potentials are only triggered when the cell is depolarized with current injection. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "H."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " LOT-evoked dendritic spikes recorded under voltage clamp (top) and current clamp (bottom) conditions (from two different cells). 10 repetitions of the same stimulation are shown for each. In the voltage clamp mode, the cell was held at -20 mV. Note the all- or-none nature of the responses that is indicative of a regenerative process (red). "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "I-J."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Paired-pulse dynamics of LOT inputs into NLOT neurons. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "I."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example data from one neuron. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "J."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Paired-pulse ratio as a function of the inter-pulse interval averaged across cells (n=4). Note that LOT inputs are facilitating at intervals that are less than 100 ms."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "content": []
+                },
+                {
                   "type": "Paragraph",
                   "content": [
                     {
@@ -1368,6 +2025,183 @@ expression: article
                   ]
                 },
                 {
+                  "type": "Figure",
+                  "label": "Figure 5:",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 3,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Piriform inputs into NLOT."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "A."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A coronal section showing expression of ChR2-GFP in PC. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "B."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A confocal image showing the spread of PC axons within the NLOT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "C."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example PC-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their averages. Red trace shows the EPSC obtained in the presence of glutamatergic blockers. Blue ticks indicate the timing of light stimulation. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "D."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Voltage dependence of an example PC-evoked EPSC. Red cross indicates reversal potential. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "E."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Box plots showing the distributions of amplitudes and reversal potentials of PC-evoked EPSCs. n=24 and 11 cells for amplitude and reversal, respectively. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F-G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Paired pulse dynamics of PC-evoked EPSCs. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example traces showing the EPSCs obtained with pairs of light pulses at variable intervals. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " The average paired pulse ratio as a function of the inter pulse interval. Shaded area shows the SEM (n=6 cells). "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "H."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " PC-evoked action potential bursts. 5 trials are shown."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "content": []
+                },
+                {
                   "type": "Paragraph",
                   "content": [
                     {
@@ -1407,6 +2241,183 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Figure",
+                  "label": "Figure 6:",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 3,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "AON/TT inputs into NLOT."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "A."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A coronal section showing the expression of ChR2-GFP in the medial-AON/TT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "B."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A confocal image showing the spread of AON/TT axons within NLOT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "C."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example AON/TT-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their averages. Blue ticks mark the timing of light stimulation. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "D."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Voltage dependence of EPSCs from one example cell. Black line is a linear fit. Red cross denotes reversal potential. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "E."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Box plots showing the distributions of amplitudes and reversal potentials of AON/TT-evoked EPSCs (n=13 for both amplitude and reversal). "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F-G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Short-term synaptic plasticity of AON/TT inputs into NLOT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Responses from one example cell to paired stimulation with variable intervals. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Average paired-pulse ratio as a function of inter-pulse interval. Shaded area shows the mean±SEM (n=9 cells). "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "H."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example AON/TT-evoked action potential bursts. 10 repetitions of the same stimulation are shown."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "content": []
                 },
                 {
                   "type": "Paragraph",
@@ -1465,6 +2476,183 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Figure",
+                  "label": "Figure 7:",
+                  "caption": [
+                    {
+                      "type": "Heading",
+                      "level": 3,
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BLA inputs into NLOT."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "A."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A coronal section showing expression of ChR2-GFP in the BLA. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "B."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " A confocal image showing the spread of BLA axons within the NLOT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "C."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example BLA-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their average. Red trace shows the EPSC obtained in the presence of CNQX and APV. Blue ticks mark the timing of light stimulation. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "D."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Voltage dependence of BLA-evoked EPSCs from one example cell. Black line is a linear fit. Red cross denotes reversal potential. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "E."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Box plots showing the distributions of amplitudes (n=25 cells) and reversal potentials (n=7 cells) of BLA-evoked EPSCs. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F-G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Short-term synaptic plasticity of BLA inputs into NLOT. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "F."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example repeated stimulation with variable intervals. "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "G."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Average paired-pulse ratio as a function of inter-pulse interval. Shaded area shows the mean±SEM (n=15 cells). "
+                          }
+                        },
+                        {
+                          "type": "Strong",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "H."
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": " Example BLA-evoked action potential bursts. 5 repetitions of the same stimulation are shown."
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "content": []
                 },
                 {
                   "type": "Paragraph",
