@@ -73,17 +73,6 @@
     },
     {
       "type": "Figure",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "ImageObject",
-              "contentUrl": "https://placehold.co/300x200/orange/white"
-            }
-          ]
-        }
-      ],
       "caption": [
         {
           "type": "Paragraph",
@@ -93,6 +82,17 @@
               "value": {
                 "string": "Some white text on orange an background."
               }
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://placehold.co/300x200/orange/white"
             }
           ]
         }

@@ -1,12 +1,15 @@
 use roxmltree::Node;
 
+use std::str::FromStr;
+
 use codec::{
     schema::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeInline,
-        Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline,
-        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, Claim, ClaimType, CodeBlock,
+        CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime, Duration, ExecutionMode,
+        Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link, List, ListItem, ListOrder,
+        MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
+        StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -45,6 +48,11 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
             "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
             "sec" => decode_sec(&child_path, &child, losses, depth + 1),
             "title" => decode_title(&child_path, &child, losses, depth),
+            "list" => decode_list(&child_path, &child, losses, depth),
+            "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
+            "code" => decode_code(&child_path, &child, losses, depth),
+            "figure" => decode_figure(&child_path, &child, losses, depth),
+            "statement" => decode_statement(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -57,8 +65,6 @@ fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
 
 /// Decode a `<boxed-text>` to a [`Block::Admonition`]
 fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
-
     let typ = node
         .attribute("content-type")
         .and_then(|typ| typ.parse().ok())
@@ -81,13 +87,13 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         }
     }
 
-    let content = decode_blocks(path, children, losses, depth);
+    record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
 
     Block::Admonition(Admonition {
         admonition_type: typ,
         is_folded,
         title,
-        content,
+        content: decode_blocks(path, children, losses, depth),
         ..Default::default()
     })
 }
@@ -115,11 +121,11 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
 /// Decode a `<sec>` to a [`Block::Section`]
 fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["content-type"], losses);
-
     let typ = node
         .attribute("content-type")
         .and_then(|typ| typ.parse().ok());
+
+    record_attrs_lost(path, node, ["content-type"], losses);
 
     Block::Section(Section {
         section_type: typ,
@@ -130,17 +136,192 @@ fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
 
 /// Decode a `<title>` to a [`Block::Heading`]
 fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, [], losses);
-
     let level = node
         .attribute("level")
         .and_then(|level| level.parse::<i64>().ok())
         .unwrap_or(depth as i64);
 
+    record_attrs_lost(path, node, ["level"], losses);
+
     Block::Heading(Heading::new(
         level,
         decode_inlines(path, node.children(), losses),
     ))
+}
+
+/// Decode a `<statement>` to a Stencila [`Block::Claim`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html
+fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let claim_type = node
+        .attribute("content-type")
+        .map(|statement| ClaimType::from_str(statement).unwrap_or_default())
+        .unwrap_or_default();
+
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(String::from);
+
+    let content = decode_blocks(
+        path,
+        node.children()
+            .filter(|child| child.tag_name().name() != "label"),
+        losses,
+        depth,
+    );
+
+    record_attrs_lost(path, node, ["content-type"], losses);
+
+    Block::Claim(Claim {
+        claim_type,
+        label,
+        content,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<figure>` to a Stencila [`Block::Figure`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/figure.html
+fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let mut label_automatically = None;
+    if let Some(automatically) = node
+        .attribute("label-automatically")
+        .map(|string| match string {
+            "true" => Some(true),
+            "false" => Some(false),
+            _ => None,
+        })
+    {
+        label_automatically = automatically;
+    }
+
+    record_attrs_lost(path, node, ["label-automatically"], losses);
+
+    let label = node
+        .children()
+        .find(|child| child.tag_name().name() == "label")
+        .and_then(|node| node.text())
+        .map(String::from);
+
+    let caption = node
+        .children()
+        .find(|child| child.tag_name().name() == "caption")
+        .map(|node| decode_blocks(path, node.children(), losses, depth));
+
+    Block::Figure(Figure {
+        content: decode_blocks(path, node.children(), losses, depth),
+        caption,
+        label_automatically,
+        label,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
+fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
+    let code = node.text().map(Cord::from).unwrap_or_default();
+
+    let programming_language = node.attribute("language").map(String::from);
+
+    if let Some(execution_mode) = node
+        .attribute("executable")
+        .map(|mode| ExecutionMode::from_str(mode).ok())
+    {
+        record_attrs_lost(path, node, ["language", "executable"], losses);
+
+        return Block::CodeChunk(CodeChunk {
+            code,
+            programming_language,
+            execution_mode,
+            ..Default::default()
+        });
+    }
+
+    record_attrs_lost(path, node, ["language"], losses);
+
+    Block::CodeBlock(CodeBlock {
+        code,
+        programming_language,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<disp-formula>` to a Stencila [`Block::MathBlock`]
+///
+/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
+fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
+    let code = node
+        .attribute("code")
+        .and_then(|code| code.into())
+        .unwrap_or_default();
+
+    let math_language = node.attribute("language").map(|lang| lang.to_string());
+
+    record_attrs_lost(path, node, ["code", "language"], losses);
+
+    Block::MathBlock(MathBlock {
+        code: code.into(),
+        math_language,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<list>` to a Stencila [`Block::List`]
+///
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list.html
+fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    let order = match node.attribute("list-type") {
+        // TODO: Encode using valid JATS `list-type`
+        // See https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/list-type.html
+        // Consider adding JATS variants such as `alpha-lower` to `ListOrder`, or
+        // adding a new enum for characters to use
+        Some("Unordered") | Some("bullet") => ListOrder::Unordered,
+        Some("Descending") => ListOrder::Descending,
+        _ => ListOrder::Ascending,
+    };
+
+    record_attrs_lost(path, node, ["list-type"], losses);
+
+    let items = node
+        .children()
+        .filter_map(|child| {
+            let tag = child.tag_name().name();
+            if tag == "list-item" {
+                Some(decode_list_item(
+                    &extend_path(path, tag),
+                    &child,
+                    losses,
+                    depth,
+                ))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    Block::List(List::new(items, order))
+}
+
+/// Decode a `<list-item>` to a Stencila [`ListItem`]
+///
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list-item.html
+fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> ListItem {
+    let is_checked = node
+        .attribute("is-checked")
+        .and_then(|value| bool::from_str(value).ok());
+
+    record_attrs_lost(path, node, ["is-checked"], losses);
+
+    ListItem {
+        is_checked,
+        content: decode_blocks(path, node.children(), losses, depth),
+        ..Default::default()
+    }
 }
 
 /// Decode inline content nodes
@@ -294,7 +475,7 @@ fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let programming_language = node.attribute("language").map(String::from);
     let code = node.text().map(Cord::from).unwrap_or_default();
 
-    record_attrs_lost(path, node, ["language"], losses);
+    record_attrs_lost(path, node, ["language", "executable"], losses);
 
     if executable.as_deref() == Some("yes") {
         Inline::CodeExpression(CodeExpression {

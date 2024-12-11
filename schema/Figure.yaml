@@ -21,6 +21,55 @@ core:
   - authors
   - provenance
 properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the figure.
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    jats:
+      elem: label
+    proptest:
+      min:
+        description: No label
+        value: None
+      low:
+        description: Generate a simple label
+        strategy: option::of(r"[a-zA-Z0-9]+")
+      max:
+        description: Generate an arbitrary string
+        strategy: option::of(String::arbitrary())
+  labelAutomatically:
+    '@id': stencila:labelAutomatically
+    description: Whether the label should be automatically updated.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    jats:
+      attr: label-automatically
+  caption:
+    '@id': schema:caption
+    description: A caption for the figure.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    dom:
+      elem: figcaption
+    jats:
+      elem: caption
+    proptest:
+      min:
+        description: No caption
+        value: None
+      low:
+        description: Generate up to two arbitrary paragraphs.
+        strategy: option::of(vec_paragraphs(2))
+      max:
+        description: Generate up to three arbitrary, non-recursive, block nodes.
+        strategy: option::of(vec_blocks_non_recursive(3))
   content:
     '@id': stencila:content
     description: The content of the figure.
@@ -39,46 +88,3 @@ properties:
       max:
         description: Generate up to four arbitrary, non-recursive, block nodes.
         strategy: vec_blocks_non_recursive(4)
-  label:
-    '@id': stencila:label
-    description: A short label for the figure.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    proptest:
-      min:
-        description: No label
-        value: None
-      low:
-        description: Generate a simple label
-        strategy: option::of(r"[a-zA-Z0-9]+")
-      max:
-        description: Generate an arbitrary string
-        strategy: option::of(String::arbitrary())
-  labelAutomatically:
-    '@id': stencila:labelAutomatically
-    description: Whether the label should be automatically updated.
-    type: boolean
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-  caption:
-    '@id': schema:caption
-    description: A caption for the figure.
-    type: array
-    items:
-      $ref: Block
-    walk: true
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    dom:
-      elem: figcaption
-    proptest:
-      min:
-        description: No caption
-        value: None
-      low:
-        description: Generate up to two arbitrary paragraphs.
-        strategy: option::of(vec_paragraphs(2))
-      max:
-        description: Generate up to three arbitrary, non-recursive, block nodes.
-        strategy: option::of(vec_blocks_non_recursive(3))

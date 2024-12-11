@@ -18,6 +18,9 @@
   "html": {
     "special": true
   },
+  "jats": {
+    "special": true
+  },
   "markdown": {
     "derive": false
   },

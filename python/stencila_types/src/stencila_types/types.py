@@ -1760,9 +1760,6 @@ class Figure(CreativeWork):
 
     type: Literal["Figure"] = "Figure"
 
-    content: list[Block]
-    """The content of the figure."""
-
     label: str | None = None
     """A short label for the figure."""
 
@@ -1771,6 +1768,9 @@ class Figure(CreativeWork):
 
     caption: list[Block] | None = None
     """A caption for the figure."""
+
+    content: list[Block]
+    """The content of the figure."""
 
 
 @dataclass(kw_only=True, repr=False)

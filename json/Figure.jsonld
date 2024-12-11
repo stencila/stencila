@@ -552,6 +552,90 @@
       ]
     },
     {
+      "@id": "stencila:label",
+      "@type": "rdfs:Property",
+      "rdfs:label": "label",
+      "rdfs:comment": "A short label for the figure.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Parameter"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:labelAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelAutomatically",
+      "rdfs:comment": "Whether the label should be automatically updated.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "schema:caption",
+      "@type": "rdfs:Property",
+      "rdfs:label": "caption",
+      "rdfs:comment": "A caption for the figure.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:AudioObject"
+        },
+        {
+          "@id": "schema:ImageObject"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "schema:VideoObject"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
@@ -643,90 +727,6 @@
         },
         {
           "@id": "stencila:WalkthroughStep"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Block"
-      }
-    },
-    {
-      "@id": "stencila:label",
-      "@type": "rdfs:Property",
-      "rdfs:label": "label",
-      "rdfs:comment": "A short label for the figure.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Claim"
-        },
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:MathBlock"
-        },
-        {
-          "@id": "stencila:Parameter"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:labelAutomatically",
-      "@type": "rdfs:Property",
-      "rdfs:label": "labelAutomatically",
-      "rdfs:comment": "Whether the label should be automatically updated.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:MathBlock"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
-    },
-    {
-      "@id": "schema:caption",
-      "@type": "rdfs:Property",
-      "rdfs:label": "caption",
-      "rdfs:comment": "A caption for the figure.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:AudioObject"
-        },
-        {
-          "@id": "schema:ImageObject"
-        },
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "schema:VideoObject"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
         }
       ],
       "schema:rangeIncludes": {

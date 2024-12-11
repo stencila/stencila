@@ -16,6 +16,7 @@ use super::table_cell_type::TableCellType;
 #[derive(derive_more::Display)]
 #[display(fmt = "TableCell")]
 #[html(elem = "td")]
+#[jats(special)]
 pub struct TableCell {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
