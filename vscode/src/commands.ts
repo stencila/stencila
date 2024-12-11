@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { createModelChatPanel, createDocumentViewPanel } from "./webviews";
+import { createDocumentViewPanel } from "./webviews";
 
 /**
  * Register document related commands provided by the extension
@@ -245,13 +245,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "stencila.open-model-chat",
-      async (docUri) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-          vscode.window.showErrorMessage("No active editor");
-          return;
-        }
-        await createModelChatPanel(context, editor);
+      () => {
+        vscode.commands.executeCommand('workbench.view.extension.stencila-model-chat-sidebar')
       }
     )
   )

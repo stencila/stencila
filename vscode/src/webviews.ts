@@ -287,75 +287,103 @@ export function closeDocumentViewPanels() {
   documentViewPanels.clear();
 }
 
-export async function createModelChatPanel(
-  context: vscode.ExtensionContext,
-  editor: vscode.TextEditor,
-) {
-  const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
+/**
+ * Provider for the model chat webview panel
+ */
+export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvider {
+  public static readonly viewType = 'stencila-model-chat';
 
-  const panel = vscode.window.createWebviewPanel(
-    "model-chat-view",
-    "Model chat",
-    vscode.ViewColumn.Beside,
-    {
+  private view?: vscode.WebviewView
+  
+  private readonly extensionUri: vscode.Uri;
+
+  get webDist() { 
+    return vscode.Uri.joinPath(this.extensionUri, "out", "web")
+  };
+
+  constructor(extensionUri: vscode.Uri) {
+    this.extensionUri = extensionUri
+  };
+
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    _context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken
+  ) {
+    this.view = webviewView;
+
+    this.view.webview.options = {
       enableScripts: true,
-      retainContextWhenHidden: true,
-      localResourceRoots: [webDist],
-    }
+      localResourceRoots: [this.webDist],
+    };
+
+    this.view.webview.html = this.getHtml(webviewView.webview);
+
+    const disposables: vscode.Disposable[] = [];
+
+    this.view.webview.onDidReceiveMessage((message) => {
+      console.log('message recieved', message)
+    }, null, disposables);
+    
+    
+    this.view.onDidDispose(
+      () => disposables.forEach((disposable) => disposable.dispose())
+    );
+  };
+
+
+  private getHtml(webview: vscode.Webview) {
+    const webDist = this.webDist;
+    const viewCss = webview.asWebviewUri(
+      vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.css")
+    );
+    const viewJs = webview.asWebviewUri(
+      vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.js")
+    );
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+            <title>Stencila: Document Preview</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="${viewCss}">
+            <script type="text/javascript" src="${viewJs}"></script>
+            <style>
+              body, html {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-size: 16px;
+              }
+            </style>
+        </head>
+        <body>
+          <stencila-vscode-model-chat-view>
+            <p>I am a slotted element</p>
+            <p>I am another slotted element</p>
+          </stencila-vscode-model-chat-view>
+          <script>
+            const vscode = acquireVsCodeApi()
+          </script>
+        </body>
+      </html>
+    `  
+  };
+};
+
+/**
+ * Registers an instance of `StencilaModelChatWebviewProvider` to the current `ExtensionContext`
+ */
+export function registerModelChatView(context: vscode.ExtensionContext) {
+  const provider = new StencilaModelChatWebviewProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      StencilaModelChatWebviewProvider.viewType,
+      provider
+    )
   );
-
-  panel.iconPath = vscode.Uri.joinPath(
-    context.extensionUri,
-    "icons",
-    "stencila-128.png"
-  );
-
-  const viewCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.css")
-  );
-  const viewJs = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode-model-chat.js")
-  );
-
-  panel.webview.html = `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-          <title>Stencila: Document Preview</title>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-          <link rel="stylesheet" type="text/css" href="${viewCss}">
-          <script type="text/javascript" src="${viewJs}"></script>
-          <style>
-            body, html {
-              height: 100%;
-              margin: 0;
-              padding: 0;
-              font-size: 16px;
-            }
-          </style>
-      </head>
-      <body>
-        <stencila-vscode-model-chat-view>
-          <p>I am a slotted element</p>
-          <p>I am another slotted element</p>
-        </stencila-vscode-model-chat-view>
-        <script>
-          const vscode = acquireVsCodeApi()
-        </script>
-      </body>
-    </html>
-  `;
-
-
-  const disposables: vscode.Disposable[] = [];
-
-  panel.webview.onDidReceiveMessage((message: ReceivedMessage) => {
-    console.log('message recieved', message)
-  }, null, disposables)
-
-  return panel
-}
+};

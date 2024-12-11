@@ -29,7 +29,7 @@ export class VSCodeModelChatView extends LitElement {
     return html`
       <div class="flex flex-col w-full h-full font-sans">
         <stencila-ui-model-chat-header></stencila-ui-model-chat-header>
-        <div class="flex-grow bg-white my-4 p-4 overflow-y-auto">
+        <div class="flex-grow bg-gray-100 p-4 overflow-y-auto">
           <slot></slot>
         </div>
         <stencila-ui-model-chat-user-inputs></stencila-ui-model-chat-user-inputs>

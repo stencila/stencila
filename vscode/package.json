@@ -918,6 +918,11 @@
           "id": "stencila-sidebar",
           "title": "Stencila",
           "icon": "./icons/stencila-sidebar.svg"
+        },
+        {
+          "id": "stencila-model-chat-sidebar",
+          "title": "Model Chat",
+          "icon": "./icons/stencila-sidebar.svg"
         }
       ]
     },
@@ -940,6 +945,14 @@
           "id": "stencila-kernels",
           "name": "Kernels",
           "collapsed": true
+        }
+      ],
+      "stencila-model-chat-sidebar": [
+        {
+          "type": "webview",
+          "id": "stencila-model-chat",
+          "name": "",
+          "visibility": "visible"
         }
       ]
     },
