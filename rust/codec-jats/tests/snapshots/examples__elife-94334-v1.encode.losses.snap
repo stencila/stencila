@@ -1,0 +1,5 @@
+---
+source: rust/codec-jats/tests/examples.rs
+expression: info.losses
+---
+{}

@@ -1,0 +1,24 @@
+---
+source: rust/codec-jats/tests/examples.rs
+expression: info.losses
+---
+//article/back/ack: 1
+//article/back/app-group: 1
+//article/back/ref-list: 1
+//article/back/sec: 3
+//article/body/sec/@id: 4
+//article/body/sec/@sec-type: 4
+//article/body/sec/fig: 1
+//article/body/sec/p/xref: 73
+//article/body/sec/p/xref/@ref-type: 73
+//article/body/sec/p/xref/@rid: 73
+//article/body/sec/sec/@id: 15
+//article/body/sec/sec/fig: 4
+//article/body/sec/sec/fig-group: 5
+//article/body/sec/sec/p/xref: 112
+//article/body/sec/sec/p/xref/@ref-type: 112
+//article/body/sec/sec/p/xref/@rid: 112
+//article/body/sec/sec/table-wrap: 1
+//article/front/article-meta: 1
+//article/front/journal-meta: 1
+//article/sub-article: 5
