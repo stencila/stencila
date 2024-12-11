@@ -81,11 +81,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 }
 
                 fn to_html_parts(&self, _context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
-                    unreachable!()
+                    ("", Vec::new(), Vec::new())
                 }
 
                 fn to_html_attr(&self, _context: &mut HtmlEncodeContext) -> String {
-                    unreachable!()
+                    String::new()
                 }
             }
         };
