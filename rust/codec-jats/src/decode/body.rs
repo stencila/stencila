@@ -7,8 +7,8 @@ use codec::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Claim, ClaimType, CodeBlock,
         CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime, Duration, ExecutionMode,
-        Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link, List, ListItem, ListOrder,
-        MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
+        Figure, Heading, ImageObject, ImageObjectOptions, Inline, LabelType, Link, List, ListItem,
+        ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
         StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
@@ -224,7 +224,7 @@ fn decode_figure(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blo
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
-fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
+fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     let code = node.text().map(Cord::from).unwrap_or_default();
 
     let programming_language = node.attribute("language").map(String::from);
@@ -233,12 +233,54 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Bloc
         .attribute("executable")
         .map(|mode| ExecutionMode::from_str(mode).ok())
     {
-        record_attrs_lost(path, node, ["language", "executable"], losses);
+        let mut label_type = None;
+        let mut label_automatically = None;
+
+        if let Some(l_type) = node
+            .attribute("label-type")
+            .map(|label| LabelType::from_str(label).unwrap_or_default())
+        {
+            label_type = Some(l_type);
+        }
+
+        if let Some(label_auto) = node
+            .attribute("label-automatically")
+            .map(|auto| auto.parse().ok())
+        {
+            label_automatically = label_auto;
+        }
+
+        record_attrs_lost(
+            path,
+            node,
+            [
+                "language",
+                "executable",
+                "label-type",
+                "label-automatically",
+            ],
+            losses,
+        );
+
+        let label = node
+            .children()
+            .find(|child| child.tag_name().name() == "label")
+            .and_then(|node| node.text())
+            .map(String::from);
+
+        let caption = node
+            .children()
+            .find(|child| child.tag_name().name() == "caption")
+            .map(|node| decode_blocks(path, node.children(), losses, depth));
 
         return Block::CodeChunk(CodeChunk {
             code,
             programming_language,
             execution_mode,
+            caption,
+            label,
+            label_type,
+            label_automatically,
             ..Default::default()
         });
     }
