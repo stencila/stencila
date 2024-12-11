@@ -32,6 +32,7 @@ use super::thing_type::ThingType;
 #[display(fmt = "Table")]
 #[patch(authors_on = "self", authors_take = true)]
 #[html(special)]
+#[jats(special)]
 pub struct Table {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
