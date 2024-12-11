@@ -1,0 +1,4231 @@
+---
+source: rust/codec-jats/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Introduction"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "DNA double-strand breaks (DSBs) are one of the most deleterious forms of DNA damage ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). In response to DSBs, cells evoke the DNA damage checkpoint (DDC) to halt the metaphase to anaphase transition (known as the G"
+              }
+            },
+            {
+              "type": "Subscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "/M checkpoint). Activation of DDC gives cells an extended opportunity to repair DSBs and, therefore, prevents the inheritance of broken chromosomes, which can lead to aneuploidy, chromosome aberrations, and genome instability ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "In budding yeast, a single irreparable DSB is sufficient to trigger the DDC through the activation of Mec1, a PI3K-like kinase and homolog of the mammalian ATR ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Mec1 activation depends on 5’ to 3’ resection of the DSB ends that exposes single-stranded DNA (ssDNA), which is rapidly coated by the ssDNA binding protein, RPA (reviewed by "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). As resection proceeds, the PCNA-related 9-1-1 clamp, made up of Ddc1, Rad17, and Mec3, is loaded at the resected ss/dsDNA junction by the Rad24-Rfc2-5 clamp loader ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Mec1 is recruited to DSB sites via its obligate binding partner, Ddc2"
+              }
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "ATRIP"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " interacting with RPA-bound ssDNA ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Following its localization to DSBs, Mec1’s kinase activity is stimulated by Dbp11, Dna2, and the Ddc1 subunit of the 9-1-1 clamp ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Impairing Mec1’s kinase activity by the PI3K-like kinase inhibitor caffeine, by using temperature-sensitive Mec1 mutants or by degradation of Mec1’s binding partner Ddc2, rapidly extinguishes checkpoint signaling ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "), illustrating that continual Mec1 activity is needed to activate and sustain DDC. In contrast to Mec1, yeast’s other PI3K-like kinase, Tel1, the homolog of mammalian ATM, is dispensable for DDC activation and maintenance, as "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "TEL1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " deletion only shortens damage-induced cell cycle arrest by a few hours ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Following the induction of a DSB, numerous proteins are phosphorylated either directly by Mec1 or by the downstream effector kinases Rad53 and Chk1 (human CHK2 and CHK1), which are themselves Mec1 substrates ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Mec1 and Tel1 substrates also include histone H2A-S129, called γ-H2AX, which spreads on both sides of the DSB via two distinct mechanisms ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). γ-H2AX then recruits the scaffold protein Rad9, which brings the effector kinase Rad53 in close proximity to Mec1 for activation ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Activated Rad53 then amplifies the DDC signal through autophosphorylation in trans, also stimulating the transcription regulator Dun1 kinase, while restraining the degradation of Pds1 (securin) to inhibit mitosis ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "In addition to the DDC, unattached kinetochores can induce cell cycle arrest through the activation of spindle assembly checkpoint (SAC) (reviewed by "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Several studies have suggested a crosstalk between the SAC and the DDC. For example, deletion of SAC components "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "MAD1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " or "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "MAD2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " shortens the cell cycle arrest in response to DNA-damaging agents in the absence of DDC genes "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "RAD9"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " and "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "RAD24"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Furthermore, "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "MAD1, MAD2,"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " or "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "BUB1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " mutants arrest for less time than wild-type cells following the induction of a single persistent DSB ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). In mouse oocytes, inhibition of the SAC overrides the activation of DDC-mediated metaphase arrest during the first meiotic division ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). The mitotic exit network (MEN) is another signaling cascade activated during anaphase to promote cell cycle re-entry "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; therefore, defects in MEN lead to mitotic arrest in late anaphase ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). In addition to SAC, MEN also communicates with the DDC in response to DNA damage. For instance, a key regulator of MEN, the heterodimer Bub2/Bfa1 complex, is modified in a Rad53 and Dun1-dependent manner following damage ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Supporting the idea of crosstalk between MEN and DDC, our lab had shown that deletion of "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "BUB2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " shortened the duration of the arrest in response to a single unrepaired DSB ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Here, we present new mechanistic insights into the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "maintenance"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " of the cell cycle arrest following DNA damage by employing the auxin-inducible degron (AID) strategy to conditionally deplete DDC and SAC proteins. An advantage of the AID system, compared to null or temperature-sensitive mutants, is that AID-tagged proteins retain wild-type function until the addition of the plant hormone auxin (indole-3-acetic acid [IAA]), which triggers rapid degradation of AID-tagged proteins in the presence of the TIR1 E3 ubiquitin ligase ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). To investigate how conditional depletion of DDC or SAC proteins alters the maintenance of cell cycle arrest, we engineered a yeast strain that permanently arrests due to the presence of two persistent DNA breaks. We find that the maintenance of the cell cycle arrest requires constant presence of some, but not all, checkpoint activation proteins. Surprisingly, we find that the DDC proteins that are essential to induce the cell cycle arrest and sustain it at the early stages of the arrest become dispensable nearly 15 hr after DNA damage induction. Conversely, SAC proteins are dispensable for the establishment and the initial steps of the cell cycle arrest but become essential at later stages of the DNA damage-dependent cell cycle arrest. Based on these findings, we posit that prolonged cell cycle arrest in response to DNA damage is sustained by both SAC and DDC; however, each checkpoint sustains the arrest at different stages."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Results"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Measuring DNA damage checkpoint arrest and maintenance"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To study the role of DDC initiation proteins in the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "maintenance"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " of the cell cycle arrest, we utilized the well-characterized strain JKM179 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), in which the site-specific HO endonuclease is expressed from a "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "GAL1-10"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " promoter ("
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "GAL-HO"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") to induce a single DSB within the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAT"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " locus on chromosome III (referred to as the 1-DSB strain). In this 1-DSB strain, we inserted an additional HO cleavage site 52 kb from the centromere on chromosome IV to induce another DSB (referred to as the 2-DSB strain) ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). At both loci, HO-mediated cleavage after galactose induction is nearly complete within 30–45 min ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In both strains, we also deleted the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "HML"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "HMR"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " donors to prevent repair by homologous recombination. With continuous "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "HO"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " expression, nonhomologous end-joining occurs in only 0.2% of these cells ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), thus both DSBs are essentially irreparable."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Following the induction of 2 DSBs, we monitored cell cycle arrest in four ways: (1) with an adaptation time-course assay where we micromanipulated individual G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells on agar plates and scored the percentage of cells that are able to re-enter mitosis ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), (2) by monitoring the percentage of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M-arrested cells in liquid culture based on cell morphology ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), (3) by monitoring nuclear division by DAPI staining of nuclei, and (4) by assaying Rad53 phosphorylation by western blot ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "In both 1-DSB and 2-DSB strains, 4 hr after the induction of DNA damage, >90% of cells arrested at G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M as determined by an adaptation assay ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") and DAPI staining ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In agreement, western blot analysis showed that Rad53 was hyperphosphorylated ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), demonstrating that DDC was fully activated in both these strains after DNA damage. By 12–15 hr after the induction of a single persistent DSB, most 1-DSB cells adapted; that is, they escaped the G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest and re-entered mitosis ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). The timing of Rad53 dephosphorylation following the induction of a single irreparable DSB correlated with the timing of adaptation and escape from the G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), as previously shown ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") In contrast, in the 2-DSB strain, over 90% of cells remained permanently arrested in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M with persistently hyper-phosphorylated Rad53 throughout the 24 hr time course ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). We leveraged this permanent cell cycle arrest observed in the 2-DSB strain to study how the DNA damage-induced cell cycle arrest is maintained once it had been established."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Analysis of checkpoint factors required for checkpoint maintenance"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "We used the AID system ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") to conditionally deplete DDC proteins after G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest had been established to study the maintenance of cell cycle arrest. To this end, we appended an AID tag with nine copies of the c-MYC epitope tag to the C-terminus of Ddc2, Rad9, Rad24, and Rad53, which are all components of the Mec1 signaling cascade ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Hereafter, all AID-tagged proteins will be designated simply as -AID, for example, Ddc2-9xMyc-AID as Ddc2-AID."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "AID tagging of DDC proteins did not alter the establishment of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest; however, "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD24-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD53-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strains are hypomorphic and adapted 24 hr after DNA damage in the absence of IAA, while 2-DSB wild-type counterpart cells remained fully arrested ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). This premature escape from the cell cycle arrest was dependent on the presence of TIR1 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") and is likely due to low levels of IAA as a natural intermediate in amino acid biosynthesis ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). IAA treatment prior to the induction of 2 DSBs in a control strain, which does not contain any AID-tagged proteins, did not alter the prolonged cell cycle arrest following DNA damage ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), illustrating that IAA treatment by itself does not alter response to DNA damage. However, rapid degradation of Ddc2-AID, Rad9-AID, Rad24-AID, and Rad53-AID by IAA treatment 2 hr prior to the induction of DSBs largely prevented cell cycle arrest as well as DDC signaling, evident from the absence of detectible Rad53 hyperphosphorylation ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). These results underline the importance of Ddc2, Rad9, Rad24, and Rad53 in initiating DDC signaling and cell cycle arrest in response to DNA damage, agreeing with previous reports ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To test whether the DDC proteins are required for the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "maintenance"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " of the cell cycle arrest following DNA damage, we employed the AID-tagged strains with 2 DSBs and depleted the AID proteins 4 hr "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "after"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " inducing DSBs. In the absence of IAA, "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DDC2-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", or "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD24-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strains all activated the DDC signaling 4 hr after DSB induction, with 89–99% of cells arrested in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), demonstrating that AID tagging of these proteins did not impair their function. Within 1 hr after IAA treatment, Ddc2-AID, Rad9-AID, or Rad24-AID were all rapidly depleted, which caused a gradual Rad53 dephosphorylation, as detected by western blotting ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Moreover, agreeing with the loss of Rad53 phosphorylation, IAA treatment of DDC-AID strains triggered release from G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest, while the untreated control cells remained fully arrested. DAPI staining of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DDC2-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells after IAA treatment revealed the accumulation of large-budded cells with two distinct DAPI signals, indicating that cells started to progress into anaphase following Ddc2 depletion ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). These findings illustrate that the upstream DDC factors Ddc2, Rad9, and Rad24 are essential for initiating and sustaining the cell cycle arrest in response to DNA damage."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Compared to "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DDC2-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID,"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " or "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD24-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", we found that "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD53-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells maintained G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest for an additional 4 hr after complete depletion of Rad53 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In contrast to Ddc2-AID depletion, cell cycle analysis by DAPI staining showed that Rad53 depletion led to a more gradual transition into late anaphase ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). This delay after the conditional depletion of Rad53 could be due to continued signaling from downstream targets activated by Rad53 kinase, such as Dun1, or from other targets of the Mec1 kinase, downstream of Ddc2, Rad9, and Rad24."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Chk1 sustains checkpoint signaling in the absence of Ddc2, Rad9, Rad24, or Rad53"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Rad53 and Chk1 kinases both contribute to the maintenance of the cell cycle arrest after DNA damage ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Agreeing with previously published reports ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), we find that Chk1 is involved in maintaining the permanent arrest following the induction of 2 DSBs. Deletion of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CHK1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " did not impair the induction of cell cycle arrest ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "); however, it inhibited the permanent cell cycle arrest as >95% of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "chk1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "∆ cells adapted by 24 hr ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). We then asked whether the delay in cell cycle re-entry observed when Rad53 was degraded was due to Chk1’s independent role in maintaining arrest. To test this, we induced 2 DSBs in "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD53-AID chk1∆"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells for 4 hr and then added IAA to deplete Rad53. Compared to the depletion of Rad53-AID alone ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), the depletion of Rad53-AID in the absence of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CHK1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " led to a significant decrease in the number of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M-arrested cells within 1 hr of IAA treatment ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). These results suggest that Chk1 functions in conjunction with Rad53 to sustain cell cycle arrest in response to DNA damage."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To explore further how Chk1 signaling contributes to the maintenance of DDC-dependent cell cycle arrest, we depleted DDC factors Ddc2-AID, Rad9-AID, or Rad24-AID in "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "chk1∆"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells 4 hr after the induction of DSBs. Depletion of these upstream factors in the absence of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CHK1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " led to a more rapid release from the cell cycle arrest ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") compared to the depletion of DDC factors alone ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Collectively, these findings demonstrate that Chk1 plays a key role in maintaining cell cycle arrest in response to DNA damage."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Tel1 is thought to play a minor role in response to DSBs as the establishment of DSB-induced cell cycle arrest normally depends entirely on Mec1 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). However, previous studies have shown that, in addition to Mec1, Tel1 can also target Chk1 for phosphorylation ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Additionally, when the initial 5’ to 3’ end resection of DSB ends is impaired, Tel1 alone can activate the DDC ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). To study how Tel1 contributes to the maintenance of the permanent cell cycle arrest, we deleted "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "TEL1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " in 2-DSB strain. Unlike "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "chk1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "∆ with 2 DSBs, a "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "TEL1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " deletion did not affect either the establishment of the DDC or the maintenance of checkpoint arrest up to 24 hr ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), agreeing with previously published results ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Taken together, these data illustrate that DNA damage-dependent cell cycle arrest is initiated by Mec1 branch of the DDC via Ddc2, Rad9 and Rad24, and the cell cycle arrest is largely sustained by the downstream kinases Rad53 and Chk1, with minor contributions from other downstream targets of DDC."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dun1 is required for the initiation but not for the maintenance of cell cycle arrest"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Our findings show that a small number of cells remain arrested in the absence of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CHK1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " when Rad53 is depleted. We posited that Rad53 could modulate the expression of other DDC factors, which, in turn, sustain the cell cycle arrest in the absence of Rad53 and Chk1. One candidate protein is Dun1, a Rad53-activated protein kinase that regulates transcription in response to DNA damage ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Deleting "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DUN1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " significantly impaired checkpoint activation: compared to the wild-type control strain, only 60% of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DUN1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells arrested in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M 4 hr after the DSB induction, and only 25% remained in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest at 7 hr ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Additionally, depletion of Dun1-AID 4 hr after damage induction did not cause a significant change in the proportion of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrested in these otherwise wild-type cells, nor did it affect Rad53 phosphorylation ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "); however, deleting "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CHK1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " triggered an exit from checkpoint arrest following the depletion of Dun1-AID 4 hr after DSB induction ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), further demonstrating the role of Chk1 in checkpoint maintenance. These results suggest that Dun1 is required for the initiation of DDC and concomitant cell cycle arrest but is dispensable for maintenance."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Ddc2 and Rad53’s role in maintaining arrest become dispensable in extended G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Previously, we reported that Ddc2 protein abundance initially increases over time as after the induction of a single DNA break, which is followed by near-complete depletion of Ddc2 around the time that cells adapt ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Given that Ddc2 overexpression leads to permanent cell cycle arrest following DNA damage ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), we concluded that Ddc2 abundance is intimately tied to the duration of the arrest. Here, we asked whether the presence of 2 DSBs instead of a single DSB would lead to an increase in Ddc2 protein abundance and, therefore, the permanent cell cycle arrest. We examined the levels of Ddc2 in both 1- and 2-DSB strains following DNA damage but did not detect a difference in the changes of abundance of Ddc2 protein ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), even though cells adapt to 1 DSBs and remained terminally arrested after 2 DSBs ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "If Ddc2 activity is essential to maintain the cell cycle arrest in the 2-DSB strain, then degradation of Ddc2-AID around the time wild-type cells adapt to a single DNA break should interrupt the permanent cell cycle arrest and trigger cell cycle re-entry. We find that complete depletion of Ddc2-AID 15 hr after the induction of 2 DSBs leads to diminished Rad53 hyperphosphorylation ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). However, surprisingly, Ddc2-AID degradation did not alter the percentage of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M-arrested cells even 9 hr after Ddc2 depletion ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Furthermore, despite the diminished Rad53 phosphorylation, Ddc2-AID cells mostly remained arrested in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M after the depletion of Ddc2-AID at 15 hr as illustrated by DAPI staining ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), in contrast to Ddc2-AID depletion soon after induction of 2 DSBs, which causes cells to rapidly resume mitosis ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). These results hint that the maintenance of the permanent cell cycle arrest in response to 2 DSBs at later stages could be independent of the DDC signaling."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "We then asked whether other DDC factors such as Rad9, Rad24, and Rad53 are dispensable for the prolonged arrest following the induction of 2 DSBs. However, as noted above, AID-tagged DDC activation proteins were unable to maintain this prolonged arrest in a 2-DSB strain even in the absence of IAA, which precludes their use in this analysis. To be able to study the contribution of these DDC factors in prolonged cell cycle arrest, we turned to the AID version 2 (AID2) system ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). To this end, we integrated a TIR1-F74G point mutation and used 5-phenyl-IAA (5-Ph-IAA) instead of IAA to lower the basal degradation of AID-tagged proteins. Switching to the AID2 system did not fully restore function to "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD24-AID2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strains as they mostly adapted after 24 hr after the exposure to DNA damage, but 87% of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD53-AID2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells remained in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest at 24 hr ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Using Rad53-AID2, we then asked whether Rad53 is required for extended G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest in response to 2 DSBs. Rapid depletion of Rad53-AID2 with 5-Ph-IAA 4 hr after DSB induction led cells to escape G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest, but as with the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD53-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strain, we detected a 4 hr delay in cell cycle re-entry, confirming our previous results ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). However, degradation of Rad53-AID2 15 hr after DSB induction did not prompt cell cycle re-entry even 9 hr after complete depletion of Rad53 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), akin to what we observe following the depletion of Ddc2-AID ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Because TIR1-mediated degradation of Rad9-AID even without auxin caused most cells to adapt 24 hr after inducing DNA damage, we asked whether overexpression of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " could overcome this effect. We added a "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "TRP1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " centromere-containing plasmid copy of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " with its endogenous promoter (pRAD9-AID) to our 2-DSB "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "RAD9-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strain. Degradation of Rad9-AID by IAA 15 hr after DSB induction did not trigger release of cells from G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). However, unlike degradation of Ddc2-AID or Rad53-AID2 in this same situation, Rad53 remained hyperphosphorylated up to 9 hr after adding IAA ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Therefore, while the DDC proteins Ddc2, Rad9, and Rad53 are required for the maintenance of checkpoint arrest at early stages, surprisingly, they are dispensable for prolonged arrest following induction of 2 DSBs. These results suggest that prolonged cell cycle arrest is maintained by signaling proteins other than the Mec1 branch of the DDC."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Spindle assembly checkpoint proteins Mad1 and Mad2 are required for prolonged arrest"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "In addition to the DDC, the SAC maintains genomic integrity by halting mitosis at the metaphase/anaphase transition in response to unattached kinetochores, to ensure accurate chromosome segregation (reviewed by "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). We have previously shown that inactivation of the SAC by a "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAD1, MAD2,"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " or "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAD3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " deletion shortened the duration of the cell cycle arrest induced by a single DSB ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). To test whether SAC is involved in enforcing and sustaining permanent cell cycle arrest in response to 2 DSBs, we deleted "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAD2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " in the 2-DSB strain. Adaptation assay results illustrate that nearly all "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "mad2∆"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells arrested at 4 hr but began to adapt between 12 and 15 hr after DNA damage ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). To explore whether deletion of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAD2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " can antagonize the permanent cell cycle arrest due to hyperactive DDC signaling, we overexpressed Ddc2 in "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "mad2∆"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " 2-DSB cells and assayed mitotic progression. We find that both in 1-DSB and 2-DSB strains, "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAD2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " deletion leads to cell cycle re-entry even when Ddc2 is overexpressed ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Based on these data, we concluded that mitotic inhibition is enforced by the SAC proteins as DDC factors become dispensable 12–15 hr after the induction of damage."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "If SAC proteins are only required at later stages of cell cycle arrest when DDC proteins are dispensable, then the depletion of SAC protein Mad2 or its binding partner Mad1 soon after the induction of DNA damage should not affect DDC or cell cycle arrest up to 12–15 hr. In agreement with this idea, after Mad1-AID or Mad2-AID depletion at 4 hr, cells remained arrested up to 15 hr following DSB induction, with persistent Rad53 hyperphosphorylation ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Strikingly, these cells eventually re-entered the cell cycle by 24 hr (20 hr after depletion of Mad1 and Mad2). It is notable that cells resumed cell cycle progression despite persistent Rad53 hyperphosphorylation. This result reinforces our conclusion that Mad1 and Mad2 are not required for the activation and initial maintenance of arrest but are essential for prolonged cell cycle arrest in response to 2 DSBs. These data also suggest that in the absence of Mad1 or Mad2 cells become insensitive to the arrest normally imposed by DDC."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To monitor the effect of SAC proteins Mad1 and Mad2 at late stages of prolonged cell cycle arrest when DDC signaling becomes dispensable, we depleted Mad1-AID or Mad2-AID 15 hr after DSB induction. Following the depletion of Mad1-AID and Mad2-AID, we observed an immediate reduction in the percentage of G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M-arrested cells ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). DAPI staining confirmed that Mad1-AID or Mad2-AID-deplete cells re-entered the cell cycle, evident from an increase in the G1 cell population as well as an increase in percentage of large-budded cells with 2 DAPI foci ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Similar to what we observe following Mad1-AID and Mad2-AID depletion 4 hr after damage, this cell cycle re-entry occurred despite persistent Rad53 hyperphosphorylation ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To show that the late stages of the permanent cell cycle arrest in response to 2 DSBs is independent of DDC and dependent on SAC, we inactivated DDC by depleting Ddc2-AID together with Mad2-AID. Although the simultaneous depletion of Ddc2-AID and Mad2-AID led to Rad53 dephosphorylation as detected by western blotting, we found no statistically significant difference in the percentage of cells escaping G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest in response to "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DDC2-AID MAD2-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " double depletion strain compared to Mad2-AID alone ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Collectively, our findings indicate that DDC initiates and sustains the cell cycle arrest approximately for 15 hr following DNA damage, but after that DDC becomes dispensable and the permanent arrest is sustained by SAC."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Mitotic exit network proteins Bfa1 and Bub2 have different roles in the DDR"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To investigate the possible contribution of the MEN to the maintenance of the extended cell cycle arrest in response to 2 DSBs, we appended AID tags to upstream MEN proteins Bub2 and Bfa1. Degradation of Bub2-AID both 4 hr and 15 hr after induction of 2 DSBs suppressed G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), akin to what we observe following Mad1-AID or Mad2-AID depletion ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In contrast to Bub2-AID, we see that Bfa1-AID degradation did not trigger a significant release from G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest and did not alter the phosphorylation of Rad53 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Analysis of cell cycle distribution with DAPI staining showed that neither the inactivation of Bub2 nor Bfa1 led to the accumulation of a significant number of cells with two separate DAPI-staining nuclei, which is indicative of mitotic exit defects ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). These results imply that although Bub2 and Bfa1 have interdependent functions for MEN signaling, they carry out independent roles in response to DNA damage."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The location of the second DSB site relative to the centromere affects prolonged arrest"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "In contrast to the permanent cell cycle arrest we observe in response to 2 DSBs, a recent study using two HO-mediated persistent DSBs showed that cells in fact adapt ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). One difference between these two 2-DSB systems is the relative position of the DSBs, which might affect how SAC components become engaged, and thus might determine the extent of mitotic arrest. Supporting this, we previously showed that deleting "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " in a strain with a DSB at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAT"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " on chromosome III eliminated the Mad2-dependent delay in adaptation, but deleting "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " when the DSB was on chromosome VI had no effect ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In our adaptation-defective 2-DSB strain, the DSBs are located at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAT"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (86 kb from "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") and near "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "FAB1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (42 kb from "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN6"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Sadeghi et al. employed two strains, both of which escape prolonged G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest, with at least one DSB site far from its centromere; at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "URA3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (36 kb from its centromere) and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "ADH1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (170 kb) or at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MIC2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (32 kb) and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DLD2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (316 kb)."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To investigate whether the distance between the second DSB site and the centromere would affect whether cells will remain permanently arrested, we created several strains that contain a second cut site at various distances from the centromere, in addition to the cut site at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "MAT"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " on chromosome III ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Strain YSL53, which has a second DSB at chromosome V, 86 kb away from "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), and strain DW417, which has a second DSB 52 kb away from "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN6"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), mostly remained in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest 24 hr after the induction of DNA breaks. However, in GEM188, which had a second cut site 230 kb away from the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", only 37% of cells remained in G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M arrest by 24 hr. Thus, the increased distance of the second DSB site to the centromere in GEM188 appears to have led to a less robust triggering of the SAC compared with YSL53 and DW417."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Our previous data have suggested that the involvement of the SAC in prolonging DSB-induced arrest was dependent on centromere sequences on the broken chromosome and involved post-translational modification of chromatin by the Mec1- and Tel1-dependent phosphorylation of the histone H2A ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). In budding yeast, histone H2B is also targeted by DDC kinases upon DNA damage ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). To test whether the presence of these chromatin modifications around centromeres would be sufficient to elicit a SAC response, we examined cell cycle progression in strains in which both histone H2A and/or histone H2B genes were mutated to their putative phosphomimetic forms (H2A-S129E and H2B-T129E). We note that although histone H2A-S129E is recognized by an antibody specific for the phosphorylation of histone H2A-S129 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "), the mutation to S129E may not be fully phosphomimetic. As shown in "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", there was no effect on the growth rate of either the single or the double mutants, suggesting that cells did not experience a SAC-dependent delay in entering mitosis because of these modifications."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Discussion"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Here, we studied how cells maintain cell cycle arrest following DNA damage by using a yeast strain that permanently halts cell cycle with two persistent DNA breaks. We find that most of the DDC signaling proteins must remain active to maintain G"
+              }
+            },
+            {
+              "type": "Subscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "/M arrest, highlighting the importance of continuous checkpoint signaling in preventing premature mitotic entry and therefore, genome instability ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Phosphorylation of Rad53 by Mec1 is tightly linked to cell cycle arrest following DNA damage ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). While Rad53 is also shown to be targeted by Tel1, deleting "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "TEL1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " did not affect the prolonged checkpoint arrest in a 2-DSB strain. This finding supports the previous reports showing that cell cycle arrest in response to enzymatic DNA breaks is largely orchestrated by Mec1, with a minor contribution from Tel1 ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Here, we add that Mec1 inactivation via Ddc2 depletion, 4 hr after DSB induction, results in rapid resumption of the cell cycle, most likely through Ptc2, Ptc3, Pph3, and Glc7-dependent dephosphorylation and inactivation of the DDC signaling protein Rad53 ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). However, the regulation and consequences of Rad53 phosphorylation are apparently more complex, given that cells can re-enter mitosis in the presence of persistent Rad53 phosphorylation when SAC proteins Mad1 and Mad2 are depleted (see below)."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Mec1 activation in the S and G"
+              }
+            },
+            {
+              "type": "Subscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " cell cycle phases is achieved by at least two converging mechanisms; first, through Ddc2 binding to RPA-coated ssDNA created the 5’ to 3’ resection of the DSB ends, and second, through binding of the 9-1-1 clamp subunit Ddc1 ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Before Ddc1 can activate Mec1, the 9-1-1 checkpoint clamp must be loaded by the clamp loader, which consists of Rad24-Rfc2-5 ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). DDC activation largely depends on a functional clamp loader as cells lacking "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "RAD24"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " proceed directly into mitosis in response to a single DSB, with only a brief delay ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). If the clamp loader acts just once to load the 9-1-1 clamp and the clamp then slides away from the DSB as DNA is resected, then removal of Rad24 after the checkpoint had been robustly activated should not perturb arrest. However, we find that Rad24 depletion leads to rapid cell cycle resumption in response to 2 DSBs, suggesting that multiple 9-1-1 clamp loading events are required to sustain extended cell cycle arrest. We posit that 9-1-1 clamp may require continuous reloading as the 5’ end is being continuously resected by Exo1 and Sgs1-Rmi1-Top3-Dna2 exonucleases ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The adaptor kinase Rad9, downstream of Mec1 and Tel1, is responsible for scaffolding and activating the effector DDC kinases Rad53 and Chk1 ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Here, we show that conditional depletion of Rad9 shortly after the induction of 2 DSBs prompts mitotic re-entry and terminates the DDC, evident from rapid Rad53 dephosphorylation. Thus, Rad9 is required for continued maintenance of Rad53 phosphorylation."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Depletion of Rad53-AID 4 hr after inducing 2 DSBs triggers release of cells from G"
+              }
+            },
+            {
+              "type": "Subscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "/M arrest, albeit resumption of mitosis is delayed by 4 hr compared to resumption of mitosis seen when upstream DDC factors Ddc2, Rad9, or Rad24 are depleted. We discovered that this residual delay in mitotic re-entry is dependent on Chk1 signaling. We postulate that Chk1 may delay cell cycle re-entry in the absence of Rad53 by phosphorylating and stabilizing Pds1 ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Agreeing with previously published work ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "), we find that deleting "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "DUN1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " resulted in a less robust DDC activation and a shortened G"
+              }
+            },
+            {
+              "type": "Subscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "/M arrest. However, unlike the depletion of other DDC proteins examined in this study, depletion of Dun1-AID 4 hr after DSB induction was not sufficient to promote cell cycle re-entry. It is possible that the transcripts upregulated by Dun1 after DNA damage ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ") are stable for several hours and are sufficient to sustain the arrest even in the absence of Dun1. We also find that cell cycle arrest upon depletion of Dun1 is Chk1-dependent. These results are in consistent with Dun1’s role in stabilizing Pds1 through a Chk1-independent mechanism ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ")."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Here, we show that prolonged cell cycle arrest following induction of 2 DSBs becomes independent of DDC proteins Ddc2, Rad9, and Rad53, but dependent on SAC proteins Mad1 and Mad2. Depletion of Mad1 or Mad2 4 hr after DSB induction did not immediately result in cell cycle re-entry, but around 15 hr cells began to resume cell cycle. The timing of cell cycle re-entry for Mad1/2-depleted cells following the induction of 2 DSB is about the same as the timing of cell cycle re-entry in response to a single DNA break in wild-type cells. Even when DDC signaling is artificially upregulated via Ddc2 overexpression, cells re-enter mitosis if Mad2 is depleted. Surprisingly, in the absence of Mad1 or Mad2 cells escaped arrest despite persistent Rad53 hyperphosphorylation, suggesting that cells become ‘deaf’ to the DDC signal once SAC takes over."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Previous work indicates that SAC proteins contribute to the DNA damage response ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Work from our lab has suggested that γ-H2AX spreading from a DSB to the centromere of the same chromosome might impair kinetochore attachment and thus trigger a SAC response ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). SAC signaling is not sufficient to elicit a permanent cell cycle arrest in response to a single DSB; however, we find that inducing 2 DSBs, each within 100 kb of its centromere, elicits a SAC-dependent permanent arrest. As strength of the SAC has a direct relation to the number of unattached kinetochores ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "), the addition of a second DSB on another chromosome might trigger a stronger SAC response and result in a permanent cell cycle arrest."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The fact that not all combinations of 2 DSBs produce permanent arrest ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ") can be explained by the idea that the distance between the DSB site and its corresponding centromere is an important determinant of the extent of cell cycle arrest. We previously observed that a strain with a single DSB 200 kb away from the centromere had shorter cell cycle arrest compared to a strain with a DSB 86 kb away from the centromere ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Here, we provide further evidence suggesting that the distances between DSBs and their corresponding centromeres determine whether SAC will be fully activated to prolong the arrest. Our previous results showed that when "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "MAD2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " was deleted, the length of cell cycle arrest was the same in strains with a single DSB, irrespective of the DSB’s distance to its centromere ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). We suggest that the strains used by "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " do not remain permanently arrested because one of the two DSBs in their strains is sufficiently far from its centromere to fully trigger SAC."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "In addition to blocking the metaphase to anaphase transition, components of the SAC also block mitotic exit (reviewed by "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). We examined the role of Bub2/Bfa1 heterodimer, the most upstream components of the MEN pathway ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Much like Mad1 and Mad2, we found that neither Bub2 nor Bfa1 was required for the establishment of cell cycle arrest in response to DNA damage; but our study revealed a surprising result: Bub2, but not its partner Bfa1, is essential to prolong cell cycle arrest, indicating that Bub2 has a Bfa1-independent role."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "By using conditional depletion of various proteins that contribute to cell cycle arrest, we show that the establishment, maintenance, and inactivation stages of DNA damage-provoked cell cycle arrest involve different sets of factors following DNA damage. After the DNA damage checkpoint is established, its maintenance proves to be divided into two distinct phases. Arrest up to about 15 hr requires the constant presence of most of the identified DDC proteins, including Ddc2, Rad9, Rad24, and Rad53, with Dun1 playing an important but nonessential role. Although Chk1 was not required either to establish or initially to maintain cell cycle arrest, its absence shortened arrest, most notably when Rad53 was depleted. Surprisingly, neither Ddc2, Rad9, nor Rad53 (and we suggest likely Rad24) are necessary for the prolongation of cell cycle arrest lasting longer than 15–24 hr. Instead, this prolonged arrest is enforced by SAC proteins Mad1, Mad2, and Bub2."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Materials and methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Yeast strain and plasmid construction"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "All AID-tagged mutant strains were derived from a modified version of strains JKM179. To create the strain with two HO cleavage sites (DW417), an HO-cut site, designated HOcse6, with an adjacent HPH marker was integrated into chromosome VI, 52 kb from the centromere. To create AID strains, we first integrated osTIR1 at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "URA3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " after digesting plasmid pNHK53 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Stu"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "I. To integrate osTIR1-F74G at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "URA3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", the plasmid pMK420 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") was digested with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Stu"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "I. For degron-tagging of DDC proteins, AID-9xMyc (AID) PCR products were generated with mixed oligos with homology to the C-terminal end of the corresponding open-reading frames by using plasmids pKan–AID–9xMyc (pJH2892) or pNat–AID–9xMyc (pJH2899) as templates ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Deletion of ORFs and insertion of AID tags were introduced with the one-step PCR homology cassette amplification and the standard yeast transformation method ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Cas9 editing was done by inserting a gRNA into plasmid bRA90 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") and co-transformed into our strain of interest with a donor sequence. Transformants were verified by PCR, western blotting, and sequencing. To create strain GEM188 with 2-DSBs, we inserted a second HO-cut site into JKM179 at "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "LYS2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " locus by CRISPR/Cas9 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") using a synthetic DNA template with 117 bp consensus HO recognition site. Non-phosphorylatable and phosphomimetic mutants of H2A were generated in a JKM179 background using CRISPR/Cas9 to target HTA1 and HTA2 genes at serine 129 and 80 nt templates to mutate serine to either alanine (non-phosphorylatable) or glutamic acid (phosphomimetic). H2B mutants were generated in a JKM179 background using CRISPR/Cas9 to target "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "HTB1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "HTB2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " genes at threonine 129 with 80 nt repair templates to mutate threonine to either alanine or glutamic acid."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "CEN/ARS"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " plasmid pFZ052-"
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "pRAD9-AID-*9Myc::Trp1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (pRAD9-AID) was obtained by digesting the plasmid pFL36.1 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "SmaI"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "AscI"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " to excise the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " HA tag on the C-terminal end of Rad9. A "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9xMyc-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " PCR product generated from the plasmid pJH2892 (pKan-9xMyc-AID) was cut with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "AscI"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and sticky/blunt end cloned into the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "SmaI-AscI"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "-digested pFL36.1 to add the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "9xMyc-AID"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " tag to the C-terminal end of Rad9. pRad9-AID was retained by growing cells in a Trp- media with 2% raffinose. The primers used for strain and plasmid creation are listed in the Key Resources Table, "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", and "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Plasmids are listed in the Key Resources Table."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Culturing conditions, HO expression, and auxin treatment"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Strains containing degron fusions and galactose-inducible HO were cultured using standard procedures. Briefly, a single colony grown on a YEPD plate (1% yeast extract, 2% peptone, 2% dextrose, 2.5% agar) was inoculated in 5 ml YEP-lactate (YEP containing 3% lactic acid) and was grown for ~15 hr at 30°C with agitation. Next day, the overnight culture was used to inoculate a 500–100 ml of YEP-lactate culture such that the cell density reached an OD"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "600"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " of 0.5 the following day. After harvesting 15 ml liquid culture before treatment, HO expression was induced by galactose treatment with a 2% final concentration. Then, cultures were split either at 4 hr or 15 hr following induction with galactose. The split cultures were treated either with IAA or 5-Ph-IAA or an equivalent volume of 200 proof ethanol. IAA (Sigma-Aldrich, I3750) was resuspended in ethanol for a 500 mM stock and used at a 1 mM final concentration both for liquid media and for agar plates. 5-Ph-IAA was dissolved in ethanol for a 1 mM stock and used at a final concentration of 1 µM. 15 ml of liquid culture were harvested at various timepoints and prepared for microscopy or western blot analysis as described below."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To measure growth rate, strains were grown in 5 ml of YEPD with 2% dextrose at 30°C with an initial OD"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "600"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " of 0.1. The OD was measured 3, 5, 7, and 10 hr after the initial OD measurement using a Thermo Scientific NanoDrop 2000c Spectrophotometer. To measure the OD, 50 µl of culture was added to 950 µl of fresh YPD in a cuvette at a dilution of 1:20."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "TCA protein extraction"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Protein extracts were prepared for western blot analysis by TCA extraction protocol as previously explained ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Briefly, 15 ml of liquid culture was spun down and the media was discarded. Harvested cells were incubated on ice in 1.5 ml microcentrifuge tubes with 20% TCA for 20 min. Cells were washed with acetone and the pellet was air-dried. 200 µl of MURBs buffer (50 mM sodium phosphate, 25 mM MES, 3 M urea, 0.5% 2-mercaptoethanol, 1 mM sodium azide, and 1% SDS) was added to each sample with acid-washed glass beads. Cells were lysed by mechanical shearing with glass beads for 2 min. Crude cell lysates were harvested by poking a hole in the bottom of the 1.5 ml microcentrifuge tube and spinning the tubes on a 15 ml conical tube. Samples were boiled at 95°C for 10 min prior to loading on SDS-PAGE."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Western blotting"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "8–20 µl of denatured protein samples prepared by TCA extraction were loaded onto a 10% or 8% SDS-PAGE gels. Proteins were separated by applying constant voltage at 90 V until the 37 kDa protein standard band reached the bottom of the gel. Gels were transferred to an Immun-Blot PVDF membrane (Bio-Rad) using a wet transfer apparatus set to 100 V constant voltage for 1 hr at 4°C. Membranes were then blocked with OneBlock blocking buffer (Genesee Scientific, Cat# 20-313) for 1 hr at room temperature, After three 10 min washes with 1× TBS-T, blots were incubated with either anti-Myc [9E11] (Abcam, ab56) to detect TIR1 and AID fusions, anti-Rad53 [EL7.E1] (Abcam, ab166859), anti-Pgk1 (Abcam, ab30359), or anti-Rad9 ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") for 1 hr at room temperature or at 4°C overnight. Blots were washed three times with 1× TBS-T and incubated with anti-mouse HRP (GE Healthcare, Cat# NXA931) or anti-rabbit HRP secondary antibody (Sigma-Aldrich, Cat# A6154) for 1 hr at room temperature. After washing the membranes three times with 1× TBS-T, Amersham ECL Prime Western Blotting Detection Reagent was added to fully coat the blots and left to incubate for 5 min at room temperature with gentle agitation. Blots were imaged using a Bio-Rad ChemiDoc XR+ imager and prepared for publication using ImageLab 6.1 software (Bio-Rad) and Adobe Photoshop CC 2017. The reagents used are listed in the Key Resources Table."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Microscopy, DAPI staining, and cell morphology determination"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Aliquots from YEP-Lac cultures were taken either 4 hr or 15 hr after adding galactose, diluted 20-fold in sterile water, and plated on a YEP-Agar with 2% galactose with or without 1 mM IAA or 1 µM 5-Ph-IAA. Cells were counted on a light microscope with a ×10 objective, examined, and binned into three categories: unbudded, small buds, and G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M-arrested cells with large buds. For each timepoint, >250 cells were analyzed. For DAPI staining, 450 µl of culture was added to 50 µl of 37% formaldehyde and incubated in the chemical hood at room temperature for 20 min. Samples were spun down at 8000 rpm for 5 min and washed with 1× PBS three times. Cells were resuspended in 50 µl of DAPI mounting media (VECTASHIELD Antifade Mounting Medium with DAPI H-1200-10) and incubated at room temperature for 10 min, away from direct light. The samples were imaged by using a Nikon Ni-E upright microscope equipped with a Yokogawa CSU-W1 spinning-disk head, an Andor iXon 897U EMCCD camera, Nikon Elements AR software, a ×60 oil immersion objective, and a 358 nm laser. Fifteen z-stacks with a thickness of 0.3 µm were collected per image. In the morphology assays, at least three biological replicates were used for each strain."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Adaptation and auxin plating assays"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "We performed adaptation assays as previously described ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Cells grown in YEP-Lac overnight were diluted 20-fold in sterile water and plated on a YEP-agar plate containing 2% galactose. Using micromanipulation, 50 G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells were isolated and positioned in a grid followed by incubation at 30°C. To quantify the percentage of adapted cells, the number of cells that re-entered cell cycle and grew to a microcolony (3+ cells) after 24 hr was divided by the total number of cells. For auxin plating assays, damage was induced in a YEP-Lac liquid culture by adding galactose at a final concentration of 2%, as described above. Cells were then transferred onto YEP-agar plates containing 2% galactose and 1 mM IAA or 1 µM 5-Ph-IAA 4 hr or 15 hr after adding galactose. For each timepoint, >250 cells were scored and categorized as described above for the adaptation assay from at least three biological replicates."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Quantification and data analysis"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Graphs were prepared using GraphPad Prism 10 (Dotmatics). Statistical analysis for differences in the percentage of large budded (G"
+                  }
+                },
+                {
+                  "type": "Subscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "/M-arrested) cells at different timepoints listed in "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " was done using a one-way ANOVA in GraphPad Prism 10. Protein quantification of Ddc2-myc blots was done using ImageLab 6.1 (Bio-Rad). To categorize DAPI-stained cells based on their morphology and number of DAPI signals, images were captured as described above and viewed using ImageJ with the Fiji addon."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
