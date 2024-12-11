@@ -1633,6 +1633,1231 @@ expression: article
               ]
             },
             {
+              "type": "Figure",
+              "label": "Figure 2.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Above: percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after DNA damage induction in a liquid culture. Cultures were split 4 hr after galactose treatment to induce DNA damage by GAL::HO and treated either with auxin (+IAA) (1 mM) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing standard error of the mean (SEM). The asterisk marks the timepoint when the percentage of large-budded G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M cells returned to pre-damage levels. Below: western blots ran with samples collected at various timepoints during the same time course, probed with α-Rad53, to determine DDC status, and α-Myc, to determine Ddc2-AID-Myc protein abundance and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD24-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 2—figure supplement 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Adaptation assay of AID-tagged checkpoint activation proteins."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay of 50 G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD24-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", and 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " with TIR1. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay of 50 G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD24-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ", and 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " without TIR1. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay of 50 G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " cells on YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " TIR1 (F74G), 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD24-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " (F74G), and 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " TIR1 (F74G)."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 2—figure supplement 2.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "AID-tagged checkpoint proteins readily degrade with auxin."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Morphological profile of a 2-DSB background where 1 mM auxin (IAA) was added 2 hr before DSB induction with galactose. Western blot of a 2-DSB strain probed with α-Rad53. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Morphological profile of "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " in a 2-DSB background where IAA was added 2 hr before galactose. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". α-Myc probe shows Rad9-AID degradation with IAA. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD24-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". α-Myc probe shows Rad24-AID degradation with IAA. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". α-Myc probe shows Rad53-AID degradation with IAA."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 2—figure supplement 3.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after HO induction. Cultures were split 4 hr after Gal-HO induction. Cells were divided based on cell morphology and number of DAPI signals. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
               "type": "Paragraph",
               "content": [
                 {
@@ -1894,6 +3119,644 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 3.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain following DNA damage. Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Rad53 to determine the status of DDC and α-Myc to determine TIR1-Myc protein abundance. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay with 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "∆ strain. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1∆ RAD53-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after DNA damage. Cultures were split 4 hr after DSB induction and treated with 1 mM auxin (+IAA) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Myc for Rad53-AID and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1∆ DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. The asterisk shows when the percentage of large-budded cells returned to pre-damage levels. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1∆ RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "chk1∆ RAD24-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 3—figure supplement 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Tel1 is not required for DDC activation or Rad53 phosphorylation."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay for a "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "tel1∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain. Cultures were grown in YEP-Lac and put on a YEP-Gal plate. 50 G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " cells were selected to monitor their morphology after 4 and 24 hr on the YEP-Gal plate. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Western blot probing α-Rad53 in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "tel1∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". α-Pgk1 probed as a loading control."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
             },
             {
               "type": "Paragraph",
@@ -2680,6 +4543,525 @@ expression: article
               ]
             },
             {
+              "type": "Figure",
+              "label": "Figure 5.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Ddc2 and Rad53 are dispensable for >24 hr checkpoint arrest."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after HO induction. Cells were categorized based on cell morphology and number of DAPI signals. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD53-AID TIR1(F74G"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") after HO induction. 5-Ph-IAA was added 4 hr after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53, α-Myc, and α-Pgk1. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad53-AID degradation. α-Pgk1 probed as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") where 5-Ph-IAA was added 15 hr after HO induction. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "RAD9-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " plus pRad9-AID after HO induction. Data shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad9-AID degradation and TIR1-Myc as a loading control. α-Pgk1 probed as a loading control."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 5—figure supplement 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Relative levels of Ddc2 decrease after DSB induction."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A, B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Western blots probed with α-Myc for Ddc2-9xMyc and Ddc2-9xMyc-AID in a 1-DSB and 2-DSB, respectively. α-Pgk1 is used as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Relative levels of Ddc2 in a 1-DSB and 2-DSB strain up to 24 hr after DSB induction."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
               "type": "Paragraph",
               "content": [
                 {
@@ -3200,6 +5582,738 @@ expression: article
               ]
             },
             {
+              "type": "Figure",
+              "label": "Figure 6.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 6—figure supplement 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Mad2 is required for permanent arrest in a 2-DSB strain."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay of 1-DSB and 2-DSB where morphology is measured for up to 24 hr and 48 hr, respectively. A second copy of Ddc2 with a GAL1,10 promotor, Ddc2 overexpression (Ddc2oe), was integrated into the 1-DSB and 2-DSB strains. "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " was deleted in both backgrounds with the second copy of Ddc2. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Adaptation assay for a "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "mad2∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " in a 2-DSB strain."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 6—figure supplement 2.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Morphological profile of "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " after HO induction on a YEP-Gal or YEP-Gal-IAA plate. Galactose was added to an overnight culture of Mad2-AID in YEP-Lac. 4 hr after adding galactose, cells were added to a YEP-Gal plate or a YEP-Gal-IAA (1 mM IAA) plate. The morphology of cells was measured for up to 24 hr on each plate. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. The top western blot samples were treated with ethanol and bottom western blot samples were treated with IAA. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad1-AID degradation and TIR1-Myc as a loading control."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 6—figure supplement 3.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Morphological profile of a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "MAD2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " and "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID MAD2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strains after HO induction. Cultures were added onto YEP-Gal ± IAA plates 15 hr after adding HO induction. Ctrl samples were plated on a YEP-Gal plate and IAA samples were plated on a YEP-GAL-IAA plate. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID Mad2-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "DDC2-AID MAD2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
               "type": "Paragraph",
               "content": [
                 {
@@ -3359,6 +6473,661 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 7.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Percentage of G"
+                      }
+                    },
+                    {
+                      "type": "Subscript",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "/M-arrested cells for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BUB2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BUB2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BFA1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ". ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BFA1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
+            },
+            {
+              "type": "Figure",
+              "label": "Figure 7—figure supplement 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Bub2 but not Bfa1 is required for prolonged arrest."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Morphological profile of a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BUB2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain with the auxin-Gal plating assay. Cultures were added onto YEP-Gal ± IAA plates 4 hr after HO induction. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Profile of DAPI-stained cells in a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BUB2-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "C"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BFA1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "D"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "BFA1-AID"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "E"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for a 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "bfa1∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "F"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") Same as ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": ") for 2-DSB "
+                      }
+                    },
+                    {
+                      "type": "Emphasis",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "bfa1∆"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " strain."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n                "
+                      }
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n              "
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": []
             }
           ]
         },

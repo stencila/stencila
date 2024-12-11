@@ -48,6 +48,10 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
             "disp-formula" => decode_disp_formula(&child_path, &child, losses, depth),
             "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
             "fig" => decode_fig(&child_path, &child, losses, depth),
+            "fig-group" => {
+                blocks.append(&mut decode_fig_group(&child_path, &child, losses, depth));
+                continue;
+            }
             "hr" => decode_hr(&child_path, &child, losses),
             "list" => decode_list(&child_path, &child, losses, depth),
             "p" => decode_p(&child_path, &child, losses),
@@ -211,6 +215,13 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
         label,
         ..Default::default()
     })
+}
+
+/// Decode a `<fig-group>` element to a vector of Stencila [`Block::Figure`]s
+fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    record_attrs_lost(path, node, [], losses);
+
+    decode_blocks(path, node.children(), losses, depth)
 }
 
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]

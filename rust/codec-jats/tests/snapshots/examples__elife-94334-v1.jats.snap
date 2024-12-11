@@ -41,11 +41,83 @@ expression: jats
         <p>We used the AID system () to conditionally deplete DDC proteins after G<sub>2</sub>/M arrest had been established to study the maintenance of cell cycle arrest. To this end, we appended an AID tag with nine copies of the c-MYC epitope tag to the C-terminus of Ddc2, Rad9, Rad24, and Rad53, which are all components of the Mec1 signaling cascade (; ; ). Hereafter, all AID-tagged proteins will be designated simply as -AID, for example, Ddc2-9xMyc-AID as Ddc2-AID.</p>
         <p>AID tagging of DDC proteins did not alter the establishment of G<sub>2</sub>/M arrest; however,<italic>RAD9-AID</italic>,<italic>RAD24-AID</italic>, and<italic>RAD53-AID</italic>strains are hypomorphic and adapted 24 hr after DNA damage in the absence of IAA, while 2-DSB wild-type counterpart cells remained fully arrested (). This premature escape from the cell cycle arrest was dependent on the presence of TIR1 () and is likely due to low levels of IAA as a natural intermediate in amino acid biosynthesis (). IAA treatment prior to the induction of 2 DSBs in a control strain, which does not contain any AID-tagged proteins, did not alter the prolonged cell cycle arrest following DNA damage (), illustrating that IAA treatment by itself does not alter response to DNA damage. However, rapid degradation of Ddc2-AID, Rad9-AID, Rad24-AID, and Rad53-AID by IAA treatment 2 hr prior to the induction of DSBs largely prevented cell cycle arrest as well as DDC signaling, evident from the absence of detectible Rad53 hyperphosphorylation (). These results underline the importance of Ddc2, Rad9, Rad24, and Rad53 in initiating DDC signaling and cell cycle arrest in response to DNA damage, agreeing with previous reports (; ; ; ).</p>
         <p>To test whether the DDC proteins are required for the<italic>maintenance</italic>of the cell cycle arrest following DNA damage, we employed the AID-tagged strains with 2 DSBs and depleted the AID proteins 4 hr<italic>after</italic>inducing DSBs. In the absence of IAA,<italic>DDC2-AID</italic>,<italic>RAD9-AID</italic>, or<italic>RAD24-AID</italic>strains all activated the DDC signaling 4 hr after DSB induction, with 89–99% of cells arrested in G<sub>2</sub>/M (), demonstrating that AID tagging of these proteins did not impair their function. Within 1 hr after IAA treatment, Ddc2-AID, Rad9-AID, or Rad24-AID were all rapidly depleted, which caused a gradual Rad53 dephosphorylation, as detected by western blotting (). Moreover, agreeing with the loss of Rad53 phosphorylation, IAA treatment of DDC-AID strains triggered release from G<sub>2</sub>/M arrest, while the untreated control cells remained fully arrested. DAPI staining of<italic>DDC2-AID</italic>cells after IAA treatment revealed the accumulation of large-budded cells with two distinct DAPI signals, indicating that cells started to progress into anaphase following Ddc2 depletion (). These findings illustrate that the upstream DDC factors Ddc2, Rad9, and Rad24 are essential for initiating and sustaining the cell cycle arrest in response to DNA damage.</p>
+        <fig>
+          <label>Figure 2.</label>
+          <caption>
+            <title level="2">Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity.</title>
+            <p>(<bold>A</bold>) Above: percentage of G<sub>2</sub>/M-arrested cells in a 2-DSB<italic>DDC2-AID</italic>strain after DNA damage induction in a liquid culture. Cultures were split 4 hr after galactose treatment to induce DNA damage by GAL::HO and treated either with auxin (+IAA) (1 mM) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing standard error of the mean (SEM). The asterisk marks the timepoint when the percentage of large-budded G<sub>2</sub>/M cells returned to pre-damage levels. Below: western blots ran with samples collected at various timepoints during the same time course, probed with α-Rad53, to determine DDC status, and α-Myc, to determine Ddc2-AID-Myc protein abundance and TIR1-Myc as a loading control. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD9-AID</italic>. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD24-AID</italic>. (<bold>D</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 2—figure supplement 1.</label>
+          <caption>
+            <title level="2">Adaptation assay of AID-tagged checkpoint activation proteins.</title>
+            <p>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>with TIR1. (<bold>B</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>without TIR1. (<bold>C</bold>) Adaptation assay of 50 G<sub>1</sub>cells on YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>RAD9-AID</italic>TIR1 (F74G), 2-DSB<italic>RAD24-AID</italic>(F74G), and 2-DSB<italic>RAD53-AID</italic>TIR1 (F74G).</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 2—figure supplement 2.</label>
+          <caption>
+            <title level="2">AID-tagged checkpoint proteins readily degrade with auxin.</title>
+            <p>(<bold>A</bold>) Morphological profile of a 2-DSB background where 1 mM auxin (IAA) was added 2 hr before DSB induction with galactose. Western blot of a 2-DSB strain probed with α-Rad53. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. (<bold>B</bold>) Morphological profile of<italic>DDC2-AID</italic>in a 2-DSB background where IAA was added 2 hr before galactose. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>C</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD9-AID</italic>. α-Myc probe shows Rad9-AID degradation with IAA. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD24-AID</italic>. α-Myc probe shows Rad24-AID degradation with IAA. (<bold>E</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>RAD53-AID</italic>. α-Myc probe shows Rad53-AID degradation with IAA.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 2—figure supplement 3.</label>
+          <caption>
+            <title level="2">Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose.</title>
+            <p>(<bold>A</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cultures were split 4 hr after Gal-HO induction. Cells were divided based on cell morphology and number of DAPI signals. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
+          </caption>
+        </fig>
         <p>Compared to<italic>DDC2-AID</italic>,<italic>RAD9-AID,</italic>or<italic>RAD24-AID</italic>, we found that<italic>RAD53-AID</italic>cells maintained G<sub>2</sub>/M arrest for an additional 4 hr after complete depletion of Rad53 (). In contrast to Ddc2-AID depletion, cell cycle analysis by DAPI staining showed that Rad53 depletion led to a more gradual transition into late anaphase (). This delay after the conditional depletion of Rad53 could be due to continued signaling from downstream targets activated by Rad53 kinase, such as Dun1, or from other targets of the Mec1 kinase, downstream of Ddc2, Rad9, and Rad24.</p>
       </sec>
       <sec>
         <title level="2">Chk1 sustains checkpoint signaling in the absence of Ddc2, Rad9, Rad24, or Rad53</title>
         <p>Rad53 and Chk1 kinases both contribute to the maintenance of the cell cycle arrest after DNA damage (; ). Agreeing with previously published reports (), we find that Chk1 is involved in maintaining the permanent arrest following the induction of 2 DSBs. Deletion of<italic>CHK1</italic>did not impair the induction of cell cycle arrest (); however, it inhibited the permanent cell cycle arrest as &gt;95% of<italic>chk1</italic>∆ cells adapted by 24 hr (). We then asked whether the delay in cell cycle re-entry observed when Rad53 was degraded was due to Chk1’s independent role in maintaining arrest. To test this, we induced 2 DSBs in<italic>RAD53-AID chk1∆</italic>cells for 4 hr and then added IAA to deplete Rad53. Compared to the depletion of Rad53-AID alone (), the depletion of Rad53-AID in the absence of<italic>CHK1</italic>led to a significant decrease in the number of G<sub>2</sub>/M-arrested cells within 1 hr of IAA treatment (). These results suggest that Chk1 functions in conjunction with Rad53 to sustain cell cycle arrest in response to DNA damage.</p>
+        <fig>
+          <label>Figure 3.</label>
+          <caption>
+            <title level="2">Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance.</title>
+            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M cells in a 2-DSB<italic>chk1∆</italic>strain following DNA damage. Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Rad53 to determine the status of DDC and α-Myc to determine TIR1-Myc protein abundance. (<bold>B</bold>) Adaptation assay with 2-DSB<italic>chk1</italic>∆ strain. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells a 2-DSB<italic>chk1∆ RAD53-AID</italic>strain after DNA damage. Cultures were split 4 hr after DSB induction and treated with 1 mM auxin (+IAA) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Myc for Rad53-AID and TIR1-Myc as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) for 2-DSB<italic>chk1∆ DDC2-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. The asterisk shows when the percentage of large-budded cells returned to pre-damage levels. (<bold>E</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD9-AID</italic>. (<bold>F</bold>) Same as (<bold>D</bold>) for 2-DSB<italic>chk1∆ RAD24-AID</italic>.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 3—figure supplement 1.</label>
+          <caption>
+            <title level="2">Tel1 is not required for DDC activation or Rad53 phosphorylation.</title>
+            <p>(<bold>A</bold>) Adaptation assay for a<italic>tel1∆</italic>strain. Cultures were grown in YEP-Lac and put on a YEP-Gal plate. 50 G<sub>1</sub>cells were selected to monitor their morphology after 4 and 24 hr on the YEP-Gal plate. (<bold>B</bold>) Western blot probing α-Rad53 in a 2-DSB<italic>tel1∆</italic>. α-Pgk1 probed as a loading control.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
         <p>To explore further how Chk1 signaling contributes to the maintenance of DDC-dependent cell cycle arrest, we depleted DDC factors Ddc2-AID, Rad9-AID, or Rad24-AID in<italic>chk1∆</italic>cells 4 hr after the induction of DSBs. Depletion of these upstream factors in the absence of<italic>CHK1</italic>led to a more rapid release from the cell cycle arrest () compared to the depletion of DDC factors alone (). Collectively, these findings demonstrate that Chk1 plays a key role in maintaining cell cycle arrest in response to DNA damage.</p>
         <p>Tel1 is thought to play a minor role in response to DSBs as the establishment of DSB-induced cell cycle arrest normally depends entirely on Mec1 (). However, previous studies have shown that, in addition to Mec1, Tel1 can also target Chk1 for phosphorylation (; ). Additionally, when the initial 5’ to 3’ end resection of DSB ends is impaired, Tel1 alone can activate the DDC (). To study how Tel1 contributes to the maintenance of the permanent cell cycle arrest, we deleted<italic>TEL1</italic>in 2-DSB strain. Unlike<italic>chk1</italic>∆ with 2 DSBs, a<italic>TEL1</italic>deletion did not affect either the establishment of the DDC or the maintenance of checkpoint arrest up to 24 hr (), agreeing with previously published results (). Taken together, these data illustrate that DNA damage-dependent cell cycle arrest is initiated by Mec1 branch of the DDC via Ddc2, Rad9 and Rad24, and the cell cycle arrest is largely sustained by the downstream kinases Rad53 and Chk1, with minor contributions from other downstream targets of DDC.</p>
       </sec>
@@ -70,6 +142,32 @@ expression: jats
         <title level="2">Ddc2 and Rad53’s role in maintaining arrest become dispensable in extended G<sub>2</sub>/M arrest</title>
         <p>Previously, we reported that Ddc2 protein abundance initially increases over time as after the induction of a single DNA break, which is followed by near-complete depletion of Ddc2 around the time that cells adapt (). Given that Ddc2 overexpression leads to permanent cell cycle arrest following DNA damage (), we concluded that Ddc2 abundance is intimately tied to the duration of the arrest. Here, we asked whether the presence of 2 DSBs instead of a single DSB would lead to an increase in Ddc2 protein abundance and, therefore, the permanent cell cycle arrest. We examined the levels of Ddc2 in both 1- and 2-DSB strains following DNA damage but did not detect a difference in the changes of abundance of Ddc2 protein (), even though cells adapt to 1 DSBs and remained terminally arrested after 2 DSBs ().</p>
         <p>If Ddc2 activity is essential to maintain the cell cycle arrest in the 2-DSB strain, then degradation of Ddc2-AID around the time wild-type cells adapt to a single DNA break should interrupt the permanent cell cycle arrest and trigger cell cycle re-entry. We find that complete depletion of Ddc2-AID 15 hr after the induction of 2 DSBs leads to diminished Rad53 hyperphosphorylation (). However, surprisingly, Ddc2-AID degradation did not alter the percentage of G<sub>2</sub>/M-arrested cells even 9 hr after Ddc2 depletion (). Furthermore, despite the diminished Rad53 phosphorylation, Ddc2-AID cells mostly remained arrested in G<sub>2</sub>/M after the depletion of Ddc2-AID at 15 hr as illustrated by DAPI staining (), in contrast to Ddc2-AID depletion soon after induction of 2 DSBs, which causes cells to rapidly resume mitosis (). These results hint that the maintenance of the permanent cell cycle arrest in response to 2 DSBs at later stages could be independent of the DDC signaling.</p>
+        <fig>
+          <label>Figure 5.</label>
+          <caption>
+            <title level="2">Ddc2 and Rad53 are dispensable for &gt;24 hr checkpoint arrest.</title>
+            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>DDC2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cells were categorized based on cell morphology and number of DAPI signals. (<bold>C</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD53-AID TIR1(F74G</italic>) after HO induction. 5-Ph-IAA was added 4 hr after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53, α-Myc, and α-Pgk1. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad53-AID degradation. α-Pgk1 probed as a loading control. (<bold>D</bold>) Same as (<bold>C</bold>) where 5-Ph-IAA was added 15 hr after HO induction. (<bold>E</bold>) Percentage G<sub>2</sub>/M-arrested cells for 2-DSB<italic>RAD9-AID</italic>plus pRad9-AID after HO induction. Data shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad9-AID degradation and TIR1-Myc as a loading control. α-Pgk1 probed as a loading control.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 5—figure supplement 1.</label>
+          <caption>
+            <title level="2">Relative levels of Ddc2 decrease after DSB induction.</title>
+            <p>(<bold>A, B</bold>) Western blots probed with α-Myc for Ddc2-9xMyc and Ddc2-9xMyc-AID in a 1-DSB and 2-DSB, respectively. α-Pgk1 is used as a loading control. (<bold>C</bold>) Relative levels of Ddc2 in a 1-DSB and 2-DSB strain up to 24 hr after DSB induction.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
         <p>We then asked whether other DDC factors such as Rad9, Rad24, and Rad53 are dispensable for the prolonged arrest following the induction of 2 DSBs. However, as noted above, AID-tagged DDC activation proteins were unable to maintain this prolonged arrest in a 2-DSB strain even in the absence of IAA, which precludes their use in this analysis. To be able to study the contribution of these DDC factors in prolonged cell cycle arrest, we turned to the AID version 2 (AID2) system (). To this end, we integrated a TIR1-F74G point mutation and used 5-phenyl-IAA (5-Ph-IAA) instead of IAA to lower the basal degradation of AID-tagged proteins. Switching to the AID2 system did not fully restore function to<italic>RAD9-AID2</italic>and<italic>RAD24-AID2</italic>strains as they mostly adapted after 24 hr after the exposure to DNA damage, but 87% of<italic>RAD53-AID2</italic>cells remained in G<sub>2</sub>/M arrest at 24 hr (). Using Rad53-AID2, we then asked whether Rad53 is required for extended G<sub>2</sub>/M arrest in response to 2 DSBs. Rapid depletion of Rad53-AID2 with 5-Ph-IAA 4 hr after DSB induction led cells to escape G<sub>2</sub>/M arrest, but as with the<italic>RAD53-AID</italic>strain, we detected a 4 hr delay in cell cycle re-entry, confirming our previous results ( and ). However, degradation of Rad53-AID2 15 hr after DSB induction did not prompt cell cycle re-entry even 9 hr after complete depletion of Rad53 (, ), akin to what we observe following the depletion of Ddc2-AID ().</p>
         <p>Because TIR1-mediated degradation of Rad9-AID even without auxin caused most cells to adapt 24 hr after inducing DNA damage, we asked whether overexpression of<italic>RAD9-AID</italic>could overcome this effect. We added a<italic>TRP1</italic>centromere-containing plasmid copy of<italic>RAD9-AID</italic>with its endogenous promoter (pRAD9-AID) to our 2-DSB<italic>RAD9-AID</italic>strain. Degradation of Rad9-AID by IAA 15 hr after DSB induction did not trigger release of cells from G<sub>2</sub>/M arrest (, ). However, unlike degradation of Ddc2-AID or Rad53-AID2 in this same situation, Rad53 remained hyperphosphorylated up to 9 hr after adding IAA (). Therefore, while the DDC proteins Ddc2, Rad9, and Rad53 are required for the maintenance of checkpoint arrest at early stages, surprisingly, they are dispensable for prolonged arrest following induction of 2 DSBs. These results suggest that prolonged cell cycle arrest is maintained by signaling proteins other than the Mec1 branch of the DDC.</p>
       </sec>
@@ -78,11 +176,71 @@ expression: jats
         <p>In addition to the DDC, the SAC maintains genomic integrity by halting mitosis at the metaphase/anaphase transition in response to unattached kinetochores, to ensure accurate chromosome segregation (reviewed by ). We have previously shown that inactivation of the SAC by a<italic>MAD1, MAD2,</italic>or<italic>MAD3</italic>deletion shortened the duration of the cell cycle arrest induced by a single DSB (). To test whether SAC is involved in enforcing and sustaining permanent cell cycle arrest in response to 2 DSBs, we deleted<italic>MAD2</italic>in the 2-DSB strain. Adaptation assay results illustrate that nearly all<italic>mad2∆</italic>cells arrested at 4 hr but began to adapt between 12 and 15 hr after DNA damage (). To explore whether deletion of<italic>MAD2</italic>can antagonize the permanent cell cycle arrest due to hyperactive DDC signaling, we overexpressed Ddc2 in<italic>mad2∆</italic>2-DSB cells and assayed mitotic progression. We find that both in 1-DSB and 2-DSB strains,<italic>MAD2</italic>deletion leads to cell cycle re-entry even when Ddc2 is overexpressed (). Based on these data, we concluded that mitotic inhibition is enforced by the SAC proteins as DDC factors become dispensable 12–15 hr after the induction of damage.</p>
         <p>If SAC proteins are only required at later stages of cell cycle arrest when DDC proteins are dispensable, then the depletion of SAC protein Mad2 or its binding partner Mad1 soon after the induction of DNA damage should not affect DDC or cell cycle arrest up to 12–15 hr. In agreement with this idea, after Mad1-AID or Mad2-AID depletion at 4 hr, cells remained arrested up to 15 hr following DSB induction, with persistent Rad53 hyperphosphorylation (). Strikingly, these cells eventually re-entered the cell cycle by 24 hr (20 hr after depletion of Mad1 and Mad2). It is notable that cells resumed cell cycle progression despite persistent Rad53 hyperphosphorylation. This result reinforces our conclusion that Mad1 and Mad2 are not required for the activation and initial maintenance of arrest but are essential for prolonged cell cycle arrest in response to 2 DSBs. These data also suggest that in the absence of Mad1 or Mad2 cells become insensitive to the arrest normally imposed by DDC.</p>
         <p>To monitor the effect of SAC proteins Mad1 and Mad2 at late stages of prolonged cell cycle arrest when DDC signaling becomes dispensable, we depleted Mad1-AID or Mad2-AID 15 hr after DSB induction. Following the depletion of Mad1-AID and Mad2-AID, we observed an immediate reduction in the percentage of G<sub>2</sub>/M-arrested cells (). DAPI staining confirmed that Mad1-AID or Mad2-AID-deplete cells re-entered the cell cycle, evident from an increase in the G1 cell population as well as an increase in percentage of large-budded cells with 2 DAPI foci (). Similar to what we observe following Mad1-AID and Mad2-AID depletion 4 hr after damage, this cell cycle re-entry occurred despite persistent Rad53 hyperphosphorylation ().</p>
+        <fig>
+          <label>Figure 6.</label>
+          <caption>
+            <title level="2">Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest.</title>
+            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>MAD2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>MAD2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>MAD1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>MAD1-AID</italic>.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 6—figure supplement 1.</label>
+          <caption>
+            <title level="2">Mad2 is required for permanent arrest in a 2-DSB strain.</title>
+            <p>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB where morphology is measured for up to 24 hr and 48 hr, respectively. A second copy of Ddc2 with a GAL1,10 promotor, Ddc2 overexpression (Ddc2oe), was integrated into the 1-DSB and 2-DSB strains.<italic>MAD2</italic>was deleted in both backgrounds with the second copy of Ddc2. (<bold>B</bold>) Adaptation assay for a<italic>mad2∆</italic>in a 2-DSB strain.</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 6—figure supplement 2.</label>
+          <caption>
+            <title level="2">Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain.</title>
+            <p>(<bold>A</bold>) Morphological profile of<italic>MAD2-AID</italic>after HO induction on a YEP-Gal or YEP-Gal-IAA plate. Galactose was added to an overnight culture of Mad2-AID in YEP-Lac. 4 hr after adding galactose, cells were added to a YEP-Gal plate or a YEP-Gal-IAA (1 mM IAA) plate. The morphology of cells was measured for up to 24 hr on each plate. (<bold>B</bold>) Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. The top western blot samples were treated with ethanol and bottom western blot samples were treated with IAA. (<bold>C</bold>) Same as (<bold>A</bold>) for<italic>MAD1-AID</italic>. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad1-AID degradation and TIR1-Myc as a loading control.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 6—figure supplement 3.</label>
+          <caption>
+            <title level="2">Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest.</title>
+            <p>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>MAD2-AID</italic>and<italic>DDC2-AID MAD2-AID</italic>strains after HO induction. Cultures were added onto YEP-Gal ± IAA plates 15 hr after adding HO induction. Ctrl samples were plated on a YEP-Gal plate and IAA samples were plated on a YEP-GAL-IAA plate. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID Mad2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID MAD2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
         <p>To show that the late stages of the permanent cell cycle arrest in response to 2 DSBs is independent of DDC and dependent on SAC, we inactivated DDC by depleting Ddc2-AID together with Mad2-AID. Although the simultaneous depletion of Ddc2-AID and Mad2-AID led to Rad53 dephosphorylation as detected by western blotting, we found no statistically significant difference in the percentage of cells escaping G<sub>2</sub>/M arrest in response to<italic>DDC2-AID MAD2-AID</italic>double depletion strain compared to Mad2-AID alone ( and ). Collectively, our findings indicate that DDC initiates and sustains the cell cycle arrest approximately for 15 hr following DNA damage, but after that DDC becomes dispensable and the permanent arrest is sustained by SAC.</p>
       </sec>
       <sec>
         <title level="2">Mitotic exit network proteins Bfa1 and Bub2 have different roles in the DDR</title>
         <p>To investigate the possible contribution of the MEN to the maintenance of the extended cell cycle arrest in response to 2 DSBs, we appended AID tags to upstream MEN proteins Bub2 and Bfa1. Degradation of Bub2-AID both 4 hr and 15 hr after induction of 2 DSBs suppressed G<sub>2</sub>/M arrest (, ), akin to what we observe following Mad1-AID or Mad2-AID depletion (). In contrast to Bub2-AID, we see that Bfa1-AID degradation did not trigger a significant release from G<sub>2</sub>/M arrest and did not alter the phosphorylation of Rad53 (, ). Analysis of cell cycle distribution with DAPI staining showed that neither the inactivation of Bub2 nor Bfa1 led to the accumulation of a significant number of cells with two separate DAPI-staining nuclei, which is indicative of mitotic exit defects (, ). These results imply that although Bub2 and Bfa1 have interdependent functions for MEN signaling, they carry out independent roles in response to DNA damage.</p>
+        <fig>
+          <label>Figure 7.</label>
+          <caption>
+            <title level="2">Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest.</title>
+            <p>(<bold>A</bold>) Percentage of G<sub>2</sub>/M-arrested cells for 2-DSB<italic>BUB2-AID</italic>after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>BFA1-AID</italic>. (<bold>D</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>BFA1-AID</italic>.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
+        <fig>
+          <label>Figure 7—figure supplement 1.</label>
+          <caption>
+            <title level="2">Bub2 but not Bfa1 is required for prolonged arrest.</title>
+            <p>(<bold>A</bold>) Morphological profile of a 2-DSB<italic>BUB2-AID</italic>strain with the auxin-Gal plating assay. Cultures were added onto YEP-Gal ± IAA plates 4 hr after HO induction. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (<bold>B</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>BUB2-AID</italic>strain after HO induction. Cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were divided based on cell morphology and number of DAPI signals. (<bold>C</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>D</bold>) Same as (<bold>B</bold>) for a 2-DSB<italic>BFA1-AID</italic>strain. (<bold>E</bold>) Same as (<bold>A</bold>) for a 2-DSB<italic>bfa1∆</italic>strain. (<bold>F</bold>) Same as (<bold>B</bold>) for 2-DSB<italic>bfa1∆</italic>strain.</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+            <p>&#10;                &#10;</p>
+          </caption>
+        </fig>
       </sec>
       <sec>
         <title level="2">The location of the second DSB site relative to the centromere affects prolonged arrest</title>
