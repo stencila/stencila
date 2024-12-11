@@ -197,10 +197,6 @@ proptest! {
             properties: vec![
                 // Properties that are not yet supported
                 "ListItem.is_checked".into(),
-                "CodeChunk.label".into(),
-                "CodeChunk.label_type".into(),
-                "CodeChunk.label_automatically".into(),
-                "CodeChunk.caption".into(),
                 "CodeChunk.execution_mode".into()
             ],
             ..Default::default()
