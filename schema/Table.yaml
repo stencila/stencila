@@ -8,6 +8,8 @@ patch:
   takeAuthors: true
 dom:
   derive: false
+jats:
+  special: true
 html:
   special: true
 markdown:

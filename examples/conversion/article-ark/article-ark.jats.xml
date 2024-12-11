@@ -36,6 +36,24 @@
     <sec>
       <p>This is a section</p>
     </sec>
+    <table-wrap>
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <p>A</p>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <p>1</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </table-wrap>
     <hr>
     </hr>
   </body>

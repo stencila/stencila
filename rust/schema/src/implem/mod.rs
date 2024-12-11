@@ -76,6 +76,8 @@ mod suggestion_block;
 mod suggestion_inline;
 mod suggestion_status;
 mod table;
+mod table_cell;
+mod table_row;
 mod text;
 mod time;
 mod timestamp;

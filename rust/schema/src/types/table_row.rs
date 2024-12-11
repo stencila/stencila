@@ -15,6 +15,7 @@ use super::table_row_type::TableRowType;
 #[derive(derive_more::Display)]
 #[display(fmt = "TableRow")]
 #[html(elem = "tr")]
+#[jats(special)]
 pub struct TableRow {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

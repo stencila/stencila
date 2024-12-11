@@ -1,13 +1,69 @@
-use codec_html_trait::encode::{attr, elem};
 use codec_info::lost_options;
-use codec_markdown_trait::to_markdown;
 
-use crate::{prelude::*, Table, TableCell, TableCellType, TableRow};
+use crate::{prelude::*, Table, TableRow, TableRowType};
 
 use super::utils::caption_to_dom;
 
 impl Table {
+    pub fn to_jats_special(&self) -> (String, Losses) {
+        use codec_jats_trait::encode::{elem, elem_no_attrs};
+
+        let mut losses = lost_options!(self, id);
+
+        let mut attrs = Vec::new();
+        if let Some(value) = &self.label_automatically {
+            attrs.push(("label-automatically", value));
+        }
+
+        let mut table_wrap = String::new();
+
+        if let Some(label) = &self.label {
+            let (label, label_losses) = label.to_jats();
+            losses.merge(label_losses);
+            table_wrap.push_str(&elem_no_attrs("label", label));
+        }
+
+        if let Some(caption) = &self.caption {
+            let (caption, caption_losses) = caption.to_jats();
+            losses.merge(caption_losses);
+            table_wrap.push_str(&elem_no_attrs("caption", caption));
+        }
+
+        let mut thead = String::new();
+        let mut tbody = String::new();
+        let mut tfoot = String::new();
+        for row in &self.rows {
+            let (row_jats, row_losses) = row.to_jats();
+
+            match row.row_type {
+                Some(TableRowType::HeaderRow) => thead.push_str(&row_jats),
+                Some(TableRowType::FooterRow) => tfoot.push_str(&row_jats),
+                _ => tbody.push_str(&row_jats),
+            }
+
+            losses.merge(row_losses);
+        }
+
+        let mut table = String::new();
+        if !thead.is_empty() {
+            table.push_str(&elem_no_attrs("thead", thead));
+        }
+        if !tbody.is_empty() {
+            table.push_str(&elem_no_attrs("tbody", tbody));
+        }
+        if !tfoot.is_empty() {
+            table.push_str(&elem_no_attrs("tfoot", tfoot));
+        }
+
+        let table = elem_no_attrs("table", table);
+        table_wrap.push_str(&table);
+
+        (elem("table-wrap", attrs, table_wrap), losses)
+    }
+
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
+        use codec_html_trait::encode::{attr, elem};
+
         let label = self
             .label
             .as_ref()
@@ -76,40 +132,10 @@ impl DomCodec for Table {
     }
 }
 
-impl DomCodec for TableRow {
-    fn to_dom(&self, context: &mut DomEncodeContext) {
-        // Can not use a custom element (i.e. <stencila-table-row>) because only <tr> elements
-        // are allowed in a <tbody>
-        context.enter_node_elem("tr", self.node_type(), self.node_id());
-        self.cells.to_dom(context);
-        context.exit_node();
-    }
-}
-
-impl DomCodec for TableCell {
-    fn to_dom(&self, context: &mut DomEncodeContext) {
-        // Can not use a custom element (i.e. <stencila-table-cell>) because only <th> or <td> elements
-        // are allowed in a <tr>.
-        let name = match self.cell_type {
-            Some(TableCellType::HeaderCell) => "th",
-            _ => "td",
-        };
-        context.enter_node_elem(name, self.node_type(), self.node_id());
-
-        if let Some(row_span) = self.options.row_span {
-            context.push_attr("rowspan", &row_span.to_string());
-        }
-        if let Some(column_span) = self.options.column_span {
-            context.push_attr("colspan", &column_span.to_string());
-        }
-
-        self.content.to_dom(context);
-        context.exit_node();
-    }
-}
-
 impl MarkdownCodec for Table {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        use codec_markdown_trait::to_markdown;
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, authors, provenance));
