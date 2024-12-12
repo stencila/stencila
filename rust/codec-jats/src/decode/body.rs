@@ -5,11 +5,12 @@ use std::str::FromStr;
 use codec::{
     schema::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, Claim, ClaimType, CodeBlock,
-        CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime, Duration, ExecutionMode,
-        Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link, List, ListItem, ListOrder,
-        MathBlock, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
-        StyledInline, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, Cite, CiteOptions, Claim,
+        ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime,
+        Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link,
+        List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note, NoteType,
+        Parameter, Section, StyledInline, ThematicBreak, Time, Timestamp, VideoObject,
+        VideoObjectOptions,
     },
     Losses,
 };
@@ -403,6 +404,13 @@ fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "styled-content" => decode_styled_content(&child_path, &child, losses),
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
+                "xref" => match child.attribute("ref-type") {
+                    Some("bibr") => decode_xref_bibr(&child_path, &child, losses),
+                    _ => {
+                        record_node_lost(&path, &child, losses);
+                        continue;
+                    }
+                },
                 _ => {
                     record_attrs_lost(&child_path, &child, [], losses);
 
@@ -702,6 +710,25 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     Inline::Timestamp(Timestamp {
         value,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<xref ref-type="bibr">` to a [`Inline::Cite`]
+fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let target = node.attribute("rid").map(String::from).unwrap_or_default();
+
+    record_attrs_lost(path, node, ["ref-type", "rid"], losses);
+
+    let content = decode_inlines(path, node.children(), losses);
+    let content = (!content.is_empty()).then_some(content);
+
+    Inline::Cite(Cite {
+        target,
+        options: Box::new(CiteOptions {
+            content,
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }

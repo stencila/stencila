@@ -81,6 +81,19 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib35",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Mehta and Haber, 2014"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). In response to DSBs, cells evoke the DNA damage checkpoint (DDC) to halt the metaphase to anaphase transition (known as the G"
@@ -104,6 +117,19 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib62",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Waterman et al., 2020"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ")."
@@ -121,10 +147,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib30",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Mantiero et al., 2007"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib47",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Pellicioli et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -133,16 +185,55 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib32",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Maréchal and Zou, 2015"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). As resection proceeds, the PCNA-related 9-1-1 clamp, made up of Ddc1, Rad17, and Mec3, is loaded at the resected ss/dsDNA junction by the Rad24-Rfc2-5 clamp loader ("
               }
             },
             {
+              "type": "Cite",
+              "target": "bib15",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Ellison and Stillman, 2003"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib29",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Majka et al., 2006"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -168,10 +259,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib12",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dubrana et al., 2007"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib68",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Zou and Elledge, 2003"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -180,10 +297,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib42",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Navadgi-Patil and Burgers, 2009"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib36",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Melo et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -192,16 +335,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib47",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Pellicioli et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib57",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Tsabar et al., 2015"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib60",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Vaze et al., 2002"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -227,6 +409,19 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib12",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dubrana et al., 2007"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ")."
@@ -244,10 +439,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib23",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Lanz et al., 2019"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib55",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Smolka et al., 2007"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -256,10 +477,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib49",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Rogakou et al., 1998"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib54",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Shroff et al., 2004"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -268,16 +515,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib13",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Durocher et al., 1999"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib16",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Emili, 1998"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib52",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Schwartz et al., 2002"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -286,10 +572,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib6",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Chen et al., 2007"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -298,16 +591,74 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib17",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Fiorani et al., 2008"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib46",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Pellicioli et al., 1999"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib58",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Usui and Petrini, 2007"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib63",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Yam et al., 2020"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -325,6 +676,19 @@ expression: article
               "value": {
                 "string": "In addition to the DDC, unattached kinetochores can induce cell cycle arrest through the activation of spindle assembly checkpoint (SAC) (reviewed by "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib41",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Musacchio, 2015"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -401,10 +765,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib18",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Garber and Rine, 2002"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib22",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Kim and Burke, 2008"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -447,10 +837,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dotiwala et al., 2010"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). In mouse oocytes, inhibition of the SAC overrides the activation of DDC-mediated metaphase arrest during the first meiotic division ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib31",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Marangos et al., 2015"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -459,28 +875,93 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib33",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Matellán and Monje-Casas, 2020"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; therefore, defects in MEN lead to mitotic arrest in late anaphase ("
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib19",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Geymonat et al., 2002"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib4",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Bardin et al., 2000"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib53",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Shirayama et al., 1994"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "). In addition to SAC, MEN also communicates with the DDC in response to DNA damage. For instance, a key regulator of MEN, the heterodimer Bub2/Bfa1 complex, is modified in a Rad53 and Dun1-dependent manner following damage ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib20",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hu et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -504,6 +985,19 @@ expression: article
               "value": {
                 "string": " shortened the duration of the arrest in response to a single unrepaired DSB ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dotiwala et al., 2010"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -540,10 +1034,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib40",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Morawska and Ulrich, 2013"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib43",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Nishimura et al., 2009"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -612,6 +1132,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib25",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 1998"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), in which the site-specific HO endonuclease is expressed from a "
@@ -669,16 +1202,55 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib21",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Kim et al., 2007"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; "
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib25",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 1998"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). At both loci, HO-mediated cleavage after galactose induction is nearly complete within 30–45 min ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib26",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 2014"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -738,6 +1310,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib39",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Moore and Haber, 1996"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), thus both DSBs are essentially irreparable."
@@ -772,6 +1357,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib25",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 1998"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), (2) by monitoring the percentage of G"
@@ -799,6 +1397,19 @@ expression: article
                   "value": {
                     "string": "), (3) by monitoring nuclear division by DAPI staining of nuclei, and (4) by assaying Rad53 phosphorylation by western blot ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib47",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Pellicioli et al., 2001"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -1235,6 +1846,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib47",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Pellicioli et al., 2001"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") In contrast, in the 2-DSB strain, over 90% of cells remained permanently arrested in G"
@@ -1292,6 +1916,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib43",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Nishimura et al., 2009"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") to conditionally deplete DDC proteins after G"
@@ -1315,16 +1952,55 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "; "
-                  }
+                  "type": "Cite",
+                  "target": "bib37",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Memisoglu et al., 2019"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib56",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Sweeney et al., 2005"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib8",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "de la Torre-Ruiz et al., 1998"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -1424,6 +2100,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib48",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Rao et al., 2010"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). IAA treatment prior to the induction of 2 DSBs in a control strain, which does not contain any AID-tagged proteins, did not alter the prolonged cell cycle arrest following DNA damage ("
@@ -1442,10 +2131,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "; "
-                  }
+                  "type": "Cite",
+                  "target": "bib47",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Pellicioli et al., 2001"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -1454,10 +2150,55 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib45",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Paciotti et al., 2000"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib16",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Emili, 1998"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib8",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "de la Torre-Ruiz et al., 1998"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -2992,16 +3733,55 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib10",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dotiwala et al., 2007"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; "
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib47",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Pellicioli et al., 2001"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Agreeing with previously published reports ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib51",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Sanchez et al., 1999"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -3825,10 +4605,36 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib11",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dotiwala et al., 2010"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). However, previous studies have shown that, in addition to Mec1, Tel1 can also target Chk1 for phosphorylation ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib28",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Limbo et al., 2011"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -3837,10 +4643,36 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib51",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Sanchez et al., 1999"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Additionally, when the initial 5’ to 3’ end resection of DSB ends is impaired, Tel1 alone can activate the DDC ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib58",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Usui and Petrini, 2007"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -3906,6 +4738,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib12",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dubrana et al., 2007"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Taken together, these data illustrate that DNA damage-dependent cell cycle arrest is initiated by Mec1 branch of the DDC via Ddc2, Rad9 and Rad24, and the cell cycle arrest is largely sustained by the downstream kinases Rad53 and Chk1, with minor contributions from other downstream targets of DDC."
@@ -3957,16 +4802,55 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "; "
-                  }
+                  "type": "Cite",
+                  "target": "bib6",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Chen et al., 2007"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib63",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Yam et al., 2020"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib66",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Zhou and Elledge, 1993"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -4448,10 +5332,36 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib37",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Memisoglu et al., 2019"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Given that Ddc2 overexpression leads to permanent cell cycle arrest following DNA damage ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib7",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Clerici et al., 2001"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -5071,6 +5981,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib64",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Yesbolatova et al., 2020"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). To this end, we integrated a TIR1-F74G point mutation and used 5-phenyl-IAA (5-Ph-IAA) instead of IAA to lower the basal degradation of AID-tagged proteins. Switching to the AID2 system did not fully restore function to "
@@ -5374,6 +6297,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib34",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "McAinsh and Kops, 2023"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). We have previously shown that inactivation of the SAC by a "
@@ -5412,6 +6348,19 @@ expression: article
                   "value": {
                     "string": " deletion shortened the duration of the cell cycle arrest induced by a single DSB ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib11",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dotiwala et al., 2010"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -7156,6 +8105,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib50",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Sadeghi et al., 2022"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). One difference between these two 2-DSB systems is the relative position of the DSBs, which might affect how SAC components become engaged, and thus might determine the extent of mitotic arrest. Supporting this, we previously showed that deleting "
@@ -7211,6 +8173,19 @@ expression: article
                   "value": {
                     "string": " when the DSB was on chromosome VI had no effect ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib11",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dotiwala et al., 2010"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -7423,6 +8398,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib25",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 1998"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "), and strain DW417, which has a second DSB 52 kb away from "
@@ -7444,6 +8432,19 @@ expression: article
                   "value": {
                     "string": " ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib26",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 2014"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -7615,6 +8616,19 @@ expression: article
                       }
                     },
                     {
+                      "type": "Cite",
+                      "target": "bib25",
+                      "citationMode": "Parenthetical",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lee et al., 1998"
+                          }
+                        }
+                      ]
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": "). GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at "
@@ -7669,16 +8683,55 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib11",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dotiwala et al., 2010"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). In budding yeast, histone H2B is also targeted by DDC kinases upon DNA damage ("
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib26",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 2014"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). To test whether the presence of these chromatin modifications around centromeres would be sufficient to elicit a SAC response, we examined cell cycle progression in strains in which both histone H2A and/or histone H2B genes were mutated to their putative phosphomimetic forms (H2A-S129E and H2B-T129E). We note that although histone H2A-S129E is recognized by an antibody specific for the phosphorylation of histone H2A-S129 ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib14",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Eapen et al., 2012"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -7851,6 +8904,19 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib47",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Pellicioli et al., 2001"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). While Rad53 is also shown to be targeted by Tel1, deleting "
@@ -7874,10 +8940,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib47",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Pellicioli et al., 2001"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib60",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Vaze et al., 2002"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -7886,16 +8978,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Bazzi et al., 2010"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib27",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Leroy et al., 2003"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib44",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "O’Neill et al., 2007"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -7932,10 +9063,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib12",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dubrana et al., 2007"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -7944,16 +9082,74 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib42",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Navadgi-Patil and Burgers, 2009"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib68",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Zou and Elledge, 2003"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib36",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Melo et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "). Before Ddc1 can activate Mec1, the 9-1-1 checkpoint clamp must be loaded by the clamp loader, which consists of Rad24-Rfc2-5 ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib36",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Melo et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -7979,10 +9175,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib3",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Aylon and Kupiec, 2003"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). If the clamp loader acts just once to load the 9-1-1 clamp and the clamp then slides away from the DSB as DNA is resected, then removal of Rad24 after the checkpoint had been robustly activated should not perturb arrest. However, we find that Rad24 depletion leads to rapid cell cycle resumption in response to 2 DSBs, suggesting that multiple 9-1-1 clamp loading events are required to sustain extended cell cycle arrest. We posit that 9-1-1 clamp may require continuous reloading as the 5’ end is being continuously resected by Exo1 and Sgs1-Rmi1-Top3-Dna2 exonucleases ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib67",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Zhu et al., 2008"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8002,16 +9224,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib16",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Emili, 1998"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib52",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Schwartz et al., 2002"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib56",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Sweeney et al., 2005"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8048,6 +9309,19 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Agarwal et al., 2003"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ")."
@@ -8063,6 +9337,19 @@ expression: article
               "value": {
                 "string": "Agreeing with previously published work ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib63",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Yam et al., 2020"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8105,16 +9392,55 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib65",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Zhao and Rothstein, 2002"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
             },
             {
+              "type": "Cite",
+              "target": "bib66",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Zhou and Elledge, 1993"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ") are stable for several hours and are sufficient to sustain the arrest even in the absence of Dun1. We also find that cell cycle arrest upon depletion of Dun1 is Chk1-dependent. These results are in consistent with Dun1’s role in stabilizing Pds1 through a Chk1-independent mechanism ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib63",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Yam et al., 2020"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8145,16 +9471,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "bib11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dotiwala et al., 2010"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib18",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Garber and Rine, 2002"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "bib22",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Kim and Burke, 2008"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8163,10 +9528,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dotiwala et al., 2010"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). SAC signaling is not sufficient to elicit a permanent cell cycle arrest in response to a single DSB; however, we find that inducing 2 DSBs, each within 100 kb of its centromere, elicits a SAC-dependent permanent arrest. As strength of the SAC has a direct relation to the number of unattached kinetochores ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib9",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dick and Gerlich, 2013"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8186,10 +9577,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib50",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Sadeghi et al., 2022"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ") can be explained by the idea that the distance between the DSB site and its corresponding centromere is an important determinant of the extent of cell cycle arrest. We previously observed that a strain with a single DSB 200 kb away from the centromere had shorter cell cycle arrest compared to a strain with a DSB 86 kb away from the centromere ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dotiwala et al., 2010"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8215,10 +9632,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dotiwala et al., 2010"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). We suggest that the strains used by "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib50",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Sadeghi et al., 2022"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8238,10 +9681,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "bib33",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Matellán and Monje-Casas, 2020"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). We examined the role of Bub2/Bfa1 heterodimer, the most upstream components of the MEN pathway ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "bib33",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Matellán and Monje-Casas, 2020"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -8321,6 +9790,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib43",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Nishimura et al., 2009"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") with "
@@ -8361,6 +9843,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib64",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Yesbolatova et al., 2020"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") was digested with "
@@ -8384,16 +9879,55 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib40",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Morawska and Ulrich, 2013"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Deletion of ORFs and insertion of AID tags were introduced with the one-step PCR homology cassette amplification and the standard yeast transformation method ("
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib61",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Wach et al., 1994"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Cas9 editing was done by inserting a gRNA into plasmid bRA90 ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib2",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Anand et al., 2017"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -8417,6 +9951,19 @@ expression: article
                   "value": {
                     "string": " locus by CRISPR/Cas9 ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib2",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Anand et al., 2017"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -8502,6 +10049,19 @@ expression: article
                   "value": {
                     "string": " (pRAD9-AID) was obtained by digesting the plasmid pFL36.1 ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib24",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lazzaro et al., 2008"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -8742,6 +10302,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib38",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Miller-Fleming et al., 2014"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "). Briefly, 15 ml of liquid culture was spun down and the media was discarded. Harvested cells were incubated on ice in 1.5 ml microcentrifuge tubes with 20% TCA for 20 min. Cells were washed with acetone and the pellet was air-dried. 200 µl of MURBs buffer (50 mM sodium phosphate, 25 mM MES, 3 M urea, 0.5% 2-mercaptoethanol, 1 mM sodium azide, and 1% SDS) was added to each sample with acid-washed glass beads. Cells were lysed by mechanical shearing with glass beads for 2 min. Crude cell lysates were harvested by poking a hole in the bottom of the 1.5 ml microcentrifuge tube and spinning the tubes on a 15 ml conical tube. Samples were boiled at 95°C for 10 min prior to loading on SDS-PAGE."
@@ -8774,6 +10347,19 @@ expression: article
                   "value": {
                     "string": "8–20 µl of denatured protein samples prepared by TCA extraction were loaded onto a 10% or 8% SDS-PAGE gels. Proteins were separated by applying constant voltage at 90 V until the 37 kDa protein standard band reached the bottom of the gel. Gels were transferred to an Immun-Blot PVDF membrane (Bio-Rad) using a wet transfer apparatus set to 100 V constant voltage for 1 hr at 4°C. Membranes were then blocked with OneBlock blocking buffer (Genesee Scientific, Cat# 20-313) for 1 hr at room temperature, After three 10 min washes with 1× TBS-T, blots were incubated with either anti-Myc [9E11] (Abcam, ab56) to detect TIR1 and AID fusions, anti-Rad53 [EL7.E1] (Abcam, ab166859), anti-Pgk1 (Abcam, ab30359), or anti-Rad9 ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib59",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Usui et al., 2009"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -8855,10 +10441,36 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "bib14",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Eapen et al., 2012"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "bib25",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lee et al., 1998"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
